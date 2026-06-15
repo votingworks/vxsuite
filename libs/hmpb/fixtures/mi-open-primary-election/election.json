@@ -887,9 +887,9 @@
     {
       "ballotStyleId": "ballot-style-1",
       "optionBoundsFromTargetMark": {
-        "top": 0.6233728943338438,
+        "top": 0.5910222052067381,
         "right": 7.005734369219386,
-        "bottom": 0.5835566615620215,
+        "bottom": 0.5518281010719754,
         "left": 0.7013195215192995
       },
       "gridPositions": [
@@ -898,7 +898,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-democratic",
           "optionId": "alice-jones"
         },
@@ -907,7 +907,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-democratic",
           "optionId": "bob-smith"
         },
@@ -916,7 +916,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 13.861026033690658,
+          "row": 13.700516845329249,
           "contestId": "governor-democratic",
           "optionId": "carol-white"
         },
@@ -925,7 +925,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 14.936064318529862,
+          "row": 14.711475880551301,
           "contestId": "governor-democratic",
           "optionId": "dan-rivera"
         },
@@ -934,7 +934,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 16.011102603369064,
+          "row": 15.722434915773352,
           "contestId": "governor-democratic",
           "optionId": "emily-tran"
         },
@@ -943,12 +943,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 17.1520865237366,
+          "row": 16.799339586523736,
           "contestId": "governor-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.6520865237366,
+            "y": 16.299339586523736,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -958,7 +958,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 19.60887251148545,
+          "row": 19.192046324655436,
           "contestId": "secretary-of-state-democratic",
           "optionId": "james-martin"
         },
@@ -967,7 +967,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 20.683910796324653,
+          "row": 20.203005359877487,
           "contestId": "secretary-of-state-democratic",
           "optionId": "karen-ross"
         },
@@ -976,12 +976,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 21.82489471669219,
+          "row": 21.27991003062787,
           "contestId": "secretary-of-state-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 21.32489471669219,
+            "y": 20.77991003062787,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -991,7 +991,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 24.28168070444104,
+          "row": 23.67261676875957,
           "contestId": "attorney-general-democratic",
           "optionId": "patricia-young"
         },
@@ -1000,7 +1000,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 25.356718989280242,
+          "row": 24.683575803981622,
           "contestId": "attorney-general-democratic",
           "optionId": "quinn-adams"
         },
@@ -1009,7 +1009,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 26.431757274119448,
+          "row": 25.694534839203673,
           "contestId": "attorney-general-democratic",
           "optionId": "rosa-delgado"
         },
@@ -1018,12 +1018,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 27.57274119448698,
+          "row": 26.771439509954057,
           "contestId": "attorney-general-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 27.07274119448698,
+            "y": 26.271439509954057,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1033,7 +1033,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 32.20200038284839,
+          "row": 31.336619448698315,
           "contestId": "us-rep-democratic",
           "optionId": "victor-lane"
         },
@@ -1042,7 +1042,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 33.27703866768759,
+          "row": 32.347578483920365,
           "contestId": "us-rep-democratic",
           "optionId": "wendy-fox"
         },
@@ -1051,7 +1051,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 34.3520769525268,
+          "row": 33.358537519142416,
           "contestId": "us-rep-democratic",
           "optionId": "xavier-cruz"
         },
@@ -1060,7 +1060,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 35.427115237366,
+          "row": 34.36949655436447,
           "contestId": "us-rep-democratic",
           "optionId": "yvette-hall"
         },
@@ -1069,12 +1069,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 36.568099157733535,
+          "row": 35.446401225114855,
           "contestId": "us-rep-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 36.068099157733535,
+            "y": 34.946401225114855,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1084,7 +1084,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 40.61380168453292,
+          "row": 39.42802450229709,
           "contestId": "state-rep-democratic",
           "optionId": "eva-grant"
         },
@@ -1093,7 +1093,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 41.688839969372125,
+          "row": 40.43898353751914,
           "contestId": "state-rep-democratic",
           "optionId": "felix-dunn"
         },
@@ -1102,7 +1102,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 42.76387825421133,
+          "row": 41.44994257274119,
           "contestId": "state-rep-democratic",
           "optionId": "gloria-soto"
         },
@@ -1111,12 +1111,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 43.90486217457887,
+          "row": 42.526847243491574,
           "contestId": "state-rep-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 43.40486217457887,
+            "y": 42.026847243491574,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1126,7 +1126,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-republican",
           "optionId": "dave-wilson"
         },
@@ -1135,7 +1135,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-republican",
           "optionId": "ellen-brown"
         },
@@ -1144,7 +1144,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 13.861026033690658,
+          "row": 13.700516845329249,
           "contestId": "governor-republican",
           "optionId": "frank-lee"
         },
@@ -1153,12 +1153,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 15.002009954058192,
+          "row": 14.777421516079631,
           "contestId": "governor-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 14.502009954058192,
+            "y": 14.277421516079631,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1168,7 +1168,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 17.458795941807043,
+          "row": 17.17012825421133,
           "contestId": "secretary-of-state-republican",
           "optionId": "larry-chen"
         },
@@ -1177,7 +1177,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 18.533834226646245,
+          "row": 18.181087289433382,
           "contestId": "secretary-of-state-republican",
           "optionId": "maria-garcia"
         },
@@ -1186,7 +1186,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 19.60887251148545,
+          "row": 19.192046324655436,
           "contestId": "secretary-of-state-republican",
           "optionId": "noah-pham"
         },
@@ -1195,7 +1195,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 20.683910796324653,
+          "row": 20.203005359877487,
           "contestId": "secretary-of-state-republican",
           "optionId": "rachel-ford"
         },
@@ -1204,12 +1204,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 21.82489471669219,
+          "row": 21.27991003062787,
           "contestId": "secretary-of-state-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 21.32489471669219,
+            "y": 20.77991003062787,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1219,7 +1219,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 24.28168070444104,
+          "row": 23.67261676875957,
           "contestId": "attorney-general-republican",
           "optionId": "robert-king"
         },
@@ -1228,7 +1228,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 25.356718989280242,
+          "row": 24.683575803981622,
           "contestId": "attorney-general-republican",
           "optionId": "susan-price"
         },
@@ -1237,12 +1237,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 26.497702909647778,
+          "row": 25.760480474732006,
           "contestId": "attorney-general-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 25.997702909647778,
+            "y": 25.260480474732006,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1252,7 +1252,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 30.543405436447166,
+          "row": 29.74210375191424,
           "contestId": "us-rep-republican",
           "optionId": "yolanda-webb"
         },
@@ -1261,7 +1261,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 31.61844372128637,
+          "row": 30.753062787136294,
           "contestId": "us-rep-republican",
           "optionId": "zachary-stone"
         },
@@ -1270,12 +1270,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 32.7594276416539,
+          "row": 31.829967457886674,
           "contestId": "us-rep-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 32.2594276416539,
+            "y": 31.329967457886674,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1285,7 +1285,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 36.80513016845329,
+          "row": 35.81159073506891,
           "contestId": "state-rep-republican",
           "optionId": "gina-wolfe"
         },
@@ -1294,7 +1294,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 37.88016845329249,
+          "row": 36.82254977029096,
           "contestId": "state-rep-republican",
           "optionId": "harold-vega"
         },
@@ -1303,12 +1303,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 39.02115237366003,
+          "row": 37.89945444104134,
           "contestId": "state-rep-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 38.52115237366003,
+            "y": 37.39945444104134,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1318,7 +1318,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-libertarian",
           "optionId": "grace-kim"
         },
@@ -1327,7 +1327,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-libertarian",
           "optionId": "henry-park"
         },
@@ -1336,12 +1336,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 13.926971669218988,
+          "row": 13.76646248085758,
           "contestId": "governor-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 13.426971669218988,
+            "y": 13.26646248085758,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1351,7 +1351,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 16.38375765696784,
+          "row": 16.15916921898928,
           "contestId": "secretary-of-state-libertarian",
           "optionId": "nathan-brooks"
         },
@@ -1360,12 +1360,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 17.524741577335373,
+          "row": 17.23607388973966,
           "contestId": "secretary-of-state-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 17.024741577335373,
+            "y": 16.73607388973966,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1375,7 +1375,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 19.981527565084225,
+          "row": 19.62878062787136,
           "contestId": "attorney-general-libertarian",
           "optionId": "thomas-reed"
         },
@@ -1384,7 +1384,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 21.05656584992343,
+          "row": 20.639739663093415,
           "contestId": "attorney-general-libertarian",
           "optionId": "uma-patel"
         },
@@ -1393,7 +1393,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 22.131604134762632,
+          "row": 21.650698698315466,
           "contestId": "attorney-general-libertarian",
           "optionId": "vincent-shaw"
         },
@@ -1402,12 +1402,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 23.272588055130168,
+          "row": 22.72760336906585,
           "contestId": "attorney-general-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 22.772588055130168,
+            "y": 22.22760336906585,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1417,7 +1417,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 27.318290581929553,
+          "row": 26.709226646248084,
           "contestId": "us-rep-libertarian",
           "optionId": "brian-cole"
         },
@@ -1426,7 +1426,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 28.39332886676876,
+          "row": 27.720185681470138,
           "contestId": "us-rep-libertarian",
           "optionId": "claire-nash"
         },
@@ -1435,7 +1435,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 29.46836715160796,
+          "row": 28.73114471669219,
           "contestId": "us-rep-libertarian",
           "optionId": "derek-moss"
         },
@@ -1444,12 +1444,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 30.609351071975496,
+          "row": 29.808049387442573,
           "contestId": "us-rep-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 30.109351071975496,
+            "y": 29.308049387442573,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1459,7 +1459,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 34.655053598774884,
+          "row": 33.78967266462481,
           "contestId": "state-rep-libertarian",
           "optionId": "iris-quinn"
         },
@@ -1468,12 +1468,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 35.796037519142416,
+          "row": 34.86657733537519,
           "contestId": "state-rep-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 35.296037519142416,
+            "y": 34.36657733537519,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1483,7 +1483,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 8.404957886676875,
+          "row": 8.37260719754977,
           "contestId": "circuit-court-judge",
           "optionId": "margaret-chen"
         },
@@ -1492,7 +1492,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 9.47999617151608,
+          "row": 9.383566232771821,
           "contestId": "circuit-court-judge",
           "optionId": "donald-harper"
         },
@@ -1501,7 +1501,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 10.555034456355283,
+          "row": 10.394525267993874,
           "contestId": "circuit-court-judge",
           "optionId": "lisa-ramirez"
         },
@@ -1510,12 +1510,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 11.696018376722817,
+          "row": 11.471429938744256,
           "contestId": "circuit-court-judge",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 11.196018376722817,
+            "y": 10.971429938744256,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1525,7 +1525,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 14.152804364471669,
+          "row": 13.864136676875956,
           "contestId": "probate-court-judge",
           "optionId": "roger-mills"
         },
@@ -1534,7 +1534,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 15.227842649310873,
+          "row": 14.875095712098009,
           "contestId": "probate-court-judge",
           "optionId": "sandra-cook"
         },
@@ -1543,12 +1543,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 16.368826569678408,
+          "row": 15.952000382848391,
           "contestId": "probate-court-judge",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 15.868826569678408,
+            "y": 15.452000382848391,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1558,7 +1558,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 20.35604900459418,
+          "row": 19.875143568147013,
           "contestId": "school-board",
           "optionId": "angela-morris"
         },
@@ -1567,7 +1567,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 21.431087289433382,
+          "row": 20.886102603369064,
           "contestId": "school-board",
           "optionId": "bruce-newton"
         },
@@ -1576,7 +1576,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 22.506125574272588,
+          "row": 21.897061638591115,
           "contestId": "school-board",
           "optionId": "carmen-ortiz"
         },
@@ -1585,7 +1585,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 23.58116385911179,
+          "row": 22.90802067381317,
           "contestId": "school-board",
           "optionId": "dwight-perry"
         },
@@ -1594,12 +1594,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 24.722147779479325,
+          "row": 23.984925344563553,
           "contestId": "school-board",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 24.222147779479325,
+            "y": 23.484925344563553,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1609,12 +1609,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 25.92907733537519,
+          "row": 25.127775650842263,
           "contestId": "school-board",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 25.42907733537519,
+            "y": 24.627775650842263,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1624,7 +1624,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 38.04129977029096,
+          "row": 37.17591883614089,
           "contestId": "ballot-measure-1",
           "optionId": "ballot-measure-1-yes"
         },
@@ -1633,7 +1633,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 39.116338055130164,
+          "row": 38.18687787136294,
           "contestId": "ballot-measure-1",
           "optionId": "ballot-measure-1-no"
         },
@@ -1642,7 +1642,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 7.670223966309341,
+          "row": 7.637873277182235,
           "contestId": "county-commissioner-democratic",
           "optionId": "kelly-marsh"
         },
@@ -1651,7 +1651,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 8.745262251148544,
+          "row": 8.648832312404288,
           "contestId": "county-commissioner-democratic",
           "optionId": "liam-foster"
         },
@@ -1660,7 +1660,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 9.820300535987748,
+          "row": 9.659791347626339,
           "contestId": "county-commissioner-democratic",
           "optionId": "mona-sharp"
         },
@@ -1669,7 +1669,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 10.895338820826952,
+          "row": 10.670750382848391,
           "contestId": "county-commissioner-democratic",
           "optionId": "neil-cross"
         },
@@ -1678,7 +1678,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 11.970377105666156,
+          "row": 11.681709418070444,
           "contestId": "county-commissioner-democratic",
           "optionId": "opal-burke"
         },
@@ -1687,12 +1687,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 13.11136102603369,
+          "row": 12.758614088820826,
           "contestId": "county-commissioner-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 12.61136102603369,
+            "y": 12.258614088820826,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1702,12 +1702,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 14.318290581929555,
+          "row": 13.90146439509954,
           "contestId": "county-commissioner-democratic",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 13.818290581929555,
+            "y": 13.40146439509954,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1717,12 +1717,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 17.46439509954058,
+          "row": 16.983489663093415,
           "contestId": "delegate-convention-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.96439509954058,
+            "y": 16.483489663093415,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1732,12 +1732,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 18.671324655436447,
+          "row": 18.12633996937213,
           "contestId": "delegate-convention-democratic",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 18.171324655436447,
+            "y": 17.62633996937213,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1747,12 +1747,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 19.87825421133231,
+          "row": 19.269190275650843,
           "contestId": "delegate-convention-democratic",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 19.37825421133231,
+            "y": 18.769190275650843,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1762,7 +1762,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 7.670223966309341,
+          "row": 7.637873277182235,
           "contestId": "county-commissioner-republican",
           "optionId": "owen-blake"
         },
@@ -1771,7 +1771,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 8.745262251148544,
+          "row": 8.648832312404288,
           "contestId": "county-commissioner-republican",
           "optionId": "penny-tate"
         },
@@ -1780,7 +1780,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 9.820300535987748,
+          "row": 9.659791347626339,
           "contestId": "county-commissioner-republican",
           "optionId": "roy-simms"
         },
@@ -1789,12 +1789,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 10.961284456355283,
+          "row": 10.736696018376723,
           "contestId": "county-commissioner-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 10.461284456355283,
+            "y": 10.236696018376723,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1804,12 +1804,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 12.168214012251148,
+          "row": 11.879546324655436,
           "contestId": "county-commissioner-republican",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 11.668214012251148,
+            "y": 11.379546324655436,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1819,12 +1819,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 15.314318529862174,
+          "row": 14.96157159264931,
           "contestId": "delegate-convention-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 14.814318529862174,
+            "y": 14.46157159264931,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1834,12 +1834,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 16.52124808575804,
+          "row": 16.104421898928024,
           "contestId": "delegate-convention-republican",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 16.02124808575804,
+            "y": 15.604421898928024,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1849,7 +1849,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 7.670223966309341,
+          "row": 7.637873277182235,
           "contestId": "county-commissioner-libertarian",
           "optionId": "tina-drake"
         },
@@ -1858,7 +1858,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 8.745262251148544,
+          "row": 8.648832312404288,
           "contestId": "county-commissioner-libertarian",
           "optionId": "ulric-fenn"
         },
@@ -1867,7 +1867,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 9.820300535987748,
+          "row": 9.659791347626339,
           "contestId": "county-commissioner-libertarian",
           "optionId": "vera-gold"
         },
@@ -1876,7 +1876,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 10.895338820826952,
+          "row": 10.670750382848391,
           "contestId": "county-commissioner-libertarian",
           "optionId": "wade-knoll"
         },
@@ -1885,12 +1885,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 12.036322741194486,
+          "row": 11.747655053598773,
           "contestId": "county-commissioner-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 11.536322741194486,
+            "y": 11.247655053598773,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1900,12 +1900,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 13.243252297090352,
+          "row": 12.890505359877487,
           "contestId": "county-commissioner-libertarian",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 12.743252297090352,
+            "y": 12.390505359877487,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1915,12 +1915,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 16.389356814701376,
+          "row": 15.972530627871363,
           "contestId": "delegate-convention-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 15.889356814701376,
+            "y": 15.472530627871363,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1930,12 +1930,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 17.59628637059724,
+          "row": 17.115380934150075,
           "contestId": "delegate-convention-libertarian",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 17.09628637059724,
+            "y": 16.615380934150075,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -1945,7 +1945,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 12.008949081163859,
+          "row": 11.976598392036752,
           "contestId": "ballot-measure-2",
           "optionId": "ballot-measure-2-yes"
         },
@@ -1954,7 +1954,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 13.083987366003061,
+          "row": 12.987557427258805,
           "contestId": "ballot-measure-2",
           "optionId": "ballot-measure-2-no"
         },
@@ -1963,7 +1963,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 21.54431470137825,
+          "row": 21.383805513016846,
           "contestId": "ballot-measure-3",
           "optionId": "ballot-measure-3-yes"
         },
@@ -1972,7 +1972,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 22.619352986217457,
+          "row": 22.394764548238896,
           "contestId": "ballot-measure-3",
           "optionId": "ballot-measure-3-no"
         }
@@ -1981,9 +1981,9 @@
     {
       "ballotStyleId": "ballot-style-2",
       "optionBoundsFromTargetMark": {
-        "top": 0.6233728943338438,
+        "top": 0.5910222052067381,
         "right": 7.005734369219386,
-        "bottom": 0.5835566615620215,
+        "bottom": 0.5518281010719754,
         "left": 0.7013195215192995
       },
       "gridPositions": [
@@ -1992,7 +1992,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-democratic",
           "optionId": "alice-jones"
         },
@@ -2001,7 +2001,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-democratic",
           "optionId": "bob-smith"
         },
@@ -2010,7 +2010,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 13.861026033690658,
+          "row": 13.700516845329249,
           "contestId": "governor-democratic",
           "optionId": "carol-white"
         },
@@ -2019,7 +2019,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 14.936064318529862,
+          "row": 14.711475880551301,
           "contestId": "governor-democratic",
           "optionId": "dan-rivera"
         },
@@ -2028,7 +2028,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 16.011102603369064,
+          "row": 15.722434915773352,
           "contestId": "governor-democratic",
           "optionId": "emily-tran"
         },
@@ -2037,12 +2037,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 17.1520865237366,
+          "row": 16.799339586523736,
           "contestId": "governor-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.6520865237366,
+            "y": 16.299339586523736,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2052,7 +2052,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 19.60887251148545,
+          "row": 19.192046324655436,
           "contestId": "secretary-of-state-democratic",
           "optionId": "james-martin"
         },
@@ -2061,7 +2061,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 20.683910796324653,
+          "row": 20.203005359877487,
           "contestId": "secretary-of-state-democratic",
           "optionId": "karen-ross"
         },
@@ -2070,12 +2070,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 21.82489471669219,
+          "row": 21.27991003062787,
           "contestId": "secretary-of-state-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 21.32489471669219,
+            "y": 20.77991003062787,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2085,7 +2085,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 24.28168070444104,
+          "row": 23.67261676875957,
           "contestId": "attorney-general-democratic",
           "optionId": "patricia-young"
         },
@@ -2094,7 +2094,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 25.356718989280242,
+          "row": 24.683575803981622,
           "contestId": "attorney-general-democratic",
           "optionId": "quinn-adams"
         },
@@ -2103,7 +2103,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 26.431757274119448,
+          "row": 25.694534839203673,
           "contestId": "attorney-general-democratic",
           "optionId": "rosa-delgado"
         },
@@ -2112,12 +2112,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 27.57274119448698,
+          "row": 26.771439509954057,
           "contestId": "attorney-general-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 27.07274119448698,
+            "y": 26.271439509954057,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2127,7 +2127,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 32.20200038284839,
+          "row": 31.336619448698315,
           "contestId": "us-rep-democratic",
           "optionId": "victor-lane"
         },
@@ -2136,7 +2136,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 33.27703866768759,
+          "row": 32.347578483920365,
           "contestId": "us-rep-democratic",
           "optionId": "wendy-fox"
         },
@@ -2145,7 +2145,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 34.3520769525268,
+          "row": 33.358537519142416,
           "contestId": "us-rep-democratic",
           "optionId": "xavier-cruz"
         },
@@ -2154,7 +2154,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 35.427115237366,
+          "row": 34.36949655436447,
           "contestId": "us-rep-democratic",
           "optionId": "yvette-hall"
         },
@@ -2163,12 +2163,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 36.568099157733535,
+          "row": 35.446401225114855,
           "contestId": "us-rep-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 36.068099157733535,
+            "y": 34.946401225114855,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2178,7 +2178,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 40.61380168453292,
+          "row": 39.42802450229709,
           "contestId": "state-rep-democratic",
           "optionId": "eva-grant"
         },
@@ -2187,7 +2187,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 41.688839969372125,
+          "row": 40.43898353751914,
           "contestId": "state-rep-democratic",
           "optionId": "felix-dunn"
         },
@@ -2196,7 +2196,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 42.76387825421133,
+          "row": 41.44994257274119,
           "contestId": "state-rep-democratic",
           "optionId": "gloria-soto"
         },
@@ -2205,12 +2205,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.6563078061413246,
-          "row": 43.90486217457887,
+          "row": 42.526847243491574,
           "contestId": "state-rep-democratic",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 43.40486217457887,
+            "y": 42.026847243491574,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2220,7 +2220,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-republican",
           "optionId": "dave-wilson"
         },
@@ -2229,7 +2229,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-republican",
           "optionId": "ellen-brown"
         },
@@ -2238,7 +2238,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 13.861026033690658,
+          "row": 13.700516845329249,
           "contestId": "governor-republican",
           "optionId": "frank-lee"
         },
@@ -2247,12 +2247,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 15.002009954058192,
+          "row": 14.777421516079631,
           "contestId": "governor-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 14.502009954058192,
+            "y": 14.277421516079631,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2262,7 +2262,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 17.458795941807043,
+          "row": 17.17012825421133,
           "contestId": "secretary-of-state-republican",
           "optionId": "larry-chen"
         },
@@ -2271,7 +2271,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 18.533834226646245,
+          "row": 18.181087289433382,
           "contestId": "secretary-of-state-republican",
           "optionId": "maria-garcia"
         },
@@ -2280,7 +2280,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 19.60887251148545,
+          "row": 19.192046324655436,
           "contestId": "secretary-of-state-republican",
           "optionId": "noah-pham"
         },
@@ -2289,7 +2289,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 20.683910796324653,
+          "row": 20.203005359877487,
           "contestId": "secretary-of-state-republican",
           "optionId": "rachel-ford"
         },
@@ -2298,12 +2298,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 21.82489471669219,
+          "row": 21.27991003062787,
           "contestId": "secretary-of-state-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 21.32489471669219,
+            "y": 20.77991003062787,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2313,7 +2313,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 24.28168070444104,
+          "row": 23.67261676875957,
           "contestId": "attorney-general-republican",
           "optionId": "robert-king"
         },
@@ -2322,7 +2322,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 25.356718989280242,
+          "row": 24.683575803981622,
           "contestId": "attorney-general-republican",
           "optionId": "susan-price"
         },
@@ -2331,12 +2331,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 26.497702909647778,
+          "row": 25.760480474732006,
           "contestId": "attorney-general-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 25.997702909647778,
+            "y": 25.260480474732006,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2346,7 +2346,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 30.543405436447166,
+          "row": 29.74210375191424,
           "contestId": "us-rep-republican",
           "optionId": "yolanda-webb"
         },
@@ -2355,7 +2355,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 31.61844372128637,
+          "row": 30.753062787136294,
           "contestId": "us-rep-republican",
           "optionId": "zachary-stone"
         },
@@ -2364,12 +2364,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 32.7594276416539,
+          "row": 31.829967457886674,
           "contestId": "us-rep-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 32.2594276416539,
+            "y": 31.329967457886674,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2379,7 +2379,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 36.80513016845329,
+          "row": 35.81159073506891,
           "contestId": "state-rep-republican",
           "optionId": "gina-wolfe"
         },
@@ -2388,7 +2388,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 37.88016845329249,
+          "row": 36.82254977029096,
           "contestId": "state-rep-republican",
           "optionId": "harold-vega"
         },
@@ -2397,12 +2397,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 9.40677025527192,
-          "row": 39.02115237366003,
+          "row": 37.89945444104134,
           "contestId": "state-rep-republican",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 38.52115237366003,
+            "y": 37.39945444104134,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2412,7 +2412,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 11.71094946401225,
+          "row": 11.678598774885145,
           "contestId": "governor-libertarian",
           "optionId": "grace-kim"
         },
@@ -2421,7 +2421,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 12.785987748851454,
+          "row": 12.689557810107196,
           "contestId": "governor-libertarian",
           "optionId": "henry-park"
         },
@@ -2430,12 +2430,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 13.926971669218988,
+          "row": 13.76646248085758,
           "contestId": "governor-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 13.426971669218988,
+            "y": 13.26646248085758,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2445,7 +2445,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 16.38375765696784,
+          "row": 16.15916921898928,
           "contestId": "secretary-of-state-libertarian",
           "optionId": "nathan-brooks"
         },
@@ -2454,12 +2454,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 17.524741577335373,
+          "row": 17.23607388973966,
           "contestId": "secretary-of-state-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 17.024741577335373,
+            "y": 16.73607388973966,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2469,7 +2469,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 19.981527565084225,
+          "row": 19.62878062787136,
           "contestId": "attorney-general-libertarian",
           "optionId": "thomas-reed"
         },
@@ -2478,7 +2478,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 21.05656584992343,
+          "row": 20.639739663093415,
           "contestId": "attorney-general-libertarian",
           "optionId": "uma-patel"
         },
@@ -2487,7 +2487,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 22.131604134762632,
+          "row": 21.650698698315466,
           "contestId": "attorney-general-libertarian",
           "optionId": "vincent-shaw"
         },
@@ -2496,12 +2496,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 23.272588055130168,
+          "row": 22.72760336906585,
           "contestId": "attorney-general-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 22.772588055130168,
+            "y": 22.22760336906585,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2511,7 +2511,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 27.318290581929553,
+          "row": 26.709226646248084,
           "contestId": "us-rep-libertarian",
           "optionId": "brian-cole"
         },
@@ -2520,7 +2520,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 28.39332886676876,
+          "row": 27.720185681470138,
           "contestId": "us-rep-libertarian",
           "optionId": "claire-nash"
         },
@@ -2529,7 +2529,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 29.46836715160796,
+          "row": 28.73114471669219,
           "contestId": "us-rep-libertarian",
           "optionId": "derek-moss"
         },
@@ -2538,12 +2538,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 30.609351071975496,
+          "row": 29.808049387442573,
           "contestId": "us-rep-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 30.109351071975496,
+            "y": 29.308049387442573,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2553,7 +2553,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 34.655053598774884,
+          "row": 33.78967266462481,
           "contestId": "state-rep-libertarian",
           "optionId": "iris-quinn"
         },
@@ -2562,12 +2562,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 17.200641262794427,
-          "row": 35.796037519142416,
+          "row": 34.86657733537519,
           "contestId": "state-rep-libertarian",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 35.296037519142416,
+            "y": 34.36657733537519,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2577,7 +2577,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 8.404957886676875,
+          "row": 8.37260719754977,
           "contestId": "circuit-court-judge",
           "optionId": "margaret-chen"
         },
@@ -2586,7 +2586,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 9.47999617151608,
+          "row": 9.383566232771821,
           "contestId": "circuit-court-judge",
           "optionId": "donald-harper"
         },
@@ -2595,7 +2595,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 10.555034456355283,
+          "row": 10.394525267993874,
           "contestId": "circuit-court-judge",
           "optionId": "lisa-ramirez"
         },
@@ -2604,12 +2604,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 11.696018376722817,
+          "row": 11.471429938744256,
           "contestId": "circuit-court-judge",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 11.196018376722817,
+            "y": 10.971429938744256,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2619,7 +2619,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 14.152804364471669,
+          "row": 13.864136676875956,
           "contestId": "probate-court-judge",
           "optionId": "roger-mills"
         },
@@ -2628,7 +2628,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 15.227842649310873,
+          "row": 14.875095712098009,
           "contestId": "probate-court-judge",
           "optionId": "sandra-cook"
         },
@@ -2637,12 +2637,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 16.368826569678408,
+          "row": 15.952000382848391,
           "contestId": "probate-court-judge",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 15.868826569678408,
+            "y": 15.452000382848391,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2652,7 +2652,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 20.35604900459418,
+          "row": 19.875143568147013,
           "contestId": "school-board-south",
           "optionId": "harper-rhodes"
         },
@@ -2661,7 +2661,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 21.431087289433382,
+          "row": 20.886102603369064,
           "contestId": "school-board-south",
           "optionId": "iris-lamb"
         },
@@ -2670,7 +2670,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 22.506125574272588,
+          "row": 21.897061638591115,
           "contestId": "school-board-south",
           "optionId": "jack-munoz"
         },
@@ -2679,12 +2679,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 23.64710949464012,
+          "row": 22.9739663093415,
           "contestId": "school-board-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 23.14710949464012,
+            "y": 22.4739663093415,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2694,12 +2694,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 24.854039050535988,
+          "row": 24.116816615620213,
           "contestId": "school-board-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 25.59519052904181,
-            "y": 24.354039050535988,
+            "y": 23.616816615620213,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2709,7 +2709,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 36.96626148545176,
+          "row": 36.16495980091884,
           "contestId": "ballot-measure-1-south",
           "optionId": "ballot-measure-1-yes-south"
         },
@@ -2718,7 +2718,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 24.995190529041807,
-          "row": 38.04129977029096,
+          "row": 37.17591883614089,
           "contestId": "ballot-measure-1-south",
           "optionId": "ballot-measure-1-no-south"
         },
@@ -2727,7 +2727,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 8.253780627871363,
+          "row": 8.221429938744256,
           "contestId": "county-commissioner-democratic-south",
           "optionId": "ada-reeves"
         },
@@ -2736,7 +2736,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 9.328818912710567,
+          "row": 9.232388973966309,
           "contestId": "county-commissioner-democratic-south",
           "optionId": "ben-hoyt"
         },
@@ -2745,7 +2745,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 10.403857197549769,
+          "row": 10.243348009188361,
           "contestId": "county-commissioner-democratic-south",
           "optionId": "cara-lynd"
         },
@@ -2754,12 +2754,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 11.544841117917304,
+          "row": 11.320252679938744,
           "contestId": "county-commissioner-democratic-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 11.044841117917304,
+            "y": 10.820252679938744,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2769,12 +2769,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 12.75177067381317,
+          "row": 12.463102986217457,
           "contestId": "county-commissioner-democratic-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 12.25177067381317,
+            "y": 11.963102986217457,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2784,12 +2784,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 15.897875191424195,
+          "row": 15.545128254211331,
           "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 15.397875191424195,
+            "y": 15.045128254211331,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2799,12 +2799,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 17.10480474732006,
+          "row": 16.687978560490045,
           "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 16.60480474732006,
+            "y": 16.187978560490045,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2814,12 +2814,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.6563078061413246,
-          "row": 18.311734303215925,
+          "row": 17.83082886676876,
           "contestId": "delegate-convention-democratic-south",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 2.2563078061413244,
-            "y": 17.811734303215925,
+            "y": 17.33082886676876,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2829,7 +2829,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 8.253780627871363,
+          "row": 8.221429938744256,
           "contestId": "county-commissioner-republican-south",
           "optionId": "dean-strode"
         },
@@ -2838,7 +2838,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 9.328818912710567,
+          "row": 9.232388973966309,
           "contestId": "county-commissioner-republican-south",
           "optionId": "erin-vale"
         },
@@ -2847,12 +2847,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 10.4698028330781,
+          "row": 10.309293644716691,
           "contestId": "county-commissioner-republican-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 9.9698028330781,
+            "y": 9.809293644716691,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2862,12 +2862,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 11.676732388973965,
+          "row": 11.452143950995405,
           "contestId": "county-commissioner-republican-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 11.176732388973965,
+            "y": 10.952143950995405,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2877,12 +2877,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 14.82283690658499,
+          "row": 14.534169218989279,
           "contestId": "delegate-convention-republican-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 14.32283690658499,
+            "y": 14.034169218989279,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2892,12 +2892,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 9.40677025527192,
-          "row": 16.029766462480858,
+          "row": 15.677019525267992,
           "contestId": "delegate-convention-republican-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 10.00677025527192,
-            "y": 15.529766462480858,
+            "y": 15.177019525267992,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2907,7 +2907,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 8.253780627871363,
+          "row": 8.221429938744256,
           "contestId": "county-commissioner-libertarian-south",
           "optionId": "finn-oakes"
         },
@@ -2916,7 +2916,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 9.328818912710567,
+          "row": 9.232388973966309,
           "contestId": "county-commissioner-libertarian-south",
           "optionId": "gina-platt"
         },
@@ -2925,12 +2925,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 10.4698028330781,
+          "row": 10.309293644716691,
           "contestId": "county-commissioner-libertarian-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 9.9698028330781,
+            "y": 9.809293644716691,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2940,12 +2940,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 11.676732388973965,
+          "row": 11.452143950995405,
           "contestId": "county-commissioner-libertarian-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 11.176732388973965,
+            "y": 10.952143950995405,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2955,12 +2955,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 14.82283690658499,
+          "row": 14.534169218989279,
           "contestId": "delegate-convention-libertarian-south",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 14.32283690658499,
+            "y": 14.034169218989279,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2970,12 +2970,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.200641262794427,
-          "row": 16.029766462480858,
+          "row": 15.677019525267992,
           "contestId": "delegate-convention-libertarian-south",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 17.80064126279443,
-            "y": 15.529766462480858,
+            "y": 15.177019525267992,
             "width": 6.300000000000001,
             "height": 1
           }
@@ -2985,7 +2985,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 12.650985834609495,
+          "row": 12.618635145482388,
           "contestId": "ballot-measure-2-south",
           "optionId": "ballot-measure-2-yes-south"
         },
@@ -2994,7 +2994,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 13.726024119448697,
+          "row": 13.62959418070444,
           "contestId": "ballot-measure-2-south",
           "optionId": "ballot-measure-2-no-south"
         },
@@ -3003,7 +3003,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 22.828388208269523,
+          "row": 22.667879019908113,
           "contestId": "ballot-measure-3-south",
           "optionId": "ballot-measure-3-yes-south"
         },
@@ -3012,7 +3012,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 24.995190529041807,
-          "row": 23.90342649310873,
+          "row": 23.678838055130168,
           "contestId": "ballot-measure-3-south",
           "optionId": "ballot-measure-3-no-south"
         }
