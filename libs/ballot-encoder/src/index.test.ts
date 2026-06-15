@@ -1,49 +1,27 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneralDefinition as readElectionDefinition } from '@votingworks/fixtures';
 import {
-  BallotStyleId,
   BallotType,
-  BallotTypeMaximumValue,
-  CompletedBallot,
+  Candidate,
+  CandidateContest,
   getContests,
   HmpbBallotPageMetadata,
-  isVotePresent,
   vote,
   VotesDict,
 } from '@votingworks/types';
-import { BitReader, BitWriter } from './bits';
 import {
-  decodeSinglePageSummaryBallot,
   decodeBallotHash,
   isVxBallot,
   BALLOT_HASH_ENCODING_LENGTH,
-  encodeSinglePageSummaryBallot,
-  encodeSinglePageSummaryBallotInto,
-  HexEncoding,
-  MAXIMUM_WRITE_IN_LENGTH,
   SummaryBallotPrelude,
-  SummaryBallotPrelude,
-  WriteInEncoding,
   sliceBallotHashForEncoding,
-  encodeBallotConfigInto,
   encodeHmpbBallotPageMetadata,
-  decodeBallotHashFromReader,
-  decodeSinglePageSummaryBallotConfigFromReader,
-  MAXIMUM_PRECINCTS,
-  MAXIMUM_BALLOT_STYLES,
-  isSummaryBallot,
   encodeSummaryBallotPage,
+  encodeSummaryBallotPageInto,
   decodeSummaryBallotPage,
   SummaryBallotPage,
 } from '.';
-
-const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
-  BallotType.Precinct
-);
-
-function falses(count: number): boolean[] {
-  return Array.from({ length: count }, () => false);
-}
+import { BitWriter } from './bits';
 
 test('sliceBallotHashForEncoding', () => {
   expect(sliceBallotHashForEncoding('0000000000000000000000000')).toEqual(
@@ -58,622 +36,6 @@ test('can detect an encoded ballot', () => {
   expect(
     isVxBallot(Uint8Array.of(...SummaryBallotPrelude.slice(0, -2)))
   ).toEqual(false);
-});
-
-test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  expect(
-    decodeSinglePageSummaryBallot(
-      electionDefinition,
-      encodeSinglePageSummaryBallot(election, ballot)
-    )
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes empty votes correctly', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes whether it is a test ballot', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: true,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(true)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes the ballot type', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const absenteeBallotTypeIndex = Object.values(BallotType).indexOf(
-    BallotType.Absentee
-  );
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: true,
-    ballotType: BallotType.Absentee,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(true)
-    // ballot type
-    .writeUint(absenteeBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes yesno votes correctly', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
-    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
-    'judicial-elmer-hull': ['judicial-elmer-hull-option-yes'],
-    'question-a': ['question-a-option-yes'],
-    'question-b': ['question-b-option-no'],
-    'question-c': ['question-c-option-yes'],
-    'proposition-1': [],
-    'measure-101': ['measure-101-option-no'],
-    '102': ['measure-102-option-yes'],
-  });
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call
-    .writeBoolean(
-      ...contests.map((contest) => isVotePresent(votes[contest.id]))
-    )
-    // vote data
-    .writeBoolean(true)
-    .writeBoolean(true)
-    .writeBoolean(true)
-    .writeBoolean(false)
-    .writeBoolean(true)
-    .writeBoolean(false)
-    .writeBoolean(true)
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    encodeSinglePageSummaryBallot(
-      election,
-      decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-    )
-  ).toEqual(encodedBallot);
-});
-
-test('throws on invalid precinct', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = 'not-a-precinct';
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  expect(() => encodeSinglePageSummaryBallot(election, ballot)).toThrowError(
-    'precinct ID not found: not-a-precinct'
-  );
-});
-
-test('throws on invalid ballot style', () => {
-  const { election } = readElectionDefinition();
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = 'not-a-ballot-style' as BallotStyleId;
-  const precinctId = precinct.id;
-
-  expect(() =>
-    encodeBallotConfigInto(
-      election,
-      {
-        ballotStyleId,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        isTestMode: false,
-      },
-      new BitWriter()
-    )
-  ).toThrowError('ballot style ID not found: not-a-ballot-style');
-});
-
-test('throws on trying to encode a bad yes/no vote', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  votes['judicial-robert-demergue'] =
-    'judicial-robert-demergue-option-yes' as unknown as string[];
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  expect(() => encodeSinglePageSummaryBallot(election, ballot)).toThrowError(
-    'cannot encode a non-array yes/no vote: "judicial-robert-demergue-option-yes"'
-  );
-
-  // overvotes fail too.
-  ballot.votes['judicial-robert-demergue'] = [
-    'judicial-robert-demergue-option-yes',
-    'judicial-robert-demergue-option-no',
-  ];
-  expect(() => encodeSinglePageSummaryBallot(election, ballot)).toThrowError(
-    'cannot encode a yes/no overvote: ["judicial-robert-demergue-option-yes","judicial-robert-demergue-option-no"]'
-  );
-});
-
-test('throws on trying to encode a ballot style', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = `${ballotStyle.id}-CORRUPTED`;
-  const precinctId = precinct.id;
-  const votes: VotesDict = {};
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  expect(() => encodeSinglePageSummaryBallot(election, ballot)).toThrowError(
-    `unknown ballot style id: ${ballotStyleId}`
-  );
-});
-
-test('encodes & decodes candidate choice votes correctly', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
-    president: 'barchi-hallaren',
-    senator: 'weiford',
-    'representative-district-6': 'plunkard',
-    governor: 'franz',
-    'lieutenant-governor': 'norberg',
-    'secretary-of-state': 'shamsi',
-    'state-senator-district-31': 'shiplett',
-    'state-assembly-district-54': 'solis',
-    'county-commissioners': 'argent',
-    'county-registrar-of-wills': 'ramachandrani',
-    'city-mayor': 'white',
-    'city-council': 'eagle',
-  });
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call
-    .writeBoolean(
-      ...contests.map((contest) => isVotePresent(votes[contest.id]))
-    )
-    // vote data
-    // - president (barchi-hallaren)
-    .writeBoolean(true, ...falses(5))
-    // - senator (weiford)
-    .writeBoolean(true, ...falses(6))
-    // - representative-district-6 (plunarkd)
-    .writeBoolean(true, ...falses(4))
-    // - governor (franz)
-    .writeBoolean(true, ...falses(15))
-    // - lieutenant-governor (norberg)
-    .writeBoolean(true, ...falses(8))
-    // - secretary-of-state (shamsi)
-    .writeBoolean(true, false)
-    // - state-senator-district-31 (shiplet)
-    .writeBoolean(true)
-    // - state-assembly-district-54 (solis)
-    .writeBoolean(true, false, false)
-    // - county-commissioners (argent)
-    .writeBoolean(true, ...falses(10))
-    // --- write-ins
-    .writeUint(0, { max: 3 }) // 4 seats - 1 selection = 3 write-ins max
-    // - county-registrar-of-wills (ramachandrani)
-    .writeBoolean(true)
-    // - city-mayor (white)
-    .writeBoolean(true, false)
-    // - city-council (eagle)
-    .writeBoolean(true, ...falses(5))
-    // --- write-ins
-    .writeUint(0, { max: 2 }) // 3 seats - 1 selection = 2 write-ins max
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes write-in votes correctly', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
-    'county-registrar-of-wills': [
-      { id: 'write-in-MICKEY MOUSE', name: 'MICKEY MOUSE', isWriteIn: true },
-    ],
-  });
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(false)
-    // vote roll call
-    .writeBoolean(
-      ...contests.map((contest) => isVotePresent(votes[contest.id]))
-    )
-    // vote data
-    // - county-registrar-of-wills (ramachandrani)
-    .writeBoolean(false)
-    // --- write-ins
-    .writeUint(1, { max: 1 }) // 1 seat - 0 selections = 1 max write-in
-    .writeString('MICKEY MOUSE', {
-      encoding: WriteInEncoding,
-      maxLength: MAXIMUM_WRITE_IN_LENGTH,
-    })
-    .toUint8Array();
-
-  expect(encodeSinglePageSummaryBallot(election, ballot)).toEqualBits(
-    encodedBallot
-  );
-  expect(
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('cannot decode a ballot without the prelude', () => {
-  const electionDefinition = readElectionDefinition();
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('XV', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    .toUint8Array();
-
-  expect(() =>
-    decodeSinglePageSummaryBallot(electionDefinition, encodedBallot)
-  ).toThrowError(
-    "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-  );
-});
-
-test('cannot decode a ballot that includes extra data at the end', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  const writer = new BitWriter();
-
-  encodeSinglePageSummaryBallotInto(election, ballot, writer);
-
-  const corruptedBallot = writer.writeBoolean(true).toUint8Array();
-
-  expect(() =>
-    decodeSinglePageSummaryBallot(electionDefinition, corruptedBallot)
-  ).toThrowError('unexpected data found while reading padding, expected EOF');
-});
-
-test('cannot decode a ballot that includes too much padding at the end', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ election, ballotStyle });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  const writer = new BitWriter();
-
-  encodeSinglePageSummaryBallotInto(election, ballot, writer);
-
-  const corruptedBallot = writer.writeUint8(0).toUint8Array();
-
-  expect(() =>
-    decodeSinglePageSummaryBallot(electionDefinition, corruptedBallot)
-  ).toThrowError('unexpected data found while reading padding, expected EOF');
-});
-
-test('decode ballot hash from BMD metadata', () => {
-  const electionDefinition = readElectionDefinition();
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-
-  expect(
-    decodeBallotHash(encodeSinglePageSummaryBallot(election, ballot))
-  ).toEqual(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH));
 });
 
 test('fails to find the ballot hash with garbage data', () => {
@@ -695,16 +57,30 @@ test('encode HMPB ballot page metadata', () => {
 
   const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
 
-  const { ballotHash, ...ballotConfig } = ballotMetadata;
-  const reader = new BitReader(encoded);
-  expect(decodeBallotHashFromReader(reader)).toEqual(
-    sliceBallotHashForEncoding(ballotHash)
+  // We can at least verify that the ballot hash decodes from the encoded
+  // metadata. There is no public HMPB metadata decoder in ballot-encoder.
+  expect(decodeBallotHash(encoded)).toEqual(
+    sliceBallotHashForEncoding(ballotMetadata.ballotHash)
   );
-  expect(
-    decodeSinglePageSummaryBallotConfigFromReader(election, reader, {
-      readPageNumber: true,
-    })
-  ).toEqual(ballotConfig);
+});
+
+test('encode HMPB ballot page metadata without a ballot audit id', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election } = electionDefinition;
+  const ballotMetadata: HmpbBallotPageMetadata = {
+    ballotHash: electionDefinition.ballotHash,
+    precinctId: election.ballotStyles[0]!.precincts[0]!,
+    ballotStyleId: election.ballotStyles[0]!.id,
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+  };
+
+  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+
+  expect(decodeBallotHash(encoded)).toEqual(
+    sliceBallotHashForEncoding(ballotMetadata.ballotHash)
+  );
 });
 
 test('encode HMPB ballot page metadata with bad precinct fails', () => {
@@ -741,22 +117,9 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   ).toThrowError('ballot style ID not found: 42');
 });
 
-// Multi-page BMD ballot tests
+// Multi-page summary ballot tests
 
-test('can detect a multi-page BMD ballot', () => {
-  expect(
-    isSummaryBallot(Uint8Array.of(...SummaryBallotPrelude))
-  ).toEqual(true);
-  expect(isSummaryBallot(Uint8Array.of())).toEqual(false);
-  expect(
-    isSummaryBallot(Uint8Array.of(...SummaryBallotPrelude))
-  ).toEqual(false);
-  expect(
-    isSummaryBallot(Uint8Array.of(0, ...SummaryBallotPrelude))
-  ).toEqual(false);
-});
-
-test('multi-page BMD ballot is still detected as VX ballot', () => {
+test('multi-page summary ballot is detected as VX ballot', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
@@ -780,7 +143,7 @@ test('multi-page BMD ballot is still detected as VX ballot', () => {
   expect(isVxBallot(encoded)).toEqual(true);
 });
 
-test('encodes & decodes multi-page BMD ballot with empty votes', () => {
+test('encodes & decodes multi-page summary ballot with empty votes', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
@@ -819,7 +182,7 @@ test('encodes & decodes multi-page BMD ballot with empty votes', () => {
   expect(decoded.votes).toEqual(votes);
 });
 
-test('encodes & decodes multi-page BMD ballot with votes', () => {
+test('encodes & decodes multi-page summary ballot with votes', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
@@ -855,21 +218,25 @@ test('encodes & decodes multi-page BMD ballot with votes', () => {
   expect(decoded.votes).toEqual(votes);
 });
 
-test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
+test('encodes & decodes multi-page summary ballot with write-in votes', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
   const contests = getContests({ election, ballotStyle });
-  // Get contests that include county-registrar-of-wills
-  const pageContests = contests.filter((c) =>
-    c.id.includes('county-registrar-of-wills')
-  );
-  const votes = vote(pageContests, {
-    'county-registrar-of-wills': [
-      { id: 'write-in-DONALD DUCK', name: 'DONALD DUCK', isWriteIn: true },
-    ],
-  });
+  // county-commissioners has 4 seats and allows write-ins. Vote a mix of a
+  // named candidate and a write-in so both the named and write-in branches of
+  // the per-choice encoding are exercised, with room left for the write-in.
+  const pageContests = contests.filter((c) => c.id === 'county-commissioners');
+  const namedCandidate = (pageContests[0] as CandidateContest).candidates[0]!;
+  const writeIn: Candidate = {
+    id: 'write-in-DONALD DUCK',
+    name: 'DONALD DUCK',
+    isWriteIn: true,
+  };
+  const votes: VotesDict = {
+    'county-commissioners': [namedCandidate, writeIn],
+  };
 
   const page: SummaryBallotPage = {
     ballotHash,
@@ -889,12 +256,179 @@ test('encodes & decodes multi-page BMD ballot with write-in votes', () => {
 
   expect(decoded.metadata.pageNumber).toEqual(1);
   expect(decoded.metadata.totalPages).toEqual(1);
-  expect(decoded.votes['county-registrar-of-wills']).toEqual([
-    { id: 'write-in-DONALD DUCK', name: 'DONALD DUCK', isWriteIn: true },
+  expect(decoded.votes['county-commissioners']).toEqual([
+    namedCandidate,
+    writeIn,
   ]);
 });
 
-test('decode ballot hash from multi-page BMD metadata', () => {
+test('encodes & decodes write-in contest with no room for write-ins', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  // county-registrar-of-wills allows write-ins but has a single seat. Filling
+  // that seat with a named candidate leaves no room for write-ins, exercising
+  // the maximumWriteIns === 0 branch on both encode and decode.
+  const pageContests = contests.filter(
+    (c) => c.id === 'county-registrar-of-wills'
+  );
+  const votes = vote(pageContests, {
+    'county-registrar-of-wills': ['ramachandrani'],
+  });
+
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'no-write-in-room-audit-id',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+
+  expect(decoded.votes).toEqual(votes);
+});
+
+test('encodes & decodes multi-page summary ballot with yes/no votes', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const yesNoContestIds = [
+    'judicial-robert-demergue',
+    'judicial-elmer-hull',
+    'question-a',
+  ];
+  const pageContests = contests.filter((c) => yesNoContestIds.includes(c.id));
+  // Mix yes and no answers so both decode branches are exercised.
+  const votes = vote(pageContests, {
+    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
+    'judicial-elmer-hull': ['judicial-elmer-hull-option-no'],
+    'question-a': ['question-a-option-yes'],
+  });
+
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'yesno-audit-id',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+
+  expect(decoded.votes).toEqual(votes);
+});
+
+test('throws on trying to encode a bad yes/no vote', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.filter(
+    (c) => c.id === 'judicial-robert-demergue'
+  );
+
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'bad-yesno-audit-id',
+    contests: pageContests,
+    votes: {
+      'judicial-robert-demergue':
+        'judicial-robert-demergue-option-yes' as unknown as string[],
+    },
+  };
+
+  expect(() => encodeSummaryBallotPage(election, page)).toThrowError(
+    'cannot encode a non-array yes/no vote: "judicial-robert-demergue-option-yes"'
+  );
+
+  // Overvotes fail too.
+  page.votes['judicial-robert-demergue'] = [
+    'judicial-robert-demergue-option-yes',
+    'judicial-robert-demergue-option-no',
+  ];
+  expect(() => encodeSummaryBallotPage(election, page)).toThrowError(
+    'cannot encode a yes/no overvote: ["judicial-robert-demergue-option-yes","judicial-robert-demergue-option-no"]'
+  );
+});
+
+function buildEmptyVotesBmdPage(): {
+  electionDefinition: ReturnType<typeof readElectionDefinition>;
+  page: SummaryBallotPage;
+} {
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const pageContests = getContests({ election, ballotStyle }).slice(0, 5);
+
+  return {
+    electionDefinition,
+    page: {
+      ballotHash,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      isTestMode: false,
+      ballotType: BallotType.Precinct,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'padding-audit-id',
+      contests: pageContests,
+      votes: vote(pageContests, {}),
+    },
+  };
+}
+
+test('cannot decode a summary ballot that includes extra data at the end', () => {
+  const { electionDefinition, page } = buildEmptyVotesBmdPage();
+  const { election } = electionDefinition;
+
+  const corrupted = encodeSummaryBallotPageInto(election, page, new BitWriter())
+    .writeBoolean(true)
+    .toUint8Array();
+
+  expect(() =>
+    decodeSummaryBallotPage(electionDefinition, corrupted)
+  ).toThrowError('unexpected data found while reading padding, expected EOF');
+});
+
+test('cannot decode a summary ballot that includes too much padding at the end', () => {
+  const { electionDefinition, page } = buildEmptyVotesBmdPage();
+  const { election } = electionDefinition;
+
+  const corrupted = encodeSummaryBallotPageInto(election, page, new BitWriter())
+    .writeUint8(0)
+    .toUint8Array();
+
+  expect(() =>
+    decodeSummaryBallotPage(electionDefinition, corrupted)
+  ).toThrowError('unexpected data found while reading padding, expected EOF');
+});
+
+test('decode ballot hash from summary ballot metadata', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
