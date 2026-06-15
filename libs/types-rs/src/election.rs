@@ -229,21 +229,24 @@ pub enum Contest {
     Candidate(CandidateContest),
     #[serde(rename = "yesno")]
     YesNo(YesNoContest),
+    #[serde(rename = "straight-party")]
+    StraightParty(StraightPartyContest),
 }
 
 impl Contest {
     pub fn id(&self) -> &ContestId {
         match self {
-            Self::Candidate(CandidateContest { id, .. }) | Self::YesNo(YesNoContest { id, .. }) => {
-                id
-            }
+            Self::Candidate(CandidateContest { id, .. })
+            | Self::YesNo(YesNoContest { id, .. })
+            | Self::StraightParty(StraightPartyContest { id, .. }) => id,
         }
     }
 
     pub fn district_id(&self) -> &DistrictId {
         match self {
             Self::Candidate(CandidateContest { district_id, .. })
-            | Self::YesNo(YesNoContest { district_id, .. }) => district_id,
+            | Self::YesNo(YesNoContest { district_id, .. })
+            | Self::StraightParty(StraightPartyContest { district_id, .. }) => district_id,
         }
     }
 
@@ -261,6 +264,9 @@ impl Contest {
                 Contest::Candidate(CandidateContest { party_id, .. }) => {
                     party_id == &ballot_style.party_id
                 }
+                Contest::StraightParty(_) => unimplemented!(
+                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
+                ),
             }
     }
 }
@@ -437,6 +443,16 @@ pub struct YesNoContest {
 pub struct YesNoOption {
     pub id: OptionId,
     pub label: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+#[must_use]
+pub struct StraightPartyContest {
+    pub id: ContestId,
+    pub district_id: DistrictId,
+    pub title: String,
+    pub option_ids: Vec<PartyId>,
 }
 
 #[cfg(test)]

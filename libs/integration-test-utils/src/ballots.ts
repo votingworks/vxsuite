@@ -15,6 +15,7 @@ import {
   getBallotStyle,
   getContests,
   LATEST_SOFTWARE_VERSION,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   ImageData,
@@ -54,6 +55,10 @@ export function createFullyVotedBallot(
 
   return Object.fromEntries(
     contests.map((contest) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        straightPartyNotYetImplemented();
+      }
       if (contest.type === 'candidate') {
         return [contest.id, contest.candidates.slice(0, contest.seats)];
       }

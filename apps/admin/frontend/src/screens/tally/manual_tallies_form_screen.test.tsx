@@ -6,6 +6,7 @@ import {
   BallotStyleGroupId,
   Election,
   getContests,
+  straightPartyNotYetImplemented,
   Tabulation,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -201,6 +202,10 @@ test('entering initial ballot count and contest tallies', async () => {
     expect(undervotesInput).toHaveValue('');
     userEvent.type(undervotesInput, contestResults.undervotes.toString());
 
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       for (const candidate of contest.candidates) {

@@ -20,6 +20,7 @@ import {
   getBallotStyle,
   getContests,
   getPartyForBallotStyle,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -578,6 +579,10 @@ function Contest({
   election: Election;
   colorTint: ColorTint;
 }) {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate':
       return <CandidateContest contest={contest} colorTint={colorTint} />;

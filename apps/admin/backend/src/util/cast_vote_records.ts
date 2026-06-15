@@ -4,6 +4,7 @@ import {
   ContestOptionId,
   ElectionDefinition,
   MarkThresholds,
+  straightPartyNotYetImplemented,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups, hasCrossoverVote } from '@votingworks/utils';
@@ -19,6 +20,11 @@ import {
 export function getNumberVotesAllowed(contest: Contest): number {
   if (contest.type === 'yesno') {
     return 1;
+  }
+
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
   }
 
   return contest.seats;

@@ -63,6 +63,7 @@ import {
   safeParseElectionDefinitionV4p0,
   LATEST_SOFTWARE_VERSION,
   convertLatestElectionToV4p0,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -534,35 +535,41 @@ test('create/list/delete elections', async () => {
       .id;
   }
   expect(election2Contests).toEqual(
-    sliElection.contests.map((contest) => ({
-      ...contest,
-      id: expectNotEqualTo(contest.id),
-      districtId: election2Districts[0].id,
-      ...(contest.type === 'candidate'
-        ? {
-            candidates: contest.candidates.map((candidate) =>
-              expect.objectContaining({
-                ...candidate,
-                id: expectNotEqualTo(candidate.id),
-                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
-                firstName: expect.any(String),
-                // TODO upgrade vitest to use expect.toBeOneOf
-                // middleName: expect.toBeOneOf([expect.any(String), undefined]),
-                lastName: expect.any(String),
-              })
-            ),
-          }
-        : {
-            yesOption: {
-              ...contest.yesOption,
-              id: expectNotEqualTo(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: expectNotEqualTo(contest.noOption.id),
-            },
-          }),
-    }))
+    sliElection.contests.map((contest) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
+      return {
+        ...contest,
+        id: expectNotEqualTo(contest.id),
+        districtId: election2Districts[0].id,
+        ...(contest.type === 'candidate'
+          ? {
+              candidates: contest.candidates.map((candidate) =>
+                expect.objectContaining({
+                  ...candidate,
+                  id: expectNotEqualTo(candidate.id),
+                  partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+                  firstName: expect.any(String),
+                  // TODO upgrade vitest to use expect.toBeOneOf
+                  // middleName: expect.toBeOneOf([expect.any(String), undefined]),
+                  lastName: expect.any(String),
+                })
+              ),
+            }
+          : {
+              yesOption: {
+                ...contest.yesOption,
+                id: expectNotEqualTo(contest.yesOption.id),
+              },
+              noOption: {
+                ...contest.noOption,
+                id: expectNotEqualTo(contest.noOption.id),
+              },
+            }),
+      };
+    })
   );
   expect(
     await apiClient.listBallotStyles({ electionId: sliElectionId })
@@ -3114,6 +3121,10 @@ test('cloneElection', async () => {
   }
   expect(destContests).toEqual(
     srcContests.map((contest) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       switch (contest.type) {
         case 'candidate':
           return {

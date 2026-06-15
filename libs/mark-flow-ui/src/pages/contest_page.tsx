@@ -9,6 +9,7 @@ import {
   OptionalVote,
   PrecinctId,
   VotesDict,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   LinkButton,
@@ -103,6 +104,11 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         contestNumber: currentContestIndex + 1,
         ballotContestCount: contests.length,
       };
+
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    straightPartyNotYetImplemented();
+  }
 
   const isVoteComplete = (() => {
     switch (contest.type) {

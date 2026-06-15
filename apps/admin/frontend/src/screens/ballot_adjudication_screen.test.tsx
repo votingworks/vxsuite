@@ -8,6 +8,7 @@ import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import type { BallotPageLayout, Rect } from '@votingworks/types';
 import type {
@@ -94,6 +95,10 @@ function makeContestAdjudicationData(
       })),
       tag,
     };
+  }
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    straightPartyNotYetImplemented();
   }
   return {
     contestId,

@@ -265,10 +265,29 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
     additionalOptions: z.array(YesNoOptionSchema).optional(),
   });
 
-export type Contest = CandidateContest | YesNoContest;
+export interface StraightPartyContest extends ContestBase {
+  readonly type: 'straight-party';
+  readonly optionIds: readonly PartyId[];
+}
+export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> =
+  ContestBaseSchema.extend({
+    type: z.literal('straight-party'),
+    optionIds: z.array(PartyIdSchema).nonempty(),
+  });
+
+/**
+ * This can be placed wherever type narrowing is required, and also marks all
+ * outstanding straight-party contest cases.
+ */
+export function straightPartyNotYetImplemented(): never {
+  throw new Error('Straight party contests are not yet implemented');
+}
+
+export type Contest = CandidateContest | YesNoContest | StraightPartyContest;
 export const ContestSchema: z.ZodSchema<Contest> = z.union([
   CandidateContestSchema,
   YesNoContestSchema,
+  StraightPartyContestSchema,
 ]);
 
 export const ContestsSchema = z.array(ContestSchema).check((ctx) => {

@@ -22,6 +22,7 @@ import {
   MarkStatus,
   MarkThresholds,
   SheetOf,
+  straightPartyNotYetImplemented,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -363,6 +364,10 @@ export function buildCVRContestsFromVotes({
     const contestUnmarkedWriteIns = unmarkedWriteIns?.filter(
       ({ contestId }) => contestId === contest.id
     );
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     switch (contest.type) {
       case 'yesno':
         cvrContests.push(

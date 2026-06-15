@@ -10,6 +10,7 @@ import {
   MarkThresholds,
   safeParse,
   safeParseInt,
+  straightPartyNotYetImplemented,
   Tabulation,
   Vote,
   VotesDict,
@@ -165,6 +166,10 @@ export function convertMarksToVotesDict(
   for (const mark of marks) {
     const contest = contests.find((c) => c.id === mark.contestId);
     assert(contest, `Contest not found: ${mark.contestId}`);
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     const existingVotes = votesDict[mark.contestId] ?? [];
     const newVotes =
       contest.type === 'candidate'

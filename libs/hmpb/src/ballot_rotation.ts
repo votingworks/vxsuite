@@ -5,7 +5,11 @@ import {
   groupBy,
   uniqueDeep,
 } from '@votingworks/basics';
-import { ContestId, OrderedCandidateOption } from '@votingworks/types';
+import {
+  ContestId,
+  OrderedCandidateOption,
+  straightPartyNotYetImplemented,
+} from '@votingworks/types';
 import { CandidateOrdering, RotationParams } from './types';
 import { getCandidateOrderingSetsForNhBallot } from './ballot_templates/nh_ballot_template';
 import { BallotTemplateId } from './ballot_templates';
@@ -38,6 +42,10 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     > = {};
 
     for (const contest of contests) {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       switch (contest.type) {
         case 'yesno':
           // do nothing
@@ -98,6 +106,10 @@ function getDefaultCandidateOrdering({
   > = {};
 
   for (const contest of contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     switch (contest.type) {
       case 'candidate':
         orderedCandidatesByContest[contest.id] = contest.candidates.map(

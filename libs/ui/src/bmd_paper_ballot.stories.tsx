@@ -8,6 +8,7 @@ import {
   getContests,
   safeParseElection,
   safeParseElectionDefinition,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import styled from 'styled-components';
@@ -39,6 +40,11 @@ function getDuplicatedContests(idSuffix: string) {
     if (c.type === 'candidate') {
       const contest: CandidateContest = { ...c, id: `${c.id}${idSuffix}` };
       return contest;
+    }
+
+    /* istanbul ignore next */
+    if (c.type === 'straight-party') {
+      straightPartyNotYetImplemented();
     }
 
     assert(c.type === 'yesno');
@@ -164,10 +170,16 @@ const initialArgs: BmdPaperBallotProps = {
   onRendered: () => undefined,
   precinctId: election.precincts[0].id,
   votes: Object.fromEntries(
-    election.contests.map((c) => [
-      c.id,
-      c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
-    ])
+    election.contests.map((c) => {
+      /* istanbul ignore next */
+      if (c.type === 'straight-party') {
+        straightPartyNotYetImplemented();
+      }
+      return [
+        c.id,
+        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+      ];
+    })
   ),
   sheetSize: 'letter',
 };

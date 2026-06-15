@@ -7,6 +7,7 @@ import {
   Contest,
   YesNoContest,
   isPrimary,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import styled from 'styled-components';
 import { FixedViewport, ListActionsRow, Row } from './layout';
@@ -127,6 +128,10 @@ function Content(): JSX.Element | null {
   const contestParamRoutes = electionParamRoutes.contests;
 
   const filteredContests = contests.filter((contest) => {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      return straightPartyNotYetImplemented();
+    }
     const matchesDistrict =
       filterDistrictId === FILTER_ALL ||
       contest.districtId === filterDistrictId;
@@ -151,6 +156,10 @@ function Content(): JSX.Element | null {
   const yesNoContests: YesNoContest[] = [];
 
   for (const c of contestsToShow) {
+    /* istanbul ignore next */
+    if (c.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     if (c.type === 'candidate') candidateContests.push(c);
     else yesNoContests.push(c);
   }

@@ -7,6 +7,7 @@ import {
   Election,
   getContestDistrictName,
   Side,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import type {
   AdjudicatedContestOption,
@@ -123,6 +124,10 @@ const StatusLineAdjudicated = styled(StatusLine).attrs({
 `;
 
 function getVotesAllowed(contest: Contest): number {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   return contest.type === 'yesno' ? 1 : contest.seats;
 }
 

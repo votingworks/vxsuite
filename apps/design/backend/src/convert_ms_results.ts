@@ -3,6 +3,7 @@ import {
   formatBallotHash,
   safeParseInt,
   Tabulation,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
@@ -226,6 +227,10 @@ export function convertMsResults(
             candidatePartyId: NONPARTISAN_PARTY_ID,
             candidatePartyLabel: NONPARTISAN_PARTY_LABEL,
           };
+        }
+        /* istanbul ignore next */
+        if (contest.type === 'straight-party') {
+          return straightPartyNotYetImplemented();
         }
         switch (contest.type) {
           case 'candidate': {

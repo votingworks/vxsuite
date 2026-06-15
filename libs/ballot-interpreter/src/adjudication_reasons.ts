@@ -6,6 +6,7 @@ import {
   CandidateVote,
   ContestOption,
   MarkStatus,
+  straightPartyNotYetImplemented,
   VotesDict,
   WriteInAreaStatus,
 } from '@votingworks/types';
@@ -34,6 +35,10 @@ function compareMarkStatusDescending(
 }
 
 function getExpectedVoteCount(contest: Contest): number {
+  /* istanbul ignore next */
+  if (contest.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (contest.type) {
     case 'candidate':
       return contest.seats;
@@ -69,6 +74,10 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
     // Check for undervotes
     if (actualVoteCount < expectedSelectionCount) {
       const optionIds: string[] = [];
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       const contestType = contest.type;
       switch (contestType) {
         case 'candidate':

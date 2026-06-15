@@ -10,6 +10,7 @@ import {
   Party,
   Precinct,
   safeParseElectionDefinition,
+  straightPartyNotYetImplemented,
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
@@ -179,6 +180,10 @@ export function createMockVotes(
 
   const votes: VotesDict = {};
   for (const contest of filteredContests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     if (contest.type === 'candidate') {
       votes[contest.id] = contest.candidates.slice(0, contest.seats);
     } else {

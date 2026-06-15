@@ -24,6 +24,7 @@ import {
   formatBallotHash,
   LanguageCode,
   safeParseInt,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
@@ -394,6 +395,10 @@ export function generateAllPrecinctsTallyReportRows(
 ): AllPrecinctsTallyReportRow[] {
   return election.precincts.flatMap((precinct) =>
     election.contests.flatMap((contest, contestIndex) => {
+      /* istanbul ignore next */
+      if (contest.type === 'straight-party') {
+        return straightPartyNotYetImplemented();
+      }
       const rowBase = {
         precinct: precinct.name,
         precinctId: precinct.id,

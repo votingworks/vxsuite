@@ -361,3 +361,24 @@ test('a contest must have at least one candidate option if write-ins are not all
       .issues[0].message
   ).toEqual('Contest must have at least one candidate or allow write-ins.');
 });
+
+test('a straight-party contest parses', () => {
+  const straightPartyContest: t.StraightPartyContest = {
+    id: 'SP',
+    type: 'straight-party',
+    title: 'SP',
+    districtId: unsafeParse(t.DistrictIdSchema, 'D'),
+    optionIds: ['party-1', 'party-2'],
+  };
+
+  expect(
+    unsafeParse(t.StraightPartyContestSchema, straightPartyContest)
+  ).toEqual(straightPartyContest);
+  expect(unsafeParse(t.ContestSchema, straightPartyContest)).toEqual(
+    straightPartyContest
+  );
+  safeParse(t.StraightPartyContestSchema, {
+    ...straightPartyContest,
+    optionIds: [],
+  }).unsafeUnwrapErr();
+});

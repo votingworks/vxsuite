@@ -32,6 +32,7 @@ import {
   hasSplits,
   PrecinctOrSplit,
   CandidateVote,
+  straightPartyNotYetImplemented,
 } from './election';
 
 /**
@@ -456,6 +457,10 @@ export function vote(
 ): VotesDict {
   const votes: VotesDict = {};
   for (const contest of contests) {
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
     const choice = shorthand[contest.id];
     if (!choice) {
       votes[contest.id] = [];

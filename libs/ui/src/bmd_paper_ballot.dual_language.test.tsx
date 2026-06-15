@@ -7,6 +7,7 @@ import {
   VotesDict,
   YesNoContest,
   getContests,
+  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
@@ -304,10 +305,16 @@ describe('English ballot style', () => {
 
   test('all votes filled in', async () => {
     const votes: VotesDict = Object.fromEntries(
-      contests.map((c) => [
-        c.id,
-        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
-      ])
+      contests.map((c) => {
+        /* istanbul ignore next */
+        if (c.type === 'straight-party') {
+          straightPartyNotYetImplemented();
+        }
+        return [
+          c.id,
+          c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+        ];
+      })
     );
 
     const { container } = render(

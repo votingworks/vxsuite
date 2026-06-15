@@ -5,7 +5,10 @@ import {
 } from '@votingworks/fixtures';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { formatBallotHash } from '@votingworks/types';
+import {
+  formatBallotHash,
+  straightPartyNotYetImplemented,
+} from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
 import { mockScannerBatches } from '../../test/fixtures';
@@ -187,7 +190,13 @@ test('primary election, party report, test deck', () => {
           '0': 10,
         },
         contestIds: election.contests
-          .filter((c) => c.type === 'yesno' || c.partyId === '0')
+          .filter((c) => {
+            /* istanbul ignore next */
+            if (c.type === 'straight-party') {
+              straightPartyNotYetImplemented();
+            }
+            return c.type === 'yesno' || c.partyId === '0';
+          })
           .map((c) => c.id),
       })}
       scannerBatches={mockScannerBatches}

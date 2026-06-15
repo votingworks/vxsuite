@@ -18,6 +18,7 @@ import {
   Election,
   GridPosition,
   Rect,
+  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
 } from '@votingworks/types';
@@ -141,6 +142,10 @@ export async function generateMarkOverlay(
 
     const contest = election.contests.find((c) => c.id === pos.contestId);
     assert(contest, `contest ${pos.contestId} not found`);
+    /* istanbul ignore next */
+    if (contest.type === 'straight-party') {
+      straightPartyNotYetImplemented();
+    }
 
     const mark = markInfo(contestVotes, pos, contest, layout);
     if (!mark) continue;
