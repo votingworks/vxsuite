@@ -214,9 +214,9 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Scan several non-trivial batches so the Scan Ballots screen looks like
   // real use.
+  await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 36 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 12 }, () => fullPdf));
+  await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
 
   // Adjudication: scan one batch of problem ballots and capture each eject
