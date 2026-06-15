@@ -25,11 +25,12 @@ import {
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-  isPrimary,
-  straightPartyNotYetImplemented,
+  StraightPartyContest as StraightPartyContestStruct,
+  Party,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
+  CandidatePartyList,
   electionStrings,
   RichText,
 } from '@votingworks/ui';
@@ -134,8 +135,17 @@ const VoteFor = styled.div`
   font-size: 8pt;
 `;
 
-const CandidateName = styled.div`
+const OptionRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  font-size: 9pt;
+`;
+
+const OptionLabel = styled.div`
   font-weight: bold;
+`;
+
+const CandidateParties = styled.div`
   font-size: 9pt;
 `;
 
@@ -275,10 +285,12 @@ function BallotPageFrame({
 }
 
 function CandidateContest({
+  election,
   contest,
   ballotStyle,
   numContestColumns,
 }: {
+  election: Election;
   contest: CandidateContestStruct;
   ballotStyle: BallotStyle;
   numContestColumns: number;
@@ -334,19 +346,22 @@ function CandidateContest({
                   i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                }}
-              >
+              <OptionRow>
                 <AlignedBubble optionInfo={optionInfo} />
                 <div>
-                  <CandidateName>
+                  <OptionLabel>
                     {electionStrings.candidateName(candidate)}
-                  </CandidateName>
+                  </OptionLabel>
+                  {election.type === 'general' && (
+                    <CandidateParties>
+                      <CandidatePartyList
+                        candidate={candidate}
+                        electionParties={election.parties}
+                      />
+                    </CandidateParties>
+                  )}
                 </div>
-              </div>
+              </OptionRow>
             </li>
           );
         })}
@@ -377,13 +392,13 @@ function CandidateContest({
                 key={writeInIndex}
                 className={WRITE_IN_OPTION_CLASS}
                 style={{
-                  display: 'flex',
-                  gap: '0.5rem',
                   padding: '0.5rem',
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <AlignedBubble optionInfo={optionInfo} />
+                <OptionRow>
+                  <AlignedBubble optionInfo={optionInfo} />
+                </OptionRow>
               </li>
             );
           })}
@@ -440,7 +455,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               }}
             >
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <OptionRow>
                 <AlignedBubble
                   optionInfo={{
                     type: 'option',
@@ -448,8 +463,10 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
                     optionId: option.id,
                   }}
                 />
-                <strong>{electionStrings.contestOptionLabel(option)}</strong>
-              </div>
+                <OptionLabel>
+                  {electionStrings.contestOptionLabel(option)}
+                </OptionLabel>
+              </OptionRow>
             </li>
           ))}
         </ul>
@@ -458,23 +475,74 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   );
 }
 
+function StraightPartyContest({
+  contest,
+  parties,
+}: {
+  contest: StraightPartyContestStruct;
+  parties: readonly Party[];
+}) {
+  return (
+    <Box
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <ContestHeader>
+        <div>{electionStrings.contestTitle(contest)}</div>
+        <VoteFor>{hmpbStrings.hmpbVoteForNotMoreThan1}</VoteFor>
+      </ContestHeader>
+      <ul>
+        {contest.optionIds.map((partyId, i) => {
+          const optionInfo: OptionInfo = {
+            type: 'option',
+            contestId: contest.id,
+            optionId: partyId,
+          };
+          return (
+            <li
+              key={partyId}
+              style={{
+                padding: '0.375rem 0.5rem',
+                borderTop:
+                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+              }}
+            >
+              <OptionRow>
+                <AlignedBubble optionInfo={optionInfo} />
+                <div>
+                  <OptionLabel>
+                    {electionStrings.partyFullName(
+                      find(parties, (p) => p.id === partyId)
+                    )}
+                  </OptionLabel>
+                </div>
+              </OptionRow>
+            </li>
+          );
+        })}
+      </ul>
+    </Box>
+  );
+}
+
 function Contest({
+  election,
   contest,
   ballotStyle,
   numContestColumns,
 }: {
+  election: Election;
   contest: ContestStruct;
   ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (contest.type) {
     case 'candidate':
       return (
         <CandidateContest
+          election={election}
           contest={contest}
           ballotStyle={ballotStyle}
           numContestColumns={numContestColumns}
@@ -482,6 +550,10 @@ function Contest({
       );
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
+    case 'straight-party':
+      return (
+        <StraightPartyContest contest={contest} parties={election.parties} />
+      );
     default:
       return throwIllegalValue(contest);
   }
@@ -500,25 +572,30 @@ function buildSubsectionsByDistrict(
   sectionContests: ContestStruct[],
   numColumns: number
 ): ContestSection['subsections'] {
-  return groupBy(sectionContests, (contest) => contest.districtId).map(
-    ([districtId, districtContests]) => ({
-      header: (
+  return groupBy(sectionContests, (contest) => [
+    contest.type,
+    contest.districtId,
+  ]).map(([[contestType, districtId], districtContests]) => ({
+    header:
+      contestType === 'straight-party' ? (
+        <React.Fragment />
+      ) : (
         <SubsectionHeader>
           {find(election.districts, (d) => d.id === districtId).name}
         </SubsectionHeader>
       ),
-      elements: districtContests.map((contest) => ({
-        contest,
-        element: (
-          <Contest
-            contest={contest}
-            ballotStyle={ballotStyle}
-            numContestColumns={numColumns}
-          />
-        ),
-      })),
-    })
-  );
+    elements: districtContests.map((contest) => ({
+      contest,
+      element: (
+        <Contest
+          election={election}
+          contest={contest}
+          ballotStyle={ballotStyle}
+          numContestColumns={numColumns}
+        />
+      ),
+    })),
+  }));
 }
 
 function buildSections(
@@ -540,23 +617,39 @@ function buildSections(
     }));
 }
 
-function buildClosedPrimaryContestSections(
+function buildContestSections(
   contests: readonly ContestStruct[],
   election: Election,
   ballotStyle: BallotStyle,
   numColumns: number
 ): ContestSection[] {
+  function isPartisanCandidateContest(contest: CandidateContestStruct) {
+    assert(election.type !== 'open-primary');
+    switch (election.type) {
+      case 'closed-primary':
+        return contest.partyId;
+      case 'general':
+        return (contest.candidates[0].partyIds ?? []).length > 0;
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(election.type);
+    }
+  }
+
   return buildSections(election, ballotStyle, numColumns, [
     {
       header: <SectionHeader>Partisan Section</SectionHeader>,
       contests: contests.filter(
-        (contest) => contest.type === 'candidate' && contest.partyId
+        (contest) =>
+          contest.type === 'straight-party' ||
+          (contest.type === 'candidate' && isPartisanCandidateContest(contest))
       ),
     },
     {
       header: <SectionHeader>Nonpartisan Section</SectionHeader>,
       contests: contests.filter(
-        (contest) => contest.type === 'candidate' && !contest.partyId
+        (contest) =>
+          contest.type === 'candidate' && !isPartisanCandidateContest(contest)
       ),
     },
     {
@@ -703,7 +796,7 @@ interface ContestColumnsResult {
   leftoverContests: ContestStruct[];
 }
 
-async function ClosedPrimaryContestColumns({
+async function ContestColumns({
   contests,
   election,
   ballotStyle,
@@ -716,8 +809,8 @@ async function ClosedPrimaryContestColumns({
   dimensions: PixelDimensions;
   scratchpad: RenderScratchpad;
 }): Promise<ContestColumnsResult> {
-  const numColumns = 2;
-  const sections = buildClosedPrimaryContestSections(
+  const numColumns = election.type === 'general' ? 4 : 2;
+  const sections = buildContestSections(
     contests,
     election,
     ballotStyle,
@@ -917,7 +1010,6 @@ async function BallotPageContent(
     getBallotStyle({ election, ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
-  assert(isPrimary(election), 'MI template only supports primaries');
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
@@ -931,7 +1023,7 @@ async function BallotPageContent(
           dimensions,
           scratchpad,
         })
-      : await ClosedPrimaryContestColumns({
+      : await ContestColumns({
           contests,
           election,
           ballotStyle,
