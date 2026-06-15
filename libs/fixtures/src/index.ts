@@ -32,5 +32,10 @@ export {
   readElectionDefinition as readElectionOpenPrimaryDefinition,
   readElection as readElectionOpenPrimary,
 } from './data/election_open_primary';
+export {
+  readElectionDefinition as readElectionStraightPartyDefinition,
+  readElection as readElectionStraightParty,
+} from './data/election_straight_party';
+export * as electionStraightPartyFixtures from './data/election_straight_party';
 export const systemSettings = builders.file('data/systemSettings.json');
 export * from './tmpdir';
