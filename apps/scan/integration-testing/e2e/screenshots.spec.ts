@@ -1,4 +1,4 @@
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
@@ -338,12 +338,15 @@ test('voting', async ({ page }, testInfo) => {
   await page.getByText('Insert Your Ballot').waitFor();
 
   // Successful scan: full votes, capture scanning screen then counted screen.
+  // Throughout this test, after a ballot is scanned we move straight to the
+  // next action without waiting for the "Insert Your Ballot" screen to return —
+  // the backend re-enables scanning as soon as a ballot is accepted, so we don't
+  // need to wait out the (3s) accepted-screen display hold.
   mockPdiScannerHandler.insertSheet(fullPdf);
   await page.getByText('Please wait').waitFor({ timeout: 15000 });
   await screenshot('scanning');
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
   await screenshot('ballot-counted');
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Blank ballot warning.
   mockPdiScannerHandler.insertSheet(blankPdf);
@@ -352,16 +355,18 @@ test('voting', async ({ page }, testInfo) => {
     .waitFor({ timeout: 15000 });
   await screenshot('blank-ballot-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
-  // Undervote warning.
+  // Undervote warning. Each subsequent warning scan is inserted right after the
+  // previous "Cast Ballot" click, without waiting for "Insert Your Ballot" in
+  // between — the backend re-enables scanning as soon as a ballot is accepted.
+  // The review screen ("Review Your Ballot") is distinct from the prior
+  // accepted screen, so waiting for it is unambiguous.
   mockPdiScannerHandler.insertSheet(undervotePdf);
   await page
     .getByRole('heading', { name: 'Review Your Ballot' })
     .waitFor({ timeout: 15000 });
   await screenshot('undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Overvote warning.
   mockPdiScannerHandler.insertSheet(overvotePdf);
@@ -370,7 +375,6 @@ test('voting', async ({ page }, testInfo) => {
     .waitFor({ timeout: 15000 });
   await screenshot('overvote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Mixed overvote + undervote warning.
   mockPdiScannerHandler.insertSheet(mixedPdf);
@@ -463,7 +467,6 @@ test('voting', async ({ page }, testInfo) => {
 
   mockPdiScannerHandler.insertSheet(fullPdf);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Pause voting.
   logInAsPollWorker(election);
@@ -493,7 +496,6 @@ test('voting', async ({ page }, testInfo) => {
 
   mockPdiScannerHandler.insertSheet(fullPdf);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
-  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Closing polls flow (multi-batch).
   logInAsPollWorker(election);
@@ -667,13 +669,21 @@ test('write-in-report', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
-  for (const writeInPdf of [writeInPdfA, writeInPdfB]) {
+  // Scan each ballot. Between scans we wait only for the scanned-ballot count to
+  // advance, not for the "Insert Your Ballot" screen to return — the backend
+  // re-enables scanning as soon as a ballot is accepted, so we can insert the
+  // next sheet without waiting out the (3s) accepted-screen display hold. We
+  // assert on the count (rather than the "counted" text, which is identical
+  // between consecutive successful scans) so each scan is confirmed distinctly.
+  const writeInPdfs = [writeInPdfA, writeInPdfB];
+  for (const [index, writeInPdf] of writeInPdfs.entries()) {
     mockPdiScannerHandler.insertSheet(writeInPdf);
-    await page
-      .getByText('Your ballot was counted!')
-      .waitFor({ timeout: 15000 });
-    await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+    await expect(page.getByTestId('ballot-count')).toHaveText(
+      String(index + 1),
+      { timeout: 15000 }
+    );
   }
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Close polls.
   logInAsPollWorker(election);
