@@ -364,10 +364,6 @@ exports[`convert election with ballot measures 1`] = `
       },
     },
   ],
-  "county": {
-    "id": "election-id-3_10",
-    "name": "Choctaw County",
-  },
   "date": "2020-08-26",
   "districts": [
     {
@@ -412,6 +408,10 @@ exports[`convert election with ballot measures 1`] = `
     },
   ],
   "id": "election-id-3",
+  "jurisdiction": {
+    "id": "election-id-3_10",
+    "name": "Choctaw County",
+  },
   "parties": [
     {
       "abbrev": "D",
@@ -1574,10 +1574,6 @@ exports[`convert election with precinct splits 1`] = `
       "type": "candidate",
     },
   ],
-  "county": {
-    "id": "election-id-4_75",
-    "name": "Warren County",
-  },
   "date": "2023-08-08",
   "districts": [
     {
@@ -1634,6 +1630,10 @@ exports[`convert election with precinct splits 1`] = `
     },
   ],
   "id": "election-id-4",
+  "jurisdiction": {
+    "id": "election-id-4_75",
+    "name": "Warren County",
+  },
   "parties": [
     {
       "abbrev": "D",
@@ -2695,10 +2695,6 @@ exports[`convert general election 1`] = `
       "type": "candidate",
     },
   ],
-  "county": {
-    "id": "election-id-1_10",
-    "name": "Choctaw County",
-  },
   "date": "2024-11-05",
   "districts": [
     {
@@ -2735,6 +2731,10 @@ exports[`convert general election 1`] = `
     },
   ],
   "id": "election-id-1",
+  "jurisdiction": {
+    "id": "election-id-1_10",
+    "name": "Choctaw County",
+  },
   "parties": [
     {
       "abbrev": "D",
@@ -4019,10 +4019,6 @@ exports[`convert primary election 1`] = `
       "type": "candidate",
     },
   ],
-  "county": {
-    "id": "election-id-2_60",
-    "name": "Quitman County",
-  },
   "date": "2023-08-08",
   "districts": [
     {
@@ -4091,6 +4087,10 @@ exports[`convert primary election 1`] = `
     },
   ],
   "id": "election-id-2",
+  "jurisdiction": {
+    "id": "election-id-2_60",
+    "name": "Quitman County",
+  },
   "parties": [
     {
       "abbrev": "D",
