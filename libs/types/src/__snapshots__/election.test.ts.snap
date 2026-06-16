@@ -20,7 +20,7 @@ exports[`safeParseElection shows VXF parsing errors by default 1`] = `
 - ballotStrings: Invalid input: expected record, received undefined
 - ballotStyles: Invalid input: expected array, received undefined
 - contests: Invalid input: expected array, received undefined
-- county: Invalid input: expected object, received undefined
+- jurisdiction: Invalid input: expected object, received undefined
 - date: Invalid input
 - districts: Invalid input: expected array, received undefined
 - id: Invalid input: expected string, received undefined
