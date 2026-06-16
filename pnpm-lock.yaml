@@ -2632,6 +2632,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../../../libs/hmpb
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
