@@ -19,6 +19,7 @@ import type {
   ContestAdjudicationData,
   CvrContestTag,
   CvrTag,
+  WriteInRecord,
 } from '@votingworks/admin-backend';
 import {
   HIGHLIGHT_PRIMARY_BACKGROUND,
@@ -143,6 +144,43 @@ function makeAdjudicatedCvrContest(
     };
   }
   return { contestId, adjudicatedContestOptionById };
+}
+
+function makePendingWriteInRecord(
+  contestId: string,
+  optionId: string,
+  cvrId: string = CVR_ID_1
+): WriteInRecord {
+  return {
+    status: 'pending',
+    id: `wir-${contestId}-${optionId}`,
+    cvrId,
+    contestId,
+    electionId: 'e',
+    optionId,
+  };
+}
+
+function addPendingWriteIns(
+  contest: ContestAdjudicationData,
+  numberOfWriteIns: number,
+  recordedSlots: number[]
+): void {
+  for (let i = 0; i < numberOfWriteIns; i += 1) {
+    contest.options.push({
+      definition: {
+        id: `write-in-${i}`,
+        contestId: contest.contestId,
+        type: 'candidate' as const,
+        isWriteIn: true,
+      },
+      scannedVote: recordedSlots.includes(i),
+      hasMarginalMark: false,
+      writeInRecord: recordedSlots.includes(i)
+        ? makePendingWriteInRecord(contest.contestId, `write-in-${i}`)
+        : undefined,
+    });
+  }
 }
 
 /**
