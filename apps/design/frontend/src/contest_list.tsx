@@ -4,6 +4,7 @@ import { Flipped, Flipper } from 'react-flip-toolkit';
 import { Button } from '@votingworks/ui';
 import { Contest, Party } from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
+import { groupBy } from '@votingworks/basics';
 import { Column, Row } from './layout';
 import * as api from './api';
 import { ElectionIdParams, routes } from './routes';
@@ -31,8 +32,7 @@ export interface ReorderParams {
 }
 
 export interface ContestListProps {
-  candidateContests: Contest[];
-  yesNoContests: Contest[];
+  contests: readonly Contest[];
   reordering: boolean;
   reorder: (params: ReorderParams) => void;
 }
@@ -42,7 +42,7 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
-  const { candidateContests, yesNoContests, reorder, reordering } = props;
+  const { contests, reorder, reordering } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -66,31 +66,31 @@ export function ContestList(props: ContestListProps): React.ReactNode {
     return null;
   }
 
+  const contestsByType: Partial<Record<Contest['type'], Contest[]>> =
+    Object.fromEntries(groupBy(contests, (contest) => contest.type));
+  const sections: Array<[string, Contest[] | undefined]> = [
+    ['Straight Party', contestsByType['straight-party']],
+    ['Candidate Contests', contestsByType['candidate']],
+    ['Ballot Measures', contestsByType['yesno']],
+  ];
+
   return (
     <EntityList.Box>
-      {candidateContests.length > 0 && (
-        <Sublist
-          contests={candidateContests}
-          districtIdToName={districtIdToName}
-          onSelect={onSelect}
-          parties={parties.data}
-          reordering={reordering}
-          reorder={reorder}
-          selectedId={contestId}
-          title="Candidate Contests"
-        />
-      )}
-      {yesNoContests.length > 0 && (
-        <Sublist
-          contests={yesNoContests}
-          districtIdToName={districtIdToName}
-          onSelect={onSelect}
-          parties={parties.data}
-          reordering={reordering}
-          reorder={reorder}
-          selectedId={contestId}
-          title="Ballot Measures"
-        />
+      {sections.map(
+        ([title, sectionContests]) =>
+          sectionContests && (
+            <Sublist
+              key={title}
+              contests={sectionContests}
+              districtIdToName={districtIdToName}
+              onSelect={onSelect}
+              parties={parties.data}
+              reordering={reordering}
+              reorder={reorder}
+              selectedId={contestId}
+              title={title}
+            />
+          )
       )}
     </EntityList.Box>
   );

@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { z } from 'zod/v4';
 
-import { Result, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   isPrimary,
   ElectionId,
@@ -17,7 +17,7 @@ import {
   safeParse,
   YesNoContestSchema,
   ElectionStringKey,
-  straightPartyNotYetImplemented,
+  StraightPartyContest,
 } from '@votingworks/types';
 import {
   Callout,
@@ -319,6 +319,13 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
       <FormBody>
         <FormTitle>{title}</FormTitle>
 
+        {contest.type === 'straight-party' && (
+          <Callout icon="Info" color="neutral">
+            This contest is generated based on the election parties and cannot
+            be edited directly. To edit the party options, edit the party list.
+          </Callout>
+        )}
+
         <InputGroup label="Title">
           <InputWithAudio
             audioScreenUrl={contestRoutes.audio({
@@ -356,48 +363,51 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             required
           />
         </InputGroup>
-        <InputRow>
-          <SegmentedButton
-            disabled={disabled || hasExternalSource}
-            label="Type"
-            options={
-              hasExternalSource
-                ? [
-                    { id: 'candidate', label: 'Candidate Contest' },
-                    { id: 'yesno', label: 'Ballot Measure' },
-                  ].filter((o) => o.id === contest.type)
-                : [
-                    { id: 'candidate', label: 'Candidate Contest' },
-                    { id: 'yesno', label: 'Ballot Measure' },
-                  ]
-            }
-            selectedOptionId={contest.type}
-            onChange={(type) =>
-              setContest({
-                ...(type === 'candidate'
-                  ? createBlankCandidateContest()
-                  : createBlankYesNoContest()),
-                id: contest.id,
-                title: contest.title,
-                districtId: contest.districtId,
-              })
-            }
-          />
-          {contest.type === 'candidate' && (
+
+        {contest.type !== 'straight-party' && (
+          <InputRow>
             <SegmentedButton
-              disabled={disabled}
-              label="Write-Ins Allowed?"
-              options={[
-                { id: 'yes', label: 'Yes' },
-                { id: 'no', label: 'No' },
-              ]}
-              selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
-              onChange={(value) =>
-                setContest({ ...contest, allowWriteIns: value === 'yes' })
+              disabled={disabled || hasExternalSource}
+              label="Type"
+              options={
+                hasExternalSource
+                  ? [
+                      { id: 'candidate', label: 'Candidate Contest' },
+                      { id: 'yesno', label: 'Ballot Measure' },
+                    ].filter((o) => o.id === contest.type)
+                  : [
+                      { id: 'candidate', label: 'Candidate Contest' },
+                      { id: 'yesno', label: 'Ballot Measure' },
+                    ]
+              }
+              selectedOptionId={contest.type}
+              onChange={(type) =>
+                setContest({
+                  ...(type === 'candidate'
+                    ? createBlankCandidateContest()
+                    : createBlankYesNoContest()),
+                  id: contest.id,
+                  title: contest.title,
+                  districtId: contest.districtId,
+                })
               }
             />
-          )}
-        </InputRow>
+            {contest.type === 'candidate' && (
+              <SegmentedButton
+                disabled={disabled}
+                label="Write-Ins Allowed?"
+                options={[
+                  { id: 'yes', label: 'Yes' },
+                  { id: 'no', label: 'No' },
+                ]}
+                selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
+                onChange={(value) =>
+                  setContest({ ...contest, allowWriteIns: value === 'yes' })
+                }
+              />
+            )}
+          </InputRow>
+        )}
 
         {contest.type === 'candidate' && (
           <React.Fragment>
@@ -808,11 +818,30 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </div>
           </React.Fragment>
         )}
+
+        {contest.type === 'straight-party' && (
+          <div>
+            <FieldName>Options</FieldName>
+            <Column style={{ gap: '0.5rem' }}>
+              {contest.optionIds.map((partyId) => {
+                const party = find(parties, (p) => p.id === partyId);
+                return (
+                  <input
+                    key={partyId}
+                    type="text"
+                    value={party.fullName}
+                    disabled
+                  />
+                );
+              })}
+            </Column>
+          </div>
+        )}
       </FormBody>
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!isFinalized && (
+      {!isFinalized && contest.type !== 'straight-party' && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 
@@ -928,7 +957,15 @@ interface DraftYesNoContest {
   additionalOptions?: readonly DraftOption[];
 }
 
-type DraftContest = DraftCandidateContest | DraftYesNoContest;
+// Straight party contests aren't editable, but we still need them to type-check
+type DraftStraightPartyContest = Omit<StraightPartyContest, 'districtId'> & {
+  districtId?: DistrictId;
+};
+
+type DraftContest =
+  | DraftCandidateContest
+  | DraftYesNoContest
+  | DraftStraightPartyContest;
 
 function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
   let firstName = candidate.firstName ?? '';
@@ -952,10 +989,6 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
 }
 
 function draftContestFromContest(contest: Contest): DraftContest {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (contest.type) {
     case 'candidate':
       return {
@@ -963,6 +996,7 @@ function draftContestFromContest(contest: Contest): DraftContest {
         candidates: contest.candidates.map(draftCandidateFromCandidate),
       };
     case 'yesno':
+    case 'straight-party':
       return { ...contest };
     default: {
       /* istanbul ignore next */
@@ -974,6 +1008,10 @@ function draftContestFromContest(contest: Contest): DraftContest {
 function tryContestFromDraftContest(
   draftContest: DraftContest
 ): Result<Contest, z.ZodError> {
+  assert(
+    draftContest.type !== 'straight-party',
+    'Straight party contests are not editable'
+  );
   switch (draftContest.type) {
     case 'candidate':
       return safeParse(CandidateContestSchema, {
