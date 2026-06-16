@@ -1512,7 +1512,7 @@ export const miGeneralElectionFixtures = (() => {
       candidate('county-commissioners', 'bainbridge'),
       {
         id: 'write-in-0',
-        name: 'Hannah Wong',
+        name: 'Write-In #1',
         isWriteIn: true,
         writeInIndex: 0,
       },
