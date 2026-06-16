@@ -85,7 +85,6 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "water-1-fishing": "Water District 1 Fishing",
     "water-2-fishing": "Water District 2 Fishing",
   },
-  "countyName": "Sample County",
   "districtName": {
     "congressional-1": "Congressional District 1",
     "congressional-2": "Congressional District 2",
@@ -95,6 +94,7 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
   },
   "electionDate": "September 8, 2021",
   "electionTitle": "Example Primary Election",
+  "jurisdictionName": "Sample County",
   "partyFullName": {
     "0": "Mammal Party",
     "1": "Fish Party",
@@ -179,12 +179,12 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "new-zoo-pick": "Ballot Measure 1 - Part 2",
     "zoo-council-mammal": "Zoo Council",
   },
-  "countyName": "Sample County",
   "districtName": {
     "district-1": "District 1",
   },
   "electionDate": "September 8, 2021",
   "electionTitle": "Example Primary Election",
+  "jurisdictionName": "Sample County",
   "partyFullName": {
     "0": "Mammal Party",
     "1": "Fish Party",
@@ -233,7 +233,6 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "water-1-fishing": "Water District 1 Fishing (in es-US)",
     "water-2-fishing": "Water District 2 Fishing (in es-US)",
   },
-  "countyName": "Sample County (in es-US)",
   "districtName": {
     "congressional-1": "Congressional District 1 (in es-US)",
     "congressional-2": "Congressional District 2 (in es-US)",
@@ -243,6 +242,7 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
   },
   "electionDate": "8 de septiembre de 2021",
   "electionTitle": "Example Primary Election (in es-US)",
+  "jurisdictionName": "Sample County (in es-US)",
   "partyFullName": {
     "0": "Mammal Party (in es-US)",
     "1": "Fish Party (in es-US)",
