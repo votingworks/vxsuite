@@ -14,8 +14,8 @@ import {
   CandidateContest,
   CandidateId,
   ContestId,
-  County,
-  CountyId,
+  Jurisdiction,
+  JurisdictionId,
   District,
   DistrictId,
   Election,
@@ -145,7 +145,7 @@ export function arbitraryContestId(): fc.Arbitrary<ContestId> {
 /**
  * Builds values suitable for county IDs.
  */
-export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
+export function arbitraryJurisdictionId(): fc.Arbitrary<JurisdictionId> {
   return arbitraryId();
 }
 
@@ -412,9 +412,9 @@ export function arbitraryBallotStyle({
   });
 }
 
-export function arbitraryCounty({
-  id = arbitraryCountyId(),
-}: { id?: fc.Arbitrary<County['id']> } = {}): fc.Arbitrary<County> {
+export function arbitraryJurisdiction({
+  id = arbitraryJurisdictionId(),
+}: { id?: fc.Arbitrary<Jurisdiction['id']> } = {}): fc.Arbitrary<Jurisdiction> {
   return fc.record({ id, name: fc.string({ minLength: 1 }) });
 }
 
@@ -467,7 +467,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           id: arbitraryElectionId(),
           type: fc.constant(type),
           title: fc.string({ minLength: 1 }),
-          county: arbitraryCounty(),
+          jurisdiction: arbitraryJurisdiction(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
           date: fc
             .date({

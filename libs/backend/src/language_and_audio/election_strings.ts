@@ -66,7 +66,7 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.CONTEST_TITLE]: {
     translatable: true,
   },
-  [ElectionStringKey.COUNTY_NAME]: {
+  [ElectionStringKey.JURISDICTION_NAME]: {
     translatable: true,
   },
   [ElectionStringKey.DISTRICT_NAME]: {
@@ -186,11 +186,11 @@ const electionStringExtractorFns: Record<
       stringInEnglish: contest.title,
     }));
   },
-  [ElectionStringKey.COUNTY_NAME](election) {
+  [ElectionStringKey.JURISDICTION_NAME](election) {
     return [
       {
-        stringKey: ElectionStringKey.COUNTY_NAME,
-        stringInEnglish: election.county.name,
+        stringKey: ElectionStringKey.JURISDICTION_NAME,
+        stringInEnglish: election.jurisdiction.name,
       },
     ];
   },

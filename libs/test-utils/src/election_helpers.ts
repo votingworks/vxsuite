@@ -133,7 +133,7 @@ export function createTestElection(
     title: 'Test Election for Multi-Page Summary Ballots',
     date: new DateWithoutTime('2024-11-05'),
     state: 'Test State',
-    county: {
+    jurisdiction: {
       id: 'county-1',
       name: 'Test County',
     },

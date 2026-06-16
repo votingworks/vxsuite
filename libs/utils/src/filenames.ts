@@ -46,10 +46,13 @@ export function generateElectionBasedSubfolderName(
   election: Election,
   ballotHash: string
 ): string {
-  const electionCountyName = sanitizeStringForFilename(election.county.name, {
-    replaceInvalidCharsWith: WORD_SEPARATOR,
-    defaultValue: 'county',
-  });
+  const electionCountyName = sanitizeStringForFilename(
+    election.jurisdiction.name,
+    {
+      replaceInvalidCharsWith: WORD_SEPARATOR,
+      defaultValue: 'county',
+    }
+  );
   const electionTitle = sanitizeStringForFilename(election.title, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'election',

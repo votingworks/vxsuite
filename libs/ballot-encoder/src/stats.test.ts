@@ -17,7 +17,7 @@ const election: Election = {
   id: electionId,
   type: 'general',
   title: 'Election',
-  county: { id: 'nowhere', name: 'Nowhere' },
+  jurisdiction: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
   date: new DateWithoutTime('1989-06-23'),
   seal: '<svg>test seal</svg>',
