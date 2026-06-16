@@ -130,7 +130,7 @@ function Content(): JSX.Element | null {
   const filteredContests = contests.filter((contest) => {
     /* istanbul ignore next */
     if (contest.type === 'straight-party') {
-      return straightPartyNotYetImplemented();
+      return false;
     }
     const matchesDistrict =
       filterDistrictId === FILTER_ALL ||
