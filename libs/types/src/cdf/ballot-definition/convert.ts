@@ -246,7 +246,7 @@ const extractorFns: Record<
     }
   },
 
-  [ElectionStringKey.COUNTY_NAME](cdfElection, uiStrings) {
+  [ElectionStringKey.JURISDICTION_NAME](cdfElection, uiStrings) {
     const county = cdfElection.GpUnit.find(
       (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.County
     );
@@ -256,7 +256,7 @@ const extractorFns: Record<
     }
 
     setInternationalizedUiStrings({
-      stringKey: ElectionStringKey.COUNTY_NAME,
+      stringKey: ElectionStringKey.JURISDICTION_NAME,
       uiStrings,
       values: county.Name.Text,
     });
@@ -900,12 +900,15 @@ export function convertVxfElectionToCdfBallotDefinition(
         '@id': stateId,
         Name: text(vxfElection.state, ElectionStringKey.STATE_NAME),
         Type: Cdf.ReportingUnitType.State,
-        ComposingGpUnitIds: [vxfElection.county.id],
+        ComposingGpUnitIds: [vxfElection.jurisdiction.id],
       },
       {
         '@type': 'BallotDefinition.ReportingUnit',
-        '@id': vxfElection.county.id,
-        Name: text(vxfElection.county.name, ElectionStringKey.COUNTY_NAME),
+        '@id': vxfElection.jurisdiction.id,
+        Name: text(
+          vxfElection.jurisdiction.name,
+          ElectionStringKey.JURISDICTION_NAME
+        ),
         Type: Cdf.ReportingUnitType.County,
         ComposingGpUnitIds: vxfElection.districts.map(
           (district) => district.id
@@ -1113,7 +1116,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     type: cdfElectionTypeToVxfElectionType[election.Type],
     title: englishText(election.Name),
     state: englishText(state.Name),
-    county: {
+    jurisdiction: {
       id: county['@id'],
       name: englishText(county.Name),
     },

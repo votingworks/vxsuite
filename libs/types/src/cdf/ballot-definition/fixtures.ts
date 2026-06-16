@@ -17,7 +17,7 @@ export const testVxfElection: Election = {
   type: 'general',
   title: 'Lincoln Municipal General Election',
   state: 'State of Hamilton',
-  county: {
+  jurisdiction: {
     id: 'county-1',
     name: 'Franklin County',
   },
