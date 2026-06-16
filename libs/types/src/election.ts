@@ -1040,10 +1040,26 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
     contestId: ContestIdSchema,
   });
 
-export type ContestOption = CandidateContestOption | YesNoContestOption;
+export interface StraightPartyContestOption {
+  type: StraightPartyContest['type'];
+  id: PartyId;
+  contestId: StraightPartyContest['id'];
+}
+export const StraightPartyContestOptionSchema: z.ZodSchema<StraightPartyContestOption> =
+  z.object({
+    type: z.literal('straight-party'),
+    id: PartyIdSchema,
+    contestId: ContestIdSchema,
+  });
+
+export type ContestOption =
+  | CandidateContestOption
+  | YesNoContestOption
+  | StraightPartyContestOption;
 export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
   YesNoContestOptionSchema,
+  StraightPartyContestOptionSchema,
 ]);
 
 export type ContestOptionId = ContestOption['id'];
@@ -1051,6 +1067,7 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   CandidateIdSchema,
   WriteInIdSchema,
   YesNoContestOptionIdSchema,
+  PartyIdSchema,
 ]);
 
 // Votes
