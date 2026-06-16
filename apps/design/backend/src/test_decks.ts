@@ -130,43 +130,28 @@ export async function createPrecinctSummaryBallotTestDeck({
         'mark'
       );
 
-      if (pageBreaks.length > 1) {
-        // Multi-page ballot - create a page for each break
-        const ballotAuditId = uuid();
+      const ballotAuditId = uuid();
 
-        for (const pageBreak of pageBreaks) {
-          const pageContests = getContestsForPage(
-            ballotSpec.ballotStyleId,
-            pageBreaks,
-            pageBreak.pageNumber
-          );
+      for (const pageBreak of pageBreaks) {
+        const pageContests = getContestsForPage(
+          ballotSpec.ballotStyleId,
+          pageBreaks,
+          pageBreak.pageNumber
+        );
 
-          reactDocuments.push({
-            document: React.createElement(BmdPaperBallot, {
-              electionDefinition,
-              ballotStyleId: ballotSpec.ballotStyleId,
-              precinctId: ballotSpec.precinctId,
-              votes: filterVotesForContests(ballotSpec.votes, pageContests),
-              isLiveMode,
-              machineType: 'mark' as const,
-              pageNumber: pageBreak.pageNumber,
-              totalPages: pageBreaks.length,
-              ballotAuditId,
-              contestsForPage: pageContests,
-              layout: pageBreak.layout,
-            }),
-          });
-        }
-      } else {
-        // Single-page ballot
         reactDocuments.push({
           document: React.createElement(BmdPaperBallot, {
             electionDefinition,
             ballotStyleId: ballotSpec.ballotStyleId,
             precinctId: ballotSpec.precinctId,
-            votes: ballotSpec.votes,
+            votes: filterVotesForContests(ballotSpec.votes, pageContests),
             isLiveMode,
             machineType: 'mark' as const,
+            pageNumber: pageBreak.pageNumber,
+            totalPages: pageBreaks.length,
+            ballotAuditId,
+            contestsForPage: pageContests,
+            layout: pageBreak.layout,
           }),
         });
       }

@@ -182,6 +182,10 @@ const initialArgs: BmdPaperBallotProps = {
     })
   ),
   sheetSize: 'letter',
+  pageNumber: 1,
+  totalPages: 1,
+  ballotAuditId: 'storybook-audit-id',
+  contestsForPage: election.contests,
 };
 
 const queryClient = new QueryClient({

@@ -6,6 +6,7 @@ import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
 import {
   BallotType,
   ElectionDefinition,
+  getContests,
   HmpbBallotPaperSize,
   SystemSettings,
   UiStringsPackage,
@@ -109,6 +110,10 @@ describe(`printMode === "summary"`, () => {
   test('prints summary ballot', async () => {
     const electionDefinition = electionDefBase;
     const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const allContests = getContests({
+      ballotStyle,
+      election: electionDefinition.election,
+    });
     const mockVotes: VotesDict = { foo: ['yes'] };
 
     vi.mocked(BackendLanguageContextProvider).mockImplementation((p) => (
@@ -135,6 +140,10 @@ describe(`printMode === "summary"`, () => {
               votes={mockVotes}
               isLiveMode
               machineType="mark"
+              pageNumber={1}
+              totalPages={1}
+              ballotAuditId={expect.any(String)}
+              contestsForPage={allContests}
             />
           </BackendLanguageContextProvider>
         ),

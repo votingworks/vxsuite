@@ -7,7 +7,6 @@ import {
   BlankPage,
   CandidateContest,
   InterpretedBmdMultiPagePage,
-  InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   SheetOf,
@@ -184,9 +183,15 @@ export const interpretedHmpbPage2WithMarginalMark: InterpretedHmpbPage = {
   },
 };
 
-export const interpretedBmdPage: InterpretedBmdPage = {
-  type: 'InterpretedBmdPage',
-  metadata: mockBallotMetadata,
+export const interpretedBmdPage: InterpretedBmdMultiPagePage = {
+  type: 'InterpretedBmdMultiPagePage',
+  metadata: {
+    ...mockBallotMetadata,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'audit-fixture',
+    contestIds: [fishingContest.id, fishCouncilContest.id],
+  },
   votes: {
     [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
@@ -199,9 +204,15 @@ export const interpretedBmdPage: InterpretedBmdPage = {
   },
 };
 
-export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
-  type: 'InterpretedBmdPage',
-  metadata: mockBallotMetadata,
+export const interpretedBmdPageWithWriteIn: InterpretedBmdMultiPagePage = {
+  type: 'InterpretedBmdMultiPagePage',
+  metadata: {
+    ...mockBallotMetadata,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'audit-fixture-write-in',
+    contestIds: [fishingContest.id, fishCouncilContest.id],
+  },
   votes: {
     [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: [

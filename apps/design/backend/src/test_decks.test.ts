@@ -88,6 +88,14 @@ vi.mock('@votingworks/hmpb', async (importActual) => {
   };
 });
 
+// The summary ballot test deck generates a random ballot audit ID per ballot,
+// which is encoded into the QR code. Pin it so the PDF snapshots are stable.
+vi.mock('node:crypto', async (importActual) => ({
+  ...(await importActual<typeof import('node:crypto')>()),
+  // eslint-disable-next-line vx/gts-identifiers
+  randomUUID: () => '00000000-0000-0000-0000-000000000000',
+}));
+
 const serializationOptions: ElectionSerializationOptions = {
   format: 'vxf',
   version: LATEST_SOFTWARE_VERSION,
@@ -539,15 +547,15 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     }>;
     expect(documents).toHaveLength(3);
 
-    // First two documents are multi-page (have pageNumber/totalPages)
+    // First two documents are multi-page
     expect(documents[0].document.props.pageNumber).toEqual(1);
     expect(documents[0].document.props.totalPages).toEqual(2);
     expect(documents[1].document.props.pageNumber).toEqual(2);
     expect(documents[1].document.props.totalPages).toEqual(2);
 
-    // Third document is single-page (no pageNumber/totalPages)
-    expect(documents[2].document.props.pageNumber).toBeUndefined();
-    expect(documents[2].document.props.totalPages).toBeUndefined();
+    // Third document is single-page
+    expect(documents[2].document.props.pageNumber).toEqual(1);
+    expect(documents[2].document.props.totalPages).toEqual(1);
 
     // All documents should have correct isLiveMode
     for (const doc of documents) {

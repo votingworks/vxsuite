@@ -93,6 +93,10 @@ export async function printTestPage({
       votes={{}}
       isLiveMode={false}
       machineType="mark"
+      pageNumber={1}
+      totalPages={1}
+      ballotAuditId="test-page-audit-id"
+      contestsForPage={mockElectionDefinition.election.contests}
     />
   );
 
