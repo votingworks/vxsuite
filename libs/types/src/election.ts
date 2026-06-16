@@ -513,11 +513,9 @@ export type BallotPaperSize = HmpbBallotPaperSize | BmdBallotPaperSize;
 
 export interface BallotLayout {
   paperSize: HmpbBallotPaperSize;
-  metadataEncoding: 'qr-code';
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: HmpbBallotPaperSizeSchema,
-  metadataEncoding: z.enum(['qr-code']),
 });
 
 // Hand-marked paper & adjudication

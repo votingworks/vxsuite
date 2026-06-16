@@ -1377,7 +1377,6 @@ export function convertCdfBallotDefinitionToVxfElection(
           width === ballotFormat.ShortEdge && height === ballotFormat.LongEdge
         );
       }),
-      metadataEncoding: 'qr-code',
     },
 
     ballotStrings: extractCdfUiStrings(cdfBallotDefinition),
