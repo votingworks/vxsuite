@@ -60787,7 +60787,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "test-county",
     "name": "Test County"
   },
