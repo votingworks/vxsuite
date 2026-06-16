@@ -111,10 +111,7 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -208,10 +205,7 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -355,10 +349,7 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -452,10 +443,7 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -573,10 +561,7 @@ jobs:
           path: apps/print/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -670,10 +655,7 @@ jobs:
           path: apps/scan/integration-testing/test-results/
       - when:
           condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-              # TODO(revert): temporarily publish screenshots from this branch.
-              - equal: [ chore/mark-scan-screenshot-tweaks, << pipeline.git.branch >> ]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - aws-cli/setup
             - run:
@@ -1813,10 +1795,7 @@ workflows:
             - test-apps-scan-integration-testing
           filters:
             branches:
-              # TODO(revert): temporarily build the gallery from this branch too.
-              only:
-                - main
-                - chore/mark-scan-screenshot-tweaks
+              only: main
 
 commands:
   checkout-and-install:
