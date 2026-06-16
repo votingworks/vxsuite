@@ -95,7 +95,6 @@ test('supports ballot layout paper size', () => {
         ...electionGeneral,
         ballotLayout: {
           paperSize: 'A4',
-          metadataEncoding: 'qr-code',
         },
       })
       .unsafeUnwrapErr()
@@ -257,7 +256,7 @@ test('safeParseVxfElectionDefinition computes the ballot hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().ballotHash
   ).toMatchInlineSnapshot(
-    `"bc33e32f534bf4f67b8342c1f6f7ead13a78ed9e06b67d697613844a1b97c991"`
+    `"f53a23d0285bc4a6807af42a3f2d98ff1cdc4c35008511246a229d452688c125"`
   );
 });
 

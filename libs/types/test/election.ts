@@ -81,8 +81,7 @@ export const electionData = `
   "state": "STATE",
   "type": "general",
   "ballotLayout": {
-    "paperSize": "letter",
-    "metadataEncoding": "qr-code"
+    "paperSize": "letter"
   },
   "ballotStrings": {
     "en": {
@@ -215,8 +214,7 @@ const electionTwoPartyPrimaryData = `
   },
   "date": "2021-09-08",
   "ballotLayout": {
-    "paperSize": "letter",
-    "metadataEncoding": "qr-code"
+    "paperSize": "letter"
   },
   "districts": [
     {
