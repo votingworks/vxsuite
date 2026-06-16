@@ -34,12 +34,14 @@ export const MULTI_LANGUAGE_UI_STRINGS: Record<
   LanguageCode,
   UiStringTranslations
 > = {
-  [LanguageCode.ENGLISH]: ballotLanguageNames(LanguageCode.ENGLISH),
-  [LanguageCode.SPANISH]: ballotLanguageNames(LanguageCode.SPANISH),
+  [LanguageCode.ARABIC]: ballotLanguageNames(LanguageCode.ARABIC),
+  [LanguageCode.BENGALI]: ballotLanguageNames(LanguageCode.BENGALI),
   [LanguageCode.CHINESE_SIMPLIFIED]: ballotLanguageNames(
     LanguageCode.CHINESE_SIMPLIFIED
   ),
   [LanguageCode.CHINESE_TRADITIONAL]: ballotLanguageNames(
     LanguageCode.CHINESE_TRADITIONAL
   ),
+  [LanguageCode.ENGLISH]: ballotLanguageNames(LanguageCode.ENGLISH),
+  [LanguageCode.SPANISH]: ballotLanguageNames(LanguageCode.SPANISH),
 };

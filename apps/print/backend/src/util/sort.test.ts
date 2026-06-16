@@ -77,8 +77,8 @@ describe('sortBallotPrintCounts', () => {
 
     expect(sorted.map((c) => c.languageCode)).toEqual([
       LanguageCode.ENGLISH,
-      LanguageCode.SPANISH,
       LanguageCode.CHINESE_SIMPLIFIED,
+      LanguageCode.SPANISH,
     ]);
   });
 

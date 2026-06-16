@@ -58,6 +58,8 @@ tmp.setGracefulCleanup();
 export type ApiClient = grout.Client<Api>;
 
 const vendoredTranslations: VendoredTranslations = {
+  [LanguageCode.ARABIC]: {},
+  [LanguageCode.BENGALI]: {},
   [LanguageCode.CHINESE_SIMPLIFIED]: {},
   [LanguageCode.CHINESE_TRADITIONAL]: {},
   [LanguageCode.SPANISH]: {},
