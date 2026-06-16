@@ -47,7 +47,7 @@ describe('ElectionInfoBar', () => {
     );
     unmount = renderResult.unmount;
     screen.getByText(election.title);
-    screen.getByText(`${election.county.name}, ${election.state}`);
+    screen.getByText(`${election.jurisdiction.name}, ${election.state}`);
     screen.getByText('Version');
     screen.getByText('Machine ID');
     screen.getByText('Election ID');
@@ -99,7 +99,7 @@ describe('VerticalElectionInfoBar', () => {
     );
     unmount = renderResult.unmount;
     screen.getByText(election.title);
-    screen.getByText(`${election.county.name}, ${election.state}`);
+    screen.getByText(`${election.jurisdiction.name}, ${election.state}`);
     screen.getByText('Version:');
     screen.getByText('Machine ID:');
     screen.getByText('Election ID:');

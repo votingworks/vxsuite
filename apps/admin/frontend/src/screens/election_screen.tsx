@@ -74,7 +74,7 @@ export function ElectionScreen(): JSX.Element {
         <div>
           <H2 as="h3">{election.title}</H2>
           <P>
-            {election.county.name}, {election.state}
+            {election.jurisdiction.name}, {election.state}
             <br />
             {format.localeLongDate(
               election.date.toMidnightDatetimeWithSystemTimezone()

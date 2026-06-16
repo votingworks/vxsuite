@@ -78,7 +78,7 @@ export function ElectionInfoBar({
 
   const electionInfoLabel = (
     <Font maxLines={2}>
-      {election.county.name}, {election.state}
+      {election.jurisdiction.name}, {election.state}
     </Font>
   );
 
@@ -187,7 +187,7 @@ export function VerticalElectionInfoBar({
             {election.title}
           </Font>
           <Font maxLines={4}>
-            {election.county.name}, {election.state}
+            {election.jurisdiction.name}, {election.state}
           </Font>
           <div>
             <DateString

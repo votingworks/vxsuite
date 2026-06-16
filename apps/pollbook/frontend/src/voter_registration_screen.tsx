@@ -292,8 +292,8 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                   <Callout icon="Danger" color="danger">
                     <span>
                       Invalid address for{' '}
-                      <strong>{election.county.name}</strong>. Make sure the
-                      street number and name match a valid address.
+                      <strong>{election.jurisdiction.name}</strong>. Make sure
+                      the street number and name match a valid address.
                     </span>
                   </Callout>
                 )}

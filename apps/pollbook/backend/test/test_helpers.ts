@@ -185,7 +185,7 @@ export function getTestElection(): Election {
   const testElection: Election = {
     id: 'test-election-id',
     state: 'Test State',
-    county: {
+    jurisdiction: {
       id: 'test-county',
       name: 'Test County',
     },
