@@ -164,6 +164,212 @@
       "hmpbVotingComplete": "You have completed voting.",
       "hmpbWriteIn": "Write-in"
     },
+    "ar": {
+      "contestDescription": {
+        "water-1-fishing": "هل ينبغي حظر الصيد في جميع البحيرات والأنهار المملوكة للمدينة؟",
+        "water-2-fishing": "هل ينبغي حظر الصيد في جميع البحيرات والأنهار المملوكة للمدينة؟"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "نعم",
+        "water-1-fishing-allow-fishing": "لا",
+        "water-2-fishing-ban-fishing": "نعم",
+        "water-2-fishing-allow-fishing": "لا"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "زعيم المقاطعة الثدييات",
+        "county-leader-fish": "زعيم المقاطعة فيش",
+        "congressional-1-mammal": "ممثل الدائرة الأولى في الكونغرس - الثدييات",
+        "congressional-1-fish": "ممثل الدائرة الأولى في الكونغرس - الأسماك",
+        "congressional-2-mammal": "ممثل الدائرة الثانية في الكونغرس - الثدييات",
+        "congressional-2-fish": "ممثل الدائرة الثانية في الكونغرس - الأسماك",
+        "water-1-fishing": "صيد الأسماك في منطقة المياه رقم 1",
+        "water-2-fishing": "صيد الأسماك في منطقة المياه رقم 2"
+      },
+      "countyName": "مقاطعة سامبل",
+      "districtName": {
+        "county": "مقاطعة",
+        "congressional-1": "الدائرة الانتخابية الأولى",
+        "congressional-2": "الدائرة الانتخابية الثانية",
+        "water-1": "المنطقة المائية 1",
+        "water-2": "منطقة المياه 2"
+      },
+      "electionTitle": "مثال على الانتخابات التمهيدية",
+      "partyFullName": {
+        "0": "حزب الثدييات",
+        "1": "حفلة السمك"
+      },
+      "partyName": {
+        "0": "الثدييات",
+        "1": "سمكة"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "المنطقة 1",
+        "precinct-c1-w1-2-polling-place": "الدائرة الثانية",
+        "precinct-c1-w2-polling-place": "الدائرة الثالثة",
+        "precinct-c2-polling-place": "الدائرة الرابعة"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "المنطقة 1",
+        "precinct-c1-w1-2": "الدائرة الثانية",
+        "precinct-c1-w2": "الدائرة الثالثة",
+        "precinct-c2": "الدائرة الرابعة"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "الدائرة الرابعة - القسم 1",
+        "precinct-c2-split-2": "الدائرة الرابعة - القسم الثاني"
+      },
+      "stateName": "حالة العينة",
+      "ballotLanguage": {
+        "zh-Hans": "الصينية المبسطة",
+        "zh-Hant": "الصينية التقليدية",
+        "en": "الإنجليزية",
+        "es-US": "الإسبانية (الولايات المتحدة)"
+      },
+      "electionDate": "8 سبتمبر 2021",
+      "hmpb10WillBeElected": "سيتم انتخاب عشرة",
+      "hmpb2WillBeElected": "سيتم انتخاب اثنين",
+      "hmpb3WillBeElected": "سيتم انتخاب ثلاثة",
+      "hmpb4WillBeElected": "سيتم انتخاب أربعة",
+      "hmpb5WillBeElected": "سيتم انتخاب خمسة",
+      "hmpb6WillBeElected": "سيتم انتخاب ستة",
+      "hmpb7WillBeElected": "سيتم انتخاب سبعة",
+      "hmpb8WillBeElected": "سيتم انتخاب ثمانية",
+      "hmpb9WillBeElected": "سيتم انتخاب تسعة",
+      "hmpbContinueVotingOnBack": "اقلب ورقة الاقتراع واستمر في التصويت",
+      "hmpbContinueVotingOnNextSheet": "استمر في التصويت على ورقة الاقتراع التالية",
+      "hmpbInstructions": "تعليمات",
+      "hmpbInstructionsToVoteText": "للتصويت، قم بتعبئة الدائرة البيضاوية بجوار اختيارك بالكامل.",
+      "hmpbInstructionsToVoteTitle": "للتصويت:",
+      "hmpbInstructionsWriteInText": "للتصويت لشخص لم يرد اسمه في ورقة الاقتراع، اكتب اسم الشخص في خانة \"الكتابة\" وقم بتعبئة الدائرة الموجودة بجوار الخانة بالكامل.",
+      "hmpbInstructionsWriteInTitle": "للتصويت لمرشح غير مُدرج اسمه في القائمة:",
+      "hmpbOfficialAbsenteeBallot": "بطاقة اقتراع رسمية للغياب",
+      "hmpbOfficialBallot": "ورقة الاقتراع الرسمية",
+      "hmpbOfficialProvisionalBallot": "ورقة الاقتراع المؤقتة الرسمية",
+      "hmpbPage": "صفحة",
+      "hmpbPageIntentionallyBlank": "هذه الصفحة تُركت فارغة عمداً",
+      "hmpbSampleAbsenteeBallot": "نموذج لورقة اقتراع غيابي",
+      "hmpbSampleBallot": "نموذج ورقة الاقتراع",
+      "hmpbSampleProvisionalBallot": "نموذج اقتراع مؤقت",
+      "hmpbTestAbsenteeBallot": "اختبار بطاقة الاقتراع الغيابي",
+      "hmpbTestBallot": "ورقة اقتراع تجريبية",
+      "hmpbTestProvisionalBallot": "ورقة اقتراع تجريبية مؤقتة",
+      "hmpbVoteFor1": "صوّت لرقم 1",
+      "hmpbVoteFor10": "صوّت لما يصل إلى 10",
+      "hmpbVoteFor2": "صوّت لما يصل إلى 2",
+      "hmpbVoteFor3": "صوّت لما يصل إلى 3",
+      "hmpbVoteFor4": "صوّت لما يصل إلى 4",
+      "hmpbVoteFor5": "صوّت لما يصل إلى 5",
+      "hmpbVoteFor6": "صوّت لما يصل إلى 6",
+      "hmpbVoteFor7": "صوّت لما يصل إلى 7",
+      "hmpbVoteFor8": "صوّت لما يصل إلى 8",
+      "hmpbVoteFor9": "صوّت لما يصل إلى 9",
+      "hmpbVoteForNotMoreThan1": "صوّت لما لا يزيد عن واحد",
+      "hmpbVotingComplete": "لقد أكملت عملية التصويت.",
+      "hmpbWriteIn": "اكتب اسمك"
+    },
+    "bn": {
+      "contestDescription": {
+        "water-1-fishing": "শহরের মালিকানাধীন সব হ্রদ ও নদীতে মাছ ধরা কি নিষিদ্ধ করা উচিত?",
+        "water-2-fishing": "শহরের মালিকানাধীন সব হ্রদ ও নদীতে মাছ ধরা কি নিষিদ্ধ করা উচিত?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "হ্যাঁ",
+        "water-1-fishing-allow-fishing": "না",
+        "water-2-fishing-ban-fishing": "হ্যাঁ",
+        "water-2-fishing-allow-fishing": "না"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "কাউন্টি নেতা স্তন্যপায়ী প্রাণী",
+        "county-leader-fish": "কাউন্টি লিডার ফিশ",
+        "congressional-1-mammal": "কংগ্রেসের ১ নং প্রতিনিধি - স্তন্যপায়ী",
+        "congressional-1-fish": "কংগ্রেসের ১ নং প্রতিনিধি - মাছ",
+        "congressional-2-mammal": "কংগ্রেসের ২ নং প্রতিনিধি - স্তন্যপায়ী",
+        "congressional-2-fish": "কংগ্রেসের ২ নং প্রতিনিধি - মাছ",
+        "water-1-fishing": "জল জেলা ১ মাছ ধরা",
+        "water-2-fishing": "জল জেলা ২ মাছ ধরা"
+      },
+      "countyName": "নমুনা কাউন্টি",
+      "districtName": {
+        "county": "কাউন্টি",
+        "congressional-1": "কংগ্রেসনাল ডিস্ট্রিক্ট ১",
+        "congressional-2": "কংগ্রেসনাল ডিস্ট্রিক্ট ২",
+        "water-1": "জল জেলা ১",
+        "water-2": "জল জেলা ২"
+      },
+      "electionTitle": "উদাহরণ প্রাথমিক নির্বাচন",
+      "partyFullName": {
+        "0": "স্তন্যপায়ী দল",
+        "1": "মাছের পার্টি"
+      },
+      "partyName": {
+        "0": "স্তন্যপায়ী প্রাণী",
+        "1": "মাছ"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "১ নং নির্বাচনী এলাকা",
+        "precinct-c1-w1-2-polling-place": "২ নং এলাকা",
+        "precinct-c1-w2-polling-place": "৩ নং নির্বাচনী এলাকা",
+        "precinct-c2-polling-place": "৪ নং নির্বাচনী এলাকা"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "১ নং নির্বাচনী এলাকা",
+        "precinct-c1-w1-2": "২ নং এলাকা",
+        "precinct-c1-w2": "৩ নং নির্বাচনী এলাকা",
+        "precinct-c2": "৪ নং নির্বাচনী এলাকা"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "প্রিসিংক্ট ৪ - স্প্লিট ১",
+        "precinct-c2-split-2": "প্রিসিংক্ট ৪ - স্প্লিট ২"
+      },
+      "stateName": "নমুনার অবস্থা",
+      "ballotLanguage": {
+        "zh-Hans": "চীনা (সরলীকৃত)",
+        "zh-Hant": "চীনা (ঐতিহ্যবাহী)",
+        "en": "ইংরেজি",
+        "es-US": "স্প্যানিশ (ইউ এস)"
+      },
+      "electionDate": "৮ সেপ্টেম্বর, ২০২১",
+      "hmpb10WillBeElected": "দশজন নির্বাচিত হবেন",
+      "hmpb2WillBeElected": "দুজন নির্বাচিত হবেন",
+      "hmpb3WillBeElected": "তিনজন নির্বাচিত হবেন",
+      "hmpb4WillBeElected": "চারজন নির্বাচিত হবেন",
+      "hmpb5WillBeElected": "পাঁচজন নির্বাচিত হবেন",
+      "hmpb6WillBeElected": "ছয়জন নির্বাচিত হবেন",
+      "hmpb7WillBeElected": "সাতজন নির্বাচিত হবেন",
+      "hmpb8WillBeElected": "আটজন নির্বাচিত হবেন",
+      "hmpb9WillBeElected": "নয়জন নির্বাচিত হবেন",
+      "hmpbContinueVotingOnBack": "ব্যালট উল্টে দিন এবং ভোটদান চালিয়ে যান।",
+      "hmpbContinueVotingOnNextSheet": "পরবর্তী ব্যালট পেপারে ভোটদান চালিয়ে যান।",
+      "hmpbInstructions": "নির্দেশাবলী",
+      "hmpbInstructionsToVoteText": "ভোট দেওয়ার জন্য, আপনার পছন্দের পাশের ডিম্বাকৃতি ঘরটি সম্পূর্ণভাবে পূরণ করুন।",
+      "hmpbInstructionsToVoteTitle": "ভোট দিতে:",
+      "hmpbInstructionsWriteInText": "ব্যালটে নাম নেই এমন কোনো ব্যক্তিকে ভোট দেওয়ার জন্য, \"রাইট-ইন\" লাইনে সেই ব্যক্তির নাম লিখুন এবং লাইনের পাশের ডিম্বাকৃতি অংশটি সম্পূর্ণভাবে পূরণ করুন।",
+      "hmpbInstructionsWriteInTitle": "রাইট-ইন এর জন্য ভোট দিতে:",
+      "hmpbOfficialAbsenteeBallot": "অফিসিয়াল অনুপস্থিত ব্যালট",
+      "hmpbOfficialBallot": "অফিসিয়াল ব্যালট",
+      "hmpbOfficialProvisionalBallot": "অফিসিয়াল অস্থায়ী ব্যালট",
+      "hmpbPage": "পৃষ্ঠা",
+      "hmpbPageIntentionallyBlank": "এই পৃষ্ঠাটি ইচ্ছাকৃতভাবে খালি রাখা হয়েছে",
+      "hmpbSampleAbsenteeBallot": "নমুনা অনুপস্থিত ব্যালট",
+      "hmpbSampleBallot": "নমুনা ব্যালট",
+      "hmpbSampleProvisionalBallot": "নমুনা অস্থায়ী ব্যালট",
+      "hmpbTestAbsenteeBallot": "পরীক্ষার অনুপস্থিতি ব্যালট",
+      "hmpbTestBallot": "পরীক্ষার ব্যালট",
+      "hmpbTestProvisionalBallot": "অস্থায়ী ব্যালট পরীক্ষা",
+      "hmpbVoteFor1": "১ এর পক্ষে ভোট দিন",
+      "hmpbVoteFor10": "সর্বোচ্চ ১০ জনকে ভোট দিন",
+      "hmpbVoteFor2": "সর্বোচ্চ ২ জনকে ভোট দিন",
+      "hmpbVoteFor3": "সর্বোচ্চ ৩ জনকে ভোট দিন",
+      "hmpbVoteFor4": "সর্বোচ্চ ৪ জনকে ভোট দিন",
+      "hmpbVoteFor5": "সর্বোচ্চ ৫ জনকে ভোট দিন",
+      "hmpbVoteFor6": "সর্বোচ্চ ৬ জনকে ভোট দিন",
+      "hmpbVoteFor7": "সর্বোচ্চ ৭ জনকে ভোট দিন",
+      "hmpbVoteFor8": "সর্বোচ্চ ৮ জনকে ভোট দিন",
+      "hmpbVoteFor9": "সর্বোচ্চ ৯ জনকে ভোট দিন",
+      "hmpbVoteForNotMoreThan1": "সর্বাধিক ১ জনের জন্য ভোট দিন।",
+      "hmpbVotingComplete": "আপনার ভোটদান সম্পন্ন হয়েছে।",
+      "hmpbWriteIn": "লিখিত"
+    },
     "zh-Hans": {
       "contestDescription": {
         "water-1-fishing": "是否应该禁止在所有城市拥有的湖泊和河流中捕鱼？",
