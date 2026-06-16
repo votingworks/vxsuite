@@ -1,0 +1,176 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+
+import { Id } from '@votingworks/types';
+import { Button, Modal, Loading, P } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
+import {
+  Column,
+  Container,
+  Footer,
+  Form,
+  PrecinctSelect,
+  PrintButton,
+  ScreenWrapper,
+  TitleBar,
+} from '../components';
+import {
+  getDeviceStatuses,
+  getElectionRecord,
+  getTestDeckBallotCount,
+  printTestDeck,
+} from '../api';
+
+const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
+
+const TitleBarButton = styled(Button)`
+  width: 16rem;
+`;
+
+const FormSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: hidden;
+  flex: 1;
+
+  > strong {
+    padding-left: 0.25rem;
+  }
+`;
+
+function PrintTestDeckModal({
+  precinctId,
+  onClose,
+}: {
+  precinctId?: Id;
+  onClose: () => void;
+}): JSX.Element | null {
+  const printTestDeckMutation = printTestDeck.useMutation();
+  const getTestDeckBallotCountQuery = getTestDeckBallotCount.useQuery({
+    precinctId,
+  });
+  const [isShowingPrintMessage, setIsShowingPrintMessage] = useState(false);
+
+  if (!getTestDeckBallotCountQuery.isSuccess) {
+    return null;
+  }
+
+  const ballotCount = getTestDeckBallotCountQuery.data;
+
+  function handlePrint() {
+    setIsShowingPrintMessage(true);
+    setTimeout(() => {
+      onClose();
+    }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
+    printTestDeckMutation.mutate({ precinctId });
+  }
+
+  if (isShowingPrintMessage) {
+    return (
+      <Modal
+        centerContent
+        content={
+          <Loading animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}>
+            Printing
+          </Loading>
+        }
+      />
+    );
+  }
+
+  return (
+    <Modal
+      title="Print Test Deck"
+      content={<P>Print {ballotCount} test deck ballots and tally report?</P>}
+      onOverlayClick={onClose}
+      actions={
+        <React.Fragment>
+          <Button
+            icon="Print"
+            variant="primary"
+            onPress={handlePrint}
+            disabled={ballotCount === 0}
+          >
+            Print {ballotCount} Ballots
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+export function TestDeckScreen(): JSX.Element | null {
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
+  const [printTestDeckTarget, setPrintTestDeckTarget] = useState<{
+    precinctId?: Id;
+  }>();
+
+  const getElectionRecordQuery = getElectionRecord.useQuery();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+
+  if (!getElectionRecordQuery.isSuccess || !getDeviceStatusesQuery.isSuccess) {
+    return null;
+  }
+
+  const {
+    electionDefinition: { election },
+  } = assertDefined(getElectionRecordQuery.data);
+  const { printer } = getDeviceStatusesQuery.data;
+
+  return (
+    <ScreenWrapper authType="election_manager">
+      <Container>
+        <TitleBar
+          title="Test Decks"
+          actions={
+            <TitleBarButton
+              disabled={!printer.connected}
+              color="neutral"
+              fill="outlined"
+              onPress={() => {
+                setPrintTestDeckTarget({ precinctId: undefined });
+              }}
+            >
+              Print All Test Decks
+            </TitleBarButton>
+          }
+        />
+        <Form>
+          <Column>
+            <FormSection>
+              <PrecinctSelect
+                searchValue={searchValue}
+                selectedPrecinctId={selectedPrecinctId}
+                precincts={election.precincts}
+                onSearch={setSearchValue}
+                onSelect={setSelectedPrecinctId}
+              />
+            </FormSection>
+          </Column>
+        </Form>
+        <Footer>
+          <PrintButton
+            icon="Print"
+            color="primary"
+            fill="filled"
+            onPress={() =>
+              setPrintTestDeckTarget({ precinctId: selectedPrecinctId })
+            }
+            disabled={!selectedPrecinctId || !printer.connected}
+          >
+            Print Precinct Test Deck
+          </PrintButton>
+        </Footer>
+        {printTestDeckTarget && (
+          <PrintTestDeckModal
+            precinctId={printTestDeckTarget.precinctId}
+            onClose={() => setPrintTestDeckTarget(undefined)}
+          />
+        )}
+      </Container>
+    </ScreenWrapper>
+  );
+}

@@ -6,6 +6,7 @@ export const systemAdministratorRoutes = {
 export const electionManagerRoutes = {
   election: { title: 'Election', path: '/election' },
   print: { title: 'Print', path: '/print' },
+  testDecks: { title: 'Test Decks', path: '/test-decks' },
   reports: { title: 'Report', path: '/report' },
   diagnostics: { title: 'Diagnostics', path: '/diagnostics' },
   settings: { title: 'Settings', path: '/settings' },

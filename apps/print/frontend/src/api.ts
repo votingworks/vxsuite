@@ -110,6 +110,18 @@ export const configureElectionPackageFromUsb = {
   },
 } as const;
 
+export const getTestDeckBallotCount = {
+  queryKey(input: { precinctId?: string } = {}): QueryKey {
+    return ['getTestDeckBallotCount', input];
+  },
+  useQuery(input: { precinctId?: string } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getTestDeckBallotCount(input)
+    );
+  },
+} as const;
+
 export const getPollingPlaceId = {
   queryKey(): QueryKey {
     return ['getPollingPlaceId'];
@@ -344,5 +356,12 @@ export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;
+
+export const printTestDeck = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestDeck);
   },
 } as const;
