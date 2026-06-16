@@ -109,7 +109,6 @@ export function electionListing(
     date: election.date,
     type: election.type,
     state: election.state,
-    jurisdictionName: election.jurisdiction.name,
     status: 'inProgress',
   };
 }
