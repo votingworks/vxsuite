@@ -73,8 +73,7 @@ test('renders labelled candidate and ballot measure sublists', async () => {
   const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -111,8 +110,7 @@ test('renders primary election contest parties, when available', async () => {
   const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -143,8 +141,7 @@ test('navigates on select', async () => {
   const history = newHistory();
 
   renderList(mockApi, history, {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -175,8 +172,7 @@ test('omits ballot measure section if empty', async () => {
   const candidateContests = [candidateContest1, candidateContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests: [],
+    contests: candidateContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -199,8 +195,7 @@ test('omits candidate section if empty', async () => {
   const yesNoContests = [yesNoContest2, yesNoContest1];
 
   renderList(mockApi, newHistory(), {
-    candidateContests: [],
-    yesNoContests,
+    contests: yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -225,8 +220,7 @@ test('omits reordering when not enabled', async () => {
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests: [],
+    contests: candidateContests,
     reorder,
     reordering: false,
   });
@@ -245,8 +239,7 @@ test('supports reordering', async () => {
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder,
     reordering: true,
   });
