@@ -3,11 +3,13 @@ import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionStraightPartyFixtures,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotTargetMark,
   CandidateContest,
+  StraightPartyContest,
   Tabulation,
   WriteInCandidate,
   YesNoContest,
@@ -242,6 +244,49 @@ test('markInfoToVotesDict yesno', () => {
   ).toEqual({
     [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
   });
+});
+
+test('markInfoToVotesDict straight-party', () => {
+  const election = electionStraightPartyFixtures.readElection();
+  const straightPartyContest = find(
+    election.contests,
+    (c): c is StraightPartyContest => c.type === 'straight-party'
+  );
+  const [partyId1, partyId2] = straightPartyContest.optionIds;
+
+  const mark1: BallotTargetMark = {
+    type: 'straight-party',
+    contestId: straightPartyContest.id,
+    optionId: partyId1!,
+    score: 0.5,
+    ...ballotTargetMarkBase,
+  };
+  const mark2: BallotTargetMark = {
+    ...mark1,
+    optionId: partyId2!,
+  };
+
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [mark1]
+    )
+  ).toEqual({ [straightPartyContest.id]: [partyId1] });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.5, definite: 0.8 },
+      [mark1]
+    )
+  ).toEqual({ [straightPartyContest.id]: [] });
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [mark1, mark2]
+    )
+  ).toEqual({ [straightPartyContest.id]: [partyId1, partyId2] });
 });
 
 test('hasWriteIns', () => {

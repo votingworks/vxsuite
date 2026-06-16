@@ -10,7 +10,7 @@ import {
   MarkThresholds,
   safeParse,
   safeParseInt,
-  straightPartyNotYetImplemented,
+  StraightPartyVote,
   Tabulation,
   Vote,
   VotesDict,
@@ -136,6 +136,16 @@ function markToYesNoVotes(
     : [];
 }
 
+function markToStraightPartyVotes(
+  markThresholds: Pick<MarkThresholds, 'definite'>,
+  mark: BallotTargetMark
+): StraightPartyVote {
+  assert(mark.type === 'straight-party');
+  return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
+    ? [mark.optionId]
+    : [];
+}
+
 /**
  * There may be two positions on the ballot for the same candidate if they
  * are endorsed by multiple parties. We need to deduplicate votes such that,
@@ -146,12 +156,30 @@ function deduplicateVotes(vote: Vote): Vote {
     return vote;
   }
 
-  // if YesNoVote, no deduplication is necessary
+  // if YesNoVote or StraightPartyVote, no deduplication is necessary
   if (typeof vote[0] === 'string') {
     return vote;
   }
 
   return uniqueBy(vote as CandidateVote, (c) => c.id);
+}
+
+function markToVotes(
+  contest: Contest,
+  markThresholds: MarkThresholdsOptionalMarginal,
+  mark: BallotTargetMark
+): Vote {
+  switch (contest.type) {
+    case 'candidate':
+      return markToCandidateVotes(contest, markThresholds, mark);
+    case 'yesno':
+      return markToYesNoVotes(markThresholds, mark);
+    case 'straight-party':
+      return markToStraightPartyVotes(markThresholds, mark);
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contest, 'type');
+  }
 }
 
 /**
@@ -166,19 +194,8 @@ export function convertMarksToVotesDict(
   for (const mark of marks) {
     const contest = contests.find((c) => c.id === mark.contestId);
     assert(contest, `Contest not found: ${mark.contestId}`);
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
     const existingVotes = votesDict[mark.contestId] ?? [];
-    const newVotes =
-      contest.type === 'candidate'
-        ? markToCandidateVotes(contest, markThresholds, mark)
-        : contest.type === 'yesno'
-        ? markToYesNoVotes(markThresholds, mark)
-        : /* istanbul ignore next */
-          throwIllegalValue(contest, 'type');
-
+    const newVotes = markToVotes(contest, markThresholds, mark);
     votesDict[mark.contestId] = deduplicateVotes([
       ...existingVotes,
       ...newVotes,
