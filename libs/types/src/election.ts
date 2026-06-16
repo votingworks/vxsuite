@@ -1078,14 +1078,18 @@ export type YesNoVote = readonly YesNoContestOptionId[];
 export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.array(
   YesNoContestOptionIdSchema
 );
+export type StraightPartyVote = readonly PartyId[];
+export const StraightPartyVoteSchema: z.ZodSchema<StraightPartyVote> =
+  z.array(PartyIdSchema);
 
 export type OptionalYesNoVote = Optional<YesNoVote>;
 export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
   YesNoVoteSchema.optional();
-export type Vote = CandidateVote | YesNoVote;
+export type Vote = CandidateVote | YesNoVote | StraightPartyVote;
 export const VoteSchema: z.ZodSchema<Vote> = z.union([
   CandidateVoteSchema,
   YesNoVoteSchema,
+  StraightPartyVoteSchema,
 ]);
 export type OptionalVote = Optional<Vote>;
 export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
@@ -1286,12 +1290,39 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
     scoredOffset: OffsetSchema,
   });
 
+export interface BallotStraightPartyTargetMark {
+  type: StraightPartyContest['type'];
+  /** The area of the detected bubble. */
+  bounds: Rect;
+  contestId: ContestId;
+  target: TargetShape;
+  optionId: PartyId;
+  score: number;
+  /**
+   * How far away `bounds` was from where it was expected. Thus, the expected
+   * bounds is `bounds - scoredOffset`.
+   */
+  scoredOffset: Offset;
+}
+export const BallotStraightPartyTargetMarkSchema: z.ZodSchema<BallotStraightPartyTargetMark> =
+  z.object({
+    type: z.literal('straight-party'),
+    bounds: RectSchema,
+    contestId: ContestIdSchema,
+    target: TargetShapeSchema,
+    optionId: PartyIdSchema,
+    score: z.number(),
+    scoredOffset: OffsetSchema,
+  });
+
 export type BallotTargetMark =
   | BallotCandidateTargetMark
-  | BallotYesNoTargetMark;
+  | BallotYesNoTargetMark
+  | BallotStraightPartyTargetMark;
 export const BallotTargetMarkSchema: z.ZodSchema<BallotTargetMark> = z.union([
   BallotCandidateTargetMarkSchema,
   BallotYesNoTargetMarkSchema,
+  BallotStraightPartyTargetMarkSchema,
 ]);
 
 export type BallotMark = BallotTargetMark;
