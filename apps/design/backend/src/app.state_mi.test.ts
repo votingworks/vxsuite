@@ -106,4 +106,22 @@ test('general elections include generated straight party contest', async () => {
     })
   ).unsafeUnwrap();
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
+
+  // Make sure re-ordering other contests works, even though straight party
+  // contest is not in the db
+  const realContests = contests.filter(
+    (contest) => contest.type !== 'straight-party'
+  );
+  const reorderedRealContests = realContests.toReversed();
+  await apiClient.reorderContests({
+    electionId,
+    contestIds: [
+      straightPartyContest.id,
+      ...reorderedRealContests.map((contest) => contest.id),
+    ],
+  });
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    straightPartyContest,
+    ...reorderedRealContests,
+  ]);
 });
