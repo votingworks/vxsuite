@@ -1171,9 +1171,6 @@ export class Store {
 
       const pollingPlaces = await this.listPollingPlaces(electionId);
 
-      // Fill in our precinct/ballot style overrides in the VXF election format.
-      // This is important for pieces of the code that rely on the VXF election
-      // (e.g. rendering ballots)
       const election: Election = {
         id: electionId,
         type: electionRow.type,
@@ -1209,9 +1206,6 @@ export class Store {
 
       return {
         election,
-        type: electionRow.type,
-        precincts,
-        ballotStyles,
         systemSettings,
         ballotTemplateId: electionRow.ballotTemplateId,
         createdAt: electionRow.createdAt.toISOString(),
