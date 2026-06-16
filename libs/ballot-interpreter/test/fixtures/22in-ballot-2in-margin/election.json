@@ -194,7 +194,7 @@
         "31u6c9vgonko": "Contest 30",
         "rlsejssle0ue": "Contest 31"
       },
-      "countyName": "Dev Jurisdiction - DEMO",
+      "jurisdictionName": "Dev Jurisdiction - DEMO",
       "districtName": {
         "dr29ozqz37x8": "District 1"
       },
@@ -3365,7 +3365,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "county-id",
     "name": "Dev Jurisdiction - DEMO"
   },

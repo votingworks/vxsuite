@@ -78,7 +78,7 @@
         "ys9n2mnwiqjt": "Proposition 4",
         "aqot1kwjm96r": "Proposition 5"
       },
-      "countyName": "Harris County",
+      "jurisdictionName": "Harris County",
       "districtName": {
         "6rnzw6xneisv": "City of Houston",
         "97b0bk0facjw": "State of Texas",
@@ -180,7 +180,7 @@
         "ys9n2mnwiqjt": "提案4",
         "aqot1kwjm96r": "提案5"
       },
-      "countyName": "哈里斯县",
+      "jurisdictionName": "哈里斯县",
       "districtName": {
         "6rnzw6xneisv": "休斯顿市",
         "97b0bk0facjw": "德克萨斯州",
@@ -282,7 +282,7 @@
         "ys9n2mnwiqjt": "提案4",
         "aqot1kwjm96r": "提案5"
       },
-      "countyName": "哈里斯縣",
+      "jurisdictionName": "哈里斯縣",
       "districtName": {
         "6rnzw6xneisv": "休斯頓市",
         "97b0bk0facjw": "德克薩斯州",
@@ -384,7 +384,7 @@
         "ys9n2mnwiqjt": "Proposición 4",
         "aqot1kwjm96r": "Proposición 5"
       },
-      "countyName": "Condado de Harris",
+      "jurisdictionName": "Condado de Harris",
       "districtName": {
         "6rnzw6xneisv": "Ciudad de Houston",
         "97b0bk0facjw": "Estado de Texas",
@@ -739,7 +739,7 @@
       }
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "county-id",
     "name": "Harris County"
   },

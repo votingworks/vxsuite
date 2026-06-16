@@ -3,7 +3,7 @@
   "type": "general",
   "title": "Lincoln Municipal General Election",
   "state": "State of Hamilton",
-  "county": {
+  "jurisdiction": {
     "id": "franklin",
     "name": "Franklin County"
   },

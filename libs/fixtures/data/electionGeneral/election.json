@@ -3,7 +3,7 @@
   "type": "general",
   "title": "General Election",
   "state": "State of Hamilton",
-  "county": {
+  "jurisdiction": {
     "id": "franklin",
     "name": "Franklin County"
   },
@@ -845,7 +845,7 @@
         "proposition-1": "Proposition 1: Gambling in Franklin and Fromwit Counties",
         "measure-101": "Measure 101: College District"
       },
-      "countyName": "Franklin County",
+      "jurisdictionName": "Franklin County",
       "districtName": {
         "district-1": "District 1",
         "district-2": "District 2",
@@ -979,7 +979,7 @@
         "proposition-1": "提案 1：富兰克林县和弗罗威特县的赌博业",
         "measure-101": "措施 101：大学区"
       },
-      "countyName": "富兰克林县",
+      "jurisdictionName": "富兰克林县",
       "districtName": {
         "district-1": "第一区",
         "district-2": "第 2 区",
@@ -1113,7 +1113,7 @@
         "proposition-1": "提案 1：富蘭克林縣和弗羅維特縣的賭博",
         "measure-101": "措施 101：大學區"
       },
-      "countyName": "富蘭克林縣",
+      "jurisdictionName": "富蘭克林縣",
       "districtName": {
         "district-1": "1區",
         "district-2": "2區",
@@ -1247,7 +1247,7 @@
         "proposition-1": "Propuesta 1: Juegos de azar en los condados de Franklin y Fromwit",
         "measure-101": "Medida 101: Distrito Universitario"
       },
-      "countyName": "Condado de Franklin",
+      "jurisdictionName": "Condado de Franklin",
       "districtName": {
         "district-1": "Distrito 1",
         "district-2": "Distrito 2",

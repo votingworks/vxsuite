@@ -465,7 +465,7 @@
       }
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },

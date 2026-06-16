@@ -2,7 +2,7 @@
   "type": "primary",
   "title": "Tally Report Test Set",
   "state": "California",
-  "county": {
+  "jurisdiction": {
     "id": "county-id",
     "name": "Alameda"
   },

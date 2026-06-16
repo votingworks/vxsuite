@@ -3,7 +3,7 @@
   "type": "closed-primary",
   "title": "Example Primary Election",
   "state": "State of Sample",
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },
@@ -268,7 +268,7 @@
         "new-zoo-pick": "Ballot Measure 1",
         "fishing": "Ballot Measure 3"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": { "district-1": "District 1" },
       "electionDate": "September 8, 2021",
       "electionTitle": "Example Primary Election",

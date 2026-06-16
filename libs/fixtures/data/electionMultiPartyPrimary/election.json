@@ -3,7 +3,7 @@
   "type": "closed-primary",
   "title": "Primary Election",
   "state": "State of Sample",
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },
@@ -529,7 +529,7 @@
         "schoolboard-constitution": "Schoolboard",
         "schoolboard-federalist": "Schoolboard"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": {
         "district-1": "District 1",
         "district-2": "District 2",

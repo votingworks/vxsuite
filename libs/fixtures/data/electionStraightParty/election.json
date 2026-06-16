@@ -3,7 +3,7 @@
   "type": "general",
   "title": "Example Straight Party General Election",
   "state": "State of Hamilton",
-  "county": {
+  "jurisdiction": {
     "id": "franklin",
     "name": "Franklin County"
   },
