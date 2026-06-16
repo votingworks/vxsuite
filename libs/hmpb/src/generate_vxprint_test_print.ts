@@ -70,7 +70,6 @@ function makeElection(): Election {
     ],
     ballotLayout: {
       paperSize: HmpbBallotPaperSize.Letter,
-      metadataEncoding: 'qr-code',
     },
     ballotStrings: {},
   };

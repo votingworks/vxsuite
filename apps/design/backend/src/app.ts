@@ -160,7 +160,6 @@ export function createBlankElection(
     ballotStyles: [],
     ballotLayout: {
       paperSize: HmpbBallotPaperSize.Letter,
-      metadataEncoding: 'qr-code',
     },
     ballotStrings: {},
   };

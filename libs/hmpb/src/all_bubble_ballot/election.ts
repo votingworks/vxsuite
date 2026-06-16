@@ -60,7 +60,6 @@ export function createElection({
     id: 'all-bubble-ballot-election',
     ballotLayout: {
       paperSize: ballotPaperSize,
-      metadataEncoding: 'qr-code',
     },
     ballotStyles: [
       {

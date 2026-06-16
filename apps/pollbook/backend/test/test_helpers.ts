@@ -216,7 +216,6 @@ export function getTestElection(): Election {
     ],
     ballotLayout: {
       paperSize: HmpbBallotPaperSize.Letter,
-      metadataEncoding: 'qr-code',
     },
     ballotStrings: {},
   };

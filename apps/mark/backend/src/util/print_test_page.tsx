@@ -63,7 +63,6 @@ function getMockElectionDefinition(): ElectionDefinition {
       ],
       ballotLayout: {
         paperSize: HmpbBallotPaperSize.Letter,
-        metadataEncoding: 'qr-code',
       },
       ballotStrings: {},
     },

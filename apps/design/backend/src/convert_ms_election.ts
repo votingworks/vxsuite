@@ -388,7 +388,6 @@ export function convertMsElection(
     seal,
     ballotLayout: {
       paperSize: HmpbBallotPaperSize.Letter,
-      metadataEncoding: 'qr-code',
     },
     // Will be generated after import
     ballotStrings: {},

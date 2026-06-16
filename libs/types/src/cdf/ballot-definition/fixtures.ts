@@ -205,7 +205,6 @@ export const testVxfElection: Election = {
   ],
   ballotLayout: {
     paperSize: HmpbBallotPaperSize.Letter,
-    metadataEncoding: 'qr-code',
   },
   gridLayouts: [
     {

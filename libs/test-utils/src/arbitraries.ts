@@ -433,7 +433,6 @@ export function arbitraryParty({
 export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   return fc.record({
     paperSize: fc.constantFrom(...Object.values(HmpbBallotPaperSize)),
-    metadataEncoding: fc.constantFrom('qr-code'),
   });
 }
 

@@ -97,7 +97,6 @@ const testElectionRecord = makeElectionRecord(
   {
     id: 'test-election-id',
     ballotLayout: {
-      metadataEncoding: 'qr-code',
       paperSize: HmpbBallotPaperSize.Letter,
     },
     ballotStrings: {},

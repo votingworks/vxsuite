@@ -175,7 +175,6 @@ export function generateElection(
     state: randomString(maxStringLengths.stateName, words.locations),
     seal,
     ballotLayout: {
-      metadataEncoding: 'qr-code',
       paperSize: HmpbBallotPaperSize.Custom22,
     },
     ballotStrings: {},

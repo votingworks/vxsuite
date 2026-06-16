@@ -144,7 +144,6 @@ export function createTestElection(
     ballotStyles: [ballotStyle],
     contests,
     ballotLayout: {
-      metadataEncoding: 'qr-code',
       paperSize: HmpbBallotPaperSize.Letter,
     },
     ballotStrings: {},

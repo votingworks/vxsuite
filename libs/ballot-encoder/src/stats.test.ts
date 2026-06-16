@@ -47,7 +47,6 @@ const election: Election = {
   ],
   ballotLayout: {
     paperSize: HmpbBallotPaperSize.Letter,
-    metadataEncoding: 'qr-code',
   },
   ballotStrings: {},
 };

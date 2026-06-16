@@ -1226,7 +1226,6 @@ export class Store {
         contests,
         ballotLayout: {
           paperSize: electionRow.ballotPaperSize,
-          metadataEncoding: 'qr-code',
         },
         ballotStrings: {},
       };

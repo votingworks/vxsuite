@@ -149,7 +149,6 @@ const electionWithNoContestsRecord = makeElectionRecord(
     ],
     contests: [],
     ballotLayout: {
-      metadataEncoding: 'qr-code',
       paperSize: HmpbBallotPaperSize.Letter,
     },
     ballotStrings: {},
@@ -452,7 +451,6 @@ test('editing a candidate contest (primary election)', async () => {
       ],
       seal: '',
       ballotLayout: {
-        metadataEncoding: 'qr-code',
         paperSize: HmpbBallotPaperSize.Letter,
       },
       ballotStrings: {},
