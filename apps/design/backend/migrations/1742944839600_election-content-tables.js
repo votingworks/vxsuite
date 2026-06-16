@@ -215,7 +215,11 @@ exports.up = async (pgm) => {
         type = '${election.type}',
         title = '${quote(election.title)}',
         date = '${election.date}',
-        jurisdiction = '${quote(election.county.name)}',
+        jurisdiction = '${quote(
+          // Historical backfill: this migration ran when the election used the
+          // now-renamed `county` field (since renamed to `jurisdiction`).
+          /** @type {any} */ (election).county.name
+        )}',
         state = '${quote(election.state)}',
         seal = '${election.seal}',
         ballot_paper_size = '${election.ballotLayout.paperSize}'

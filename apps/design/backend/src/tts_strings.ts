@@ -59,10 +59,10 @@ export function apiMethods(ctx: TtsApiContext) {
         });
       }
 
-      if (election.county.name) {
+      if (election.jurisdiction.name) {
         strings.push({
-          key: ElectionStringKey.COUNTY_NAME,
-          text: election.county.name,
+          key: ElectionStringKey.JURISDICTION_NAME,
+          text: election.jurisdiction.name,
         });
       }
 

@@ -45,14 +45,14 @@ describe('valid string keys', () => {
   }
 
   const ttsDefaults: TtsStringDefault[] = [
-    { key: Key.COUNTY_NAME, text: 'Countyville' },
+    { key: Key.JURISDICTION_NAME, text: 'Countyville' },
     { key: Key.ELECTION_TITLE, text: 'General Election' },
     { key: Key.STATE_NAME, text: 'CA' },
   ];
 
   const specs: Spec[] = [
     {
-      stringKey: Key.COUNTY_NAME,
+      stringKey: Key.JURISDICTION_NAME,
       expectedEditor: {
         title: 'Election Info Audio: Jurisdiction',
         ttsDefault: ttsDefaults[0],

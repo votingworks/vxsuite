@@ -9,7 +9,7 @@ import {
 import {
   Contest,
   Candidate,
-  County,
+  Jurisdiction,
   District,
   Election,
   ElectionId,
@@ -243,7 +243,7 @@ export function convertMsElection(
   });
 
   const [{ countyId }] = candidateFileEntries;
-  const county: County = {
+  const jurisdiction: Jurisdiction = {
     id: uniqueId(countyId),
     name: `${counties[countyId]} County`,
   };
@@ -380,7 +380,7 @@ export function convertMsElection(
     title,
     date,
     state: 'State of Mississippi',
-    county,
+    jurisdiction,
     districts,
     precincts,
     parties,

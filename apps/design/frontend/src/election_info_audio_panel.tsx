@@ -13,7 +13,7 @@ import { routes } from './routes';
 import * as api from './api';
 
 const ENTITY_NAME: Partial<Record<ElectionStringKey, string>> = {
-  [ElectionStringKey.COUNTY_NAME]: 'Jurisdiction',
+  [ElectionStringKey.JURISDICTION_NAME]: 'Jurisdiction',
   [ElectionStringKey.ELECTION_TITLE]: 'Title',
   [ElectionStringKey.STATE_NAME]: 'State',
 };

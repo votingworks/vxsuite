@@ -250,13 +250,13 @@ function ElectionInfoForm({
         <InputGroup label="Jurisdiction">
           <InputWithAudio
             audioScreenUrl={infoRoutes.audio({
-              stringKey: ElectionStringKey.COUNTY_NAME,
+              stringKey: ElectionStringKey.JURISDICTION_NAME,
             })}
             editing={isEditing}
             type="text"
-            value={electionInfo.countyName}
-            onChange={onInputChange('countyName')}
-            onBlur={onInputBlur('countyName')}
+            value={electionInfo.jurisdictionName}
+            onChange={onInputChange('jurisdictionName')}
+            onBlur={onInputBlur('jurisdictionName')}
             disabled={disabled}
             autoComplete="off"
             required

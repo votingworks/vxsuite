@@ -849,7 +849,6 @@ export class Store {
                 elections.type,
                 elections.title,
                 elections.date,
-                elections.county_name as "countyName",
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
                 elections.ballots_approved_at as "ballotsApprovedAt",
@@ -880,7 +879,6 @@ export class Store {
       type: row.type,
       title: row.title,
       date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
-      countyName: row.countyName,
       state: row.state,
       externalSource: row.externalSource || undefined,
       status: ((): ElectionStatus => {
@@ -902,8 +900,8 @@ export class Store {
               type,
               title,
               date,
-              county_name as "countyName",
-              county_id as "countyId",
+              jurisdiction_name as "jurisdictionName",
+              jurisdiction_gp_unit_id as "jurisdictionGpUnitId",
               state,
               seal,
               signature,
@@ -927,8 +925,8 @@ export class Store {
         type: ElectionType;
         title: string;
         date: Date;
-        countyName: string;
-        countyId: string;
+        jurisdictionName: string;
+        jurisdictionGpUnitId: string;
         state: string;
         seal: string;
         signature: Signature | null;
@@ -1211,9 +1209,9 @@ export class Store {
         type: electionRow.type,
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
-        county: {
-          id: electionRow.countyId,
-          name: electionRow.countyName,
+        jurisdiction: {
+          id: electionRow.jurisdictionGpUnitId,
+          name: electionRow.jurisdictionName,
         },
         state: electionRow.state,
         seal: electionRow.seal,
@@ -1401,8 +1399,8 @@ export class Store {
             type,
             title,
             date,
-            county_name,
-            county_id,
+            jurisdiction_name,
+            jurisdiction_gp_unit_id,
             state,
             seal,
             signature,
@@ -1435,8 +1433,8 @@ export class Store {
           election.type,
           electionTitle,
           election.date.toISOString(),
-          election.county.name,
-          election.county.id,
+          election.jurisdiction.name,
+          election.jurisdiction.id,
           election.state,
           election.seal,
           election.signature ? JSON.stringify(election.signature) : null,
@@ -1512,7 +1510,7 @@ export class Store {
             type = $1,
             title = $2,
             date = $3,
-            county_name = $4,
+            jurisdiction_name = $4,
             state = $5,
             seal = $6,
             signature = $7,
@@ -1522,7 +1520,7 @@ export class Store {
           electionInfoUpdate.type,
           electionInfoUpdate.title,
           electionInfoUpdate.date.toISOString(),
-          electionInfoUpdate.countyName,
+          electionInfoUpdate.jurisdictionName,
           electionInfoUpdate.state,
           electionInfoUpdate.seal,
           electionInfoUpdate.signatureImage

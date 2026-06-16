@@ -132,7 +132,7 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
         optionIds: ['party1', 'party2'],
       },
     ],
-    county: { name: 'Test County' },
+    jurisdiction: { name: 'Test County' },
     districts: [
       { id: 'district1', name: 'District 1' },
       { id: 'district2', name: 'District 2' },
@@ -196,7 +196,7 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
       { subkey: 'contest4', text: 'Ballot Measure 2' },
       { subkey: 'contest5', text: 'Straight Party Ticket' },
     ],
-    countyName: [{ text: 'Test County' }],
+    jurisdictionName: [{ text: 'Test County' }],
     districtName: [
       { subkey: 'district1', text: 'District 1' },
       { subkey: 'district2', text: 'District 2' },
@@ -258,7 +258,7 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
 test('ttsStringDefaults - new/empty election', async () => {
   const election: PartialDeep<Election> = {
     contests: [],
-    county: { name: '' },
+    jurisdiction: { name: '' },
     districts: [],
     parties: [],
     precincts: [],
@@ -290,7 +290,7 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
         type: 'candidate',
       },
     ],
-    county: { name: '' },
+    jurisdiction: { name: '' },
     districts: [
       { id: 'district10', name: 'District 10' },
       { id: 'district2', name: 'District 2' },

@@ -76,7 +76,6 @@ export interface ElectionListing {
   title: string;
   date: DateWithoutTime;
   type: ElectionType;
-  countyName: string;
   state: string;
   status: ElectionStatus;
   externalSource?: ExternalElectionSource;
@@ -89,7 +88,7 @@ export interface ElectionInfo {
   date: DateWithoutTime;
   title: string;
   state: string;
-  countyName: string;
+  jurisdictionName: string;
   seal: string;
   languageCodes: LanguageCode[];
   signatureImage?: string;
@@ -114,7 +113,7 @@ export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> = z.object(
     date: DateWithoutTimeSchema,
     title: TextInput,
     state: TextInput,
-    countyName: TextInput,
+    jurisdictionName: TextInput,
     seal: z.string(),
     signatureImage: z.string().optional(),
     signatureCaption: z.string().optional(),

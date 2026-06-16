@@ -362,7 +362,6 @@ test('create/list/delete elections', async () => {
     title: '',
     date: DateWithoutTime.today(),
     type: 'general',
-    countyName: nonVxJurisdiction.name,
     state: 'DEMO',
     status: 'notStarted',
   };
@@ -382,7 +381,6 @@ test('create/list/delete elections', async () => {
     jurisdictionId: anotherNonVxJurisdiction.id,
     jurisdictionName: anotherNonVxJurisdiction.name,
     electionId: expectedNonVxElectionId2,
-    countyName: anotherNonVxJurisdiction.name,
   };
 
   // Jurisdiction user should only see elections in their jurisdictions
@@ -427,7 +425,6 @@ test('create/list/delete elections', async () => {
     title: sliElection.title,
     date: sliElection.date,
     type: sliElection.type,
-    countyName: sliElection.county.name,
     state: sliElection.state,
     status: 'inProgress',
   };
@@ -488,7 +485,7 @@ test('create/list/delete elections', async () => {
     jurisdictionId: sliJurisdiction.id,
     electionId: importedElectionNewId,
     title: sliElection.title,
-    countyName: sliElection.county.name,
+    jurisdictionName: sliElection.jurisdiction.name,
     date: sliElection.date,
     languageCodes: [LanguageCode.ENGLISH],
     state: sliElection.state,
@@ -708,7 +705,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: '',
-      countyName: nonVxJurisdiction.name,
+      jurisdictionName: nonVxJurisdiction.name,
       state: nonVxJurisdiction.stateCode,
       seal: '',
       type: 'general',
@@ -722,7 +719,7 @@ test('update election info', async () => {
     electionId,
     // trim text values
     title: '   Updated Election  ',
-    countyName: '   New Hampshire   ',
+    jurisdictionName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'closed-primary',
@@ -735,7 +732,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      countyName: 'New Hampshire',
+      jurisdictionName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'closed-primary',
@@ -756,7 +753,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      countyName: 'New Hampshire',
+      jurisdictionName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'closed-primary',
@@ -768,7 +765,7 @@ test('update election info', async () => {
   const electionInfoUpdateWithSignature: ElectionInfoUpdate = {
     electionId,
     title: '   Updated Election  ',
-    countyName: '   New Hampshire   ',
+    jurisdictionName: '   New Hampshire   ',
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'closed-primary',
@@ -787,7 +784,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      countyName: 'New Hampshire',
+      jurisdictionName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'closed-primary',
@@ -808,7 +805,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      countyName: 'New Hampshire',
+      jurisdictionName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'closed-primary',
@@ -831,7 +828,7 @@ test('update election info', async () => {
       jurisdictionId: nonVxJurisdiction.id,
       electionId,
       title: 'Updated Election',
-      countyName: 'New Hampshire',
+      jurisdictionName: 'New Hampshire',
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'closed-primary',
@@ -862,7 +859,7 @@ test('update election info', async () => {
         electionId,
         type: 'closed-primary',
         title: '',
-        countyName: '  ',
+        jurisdictionName: '  ',
         state: '',
         seal: '',
         date: new DateWithoutTime('2022-01-01'),
@@ -3715,8 +3712,8 @@ test('Election package and ballots export', async () => {
   const expectedElectionWithoutBallotStrings: Election = {
     ...electionWithLegalPaper,
     id: electionId,
-    county: {
-      ...electionWithLegalPaper.county,
+    jurisdiction: {
+      ...electionWithLegalPaper.jurisdiction,
       id: `${electionId}-county`,
     },
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
@@ -4207,7 +4204,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
     await apiClient.updateElectionInfo({
       electionId,
       title: baseElectionDefinition.election.title,
-      countyName: baseElectionDefinition.election.county.name,
+      jurisdictionName: baseElectionDefinition.election.jurisdiction.name,
       state: baseElectionDefinition.election.state,
       seal: baseElectionDefinition.election.seal,
       type: baseElectionDefinition.election.type,

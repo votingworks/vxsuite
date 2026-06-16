@@ -287,7 +287,7 @@ export function convertMsResults(
       })();
 
       return {
-        countyId: extractSemsId(election.county.id),
+        countyId: extractSemsId(election.jurisdiction.id),
         precinctId: extractSemsId(row.precinctId),
         contestId: extractSemsId(contest.id),
         contestTitle: contest.title,
