@@ -1723,6 +1723,163 @@ test('Skip onto a ballot claimed by another machine shows read-only overlay and 
     .resolves();
 });
 
+test('write-in candidates added by another station appear while adjudicating', async () => {
+  const contestId = 'zoo-council-mammal';
+  const contest = makeContestAdjudicationData(
+    contestId,
+    makeContestTag({ hasWriteIn: true })
+  );
+  addPendingWriteIns(contest, 1, [0]);
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [contest]);
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([], [contestId]);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Zoo Council');
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByText(/Votes cast:/);
+
+  // Open the write-in combobox — no write-in candidates exist yet
+  const combobox = screen.getByRole('combobox');
+  fireEvent.keyDown(combobox, { key: 'ArrowDown' });
+  expect(screen.queryByText('Mickey Mouse')).toBeNull();
+
+  // Another station adds a write-in candidate — the polled candidates query
+  // picks it up and the option appears with no local action
+  apiMock.apiClient.getWriteInCandidates.reset();
+  apiMock.expectGetWriteInCandidates(
+    [{ id: 'wic-1', name: 'Mickey Mouse', electionId: 'e', contestId }],
+    [contestId]
+  );
+
+  await screen.findByText('Mickey Mouse', undefined, { timeout: 3000 });
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('navigating to the next ballot never shows the previous ballot data', async () => {
+  // Distinct 4-char id prefixes so the "Ballot ID:" header is
+  // distinguishable, and disjoint contests so any leakage is visible.
+  const FIRST_CVR_ID = 'aaaa-first';
+  const SECOND_CVR_ID = 'bbbb-second';
+  const adjData1 = makeBallotAdjudicationData(FIRST_CVR_ID, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+  ]);
+  const adjData2 = makeBallotAdjudicationData(SECOND_CVR_ID, [
+    makeContestAdjudicationData(
+      'best-animal-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+  ]);
+
+  apiMock.expectGetBallotAdjudicationQueue([FIRST_CVR_ID, SECOND_CVR_ID]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(FIRST_CVR_ID);
+  apiMock.expectClaimAndLoadBallot({ cvrId: FIRST_CVR_ID }, adjData1);
+  apiMock.expectGetBallotImages({ cvrId: FIRST_CVR_ID }, true);
+  apiMock.expectGetWriteInCandidates([], ['zoo-council-mammal']);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 2');
+  await screen.findByText('Ballot ID: aaaa');
+  screen.getByText('Zoo Council');
+
+  // Navigate to the second ballot — every piece of the first ballot's data
+  // must be replaced, not served from a stale cache
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: FIRST_CVR_ID });
+  apiMock.expectClaimAndLoadBallot({ cvrId: SECOND_CVR_ID }, adjData2);
+  apiMock.expectGetBallotImages({ cvrId: SECOND_CVR_ID }, true);
+  apiMock.expectGetWriteInCandidates([], ['best-animal-mammal']);
+
+  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await screen.findByText('Ballot 2 of 2');
+  await screen.findByText('Ballot ID: bbbb');
+  await screen.findByText('Best Animal');
+  expect(screen.queryByText('Zoo Council')).toBeNull();
+  expect(screen.queryByText('Ballot ID: aaaa')).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: SECOND_CVR_ID })
+    .resolves();
+});
+
+test('accept advances past a ballot claimed by another station', async () => {
+  const CVR_ID_3 = 'cvr-id-3';
+  // Ballots 1 and 3 are already resolved; ballot 2 exists in the queue but
+  // is claimed by another station, so accept must land on ballot 3.
+  const votedOptionId = assertDefined(
+    makeContestAdjudicationData('zoo-council-mammal').options[0]
+  ).definition.id;
+  function makeResolvedData(cvrId: string) {
+    const contest = makeContestAdjudicationData('zoo-council-mammal');
+    return makeBallotAdjudicationData(cvrId, [contest], {
+      isResolved: true,
+      adjudicatedContests: [
+        makeAdjudicatedCvrContest('zoo-council-mammal', {
+          [votedOptionId]: true,
+        }),
+      ],
+    });
+  }
+  const adjData1 = makeResolvedData(CVR_ID_1);
+  const adjData3 = makeResolvedData(CVR_ID_3);
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates([], ['zoo-council-mammal']);
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Ballot 1 of 3');
+
+  // Accept ballot 1. The backend reports the next unclaimed ballot after
+  // ballot 1 is ballot 3 (another station claimed ballot 2 in the meantime),
+  // so the screen must land there rather than assuming the queue order.
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  apiMock.expectAdjudicateCvr({
+    cvrId: CVR_ID_1,
+    contests: [
+      makeAdjudicatedCvrContest('zoo-council-mammal', {
+        [votedOptionId]: true,
+      }),
+    ],
+  });
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_3, CVR_ID_1);
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_3 }, adjData3);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_3 }, true);
+
+  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await screen.findByText('Ballot 3 of 3');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_3 })
+    .resolves();
+});
+
 test('shows an error with exit when the claim+load fails', async () => {
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);

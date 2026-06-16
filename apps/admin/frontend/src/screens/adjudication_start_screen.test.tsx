@@ -124,6 +124,32 @@ test('When ballots need adjudication, shows start button with counts', async () 
   screen.getByText('2 of 5 adjudicated · 40%');
 });
 
+test('queue progress updates as other stations adjudicate ballots', async () => {
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 3,
+    totalTally: 5,
+  });
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  renderInAppContext(<AdjudicationStartScreen />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('3 ballots remaining');
+  screen.getByText('2 of 5 adjudicated · 40%');
+
+  // Other stations adjudicate two more ballots — the queue metadata query
+  // polls on an interval, so the progress updates with no local action
+  apiMock.apiClient.getBallotAdjudicationQueueMetadata.reset();
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 1,
+    totalTally: 5,
+  });
+
+  await screen.findByText('1 ballot remaining', undefined, { timeout: 3000 });
+  screen.getByText('4 of 5 adjudicated · 80%');
+});
+
 describe('multi-station adjudication', () => {
   beforeEach(() => {
     apiMock.setMultiStationAdjudicationEnabled(true);

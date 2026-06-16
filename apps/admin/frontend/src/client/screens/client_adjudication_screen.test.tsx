@@ -5,6 +5,7 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { createMemoryHistory } from 'history';
 import { screen } from '../../../test/react_testing_library';
 import {
   ClientApiMock,
@@ -38,11 +39,14 @@ function renderAdjudicationScreen(
   auth: DippedSmartCardAuth.AuthStatus,
   { withElection = false }: { withElection?: boolean } = {}
 ) {
-  return renderInClientContext(<ClientAdjudicationScreen />, {
+  const history = createMemoryHistory();
+  renderInClientContext(<ClientAdjudicationScreen />, {
+    history,
     auth,
     apiMock,
     ...(withElection ? { electionDefinition } : {}),
   });
+  return { history };
 }
 
 test('shows enabled start button when adjudication is enabled', async () => {
@@ -68,11 +72,13 @@ test('shows waiting message and disabled button when adjudication not enabled', 
 test('start adjudication navigates to the ballot screen', async () => {
   apiMock.expectGetAdjudicationSessionStatus(true);
 
-  renderAdjudicationScreen(pollWorkerAuth, { withElection: true });
+  const { history } = renderAdjudicationScreen(pollWorkerAuth, {
+    withElection: true,
+  });
   const startButton = await screen.findByRole('button', {
     name: 'Start Adjudication',
   });
   startButton.click();
 
-  expect(window.location.pathname).toEqual(routerPaths.ballotAdjudication);
+  expect(history.location.pathname).toEqual(routerPaths.ballotAdjudication);
 });

@@ -1,5 +1,6 @@
+import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 
 import { DippedSmartCardAuth, DEV_MACHINE_ID } from '@votingworks/types';
 
@@ -22,6 +23,8 @@ import { SharedApiClientContext, systemCallApi } from '../src/shared_api';
 import { ClientApiMock } from './helpers/mock_client_api_client';
 
 export interface RenderInClientContextParams {
+  route?: string;
+  history?: MemoryHistory;
   auth: DippedSmartCardAuth.AuthStatus;
   electionDefinition?: AppContextInterface['electionDefinition'];
   electionPackageHash?: string;
@@ -35,6 +38,8 @@ export interface RenderInClientContextParams {
 export function renderInClientContext(
   component: React.ReactNode,
   {
+    route = '/',
+    history = createMemoryHistory({ initialEntries: [route] }),
     auth,
     electionDefinition,
     electionPackageHash = electionDefinition
@@ -68,7 +73,7 @@ export function renderInClientContext(
                   electionPackageHash,
                 }}
               >
-                <BrowserRouter>{component}</BrowserRouter>
+                <Router history={history}>{component}</Router>
               </AppContext.Provider>
             </QueryClientProvider>
           </ClientApiClientContext.Provider>
