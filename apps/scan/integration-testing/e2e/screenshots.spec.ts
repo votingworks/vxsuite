@@ -441,35 +441,42 @@ test('voting', async ({ page }, testInfo) => {
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
   await screenshot('ballot-counted');
 
+  // Each "Review Your Ballot" warning below shares the same heading, and the
+  // screen also renders briefly (with its buttons disabled) while the previous
+  // ballot's acceptance is processed. Since we insert the next sheet without
+  // waiting for the "Insert Your Ballot" screen to return, waiting only on the
+  // heading can capture that stale, disabled screen. Wait for the "Cast Ballot"
+  // button to be enabled so every screenshot consistently shows it enabled.
+  async function waitForReviewScreen() {
+    await page
+      .getByRole('heading', { name: 'Review Your Ballot' })
+      .waitFor({ timeout: 15000 });
+    await expect(page.getByRole('button', { name: 'Cast Ballot' })).toBeEnabled(
+      { timeout: 15000 }
+    );
+  }
+
   // Blank ballot warning.
   mockPdiScannerHandler.insertSheet(blankPdf);
-  await page
-    .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 15000 });
+  await waitForReviewScreen();
   await screenshot('blank-ballot-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Undervote warning.
   mockPdiScannerHandler.insertSheet(undervotePdf);
-  await page
-    .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 15000 });
+  await waitForReviewScreen();
   await screenshot('undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Overvote warning.
   mockPdiScannerHandler.insertSheet(overvotePdf);
-  await page
-    .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 15000 });
+  await waitForReviewScreen();
   await screenshot('overvote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Mixed overvote + undervote warning.
   mockPdiScannerHandler.insertSheet(mixedPdf);
-  await page
-    .getByRole('heading', { name: 'Review Your Ballot' })
-    .waitFor({ timeout: 15000 });
+  await waitForReviewScreen();
   await screenshot('mixed-overvote-undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
   await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
