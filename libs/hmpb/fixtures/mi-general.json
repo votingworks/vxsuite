@@ -9,8 +9,7 @@
   },
   "date": "2020-11-03",
   "ballotLayout": {
-    "paperSize": "custom-8.5x17",
-    "metadataEncoding": "qr-code"
+    "paperSize": "custom-8.5x17"
   },
   "parties": [
     {

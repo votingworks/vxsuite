@@ -9,8 +9,7 @@
   },
   "date": "2020-11-03",
   "ballotLayout": {
-    "paperSize": "legal",
-    "metadataEncoding": "qr-code"
+    "paperSize": "legal"
   },
   "districts": [
     {

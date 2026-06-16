@@ -2,8 +2,7 @@
   "id": "test-fixtures-ashland-election-json",
   "ballotLayout": {
     "paperSize": "letter",
-    "targetMarkPosition": "right",
-    "metadataEncoding": "qr-code"
+    "targetMarkPosition": "right"
   },
   "ballotStrings": {},
   "ballotStyles": [

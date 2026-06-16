@@ -1,7 +1,6 @@
 {
   "ballotLayout": {
-    "paperSize": "letter",
-    "metadataEncoding": "qr-code"
+    "paperSize": "letter"
   },
   "ballotStrings": {
     "en": {
