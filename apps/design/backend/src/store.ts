@@ -249,6 +249,10 @@ export type DuplicateContestError =
 
 export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
 
+function straightPartyContestId(electionId: ElectionId): ContestId {
+  return `${electionId}-straight-party-contest`;
+}
+
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -1193,7 +1197,7 @@ export class Store {
           'Straight party contest requires a district shared by all ballot styles'
         );
         const straightPartyContest: StraightPartyContest = {
-          id: `${electionId}-straight-party-contest`,
+          id: straightPartyContestId(electionId),
           type: 'straight-party',
           title: 'Straight Party Ticket',
           districtId: district.id,
@@ -2139,6 +2143,10 @@ export class Store {
     electionId: ElectionId,
     contestIds: string[]
   ): Promise<void> {
+    // eslint-disable-next-line no-param-reassign
+    contestIds = contestIds.filter(
+      (id) => id !== straightPartyContestId(electionId)
+    );
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         const existingContestIds = (

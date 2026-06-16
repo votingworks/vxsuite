@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import {
-  CandidateContest,
-  ContestId,
-  Contest,
-  YesNoContest,
-  isPrimary,
-  straightPartyNotYetImplemented,
-} from '@votingworks/types';
+import { ContestId, Contest, isPrimary } from '@votingworks/types';
 import styled from 'styled-components';
 import { FixedViewport, ListActionsRow, Row } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
@@ -128,17 +121,13 @@ function Content(): JSX.Element | null {
   const contestParamRoutes = electionParamRoutes.contests;
 
   const filteredContests = contests.filter((contest) => {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      return false;
-    }
     const matchesDistrict =
       filterDistrictId === FILTER_ALL ||
       contest.districtId === filterDistrictId;
     const matchesParty =
       filterPartyId === FILTER_ALL ||
       (filterPartyId === FILTER_NONPARTISAN
-        ? contest.type === 'yesno' || contest.partyId === undefined
+        ? contest.type !== 'candidate' || contest.partyId === undefined
         : contest.type === 'candidate' && contest.partyId === filterPartyId);
     return matchesDistrict && matchesParty;
   });
@@ -152,17 +141,6 @@ function Content(): JSX.Element | null {
   const isReordering = reorderedContests !== undefined;
 
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
-  const candidateContests: CandidateContest[] = [];
-  const yesNoContests: YesNoContest[] = [];
-
-  for (const c of contestsToShow) {
-    /* istanbul ignore next */
-    if (c.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
-    if (c.type === 'candidate') candidateContests.push(c);
-    else yesNoContests.push(c);
-  }
 
   /**
    * Used as a route redirect, to auto-select the first available contest for
@@ -252,13 +230,7 @@ function Content(): JSX.Element | null {
             ) : (
               <Button
                 icon="Sort"
-                onPress={() =>
-                  // We require candidate contests to appear before yesno,
-                  // but elections were created prior to this restriction.
-                  // To ensure all new reorders follow this, we initiate
-                  // the reordering with the requirement enforced
-                  setReorderedContests([...candidateContests, ...yesNoContests])
-                }
+                onPress={() => setReorderedContests(contestsToShow)}
                 disabled={!canReorder}
               >
                 Reorder Contests
@@ -297,8 +269,7 @@ function Content(): JSX.Element | null {
           )
         ) : (
           <ContestList
-            candidateContests={candidateContests}
-            yesNoContests={yesNoContests}
+            contests={contestsToShow}
             reordering={isReordering}
             reorder={(params) => {
               if (!isReordering) return;

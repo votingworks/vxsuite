@@ -14,6 +14,7 @@ import {
   HmpbBallotPaperSize,
   PartyIdSchema,
   PrecinctIdSchema,
+  StraightPartyContest,
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
@@ -156,13 +157,13 @@ const electionWithNoContestsRecord = makeElectionRecord(
     parties: [
       {
         id: unsafeParse(PartyIdSchema, 'test-party-1'),
-        name: 'Test Party 1',
+        name: 'Party 1',
         fullName: 'Test Party 1',
         abbrev: 'TP1',
       },
       {
         id: unsafeParse(PartyIdSchema, 'test-party-2'),
-        name: 'Test Party 2',
+        name: 'Party 2',
         fullName: 'Test Party 2',
         abbrev: 'TP2',
       },
@@ -171,6 +172,35 @@ const electionWithNoContestsRecord = makeElectionRecord(
   },
   jurisdiction.id
 );
+
+const straightPartyContest: StraightPartyContest = {
+  id: 'straight-party-contest',
+  type: 'straight-party',
+  title: 'Straight Party Ticket',
+  districtId: electionWithNoContestsRecord.election.districts[0].id,
+  optionIds: electionWithNoContestsRecord.election.parties.map(
+    (party) => party.id
+  ),
+};
+
+const mayorContest: CandidateContest = {
+  id: 'candidate-contest',
+  type: 'candidate',
+  title: 'Mayor',
+  districtId: electionWithNoContestsRecord.election.districts[0].id,
+  seats: 1,
+  allowWriteIns: false,
+  candidates: [],
+};
+
+const electionWithStraightPartyContestRecord: typeof electionWithNoContestsRecord =
+  {
+    ...electionWithNoContestsRecord,
+    election: {
+      ...electionWithNoContestsRecord.election,
+      contests: [straightPartyContest, mayorContest],
+    },
+  };
 
 // Since we coarsely invalidate all election data on contest changes, there
 // are a number of other API calls that refetch when we mutate contests
@@ -223,6 +253,46 @@ test('renders contest list on all sub-views', async () => {
   expectContestListItems(contests);
 
   // [TODO] Add assertion for audio editor view.
+});
+
+test('displays read-only straight party contest', async () => {
+  const { election } = electionWithStraightPartyContestRecord;
+  const electionId = election.id;
+
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(election.contests);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  expectOtherElectionApiCalls(election);
+
+  const history = renderScreen(electionId);
+
+  await expectViewModeContest(history, electionId, straightPartyContest);
+  expectContestListItems(election.contests);
+
+  await navigateToContestView(history, electionId, straightPartyContest.id);
+  screen.getByText(
+    /This contest is generated based on the election parties and cannot be edited directly/
+  );
+
+  const titleInput = screen.getByLabelText('Title');
+  expect(titleInput).toHaveValue(straightPartyContest.title);
+  expect(titleInput).toBeDisabled();
+
+  const optionInputs = getOptionInputs();
+  expect(
+    optionInputs.map((input) => (input as HTMLInputElement).value)
+  ).toEqual(election.parties.map((party) => party.fullName));
+  for (const input of optionInputs) {
+    expect(input).toBeDisabled();
+  }
+
+  expect(
+    screen.queryByRole('button', { name: 'Edit' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Delete Contest' })
+  ).not.toBeInTheDocument();
 });
 
 test('adding a candidate contest (general election)', async () => {
@@ -1690,10 +1760,7 @@ describe('audio editing', () => {
 });
 
 function expectContestListItems(contests: readonly Contest[]) {
-  expectContestListProps({
-    candidateContests: contests.filter((c) => c.type === 'candidate'),
-    yesNoContests: contests.filter((c) => c.type === 'yesno'),
-  });
+  expectContestListProps({ contests });
 }
 
 function expectContestListProps(partialProps: Partial<ContestListProps>) {

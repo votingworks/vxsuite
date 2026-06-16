@@ -58,6 +58,13 @@ const yesNoContest2 = typedAs<Partial<Contest>>({
   type: 'yesno',
 }) as Contest;
 
+const straightPartyContest = typedAs<Partial<Contest>>({
+  id: 'straightPartyContest',
+  title: 'Straight Party Ticket',
+  districtId: district1.id,
+  type: 'straight-party',
+}) as Contest;
+
 const electionId = 'election1';
 const contestRoutes = routes.election(electionId).contests;
 const contestParamRoutes = routes.election(':electionId').contests;
@@ -73,8 +80,7 @@ test('renders labelled candidate and ballot measure sublists', async () => {
   const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -111,8 +117,7 @@ test('renders primary election contest parties, when available', async () => {
   const yesNoContests = [yesNoContest1, yesNoContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -136,6 +141,45 @@ test('renders primary election contest parties, when available', async () => {
   ]);
 });
 
+test('renders straight party sublist if straight party contest is present', async () => {
+  mockApi = newMockApi({ districts: [district1, district2] });
+
+  renderList(mockApi, newHistory(), {
+    contests: [
+      straightPartyContest,
+      candidateContest1,
+      candidateContest2,
+      yesNoContest1,
+      yesNoContest2,
+    ],
+    reorder: vi.fn(),
+    reordering: false,
+  });
+
+  await screen.findAllByText(district1.name);
+  mockApi.assertComplete();
+
+  const list = screen.getByRole('listbox').children;
+  expect(list).toHaveLength(6);
+
+  expect(list.item(0)).toEqual(getHeading('Straight Party'));
+  expect(getSublist(list.item(1))).toEqual([
+    getOption(straightPartyContest, district1),
+  ]);
+
+  expect(list.item(2)).toEqual(getHeading('Candidate Contests'));
+  expect(getSublist(list.item(3))).toEqual([
+    getOption(candidateContest1, district1),
+    getOption(candidateContest2, district2),
+  ]);
+
+  expect(list.item(4)).toEqual(getHeading('Ballot Measures'));
+  expect(getSublist(list.item(5))).toEqual([
+    getOption(yesNoContest1, district1),
+    getOption(yesNoContest2, district2),
+  ]);
+});
+
 test('navigates on select', async () => {
   mockApi = newMockApi({ districts: [district1, district2] });
   const candidateContests = [candidateContest1, candidateContest2];
@@ -143,8 +187,7 @@ test('navigates on select', async () => {
   const history = newHistory();
 
   renderList(mockApi, history, {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder: vi.fn(),
     reordering: false,
   });
@@ -175,8 +218,7 @@ test('omits ballot measure section if empty', async () => {
   const candidateContests = [candidateContest1, candidateContest2];
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests: [],
+    contests: candidateContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -199,8 +241,7 @@ test('omits candidate section if empty', async () => {
   const yesNoContests = [yesNoContest2, yesNoContest1];
 
   renderList(mockApi, newHistory(), {
-    candidateContests: [],
-    yesNoContests,
+    contests: yesNoContests,
     reorder: vi.fn(),
     reordering: false,
   });
@@ -225,8 +266,7 @@ test('omits reordering when not enabled', async () => {
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests: [],
+    contests: candidateContests,
     reorder,
     reordering: false,
   });
@@ -245,8 +285,7 @@ test('supports reordering', async () => {
   const reorder = vi.fn();
 
   renderList(mockApi, newHistory(), {
-    candidateContests,
-    yesNoContests,
+    contests: [...candidateContests, ...yesNoContests],
     reorder,
     reordering: true,
   });

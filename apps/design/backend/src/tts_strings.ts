@@ -5,7 +5,6 @@ import {
   LanguageCode,
   TtsEdit,
   TtsEditKey,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   SpeechSynthesizer,
@@ -123,10 +122,6 @@ export function apiMethods(ctx: TtsApiContext) {
           text: contest.title,
         });
 
-        /* istanbul ignore next */
-        if (contest.type === 'straight-party') {
-          straightPartyNotYetImplemented();
-        }
         switch (contest.type) {
           case 'candidate':
             if (contest.termDescription) {
@@ -166,6 +161,9 @@ export function apiMethods(ctx: TtsApiContext) {
               text: contest.noOption.label,
             });
 
+            break;
+
+          case 'straight-party':
             break;
 
           default:
