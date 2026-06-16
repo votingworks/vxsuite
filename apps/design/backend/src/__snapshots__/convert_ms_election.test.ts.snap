@@ -3,7 +3,6 @@
 exports[`convert election with ballot measures 1`] = `
 {
   "ballotLayout": {
-    "metadataEncoding": "qr-code",
     "paperSize": "letter",
   },
   "ballotStrings": {},
@@ -667,7 +666,6 @@ exports[`convert election with ballot measures 1`] = `
 exports[`convert election with precinct splits 1`] = `
 {
   "ballotLayout": {
-    "metadataEncoding": "qr-code",
     "paperSize": "letter",
   },
   "ballotStrings": {},
@@ -2352,7 +2350,6 @@ exports[`convert election with precinct splits 1`] = `
 exports[`convert general election 1`] = `
 {
   "ballotLayout": {
-    "metadataEncoding": "qr-code",
     "paperSize": "letter",
   },
   "ballotStrings": {},
@@ -2978,7 +2975,6 @@ exports[`convert general election 1`] = `
 exports[`convert primary election 1`] = `
 {
   "ballotLayout": {
-    "metadataEncoding": "qr-code",
     "paperSize": "letter",
   },
   "ballotStrings": {},
