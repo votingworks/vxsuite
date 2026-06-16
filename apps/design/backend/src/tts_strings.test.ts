@@ -125,6 +125,12 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
         noOption: { id: 'option_disagree', label: 'Agree to Disagree' },
         yesOption: { id: 'option_agree', label: 'Agree' },
       },
+      {
+        id: 'contest5',
+        title: 'Straight Party Ticket',
+        type: 'straight-party',
+        optionIds: ['party1', 'party2'],
+      },
     ],
     county: { name: 'Test County' },
     districts: [
@@ -188,6 +194,7 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
       { subkey: 'contest2', text: 'Candidate Contest 2' },
       { subkey: 'contest3', text: 'Ballot Measure 1' },
       { subkey: 'contest4', text: 'Ballot Measure 2' },
+      { subkey: 'contest5', text: 'Straight Party Ticket' },
     ],
     countyName: [{ text: 'Test County' }],
     districtName: [
