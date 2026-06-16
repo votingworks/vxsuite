@@ -1,9 +1,15 @@
 import { z } from 'zod/v4';
 import { assert, ok, Result } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import { Election, ElectionDefinition, ElectionSchema } from './election';
+import {
+  Election,
+  ElectionDefinition,
+  ElectionSchema,
+  JurisdictionSchema,
+} from './election';
 import { safeParseElectionDefinition } from './election_parsing';
 import { safeParse, safeParseJson } from './generic';
+import { ElectionStringKey, UiStringsPackage } from './ui_string_translations';
 
 export const SoftwareVersions = ['v4.0', 'v4.1'] as const;
 export const LATEST_SOFTWARE_VERSION = 'v4.1';
@@ -19,26 +25,69 @@ type ElectionTypeV4p0 = (typeof ELECTION_TYPES_V4_0)[number];
 const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
   z.enum(ELECTION_TYPES_V4_0);
 
-type ElectionV4p0 = Omit<Election, 'type'> & { type: ElectionTypeV4p0 };
+// v4.0 used `county` (and the `countyName` ballot-string key) where v4.1+ uses
+// `jurisdiction` (and `jurisdictionName`). Drop `jurisdiction` from the v4.0
+// shape and use `county` instead, so VxDesign can export elections compatible
+// with deployed v4.0 software.
+const { jurisdiction: _jurisdiction, ...electionShapeForV4p0 } =
+  ElectionSchema.shape;
+
+type ElectionV4p0 = Omit<Election, 'type' | 'jurisdiction'> & {
+  type: ElectionTypeV4p0;
+  county: Election['jurisdiction'];
+};
 export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
-  ...ElectionSchema.shape,
+  ...electionShapeForV4p0,
+  county: JurisdictionSchema,
   type: ElectionTypeSchemaV4p0,
 });
+
+/**
+ * Renames an election-string key (e.g. `jurisdictionName` <-> `countyName`)
+ * across every language in a ballot-strings package, for v4.0 conversion.
+ */
+function renameBallotStringKey(
+  ballotStrings: UiStringsPackage,
+  fromKey: string,
+  toKey: string
+): UiStringsPackage {
+  return Object.fromEntries(
+    Object.entries(ballotStrings).map(([languageCode, strings]) => {
+      if (!(fromKey in strings)) return [languageCode, strings];
+      const { [fromKey]: value, ...rest } = strings;
+      return [languageCode, { ...rest, [toKey]: value }];
+    })
+  );
+}
 
 export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
   assert(
     election.type !== 'open-primary',
     'v4.0 does not support open primaries'
   );
+  const { jurisdiction, ballotStrings, ...rest } = election;
   return {
-    ...election,
+    ...rest,
+    county: jurisdiction,
+    ballotStrings: renameBallotStringKey(
+      ballotStrings,
+      ElectionStringKey.JURISDICTION_NAME,
+      'countyName'
+    ),
     type: election.type === 'general' ? 'general' : 'primary',
   };
 }
 
 function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
+  const { county, ballotStrings, ...rest } = election;
   return {
-    ...election,
+    ...rest,
+    jurisdiction: county,
+    ballotStrings: renameBallotStringKey(
+      ballotStrings,
+      'countyName',
+      ElectionStringKey.JURISDICTION_NAME
+    ),
     type: election.type === 'general' ? 'general' : 'closed-primary',
   };
 }
