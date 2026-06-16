@@ -480,13 +480,13 @@ export const BallotStylesSchema = z
     }
   });
 
-export type CountyId = Id;
-export const CountyIdSchema: z.ZodSchema<CountyId> = IdSchema;
-export interface County {
-  readonly id: CountyId;
+export type JurisdictionId = Id;
+export const JurisdictionIdSchema: z.ZodSchema<JurisdictionId> = IdSchema;
+export interface Jurisdiction {
+  readonly id: JurisdictionId;
   readonly name: string;
 }
-export const CountySchema: z.ZodSchema<County> = z.object({
+export const JurisdictionSchema: z.ZodSchema<Jurisdiction> = z.object({
   id: IdSchema,
   name: z.string().nonempty(),
 });
@@ -716,7 +716,7 @@ export interface Election {
   readonly ballotStrings: UiStringsPackage;
   readonly ballotStyles: readonly BallotStyle[];
   readonly contests: readonly Contest[];
-  readonly county: County;
+  readonly jurisdiction: Jurisdiction;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];
   readonly gridLayouts?: readonly GridLayout[];
@@ -738,7 +738,7 @@ export const ElectionSchema = z
     ballotStyles: BallotStylesSchema,
     contests: ContestsSchema,
     gridLayouts: z.array(GridLayoutSchema).optional(),
-    county: CountySchema,
+    jurisdiction: JurisdictionSchema,
     date: DateWithoutTimeSchema,
     districts: DistrictsSchema,
     id: ElectionIdSchema,
