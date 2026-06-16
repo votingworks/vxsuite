@@ -146,7 +146,7 @@ describe('non-English ballot style', () => {
     expectDualLanguageString({ key: 'titleOfficialBallot' });
     expectDualLanguageString({ key: ElectionStringKey.ELECTION_TITLE });
     expectDualLanguageString({ key: ElectionStringKey.ELECTION_DATE });
-    expectDualLanguageString({ key: ElectionStringKey.COUNTY_NAME });
+    expectDualLanguageString({ key: ElectionStringKey.JURISDICTION_NAME });
     expectDualLanguageString({ key: ElectionStringKey.STATE_NAME });
   });
 
