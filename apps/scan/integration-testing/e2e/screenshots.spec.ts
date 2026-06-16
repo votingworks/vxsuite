@@ -277,6 +277,12 @@ test('early voting', async ({ page }, testInfo) => {
     'Pause Voting',
     'pw-pause-voting-prompt-button'
   );
+
+  // Remove the poll worker card so the machine ends on a stable unauthenticated
+  // screen. Leaving a card inserted mid-prompt prevents the next test's
+  // beforeEach reset from reaching the PIN entry screen.
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
 });
 
 test('voting', async ({ page }, testInfo) => {

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import {
   INTEGRATION_TEST_DEFAULT_PIN,
   mockCardRemoval,
@@ -16,6 +16,22 @@ async function postToApiOrThrow(page: Page, method: string): Promise<void> {
       `POST ${method} failed: ${response.status()} ${await response.text()}`
     );
   }
+}
+
+/**
+ * Waits until the backend reports no card present. Mocking card removal writes
+ * the mock-card file, but the auth state machine only picks it up on its next
+ * poll. Inserting the next card before that poll lands means the machine never
+ * observes the no-card → card transition and so never advances to PIN entry —
+ * a race that makes logins after a removal intermittently hang. Polling the
+ * auth status here makes the removal deterministic before the next insertion.
+ */
+async function waitForLoggedOut(page: Page): Promise<void> {
+  await expect
+    .poll(async () => (await postToApi(page, 'getAuthStatus')).text(), {
+      timeout: 10_000,
+    })
+    .toContain('logged_out');
 }
 
 /**
@@ -116,6 +132,9 @@ export function buildInsertedSmartCardAuthHelpers(
     // Wait for the frontend to render something before inserting the SA card, so
     // the auth state machine is ready to process it.
     await page.waitForLoadState('domcontentloaded');
+    // Ensure the card removal has been observed before inserting the SA card,
+    // so the insertion registers as a fresh card (see waitForLoggedOut).
+    await waitForLoggedOut(page);
 
     await logInAsSystemAdministrator(page);
 
