@@ -195,7 +195,7 @@ function Header({
       <div>{electionStrings.electionTitle(election)}</div>
       <div>{electionStrings.electionDate(election)}</div>
       <div>
-        {electionStrings.countyName(election.county)},{' '}
+        {electionStrings.jurisdictionName(election.jurisdiction)},{' '}
         {electionStrings.stateName(election)}
       </div>
       <PrecinctOrSplitName

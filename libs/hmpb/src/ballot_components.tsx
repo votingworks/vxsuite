@@ -698,7 +698,7 @@ export function FooterMetadata({
           <BallotHashSlot /> &bull;{' '}
           {electionTitleOverride ?? electionStrings.electionTitle(election)},{' '}
           {electionStrings.electionDate(election)} &bull;{' '}
-          {electionStrings.countyName(election.county)},{' '}
+          {electionStrings.jurisdictionName(election.jurisdiction)},{' '}
           {electionStrings.stateName(election)}
         </div>
         <div>

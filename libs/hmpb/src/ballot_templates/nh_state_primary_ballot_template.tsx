@@ -155,7 +155,7 @@ function Header({
           {ballotTitle} For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
-          <h1>{electionStrings.countyName(election.county)}</h1>
+          <h1>{electionStrings.jurisdictionName(election.jurisdiction)}</h1>
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
         <h5 style={{ lineHeight: 1 }}>

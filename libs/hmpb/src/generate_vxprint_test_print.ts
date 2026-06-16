@@ -51,7 +51,7 @@ function makeElection(): Election {
     title: 'VxPrint Test Print',
     type: 'general',
     state: 'Test State',
-    county: { id: 'test-county', name: 'Test County' },
+    jurisdiction: { id: 'test-county', name: 'Test County' },
     date: new DateWithoutTime('2222-02-22'),
     seal: PRINTER_SEAL_SVG,
     parties: [],
