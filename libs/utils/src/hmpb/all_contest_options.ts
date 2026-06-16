@@ -16,6 +16,8 @@ import {
   straightPartyNotYetImplemented,
   YesNoContest,
   YesNoContestOption,
+  StraightPartyContest,
+  StraightPartyContestOption,
 } from '@votingworks/types';
 
 /**
@@ -35,6 +37,13 @@ export function allContestOptionsWithMultiEndorsements(
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<YesNoContestOption>;
 /**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptionsWithMultiEndorsements(
+  contest: StraightPartyContest,
+  ballotStyle?: BallotStyle | BallotStyleGroup
+): Generator<StraightPartyContestOption>;
+/**
  * Enumerates all contest options in the order they would appear on a HMPB,
  * including all instances of multi-endorsed candidates.
  * For candidate contests, respects ballot style-specific candidate rotation.
@@ -52,10 +61,6 @@ export function* allContestOptionsWithMultiEndorsements(
   contest: Contest,
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<ContestOption> {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (contest.type) {
     case 'candidate': {
       // ballotStyle is guaranteed to be defined for CandidateContest by the function overload
@@ -101,6 +106,17 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
+    case 'straight-party': {
+      for (const partyId of contest.optionIds) {
+        yield {
+          type: 'straight-party',
+          id: partyId,
+          contestId: contest.id,
+        };
+      }
+      break;
+    }
+
     default:
       /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
@@ -123,6 +139,13 @@ export function allContestOptions(
   contest: YesNoContest,
   ballotStyle?: BallotStyle | BallotStyleGroup
 ): Generator<YesNoContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: StraightPartyContest,
+  ballotStyle?: BallotStyle | BallotStyleGroup
+): Generator<StraightPartyContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  * For candidate contests, respects ballot style-specific candidate rotation.
@@ -160,6 +183,10 @@ export function contestOptionName(
   contest: Contest,
   option: ContestOption
 ): string {
+  /* istanbul ignore next */
+  if (option.type === 'straight-party') {
+    return straightPartyNotYetImplemented();
+  }
   switch (option.type) {
     case 'candidate': {
       assert(contest.type === 'candidate');
