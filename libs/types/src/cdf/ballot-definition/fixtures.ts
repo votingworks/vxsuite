@@ -468,7 +468,7 @@ export const testVxfElection: Election = {
         'contest-2': 'Proposition 1',
         'contest-3': 'Controller',
       },
-      countyName: 'Franklin County',
+      jurisdictionName: 'Franklin County',
       districtName: {
         'district-1': 'City of Lincoln',
         'district-2': 'City of Washington',
