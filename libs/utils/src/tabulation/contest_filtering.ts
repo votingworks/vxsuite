@@ -9,7 +9,6 @@ import {
   PartyId,
   getPartyIdsWithContests,
   getContests,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { createElectionMetadataLookupFunction } from './lookups';
@@ -116,15 +115,13 @@ export function groupContestsByParty(
     partyId,
     // eslint-disable-next-line array-callback-return
     contests: contests.filter((c) => {
-      /* istanbul ignore next */
-      if (c.type === 'straight-party') {
-        return straightPartyNotYetImplemented();
-      }
       switch (c.type) {
         case 'candidate':
           return c.partyId === partyId;
         case 'yesno':
-          return !partyId; // all yes/no contests are non-partisan
+        case 'straight-party':
+          // all yes/no and straight party contests are non-partisan
+          return !partyId;
         default:
           /* istanbul ignore next */
           throwIllegalValue(c);
