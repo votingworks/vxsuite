@@ -7,6 +7,7 @@ import {
   CastVoteRecordExportMetadata,
   ballotPaperDimensions,
   DEV_MACHINE_ID,
+  anyPollingPlace,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -160,6 +161,10 @@ export async function main(
     await readElection(electionDefinitionPath)
   ).unsafeUnwrap();
 
+  // [TODO] Expand to cover all polling places in the election. May also need to
+  // be configurable.
+  const pollingPlaceId = anyPollingPlace(electionDefinition.election).id;
+
   const castVoteRecords = iter(
     generateCvrs({
       electionDefinition,
@@ -213,6 +218,7 @@ export async function main(
         label: getBatchIdForScannerId(scannerId),
         startedAt: new Date().toISOString(),
         count: castVoteRecords.length / scannerIds.length,
+        pollingPlaceId,
       },
     ],
   }));
