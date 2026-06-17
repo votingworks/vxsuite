@@ -39,6 +39,47 @@ export function createScreenshotNamer(testInfo: TestInfo): ScreenshotNamer {
   };
 }
 
+/**
+ * Draws a cyan highlight ring around the given element. Runs in the browser (it
+ * is serialized and passed to `locator.evaluate`), so it must be self-contained.
+ *
+ * The ring is drawn just outside the element (so it frames the element without
+ * covering its own border). To keep it from being clipped when the element is
+ * flush against a viewport edge — e.g. the full-width election info bar at the
+ * bottom of the screen, where an unclamped outside ring shows only as a thin
+ * line — the overlay box is clamped to the viewport inset by the ring width.
+ * For elements away from the edges the clamp is a no-op, so the ring keeps its
+ * original look.
+ */
+function addHighlightOverlay(el: Element): void {
+  const rect = el.getBoundingClientRect();
+  const ringWidth = 10;
+  const ringOffset = 2;
+  // Reserve space for the outside ring so it stays on-screen even when the
+  // element touches a viewport edge.
+  const margin = ringWidth + ringOffset;
+  const top = Math.max(rect.top, margin);
+  const left = Math.max(rect.left, margin);
+  const right = Math.min(rect.right, window.innerWidth - margin);
+  const bottom = Math.min(rect.bottom, window.innerHeight - margin);
+
+  const overlay = document.createElement('div');
+  overlay.setAttribute('data-focus-highlight', 'true');
+  overlay.style.cssText = `
+    position: fixed;
+    top: ${top}px;
+    left: ${left}px;
+    width: ${Math.max(right - left, 0)}px;
+    height: ${Math.max(bottom - top, 0)}px;
+    outline: ${ringWidth}px solid #00E7E7;
+    outline-offset: ${ringOffset}px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 9999;
+  `;
+  document.body.appendChild(overlay);
+}
+
 export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
   async function screenshot(name: string, args: PageScreenshotOptions = {}) {
     await page.screenshot({
@@ -75,28 +116,7 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
             .or(page.getByRole('option', { name: buttonText }))
             .or(page.getByRole('radio', { name: buttonText }));
 
-    await button.evaluate((el) => {
-      // Get button's position and size
-      const rect = el.getBoundingClientRect();
-
-      // Create an absolutely positioned overlay
-      const overlay = document.createElement('div');
-      overlay.setAttribute('data-focus-highlight', 'true');
-      overlay.style.cssText = `
-        position: fixed;
-        top: ${rect.top}px;
-        left: ${rect.left}px;
-        width: ${rect.width}px;
-        height: ${rect.height}px;
-        outline: 10px solid #00E7E7;
-        outline-offset: 2px;
-        border-radius: 4px;
-        pointer-events: none;
-        z-index: 9999;
-      `;
-
-      document.body.appendChild(overlay);
-    });
+    await button.evaluate(addHighlightOverlay);
 
     await page.waitForTimeout(50);
   }
@@ -125,74 +145,64 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
     name: string,
     args: PageScreenshotOptions = {}
   ) {
-    await locator.evaluate((el: Element) => {
-      const rect = el.getBoundingClientRect();
-      const overlay = document.createElement('div');
-      overlay.setAttribute('data-focus-highlight', 'true');
-      overlay.style.cssText = `
-        position: fixed;
-        top: ${rect.top}px;
-        left: ${rect.left}px;
-        width: ${rect.width}px;
-        height: ${rect.height}px;
-        outline: 10px solid #00E7E7;
-        outline-offset: 2px;
-        border-radius: 4px;
-        pointer-events: none;
-        z-index: 9999;
-      `;
-      document.body.appendChild(overlay);
-    });
+    await locator.evaluate(addHighlightOverlay);
 
     await page.waitForTimeout(50);
     await screenshot(name, args);
     await removeFocusHighlight();
   }
 
+  async function measureOverflow(selector: string): Promise<number | null> {
+    return page.evaluate((sel) => {
+      const element = document.querySelector(sel);
+      if (!element) return null;
+      return element.scrollHeight - element.clientHeight;
+    }, selector);
+  }
+
+  /**
+   * Temporarily grows the window so the given scrollable container (e.g.
+   * `main`, which has `overflow: auto`) renders all of its content within the
+   * viewport, runs the callback (typically a screenshot), then restores the
+   * viewport.
+   *
+   * The container's content height can change after the initial measurement —
+   * async queries (disk space, device status, etc.) may not have resolved yet,
+   * and growing the viewport can itself reflow content. So rather than
+   * measuring once and bailing when there's no overflow, this re-measures after
+   * each resize and keeps expanding until the container no longer overflows (or
+   * a safety cap is hit). This makes the full-page capture deterministic
+   * instead of silently falling back to a clipped viewport screenshot.
+   */
   async function withContainerVerticallyExpanded(
     selector: string,
     callback: () => Promise<void>
   ) {
-    // Get the overflow amount
-    const overflowData = await page.evaluate((sel) => {
-      const element = document.querySelector(sel);
-      if (!element) return null;
+    const width = page.viewportSize()?.width ?? 1280;
+    const originalHeight = page.viewportSize()?.height ?? 720;
 
-      const { scrollHeight, clientHeight } = element;
-      const overflowAmount = scrollHeight - clientHeight;
-
-      return {
-        overflowAmount,
-        originalViewportHeight: window.innerHeight,
-      };
-    }, selector);
-
-    if (!overflowData || overflowData.overflowAmount <= 0) {
-      // No overflow, just run the callback
-      await callback();
-      return;
+    let height = originalHeight;
+    // Cap the number of grow-and-remeasure passes so a container that never
+    // stops overflowing (unexpected) can't loop forever.
+    const MAX_PASSES = 5;
+    for (let pass = 0; pass < MAX_PASSES; pass += 1) {
+      // Let pending layout/queries settle before measuring, so late-loading
+      // content is included in the overflow amount.
+      await page.waitForTimeout(150);
+      const overflow = await measureOverflow(selector);
+      if (overflow === null || overflow <= 0) {
+        break;
+      }
+      height += overflow;
+      await page.setViewportSize({ width, height });
     }
 
-    // Temporarily expand the viewport
-    const newHeight =
-      overflowData.originalViewportHeight + overflowData.overflowAmount;
-    await page.setViewportSize({
-      width: page.viewportSize()?.width ?? 1280,
-      height: newHeight,
-    });
-
-    await page.waitForTimeout(100);
-
-    // Run the callback (e.g., take screenshot)
     await callback();
 
-    // Reset viewport
-    await page.setViewportSize({
-      width: page.viewportSize()?.width ?? 1280,
-      height: overflowData.originalViewportHeight,
-    });
-
-    await page.waitForTimeout(100);
+    if (height !== originalHeight) {
+      await page.setViewportSize({ width, height: originalHeight });
+      await page.waitForTimeout(100);
+    }
   }
 
   return {

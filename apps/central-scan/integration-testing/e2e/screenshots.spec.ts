@@ -153,6 +153,15 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
   await page.getByText('No ballots have been scanned').waitFor();
 
+  // Scan Ballots screen immediately after configuring, while still in test
+  // mode (the switch to official mode happens below). Capture it plain, then
+  // with the election info in the left-nav sidebar highlighted.
+  await screenshot('scan-ballots-test-mode');
+  await screenshotWithLocatorHighlight(
+    page.getByTestId('electionInfo'),
+    'scan-ballots-test-mode-election-info-highlight'
+  );
+
   // Settings screen. Capture the "Official Ballot Mode" toggle highlighted
   // while still in test mode, then switch to official mode — this removes the
   // test-mode banner from every subsequent screenshot and makes the official
@@ -205,9 +214,9 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Scan several non-trivial batches so the Scan Ballots screen looks like
   // real use.
+  await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 36 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 12 }, () => fullPdf));
+  await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
 
   // Adjudication: scan one batch of problem ballots and capture each eject

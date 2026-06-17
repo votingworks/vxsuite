@@ -230,7 +230,19 @@ test('basic election flow', async ({ page }, testInfo) => {
     'pw-start-voting-session-button'
   );
   await page.getByRole('button', { name: PRECINCT_NAME }).click();
+
+  // Starting the session puts the paper handler into "accepting paper", which
+  // renders the "Load Ballot Sheet" prompt asking the voter to feed a sheet.
+  await page.getByRole('heading', { name: 'Load Ballot Sheet' }).waitFor();
+  await screenshot('pw-load-ballot-sheet');
+
+  // Feeding the sheet transitions through "Loading Sheet" while the machine
+  // pulls the paper in and scans it. This state is brief, so capture it as soon
+  // as the heading appears.
   await insertBlankBallotSheet(page);
+  await page.getByRole('heading', { name: 'Loading Sheet' }).waitFor();
+  await screenshot('pw-loading-sheet');
+
   await page.getByText(/Remove Card/).waitFor();
   await screenshot('pw-remove-card-to-vote');
 

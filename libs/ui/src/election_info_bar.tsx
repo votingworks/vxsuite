@@ -214,7 +214,8 @@ export function VerticalElectionInfoBar({
   } = electionDefinition;
 
   return (
-    <VerticalBar inverse={inverse}>
+    // data-testid is used in screenshot-generating integration tests
+    <VerticalBar inverse={inverse} data-testid="electionInfo">
       <Seal seal={seal} maxWidth="3rem" inverse={inverse} />
       <ElectionInfoContainer>
         <Caption weight="regular" align="left">
