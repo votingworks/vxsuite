@@ -41,6 +41,7 @@ import {
   ElectionRegisteredVotersCounts,
   LATEST_METADATA,
   SystemSettings,
+  VotesDict,
 } from '@votingworks/types';
 import {
   mockBlankCard,
@@ -432,41 +433,65 @@ test('results', async ({ page }, testInfo) => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  // A small CVR set spanning two precincts and both voting methods, with a
-  // couple of mayor write-ins, so reports can split along precinct/voting-method
-  // and the write-in reports have data. No bulk adjudication needed.
+  // A CVR set spanning two precincts and both voting methods. Every ballot has
+  // a write-in for the mayor contest (with repeated names) so the write-in
+  // reports have rich data; the other contests are fully voted. No bulk
+  // adjudication needed.
   const mayorContest = find(
     election.contests,
     (contest): contest is CandidateContest => contest.id === 'mayor'
   );
-  const votes1 = createFullyVotedBallot(electionDefinition, '1-1');
-  const votes2 = createFullyVotedBallot(electionDefinition, '1-2');
-  const writeIn1 = withWriteIns(votes1, mayorContest, ['Bill Withers']);
-  const writeIn2 = withWriteIns(votes2, mayorContest, ['Aretha Franklin']);
+  function mayorWriteInBallot(ballotStyleId: string, name: string): VotesDict {
+    return withWriteIns(
+      createFullyVotedBallot(electionDefinition, ballotStyleId),
+      mayorContest,
+      [name]
+    );
+  }
   const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
     // West Lincoln (precinct 20, style 1-1)
-    { ballotStyleId: '1-1', precinctId: '20', votes: writeIn1 },
-    { ballotStyleId: '1-1', precinctId: '20', votes: votes1 },
-    { ballotStyleId: '1-1', precinctId: '20', votes: votes1 },
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: votes1,
+      votes: mayorWriteInBallot('1-1', 'Bill Withers'),
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: mayorWriteInBallot('1-1', 'Aretha Franklin'),
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: mayorWriteInBallot('1-1', 'Otis Redding'),
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: mayorWriteInBallot('1-1', 'Bill Withers'),
       ballotType: BallotType.Absentee,
     },
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: votes1,
+      votes: mayorWriteInBallot('1-1', 'Nina Simone'),
       ballotType: BallotType.Absentee,
     },
     // East Lincoln (precinct 21, style 1-2)
-    { ballotStyleId: '1-2', precinctId: '21', votes: writeIn2 },
-    { ballotStyleId: '1-2', precinctId: '21', votes: votes2 },
     {
       ballotStyleId: '1-2',
       precinctId: '21',
-      votes: votes2,
+      votes: mayorWriteInBallot('1-2', 'Aretha Franklin'),
+    },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: mayorWriteInBallot('1-2', 'Sam Cooke'),
+    },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: mayorWriteInBallot('1-2', 'Otis Redding'),
       ballotType: BallotType.Absentee,
     },
   ]);
@@ -479,8 +504,11 @@ test('results', async ({ page }, testInfo) => {
     '23': 5,
   };
 
-  const { screenshot, screenshotWithButtonHighlight } =
-    buildIntegrationTestHelper(page, namer);
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+  } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
@@ -530,6 +558,10 @@ test('results', async ({ page }, testInfo) => {
     .waitFor();
   await waitForReportToLoad(page);
   await screenshot('full-election-tally-report');
+  await screenshotWithLocatorHighlight(
+    page.getByRole('button', { name: 'Print Report' }).locator('xpath=..'),
+    'full-election-tally-report-actions-highlighted'
+  );
   await printAndCaptureReport({
     page,
     printerHandler,
