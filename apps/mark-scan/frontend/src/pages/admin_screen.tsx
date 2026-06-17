@@ -106,16 +106,14 @@ export function AdminScreen({
           {format.count(ballotsPrintedCount)}
         </P>
         <H3 as="h2">Configuration</H3>
-        {election.precincts.length > 1 && (
-          <P>
-            <LocationPicker
-              election={election}
-              pollsState={pollsState}
-              pollingPlaceId={pollingPlaceId}
-              selectPollingPlace={(id) => selectPollingPlace({ id })}
-            />
-          </P>
-        )}
+        <P>
+          <LocationPicker
+            election={election}
+            pollsState={pollsState}
+            pollingPlaceId={pollingPlaceId}
+            selectPollingPlace={(id) => selectPollingPlace({ id })}
+          />
+        </P>
         <P>
           <SegmentedButton
             label="Ballot Mode"
