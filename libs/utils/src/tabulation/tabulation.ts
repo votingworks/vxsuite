@@ -191,39 +191,56 @@ function addCastVoteRecordToElectionResult(
 
     contestResult.ballots += 1;
 
-    if (contestResult.contestType === 'yesno') {
-      if (optionIds.length === 2) {
-        contestResult.overvotes += 1;
-      } else if (optionIds.length === 0) {
-        contestResult.undervotes += 1;
-      } else if (optionIds[0] === contestResult.yesOptionId) {
-        contestResult.yesTally += 1;
-      } else {
-        assert(
-          optionIds[0] === contestResult.noOptionId,
-          `Invalid option id: ${optionIds[0]}`
-        );
-        contestResult.noTally += 1;
-      }
-    } else if (optionIds.length > contestResult.votesAllowed) {
-      contestResult.overvotes += contestResult.votesAllowed;
-    } else {
-      if (optionIds.length < contestResult.votesAllowed) {
-        contestResult.undervotes +=
-          contestResult.votesAllowed - optionIds.length;
+    const numVotesAllowed = votesAllowed(contestResult);
+    if (optionIds.length > numVotesAllowed) {
+      contestResult.overvotes += numVotesAllowed;
+      continue;
+    }
+
+    if (optionIds.length < numVotesAllowed) {
+      contestResult.undervotes += numVotesAllowed - optionIds.length;
+    }
+
+    switch (contestResult.contestType) {
+      case 'candidate': {
+        for (const optionId of optionIds) {
+          if (optionId.startsWith('write-in-')) {
+            const genericWriteInTally = assertDefined(
+              contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+            );
+            genericWriteInTally.tally += 1;
+          } else {
+            const candidateTally = assertDefined(
+              contestResult.tallies[optionId]
+            );
+            candidateTally.tally += 1;
+          }
+        }
+        break;
       }
 
-      for (const optionId of optionIds) {
-        if (optionId.startsWith('write-in-')) {
-          const genericWriteInTally = assertDefined(
-            contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
-          );
-          genericWriteInTally.tally += 1;
-        } else {
-          const candidateTally = assertDefined(contestResult.tallies[optionId]);
-          candidateTally.tally += 1;
+      case 'yesno': {
+        for (const optionId of optionIds) {
+          if (optionId === contestResult.yesOptionId) {
+            contestResult.yesTally += 1;
+          } else if (optionId === contestResult.noOptionId) {
+            contestResult.noTally += 1;
+          }
         }
+        break;
       }
+
+      case 'straight-party': {
+        for (const partyId of optionIds) {
+          contestResult.tallies[partyId] =
+            assertDefined(contestResult.tallies[partyId]) + 1;
+        }
+        break;
+      }
+
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(contestResult);
     }
   }
 
