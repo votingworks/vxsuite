@@ -704,6 +704,21 @@ test('qualified write-in candidates', async ({ page }, testInfo) => {
     areWriteInCandidatesQualified: true,
   };
 
+  // One ballot with a mayor write-in for one of the qualified candidates, so we
+  // can show how qualified write-ins appear during adjudication.
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+  const writeInVotes = withWriteIns(
+    createFullyVotedBallot(electionDefinition, '1-1'),
+    mayorContest,
+    ['Otis Redding']
+  );
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    { ballotStyleId: '1-1', precinctId: '20', votes: writeInVotes },
+  ]);
+
   const { screenshot, screenshotWithButtonHighlight } =
     buildIntegrationTestHelper(page, namer);
 
@@ -751,6 +766,31 @@ test('qualified write-in candidates', async ({ page }, testInfo) => {
   );
   await page.getByRole('button', { name: 'Save' }).click();
   await screenshot('qualified-write-in-saved');
+
+  // Load the CVR with the mayor write-in.
+  await page.getByText('Tally').click();
+  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await insertUsbDriveWithCvrs({
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
+    usbHandler,
+    electionDefinition,
+  });
+  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load' }).click();
+  await page.getByText('1 New CVR Loaded').waitFor();
+  await page.getByRole('button', { name: 'Close' }).click();
+
+  // Adjudicate the write-in: the dropdown now offers the qualified candidates
+  // we added, rather than free-text entry.
+  await page.getByText('Adjudication').click();
+  await page.getByRole('button', { name: 'Adjudicate' }).click();
+  await page.getByText(/Ballot \d+ of \d+/).waitFor();
+  await getPendingContestItems(page).first().click();
+  await page.getByRole('button', { name: 'Confirm' }).waitFor();
+  await screenshot('qualified-write-in-adjudication-contest');
+  await page.getByRole('combobox').click();
+  await screenshot('qualified-write-in-adjudication-dropdown');
 });
 
 test('manual results', async ({ page }, testInfo) => {
