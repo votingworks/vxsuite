@@ -29,7 +29,6 @@ import {
   ElectionPackageConfigurationError,
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
-  DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   UiStringAudioClip,
   UiStringAudioClipSchema,
@@ -37,7 +36,6 @@ import {
   UiStringsPackageSchema,
   safeParseJson,
   safeParseSystemSettings,
-  ElectionPackageMetadata,
   ElectionPackageMetadataSchema,
   mergeUiStrings,
   UiStringAudioIdsPackage,
@@ -96,37 +94,31 @@ export async function readElectionPackageFromBuffer(
 
     // Metadata:
 
-    let metadata: ElectionPackageMetadata | undefined;
-    const metadataEntry = maybeGetFileByName(
+    const metadataEntry = getFileByName(
       entries,
-      ElectionPackageFileName.METADATA
+      ElectionPackageFileName.METADATA,
+      zipName
     );
-    if (metadataEntry) {
-      const metadataText = await readTextEntry(metadataEntry);
-      const metadataResult = safeParseJson(
-        metadataText,
-        ElectionPackageMetadataSchema
-      );
-      if (metadataResult.isErr()) {
-        return err({
-          type: 'invalid-metadata',
-          message: metadataResult.err().message,
-        });
-      }
-      metadata = metadataResult.ok();
+    const metadataResult = safeParseJson(
+      await readTextEntry(metadataEntry),
+      ElectionPackageMetadataSchema
+    );
+    if (metadataResult.isErr()) {
+      return err({
+        type: 'invalid-metadata',
+        message: metadataResult.err().message,
+      });
     }
+    const metadata = metadataResult.ok();
 
     // System Settings:
 
-    let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
-
-    const systemSettingsEntry = maybeGetFileByName(
+    const systemSettingsEntry = getFileByName(
       entries,
-      ElectionPackageFileName.SYSTEM_SETTINGS
+      ElectionPackageFileName.SYSTEM_SETTINGS,
+      zipName
     );
-    if (systemSettingsEntry) {
-      systemSettingsData = await readTextEntry(systemSettingsEntry);
-    }
+    const systemSettingsData = await readTextEntry(systemSettingsEntry);
     const systemSettingsResult = safeParseSystemSettings(systemSettingsData);
     if (systemSettingsResult.isErr()) {
       return err({
@@ -150,25 +142,28 @@ export async function readElectionPackageFromBuffer(
 
     // UI Strings:
 
-    const appStringsEntry = maybeGetFileByName(
+    const appStringsEntry = getFileByName(
       entries,
-      ElectionPackageFileName.APP_STRINGS
+      ElectionPackageFileName.APP_STRINGS,
+      zipName
     );
-    const appStrings =
-      appStringsEntry &&
-      safeParseJson(
-        await readTextEntry(appStringsEntry),
-        UiStringsPackageSchema
-      ).unsafeUnwrap();
+    const appStrings = safeParseJson(
+      await readTextEntry(appStringsEntry),
+      UiStringsPackageSchema
+    ).unsafeUnwrap();
 
     const uiStrings = mergeUiStrings(
-      appStrings ?? {},
+      appStrings,
       electionDefinition.election.ballotStrings
     );
 
     // UI String Audio IDs:
+    //
+    // Audio files are optional: VxDesign omits audioIds.json and
+    // audioClips.jsonl when audio isn't included in an export, so packages in
+    // the field may not have them. Default to empty when absent.
 
-    let uiStringAudioIds: UiStringAudioIdsPackage | undefined;
+    let uiStringAudioIds: UiStringAudioIdsPackage = {};
     const audioIdsEntry = maybeGetFileByName(
       entries,
       ElectionPackageFileName.AUDIO_IDS
@@ -191,8 +186,9 @@ export async function readElectionPackageFromBuffer(
       const audioClipsFileLines = readline.createInterface(
         getEntryStream(audioClipsEntry)
       );
-
       for await (const line of audioClipsFileLines) {
+        // Skip blank lines (an empty audioClips.jsonl has no clips).
+        if (line.trim().length === 0) continue;
         uiStringAudioClips.push(
           safeParseJson(line, UiStringAudioClipSchema).unsafeUnwrap()
         );
