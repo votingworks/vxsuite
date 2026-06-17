@@ -465,11 +465,11 @@ export function VirtualKeyboard({
   }
 
   return (
-    // Even when an RTL language is in use, render this keyboard LTR since it's always used to
-    // enter English characters.
     <Keyboard
       data-testid="virtual-keyboard"
       onKeyDown={handleKeyboardEventForVirtualKeyboard}
+      // Even when an RTL language is in use, render this keyboard LTR since it's always used to
+      // enter English characters.
       dir="ltr"
     >
       {keyMapWithActions.rows.map((row, rowIndex) => (

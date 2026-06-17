@@ -491,9 +491,12 @@ export function ScanPanelVirtualKeyboard({
   }
 
   return (
-    // Even when an RTL language is in use, render this keyboard LTR since it's always used to
-    // enter English characters.
-    <Keyboard data-testid="virtual-keyboard" dir="ltr">
+    <Keyboard
+      data-testid="virtual-keyboard"
+      // Even when an RTL language is in use, render this keyboard LTR since it's always used to
+      // enter English characters.
+      dir="ltr"
+    >
       {keyMap.rows.map((row, rowIndex) => {
         if (rowIsSelected(rowIndex) && selectionLevel !== SelectionLevel.Rows) {
           const panels = row.map((panel, panelIndex) => (
