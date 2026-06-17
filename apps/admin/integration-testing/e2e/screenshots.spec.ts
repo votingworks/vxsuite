@@ -18,17 +18,20 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined, find } from '@votingworks/basics';
+import { find } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
   buildIntegrationTestHelper,
   capturePrintedPdf,
   captureReadinessReport,
+  createFullyVotedBallot,
   createScreenshotNamer,
+  generateCastVoteRecordExport,
   type ScreenshotNamer,
+  withWriteIns,
 } from '@votingworks/integration-test-utils';
 import {
-  AdjudicationReason,
+  CandidateContest,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -556,54 +559,34 @@ test('results', async ({ page }, testInfo) => {
 test('adjudication', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
-  const printerHandler = getMockFilePrinterHandler();
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { manualCastVoteRecordExport } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
-  const systemSettings: SystemSettings = {
-    ...DEFAULT_SYSTEM_SETTINGS,
-    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
-    markThresholds: {
-      marginal: 0.05,
-      definite: 0.1,
-    },
-  };
-  // modify the cvr for the first contest to include mark scores so we have a single marginal mark
-  const contestId = 'Governor-061a401b';
-  const exportDirectoryPath = await modifyCastVoteRecordExport(
-    manualCastVoteRecordExport.asDirectoryPath(),
-    {
-      castVoteRecordModifier: (cvr) => {
-        const snapshot = find(
-          cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Original
-        );
-        const contest = snapshot.CVRContest.find(
-          (c) => c.ContestId === contestId
-        );
-        if (contest) {
-          const option0 = assertDefined(
-            contest.CVRContestSelection[0]?.SelectionPosition[0]
-          );
-          option0.MarkMetricValue = ['0.08'];
-        }
-        return cvr;
-      },
-    }
-  );
 
-  const { screenshot } = buildIntegrationTestHelper(page, namer);
+  // Two fully-voted ballots whose only adjudication is a single write-in for
+  // "Bill Withers" in the mayor contest.
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+  const votes = withWriteIns(
+    createFullyVotedBallot(electionDefinition, '1-1'),
+    mayorContest,
+    ['Bill Withers']
+  );
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    { ballotStyleId: '1-1', precinctId: '20', votes },
+    { ballotStyleId: '1-1', precinctId: '20', votes },
+  ]);
+
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+  } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
-  await configureMachine({
-    page,
-    usbHandler,
-    electionDefinition,
-    systemSettings,
-  });
+  await configureMachine({ page, usbHandler, electionDefinition });
 
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
@@ -611,44 +594,61 @@ test('adjudication', async ({ page }, testInfo) => {
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
 
   await insertUsbDriveWithCvrs({
-    cvrPath: exportDirectoryPath,
-    convertToOfficial: true,
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
     usbHandler,
     electionDefinition,
   });
   await page.getByText('Load CVRs').click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('1 New CVR Loaded').waitFor();
+  await page.getByText('2 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 1').waitFor();
+  await page.getByText('Total CVR Count: 2').waitFor();
 
+  // Adjudication start screen
   await page.getByText('Adjudication').click();
   await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
+  await screenshot('adjudication-start');
+  await screenshotWithButtonHighlight(
+    'Adjudicate',
+    'adjudication-start-adjudicate-highlighted'
+  );
 
+  // Full ballot view
   await page.getByRole('button', { name: 'Adjudicate' }).click();
   await page.getByText(/Ballot \d+ of \d+/).waitFor();
-  await screenshot('adjudication-view');
+  await screenshot('adjudication-ballot-view');
 
-  // Click the Governor contest (has write-in + marginal mark)
+  // Open the contest that needs adjudication
   await getPendingContestItems(page).first().click();
   await page.getByRole('button', { name: 'Confirm' }).waitFor();
-  await page.getByText('Zoom Out').click();
-  await expect(page.getByText('Zoom In')).toBeEnabled();
-  await screenshot('adjudication-view-zoomed-out');
-  await page.getByRole('combobox').click();
-  await screenshot('adjudication-write-in-focused');
-  await page.getByRole('combobox').fill('New Candidate');
-  await page.keyboard.press('Enter');
-  await screenshot('adjudication-write-in-new-candidate-adjudicated');
-  await page.getByRole('button', { name: 'Dismiss' }).click();
-  await screenshot('adjudication-marginal-mark-adjudicated');
-  await page.getByRole('button', { name: 'Confirm' }).click();
+  await screenshot('adjudication-contest-view');
 
-  // Exit to start screen
-  await page.getByRole('button', { name: /Exit/ }).waitFor();
-  await page.getByRole('button', { name: /Exit/ }).click();
-  await page.getByRole('button', { name: 'Discard Changes' }).click();
-  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
+  // Open the write-in dropdown
+  const writeInCombobox = page.getByRole('combobox');
+  await writeInCombobox.click();
+  await screenshot('adjudication-write-in-dropdown-open');
+
+  // Type the write-in name and highlight the add-candidate option
+  await writeInCombobox.fill('Bill Withers');
+  const addCandidateOption = page.getByText(/Press enter to add: Bill Withers/);
+  await addCandidateOption.waitFor();
+  await screenshotWithLocatorHighlight(
+    addCandidateOption,
+    'adjudication-write-in-add-candidate-highlighted'
+  );
+
+  // Add the write-in candidate
+  await addCandidateOption.click();
+  await screenshot('adjudication-contest-view-after-selection');
+
+  // Confirm back to the ballot view
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByText(/Ballot \d+ of \d+/).waitFor();
+  await screenshot('adjudication-ballot-view-after-changes');
+
+  // Finalize this ballot
+  await page.getByRole('button', { name: 'Accept' }).click();
 });
 
 test('manual results', async ({ page }, testInfo) => {
