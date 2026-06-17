@@ -569,8 +569,66 @@ test('results', async ({ page }, testInfo) => {
     name: 'full-election-tally-report',
   });
 
+  // All-precincts tally report — a tally report grouped by precinct.
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload(); // avoid caching the previous report in the next viewer
+  await page
+    .getByRole('button', { name: 'All Precincts Tally Report' })
+    .click();
+  await page
+    .getByRole('heading', { name: 'All Precincts Tally Report' })
+    .waitFor();
+  await waitForReportToLoad(page);
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'tally-report-by-precinct',
+  });
+
+  // Tally report builder — a custom report filtered to one precinct and grouped
+  // by voting method.
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload();
+  await screenshotWithButtonHighlight(
+    'Tally Report Builder',
+    'reports-tally-report-builder-highlighted'
+  );
+  await page.getByRole('button', { name: 'Tally Report Builder' }).click();
+  await page.getByRole('heading', { name: 'Tally Report Builder' }).waitFor();
+  await screenshot('tally-report-builder');
+
+  await page.getByText('Add Filter').click();
+  await openDropdown(page, 'Select New Filter Type');
+  await screenshot('tally-report-builder-filter-dropdown-open');
+  await selectOpenDropdownOption(page, 'Precinct');
+  await openDropdown(page, 'Select Filter Values');
+  await selectOpenDropdownOption(page, 'West Lincoln');
+
+  await page.getByText('Voting Method').check();
+  await screenshot('tally-report-builder-report-by-selected');
+
+  await screenshotWithButtonHighlight(
+    'Generate Report',
+    'tally-report-builder-generate-highlighted'
+  );
+  await page.getByRole('button', { name: 'Generate Report' }).click();
+  await waitForReportToLoad(page);
+  await screenshot('tally-report-builder-generated');
+  await screenshotWithLocatorHighlight(
+    page.getByRole('button', { name: 'Print Report' }).locator('xpath=..'),
+    'tally-report-builder-actions-highlighted'
+  );
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'tally-report-custom-filter',
+  });
+
   // Voting Method ballot count report
   await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload();
   await page.getByText('Voting Method Ballot Count Report').click();
   await page
     .getByRole('heading', { name: 'Voting Method Ballot Count Report' })
