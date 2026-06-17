@@ -185,7 +185,7 @@
         "water-1-fishing": "صيد الأسماك في منطقة المياه رقم 1",
         "water-2-fishing": "صيد الأسماك في منطقة المياه رقم 2"
       },
-      "countyName": "مقاطعة سامبل",
+      "jurisdictionName": "مقاطعة سامبل",
       "districtName": {
         "county": "مقاطعة",
         "congressional-1": "الدائرة الانتخابية الأولى",
@@ -288,7 +288,7 @@
         "water-1-fishing": "জল জেলা ১ মাছ ধরা",
         "water-2-fishing": "জল জেলা ২ মাছ ধরা"
       },
-      "countyName": "নমুনা কাউন্টি",
+      "jurisdictionName": "নমুনা কাউন্টি",
       "districtName": {
         "county": "কাউন্টি",
         "congressional-1": "কংগ্রেসনাল ডিস্ট্রিক্ট ১",
