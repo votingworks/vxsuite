@@ -1,5 +1,5 @@
 import { Election, Tabulation } from '@votingworks/types';
-import { assertDefined, mapObject } from '@votingworks/basics';
+import { assert, assertDefined, mapObject } from '@votingworks/basics';
 
 export function deriveStraightPartyVotes(
   election: Election,
@@ -11,6 +11,7 @@ export function deriveStraightPartyVotes(
   if (!straightPartyContest) {
     return votes;
   }
+  assert(election.type === 'general');
 
   const straightPartyVotes = assertDefined(votes[straightPartyContest.id]);
   if (straightPartyVotes.length !== 1) {
