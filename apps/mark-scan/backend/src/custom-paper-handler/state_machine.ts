@@ -823,14 +823,18 @@ export function buildMachine(
             // Intermediate state to conditionally transition based on ballot interpretation
             transition_interpretation: {
               entry: (context) => {
-                const interpretationType = assertDefined(
-                  getInterpretationType(context)
-                );
+                const interpretation = assertDefined(context.interpretation)[0];
                 assert(
-                  interpretationType === 'InterpretedBmdPage' ||
-                    interpretationType === 'BlankPage',
-                  `Unexpected interpretation type: ${interpretationType}`
+                  interpretation.type === 'InterpretedBmdPage' ||
+                    interpretation.type === 'BlankPage',
+                  `Unexpected interpretation type: ${interpretation.type}`
                 );
+                if (interpretation.type === 'InterpretedBmdPage') {
+                  assert(
+                    interpretation.metadata.totalPages === 1,
+                    `VxMarkScan only supports single-page ballots`
+                  );
+                }
               },
               always: [
                 {

@@ -7,11 +7,14 @@ import {
   BallotStyleId,
   Election,
   ElectionDefinition,
+  getBallotStyle,
+  getContests,
   HmpbBallotPaperSize,
   VotesDict,
 } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
+import { randomUUID } from 'node:crypto';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -64,6 +67,14 @@ export async function renderTestModeBallotWithoutLanguageContext(
     electionDefinition
   ).unsafeUnwrap();
 
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election: electionDefinition.election, ballotStyleId })
+  );
+  const contests = getContests({
+    election: electionDefinition.election,
+    ballotStyle,
+  });
+
   const ballot = (
     <BmdPaperBallot
       binarize
@@ -75,6 +86,10 @@ export async function renderTestModeBallotWithoutLanguageContext(
       sheetSize={getSheetSize(electionDefinition.election)}
       layout={layout}
       machineType={MACHINE_TYPE}
+      pageNumber={1}
+      totalPages={1}
+      ballotAuditId={randomUUID()}
+      contestsForPage={contests}
     />
   );
 
@@ -95,6 +110,15 @@ export async function renderBallot({
 }: RenderBallotProps): Promise<Uint8Array> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const isLiveMode = !store.getTestMode();
+
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election: electionDefinition.election, ballotStyleId })
+  );
+  const contests = getContests({
+    election: electionDefinition.election,
+    ballotStyle,
+  });
+  const ballotAuditId = randomUUID();
 
   const maxRenderAttempts = ORDERED_BMD_BALLOT_LAYOUTS.markScan.length;
 
@@ -128,6 +152,10 @@ export async function renderBallot({
           sheetSize={getSheetSize(electionDefinition.election)}
           layout={layout.ok()}
           machineType={MACHINE_TYPE}
+          pageNumber={1}
+          totalPages={1}
+          ballotAuditId={ballotAuditId}
+          contestsForPage={contests}
         />
       </BackendLanguageContextProvider>
     );

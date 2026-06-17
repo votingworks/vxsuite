@@ -138,6 +138,10 @@ describe('non-English ballot style', () => {
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={contests}
       />
     );
 
@@ -174,6 +178,10 @@ describe('non-English ballot style', () => {
         }}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={[contest]}
       />
     );
 
@@ -222,6 +230,10 @@ describe('non-English ballot style', () => {
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={[contest]}
       />
     );
 
@@ -247,6 +259,10 @@ describe('non-English ballot style', () => {
         votes={{ [contest.id]: [contest.yesOption.id] }}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={[contest]}
       />
     );
 
@@ -281,6 +297,10 @@ describe('non-English ballot style', () => {
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={[contest]}
       />
     );
 
@@ -326,6 +346,10 @@ describe('English ballot style', () => {
         votes={votes}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={contests}
       />
     );
 
@@ -358,6 +382,10 @@ describe('English ballot style', () => {
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId="test-audit-id"
+        contestsForPage={contests}
       />
     );
 

@@ -1,7 +1,6 @@
 import {
   BallotMetadata,
   BallotType,
-  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -39,23 +38,13 @@ export function isBmdPage(
   return interpretation.type === 'InterpretedBmdPage';
 }
 
-export function isBmdMultiPagePage(
-  interpretation: PageInterpretation
-): interpretation is InterpretedBmdMultiPagePage {
-  return interpretation.type === 'InterpretedBmdMultiPagePage';
-}
-
 export function isPageWithVotes(
   interpretation: PageInterpretation
-): interpretation is
-  | InterpretedHmpbPage
-  | InterpretedBmdPage
-  | InterpretedBmdMultiPagePage {
+): interpretation is InterpretedHmpbPage | InterpretedBmdPage {
   const { type } = interpretation;
   switch (type) {
     case 'InterpretedHmpbPage':
     case 'InterpretedBmdPage':
-    case 'InterpretedBmdMultiPagePage':
       return true;
     case 'BlankPage':
     case 'UnreadablePage':
@@ -142,30 +131,6 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       });
     }
 
-    // Handle multi-page BMD ballot pages
-    if (
-      isBmdMultiPagePage(frontInterpretation) ||
-      isBmdMultiPagePage(backInterpretation)
-    ) {
-      const interpretation = isBmdMultiPagePage(frontInterpretation)
-        ? frontInterpretation
-        : (backInterpretation as InterpretedBmdMultiPagePage);
-      const votes = convertVotesDictToTabulationVotes(interpretation.votes);
-
-      return buildCvr({
-        votes,
-        card: {
-          type: 'bmd',
-          // Include sheet number for multi-page BMD ballots to enable
-          // proper sheet accounting (similar to HMPB)
-          sheetNumber: interpretation.metadata.pageNumber,
-        },
-        batchId: resultSheet.batchId,
-        metadata: interpretation.metadata,
-      });
-    }
-
-    // We assume that we have a single-page BMD ballot if it's not an HMPB or multi-page BMD ballot
     const interpretation = isBmdPage(frontInterpretation)
       ? frontInterpretation
       : backInterpretation;
@@ -176,6 +141,8 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       votes,
       card: {
         type: 'bmd',
+        // Include sheet number to enable proper sheet accounting
+        sheetNumber: interpretation.metadata.pageNumber,
       },
       batchId: resultSheet.batchId,
       metadata: interpretation.metadata,

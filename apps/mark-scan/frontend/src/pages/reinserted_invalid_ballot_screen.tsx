@@ -12,11 +12,9 @@ import { ReinsertedWrongPrecinctBallotScreen } from './reinserted_wrong_precinct
 const SCREENS: Readonly<
   Record<PageInterpretationType, JSX.Element | undefined>
 > = {
-  InterpretedBmdPage: undefined, // This page should be unreachable for this result.
-
   BlankPage: <ReinsertedNonBallotScreen />,
   InterpretedHmpbPage: <ReinsertedNonBallotScreen />,
-  InterpretedBmdMultiPagePage: <ReinsertedNonBallotScreen />,
+  InterpretedBmdPage: <ReinsertedNonBallotScreen />,
   InvalidBallotHashPage: <ReinsertedWrongElectionBallotScreen />,
   InvalidPrecinctPage: <ReinsertedWrongPrecinctBallotScreen />,
   InvalidTestModePage: <ReinsertedWrongTestModeBallotScreen />,

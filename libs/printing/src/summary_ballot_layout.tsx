@@ -105,11 +105,10 @@ async function measureBallotHeight(
   contests: readonly Contest[],
   votes: VotesDict,
   machineType: MachineType,
-  isMultiPage: boolean,
   totalContestCount: number,
   languageContext?: LanguageContext,
-  pageNumber?: number,
-  totalPages?: number
+  pageNumber: number = 1,
+  totalPages: number = 1
 ): Promise<number> {
   // Use total contest count for layout selection, not just the contests on this page
   const layout = selectLayout(totalContestCount, machineType);
@@ -125,10 +124,10 @@ async function measureBallotHeight(
       isLiveMode={false}
       machineType={machineType}
       layout={layout}
-      pageNumber={isMultiPage ? pageNumber : undefined}
-      totalPages={isMultiPage ? totalPages : undefined}
-      ballotAuditId={isMultiPage ? 'measurement-ballot' : undefined}
-      contestsForPage={isMultiPage ? contests : undefined}
+      pageNumber={pageNumber}
+      totalPages={totalPages}
+      ballotAuditId="measurement-ballot"
+      contestsForPage={contests}
     />
   );
 
@@ -218,7 +217,6 @@ async function findMaxContestsThatFit(
   contests: readonly Contest[],
   votes: VotesDict,
   machineType: MachineType,
-  isMultiPage: boolean,
   totalContestCount: number,
   languageContext?: LanguageContext
 ): Promise<number> {
@@ -233,7 +231,6 @@ async function findMaxContestsThatFit(
     contests,
     votes,
     machineType,
-    isMultiPage,
     totalContestCount,
     languageContext,
     1,
@@ -261,7 +258,6 @@ async function findMaxContestsThatFit(
       testContests,
       votes,
       machineType,
-      isMultiPage,
       totalContestCount,
       languageContext,
       1,
@@ -347,7 +343,6 @@ export class SummaryBallotLayoutRenderer {
         contests,
         votes,
         machineType,
-        false,
         totalContestCount,
         languageContext
       );
@@ -380,7 +375,6 @@ export class SummaryBallotLayoutRenderer {
         remainingContests,
         votes,
         machineType,
-        true,
         totalContestCount,
         languageContext
       );

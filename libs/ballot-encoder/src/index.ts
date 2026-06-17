@@ -4,22 +4,19 @@ import {
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
-  MultiPageSummaryBallotPageMetadata,
+  SummaryBallotPageMetadata,
   Candidate,
   CandidateVote,
-  CompletedBallot,
   ContestId,
   Election,
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  getPrecinctById,
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
   straightPartyNotYetImplemented,
   unsafeParse,
-  validateVotes,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -76,13 +73,6 @@ export const WriteInEncoding = new CustomEncoding(
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
 /**
- * The bytes we expect a summary ballot to start with.
- */
-export const SummaryBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* X */ 88, /* version = */ 2,
-];
-
-/**
  * The bytes we expect a bubble ballot to start with.
  */
 export const BubbleBallotPrelude: readonly Uint8[] = [
@@ -90,37 +80,20 @@ export const BubbleBallotPrelude: readonly Uint8[] = [
 ];
 
 /**
- * The bytes we expect a multi-page summary ballot to start with.
+ * The bytes we expect a summary ballot to start with.
  */
-export const MultiPageSummaryBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* B = BMD multi-page */ 66, /* version = */ 1,
+export const SummaryBallotPrelude: readonly Uint8[] = [
+  /* V */ 86, /* B = summary ballot */ 66, /* version = */ 1,
 ];
 
 /**
  * Detect whether `data` is a VotingWorks encoded ballot / metadata.
- * Recognizes both single-page summary ballot (VX) and multi-page
- * summary ballot (VB) preludes.
  */
 export function isVxBallot(data: Uint8Array): boolean {
   const prelude = data.slice(0, SummaryBallotPrelude.length);
-  if (prelude.length !== SummaryBallotPrelude.length) {
-    return false;
-  }
-  // Check for VX (single-page) or VB (multi-page) summary ballot prelude
   return (
-    prelude.every((byte, i) => byte === SummaryBallotPrelude[i]) ||
-    prelude.every((byte, i) => byte === MultiPageSummaryBallotPrelude[i])
-  );
-}
-
-/**
- * Detect whether `data` is a multi-page summary ballot.
- */
-export function isMultiPageSummaryBallot(data: Uint8Array): boolean {
-  const prelude = data.slice(0, MultiPageSummaryBallotPrelude.length);
-  return (
-    prelude.length === MultiPageSummaryBallotPrelude.length &&
-    prelude.every((byte, i) => byte === MultiPageSummaryBallotPrelude[i])
+    prelude.length === SummaryBallotPrelude.length &&
+    prelude.every((byte, i) => byte === SummaryBallotPrelude[i])
   );
 }
 
@@ -132,13 +105,10 @@ export interface BallotConfig {
   ballotType: BallotType;
   isTestMode: boolean;
   precinctId: PrecinctId;
+  pageNumber: number;
   /**
-   * For bubble ballots and multi-page summary ballots only
-   */
-  pageNumber?: number;
-  /**
-   * For bubble ballots and multi-page summary ballots only. They appear on bubble
-   * ballots only when using the SystemSettings.precinctScanEnableBallotAuditIds feature.
+   * Appears on bubble ballots only when using the
+   * SystemSettings.precinctScanEnableBallotAuditIds feature.
    */
   ballotAuditId?: string;
 }
@@ -174,11 +144,8 @@ export function encodeBallotConfigInto(
 
   bits
     .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
-    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES });
-
-  if (pageNumber !== undefined) {
-    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
-  }
+    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES })
+    .writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
 
   bits.writeBoolean(isTestMode);
 
@@ -191,51 +158,6 @@ export function encodeBallotConfigInto(
   }
 
   return bits;
-}
-
-/**
- * Decodes a {@link BallotConfig} from a bit reader.
- */
-export function decodeSinglePageSummaryBallotConfigFromReader(
-  election: Election,
-  bits: BitReader,
-  { readPageNumber = false }: { readPageNumber?: boolean } = {}
-): BallotConfig {
-  const { precincts, ballotStyles } = election;
-
-  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
-  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
-
-  const pageNumber = readPageNumber
-    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
-    : undefined;
-
-  const isTestMode = bits.readBoolean();
-
-  const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
-  const ballotType = assertDefined(
-    Object.values(BallotType)[ballotTypeIndex],
-    `ballot type index ${ballotTypeIndex} is invalid`
-  );
-
-  const ballotAuditId = bits.readBoolean()
-    ? unsafeParse(BallotIdSchema, bits.readString())
-    : undefined;
-
-  const ballotStyle = ballotStyles[ballotStyleIndex];
-  const precinct = precincts[precinctIndex];
-
-  assert(ballotStyle, `ballot style index ${ballotStyleIndex} is invalid`);
-  assert(precinct, `precinct index ${precinctIndex} is invalid`);
-
-  return {
-    ballotStyleId: ballotStyle.id,
-    precinctId: precinct.id,
-    pageNumber,
-    isTestMode,
-    ballotType,
-    ballotAuditId,
-  };
 }
 
 function writeYesNoVote(
@@ -318,65 +240,6 @@ function encodeBallotVotesInto(
   }
 
   return bits;
-}
-
-/**
- * Encodes a completed summary ballot, including metadata and votes, into a bit writer.
- */
-export function encodeSinglePageSummaryBallotInto(
-  election: Election,
-  {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode,
-    ballotType,
-  }: CompletedBallot,
-  bits: BitWriter
-): BitWriter {
-  const ballotStyle = getBallotStyle({ election, ballotStyleId });
-
-  if (!ballotStyle) {
-    throw new Error(`unknown ballot style id: ${ballotStyleId}`);
-  }
-
-  validateVotes({ election, ballotStyle, votes });
-
-  const contests = getContests({ ballotStyle, election });
-
-  return bits
-    .writeUint8(...SummaryBallotPrelude)
-    .writeString(sliceBallotHashForEncoding(ballotHash), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    .with(() =>
-      encodeBallotConfigInto(
-        election,
-        {
-          ballotStyleId,
-          precinctId,
-          ballotType,
-          isTestMode,
-        },
-        bits
-      )
-    )
-    .with(() => encodeBallotVotesInto(contests, votes, bits));
-}
-
-/**
- * Encodes a completed summary ballot, including metadata and votes, as a byte array.
- */
-export function encodeSinglePageSummaryBallot(
-  election: Election,
-  ballot: CompletedBallot
-): Uint8Array {
-  const bits = new BitWriter();
-  encodeSinglePageSummaryBallotInto(election, ballot, bits);
-  return bits.toUint8Array();
 }
 
 function readPaddingToEnd(bits: BitReader): void {
@@ -469,75 +332,14 @@ function decodeBallotVotes(
 }
 
 /**
- * Decodes a completed summary ballot, including metadata and votes, from a bit reader.
- */
-export function decodeSinglePageSummaryBallotFromReader(
-  electionDefinition: ElectionDefinition,
-  bits: BitReader
-): CompletedBallot {
-  if (!bits.skipUint8(...SummaryBallotPrelude)) {
-    throw new Error(
-      "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-    );
-  }
-
-  const ballotHash = bits.readString({
-    encoding: HexEncoding,
-    length: BALLOT_HASH_ENCODING_LENGTH,
-  });
-
-  assert(
-    ballotHash === sliceBallotHashForEncoding(electionDefinition.ballotHash),
-    `unexpected ballot hash '${ballotHash}' (expected '${electionDefinition.ballotHash}')`
-  );
-
-  const { election } = electionDefinition;
-  const { ballotStyleId, ballotType, isTestMode, precinctId } =
-    decodeSinglePageSummaryBallotConfigFromReader(election, bits);
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  const precinct = getPrecinctById({ precinctId, election });
-
-  assert(ballotStyle, `invalid ballot style id: ${ballotStyleId}`);
-  assert(precinct, `invalid precinct id: ${precinctId}`);
-
-  const contests = getContests({ ballotStyle, election });
-  const votes = decodeBallotVotes(contests, bits);
-
-  readPaddingToEnd(bits);
-
-  return {
-    ballotHash,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode,
-    ballotType,
-  };
-}
-
-/**
- * Decodes a completed summary ballot, including metadata and votes, from a byte array.
- */
-export function decodeSinglePageSummaryBallot(
-  electionDefinition: ElectionDefinition,
-  data: Uint8Array
-): CompletedBallot {
-  return decodeSinglePageSummaryBallotFromReader(
-    electionDefinition,
-    new BitReader(data)
-  );
-}
-
-/**
  * Reads the ballot hash from an encoded ballot metadata.
  */
 export function decodeBallotHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (
-    bits.skipUint8(...SummaryBallotPrelude) ||
     bits.skipUint8(...BubbleBallotPrelude) ||
-    bits.skipUint8(...MultiPageSummaryBallotPrelude)
+    bits.skipUint8(...SummaryBallotPrelude)
   ) {
     return bits.readString({
       encoding: HexEncoding,
@@ -607,14 +409,14 @@ export function encodeHmpbBallotPageMetadata(
 }
 
 /**
- * Maximum number of pages in a multi-page summary ballot (same as bubble ballot).
+ * Maximum number of pages in a summary ballot (same as bubble ballot).
  */
-export const MAXIMUM_MULTI_PAGE_SUMMARY_BALLOT_PAGES = MAXIMUM_PAGE_NUMBERS;
+export const MAXIMUM_SUMMARY_BALLOT_PAGES = MAXIMUM_PAGE_NUMBERS;
 
 /**
- * Data for a single page of a multi-page summary ballot.
+ * Data for a single page of a summary ballot.
  */
-export interface MultiPageSummaryBallotPage {
+export interface SummaryBallotPage {
   ballotHash: string;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
@@ -630,9 +432,9 @@ export interface MultiPageSummaryBallotPage {
 }
 
 /**
- * Encodes a multi-page summary ballot config (with page info) into the given bit writer.
+ * Encodes a summary ballot config (with page info) into the given bit writer.
  */
-function encodeMultiPageSummaryBallotConfigInto(
+function encodeSummaryBallotConfigInto(
   election: Election,
   {
     ballotStyleId,
@@ -642,7 +444,7 @@ function encodeMultiPageSummaryBallotConfigInto(
     pageNumber,
     totalPages,
     ballotAuditId,
-  }: Omit<MultiPageSummaryBallotPage, 'contests' | 'votes' | 'ballotHash'>,
+  }: Omit<SummaryBallotPage, 'contests' | 'votes' | 'ballotHash'>,
   bits: BitWriter
 ): BitWriter {
   const { precincts, ballotStyles } = election;
@@ -660,23 +462,23 @@ function encodeMultiPageSummaryBallotConfigInto(
   bits
     .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
     .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES })
-    .writeUint(pageNumber, { max: MAXIMUM_MULTI_PAGE_SUMMARY_BALLOT_PAGES })
-    .writeUint(totalPages, { max: MAXIMUM_MULTI_PAGE_SUMMARY_BALLOT_PAGES })
+    .writeUint(pageNumber, { max: MAXIMUM_SUMMARY_BALLOT_PAGES })
+    .writeUint(totalPages, { max: MAXIMUM_SUMMARY_BALLOT_PAGES })
     .writeBoolean(isTestMode);
 
   const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
   bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
 
-  // Ballot audit ID is required for multi-page summary ballots
+  // Ballot audit ID is required for summary ballots
   bits.writeString(ballotAuditId);
 
   return bits;
 }
 
 /**
- * Encodes a single page of a multi-page summary ballot into a bit writer.
+ * Encodes a single page of a summary ballot into a bit writer.
  */
-export function encodeMultiPageSummaryBallotPageInto(
+export function encodeSummaryBallotPageInto(
   election: Election,
   {
     ballotHash,
@@ -689,7 +491,7 @@ export function encodeMultiPageSummaryBallotPageInto(
     ballotAuditId,
     contests,
     votes,
-  }: MultiPageSummaryBallotPage,
+  }: SummaryBallotPage,
   bits: BitWriter
 ): BitWriter {
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -701,14 +503,14 @@ export function encodeMultiPageSummaryBallotPageInto(
   const contestsOnPage = new Set(contests.map((c) => c.id));
 
   return bits
-    .writeUint8(...MultiPageSummaryBallotPrelude)
+    .writeUint8(...SummaryBallotPrelude)
     .writeString(sliceBallotHashForEncoding(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
     .with(() =>
-      encodeMultiPageSummaryBallotConfigInto(
+      encodeSummaryBallotConfigInto(
         election,
         {
           ballotStyleId,
@@ -733,33 +535,33 @@ export function encodeMultiPageSummaryBallotPageInto(
 }
 
 /**
- * Encodes a single page of a multi-page summary ballot as a byte array.
+ * Encodes a single page of a summary ballot as a byte array.
  */
-export function encodeMultiPageSummaryBallotPage(
+export function encodeSummaryBallotPage(
   election: Election,
-  page: MultiPageSummaryBallotPage
+  page: SummaryBallotPage
 ): Uint8Array {
   const bits = new BitWriter();
-  encodeMultiPageSummaryBallotPageInto(election, page, bits);
+  encodeSummaryBallotPageInto(election, page, bits);
   return bits.toUint8Array();
 }
 
 /**
- * Decodes a multi-page summary ballot config from a bit reader.
+ * Decodes a summary ballot config from a bit reader.
  */
-function decodeMultiPageSummaryBallotConfigFromReader(
+function decodeSummaryBallotConfigFromReader(
   election: Election,
   bits: BitReader
-): Omit<MultiPageSummaryBallotPageMetadata, 'ballotHash' | 'contestIds'> {
+): Omit<SummaryBallotPageMetadata, 'ballotHash' | 'contestIds'> {
   const { precincts, ballotStyles } = election;
 
   const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
   const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
   const pageNumber = bits.readUint({
-    max: MAXIMUM_MULTI_PAGE_SUMMARY_BALLOT_PAGES,
+    max: MAXIMUM_SUMMARY_BALLOT_PAGES,
   });
   const totalPages = bits.readUint({
-    max: MAXIMUM_MULTI_PAGE_SUMMARY_BALLOT_PAGES,
+    max: MAXIMUM_SUMMARY_BALLOT_PAGES,
   });
   const isTestMode = bits.readBoolean();
 
@@ -769,7 +571,7 @@ function decodeMultiPageSummaryBallotConfigFromReader(
     `ballot type index ${ballotTypeIndex} is invalid`
   );
 
-  // Ballot audit ID is required for multi-page summary ballots
+  // Ballot audit ID is required for summary ballots
   const ballotAuditId = unsafeParse(BallotIdSchema, bits.readString());
 
   const ballotStyle = ballotStyles[ballotStyleIndex];
@@ -790,23 +592,23 @@ function decodeMultiPageSummaryBallotConfigFromReader(
 }
 
 /**
- * Result of decoding a multi-page summary ballot page.
+ * Result of decoding a summary ballot page.
  */
-export interface DecodedMultiPageSummaryBallotPage {
-  metadata: MultiPageSummaryBallotPageMetadata;
+export interface DecodedSummaryBallotPage {
+  metadata: SummaryBallotPageMetadata;
   votes: VotesDict;
 }
 
 /**
- * Decodes a single page of a multi-page summary ballot from a bit reader.
+ * Decodes a single page of a summary ballot from a bit reader.
  */
-export function decodeMultiPageSummaryBallotPageFromReader(
+export function decodeSummaryBallotPageFromReader(
   electionDefinition: ElectionDefinition,
   bits: BitReader
-): DecodedMultiPageSummaryBallotPage {
+): DecodedSummaryBallotPage {
   assert(
-    bits.skipUint8(...MultiPageSummaryBallotPrelude),
-    'invalid multi-page summary ballot prelude'
+    bits.skipUint8(...SummaryBallotPrelude),
+    'invalid summary ballot prelude'
   );
 
   const ballotHash = bits.readString({
@@ -820,7 +622,7 @@ export function decodeMultiPageSummaryBallotPageFromReader(
   );
 
   const { election } = electionDefinition;
-  const config = decodeMultiPageSummaryBallotConfigFromReader(election, bits);
+  const config = decodeSummaryBallotConfigFromReader(election, bits);
   const { ballotStyleId } = config;
 
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -854,13 +656,13 @@ export function decodeMultiPageSummaryBallotPageFromReader(
 }
 
 /**
- * Decodes a single page of a multi-page summary ballot from a byte array.
+ * Decodes a single page of a summary ballot from a byte array.
  */
-export function decodeMultiPageSummaryBallotPage(
+export function decodeSummaryBallotPage(
   electionDefinition: ElectionDefinition,
   data: Uint8Array
-): DecodedMultiPageSummaryBallotPage {
-  return decodeMultiPageSummaryBallotPageFromReader(
+): DecodedSummaryBallotPage {
+  return decodeSummaryBallotPageFromReader(
     electionDefinition,
     new BitReader(data)
   );

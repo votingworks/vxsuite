@@ -170,6 +170,10 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
       ballotStyleId: '5',
       precinctId: '21',
       isTestMode: true,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'state-machine-test-audit-id',
+      contestIds: [],
     },
     adjudicationInfo: {
       requiresAdjudication: false,
@@ -1011,7 +1015,6 @@ describe('insert pre-printed ballot', () => {
     InterpretedBmdPage: false,
 
     InterpretedHmpbPage: true,
-    InterpretedBmdMultiPagePage: true,
     InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,
@@ -1152,7 +1155,6 @@ describe('re-insert removed ballot', () => {
 
     BlankPage: true,
     InterpretedHmpbPage: true,
-    InterpretedBmdMultiPagePage: true,
     InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,

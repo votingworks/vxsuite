@@ -6,7 +6,6 @@ import {
   BallotType,
   BlankPage,
   CandidateContest,
-  InterpretedBmdMultiPagePage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -186,7 +185,13 @@ export const interpretedHmpbPage2WithMarginalMark: InterpretedHmpbPage = {
 
 export const interpretedBmdPage: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',
-  metadata: mockBallotMetadata,
+  metadata: {
+    ...mockBallotMetadata,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'audit-fixture',
+    contestIds: [fishingContest.id, fishCouncilContest.id],
+  },
   votes: {
     [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
@@ -201,7 +206,13 @@ export const interpretedBmdPage: InterpretedBmdPage = {
 
 export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',
-  metadata: mockBallotMetadata,
+  metadata: {
+    ...mockBallotMetadata,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'audit-fixture-write-in',
+    contestIds: [fishingContest.id, fishCouncilContest.id],
+  },
   votes: {
     [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: [
@@ -267,8 +278,8 @@ export const interpretedHmpbWithUnmarkedWriteIn: SheetOf<PageInterpretation> = [
   interpretedHmpbPage2,
 ];
 
-export const interpretedBmdMultiPagePage1: InterpretedBmdMultiPagePage = {
-  type: 'InterpretedBmdMultiPagePage',
+export const interpretedBmdPage1: InterpretedBmdPage = {
+  type: 'InterpretedBmdPage',
   metadata: {
     ballotHash,
     precinctId: 'precinct-1',
@@ -291,8 +302,8 @@ export const interpretedBmdMultiPagePage1: InterpretedBmdMultiPagePage = {
   },
 };
 
-export const interpretedBmdMultiPagePage2: InterpretedBmdMultiPagePage = {
-  type: 'InterpretedBmdMultiPagePage',
+export const interpretedBmdPage2: InterpretedBmdPage = {
+  type: 'InterpretedBmdPage',
   metadata: {
     ballotHash,
     precinctId: 'precinct-1',
@@ -315,12 +326,12 @@ export const interpretedBmdMultiPagePage2: InterpretedBmdMultiPagePage = {
   },
 };
 
-export const interpretedBmdMultiPageBallot1: SheetOf<PageInterpretation> = [
-  interpretedBmdMultiPagePage1,
+export const interpretedBmdBallot1: SheetOf<PageInterpretation> = [
+  interpretedBmdPage1,
   blankPage,
 ];
 
-export const interpretedBmdMultiPageBallot2: SheetOf<PageInterpretation> = [
-  interpretedBmdMultiPagePage2,
+export const interpretedBmdBallot2: SheetOf<PageInterpretation> = [
+  interpretedBmdPage2,
   blankPage,
 ];

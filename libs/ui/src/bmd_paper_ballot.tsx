@@ -2,10 +2,7 @@ import { fromByteArray } from 'base64-js';
 import React from 'react';
 import styled from 'styled-components';
 
-import {
-  encodeSinglePageSummaryBallot,
-  encodeMultiPageSummaryBallotPage,
-} from '@votingworks/ballot-encoder';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
   BallotStyle,
   BallotStyleId,
@@ -626,26 +623,17 @@ export interface BmdPaperBallotProps {
   sheetSize?: BmdBallotSheetSize;
   layout?: Layout;
   machineType: MachineType;
+  /** The page number (1-indexed) */
+  pageNumber: number;
+  /** The total number of pages in the ballot */
+  totalPages: number;
   /**
-   * For multi-page BMD ballots: the page number (1-indexed).
-   * When provided, the ballot will be encoded using the multi-page format.
+   * Ballot audit ID used to correlate physically separated pages after
+   * scanning
    */
-  pageNumber?: number;
-  /**
-   * For multi-page BMD ballots: the total number of pages.
-   * Required when pageNumber is provided.
-   */
-  totalPages?: number;
-  /**
-   * For multi-page BMD ballots: the ballot audit ID to correlate pages.
-   * Required when pageNumber is provided.
-   */
-  ballotAuditId?: string;
-  /**
-   * For multi-page BMD ballots: the subset of contests to render on this page.
-   * When provided, only these contests are rendered and encoded.
-   */
-  contestsForPage?: readonly Contest[];
+  ballotAuditId: string;
+  /** The subset of contests to render on this page */
+  contestsForPage: readonly Contest[];
 }
 
 /**
@@ -696,7 +684,7 @@ export function BmdPaperBallot({
   pageNumber,
   totalPages,
   ballotAuditId,
-  contestsForPage,
+  contestsForPage: contests,
 }: BmdPaperBallotProps): JSX.Element {
   const {
     election,
@@ -706,10 +694,6 @@ export function BmdPaperBallot({
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
   const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
-  const allContests = getContests({ ballotStyle, election });
-
-  // Use contestsForPage if provided (multi-page), otherwise use all contests
-  const contests = contestsForPage ?? allContests;
 
   const precinctOrSplit = find(
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
@@ -720,34 +704,18 @@ export function BmdPaperBallot({
     : electionStrings.precinctName(precinctOrSplit.precinct);
   const party = getPartyForBallotStyle({ ballotStyleId, election });
 
-  // Determine if this is a multi-page ballot
-  const isMultiPage =
-    pageNumber !== undefined &&
-    totalPages !== undefined &&
-    ballotAuditId !== undefined;
-
-  // Encode ballot using appropriate format
-  const encodedBallot = isMultiPage
-    ? encodeMultiPageSummaryBallotPage(election, {
-        ballotHash,
-        precinctId,
-        ballotStyleId,
-        votes,
-        isTestMode: !isLiveMode,
-        ballotType: BallotType.Precinct,
-        pageNumber,
-        totalPages,
-        ballotAuditId,
-        contests,
-      })
-    : encodeSinglePageSummaryBallot(election, {
-        ballotHash,
-        precinctId,
-        ballotStyleId,
-        votes,
-        isTestMode: !isLiveMode,
-        ballotType: BallotType.Precinct,
-      });
+  const encodedBallot = encodeSummaryBallotPage(election, {
+    ballotHash,
+    precinctId,
+    ballotStyleId,
+    votes,
+    isTestMode: !isLiveMode,
+    ballotType: BallotType.Precinct,
+    pageNumber,
+    totalPages,
+    ballotAuditId,
+    contests,
+  });
 
   const ballotLayout =
     layout ??
@@ -810,7 +778,7 @@ export function BmdPaperBallot({
                 {electionStrings.stateName(election)}
               </DualLanguageText>
             </P>
-            {isMultiPage && (
+            {totalPages > 1 && (
               <P style={{ fontWeight: 'bold' }}>
                 <InEnglish>
                   Page {pageNumber} of {totalPages}

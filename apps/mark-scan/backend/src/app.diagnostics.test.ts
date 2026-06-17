@@ -300,6 +300,10 @@ describe('paper handler diagnostic', () => {
           ballotStyleId: electionDefinition.election.ballotStyles[0].id,
           precinctId: electionDefinition.election.precincts[0].id,
           isTestMode: true,
+          pageNumber: 1,
+          totalPages: 1,
+          ballotAuditId: 'diagnostic-audit-id',
+          contestIds: [],
         },
         adjudicationInfo: {
           requiresAdjudication: false,

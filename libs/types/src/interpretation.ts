@@ -5,8 +5,8 @@ import {
   AdjudicationReasonInfo,
   BallotMetadata,
   BallotMetadataSchema,
-  MultiPageSummaryBallotPageMetadata,
-  MultiPageSummaryBallotPageMetadataSchema,
+  SummaryBallotPageMetadata,
+  SummaryBallotPageMetadataSchema,
   ContestId,
   ContestIdSchema,
   HmpbBallotPageMetadata,
@@ -27,34 +27,20 @@ export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
   type: z.literal('BlankPage'),
 });
 
+/**
+ * Interpretation result for a single page of a BMD ballot.
+ */
 export interface InterpretedBmdPage {
   type: 'InterpretedBmdPage';
-  metadata: BallotMetadata;
+  metadata: SummaryBallotPageMetadata;
+  /** Votes for only the contests on this page */
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
 }
 export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
   z.object({
     type: z.literal('InterpretedBmdPage'),
-    metadata: BallotMetadataSchema,
-    votes: VotesDictSchema,
-    adjudicationInfo: AdjudicationInfoSchema,
-  });
-
-/**
- * Interpretation result for a single page of a multi-page BMD ballot.
- */
-export interface InterpretedBmdMultiPagePage {
-  type: 'InterpretedBmdMultiPagePage';
-  metadata: MultiPageSummaryBallotPageMetadata;
-  /** Votes for only the contests on this page */
-  votes: VotesDict;
-  adjudicationInfo: AdjudicationInfo;
-}
-export const InterpretedBmdMultiPagePageSchema: z.ZodSchema<InterpretedBmdMultiPagePage> =
-  z.object({
-    type: z.literal('InterpretedBmdMultiPagePage'),
-    metadata: MultiPageSummaryBallotPageMetadataSchema,
+    metadata: SummaryBallotPageMetadataSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
   });
@@ -133,7 +119,6 @@ export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
 export type PageInterpretation =
   | BlankPage
   | InterpretedBmdPage
-  | InterpretedBmdMultiPagePage
   | InterpretedHmpbPage
   | InvalidBallotHashPage
   | InvalidTestModePage
@@ -143,7 +128,6 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   z.union([
     BlankPageSchema,
     InterpretedBmdPageSchema,
-    InterpretedBmdMultiPagePageSchema,
     InterpretedHmpbPageSchema,
     InvalidBallotHashPageSchema,
     InvalidTestModePageSchema,

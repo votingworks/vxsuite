@@ -1208,10 +1208,10 @@ export const HmpbBallotPageMetadataSchema = BallotMetadataSchema.extend({
 }) satisfies z.ZodType<HmpbBallotPageMetadata>;
 
 /**
- * Metadata for a single page of a multi-page BMD summary ballot.
+ * Metadata for a single page of a BMD summary ballot.
  * Used when VxMark prints ballots that span multiple pages.
  */
-export interface MultiPageSummaryBallotPageMetadata extends BallotMetadata {
+export interface SummaryBallotPageMetadata extends BallotMetadata {
   pageNumber: number;
   totalPages: number;
   /**
@@ -1223,13 +1223,12 @@ export interface MultiPageSummaryBallotPageMetadata extends BallotMetadata {
    */
   contestIds: ContestId[];
 }
-export const MultiPageSummaryBallotPageMetadataSchema =
-  BallotMetadataSchema.extend({
-    pageNumber: z.number(),
-    totalPages: z.number(),
-    ballotAuditId: BallotIdSchema,
-    contestIds: z.array(ContestIdSchema),
-  }) satisfies z.ZodType<MultiPageSummaryBallotPageMetadata>;
+export const SummaryBallotPageMetadataSchema = BallotMetadataSchema.extend({
+  pageNumber: z.number(),
+  totalPages: z.number(),
+  ballotAuditId: BallotIdSchema,
+  contestIds: z.array(ContestIdSchema),
+}) satisfies z.ZodType<SummaryBallotPageMetadata>;
 
 export interface TargetShape {
   bounds: Rect;

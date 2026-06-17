@@ -64,7 +64,13 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   const isLiveMode = !store.getTestMode();
   const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
 
-  // Optimistically render as a single-page ballot
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId, election })
+  );
+  const allContests = getContests({ ballotStyle, election });
+  const ballotAuditId = uuid();
+
+  // Optimistically render as a single-page-equivalent ballot (totalPages: 1)
   const singlePageBallot = (
     <BackendLanguageContextProvider
       // [TODO] Derive languageCode from the ballot style instead.
@@ -78,6 +84,10 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
         votes={votes}
         isLiveMode={isLiveMode}
         machineType="mark"
+        pageNumber={1}
+        totalPages={1}
+        ballotAuditId={ballotAuditId}
+        contestsForPage={allContests}
       />
     </BackendLanguageContextProvider>
   );
@@ -118,14 +128,9 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   function getPageContests(pageNumber: number) {
     const page = pageBreaks.find((pg) => pg.pageNumber === pageNumber);
     assert(page, `Page ${pageNumber} not found`);
-    const ballotStyle = getBallotStyle({ ballotStyleId, election });
-    assert(ballotStyle);
-    const allContests = getContests({ ballotStyle, election });
     const contestIdSet = new Set(page.contestIds);
     return allContests.filter((c) => contestIdSet.has(c.id));
   }
-
-  const ballotAuditId = uuid();
 
   const ballotDocument = (
     <div>

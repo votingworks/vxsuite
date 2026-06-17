@@ -21,6 +21,10 @@ const BmdPage: InterpretedBmdPage = {
     ballotType: BallotType.Absentee,
     ballotHash: 'abc',
     isTestMode: false,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'abc-audit',
+    contestIds: [],
   },
   adjudicationInfo: {
     requiresAdjudication: false,

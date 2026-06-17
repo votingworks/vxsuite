@@ -11,7 +11,6 @@ use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
-use types_rs::bmd::multi_page::MultiPageCastVoteRecord;
 use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 use types_rs::coding;
 use types_rs::election::Election;
@@ -390,16 +389,9 @@ pub async fn run_blank_paper_diagnostic_from_path(
     ))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type", content = "value", rename_all = "camelCase")]
-enum AnyCastVoteRecord {
-    SinglePage(CastVoteRecord),
-    MultiPage(MultiPageCastVoteRecord),
-}
-
-/// Decodes raw QR code bytes as either a single-page `CastVoteRecord` (VX\x02)
-/// or a multi-page `MultiPageCastVoteRecord` (VB\x01). Used for cross-language
-/// testing to verify the Rust decoder matches the TypeScript encoder.
+/// Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
+/// cross-language testing to verify the Rust decoder matches the TypeScript
+/// encoder.
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
 #[allow(clippy::unused_async)]
 #[napi(
@@ -413,29 +405,14 @@ pub async fn decode_bmd_ballot_data(
     let election: types_rs::election::Election = from_json(election)?;
     let bytes = data.to_vec();
 
-    // Try single-page first (VX\x02), then multi-page (VB\x01)
-    let single_err = match coding::decode_with::<CastVoteRecord>(&bytes, &election) {
-        Ok(cvr) => {
-            return to_json(&AnyCastVoteRecord::SinglePage(cvr));
-        }
-        Err(e) => e,
-    };
-
-    let multi_err = match coding::decode_with::<MultiPageCastVoteRecord>(&bytes, &election) {
-        Ok(mp) => {
-            return to_json(&AnyCastVoteRecord::MultiPage(mp));
-        }
-        Err(e) => e,
-    };
-
-    Err(napi::Error::from_reason(format!(
-        "Data does not decode as a single-page ({single_err}) or multi-page ({multi_err}) BMD ballot"
-    )))
+    let cvr = coding::decode_with::<CastVoteRecord>(&bytes, &election)
+        .map_err(|e| napi::Error::from_reason(format!("decoding failed: {e}")))?;
+    to_json(&cvr)
 }
 
-/// Encodes a `CastVoteRecord` or `MultiPageCastVoteRecord` to raw bytes
-/// using the Rust bitstream encoder. Used for cross-language testing to
-/// verify the Rust encoder matches the TypeScript decoder.
+/// Encodes a `CastVoteRecord` to raw bytes using the Rust bitstream
+/// encoder. Used for cross-language testing to verify the Rust encoder
+/// matches the TypeScript decoder.
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
 #[allow(clippy::unused_async)]
 #[napi(
@@ -447,13 +424,10 @@ pub async fn encode_bmd_ballot_data(
     record: serde_json::Value,
 ) -> napi::Result<Buffer> {
     let election: types_rs::election::Election = from_json(election)?;
-    let record: AnyCastVoteRecord = from_json(record)?;
+    let record: CastVoteRecord = from_json(record)?;
 
-    let bytes = match record {
-        AnyCastVoteRecord::SinglePage(cvr) => coding::encode_with(&cvr, &election),
-        AnyCastVoteRecord::MultiPage(mp) => coding::encode_with(&mp, &election),
-    }
-    .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
+    let bytes = coding::encode_with(&record, &election)
+        .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
 
     Ok(Buffer::from(bytes))
 }

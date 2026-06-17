@@ -19,7 +19,7 @@ import {
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 
-import { encodeSinglePageSummaryBallot } from '@votingworks/ballot-encoder';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
@@ -54,15 +54,15 @@ const electionFamousNamesDefinition =
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
   ...(await importActual()),
   // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-  encodeSinglePageSummaryBallot: vi.fn(),
+  encodeSummaryBallotPage: vi.fn(),
 }));
 
-const encodeBallotMock = vi.mocked(encodeSinglePageSummaryBallot);
+const encodeSummaryBallotPageMock = vi.mocked(encodeSummaryBallotPage);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
 beforeEach(() => {
-  encodeBallotMock.mockReset();
-  encodeBallotMock.mockReturnValue(mockEncodedBallotData);
+  encodeSummaryBallotPageMock.mockReset();
+  encodeSummaryBallotPageMock.mockReturnValue(mockEncodedBallotData);
 });
 
 function renderBmdPaperBallot({
@@ -86,26 +86,29 @@ function renderBmdPaperBallot({
   sheetSize?: BmdBallotSheetSize;
   layout?: Layout;
 }) {
+  const ballotStyle = getBallotStyle({
+    ballotStyleId,
+    election: electionDefinition.election,
+  })!;
+  const contests = getContests({
+    ballotStyle,
+    election: electionDefinition.election,
+  });
   return render(
     <BmdPaperBallot
       ballotStyleId={ballotStyleId}
       electionDefinition={electionDefinition}
       isLiveMode={isLiveMode}
       precinctId={precinctId}
-      votes={vote(
-        getContests({
-          ballotStyle: getBallotStyle({
-            ballotStyleId,
-            election: electionDefinition.election,
-          })!,
-          election: electionDefinition.election,
-        }),
-        votes
-      )}
+      votes={vote(contests, votes)}
       onRendered={onRendered}
       machineType={machineType}
       sheetSize={sheetSize}
       layout={layout}
+      pageNumber={1}
+      totalPages={1}
+      ballotAuditId="test-audit-id"
+      contestsForPage={contests}
     />
   );
 }
@@ -234,6 +237,14 @@ test('BmdPaperBallot accepts a layout override', () => {
 });
 
 test('BmdPaperBallot treats missing entries in the votes dict as undervotes', () => {
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: '1',
+    election: electionWithMsEitherNeitherDefinition.election,
+  })!;
+  const contests = getContests({
+    ballotStyle,
+    election: electionWithMsEitherNeitherDefinition.election,
+  });
   render(
     <BmdPaperBallot
       electionDefinition={electionWithMsEitherNeitherDefinition}
@@ -242,6 +253,10 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
       isLiveMode
       votes={{}}
       machineType="markScan"
+      pageNumber={1}
+      totalPages={1}
+      ballotAuditId="test-audit-id"
+      contestsForPage={contests}
     />
   );
 
@@ -339,7 +354,7 @@ test('BmdPaperBallot renders seal', () => {
   screen.getByTestId('seal');
 });
 
-test('BmdPaperBallot passes expected data to encodeSinglePageSummaryBallot for use in QR code', () => {
+test('BmdPaperBallot passes expected data to encodeSummaryBallotPage for use in QR code', () => {
   const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
@@ -354,7 +369,7 @@ test('BmdPaperBallot passes expected data to encodeSinglePageSummaryBallot for u
     },
   });
 
-  expect(encodeSinglePageSummaryBallot).toBeCalledWith(
+  expect(encodeSummaryBallotPage).toBeCalledWith(
     electionGeneralDefinition.election,
     expect.objectContaining({
       ballotStyleId: '5' as BallotStyleId,

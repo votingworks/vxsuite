@@ -36,6 +36,10 @@ export function getMockInterpretation(
       isTestMode: true,
       precinctId: electionDefinition.election.precincts[0].id,
       ballotType: BallotType.Precinct,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'mock-audit-id',
+      contestIds: [contest.id],
     },
     adjudicationInfo: {
       requiresAdjudication: false,

@@ -6,9 +6,11 @@ import {
   VotesDict,
   BallotStyleId,
   PrecinctId,
+  getBallotStyle,
+  getContests,
   vote,
 } from '@votingworks/types';
-import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
+import { BmdPaperBallot } from '@votingworks/ui';
 
 import {
   electionFamousNames2021Fixtures,
@@ -19,94 +21,64 @@ import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-export async function renderBmdBallotFixture(
-  props: Partial<BmdPaperBallotProps> & {
-    electionDefinition: ElectionDefinition;
-    rotateImage?: boolean;
-    frontPageOnly?: boolean;
-  }
-): Promise<Uint8Array> {
-  // Set some default props that can be overridden by the caller
-  const {
-    electionDefinition: { election },
-    rotateImage = false,
-    frontPageOnly = false,
-  } = props;
-  const ballotStyle = election.ballotStyles[0];
-  const precinctId = ballotStyle.precincts[0];
-  const votes: VotesDict = {};
-  const ballot = (
-    <React.Fragment>
-      <BmdPaperBallot
-        isLiveMode={false}
-        machineType="mark"
-        ballotStyleId={ballotStyle.id}
-        precinctId={precinctId}
-        votes={votes}
-        {...props}
-      />
-      {!frontPageOnly && <div style={{ pageBreakAfter: 'always' }} />}
-    </React.Fragment>
-  );
-  const document = rotateImage ? (
-    <div style={{ transform: 'rotate(180deg)' }}>{ballot}</div>
-  ) : (
-    ballot
-  );
-  return (await renderToPdf({ document })).unsafeUnwrap();
-}
+const DEFAULT_BALLOT_AUDIT_ID = 'fixture-audit-id';
 
-/**
- * Options for rendering a multi-page BMD ballot fixture.
- */
-export interface MultiPageBmdBallotFixtureOptions {
+export interface BmdBallotFixtureOptions {
   electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  votes: VotesDict;
-  /** Page number (1-indexed) */
-  pageNumber: number;
-  /** Total number of pages in the ballot */
-  totalPages: number;
-  /** Ballot audit ID to correlate pages */
-  ballotAuditId: string;
-  /** Contest IDs to include on this page */
-  contestIdsForPage: string[];
+  ballotStyleId?: BallotStyleId;
+  precinctId?: PrecinctId;
+  votes?: VotesDict;
+  /** Page number (1-indexed). Defaults to 1. */
+  pageNumber?: number;
+  /** Total number of pages in the ballot. Defaults to 1. */
+  totalPages?: number;
+  /** Ballot audit ID to correlate pages. Defaults to a constant fixture value. */
+  ballotAuditId?: string;
+  /**
+   * Contest IDs to include on this page. Defaults to all contests for the
+   * ballot style.
+   */
+  contestIdsForPage?: string[];
   /** Whether to rotate the image 180 degrees */
   rotateImage?: boolean;
+  /** Whether to omit the trailing blank page. */
+  frontPageOnly?: boolean;
   /** Whether this is a test mode ballot */
   isLiveMode?: boolean;
 }
 
-/**
- * Renders a multi-page BMD ballot page as a PDF for testing.
- */
-export async function renderMultiPageBmdBallotFixture(
-  options: MultiPageBmdBallotFixtureOptions
+export async function renderBmdBallotFixture(
+  options: BmdBallotFixtureOptions
 ): Promise<Uint8Array> {
   const {
     electionDefinition,
     ballotStyleId,
     precinctId,
-    votes,
-    pageNumber,
-    totalPages,
-    ballotAuditId,
+    votes = {},
+    pageNumber = 1,
+    totalPages = 1,
+    ballotAuditId = DEFAULT_BALLOT_AUDIT_ID,
     contestIdsForPage,
     rotateImage = false,
+    frontPageOnly = false,
     isLiveMode = false,
   } = options;
 
   const { election } = electionDefinition;
-  const contestsForPage = election.contests.filter((c) =>
-    contestIdsForPage.includes(c.id)
-  );
+  const ballotStyle = ballotStyleId
+    ? assertDefined(getBallotStyle({ election, ballotStyleId }))
+    : election.ballotStyles[0];
+  const resolvedPrecinctId = precinctId ?? ballotStyle.precincts[0];
+  const allContests = getContests({ election, ballotStyle });
+  const contestsForPage = contestIdsForPage
+    ? allContests.filter((c) => contestIdsForPage.includes(c.id))
+    : allContests;
 
   // Filter votes to only include contests on this page
   const votesForPage: VotesDict = {};
-  for (const contestId of contestIdsForPage) {
-    if (contestId in votes) {
-      votesForPage[contestId] = votes[contestId];
+  for (const contest of contestsForPage) {
+    if (contest.id in votes) {
+      votesForPage[contest.id] = votes[contest.id];
     }
   }
 
@@ -116,15 +88,15 @@ export async function renderMultiPageBmdBallotFixture(
         electionDefinition={electionDefinition}
         isLiveMode={isLiveMode}
         machineType="mark"
-        ballotStyleId={ballotStyleId}
-        precinctId={precinctId}
+        ballotStyleId={ballotStyle.id}
+        precinctId={resolvedPrecinctId}
         votes={votesForPage}
         pageNumber={pageNumber}
         totalPages={totalPages}
         ballotAuditId={ballotAuditId}
         contestsForPage={contestsForPage}
       />
-      <div style={{ pageBreakAfter: 'always' }} />
+      {!frontPageOnly && <div style={{ pageBreakAfter: 'always' }} />}
     </React.Fragment>
   );
 

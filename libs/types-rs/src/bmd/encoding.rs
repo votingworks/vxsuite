@@ -10,9 +10,8 @@ use crate::{
 
 use super::{error::Error, votes::ContestVote, PartialBallotHash};
 
-/// Fields shared by both single-page and multi-page BMD ballot encodings,
-/// decoded from the common header portion of the bitstream (ballot hash,
-/// precinct index, ballot style index).
+/// Fields decoded from the common header portion of a BMD ballot's bitstream
+/// (ballot hash, precinct index, ballot style index).
 pub struct BallotHeader {
     pub ballot_hash: PartialBallotHash,
     pub precinct_id: PrecinctId,

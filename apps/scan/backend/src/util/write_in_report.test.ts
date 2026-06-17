@@ -7,7 +7,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotMetadata,
+  SummaryBallotPageMetadata,
   BallotPageLayout,
   BallotStyleId,
   BallotType,
@@ -48,12 +48,16 @@ function createStore(): Store {
   return store;
 }
 
-const bmdMetadata: BallotMetadata = {
+const bmdMetadata: SummaryBallotPageMetadata = {
   ballotStyleId: 'card-number-3',
   ballotType: BallotType.Precinct,
   ballotHash: electionDefinition.ballotHash,
   isTestMode: false,
   precinctId: 'town-id-00701-precinct-id-default',
+  pageNumber: 1,
+  totalPages: 1,
+  ballotAuditId: 'write-in-report-audit-id',
+  contestIds: [],
 };
 
 function addBmdSheet(store: Store, votes: VotesDict): void {
@@ -214,7 +218,7 @@ test('handles BMD multi-page ballots', async () => {
     {
       imagePath: `/${sheetId}-front.png`,
       interpretation: {
-        type: 'InterpretedBmdMultiPagePage',
+        type: 'InterpretedBmdPage',
         metadata: {
           ballotHash: electionDefinition.ballotHash,
           precinctId: 'town-id-00701-precinct-id-default',
@@ -467,12 +471,16 @@ function createPrimaryStore(): Store {
   return store;
 }
 
-const primaryBmdMetadata: BallotMetadata = {
+const primaryBmdMetadata: SummaryBallotPageMetadata = {
   ballotStyleId: '1M',
   ballotType: BallotType.Precinct,
   ballotHash: primaryElectionDefinition.ballotHash,
   isTestMode: false,
   precinctId: 'precinct-1',
+  pageNumber: 1,
+  totalPages: 1,
+  ballotAuditId: 'primary-write-in-report-audit-id',
+  contestIds: [],
 };
 
 function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {

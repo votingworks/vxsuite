@@ -9,7 +9,6 @@ import {
 import { SheetOf, asSheet, vote } from '@votingworks/types';
 import {
   renderBmdBallotFixture,
-  renderMultiPageBmdBallotFixture,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
@@ -62,9 +61,9 @@ test('happy path: front, back', async () => {
     card
   );
   const interpretation = result.unsafeUnwrap();
-  assert(interpretation.type === 'single-page');
-  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
-  expect(ballot).toMatchSnapshot();
+  const { metadata, votes, summaryBallotImage, blankPageImage } =
+    interpretation;
+  expect({ metadata, votes }).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
   expect(summaryBallotImage.height).toBeLessThanOrEqual(card[0].height);
@@ -79,9 +78,9 @@ test('happy path: back, front', async () => {
     [card[1], card[0]]
   );
   const interpretation = result.unsafeUnwrap();
-  assert(interpretation.type === 'single-page');
-  const { ballot, summaryBallotImage, blankPageImage } = interpretation;
-  expect(ballot).toMatchSnapshot();
+  const { metadata, votes, summaryBallotImage, blankPageImage } =
+    interpretation;
+  expect({ metadata, votes }).toMatchSnapshot();
 
   expect(summaryBallotImage.width).toBeLessThanOrEqual(card[0].width);
   expect(summaryBallotImage.height).toBeLessThanOrEqual(card[0].height);
@@ -101,17 +100,18 @@ test('happy path: front upside down, back', async () => {
     cardOriginal
   );
   const interpretationFlipped = resultFlipped.unsafeUnwrap();
-  assert(interpretationFlipped.type === 'single-page');
   const {
-    ballot: ballotFlipped,
+    metadata: metadataFlipped,
+    votes: votesFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
   } = interpretationFlipped;
   const interpretationOriginal = resultOriginal.unsafeUnwrap();
-  assert(interpretationOriginal.type === 'single-page');
-  const { ballot: ballotOriginal } = interpretationOriginal;
-  expect(ballotFlipped).toMatchSnapshot();
-  expect(ballotFlipped).toEqual(ballotOriginal);
+  const { metadata: metadataOriginal, votes: votesOriginal } =
+    interpretationOriginal;
+  expect({ metadata: metadataFlipped, votes: votesFlipped }).toMatchSnapshot();
+  expect(metadataFlipped).toEqual(metadataOriginal);
+  expect(votesFlipped).toEqual(votesOriginal);
 
   // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
@@ -148,17 +148,18 @@ test('happy path: back, front upside down', async () => {
     cardOriginal
   );
   const interpretationFlipped = resultFlipped.unsafeUnwrap();
-  assert(interpretationFlipped.type === 'single-page');
   const {
-    ballot: ballotFlipped,
+    metadata: metadataFlipped,
+    votes: votesFlipped,
     summaryBallotImage: summaryBallotImageFlipped,
     blankPageImage: blankPageImageFlipped,
   } = interpretationFlipped;
   const interpretationOriginal = resultOriginal.unsafeUnwrap();
-  assert(interpretationOriginal.type === 'single-page');
-  const { ballot: ballotOriginal } = interpretationOriginal;
-  expect(ballotFlipped).toMatchSnapshot();
-  expect(ballotFlipped).toEqual(ballotOriginal);
+  const { metadata: metadataOriginal, votes: votesOriginal } =
+    interpretationOriginal;
+  expect({ metadata: metadataFlipped, votes: votesFlipped }).toMatchSnapshot();
+  expect(metadataFlipped).toEqual(metadataOriginal);
+  expect(votesFlipped).toEqual(votesOriginal);
 
   // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
@@ -251,7 +252,7 @@ test('multi-page BMD ballot: page 1 of 2', async () => {
   const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
   const ballotAuditId = 'test-multi-page-audit-id-123';
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -266,7 +267,6 @@ test('multi-page BMD ballot: page 1 of 2', async () => {
   const result = await interpret(electionDefinition, card);
   const interpretation = result.unsafeUnwrap();
 
-  assert(interpretation.type === 'multi-page');
   const { metadata, votes } = interpretation;
 
   expect(metadata.pageNumber).toEqual(1);
@@ -294,7 +294,7 @@ test('multi-page BMD ballot: page 2 of 2', async () => {
   const precinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
   const ballotAuditId = 'test-multi-page-audit-id-123';
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -309,7 +309,6 @@ test('multi-page BMD ballot: page 2 of 2', async () => {
   const result = await interpret(electionDefinition, card);
   const interpretation = result.unsafeUnwrap();
 
-  assert(interpretation.type === 'multi-page');
   const { metadata, votes } = interpretation;
 
   expect(metadata.pageNumber).toEqual(2);
@@ -336,7 +335,7 @@ test('multi-page BMD ballot: page with no votes (undervotes)', async () => {
   const ballotAuditId = 'test-blank-page-audit-id';
 
   // Create a ballot with no votes (all undervotes)
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -351,7 +350,6 @@ test('multi-page BMD ballot: page with no votes (undervotes)', async () => {
   const result = await interpret(electionDefinition, card);
   const interpretation = result.unsafeUnwrap();
 
-  assert(interpretation.type === 'multi-page');
   const { metadata, votes } = interpretation;
 
   expect(metadata.pageNumber).toEqual(1);
@@ -382,7 +380,7 @@ test('multi-page BMD ballot: partial votes on page', async () => {
     controller: 'winston-churchill',
   });
 
-  const pdfData = await renderMultiPageBmdBallotFixture({
+  const pdfData = await renderBmdBallotFixture({
     electionDefinition,
     ballotStyleId,
     precinctId,
@@ -397,7 +395,6 @@ test('multi-page BMD ballot: partial votes on page', async () => {
   const result = await interpret(electionDefinition, card);
   const interpretation = result.unsafeUnwrap();
 
-  assert(interpretation.type === 'multi-page');
   const { metadata, votes } = interpretation;
 
   expect(metadata.pageNumber).toEqual(1);

@@ -8,23 +8,30 @@ use crate::{
         encoding::{self, BallotAuditId, BallotHeader},
         error::Error,
         votes::ContestVote,
-        PartialBallotHash, SINGLE_PAGE_PRELUDE,
+        PartialBallotHash, BMD_PRELUDE,
     },
+    codable,
     election::{BallotStyleId, ContestId, Election, PrecinctId},
 };
 
-/// A cast vote record as encoded on a BMD summary ballot's QR code.
+codable!(PageNumber, u8, 1..=30);
+
+/// A single page of a BMD summary ballot, as encoded in the QR code.
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CastVoteRecord {
     pub ballot_hash: PartialBallotHash,
     pub ballot_style_id: BallotStyleId,
     pub precinct_id: PrecinctId,
-    pub votes: HashMap<ContestId, ContestVote>,
+    pub page_number: PageNumber,
+    pub total_pages: PageNumber,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
-    // Not currently used in BMD ballots, but we do try to read them.
-    pub ballot_audit_id: Option<BallotAuditId>,
+    pub ballot_audit_id: BallotAuditId,
+    /// The IDs of contests included on this page.
+    pub contest_ids: Vec<ContestId>,
+    /// Votes for the contests on this page.
+    pub votes: HashMap<ContestId, ContestVote>,
 }
 
 impl ToBitStreamWith<'_> for CastVoteRecord {
@@ -39,7 +46,7 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
     where
         Self: Sized,
     {
-        w.write_bytes(SINGLE_PAGE_PRELUDE)?;
+        w.write_bytes(BMD_PRELUDE)?;
 
         let ballot_style = encoding::write_ballot_header(
             w,
@@ -49,20 +56,29 @@ impl ToBitStreamWith<'_> for CastVoteRecord {
             &self.ballot_style_id,
         )?;
 
+        w.build(&self.page_number)?;
+        w.build(&self.total_pages)?;
         w.write_bit(self.is_test_mode)?;
         w.build(&self.ballot_type)?;
 
-        match self.ballot_audit_id {
-            Some(ref ballot_audit_id) => {
-                w.write_bit(true)?;
-                w.build(ballot_audit_id)?;
-            }
+        w.build(&self.ballot_audit_id)?;
 
-            None => w.write_bit(false)?,
+        let all_contests = election.contests_in(&ballot_style);
+        let contests_on_page: std::collections::HashSet<&ContestId> =
+            self.contest_ids.iter().collect();
+
+        // Write contest bitmap: one bit per contest in the ballot style
+        for contest in &all_contests {
+            w.write_bit(contests_on_page.contains(contest.id()))?;
         }
 
-        let contests = election.contests_in(&ballot_style);
-        encoding::write_roll_call_and_votes(w, &contests, &self.votes)?;
+        // Collect the contests that are on this page (preserving ballot style order)
+        let page_contests: Vec<_> = all_contests
+            .into_iter()
+            .filter(|c| contests_on_page.contains(c.id()))
+            .collect();
+
+        encoding::write_roll_call_and_votes(w, &page_contests, &self.votes)?;
 
         Ok(())
     }
@@ -80,7 +96,7 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
         Self: Sized,
     {
         let prelude: [u8; 3] = r.read_to()?;
-        if &prelude != SINGLE_PAGE_PRELUDE {
+        if &prelude != BMD_PRELUDE {
             return Err(Error::InvalidPrelude(prelude));
         }
 
@@ -90,26 +106,37 @@ impl FromBitStreamWith<'_> for CastVoteRecord {
             ballot_style,
         } = encoding::read_ballot_header(r, election)?;
 
+        let page_number = r.parse()?;
+        let total_pages = r.parse()?;
         let is_test_mode = r.read_bit()?;
         let ballot_type: BallotType = r.parse()?;
+        let ballot_audit_id: BallotAuditId = r.parse()?;
 
-        let ballot_audit_id = if r.read_bit()? {
-            Some(r.parse()?)
-        } else {
-            None
-        };
+        let all_contests = election.contests_in(&ballot_style);
 
-        let contests = election.contests_in(&ballot_style);
-        let votes = encoding::read_roll_call_and_votes(r, &contests)?;
+        // Read contest bitmap: which contests are on this page
+        let mut contest_ids = Vec::new();
+        let mut contests_on_page = Vec::new();
+        for contest in &all_contests {
+            if r.read_bit()? {
+                contest_ids.push(contest.id().clone());
+                contests_on_page.push(contest.clone());
+            }
+        }
 
-        Ok(CastVoteRecord {
+        let votes = encoding::read_roll_call_and_votes(r, &contests_on_page)?;
+
+        Ok(Self {
             ballot_hash,
             ballot_style_id: ballot_style.id.clone(),
             precinct_id,
-            votes,
+            page_number,
+            total_pages,
             is_test_mode,
             ballot_type,
             ballot_audit_id,
+            contest_ids,
+            votes,
         })
     }
 }
