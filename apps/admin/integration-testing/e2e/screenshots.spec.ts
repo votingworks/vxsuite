@@ -33,6 +33,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ElectionPackageFileName,
+  LATEST_METADATA,
   SystemSettings,
 } from '@votingworks/types';
 import {
@@ -99,6 +100,11 @@ test('system administrator', async ({ page }, testInfo) => {
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
   });
   const electionPackageFileName = 'election-package.zip';
 
@@ -351,7 +357,9 @@ async function configureMachine({
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
   });
   const electionPackageFileName = 'election-package.zip';
 

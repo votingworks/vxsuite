@@ -18,6 +18,7 @@ import {
   ElectionDefinition,
   ElectionPackageFileName,
   ElectionRegisteredVotersCounts,
+  LATEST_METADATA,
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
@@ -128,7 +129,9 @@ export async function configureMachine(
   mockSystemAdministratorAuth(auth);
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
     ...(registeredVoterCounts
       ? {
           [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
