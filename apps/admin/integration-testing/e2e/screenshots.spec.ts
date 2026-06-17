@@ -579,11 +579,8 @@ test('adjudication', async ({ page }, testInfo) => {
     { ballotStyleId: '1-1', precinctId: '20', votes },
   ]);
 
-  const {
-    screenshot,
-    screenshotWithButtonHighlight,
-    screenshotWithLocatorHighlight,
-  } = buildIntegrationTestHelper(page, namer);
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({ page, usbHandler, electionDefinition });
@@ -629,14 +626,11 @@ test('adjudication', async ({ page }, testInfo) => {
   await writeInCombobox.click();
   await screenshot('adjudication-write-in-dropdown-open');
 
-  // Type the write-in name and highlight the add-candidate option
+  // Type the write-in name
   await writeInCombobox.fill('Bill Withers');
   const addCandidateOption = page.getByText(/Press enter to add: Bill Withers/);
   await addCandidateOption.waitFor();
-  await screenshotWithLocatorHighlight(
-    addCandidateOption,
-    'adjudication-write-in-add-candidate-highlighted'
-  );
+  await screenshot('adjudication-write-in-add-candidate');
 
   // Add the write-in candidate
   await addCandidateOption.click();
