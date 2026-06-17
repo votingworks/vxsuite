@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
   ElectionPackageFileName,
+  LATEST_METADATA,
   ElectionRegisteredVotersCounts,
   CastVoteRecordExportFileName,
   ContestId,
@@ -555,8 +556,19 @@ function buildApi({
             contents: electionDefinition.electionData,
           });
           await addFileToZipStream(zipStream, {
+            path: ElectionPackageFileName.METADATA,
+            contents: JSON.stringify(LATEST_METADATA, null, 2),
+          });
+          await addFileToZipStream(zipStream, {
             path: ElectionPackageFileName.SYSTEM_SETTINGS,
             contents: JSON.stringify(systemSettings, null, 2),
+          });
+          // appStrings.json is required in every package; a bare election.json
+          // has no app strings, so write an empty one (UI strings still come
+          // from the election's ballotStrings).
+          await addFileToZipStream(zipStream, {
+            path: ElectionPackageFileName.APP_STRINGS,
+            contents: JSON.stringify({}, null, 2),
           });
           zipStream.finish();
           await zipPromise.promise;
