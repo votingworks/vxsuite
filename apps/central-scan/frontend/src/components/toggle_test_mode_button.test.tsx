@@ -86,6 +86,7 @@ test('toggling with ballots, modal confirmation', async () => {
           batchNumber: 1,
           startedAt: 'sometime',
           count: 1,
+          pollingPlaceId: 'place-1',
         },
       ],
     })

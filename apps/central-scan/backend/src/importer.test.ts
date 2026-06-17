@@ -6,12 +6,14 @@ import {
 import { deferred } from '@votingworks/basics';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
+import { anyPollingPlace } from '@votingworks/types';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 
 const electionDefinition = readElectionGeneralDefinition();
+const { election } = electionDefinition;
 
 function setupImporter(): {
   importer: Importer;
@@ -48,8 +50,9 @@ test('no election is configured', async () => {
 });
 
 test('startImport rejects concurrent calls', async () => {
-  const { importer, scanner } = setupImporter();
+  const { importer, scanner, workspace } = setupImporter();
   importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   scanner.withNextScannerSession().end();
 
@@ -92,6 +95,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
     logger: mockLogger({ fn: vi.fn }),
   });
   importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   await importer.startImport();
 
@@ -125,6 +129,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
 test('startImport cleans up batch on failure after addBatch', async () => {
   const { importer, workspace, scanner } = setupImporter();
   importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // Make scanSheets throw to simulate a failure after addBatch but before
   // this.currentBatch is set

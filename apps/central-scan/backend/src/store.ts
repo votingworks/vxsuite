@@ -442,7 +442,9 @@ export class Store {
    */
   addBatch(): string {
     const id = uuid();
-    const pollingPlaceId = this.getPollingPlaceId() || null;
+    const pollingPlaceId = this.getPollingPlaceId();
+    assert(!!pollingPlaceId, 'polling place required for batch creation');
+
     this.client.run(
       'insert into batches (id, polling_place_id) values (?, ?)',
       id,
@@ -789,7 +791,7 @@ export class Store {
       id: string;
       batchNumber: number;
       label: string;
-      pollingPlaceId: string | null;
+      pollingPlaceId: string;
       startedAt: string;
       endedAt: string | null;
       error: string | null;
@@ -825,7 +827,7 @@ export class Store {
       id: info.id,
       batchNumber: info.batchNumber,
       label: info.label,
-      pollingPlaceId: info.pollingPlaceId || undefined,
+      pollingPlaceId: info.pollingPlaceId,
       // eslint-disable-next-line vx/gts-safe-number-parse
       startedAt: DateTime.fromSeconds(Number(info.startedAt)).toISO(),
       endedAt:
