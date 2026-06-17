@@ -5,6 +5,7 @@ import {
 } from '@votingworks/utils';
 import {
   electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
   readElectionOpenPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -13,6 +14,9 @@ import {
   BallotMetadata,
   BallotType,
   ElectionDefinition,
+  getBallotStyle,
+  getContests,
+  PartyId,
   VotesDict,
 } from '@votingworks/types';
 import {
@@ -21,7 +25,7 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
-import { ok } from '@votingworks/basics';
+import { assert, assertDefined, ok } from '@votingworks/basics';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   configureApp,
@@ -653,6 +657,101 @@ test('can tabulate results and print polls closed report for open primary', asyn
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier:
           'polls-closed-open-primary-section-nonpartisan',
+        failureThreshold: 0.0001,
+      });
+
+      mockFujitsuPrinterHandler.cleanup();
+    }
+  );
+});
+
+test('can tabulate results and print polls closed report for straight party', async () => {
+  const electionDefinition =
+    electionStraightPartyFixtures.readElectionDefinition();
+  await withApp(
+    async ({
+      apiClient,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: { electionDefinition },
+      });
+
+      // TODO: remove this line when straight-party CVR export is implemented.
+      workspace.store.setIsContinuousExportEnabled(false);
+
+      const { election } = electionDefinition;
+      const ballotStyle = assertDefined(
+        getBallotStyle({ election, ballotStyleId: '12' })
+      );
+      const contests = getContests({ election, ballotStyle });
+
+      // Records a ballot that selects a straight-party ticket and leaves every
+      // other contest blank. Tabulation should derive votes for the blank
+      // candidate contests.
+      function recordStraightPartyBallot(partyId: PartyId): void {
+        const votes: VotesDict = Object.fromEntries(
+          contests.map((contest) => [
+            contest.id,
+            contest.type === 'straight-party' ? [partyId] : [],
+          ])
+        );
+        recordHmpbBallotInStore({
+          store: workspace.store,
+          electionDefinition,
+          ballotStyleId: ballotStyle.id,
+          precinctId: '23',
+          votes,
+        });
+      }
+
+      const [partyId1, partyId2] = election.parties.map((party) => party.id);
+      recordStraightPartyBallot(partyId1);
+      recordStraightPartyBallot(partyId1);
+      recordStraightPartyBallot(partyId2);
+
+      const results = await getScannerResults({ store: workspace.store });
+      expect(results).toHaveLength(1);
+      const { contestResults } = results[0];
+
+      const straightPartyResults = contestResults['straight-party-ticket'];
+      assert(straightPartyResults.contestType === 'straight-party');
+      expect(straightPartyResults.tallies[partyId1]).toEqual(2);
+      expect(straightPartyResults.tallies[partyId2]).toEqual(1);
+
+      const [candidateContest] = contests.filter(
+        (contest) => contest.type === 'candidate'
+      );
+      const candidateContestResults = contestResults[candidateContest.id];
+      assert(candidateContestResults.contestType === 'candidate');
+      const party1Candidates = candidateContest.candidates.filter(
+        (candidate) => candidate.partyIds?.includes(partyId1)
+      );
+      assert(party1Candidates.length > 0);
+      for (const candidate of party1Candidates) {
+        expect(candidateContestResults.tallies[candidate.id].tally).toEqual(2);
+      }
+      const party2Candidates = candidateContest.candidates.filter(
+        (candidate) => candidate.partyIds?.includes(partyId2)
+      );
+      assert(party2Candidates.length > 0);
+      for (const candidate of party2Candidates) {
+        expect(candidateContestResults.tallies[candidate.id].tally).toEqual(1);
+      }
+
+      await apiClient.closePolls();
+      expect(await apiClient.printReportSection({ index: 0 })).toEqual({
+        printResult: ok(),
+        numberOfSections: 1,
+      });
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-straight-party',
         failureThreshold: 0.0001,
       });
 
