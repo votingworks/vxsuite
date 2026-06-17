@@ -13,6 +13,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  LATEST_METADATA,
   ElectionRegisteredVotersCounts,
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
@@ -81,9 +82,11 @@ test('configure persists registered voter counts from election package', async (
   };
   const electionPackageBuffer = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       DEFAULT_SYSTEM_SETTINGS
     ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
     [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
       registeredVoterCounts
     ),
@@ -270,9 +273,11 @@ test('voter turnout report with split precinct registered voter counts', async (
   };
   const electionPackageBuffer = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       DEFAULT_SYSTEM_SETTINGS
     ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
     [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
       registeredVoterCounts
     ),

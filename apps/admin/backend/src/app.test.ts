@@ -12,6 +12,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   ElectionPackageFileName,
+  LATEST_METADATA,
   ElectionRegisteredVotersCounts,
   PrinterStatus,
   safeParseElectionDefinition,
@@ -218,6 +219,10 @@ test('managing the current election', async () => {
   // try configuring with malformed election data
   const badElectionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: '{}',
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
   });
   const badElectionConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile(badElectionPackage),
@@ -241,6 +246,7 @@ test('managing the current election', async () => {
 
   const badSystemSettingsPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: '{}',
   });
   // try configuring with malformed system settings data
@@ -262,9 +268,11 @@ test('managing the current election', async () => {
   // configure with well-formed data
   const goodPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       DEFAULT_SYSTEM_SETTINGS
     ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
   });
   const { electionId } = (
     await apiClient.configure({
@@ -371,6 +379,11 @@ test('configuring with a CDF election', async () => {
   ).unsafeUnwrap();
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
   });
 
   // configure with well-formed election data

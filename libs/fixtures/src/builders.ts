@@ -4,6 +4,7 @@ import {
   ElectionDefinition,
   ElectionPackage,
   ImageData,
+  LATEST_METADATA,
   safeParseElection,
   safeParseElectionDefinition,
   SystemSettings,
@@ -160,12 +161,19 @@ export function election(path: string): ElectionFixture {
     readElection: () => safeParseElection(inner.asText()).unsafeUnwrap(),
     readElectionDefinition: () =>
       safeParseElectionDefinition(inner.asText()).unsafeUnwrap(),
-    toElectionPackage: (systemSettings = DEFAULT_SYSTEM_SETTINGS) => ({
-      electionDefinition: safeParseElectionDefinition(
+    toElectionPackage: (systemSettings = DEFAULT_SYSTEM_SETTINGS) => {
+      const electionDefinition = safeParseElectionDefinition(
         inner.asText()
-      ).unsafeUnwrap(),
-      systemSettings,
-    }),
+      ).unsafeUnwrap();
+      return {
+        electionDefinition,
+        metadata: LATEST_METADATA,
+        systemSettings,
+        uiStrings: electionDefinition.election.ballotStrings,
+        uiStringAudioClips: [],
+        uiStringAudioIds: {},
+      };
+    },
   };
 }
 

@@ -3,7 +3,6 @@
 import type * as vitest from 'vitest';
 import {
   ElectionDefinition,
-  ElectionPackage,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
@@ -11,7 +10,10 @@ import {
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Result, assertDefined } from '@votingworks/basics';
 import { UiStringsStore } from './ui_strings_store';
-import { mockElectionPackageFileTree } from '../election_package/test_utils';
+import {
+  mockElectionPackageFileTree,
+  PartialElectionPackage,
+} from '../election_package/test_utils';
 
 type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 
@@ -42,7 +44,7 @@ export function runUiStringMachineConfigurationTests(
   } = context;
   const expectedElectionStrings = electionDefinition.election.ballotStrings;
 
-  async function doTestConfigure(usbElectionPackage: ElectionPackage) {
+  async function doTestConfigure(usbElectionPackage: PartialElectionPackage) {
     getMockUsbDrive().insertUsbDrive(
       await mockElectionPackageFileTree(usbElectionPackage)
     );

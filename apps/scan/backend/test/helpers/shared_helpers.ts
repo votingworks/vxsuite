@@ -1,7 +1,10 @@
 import { Mocked, expect, vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  mockElectionPackageFileTree,
+  PartialElectionPackage,
+} from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -11,7 +14,6 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import {
   BallotMetadata,
-  ElectionPackage,
   PageInterpretationWithFiles,
   anyPollingPlace,
   PrecinctScannerState,
@@ -78,7 +80,7 @@ export async function configureApp(
     testMode = false,
     openPolls = true,
   }: {
-    electionPackage?: ElectionPackage;
+    electionPackage?: PartialElectionPackage;
     pollingPlaceId?: string;
     testMode?: boolean;
     openPolls?: boolean;

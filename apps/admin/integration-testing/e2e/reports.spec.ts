@@ -18,7 +18,11 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { assert, assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
-import { ElectionPackageFileName } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackageFileName,
+  LATEST_METADATA,
+} from '@votingworks/types';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
@@ -48,6 +52,11 @@ test('viewing and exporting reports', async ({ page }) => {
   const { election, ballotHash, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
   });
   const electionPackageFileName = 'election-package.zip';
 
