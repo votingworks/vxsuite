@@ -1,4 +1,9 @@
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   Contest,
   BallotStyleGroupId,
@@ -10,14 +15,15 @@ import {
   Id,
   PartyId,
   PrecinctSelection,
-  straightPartyNotYetImplemented,
   Tabulation,
   YesNoContest,
+  StraightPartyContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
 import { inferPartyFromVotes, partisanContests } from './open_primary';
+import { deriveStraightPartyVotes } from './straight_party';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -72,6 +78,41 @@ export function getEmptyCandidateContestResults(
   };
 }
 
+export function getEmptyStraightPartyContestResults(
+  contest: StraightPartyContest
+): Tabulation.StraightPartyContestResults {
+  return {
+    contestId: contest.id,
+    contestType: 'straight-party',
+    overvotes: 0,
+    undervotes: 0,
+    ballots: 0,
+    tallies: Object.fromEntries(
+      contest.optionIds.map((partyId) => [partyId, 0])
+    ),
+  };
+}
+
+function getEmptyContestResults(
+  contest: Contest,
+  includeGenericWriteInIfAllowed?: boolean
+): Tabulation.ContestResults {
+  switch (contest.type) {
+    case 'candidate':
+      return getEmptyCandidateContestResults(
+        contest,
+        includeGenericWriteInIfAllowed
+      );
+    case 'yesno':
+      return getEmptyYesNoContestResults(contest);
+    case 'straight-party':
+      return getEmptyStraightPartyContestResults(contest);
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contest);
+  }
+}
+
 export function getEmptyCardCounts(): Tabulation.CardCounts {
   return {
     bmd: [],
@@ -87,21 +128,12 @@ export function getEmptyElectionResults(
   election: Election,
   includeGenericWriteInIfAllowed = true
 ): Tabulation.ElectionResults {
-  const contestResults: Tabulation.ElectionResults['contestResults'] = {};
-  for (const contest of election.contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
-    contestResults[contest.id] =
-      contest.type === 'yesno'
-        ? getEmptyYesNoContestResults(contest)
-        : getEmptyCandidateContestResults(
-            contest,
-            includeGenericWriteInIfAllowed
-          );
-  }
-
+  const contestResults = Object.fromEntries(
+    election.contests.map((contest) => [
+      contest.id,
+      getEmptyContestResults(contest, includeGenericWriteInIfAllowed),
+    ])
+  );
   return {
     contestResults,
     cardCounts: getEmptyCardCounts(),
@@ -117,18 +149,12 @@ export function getEmptyElectionResults(
 export function getEmptyManualElectionResults(
   election: Election
 ): Tabulation.ManualElectionResults {
-  const contestResults: Tabulation.ElectionResults['contestResults'] = {};
-  for (const contest of election.contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
-    contestResults[contest.id] =
-      contest.type === 'yesno'
-        ? getEmptyYesNoContestResults(contest)
-        : getEmptyCandidateContestResults(contest, false);
-  }
-
+  const contestResults = Object.fromEntries(
+    election.contests.map((contest) => [
+      contest.id,
+      getEmptyContestResults(contest, false),
+    ])
+  );
   return {
     contestResults,
     ballotCount: 0,
@@ -177,7 +203,9 @@ function addCastVoteRecordToElectionResult(
     }
   }
 
-  for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
+  const votes = deriveStraightPartyVotes(election, cvr.votes);
+
+  for (const [contestId, optionIds] of Object.entries(votes)) {
     if (voidedContestIds?.has(contestId)) {
       continue;
     }
@@ -188,39 +216,56 @@ function addCastVoteRecordToElectionResult(
 
     contestResult.ballots += 1;
 
-    if (contestResult.contestType === 'yesno') {
-      if (optionIds.length === 2) {
-        contestResult.overvotes += 1;
-      } else if (optionIds.length === 0) {
-        contestResult.undervotes += 1;
-      } else if (optionIds[0] === contestResult.yesOptionId) {
-        contestResult.yesTally += 1;
-      } else {
-        assert(
-          optionIds[0] === contestResult.noOptionId,
-          `Invalid option id: ${optionIds[0]}`
-        );
-        contestResult.noTally += 1;
-      }
-    } else if (optionIds.length > contestResult.votesAllowed) {
-      contestResult.overvotes += contestResult.votesAllowed;
-    } else {
-      if (optionIds.length < contestResult.votesAllowed) {
-        contestResult.undervotes +=
-          contestResult.votesAllowed - optionIds.length;
+    const numVotesAllowed = votesAllowed(contestResult);
+    if (optionIds.length > numVotesAllowed) {
+      contestResult.overvotes += numVotesAllowed;
+      continue;
+    }
+
+    if (optionIds.length < numVotesAllowed) {
+      contestResult.undervotes += numVotesAllowed - optionIds.length;
+    }
+
+    switch (contestResult.contestType) {
+      case 'candidate': {
+        for (const optionId of optionIds) {
+          if (optionId.startsWith('write-in-')) {
+            const genericWriteInTally = assertDefined(
+              contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+            );
+            genericWriteInTally.tally += 1;
+          } else {
+            const candidateTally = assertDefined(
+              contestResult.tallies[optionId]
+            );
+            candidateTally.tally += 1;
+          }
+        }
+        break;
       }
 
-      for (const optionId of optionIds) {
-        if (optionId.startsWith('write-in-')) {
-          const genericWriteInTally = assertDefined(
-            contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
-          );
-          genericWriteInTally.tally += 1;
-        } else {
-          const candidateTally = assertDefined(contestResult.tallies[optionId]);
-          candidateTally.tally += 1;
+      case 'yesno': {
+        for (const optionId of optionIds) {
+          if (optionId === contestResult.yesOptionId) {
+            contestResult.yesTally += 1;
+          } else if (optionId === contestResult.noOptionId) {
+            contestResult.noTally += 1;
+          }
         }
+        break;
       }
+
+      case 'straight-party': {
+        for (const partyId of optionIds) {
+          contestResult.tallies[partyId] =
+            assertDefined(contestResult.tallies[partyId]) + 1;
+        }
+        break;
+      }
+
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(contestResult);
     }
   }
 
@@ -505,6 +550,30 @@ export function combineYesNoContestResults({
 }
 
 /**
+ * Combines contest results for straight-party contests. If an empty list is passed,
+ * returns empty (all zero) contest results.
+ */
+export function combineStraightPartyContestResults({
+  contest,
+  allContestResults,
+}: {
+  contest: StraightPartyContest;
+  allContestResults: Tabulation.StraightPartyContestResults[];
+}): Tabulation.StraightPartyContestResults {
+  const combinedContestResults = getEmptyStraightPartyContestResults(contest);
+  for (const contestResults of allContestResults) {
+    combinedContestResults.overvotes += contestResults.overvotes;
+    combinedContestResults.undervotes += contestResults.undervotes;
+    combinedContestResults.ballots += contestResults.ballots;
+    for (const [partyId, tally] of Object.entries(contestResults.tallies)) {
+      combinedContestResults.tallies[partyId] =
+        assertDefined(combinedContestResults.tallies[partyId]) + tally;
+    }
+  }
+  return combinedContestResults;
+}
+
+/**
  * Combines contest results for candidate contests. If an empty list is passed,
  * returns empty (all zero) contest results that include placeholder zero
  * tallies for all official candidates but none for any write-in candidates.
@@ -549,22 +618,29 @@ export function combineContestResults({
   contest: Contest;
   allContestResults: Tabulation.ContestResults[];
 }): Tabulation.ContestResults {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    straightPartyNotYetImplemented();
+  switch (contest.type) {
+    case 'candidate':
+      return combineCandidateContestResults({
+        contest,
+        allContestResults:
+          allContestResults as Tabulation.CandidateContestResults[],
+      });
+    case 'yesno':
+      return combineYesNoContestResults({
+        contest,
+        allContestResults:
+          allContestResults as Tabulation.YesNoContestResults[],
+      });
+    case 'straight-party':
+      return combineStraightPartyContestResults({
+        contest,
+        allContestResults:
+          allContestResults as Tabulation.StraightPartyContestResults[],
+      });
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contest);
   }
-  if (contest.type === 'yesno') {
-    return combineYesNoContestResults({
-      contest,
-      allContestResults: allContestResults as Tabulation.YesNoContestResults[],
-    });
-  }
-
-  return combineCandidateContestResults({
-    contest,
-    allContestResults:
-      allContestResults as Tabulation.CandidateContestResults[],
-  });
 }
 
 /**
@@ -753,6 +829,10 @@ export type ContestResultsSummary = {
       yesTally?: number;
       noTally?: number;
     }
+  | {
+      type: 'straight-party';
+      optionTallies?: Record<PartyId, number>;
+    }
 );
 
 export function buildContestResultsFixture({
@@ -764,47 +844,60 @@ export function buildContestResultsFixture({
   contestResultsSummary: ContestResultsSummary;
   includeGenericWriteIn?: boolean;
 }): Tabulation.ContestResults {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    straightPartyNotYetImplemented();
-  }
-  const contestResults =
-    contest.type === 'yesno'
-      ? getEmptyYesNoContestResults(contest)
-      : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
+  const contestResults = getEmptyContestResults(contest, includeGenericWriteIn);
 
   contestResults.overvotes = contestResultsSummary.overvotes ?? 0;
   contestResults.undervotes = contestResultsSummary.undervotes ?? 0;
   contestResults.ballots = contestResultsSummary.ballots;
 
-  if (contest.type === 'yesno') {
-    assert(contestResultsSummary.type === 'yesno');
-    assert(contestResults.contestType === 'yesno');
-    contestResults.yesTally = contestResultsSummary.yesTally ?? 0;
-    contestResults.noTally = contestResultsSummary.noTally ?? 0;
-  } else {
-    assert(contestResultsSummary.type === 'candidate');
-    assert(contestResults.contestType === 'candidate');
-    // add official candidate vote counts to existing option tallies
-    for (const [candidateId, candidateTally] of Object.entries(
-      contestResults.tallies
-    )) {
-      candidateTally.tally =
-        contestResultsSummary.officialOptionTallies?.[candidateId] ?? 0;
+  switch (contest.type) {
+    case 'yesno': {
+      assert(contestResultsSummary.type === 'yesno');
+      assert(contestResults.contestType === 'yesno');
+      contestResults.yesTally = contestResultsSummary.yesTally ?? 0;
+      contestResults.noTally = contestResultsSummary.noTally ?? 0;
+      break;
+    }
+    case 'candidate': {
+      assert(contestResultsSummary.type === 'candidate');
+      assert(contestResults.contestType === 'candidate');
+      // add official candidate vote counts to existing option tallies
+      for (const [candidateId, candidateTally] of Object.entries(
+        contestResults.tallies
+      )) {
+        candidateTally.tally =
+          contestResultsSummary.officialOptionTallies?.[candidateId] ?? 0;
+      }
+
+      // add write-in candidate option tallies if specified
+      if (contestResultsSummary.writeInOptionTallies) {
+        for (const [candidateId, candidateTally] of Object.entries(
+          contestResultsSummary.writeInOptionTallies
+        )) {
+          contestResults.tallies[candidateId] = {
+            id: candidateId,
+            ...candidateTally,
+            isWriteIn: true,
+          };
+        }
+      }
+      break;
     }
 
-    // add write-in candidate option tallies if specified
-    if (contestResultsSummary.writeInOptionTallies) {
-      for (const [candidateId, candidateTally] of Object.entries(
-        contestResultsSummary.writeInOptionTallies
+    case 'straight-party': {
+      assert(contestResultsSummary.type === 'straight-party');
+      assert(contestResults.contestType === 'straight-party');
+      for (const [partyId, tally] of Object.entries(
+        contestResultsSummary.optionTallies ?? {}
       )) {
-        contestResults.tallies[candidateId] = {
-          id: candidateId,
-          ...candidateTally,
-          isWriteIn: true,
-        };
+        contestResults.tallies[partyId] = tally;
       }
+      break;
     }
+
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contest);
   }
 
   return contestResults;
@@ -824,10 +917,6 @@ function buildElectionContestResultsFixture({
   const electionContestResults: Tabulation.ElectionResults['contestResults'] =
     {};
   for (const contest of election.contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
     const contestResultsSummary = contestResultsSummaries[contest.id];
     electionContestResults[contest.id] = contestResultsSummary
       ? buildContestResultsFixture({
@@ -835,9 +924,7 @@ function buildElectionContestResultsFixture({
           contestResultsSummary,
           includeGenericWriteIn,
         })
-      : contest.type === 'yesno'
-      ? getEmptyYesNoContestResults(contest)
-      : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
+      : getEmptyContestResults(contest, includeGenericWriteIn);
   }
 
   return electionContestResults;
@@ -902,7 +989,7 @@ export function mergeWriteInTallies<
     {};
 
   for (const contestResults of Object.values(anyResults.contestResults)) {
-    if (contestResults.contestType === 'yesno') {
+    if (contestResults.contestType !== 'candidate') {
       newElectionContestResults[contestResults.contestId] = contestResults;
       continue;
     }
@@ -938,6 +1025,22 @@ export function mergeWriteInTallies<
   };
 }
 
+function sumTallies(contestResults: Tabulation.ContestResults): number {
+  switch (contestResults.contestType) {
+    case 'candidate':
+      return iter(Object.values(contestResults.tallies)).sum(
+        ({ tally }) => tally
+      );
+    case 'yesno':
+      return contestResults.yesTally + contestResults.noTally;
+    case 'straight-party':
+      return iter(Object.values(contestResults.tallies)).sum();
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contestResults);
+  }
+}
+
 /**
  * Validates that the number of votes entered for the contest matches the number
  * of ballots.
@@ -945,15 +1048,16 @@ export function mergeWriteInTallies<
 export function areContestResultsValid(
   contestResults: Tabulation.ContestResults
 ): boolean {
-  const votesAllowed =
-    contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
-  const expectedVotes = contestResults.ballots * votesAllowed;
+  const expectedVotes = contestResults.ballots * votesAllowed(contestResults);
   const tallyVotes =
     contestResults.overvotes +
     contestResults.undervotes +
-    (contestResults.contestType === 'yesno'
-      ? contestResults.yesTally + contestResults.noTally
-      : iter(Object.values(contestResults.tallies)).sum(({ tally }) => tally));
-
+    sumTallies(contestResults);
   return tallyVotes === expectedVotes;
+}
+
+function votesAllowed(contestResults: Tabulation.ContestResults): number {
+  return contestResults.contestType === 'candidate'
+    ? contestResults.votesAllowed
+    : 1;
 }

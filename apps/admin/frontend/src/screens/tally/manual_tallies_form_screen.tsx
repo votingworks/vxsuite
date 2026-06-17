@@ -380,11 +380,18 @@ function convertTabulationResultsToFormResults(
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
   const contestResults = Object.fromEntries(
-    contests.map((contest) => [
-      contest.id,
-      savedResults?.contestResults[contest.id] ??
-        emptyFormContestResults(contest, savedResults?.ballotCount),
-    ])
+    contests.map((contest): [ContestId, FormContestResults] => {
+      const savedContestResults = savedResults?.contestResults[contest.id];
+      assert(
+        savedContestResults?.contestType !== 'straight-party',
+        'Straight party contests are not yet supported for manual tallies'
+      );
+      return [
+        contest.id,
+        savedContestResults ??
+          emptyFormContestResults(contest, savedResults?.ballotCount),
+      ];
+    })
   );
   return { contestResults, ballotCount: savedResults?.ballotCount ?? '' };
 }

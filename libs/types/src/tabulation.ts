@@ -41,11 +41,19 @@ export type CandidateContestResults = ContestResultsBase & {
   readonly tallies: Record<CandidateId, CandidateTally>;
 };
 
+export type StraightPartyContestResults = ContestResultsBase & {
+  readonly contestType: 'straight-party';
+  readonly tallies: Record<PartyId, number>;
+};
+
 /**
  * Represents the results of a single contest in an election, often filtered by
  * some cast vote record attributes.
  */
-export type ContestResults = YesNoContestResults | CandidateContestResults;
+export type ContestResults =
+  | YesNoContestResults
+  | CandidateContestResults
+  | StraightPartyContestResults;
 
 export type VotingMethod = `${BallotType}` | 'early_voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
