@@ -132,6 +132,9 @@ export async function markBallotDocument(
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'end',
+                      // Match the look of printed test-deck write-ins.
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
                     }}
                   >
                     {optionVote.name}
