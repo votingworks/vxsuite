@@ -901,7 +901,7 @@ export class Store {
               title,
               date,
               jurisdiction_name as "jurisdictionName",
-              jurisdiction_gp_unit_id as "jurisdictionGpUnitId",
+              jurisdiction_external_id as "jurisdictionExternalId",
               state,
               seal,
               signature,
@@ -926,7 +926,7 @@ export class Store {
         title: string;
         date: Date;
         jurisdictionName: string;
-        jurisdictionGpUnitId: string;
+        jurisdictionExternalId: string;
         state: string;
         seal: string;
         signature: Signature | null;
@@ -1210,7 +1210,7 @@ export class Store {
         title: electionRow.title,
         date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
         jurisdiction: {
-          id: electionRow.jurisdictionGpUnitId,
+          id: electionRow.jurisdictionExternalId,
           name: electionRow.jurisdictionName,
         },
         state: electionRow.state,
@@ -1400,7 +1400,7 @@ export class Store {
             title,
             date,
             jurisdiction_name,
-            jurisdiction_gp_unit_id,
+            jurisdiction_external_id,
             state,
             seal,
             signature,
