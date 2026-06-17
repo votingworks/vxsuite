@@ -62,7 +62,31 @@ const serializationOptions: ElectionSerializationOptions = {
   version: LATEST_SOFTWARE_VERSION,
 };
 
-export const vxFamousNamesFixtures = (() => {
+/**
+ * Wraps a fixture factory so its body runs lazily on first property access
+ * rather than at module load. Importing this module therefore does not eagerly
+ * parse election files, so tooling can run even when a generated election
+ * fixture is temporarily invalid (e.g. while regenerating fixtures after a
+ * breaking election-format change). The result is memoized on first access.
+ */
+function lazyFixtures<T extends object>(build: () => T): T {
+  let cached: T | undefined;
+  function resolve(): T {
+    if (cached === undefined) {
+      cached = build();
+    }
+    return cached;
+  }
+  return new Proxy(Object.create(null) as T, {
+    get: (_target, prop) => Reflect.get(resolve(), prop),
+    has: (_target, prop) => Reflect.has(resolve(), prop),
+    ownKeys: () => Reflect.ownKeys(resolve()),
+    getOwnPropertyDescriptor: (_target, prop) =>
+      Reflect.getOwnPropertyDescriptor(resolve(), prop),
+  });
+}
+
+export const vxFamousNamesFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
@@ -259,9 +283,9 @@ export const vxFamousNamesFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const vxGeneralElectionFixtures = (() => {
+export const vxGeneralElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'vx-general-election');
 
   function makeElectionFixtureSpec(election: Election) {
@@ -412,9 +436,9 @@ export const vxGeneralElectionFixtures = (() => {
       return iter(specs).async().map(generateElectionFixtures).toArray();
     },
   };
-})();
+});
 
-export const vxPrimaryElectionFixtures = (() => {
+export const vxPrimaryElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'vx-primary-election');
 
   const election = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -564,9 +588,9 @@ export const vxPrimaryElectionFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const nhGeneralElectionFixtures = (() => {
+export const nhGeneralElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'nh-general-election');
 
   const baseElection = readElectionGeneral();
@@ -750,7 +774,7 @@ export const nhGeneralElectionFixtures = (() => {
       return iter(specs).async().map(generateFixtures).toArray();
     },
   };
-})();
+});
 
 const NH_STATE_TEST_SIGNATURE = {
   caption: 'Test Signature Caption',
@@ -762,7 +786,7 @@ const NH_STATE_TEST_SIGNATURE = {
   `.trim(),
 } as const;
 
-export const nhStateGeneralElectionFixtures = (() => {
+export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'nh-state-general-election');
   const electionPath = join(dir, 'election.json');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
@@ -950,9 +974,9 @@ export const nhStateGeneralElectionFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const nhStatePrimaryElectionFixtures = (() => {
+export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'nh-state-primary-election');
   const electionPath = join(dir, 'election.json');
   const demHandCountBlankBallotPath = join(
@@ -1188,9 +1212,9 @@ export const nhStatePrimaryElectionFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const msGeneralElectionFixtures = (() => {
+export const msGeneralElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'ms-general-election');
   const electionPath = join(dir, 'election.json');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
@@ -1264,9 +1288,9 @@ export const msGeneralElectionFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const miClosedPrimaryElectionFixtures = (() => {
+export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'mi-closed-primary-election');
   const electionPath = join(dir, 'election.json');
 
@@ -1388,9 +1412,9 @@ export const miClosedPrimaryElectionFixtures = (() => {
       };
     },
   };
-})();
+});
 
-export const miOpenPrimaryElectionFixtures = (() => {
+export const miOpenPrimaryElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'mi-open-primary-election');
   const electionPath = join(dir, 'election.json');
 
@@ -1472,9 +1496,9 @@ export const miOpenPrimaryElectionFixtures = (() => {
       });
     },
   };
-})();
+});
 
-export const miGeneralElectionFixtures = (() => {
+export const miGeneralElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'mi-general-election');
   const electionPath = join(dir, 'election.json');
 
@@ -1586,9 +1610,9 @@ export const miGeneralElectionFixtures = (() => {
       });
     },
   };
-})();
+});
 
-export const timingMarkPaperFixtures = (() => {
+export const timingMarkPaperFixtures = lazyFixtures(() => {
   function specPaths(spec: {
     paperSize: HmpbBallotPaperSize;
     paperType: timingMarkPaperTemplate.TimingMarkPaperType;
@@ -1637,9 +1661,9 @@ export const timingMarkPaperFixtures = (() => {
       return { pdf: await convertPdfToCmyk(pdf) };
     },
   };
-})();
+});
 
-export const calibrationSheetFixtures = (() => {
+export const calibrationSheetFixtures = lazyFixtures(() => {
   function specPaths(paperSize: HmpbBallotPaperSize): {
     dir: string;
     pdf: string;
@@ -1669,4 +1693,4 @@ export const calibrationSheetFixtures = (() => {
       return { pdf: await convertPdfToCmyk(pdf) };
     },
   };
-})();
+});
