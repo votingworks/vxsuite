@@ -629,7 +629,7 @@ function buildContestSections(
       case 'closed-primary':
         return contest.partyId;
       case 'general':
-        return (contest.candidates[0].partyIds ?? []).length > 0;
+        return (contest.candidates[0]?.partyIds ?? []).length > 0;
       default:
         /* istanbul ignore next */
         throwIllegalValue(election.type);
