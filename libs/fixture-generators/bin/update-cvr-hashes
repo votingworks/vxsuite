@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+require('../src/cli/update-cvr-fixture-hashes')
+  .main(process.argv, {
+    stdin: process.stdin,
+    stdout: process.stdout,
+    stderr: process.stderr,
+  })
+  .then((exitCode) => {
+    process.exitCode = exitCode;
+  });

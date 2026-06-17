@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Updates the ballot hash recorded in the saved CVR fixtures to match their
+# election definitions, without regenerating the CVRs. Use this after an
+# election fixture change that only affects its ballot hash (e.g. an added
+# metadata field) but not its ballot content — it's much faster than
+# `generate-cvr-fixtures` and preserves the cast vote record ids, votes, dates,
+# and images, so the diff is limited to the hash. Fixtures whose hash is already
+# up to date are left untouched.
+
+export NODE_ENV=development
+
+./bin/update-cvr-hashes --electionDefinition ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json --cvrExportPath ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/machine_0000__2024-01-01_00-00-00
+
+./bin/update-cvr-hashes --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --cvrExportPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/machine_0000__2024-01-01_00-00-00
+
+./bin/update-cvr-hashes --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json --cvrExportPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
+
+echo
+echo "Note: You need to run \`pnpm build\` in libs/fixtures for the updated fixtures to register"
