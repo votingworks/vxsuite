@@ -41,12 +41,22 @@ const ListItem = styled.li`
 `;
 
 const InstructionImageContainer = styled.div`
-  border-right: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.outline};
   display: flex;
   justify-content: center;
-  padding: 1rem 1rem 0 0;
+  padding-top: 1rem;
   width: 30vw;
+
+  :dir(ltr) {
+    border-right: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding-right: 1rem;
+  }
+
+  :dir(rtl) {
+    border-left: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
+      ${(p) => p.theme.colors.outline};
+    padding-left: 1rem;
+  }
 
   @media (orientation: landscape) {
     border: none;

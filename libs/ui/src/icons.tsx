@@ -135,10 +135,18 @@ export interface IconProps {
 export type IconComponent = (props: IconProps) => JSX.Element;
 
 interface InnerProps extends IconProps {
+  flipInRtlMode: boolean;
   pulse?: boolean;
   spin?: boolean;
   type: IconDefinition;
 }
+
+/**
+ * For all icons assigned the `flipInRtlMode` prop, a CSS transform in global_styles.tsx
+ * horizontally flips the icon when an RTL language is in use. See global_styles.tsx for more
+ * details.
+ */
+export const ICON_FLIP_IN_RTL_MODE_CLASS_NAME = 'icon--flip-in-rtl-mode';
 
 const StyledSvgIcon = styled.svg`
   fill: currentColor;
@@ -165,7 +173,16 @@ function iconColor(theme: UiTheme, color?: IconColor) {
 }
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { className, pulse, spin, type, color, fixedWidth, style = {} } = props;
+  const {
+    className,
+    pulse,
+    spin,
+    type,
+    color,
+    fixedWidth,
+    flipInRtlMode,
+    style = {},
+  } = props;
   const theme = useTheme();
 
   /**
@@ -218,7 +235,12 @@ function FaIcon(props: InnerProps): JSX.Element {
 
   return (
     <FontAwesomeIcon
-      className={className}
+      className={[
+        flipInRtlMode ? ICON_FLIP_IN_RTL_MODE_CLASS_NAME : undefined,
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       icon={type}
       spin={spin}
       pulse={pulse}
@@ -238,87 +260,99 @@ function FaIcon(props: InnerProps): JSX.Element {
  */
 export const Icons = {
   Add(props) {
-    return <FaIcon {...props} type={faCirclePlus} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCirclePlus} />;
   },
 
   Antenna(props) {
-    return <FaIcon {...props} type={faTowerBroadcast} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTowerBroadcast} />;
   },
 
   Backspace(props) {
-    return <FaIcon {...props} type={faDeleteLeft} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faDeleteLeft} />;
   },
 
   BatteryFull(props) {
-    return <FaIcon {...props} type={faBatteryFull} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBatteryFull} />;
   },
 
   BatteryThreeQuarters(props) {
-    return <FaIcon {...props} type={faBatteryThreeQuarters} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faBatteryThreeQuarters} />
+    );
   },
 
   BatteryHalf(props) {
-    return <FaIcon {...props} type={faBatteryHalf} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBatteryHalf} />;
   },
 
   BatteryQuarter(props) {
-    return <FaIcon {...props} type={faBatteryQuarter} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBatteryQuarter} />;
   },
 
   BatteryEmpty(props) {
-    return <FaIcon {...props} type={faBatteryEmpty} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBatteryEmpty} />;
   },
 
   Bolt(props) {
-    return <FaIcon {...props} type={faBolt} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBolt} />;
   },
 
   Bold(props) {
-    return <FaIcon {...props} type={faBold} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBold} />;
   },
 
   SimCard(props) {
-    return <FaIcon {...props} type={faSimCard} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
   },
 
   Sitemap(props) {
-    return <FaIcon {...props} type={faSitemap} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
   },
 
   CaretDown(props) {
-    return <FaIcon {...props} type={faCaretDown} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCaretDown} />;
   },
 
   Circle(props: IconProps & { filled?: boolean }) {
     const { filled = false } = props;
-    return <FaIcon {...props} type={filled ? faCircleSolid : faCircle} />;
+    return (
+      <FaIcon
+        {...props}
+        flipInRtlMode={false}
+        type={filled ? faCircleSolid : faCircle}
+      />
+    );
   },
 
   CircleSolid(props) {
-    return <FaIcon {...props} type={faCircleSolid} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleSolid} />;
   },
 
   CircleDot(props) {
-    return <FaIcon {...props} type={faCircleDot} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleDot} />;
   },
 
   CircleUser(props) {
-    return <FaIcon {...props} type={faCircleUser} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleUser} />;
   },
 
   ChartLine(props) {
-    return <FaIcon {...props} type={faChartLine} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChartLine} />;
   },
 
   Checkbox(props: IconProps & { filled?: boolean }) {
     const { filled = true } = props;
     return (
-      <FaIcon {...props} type={filled ? faCheckSquareSolid : faCheckSquare} />
+      <FaIcon
+        {...props}
+        flipInRtlMode={false}
+        type={filled ? faCheckSquareSolid : faCheckSquare}
+      />
     );
   },
 
   CheckboxPartial(props: IconProps) {
-    return <FaIcon {...props} type={faSquareMinus} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSquareMinus} />;
   },
 
   Checkmark(props) {
@@ -342,319 +376,341 @@ export const Icons = {
   },
 
   ChevronCircleDown(props) {
-    return <FaIcon {...props} type={faChevronCircleDown} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faChevronCircleDown} />
+    );
   },
 
   ChevronCircleUp(props) {
-    return <FaIcon {...props} type={faChevronCircleUp} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChevronCircleUp} />;
   },
 
   ChevronDown(props) {
-    return <FaIcon {...props} type={faChevronDown} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChevronDown} />;
   },
 
   ChevronUp(props) {
-    return <FaIcon {...props} type={faChevronUp} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChevronUp} />;
   },
 
   ChevronRight(props) {
-    return <FaIcon {...props} type={faChevronRight} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChevronRight} />;
   },
 
   ChevronLeft(props) {
-    return <FaIcon {...props} type={faChevronLeft} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faChevronLeft} />;
   },
 
   Clock(props) {
-    return <FaIcon {...props} type={faClock} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faClock} />;
   },
 
   Closed(props) {
-    return <FaIcon {...props} type={faMinusCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faMinusCircle} />;
   },
 
   Contrast(props) {
-    return <FaIcon {...props} type={faCircleHalfStroke} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faCircleHalfStroke} />
+    );
   },
 
   Copy(props) {
-    return <FaIcon {...props} type={faCopy} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCopy} />;
   },
 
   Crossover(props) {
-    return <FaIcon {...props} type={faArrowRightArrowLeft} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faArrowRightArrowLeft} />
+    );
   },
 
   Danger(props) {
-    return <FaIcon {...props} type={faExclamationCircle} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faExclamationCircle} />
+    );
   },
 
   Delete(props) {
-    return <FaIcon {...props} type={faXmarkCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faXmarkCircle} />;
   },
 
   Disabled(props) {
-    return <FaIcon {...props} type={faBan} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faBan} />;
   },
 
   Display(props) {
-    return <FaIcon {...props} type={faDisplay} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faDisplay} />;
   },
 
   Done(props) {
-    return <FaIcon {...props} type={faCheckCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCheckCircle} />;
   },
 
   Download(props) {
-    return <FaIcon {...props} type={faDownload} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faDownload} />;
   },
 
   Edit(props) {
-    return <FaIcon {...props} type={faPencil} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPencil} />;
   },
 
   Eject(props) {
-    return <FaIcon {...props} type={faEject} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faEject} />;
   },
 
   Envelope(props) {
-    return <FaIcon {...props} type={faEnvelope} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faEnvelope} />;
   },
 
   Export(props) {
-    return <FaIcon {...props} type={faFileArrowDown} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faFileArrowDown} />;
   },
 
   Eye(props) {
-    return <FaIcon {...props} type={faEye} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faEye} />;
   },
 
   EyeSlash(props) {
-    return <FaIcon {...props} type={faEyeSlash} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faEyeSlash} />;
   },
 
   File(props) {
-    return <FaIcon {...props} type={faFile} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faFile} />;
   },
 
   Flag(props) {
-    return <FaIcon {...props} type={faFlag} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faFlag} />;
   },
 
   Globe(props) {
-    return <FaIcon {...props} type={faEarthAmericas} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faEarthAmericas} />;
   },
 
   HardDrive(props) {
-    return <FaIcon {...props} type={faHardDrive} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faHardDrive} />;
   },
 
   Headphones(props) {
-    return <FaIcon {...props} type={faHeadphones} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faHeadphones} />;
   },
 
   IdCard(props) {
-    return <FaIcon {...props} type={faIdCard} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faIdCard} />;
   },
 
   Image(props) {
-    return <FaIcon {...props} type={faImage} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faImage} />;
   },
 
   Import(props) {
-    return <FaIcon {...props} type={faFileArrowUp} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faFileArrowUp} />;
   },
 
   Info(props) {
-    return <FaIcon {...props} type={faInfoCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faInfoCircle} />;
   },
 
   Italic(props) {
-    return <FaIcon {...props} type={faItalic} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faItalic} />;
   },
 
   Language(props) {
-    return <FaIcon {...props} type={faLanguage} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faLanguage} />;
   },
 
   LinesVertical(props) {
-    return <FaIcon {...props} type={faGripLinesVertical} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faGripLinesVertical} />
+    );
   },
 
   LinesHorizontal(props) {
-    return <FaIcon {...props} type={faGripLines} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faGripLines} />;
   },
 
   ListOrdered(props) {
-    return <FaIcon {...props} type={faListOl} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faListOl} />;
   },
 
   ListUnordered(props) {
-    return <FaIcon {...props} type={faListUl} />;
+    return <FaIcon {...props} flipInRtlMode type={faListUl} />;
   },
 
   Loading(props) {
-    return <FaIcon {...props} type={faSpinner} pulse spin />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faSpinner} pulse spin />
+    );
   },
 
   Lock(props) {
-    return <FaIcon {...props} type={faLock} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faLock} />;
   },
 
   LogOut(props) {
-    return <FaIcon {...props} type={faArrowRightFromBracket} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faArrowRightFromBracket} />
+    );
   },
 
   Minus(props) {
-    return <FaIcon {...props} type={faMinus} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faMinus} />;
   },
 
   Mouse(props) {
-    return <FaIcon {...props} type={faMouse} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faMouse} />;
   },
 
   Next(props) {
-    return <FaIcon {...props} type={faCircleRight} />;
+    return <FaIcon {...props} flipInRtlMode type={faCircleRight} />;
   },
 
   Paused(props) {
-    return <FaIcon {...props} type={faPauseCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPauseCircle} />;
   },
 
   Plus(props) {
-    return <FaIcon {...props} type={faPlus} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPlus} />;
   },
 
   Previous(props) {
-    return <FaIcon {...props} type={faCircleLeft} />;
+    return <FaIcon {...props} flipInRtlMode type={faCircleLeft} />;
   },
 
   Play(props) {
-    return <FaIcon {...props} type={faPlay} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPlay} />;
   },
 
   Pause(props) {
-    return <FaIcon {...props} type={faPause} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPause} />;
   },
 
   PenToSquare(props) {
-    return <FaIcon {...props} type={faPenToSquare} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPenToSquare} />;
   },
 
   Print(props) {
-    return <FaIcon {...props} type={faPrint} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPrint} />;
   },
 
   PowerOff(props) {
-    return <FaIcon {...props} type={faPowerOff} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faPowerOff} />;
   },
 
   Question(props) {
-    return <FaIcon {...props} type={faCircleQuestion} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleQuestion} />;
   },
 
   Rotate(props) {
-    return <FaIcon {...props} type={faRotate} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotate} />;
   },
 
   RotateRight(props) {
-    return <FaIcon {...props} type={faRotateRight} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateRight} />;
   },
 
   Save(props) {
-    return <FaIcon {...props} type={faFloppyDisk} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faFloppyDisk} />;
   },
 
   Search(props) {
-    return <FaIcon {...props} type={faMagnifyingGlass} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faMagnifyingGlass} />;
   },
 
   Settings(props) {
-    return <FaIcon {...props} type={faGear} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faGear} />;
   },
 
   Sort(props) {
-    return <FaIcon {...props} type={faSort} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSort} />;
   },
 
   SortUp(props) {
-    return <FaIcon {...props} type={faSortUp} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSortUp} />;
   },
 
   SortDown(props) {
-    return <FaIcon {...props} type={faSortDown} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSortDown} />;
   },
 
   SoundOff(props) {
-    return <FaIcon {...props} type={faVolumeXmark} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faVolumeXmark} />;
   },
 
   SoundOn(props) {
-    return <FaIcon {...props} type={faVolumeHigh} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faVolumeHigh} />;
   },
 
   Split(props) {
-    return <FaIcon {...props} type={faArrowsSplitUpAndLeft} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faArrowsSplitUpAndLeft} />
+    );
   },
 
   Square(props) {
-    return <FaIcon {...props} type={faSquare} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSquare} />;
   },
 
   SquareSolid(props) {
-    return <FaIcon {...props} type={faSquareSolid} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faSquareSolid} />;
   },
 
   Strikethrough(props) {
-    return <FaIcon {...props} type={faStrikethrough} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faStrikethrough} />;
   },
 
   Table(props) {
-    return <FaIcon {...props} type={faTable} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTable} />;
   },
 
   TextSize(props) {
-    return <FaIcon {...props} type={faTextHeight} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTextHeight} />;
   },
 
   Trash(props) {
-    return <FaIcon {...props} type={faTrash} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTrash} />;
   },
 
   Underline(props) {
-    return <FaIcon {...props} type={faUnderline} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faUnderline} />;
   },
 
   UsbDrive(props) {
-    return <FaIcon {...props} type={faUsb} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faUsb} />;
   },
 
   VolumeDown(props) {
-    return <FaIcon {...props} type={faVolumeDown} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faVolumeDown} />;
   },
 
   VolumeMute(props) {
-    return <FaIcon {...props} type={faVolumeMute} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faVolumeMute} />;
   },
 
   VolumeUp(props) {
-    return <FaIcon {...props} type={faVolumeUp} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faVolumeUp} />;
   },
 
   Warning(props) {
-    return <FaIcon {...props} type={faExclamationTriangle} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faExclamationTriangle} />
+    );
   },
 
   X(props) {
-    return <FaIcon {...props} type={faXmark} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faXmark} />;
   },
 
   ZoomIn(props) {
-    return <FaIcon {...props} type={faMagnifyingGlassPlus} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faMagnifyingGlassPlus} />
+    );
   },
 
   ZoomOut(props) {
-    return <FaIcon {...props} type={faMagnifyingGlassMinus} />;
+    return (
+      <FaIcon {...props} flipInRtlMode={false} type={faMagnifyingGlassMinus} />
+    );
   },
 } satisfies Record<string, IconComponent>;
 

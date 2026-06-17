@@ -21,8 +21,15 @@ export type CenteredCardPageLayoutProps = Omit<
 const Content = styled.div<{ withExtraPadding?: boolean }>`
   padding: 0.5rem;
   position: relative;
-  text-align: left;
   width: 100%;
+
+  :dir(ltr) {
+    text-align: left;
+  }
+
+  :dir(rtl) {
+    text-align: right;
+  }
 `;
 
 const IconContainer = styled(FullScreenIconWrapper)`

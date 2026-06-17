@@ -1018,6 +1018,8 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
       aria-hidden={!enableAccessibleNav}
       ref={containerRef}
       className={isOpen ? '' : 'closed'}
+      // Don't flip the dev dock when using an RTL language
+      dir="ltr"
     >
       <Content>
         <Row>

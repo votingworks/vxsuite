@@ -27,6 +27,16 @@ const KeyRow = styled.div`
   margin-bottom: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
 `;
 
+const KeyButton = styled(Button<string>)`
+  /**
+   * Though we always render the keyboard LTR, if an RTL language is in use, still render button
+   * icons relative to button text in RTL order for visual consistency.
+   */
+  [dir='rtl'] & {
+    direction: rtl;
+  }
+`;
+
 const COLUMNS_IN_ROW = 12;
 const DEFAULT_COLUMN_SPAN = 1;
 
@@ -216,23 +226,6 @@ export const DELETE_KEY: Key = {
   columnSpan: 4,
   icon: 'Backspace',
   action: ActionKey.DELETE,
-};
-
-export const CANCEL_KEY: Key = {
-  value: 'Cancel',
-  renderAudioString: () => appStrings.buttonCancel(),
-  renderLabel: () => appStrings.buttonCancel(),
-  columnSpan: 3,
-  action: ActionKey.CANCEL,
-};
-
-export const ACCEPT_KEY: Key = {
-  value: 'Accept',
-  renderAudioString: () => appStrings.buttonAccept(),
-  renderLabel: () => appStrings.buttonAccept(),
-  columnSpan: 3,
-  icon: 'Done',
-  action: ActionKey.ACCEPT,
 };
 
 function getAdjacentRowIndex(
@@ -463,9 +456,9 @@ export function VirtualKeyboard({
     }
 
     const button = (
-      <Button key={value} {...buttonProps}>
+      <KeyButton key={value} {...buttonProps}>
         <VirtualKeyboardLabel config={key} />
-      </Button>
+      </KeyButton>
     );
 
     return button;
@@ -475,6 +468,9 @@ export function VirtualKeyboard({
     <Keyboard
       data-testid="virtual-keyboard"
       onKeyDown={handleKeyboardEventForVirtualKeyboard}
+      // Even when an RTL language is in use, render this keyboard LTR since it's always used to
+      // enter English characters.
+      dir="ltr"
     >
       {keyMapWithActions.rows.map((row, rowIndex) => (
         <KeyRow

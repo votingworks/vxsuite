@@ -8,7 +8,14 @@ export interface ListItemProps {
 
 const Container = styled.li`
   list-style: disc outside;
-  margin-left: 0.9rem;
+
+  :dir(ltr) {
+    margin-left: 0.9rem;
+  }
+
+  :dir(rtl) {
+    margin-right: 0.9rem;
+  }
 `;
 
 export function ListItem(props: ListItemProps): JSX.Element {

@@ -180,7 +180,10 @@ function ErrorScreen({
   }, [autoRestartInSeconds, logger]);
 
   return (
-    <ErrorScreenContainer>
+    <ErrorScreenContainer
+      // Don't flip the catch-all error screen when using an RTL language
+      dir="ltr"
+    >
       <H1 align="center">Something went wrong</H1>
       <P align="center">{primaryMessage}</P>
       {secondaryMessage && <Caption align="center">{secondaryMessage}</Caption>}

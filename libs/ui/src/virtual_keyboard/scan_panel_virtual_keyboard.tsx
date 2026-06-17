@@ -38,9 +38,14 @@ const SpaceBarDisplay = styled.span`
 const DeleteKey = styled.div`
   align-items: center;
   display: flex;
+  gap: ${(p) => gapStyles[p.theme.sizeMode]};
 
-  & svg {
-    margin-right: ${(p) => gapStyles[p.theme.sizeMode]};
+  /**
+   * Though we always render the keyboard LTR, if an RTL language is in use, still render button
+   * icons relative to button text in RTL order for visual consistency.
+   */
+  [dir='rtl'] & {
+    direction: rtl;
   }
 `;
 
@@ -486,7 +491,12 @@ export function ScanPanelVirtualKeyboard({
   }
 
   return (
-    <Keyboard data-testid="virtual-keyboard">
+    <Keyboard
+      data-testid="virtual-keyboard"
+      // Even when an RTL language is in use, render this keyboard LTR since it's always used to
+      // enter English characters.
+      dir="ltr"
+    >
       {keyMap.rows.map((row, rowIndex) => {
         if (rowIsSelected(rowIndex) && selectionLevel !== SelectionLevel.Rows) {
           const panels = row.map((panel, panelIndex) => (

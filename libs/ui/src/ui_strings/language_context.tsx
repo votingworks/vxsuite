@@ -123,6 +123,15 @@ export function FrontendLanguageContextProvider(
     void waitForI18nextReady();
   }, []);
 
+  React.useEffect(() => {
+    // Set the page flow based on whether the language is read LTR (left to right) or RTL (right to
+    // left).
+    document.documentElement.setAttribute(
+      'dir',
+      i18next.dir(currentLanguageCode)
+    );
+  }, [currentLanguageCode]);
+
   if (!isI18nextReady || !availableLanguagesQuery.isSuccess) {
     // This state is too brief to warrant a loading screen which would only
     // flash for an instant - going with an empty screen, since this only
