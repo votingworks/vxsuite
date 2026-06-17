@@ -36,7 +36,9 @@ export function TouchTextInput(props: TouchTextInputProps): JSX.Element {
   const { value } = props;
 
   return (
-    <Container>
+    // Even when an RTL language is in use, render this text input LTR since it's always used to
+    // enter English characters.
+    <Container dir="ltr">
       <Value>{value}</Value>
       <Cursor />
     </Container>
