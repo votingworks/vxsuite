@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export {
+  buildCastVoteRecord,
   buildCVRContestsFromVotes,
   buildCvrImageData,
   combineImageAndLayoutHashes,

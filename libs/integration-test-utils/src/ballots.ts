@@ -3,6 +3,7 @@ import {
   createPlaywrightRendererPool,
   layOutBallotsAndCreateElectionDefinition,
   markBallotDocument,
+  type MarginalMark,
   renderBallotPdfWithMetadataQrCode,
 } from '@votingworks/hmpb';
 import {
@@ -35,6 +36,10 @@ export interface MarkedBallotSpec {
   precinctId: string;
   votes: VotesDict;
   ballotMode?: BallotMode;
+  /** Precinct (default) or absentee — determines the CVR's voting method. */
+  ballotType?: BallotType;
+  /** Partial marks on unvoted options, to simulate marginal marks. */
+  marginalMarks?: MarginalMark[];
 }
 
 /**
@@ -153,7 +158,7 @@ export async function renderMarkedBallots(
       election: first.electionDefinition.election,
       ballotStyleId: first.ballotStyleId,
       precinctId: first.precinctId,
-      ballotType: BallotType.Precinct,
+      ballotType: first.ballotType ?? BallotType.Precinct,
       ballotMode: first.ballotMode ?? 'official',
     };
 
@@ -169,7 +174,12 @@ export async function renderMarkedBallots(
     const pdfBytesList = await rendererPool.runTasks(
       specs.map((spec) => async (renderer) => {
         const doc = await renderer.loadDocumentFromContent(sharedBallotContent);
-        await markBallotDocument(doc, spec.votes);
+        await markBallotDocument(
+          doc,
+          spec.votes,
+          undefined,
+          spec.marginalMarks
+        );
         return renderBallotPdfWithMetadataQrCode(
           sharedBallotProps,
           doc,

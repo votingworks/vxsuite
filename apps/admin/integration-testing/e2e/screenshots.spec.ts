@@ -18,23 +18,30 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined, find } from '@votingworks/basics';
+import { find } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
   buildIntegrationTestHelper,
   capturePrintedPdf,
   captureReadinessReport,
+  createFullyVotedBallot,
   createScreenshotNamer,
+  generateCastVoteRecordExport,
   type ScreenshotNamer,
+  withWriteIns,
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
+  BallotType,
+  CandidateContest,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   LATEST_METADATA,
   SystemSettings,
+  VotesDict,
 } from '@votingworks/types';
 import {
   mockBlankCard,
@@ -51,10 +58,7 @@ import {
   logInAsSystemAdministrator,
   logOut,
 } from './support/auth';
-import {
-  adjudicateAllWriteIns,
-  getPendingContestItems,
-} from './support/write_in_adjudication';
+import { getPendingContestItems } from './support/write_in_adjudication';
 import {
   getPrimaryButton,
   openDropdown,
@@ -348,11 +352,13 @@ async function configureMachine({
   usbHandler,
   electionDefinition,
   systemSettings = DEFAULT_SYSTEM_SETTINGS,
+  registeredVoterCounts,
 }: {
   page: Page;
   usbHandler: MockFileUsbDriveHandler;
   electionDefinition: ElectionDefinition;
   systemSettings?: SystemSettings;
+  registeredVoterCounts?: ElectionRegisteredVotersCounts;
 }): Promise<void> {
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
@@ -360,6 +366,13 @@ async function configureMachine({
     [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+    ...(registeredVoterCounts
+      ? {
+          [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+            registeredVoterCounts
+          ),
+        }
+      : {}),
   });
   const electionPackageFileName = 'election-package.zip';
 
@@ -412,64 +425,179 @@ async function insertUsbDriveWithCvrs({
 
 test('results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { castVoteRecordExport } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page, namer);
+  // A CVR set spanning all four precincts and both voting methods. Votes are
+  // varied across ballots so no contest has all votes for one option, and there
+  // are well over 10 ballots — both needed to avoid the privacy-risk warning on
+  // the tally reports. West Lincoln has 10 ballots so a report filtered to it
+  // also clears the threshold. Each precinct's mayor write-ins all use a single
+  // name, so — since the adjudication queue orders ballots by ballot-style group
+  // — they adjudicate to crops that match their group: two Bill Withers (West),
+  // two Aretha Franklin (East), one Otis Redding (South), and one invalid John
+  // Doe (North).
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+
+  // Single-seat contests rotate through their candidates by index; multi-seat
+  // contests take a rotating window. This gives every contest a spread of votes.
+  function variedVotes(index: number): VotesDict {
+    const votes: VotesDict = {};
+    for (const contest of election.contests) {
+      if (contest.type !== 'candidate') continue;
+      votes[contest.id] = Array.from(
+        { length: contest.seats },
+        (_, seat) =>
+          contest.candidates[(index + seat) % contest.candidates.length]
+      );
+    }
+    return votes;
+  }
+  function ballotVotes(index: number, mayorWriteIn?: string): VotesDict {
+    const votes = variedVotes(index);
+    return mayorWriteIn
+      ? withWriteIns(votes, mayorContest, [mayorWriteIn])
+      : votes;
+  }
+
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    // West Lincoln (precinct 20, style 1-1) — precinct. Two "Bill Withers"
+    // mayor write-ins.
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(0, 'Bill Withers'),
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(1, 'Bill Withers'),
+    },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(2) },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(3) },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(4) },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(5) },
+    // West Lincoln — absentee
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(6),
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(7),
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(8),
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(9),
+      ballotType: BallotType.Absentee,
+    },
+    // East Lincoln (precinct 21, style 1-2) — two "Aretha Franklin" write-ins.
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: ballotVotes(10, 'Aretha Franklin'),
+    },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: ballotVotes(11, 'Aretha Franklin'),
+    },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: ballotVotes(12),
+      ballotType: BallotType.Absentee,
+    },
+    // South Lincoln (precinct 22, style 1-3) — one "Otis Redding" write-in.
+    {
+      ballotStyleId: '1-3',
+      precinctId: '22',
+      votes: ballotVotes(13, 'Otis Redding'),
+    },
+    { ballotStyleId: '1-3', precinctId: '22', votes: ballotVotes(14) },
+    // North Lincoln (precinct 23, style 1-4) — one "John Doe" write-in, marked
+    // invalid during adjudication.
+    {
+      ballotStyleId: '1-4',
+      precinctId: '23',
+      votes: ballotVotes(15, 'John Doe'),
+    },
+    { ballotStyleId: '1-4', precinctId: '23', votes: ballotVotes(16) },
+  ]);
+
+  // Registered-voter counts for every precinct so the turnout report is enabled.
+  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+    '20': 15,
+    '21': 8,
+    '22': 5,
+    '23': 5,
+  };
+
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+  } = buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
     page,
     usbHandler,
     electionDefinition,
+    registeredVoterCounts,
   });
 
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
-  await screenshot('election-screen');
 
   await page.getByText('Tally').click();
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
   await screenshot('tally-screen-empty');
 
   await insertUsbDriveWithCvrs({
-    cvrPath: castVoteRecordExport.asDirectoryPath(),
-    convertToOfficial: true,
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
     usbHandler,
     electionDefinition,
   });
   await page.getByText('Load CVRs').click();
-  await page.getByText('184').waitFor();
+  await page.getByText('17').first().waitFor();
   await screenshot('load-cvrs');
 
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('184 New CVRs Loaded').waitFor();
+  await page.getByText('17 New CVRs Loaded').waitFor();
   await screenshot('cvrs-loaded');
 
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 184').waitFor();
+  await page.getByText('Total CVR Count: 17').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
-  await page.getByText('Adjudication').click();
-  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
-  await screenshot('adjudication-screen-pre-adjudication');
-
-  await adjudicateAllWriteIns(page);
-
-  await page.getByRole('button', { name: 'Review' }).waitFor();
-  await screenshot('adjudication-screen-post-adjudication');
-
+  // Full election tally report
   await page.getByText('Reports').click();
   await page.getByText('Unofficial Tally Reports').waitFor();
-  await screenshot('reports-screen-unofficial');
-
+  await screenshotWithButtonHighlight(
+    'Full Election Tally Report',
+    'reports-full-election-tally-highlighted'
+  );
   await page
     .getByRole('button', { name: 'Full Election Tally Report' })
     .click();
@@ -477,52 +605,144 @@ test('results', async ({ page }, testInfo) => {
     .getByRole('heading', { name: 'Full Election Tally Report' })
     .waitFor();
   await waitForReportToLoad(page);
-  await screenshot('full-election-report-unofficial');
+  await screenshot('full-election-tally-report');
+  await screenshotWithLocatorHighlight(
+    page
+      .getByRole('button', { name: 'Print Report' })
+      .locator('xpath=..')
+      .getByRole('button'),
+    'full-election-tally-report-actions-highlighted'
+  );
   await printAndCaptureReport({
     page,
     printerHandler,
     namer,
-    name: 'full-election-report',
+    name: 'full-election-tally-report',
   });
 
+  // All-precincts tally report — a tally report grouped by precinct.
   await page.getByRole('button', { name: 'Reports' }).click();
-  await page.reload(); // reload so full election report isn't cached for tally builder
+  await page.reload(); // avoid caching the previous report in the next viewer
+  await page
+    .getByRole('button', { name: 'All Precincts Tally Report' })
+    .click();
+  await page
+    .getByRole('heading', { name: 'All Precincts Tally Report' })
+    .waitFor();
+  await waitForReportToLoad(page);
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'tally-report-by-precinct',
+  });
+
+  // Tally report builder — a custom report filtered to one precinct and grouped
+  // by ballot style. West Lincoln is a single ballot style, so the report is one
+  // section of 10 ballots, which clears the privacy threshold (grouping by
+  // voting method would split it into sub-threshold sections).
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload();
+  await screenshotWithButtonHighlight(
+    'Tally Report Builder',
+    'reports-tally-report-builder-highlighted'
+  );
   await page.getByRole('button', { name: 'Tally Report Builder' }).click();
   await page.getByRole('heading', { name: 'Tally Report Builder' }).waitFor();
-  await screenshot('tally-report-builder-initial');
+  await screenshot('tally-report-builder');
 
   await page.getByText('Add Filter').click();
   await openDropdown(page, 'Select New Filter Type');
-  await screenshot('tally-report-builder-filter-selection');
-
+  await screenshot('tally-report-builder-filter-dropdown-open');
   await selectOpenDropdownOption(page, 'Precinct');
   await openDropdown(page, 'Select Filter Values');
-  await screenshot('tally-report-builder-filter-value-selection');
+  await selectOpenDropdownOption(page, 'West Lincoln');
 
-  await page.getByRole('combobox', { expanded: true }).waitFor();
-  await selectOpenDropdownOption(page, 'Test Ballot');
-  await page.getByText('Voting Method').check();
-  await screenshot('tally-report-builder-group-selected');
+  await page.getByText('Ballot Style').check();
+  await screenshot('tally-report-builder-report-by-selected');
 
+  await screenshotWithButtonHighlight(
+    'Generate Report',
+    'tally-report-builder-generate-highlighted'
+  );
   await page.getByRole('button', { name: 'Generate Report' }).click();
   await waitForReportToLoad(page);
-  await screenshot('tally-report-builder-done');
-
-  await page.getByRole('button', { name: 'Reports' }).click();
-  await page.getByText('Voting Method Ballot Count Report').click();
-  await page
-    .getByRole('heading', { name: 'Voting Method Ballot Count Report' })
-    .waitFor();
-  await waitForReportToLoad(page);
-  await screenshot('ballot-count-report-voting-method');
+  await screenshot('tally-report-builder-generated');
+  await screenshotWithLocatorHighlight(
+    page
+      .getByRole('button', { name: 'Print Report' })
+      .locator('xpath=..')
+      .getByRole('button'),
+    'tally-report-builder-actions-highlighted'
+  );
   await printAndCaptureReport({
     page,
     printerHandler,
     namer,
-    name: 'ballot-count-report-voting-method',
+    name: 'tally-report-custom-filter',
   });
 
+  // Ballot count report — precinct breakdown.
   await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload();
+  await screenshotWithLocatorHighlight(
+    page.getByRole('button', { name: /Ballot Count Report/ }),
+    'reports-ballot-count-section-highlighted'
+  );
+  await page.getByText('Precinct Ballot Count Report').click();
+  await page
+    .getByRole('heading', { name: 'Precinct Ballot Count Report' })
+    .waitFor();
+  await waitForReportToLoad(page);
+  await screenshot('ballot-count-report-precinct');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'ballot-count-report-precinct',
+  });
+
+  // Adjudicate the six mayor write-ins so the write-in reports show results.
+  // The queue orders ballots by ballot-style group and each precinct holds
+  // write-ins for a single name, so typing the names in this order matches the
+  // crop shown for each ballot: two "Bill Withers" (West), two "Aretha Franklin"
+  // (East), one "Otis Redding" (South), and one invalid mark for "John Doe"
+  // (North). Typing a name adds it the first time and re-selects the existing
+  // candidate the second time, yielding the intended vote distribution.
+  await page.getByText('Adjudication', { exact: true }).click();
+  await page.getByRole('button', { name: 'Adjudicate' }).click();
+  const writeInAdjudications: Array<string | undefined> = [
+    'Bill Withers',
+    'Bill Withers',
+    'Aretha Franklin',
+    'Aretha Franklin',
+    'Otis Redding',
+    undefined, // John Doe — marked invalid
+  ];
+  for (const [i, name] of writeInAdjudications.entries()) {
+    await page.getByText(`Ballot ${i + 1} of 6`).waitFor();
+    await getPendingContestItems(page).first().click();
+    await page.getByRole('button', { name: 'Confirm' }).waitFor();
+    const combobox = page.getByRole('combobox');
+    await combobox.click();
+    if (name) {
+      await combobox.fill(name);
+      await page.keyboard.press('Enter');
+    } else {
+      await page.getByText('Invalid', { exact: true }).click();
+    }
+    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByText(/Ballot \d+ of \d+/).waitFor();
+    await page.getByRole('button', { name: 'Accept' }).click();
+  }
+  await page.getByText('All ballots adjudicated').waitFor();
+
+  // Write-In Adjudication report (write-ins now adjudicated to candidates)
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await screenshotWithButtonHighlight(
+    'Write-In Adjudication Report',
+    'reports-write-in-adjudication-highlighted'
+  );
   await page.getByText('Write-In Adjudication Report').click();
   await page
     .getByRole('heading', { name: 'Write-In Adjudication Report' })
@@ -536,7 +756,45 @@ test('results', async ({ page }, testInfo) => {
     name: 'write-in-adjudication-report',
   });
 
+  // Write-In Image report for the mayor contest — shows the real write-in
+  // crops from the ballot images.
   await page.getByRole('button', { name: 'Reports' }).click();
+  await page.getByText('Write-In Image Report').click();
+  await page
+    .getByRole('heading', { name: 'Single Contest Write-In Image Report' })
+    .waitFor();
+  await openDropdown(page, 'Select Contest');
+  await selectOpenDropdownOption(page, 'Mayor');
+  await waitForReportToLoad(page);
+  await screenshot('write-in-image-report');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'write-in-image-report',
+  });
+
+  // Voter turnout report (enabled by the registered-voter counts above)
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page
+    .getByRole('button', { name: 'Unofficial Voter Turnout Report' })
+    .click();
+  await page.getByRole('heading', { name: 'Voter Turnout Report' }).waitFor();
+  await waitForReportToLoad(page);
+  await screenshot('voter-turnout-report');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'voter-turnout-report',
+  });
+
+  // Mark official
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await screenshotWithButtonHighlight(
+    'Mark Election Results as Official',
+    'reports-mark-official-highlighted'
+  );
   await page.getByText('Mark Election Results as Official').click();
   await page.getByRole('alertdialog').waitFor();
   await screenshot('mark-as-official-modal');
@@ -544,58 +802,73 @@ test('results', async ({ page }, testInfo) => {
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Mark Election Results as Official' })
     .click();
-
   await page.getByText('Election Results are Official').waitFor();
   await screenshot('reports-screen-official');
 
+  // Tally screen now reflects official results.
   await page.getByRole('button', { name: 'Tally', exact: true }).click();
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
   await screenshot('tally-screen-official');
+
+  // A system administrator can revert results to unofficial.
+  await logOut(page);
+  await logInAsSystemAdministrator(page);
+  await page.getByRole('button', { name: 'Election', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Revert Election Results to Unofficial' })
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Revert Election Results to Unofficial',
+    'election-screen-revert-highlighted'
+  );
 });
 
 test('adjudication', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
-  const printerHandler = getMockFilePrinterHandler();
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { manualCastVoteRecordExport } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
+
+  // Three ballots, each exercising a different adjudication type on a different
+  // ballot/contest. Ballot 1: a "Bill Withers" write-in in mayor. Ballot 2: a
+  // marginal mark in controller. Ballot 3: a blank ballot. The first two use
+  // different ballot styles so the queue (which sorts by ballot style group
+  // before the CVR id) presents the write-in ballot first; the blank ballot
+  // sorts last because the queue orders blank ballots after non-blank ones.
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+  const writeInVotes = withWriteIns(
+    createFullyVotedBallot(electionDefinition, '1-1'),
+    mayorContest,
+    ['Bill Withers']
+  );
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    { ballotStyleId: '1-1', precinctId: '20', votes: writeInVotes },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: createFullyVotedBallot(electionDefinition, '1-2'),
+      marginalMarks: [{ contestId: 'controller', optionId: 'oprah-winfrey' }],
+    },
+    { ballotStyleId: '1-1', precinctId: '20', votes: {} },
+  ]);
+
+  // Marginal marks only surface for adjudication when enabled, and the marginal
+  // mark scores ~0.07, so the definite threshold must be above it.
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
-    markThresholds: {
-      marginal: 0.05,
-      definite: 0.1,
-    },
+    adminAdjudicationReasons: [
+      AdjudicationReason.MarginalMark,
+      AdjudicationReason.BlankBallot,
+    ],
+    markThresholds: { marginal: 0.05, definite: 0.1 },
   };
-  // modify the cvr for the first contest to include mark scores so we have a single marginal mark
-  const contestId = 'Governor-061a401b';
-  const exportDirectoryPath = await modifyCastVoteRecordExport(
-    manualCastVoteRecordExport.asDirectoryPath(),
-    {
-      castVoteRecordModifier: (cvr) => {
-        const snapshot = find(
-          cvr.CVRSnapshot,
-          (s) => s.Type === CVR.CVRType.Original
-        );
-        const contest = snapshot.CVRContest.find(
-          (c) => c.ContestId === contestId
-        );
-        if (contest) {
-          const option0 = assertDefined(
-            contest.CVRContestSelection[0]?.SelectionPosition[0]
-          );
-          option0.MarkMetricValue = ['0.08'];
-        }
-        return cvr;
-      },
-    }
-  );
 
-  const { screenshot } = buildIntegrationTestHelper(page, namer);
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
@@ -611,8 +884,177 @@ test('adjudication', async ({ page }, testInfo) => {
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
 
   await insertUsbDriveWithCvrs({
-    cvrPath: exportDirectoryPath,
-    convertToOfficial: true,
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
+    usbHandler,
+    electionDefinition,
+  });
+  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load' }).click();
+  await page.getByText('3 New CVRs Loaded').waitFor();
+  await page.getByRole('button', { name: 'Close' }).click();
+  await page.getByText('Total CVR Count: 3').waitFor();
+
+  // Adjudication start screen
+  await page.getByText('Adjudication').click();
+  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
+  await screenshot('adjudication-start');
+  await screenshotWithButtonHighlight(
+    'Adjudicate',
+    'adjudication-start-adjudicate-highlighted'
+  );
+
+  // Full ballot view
+  await page.getByRole('button', { name: 'Adjudicate' }).click();
+  await page.getByText(/Ballot \d+ of \d+/).waitFor();
+  await screenshot('adjudication-ballot-view');
+
+  // Open the contest that needs adjudication
+  await getPendingContestItems(page).first().click();
+  await page.getByRole('button', { name: 'Confirm' }).waitFor();
+  await screenshot('adjudication-contest-view');
+
+  // Open the write-in dropdown
+  const writeInCombobox = page.getByRole('combobox');
+  await writeInCombobox.click();
+  await screenshot('adjudication-write-in-dropdown-open');
+
+  // Type the write-in name
+  await writeInCombobox.fill('Bill Withers');
+  const addCandidateOption = page.getByText(/Press enter to add: Bill Withers/);
+  await addCandidateOption.waitFor();
+  await screenshot('adjudication-write-in-add-candidate');
+
+  // Add the write-in candidate
+  await addCandidateOption.click();
+  await screenshot('adjudication-contest-view-after-selection');
+
+  // Confirm back to the ballot view
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByText(/Ballot \d+ of \d+/).waitFor();
+  await screenshot('adjudication-ballot-view-after-changes');
+
+  // Accept ballot 1 and advance to ballot 2, which has the marginal mark.
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByText('Ballot 2 of 3').waitFor();
+  await screenshot('adjudication-marginal-ballot-view');
+
+  // Open the contest with the marginal mark
+  await getPendingContestItems(page).first().click();
+  await page.getByRole('button', { name: 'Confirm' }).waitFor();
+  await screenshot('adjudication-marginal-contest-view');
+
+  // Dismiss the marginal mark
+  await page.getByRole('button', { name: 'Dismiss' }).click();
+  await screenshot('adjudication-marginal-dismissed');
+
+  // Confirm back to the ballot view
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByText('Ballot 2 of 3').waitFor();
+  await screenshot('adjudication-marginal-ballot-view-after-changes');
+
+  // Accept the marginal ballot and advance to the blank ballot, which sorts
+  // last in the queue.
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByText('Ballot 3 of 3').waitFor();
+  await page.getByText('Blank Ballot Detected').waitFor();
+  await screenshot('adjudication-blank-ballot-view');
+
+  // Confirm the ballot is indeed blank by accepting it as-is.
+  await screenshotWithButtonHighlight(
+    'Accept',
+    'adjudication-blank-ballot-accept-highlighted'
+  );
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  // Back on the adjudication start screen with the completed progress bar.
+  await page.getByText('All ballots adjudicated').waitFor();
+  await screenshot('adjudication-complete');
+});
+
+test('qualified write-in candidates', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const usbHandler = getMockFileUsbDriveHandler();
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Qualified write-in mode restricts write-in adjudication to a pre-defined
+  // list of candidates, managed from the adjudication screen.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  };
+
+  // One ballot with a mayor write-in for one of the qualified candidates, so we
+  // can show how qualified write-ins appear during adjudication.
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+  const writeInVotes = withWriteIns(
+    createFullyVotedBallot(electionDefinition, '1-1'),
+    mayorContest,
+    ['Otis Redding']
+  );
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    { ballotStyleId: '1-1', precinctId: '20', votes: writeInVotes },
+  ]);
+
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  await page.goto('/');
+  await configureMachine({
+    page,
+    usbHandler,
+    electionDefinition,
+    systemSettings,
+  });
+
+  await logInAsElectionManager(page, election);
+  await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
+
+  // Adjudication screen shows the Qualified Write-In Candidates card.
+  await page.getByText('Adjudication').click();
+  await page.getByRole('button', { name: 'Add Candidates' }).waitFor();
+  await screenshot('qualified-write-in-adjudication');
+  await screenshotWithButtonHighlight(
+    'Add Candidates',
+    'qualified-write-in-add-candidates-highlighted'
+  );
+
+  // Candidates screen, with the mayor contest selected by default.
+  await page.getByRole('button', { name: 'Add Candidates' }).click();
+  await page.getByRole('button', { name: 'Add Candidate' }).waitFor();
+  await screenshot('qualified-write-in-candidates-empty');
+  await screenshotWithButtonHighlight(
+    'Add Candidate',
+    'qualified-write-in-add-candidate-highlighted'
+  );
+
+  // Add three qualified candidates to the mayor contest.
+  const candidateNames = ['Bill Withers', 'Aretha Franklin', 'Otis Redding'];
+  for (const [i, name] of candidateNames.entries()) {
+    await page.getByRole('button', { name: 'Add Candidate' }).click();
+    await page.getByRole('textbox', { name: 'Candidate name: New' }).fill(name);
+    await screenshot(`qualified-write-in-candidate-${i + 1}`);
+  }
+
+  // Save the qualified candidates.
+  await screenshotWithButtonHighlight(
+    'Save',
+    'qualified-write-in-save-highlighted'
+  );
+  await page.getByRole('button', { name: 'Save' }).click();
+  await screenshot('qualified-write-in-saved');
+
+  // Load the CVR with the mayor write-in.
+  await page.getByText('Tally').click();
+  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await insertUsbDriveWithCvrs({
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
     usbHandler,
     electionDefinition,
   });
@@ -620,35 +1062,17 @@ test('adjudication', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Load' }).click();
   await page.getByText('1 New CVR Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 1').waitFor();
 
+  // Adjudicate the write-in: the dropdown now offers the qualified candidates
+  // we added, rather than free-text entry.
   await page.getByText('Adjudication').click();
-  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
-
   await page.getByRole('button', { name: 'Adjudicate' }).click();
   await page.getByText(/Ballot \d+ of \d+/).waitFor();
-  await screenshot('adjudication-view');
-
-  // Click the Governor contest (has write-in + marginal mark)
   await getPendingContestItems(page).first().click();
   await page.getByRole('button', { name: 'Confirm' }).waitFor();
-  await page.getByText('Zoom Out').click();
-  await expect(page.getByText('Zoom In')).toBeEnabled();
-  await screenshot('adjudication-view-zoomed-out');
+  await screenshot('qualified-write-in-adjudication-contest');
   await page.getByRole('combobox').click();
-  await screenshot('adjudication-write-in-focused');
-  await page.getByRole('combobox').fill('New Candidate');
-  await page.keyboard.press('Enter');
-  await screenshot('adjudication-write-in-new-candidate-adjudicated');
-  await page.getByRole('button', { name: 'Dismiss' }).click();
-  await screenshot('adjudication-marginal-mark-adjudicated');
-  await page.getByRole('button', { name: 'Confirm' }).click();
-
-  // Exit to start screen
-  await page.getByRole('button', { name: /Exit/ }).waitFor();
-  await page.getByRole('button', { name: /Exit/ }).click();
-  await page.getByRole('button', { name: 'Discard Changes' }).click();
-  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
+  await screenshot('qualified-write-in-adjudication-dropdown');
 });
 
 test('manual results', async ({ page }, testInfo) => {

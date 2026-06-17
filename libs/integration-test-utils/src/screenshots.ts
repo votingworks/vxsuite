@@ -51,17 +51,25 @@ export function createScreenshotNamer(testInfo: TestInfo): ScreenshotNamer {
  * For elements away from the edges the clamp is a no-op, so the ring keeps its
  * original look.
  */
-function addHighlightOverlay(el: Element): void {
-  const rect = el.getBoundingClientRect();
+function addHighlightOverlay(elOrEls: Element | Element[]): void {
+  const els = Array.isArray(elOrEls) ? elOrEls : [elOrEls];
+  const rects = els.map((el) => el.getBoundingClientRect());
   const ringWidth = 10;
   const ringOffset = 2;
   // Reserve space for the outside ring so it stays on-screen even when the
-  // element touches a viewport edge.
+  // element touches a viewport edge. When multiple elements are passed (e.g. a
+  // row of buttons), highlight the bounding box covering all of them.
   const margin = ringWidth + ringOffset;
-  const top = Math.max(rect.top, margin);
-  const left = Math.max(rect.left, margin);
-  const right = Math.min(rect.right, window.innerWidth - margin);
-  const bottom = Math.min(rect.bottom, window.innerHeight - margin);
+  const top = Math.max(Math.min(...rects.map((r) => r.top)), margin);
+  const left = Math.max(Math.min(...rects.map((r) => r.left)), margin);
+  const right = Math.min(
+    Math.max(...rects.map((r) => r.right)),
+    window.innerWidth - margin
+  );
+  const bottom = Math.min(
+    Math.max(...rects.map((r) => r.bottom)),
+    window.innerHeight - margin
+  );
 
   const overlay = document.createElement('div');
   overlay.setAttribute('data-focus-highlight', 'true');
@@ -140,12 +148,16 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
     await removeFocusHighlight();
   }
 
+  // Highlights the bounding box covering all elements matched by `locator`. Pass
+  // a locator that matches just the elements of interest (e.g. a row of
+  // buttons) to get a tight highlight rather than a full-width container.
   async function screenshotWithLocatorHighlight(
     locator: Locator,
     name: string,
     args: PageScreenshotOptions = {}
   ) {
-    await locator.evaluate(addHighlightOverlay);
+    await locator.first().waitFor();
+    await locator.evaluateAll(addHighlightOverlay);
 
     await page.waitForTimeout(50);
     await screenshot(name, args);

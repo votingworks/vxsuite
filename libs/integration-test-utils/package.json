@@ -28,6 +28,8 @@
   "dependencies": {
     "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
+    "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
@@ -35,7 +37,8 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "@votingworks/utils": "workspace:*"
+    "@votingworks/utils": "workspace:*",
+    "js-sha256": "^0.9.0"
   },
   "devDependencies": {
     "@types/node": "20.17.31",
