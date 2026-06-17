@@ -336,7 +336,7 @@ test('election loading from zip file', async () => {
   );
   const parsedElection = JSON.parse(resolvedElectionData);
   expect(parsedElection.title).toEqual(election.title);
-  expect(parsedElection.county).toEqual(election.county);
+  expect(parsedElection.jurisdiction).toEqual(election.jurisdiction);
 
   // Verify that insertCard works with zip-loaded elections
   await apiClient.removeCard();

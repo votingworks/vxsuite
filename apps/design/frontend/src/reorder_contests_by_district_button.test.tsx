@@ -103,7 +103,7 @@ const testElectionRecord = makeElectionRecord(
     ballotStrings: {},
     ballotStyles: [],
     contests: testContests,
-    county: { id: 'test-county', name: 'Test County' },
+    jurisdiction: { id: 'test-county', name: 'Test County' },
     date: DateWithoutTime.today(),
     districts: testDistricts,
     parties: [],

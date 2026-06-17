@@ -3,7 +3,7 @@
   "type": "general",
   "title": "Certification General Election",
   "state": "Michigan",
-  "county": {
+  "jurisdiction": {
     "id": "kent-county",
     "name": "Kent County"
   },

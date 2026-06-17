@@ -57,7 +57,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
         'contest-2': 'Proposición 1',
         'contest-3': 'Controlador',
       },
-      [ElectionStringKey.COUNTY_NAME]: 'Condado de Franklin',
+      [ElectionStringKey.JURISDICTION_NAME]: 'Condado de Franklin',
       [ElectionStringKey.DISTRICT_NAME]: {
         'district-1': 'Ciudad de Lincoln',
         'district-2': 'Ciudad de Washington',

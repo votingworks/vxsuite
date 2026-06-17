@@ -284,7 +284,7 @@ export function HandCountInsignia({
           fontWeight: 'bold',
         }}
       >
-        {electionStrings.countyName(election.county)}
+        {electionStrings.jurisdictionName(election.jurisdiction)}
       </h1>
       <div style={{ textAlign: 'right' }}>
         <img

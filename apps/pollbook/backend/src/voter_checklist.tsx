@@ -78,7 +78,7 @@ export function VoterChecklistHeader({
           {format.localeLongDate(
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
-          &bull; {election.county.name}, {election.state}
+          &bull; {election.jurisdiction.name}, {election.state}
           {configuredPrecinct && election.precincts.length > 1 && (
             <> &bull; {configuredPrecinct.name}</>
           )}
@@ -467,7 +467,7 @@ export function CertificationPageHeader({
           {format.localeLongDate(
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
-          &bull; {election.county.name}, {election.state}
+          &bull; {election.jurisdiction.name}, {election.state}
           {configuredPrecinct && election.precincts.length > 1 && (
             <> &bull; {configuredPrecinct.name}</>
           )}
@@ -495,7 +495,7 @@ export function CoverPageHeader({
           {format.localeLongDate(
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
-          &bull; {election.county.name}, {election.state}
+          &bull; {election.jurisdiction.name}, {election.state}
           {configuredPrecinct && election.precincts.length > 1 && (
             <> &bull; {configuredPrecinct.name}</>
           )}
@@ -568,10 +568,11 @@ export function CertificationPage({
         </LabelledText>
       </div>
       <p>
-        We, the Supervisors of the Checklist of the {election.county.name}, do
-        solemnly swear that, according to our best knowledge, the within list
-        contains {totalVoterCount.toLocaleString()} names of those persons only
-        who are, by actual domicile, legal voters in said town (or district).
+        We, the Supervisors of the Checklist of the {election.jurisdiction.name}
+        , do solemnly swear that, according to our best knowledge, the within
+        list contains {totalVoterCount.toLocaleString()} names of those persons
+        only who are, by actual domicile, legal voters in said town (or
+        district).
       </p>
       <p>Supervisors of the Checklist / Board of Registrars</p>
       {range(0, 5).map((i) => (
@@ -579,7 +580,7 @@ export function CertificationPage({
           <SignatureLine />
         </p>
       ))}
-      {election.county.name}, {election.state}
+      {election.jurisdiction.name}, {election.state}
       <p>
         Then personally appeared the above-named persons and severally took and
         subscribed the following oath before me,
@@ -589,12 +590,12 @@ export function CertificationPage({
       </p>
       <p>
         This is to certify that this checklist delivered to the{' '}
-        {election.county.name}, {election.state} is the correct checklist as
-        delivered into our hands and used in the {election.title} held on{' '}
+        {election.jurisdiction.name}, {election.state} is the correct checklist
+        as delivered into our hands and used in the {election.title} held on{' '}
         {format.localeLongDate(
           election.date.toMidnightDatetimeWithSystemTimezone()
         )}{' '}
-        in the {election.county.name}.
+        in the {election.jurisdiction.name}.
       </p>
       <p>
         Moderator: <SignatureLine /> Town Clerk: <SignatureLine />

@@ -168,9 +168,9 @@ export function generateElection(
     id: generateId(),
     date: DateWithoutTime.today(),
     type: 'general',
-    county: {
+    jurisdiction: {
       id: generateId(),
-      name: randomString(maxStringLengths.countyName, words.locations),
+      name: randomString(maxStringLengths.jurisdictionName, words.locations),
     },
     state: randomString(maxStringLengths.stateName, words.locations),
     seal,

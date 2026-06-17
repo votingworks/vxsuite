@@ -82,7 +82,7 @@
         "water-1-fishing": "Water District 1 Fishing",
         "water-2-fishing": "Water District 2 Fishing"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": {
         "county": "County",
         "congressional-1": "Congressional District 1",
@@ -185,7 +185,7 @@
         "water-1-fishing": "第一水区垂钓",
         "water-2-fishing": "第二水区垂钓"
       },
-      "countyName": "样本县",
+      "jurisdictionName": "样本县",
       "districtName": {
         "county": "县",
         "congressional-1": "第一国会选区",
@@ -288,7 +288,7 @@
         "water-1-fishing": "第一水區釣魚",
         "water-2-fishing": "第二水區釣"
       },
-      "countyName": "樣本縣",
+      "jurisdictionName": "樣本縣",
       "districtName": {
         "county": "縣",
         "congressional-1": "第一國會選區",
@@ -391,7 +391,7 @@
         "water-1-fishing": "Pesca del Distrito 1 del Agua",
         "water-2-fishing": "Pesca del Distrito 2 del Agua"
       },
-      "countyName": "Condado de muestra",
+      "jurisdictionName": "Condado de muestra",
       "districtName": {
         "county": "Condado",
         "congressional-1": "Distrito congresional 1",
@@ -5147,7 +5147,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },

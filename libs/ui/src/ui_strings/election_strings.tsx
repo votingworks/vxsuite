@@ -5,7 +5,7 @@ import {
   Candidate,
   CandidateContest,
   Contest,
-  County,
+  Jurisdiction,
   DEFAULT_LANGUAGE_CODE,
   District,
   Election,
@@ -86,8 +86,8 @@ export const electionStrings = {
     </UiString>
   ),
 
-  [Key.COUNTY_NAME]: (county: County) => (
-    <UiString uiStringKey={Key.COUNTY_NAME}>{county.name}</UiString>
+  [Key.JURISDICTION_NAME]: (county: Jurisdiction) => (
+    <UiString uiStringKey={Key.JURISDICTION_NAME}>{county.name}</UiString>
   ),
 
   [Key.DISTRICT_NAME]: (district: District) => (

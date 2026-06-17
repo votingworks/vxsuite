@@ -700,7 +700,7 @@ export function BmdPaperBallot({
 }: BmdPaperBallotProps): JSX.Element {
   const {
     election,
-    election: { county, seal },
+    election: { jurisdiction, seal },
     ballotHash,
   } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -806,7 +806,7 @@ export function BmdPaperBallot({
                 primaryLanguage={primaryBallotLanguage}
                 englishTextWrapper={AdjacentTextWithSeparator}
               >
-                {electionStrings.countyName(county)},{' '}
+                {electionStrings.jurisdictionName(jurisdiction)},{' '}
                 {electionStrings.stateName(election)}
               </DualLanguageText>
             </P>

@@ -120,7 +120,7 @@ export function Header({
           {ballotTitle} FOR
         </h5>
         <h1 style={{ fontSize: '18pt' }}>
-          {electionStrings.countyName(election.county)}
+          {electionStrings.jurisdictionName(election.jurisdiction)}
         </h1>
         <h3>
           {isFederalOfficeOnly

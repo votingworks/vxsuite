@@ -57,7 +57,7 @@ export const electionData = `
       }
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "COUNTY",
     "name": "COUNTY"
   },
@@ -106,7 +106,7 @@ export const electionData = `
           "CC": "TITLE",
           "YNC": "TITLE"
        },
-       "countyName": "COUNTY",
+       "jurisdictionName": "COUNTY",
        "districtName": {
           "D": "DISTRICT"
        },
@@ -209,7 +209,7 @@ const electionTwoPartyPrimaryData = `
   "type": "closed-primary",
   "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },
@@ -431,7 +431,7 @@ const electionTwoPartyPrimaryData = `
         "aquarium-council-fish": "Zoo Council",
         "fishing": "Ballot Measure 3"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": {
         "district-1": "District 1"
       },

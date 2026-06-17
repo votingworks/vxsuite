@@ -13,7 +13,7 @@ function getMockElectionDefinition(): ElectionDefinition {
     election: {
       id: 'test-election-id',
       state: 'Test State',
-      county: {
+      jurisdiction: {
         id: 'test-county',
         name: 'Test County',
       },

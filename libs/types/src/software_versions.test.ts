@@ -16,11 +16,38 @@ const v4p0PrimaryElectionData = JSON.stringify(
 );
 
 test('convertLatestElectionToV4p0', () => {
-  expect(convertLatestElectionToV4p0(election)).toEqual(election);
+  // v4.0 uses `county`/`countyName` where v4.1 uses
+  // `jurisdiction`/`jurisdictionName`; everything else is unchanged.
+  expect(convertLatestElectionToV4p0(election)).toEqual({
+    ...election,
+    jurisdiction: undefined,
+    county: election.jurisdiction,
+    ballotStrings: {
+      ...election.ballotStrings,
+      en: {
+        ...election.ballotStrings['en'],
+        jurisdictionName: undefined,
+        countyName: election.ballotStrings['en']?.['jurisdictionName'],
+      },
+    },
+  });
+
+  // closed-primary -> primary, same county/countyName conversion
   expect(convertLatestElectionToV4p0(primaryElection)).toEqual({
     ...primaryElection,
     type: 'primary',
+    jurisdiction: undefined,
+    county: primaryElection.jurisdiction,
+    ballotStrings: {
+      ...primaryElection.ballotStrings,
+      en: {
+        ...primaryElection.ballotStrings['en'],
+        jurisdictionName: undefined,
+        countyName: primaryElection.ballotStrings['en']?.['jurisdictionName'],
+      },
+    },
   });
+
   const openPrimaryElection: Election = {
     ...primaryElection,
     type: 'open-primary',
@@ -43,7 +70,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"e799ed538cb60693e768d55fc4c33e137a36e4d708f76d29b72bf3488de09840"`
+    `"fe05f99d5886bfcbbbc388844ec44e77dbde2c2426a836188350cdcef3f60c5d"`
   );
 
   expect(

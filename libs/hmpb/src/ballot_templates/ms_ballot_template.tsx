@@ -135,7 +135,7 @@ function Header({
             {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
             language-aware way to denote hierarchical locations. */}
-            {electionStrings.countyName(election.county)},{' '}
+            {electionStrings.jurisdictionName(election.jurisdiction)},{' '}
             {electionStrings.stateName(election)}
           </div>
         </div>

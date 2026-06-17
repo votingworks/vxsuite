@@ -19,7 +19,7 @@ describe('generateElectionBasedSubfolderName', () => {
   test('generates basic election subfolder name as expected', () => {
     const mockElection: Election = {
       ...electionGeneralDefinition.election,
-      county: { name: 'King County', id: '' },
+      jurisdiction: { name: 'King County', id: '' },
       title: 'General Election',
     };
     expect(
@@ -30,7 +30,7 @@ describe('generateElectionBasedSubfolderName', () => {
   test('generates election subfolder name as expected when election county and title have weird characters', () => {
     const mockElection: Election = {
       ...electionGeneralDefinition.election,
-      county: { name: '-K(ing&COUN-----TY**', id: '' },
+      jurisdiction: { name: '-K(ing&COUN-----TY**', id: '' },
       title: 'General-Election@@',
     };
     expect(
@@ -41,7 +41,7 @@ describe('generateElectionBasedSubfolderName', () => {
   test('generates election subfolder name as expected when ballot hash length varies', () => {
     const mockElection: Election = {
       ...electionGeneralDefinition.election,
-      county: { name: 'King County', id: '' },
+      jurisdiction: { name: 'King County', id: '' },
       title: 'General Election',
     };
     expect(

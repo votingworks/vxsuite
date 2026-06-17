@@ -119,7 +119,7 @@
         "x0bp6nzqwcgh": "Contest 15",
         "k36cvbzev5e3": "Contest 16"
       },
-      "countyName": "Dev Jurisdiction - DEMO",
+      "jurisdictionName": "Dev Jurisdiction - DEMO",
       "districtName": {
         "dao0k6i97arf": "District 1"
       },
@@ -2033,7 +2033,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "county-id",
     "name": "Dev Jurisdiction - DEMO"
   },

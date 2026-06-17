@@ -115,7 +115,7 @@ function duplicateContestTitleTranslations(idSuffix: string) {
 
 const TEST_UI_STRINGS: UiStringsPackage = {
   'zh-Hans': {
-    [ElectionStringKey.COUNTY_NAME]: '富兰克林县',
+    [ElectionStringKey.JURISDICTION_NAME]: '富兰克林县',
     [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
       election.contests
         .filter((contest): contest is YesNoContest => contest.type === 'yesno')

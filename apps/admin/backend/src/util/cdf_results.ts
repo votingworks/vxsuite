@@ -237,7 +237,7 @@ export function buildElectionResultsReport({
     SequenceEnd: 1,
     // CDF DateWithTimeZone format doesn't allow milliseconds, so remove them
     GeneratedDate: new Date().toISOString().replace(/\.\d{3}/, ''),
-    Issuer: election.county.name,
+    Issuer: election.jurisdiction.name,
     IssuerAbbreviation: countyId,
     VendorApplicationId: getVendorApplicationId(machineConfig),
     Status: isOfficialResults
@@ -278,7 +278,7 @@ export function buildElectionResultsReport({
       {
         '@type': 'ElectionResults.ReportingUnit',
         '@id': countyId,
-        Name: asInternationalizedText(election.county.name),
+        Name: asInternationalizedText(election.jurisdiction.name),
         Type: ResultsReporting.ReportingUnitType.County,
         ComposingGpUnitIds: election.districts.map(getDistrictId),
       },

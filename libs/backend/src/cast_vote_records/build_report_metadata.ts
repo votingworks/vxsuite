@@ -213,7 +213,7 @@ export function buildCastVoteRecordReportMetadata({
         '@type': 'CVR.GpUnit',
         '@id': 'election-county',
         Type: CVR.ReportingUnitType.Other,
-        Name: `${election.county.name}`,
+        Name: `${election.jurisdiction.name}`,
       },
       {
         '@type': 'CVR.GpUnit',

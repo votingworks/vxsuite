@@ -30,7 +30,7 @@ export function getStateId(election: Election): string {
  * Gets the county ID from an Election, formatted as an NCName.
  */
 export function getCountyId(election: Election): string {
-  return asNcName(election.county.id);
+  return asNcName(election.jurisdiction.id);
 }
 
 /**

@@ -102,7 +102,9 @@ test('newly created election starts in edit mode', async () => {
   expect(stateInput).toBeEnabled();
 
   const jurisdictionInput = screen.getByLabelText('Jurisdiction');
-  expect(jurisdictionInput).toHaveValue(electionRecord.election.county.name);
+  expect(jurisdictionInput).toHaveValue(
+    electionRecord.election.jurisdiction.name
+  );
   expect(jurisdictionInput).toBeEnabled();
 
   const sealInput = screen.getByText('Seal').parentElement!;
@@ -155,7 +157,7 @@ test('edit and save election', async () => {
   expect(stateInput).toBeDisabled();
 
   const jurisdictionInput = screen.getByLabelText('Jurisdiction');
-  expect(jurisdictionInput).toHaveValue(election.county.name);
+  expect(jurisdictionInput).toHaveValue(election.jurisdiction.name);
   expect(jurisdictionInput).toBeDisabled();
 
   const sealInput = screen.getByText('Seal').parentElement!;
@@ -218,7 +220,7 @@ test('edit and save election', async () => {
     date: new DateWithoutTime('2023-09-06'),
     type: 'closed-primary',
     state: 'New State',
-    countyName: 'New County',
+    jurisdictionName: 'New County',
     seal: '<svg>updated seal</svg>',
     signatureImage: undefined,
     signatureCaption: undefined,
@@ -285,7 +287,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     date: election.date,
     type: election.type,
     state: election.state,
-    countyName: election.county.name,
+    jurisdictionName: election.jurisdiction.name,
     seal: election.seal,
     signatureImage: '<svg>updated signature</svg>',
     signatureCaption: 'New Signature Caption',
@@ -552,7 +554,10 @@ describe('audio editing', () => {
 
   const Key = ElectionStringKey;
   for (const spec of [
-    { inputValue: election.county.name, stringKey: Key.COUNTY_NAME },
+    {
+      inputValue: election.jurisdiction.name,
+      stringKey: Key.JURISDICTION_NAME,
+    },
     { inputValue: election.title, stringKey: Key.ELECTION_TITLE },
     { inputValue: election.state, stringKey: Key.STATE_NAME },
   ] as AudioEnabledInputSpec[]) {

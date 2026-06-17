@@ -306,7 +306,7 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
-  [ElectionStringKey.COUNTY_NAME]() {
+  [ElectionStringKey.JURISDICTION_NAME]() {
     const uiStrings = extractCdfUiStrings({
       ...testCdfBallotDefinition,
       GpUnit: [
@@ -324,10 +324,10 @@ const tests: Record<ElectionStringKey, () => void> = {
 
     expect(uiStrings).toEqual({
       en: expect.objectContaining({
-        [ElectionStringKey.COUNTY_NAME]: 'Kings County',
+        [ElectionStringKey.JURISDICTION_NAME]: 'Kings County',
       }),
       'es-US': expect.objectContaining({
-        [ElectionStringKey.COUNTY_NAME]: 'Condado de Kings',
+        [ElectionStringKey.JURISDICTION_NAME]: 'Condado de Kings',
       }),
     });
   },

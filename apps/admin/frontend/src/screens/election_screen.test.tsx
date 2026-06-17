@@ -49,7 +49,9 @@ describe('as System Admin', () => {
       'Configured with the current election at Wednesday, June 22, 2022 at 12:00:00 AM AKDT.'
     );
     screen.getByRole('heading', { name: election.title });
-    screen.getByText(new RegExp(`${election.county.name}, ${election.state}`));
+    screen.getByText(
+      new RegExp(`${election.jurisdiction.name}, ${election.state}`)
+    );
     screen.getByText('November 3, 2020');
 
     screen.getButton('Save Election Package');
@@ -110,7 +112,9 @@ describe('as election manager', () => {
       'Configured with the current election at Wednesday, June 22, 2022 at 12:00:00 AM AKDT.'
     );
     screen.getByRole('heading', { name: election.title });
-    screen.getByText(new RegExp(`${election.county.name}, ${election.state}`));
+    screen.getByText(
+      new RegExp(`${election.jurisdiction.name}, ${election.state}`)
+    );
     screen.getByText('November 3, 2020');
 
     screen.getButton('Save Election Package');

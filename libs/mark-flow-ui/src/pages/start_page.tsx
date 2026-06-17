@@ -98,7 +98,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
   );
 
   const { election } = electionDefinition;
-  const { county, seal } = election;
+  const { jurisdiction, seal } = election;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -128,7 +128,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
         <P>
           <Caption maxLines={4}>
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
-            {electionStrings.countyName(county)},{' '}
+            {electionStrings.jurisdictionName(jurisdiction)},{' '}
             {electionStrings.stateName(election)}
           </Caption>
           <Caption>{precinctOrSplitName}</Caption>

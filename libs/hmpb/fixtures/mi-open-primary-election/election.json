@@ -115,7 +115,7 @@
         "ballot-measure-2": "Public Safety Millage",
         "ballot-measure-3": "Library Millage Renewal"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": {
         "district-state": "State of Sample",
         "district-congressional": "13th Congressional District",
@@ -3019,7 +3019,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "sample-county",
     "name": "Sample County"
   },

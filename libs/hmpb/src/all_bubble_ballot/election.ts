@@ -71,7 +71,7 @@ export function createElection({
       },
     ],
     contests,
-    county: {
+    jurisdiction: {
       id: 'test-county',
       name: 'Test County',
     },

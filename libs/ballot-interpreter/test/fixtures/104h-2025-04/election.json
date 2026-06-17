@@ -38,7 +38,7 @@
         "autxsj0cdzod": "Proposition One (1)",
         "klhpdgrdszt0": "Proposition Two (2)"
       },
-      "countyName": "Longmont",
+      "jurisdictionName": "Longmont",
       "districtName": {
         "so8zqmh2y2r5": "Test District"
       },
@@ -329,7 +329,7 @@
       ]
     }
   ],
-  "county": {
+  "jurisdiction": {
     "id": "county-id",
     "name": "Longmont"
   },

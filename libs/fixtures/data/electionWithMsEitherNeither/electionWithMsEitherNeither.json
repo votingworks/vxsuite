@@ -3,7 +3,7 @@
   "type": "general",
   "title": "Mock General Election Choctaw 2020",
   "state": "State of Mississippi",
-  "county": {
+  "jurisdiction": {
     "id": "10",
     "name": "Choctaw County"
   },
@@ -550,7 +550,7 @@
         "new-zoo-pick": "Ballot Measure 1",
         "fishing": "Ballot Measure 3"
       },
-      "countyName": "Sample County",
+      "jurisdictionName": "Sample County",
       "districtName": { "district-1": "District 1" },
       "electionDate": "September 8, 2021",
       "electionTitle": "Example Primary Election",

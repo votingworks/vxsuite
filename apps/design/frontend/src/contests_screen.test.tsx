@@ -109,7 +109,7 @@ const electionWithNoContestsRecord = makeElectionRecord(
     type: 'general',
     date: DateWithoutTime.today(),
     state: 'CA',
-    county: { id: 'test-county', name: 'Test County' },
+    jurisdiction: { id: 'test-county', name: 'Test County' },
     districts: [
       {
         id: unsafeParse(DistrictIdSchema, 'test-district-1'),
@@ -430,7 +430,7 @@ test('editing a candidate contest (primary election)', async () => {
       type: 'closed-primary',
       date: DateWithoutTime.today(),
       state: 'CA',
-      county: { id: 'test-county', name: 'Test County' },
+      jurisdiction: { id: 'test-county', name: 'Test County' },
       districts: [
         {
           id: unsafeParse(DistrictIdSchema, 'test-district-1'),

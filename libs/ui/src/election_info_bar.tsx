@@ -49,7 +49,7 @@ export function ElectionInfo({
 }: ElectionInfoProps): JSX.Element {
   const {
     election,
-    election: { county, seal },
+    election: { jurisdiction, seal },
   } = electionDefinition;
 
   const separator = ', ';
@@ -61,7 +61,7 @@ export function ElectionInfo({
           {pollingPlaceId && separator}
         </React.Fragment>
       )}
-      {electionStrings.countyName(county)}
+      {electionStrings.jurisdictionName(jurisdiction)}
       {separator}
       {electionStrings.stateName(election)}
     </Font>
@@ -210,7 +210,7 @@ export function VerticalElectionInfoBar({
   }
   const {
     election,
-    election: { county, seal },
+    election: { jurisdiction, seal },
   } = electionDefinition;
 
   return (
@@ -225,7 +225,7 @@ export function VerticalElectionInfoBar({
 
           <div>
             <Font maxLines={4}>
-              {electionStrings.countyName(county)},{' '}
+              {electionStrings.jurisdictionName(jurisdiction)},{' '}
               {electionStrings.stateName(election)}
             </Font>
           </div>

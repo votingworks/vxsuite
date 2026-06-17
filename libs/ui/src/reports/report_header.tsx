@@ -34,7 +34,7 @@ export function ReportElectionInfo({
   return (
     <p>
       <Font weight="bold">
-        {election.title}, {electionDate}, {election.county.name},{' '}
+        {election.title}, {electionDate}, {election.jurisdiction.name},{' '}
         {election.state}
       </Font>
     </p>

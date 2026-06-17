@@ -121,7 +121,7 @@ describe('createTestElection', () => {
       'Test Election for Multi-Page Summary Ballots'
     );
     expect(election.state).toEqual('Test State');
-    expect(election.county.name).toEqual('Test County');
+    expect(election.jurisdiction.name).toEqual('Test County');
     expect(election.districts).toHaveLength(1);
     expect(election.precincts).toHaveLength(1);
     expect(election.ballotStyles).toHaveLength(1);

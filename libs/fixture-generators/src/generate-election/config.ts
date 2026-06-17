@@ -14,7 +14,7 @@ export const GenerateElectionConfigSchema = z.object({
   maxContestVoteFor: positiveInt,
   maxStringLengths: z.object({
     title: positiveInt,
-    countyName: positiveInt,
+    jurisdictionName: positiveInt,
     stateName: positiveInt,
     districtName: positiveInt,
     precinctName: positiveInt,
@@ -43,7 +43,7 @@ export const defaultConfig: GenerateElectionConfig = {
   maxContestVoteFor: SYSTEM_LIMITS.contest.seats,
   maxStringLengths: {
     title: SYSTEM_LIMITS.textField.characters,
-    countyName: SYSTEM_LIMITS.textField.characters,
+    jurisdictionName: SYSTEM_LIMITS.textField.characters,
     stateName: SYSTEM_LIMITS.textField.characters,
     districtName: SYSTEM_LIMITS.textField.characters,
     precinctName: SYSTEM_LIMITS.textField.characters,

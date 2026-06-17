@@ -148,7 +148,7 @@ export function createBlankElection(
     title: '',
     date: DateWithoutTime.today(),
     state: jurisdiction.stateCode,
-    county: {
+    jurisdiction: {
       id: 'county-id',
       name: jurisdiction.name,
     },
@@ -374,8 +374,8 @@ export function buildApi(ctx: AppContext) {
               return {
                 ...sourceElection,
                 id: input.newId,
-                county: {
-                  ...sourceElection.county,
+                jurisdiction: {
+                  ...sourceElection.jurisdiction,
                   // County ID needs to be deterministic
                   id: `${input.newId}-county`,
                 },
@@ -492,7 +492,7 @@ export function buildApi(ctx: AppContext) {
         date: election.date,
         type: election.type,
         state: election.state,
-        countyName: election.county.name,
+        jurisdictionName: election.jurisdiction.name,
         seal: election.seal,
         signatureImage: election.signature?.image,
         signatureCaption: election.signature?.caption,
