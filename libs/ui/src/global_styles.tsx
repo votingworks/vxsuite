@@ -2,6 +2,7 @@ import { createGlobalStyle, css } from 'styled-components';
 import { isTouchscreen } from '@votingworks/types';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { NORMALIZE_CSS } from './normalize.css';
+import { ICON_FLIP_IN_RTL_MODE_CLASS_NAME } from './icons';
 
 // TODO(kofi): Move to ./ui_strings/audio_only.tsx once all relevant code is
 // updated to use that component.
@@ -52,9 +53,7 @@ ${NORMALIZE_CSS}
   *::after {
     box-sizing: inherit;
     cursor: ${(p) =>
-      /* istanbul ignore next */ p.hideCursor
-        ? 'none !important'
-        : undefined};
+      /* istanbul ignore next */ p.hideCursor ? 'none !important' : undefined};
   }
 
   html {
@@ -183,5 +182,9 @@ ${NORMALIZE_CSS}
   /* TODO(kofi): Update consumers to use the newer <AudioOnly> component. */
   .screen-reader-only {
     ${AUDIO_ONLY_STYLES}
+  }
+
+  .${ICON_FLIP_IN_RTL_MODE_CLASS_NAME}:dir(rtl) {
+    transform: scaleX(-1);
   }
 `;

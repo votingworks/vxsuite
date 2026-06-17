@@ -135,10 +135,18 @@ export interface IconProps {
 export type IconComponent = (props: IconProps) => JSX.Element;
 
 interface InnerProps extends IconProps {
+  flipInRtlMode?: boolean;
   pulse?: boolean;
   spin?: boolean;
   type: IconDefinition;
 }
+
+/**
+ * For all icons assigned the `flipInRtlMode` prop, a CSS transform in global_styles.tsx
+ * horizontally flips the icon when an RTL language is in use. See global_styles.tsx for more
+ * details.
+ */
+export const ICON_FLIP_IN_RTL_MODE_CLASS_NAME = 'icon--flip-in-rtl-mode';
 
 const StyledSvgIcon = styled.svg`
   fill: currentColor;
@@ -165,7 +173,16 @@ function iconColor(theme: UiTheme, color?: IconColor) {
 }
 
 function FaIcon(props: InnerProps): JSX.Element {
-  const { className, pulse, spin, type, color, fixedWidth, style = {} } = props;
+  const {
+    className,
+    pulse,
+    spin,
+    type,
+    color,
+    fixedWidth,
+    flipInRtlMode,
+    style = {},
+  } = props;
   const theme = useTheme();
 
   /**
@@ -218,7 +235,12 @@ function FaIcon(props: InnerProps): JSX.Element {
 
   return (
     <FontAwesomeIcon
-      className={className}
+      className={[
+        flipInRtlMode ? ICON_FLIP_IN_RTL_MODE_CLASS_NAME : undefined,
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       icon={type}
       spin={spin}
       pulse={pulse}
@@ -490,7 +512,7 @@ export const Icons = {
   },
 
   ListUnordered(props) {
-    return <FaIcon {...props} type={faListUl} />;
+    return <FaIcon {...props} flipInRtlMode type={faListUl} />;
   },
 
   Loading(props) {
@@ -514,7 +536,7 @@ export const Icons = {
   },
 
   Next(props) {
-    return <FaIcon {...props} type={faCircleRight} />;
+    return <FaIcon {...props} flipInRtlMode type={faCircleRight} />;
   },
 
   Paused(props) {
@@ -526,7 +548,7 @@ export const Icons = {
   },
 
   Previous(props) {
-    return <FaIcon {...props} type={faCircleLeft} />;
+    return <FaIcon {...props} flipInRtlMode type={faCircleLeft} />;
   },
 
   Play(props) {
