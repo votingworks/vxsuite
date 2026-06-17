@@ -574,7 +574,9 @@ export class Store {
     const id = uuid();
     const ballotCastingMode = this.getBallotCastingMode();
     const startedAt = new Date(getCurrentTime()).toISOString();
-    const pollingPlaceId = this.getPollingPlaceId() || null;
+
+    const pollingPlaceId = this.getPollingPlaceId();
+    assert(!!pollingPlaceId, 'polling place required for batch creation');
 
     this.client.run(
       `
@@ -728,7 +730,7 @@ export class Store {
       endedAt: string | null;
       error: string | null;
       count: number;
-      pollingPlaceId: string | null;
+      pollingPlaceId: string;
     }
 
     const batchInfo = this.client.all(`
@@ -771,7 +773,7 @@ export class Store {
       endedAt: info.endedAt ? isoDateFromSeconds(info.endedAt) : undefined,
       error: info.error || undefined,
       count: info.count,
-      pollingPlaceId: info.pollingPlaceId || undefined,
+      pollingPlaceId: info.pollingPlaceId,
     }));
   }
 

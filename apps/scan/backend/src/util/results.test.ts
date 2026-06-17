@@ -59,6 +59,7 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   expect(zeroResultsB).toBe(zeroResultsA); // should be exact same object due to memoization
 
   // Add a ballot to the store
+  store.setPollingPlaceId('place-1');
   const batchId1 = store.addBatch();
   store.recordSheet({
     sheetId: uuid(),
@@ -175,6 +176,7 @@ test('getScannerResults groups by inferred party for an open primary', async () 
     precinctId: ballotStyle.precincts[0],
   };
   function recordHmpbBallot(frontVotes: VotesDict): void {
+    store.setPollingPlaceId('place-1');
     const batchId = store.addBatch();
     store.recordSheet({
       sheetId: uuid(),
