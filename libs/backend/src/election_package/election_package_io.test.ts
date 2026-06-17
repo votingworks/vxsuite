@@ -99,10 +99,28 @@ function assertFilesCreatedInOrder(
   }
 }
 
+// Election packages require metadata.json, systemSettings.json, and
+// appStrings.json; inject empty/default versions so tests that build raw zips
+// stay valid. Audio files are optional and omitted by default. Override or add
+// via `contents` (or use zipFile directly to omit a required file and exercise
+// a missing-file error).
+function electionPackageZip(
+  contents: Record<string, Buffer | string>
+): Promise<Buffer> {
+  return zipFile({
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+    ...contents,
+  });
+}
+
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
   });
   const file = makeTemporaryFile({ content: pkg });
@@ -112,6 +130,8 @@ test('readElectionPackageFromFile reads an election package without system setti
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: [],
@@ -125,7 +145,7 @@ test('readElectionPackageFromFile reads an election package without system setti
 test('readElectionPackageFromFile reads an election package with system settings from a file', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
@@ -138,6 +158,8 @@ test('readElectionPackageFromFile reads an election package with system settings
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: [],
@@ -161,7 +183,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     },
   };
 
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
   });
@@ -190,6 +212,8 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedUiStrings,
       uiStringAudioClips: [],
@@ -202,7 +226,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 
 test('readElectionPackageFromFile loads election strings from CDF', async () => {
   const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
   });
   const file = makeTemporaryFile({ content: pkg });
@@ -216,6 +240,8 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
     electionPackage: {
       electionDefinition:
         safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedCdfStrings,
       uiStringAudioClips: [],
@@ -242,7 +268,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     },
   };
 
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.AUDIO_IDS]: JSON.stringify(audioIds),
   });
@@ -262,6 +288,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioIds: expectedAudioIds,
@@ -283,7 +310,7 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
     { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: 'es-US' },
   ];
 
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
       .map((clip) => JSON.stringify(clip))
@@ -296,6 +323,8 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: audioClips,
@@ -328,7 +357,7 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
     },
   ];
 
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.BALLOTS]: ballots
       .map((ballot) => JSON.stringify(ballot))
@@ -341,6 +370,8 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionPackage: {
       electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioClips: [],
@@ -357,7 +388,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
   const { electionData } = electionDefinition;
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
 
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.METADATA]: JSON.stringify(metadata),
   });
@@ -370,6 +401,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
       electionDefinition,
       metadata,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStringAudioIds: {},
       uiStringAudioClips: [],
       uiStrings: electionDefinition.election.ballotStrings,
       ballots: [],
@@ -380,7 +412,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
 });
 
 test('readElectionPackageFromFile errors when an election.json is not present', async () => {
-  const pkg = await zipFile({});
+  const pkg = await electionPackageZip({});
   const file = makeTemporaryFile({ content: pkg });
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
@@ -403,7 +435,7 @@ test('readElectionPackageFromFile errors throws when given an invalid zip file',
 });
 
 test('readElectionPackageFromFile errors when given an invalid election', async () => {
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: 'not a valid election',
   });
   const file = makeTemporaryFile({ content: pkg });
@@ -417,7 +449,7 @@ test('readElectionPackageFromFile errors when given an invalid election', async 
 });
 
 test('readElectionPackageFromFile errors when given invalid system settings', async () => {
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]:
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: 'not a valid system settings',
@@ -433,7 +465,7 @@ test('readElectionPackageFromFile errors when given invalid system settings', as
 });
 
 test('readElectionPackageFromFile errors when given invalid metadata', async () => {
-  const pkg = await zipFile({
+  const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]:
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     [ElectionPackageFileName.METADATA]: 'asdf',
@@ -447,6 +479,35 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
     })
   );
 });
+
+test.each([
+  ElectionPackageFileName.METADATA,
+  ElectionPackageFileName.SYSTEM_SETTINGS,
+  ElectionPackageFileName.APP_STRINGS,
+])(
+  'readElectionPackageFromFile errors when %s is missing',
+  async (missingFile) => {
+    const electionDefinition =
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+    const allFiles: Record<string, string> = {
+      [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+      [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+      [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+        DEFAULT_SYSTEM_SETTINGS
+      ),
+      [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+    };
+    delete allFiles[missingFile];
+    const file = makeTemporaryFile({ content: await zipFile(allFiles) });
+
+    expect(await readElectionPackageFromFile(file)).toEqual(
+      err({
+        type: 'invalid-zip',
+        message: expect.stringContaining(missingFile),
+      })
+    );
+  }
+);
 
 test('readSignedElectionPackageFromDirectory can read an election package from a directory', async () => {
   const electionDefinition =
@@ -888,7 +949,7 @@ test.each<{
   async (testConfig) => {
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
-    const electionPackageContents = await zipFile({
+    const electionPackageContents = await electionPackageZip({
       [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
       [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
         typedAs<SystemSettings>(testConfig.systemSettings)

@@ -42,7 +42,10 @@ export function runUiStringMachineConfigurationTests(
   } = context;
   const expectedElectionStrings = electionDefinition.election.ballotStrings;
 
-  async function doTestConfigure(usbElectionPackage: ElectionPackage) {
+  async function doTestConfigure(
+    usbElectionPackage: Partial<ElectionPackage> &
+      Pick<ElectionPackage, 'electionDefinition'>
+  ) {
     getMockUsbDrive().insertUsbDrive(
       await mockElectionPackageFileTree(usbElectionPackage)
     );
