@@ -28,6 +28,7 @@ import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
 import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
 import { DiagnosticsScreen } from './diagnostics_screen';
+import { TestDeckScreen } from './test_deck_screen';
 
 const Section = styled.div`
   &:not(:last-child) {
@@ -81,11 +82,20 @@ export function AdminScreen({
   const systemSettingsQuery = api.getSystemSettings.useQuery();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
+  const [isTestDeckScreenOpen, setIsTestDeckScreenOpen] = useState(false);
 
   if (isDiagnosticsScreenOpen) {
     return (
       <DiagnosticsScreen
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+      />
+    );
+  }
+
+  if (isTestDeckScreenOpen) {
+    return (
+      <TestDeckScreen
+        onBackButtonPress={() => setIsTestDeckScreenOpen(false)}
       />
     );
   }
@@ -161,6 +171,9 @@ export function AdminScreen({
           </SetClockButton>
           <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
             Diagnostics
+          </Button>
+          <Button onPress={() => setIsTestDeckScreenOpen(true)}>
+            Test Decks
           </Button>
           <SignedHashValidationButton apiClient={apiClient} />
           <ToggleUsbPortsButton onlyShowWhenDisabled />
