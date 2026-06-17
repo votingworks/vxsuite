@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+# Updates test snapshots across the monorepo.
+#
+# Selects workspace packages with `pnpm --filter` and updates each one's
+# snapshots:
+#   - vitest packages (those with a `test:run` script): `pnpm test:run -u`
+#   - Playwright integration packages: `pnpm test -- --update-snapshots`
+#
+# `--no-bail` keeps going past failures and prints pnpm's own per-package
+# summary; the script always exits 0 so updated snapshots can be committed
+# regardless of unrelated failures. Review the summary and `git diff` before
+# committing.
+#
+# Specify packages by their short path (the part after `apps/` or `libs/`). A
+# bare app/lib name matches that name exactly, not as a substring:
+#   pnpm update-snapshots                # all vitest packages
+#   pnpm update-snapshots ui types       # libs/ui and libs/types
+#   pnpm update-snapshots mark           # apps/mark/{frontend,backend} (NOT mark-scan)
+#   pnpm update-snapshots mark/backend   # just apps/mark/backend
+#
+# Integration (Playwright) packages are skipped by default. Include them with
+# -i / --include-integration-tests, or by naming one directly:
+#   pnpm update-snapshots -i
+#   pnpm update-snapshots -i mark
+#   pnpm update-snapshots mark/integration-testing
+#
+# Pass -r / --rebuild to run `pnpm build` in each selected package before its
+# tests (handy when a dependency changed and the built output is stale):
+#   pnpm update-snapshots -r ui
+#
+# Use --dry-run to print the packages that would run without updating anything.
+
+set -uo pipefail
+
+cd "$(dirname "$0")/.." || exit 1
+
+include_integration=false
+rebuild=false
+dry_run=false
+patterns=()
+for arg in "$@"; do
+  case "$arg" in
+    -i | --include-integration-tests) include_integration=true ;;
+    -r | --rebuild) rebuild=true ;;
+    --dry-run) dry_run=true ;;
+    -*)
+      echo "Unknown option: $arg" >&2
+      exit 2
+      ;;
+    *) patterns+=("$arg") ;;
+  esac
+done
+
+# Translate the short-path patterns into pnpm path filters, keeping only those
+# that point at a real directory (so pnpm doesn't warn about non-matches, and a
+# typo'd pattern errors out instead of falling through to "all packages"). A
+# bare name like `mark` resolves to `./apps/mark/*` or `./libs/mark` — that
+# app's subpackages (or the lib), but not siblings like `mark-scan`. A
+# `mark/backend` pattern targets one package.
+#
+# Integration filters only ever point at integration-testing/playwright dirs, so
+# the integration run never invokes `test` in a vitest package.
+vitest_filters=()
+integration_filters=()
+add_vitest() { [ -d "$1" ] && vitest_filters+=(--filter "./$1${2-}"); }
+add_integration() { [ -d "$1" ] && integration_filters+=(--filter "./$1"); }
+for p in "${patterns[@]}"; do
+  case "$p" in
+    */integration-testing | */playwright)
+      include_integration=true
+      add_integration "apps/$p"
+      ;;
+    */*)
+      add_vitest "apps/$p"
+      add_vitest "libs/$p"
+      ;;
+    *)
+      add_vitest "apps/$p" "/*"
+      add_vitest "libs/$p"
+      add_integration "apps/$p/integration-testing"
+      add_integration "apps/$p/playwright"
+      ;;
+  esac
+done
+if [ "${#patterns[@]}" -gt 0 ] &&
+  [ "${#vitest_filters[@]}" -eq 0 ] && [ "${#integration_filters[@]}" -eq 0 ]; then
+  echo "No packages matched: ${patterns[*]}" >&2
+  exit 1
+fi
+
+# With no patterns, empty vitest_filters means "every package" — but if patterns
+# were given and matched only integration packages, the vitest run must be
+# skipped, not widened to everything.
+run_vitest=true
+if [ "${#patterns[@]}" -gt 0 ] && [ "${#vitest_filters[@]}" -eq 0 ]; then
+  run_vitest=false
+fi
+
+if [ "$include_integration" = true ] && [ "${#integration_filters[@]}" -eq 0 ]; then
+  integration_filters=(--filter "./apps/*/integration-testing")
+  compgen -G "apps/*/playwright" >/dev/null && integration_filters+=(--filter "./apps/*/playwright")
+fi
+
+if [ "$dry_run" = true ]; then
+  if [ "$run_vitest" = true ]; then
+    echo "Vitest packages:"
+    pnpm "${vitest_filters[@]}" -r exec pwd 2>/dev/null |
+      grep -Ev '/(integration-testing|playwright)$' | sed "s|^$PWD/|  |"
+  fi
+  if [ "$include_integration" = true ]; then
+    echo "Integration packages:"
+    pnpm "${integration_filters[@]}" -r exec pwd 2>/dev/null | sed "s|^$PWD/|  |"
+  fi
+  exit 0
+fi
+
+if [ "$rebuild" = true ]; then
+  pnpm "${vitest_filters[@]}" "${integration_filters[@]}" -r --no-bail --if-present run build
+fi
+
+if [ "$run_vitest" = true ]; then
+  pnpm "${vitest_filters[@]}" -r --no-bail --if-present run test:run -u
+fi
+
+if [ "$include_integration" = true ]; then
+  pnpm "${integration_filters[@]}" -r --no-bail --if-present run test -- --update-snapshots
+fi
+
+exit 0
