@@ -433,65 +433,94 @@ test('results', async ({ page }, testInfo) => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  // A CVR set spanning two precincts and both voting methods. Every ballot has
-  // a write-in for the mayor contest (with repeated names) so the write-in
-  // reports have rich data; the other contests are fully voted. No bulk
-  // adjudication needed.
+  // A CVR set spanning two precincts and both voting methods. Votes are varied
+  // across ballots so no contest has all votes for one option, and there are at
+  // least 10 ballots — both needed to avoid the privacy-risk warning on the
+  // tally reports. West Lincoln has 10 ballots so a report filtered to it also
+  // clears the threshold. Six ballots have mayor write-ins for the write-in
+  // reports.
   const mayorContest = find(
     election.contests,
     (contest): contest is CandidateContest => contest.id === 'mayor'
   );
-  function mayorWriteInBallot(ballotStyleId: string, name: string): VotesDict {
-    return withWriteIns(
-      createFullyVotedBallot(electionDefinition, ballotStyleId),
-      mayorContest,
-      [name]
-    );
+
+  // Single-seat contests rotate through their candidates by index; multi-seat
+  // contests take a rotating window. This gives every contest a spread of votes.
+  function variedVotes(index: number): VotesDict {
+    const votes: VotesDict = {};
+    for (const contest of election.contests) {
+      if (contest.type !== 'candidate') continue;
+      votes[contest.id] = Array.from(
+        { length: contest.seats },
+        (_, seat) =>
+          contest.candidates[(index + seat) % contest.candidates.length]
+      );
+    }
+    return votes;
   }
+  function ballotVotes(index: number, mayorWriteIn?: string): VotesDict {
+    const votes = variedVotes(index);
+    return mayorWriteIn
+      ? withWriteIns(votes, mayorContest, [mayorWriteIn])
+      : votes;
+  }
+
   const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
-    // West Lincoln (precinct 20, style 1-1)
+    // West Lincoln (precinct 20, style 1-1) — precinct
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: mayorWriteInBallot('1-1', 'Bill Withers'),
+      votes: ballotVotes(0, 'Bill Withers'),
     },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(1) },
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: mayorWriteInBallot('1-1', 'Aretha Franklin'),
+      votes: ballotVotes(2, 'Aretha Franklin'),
     },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(3) },
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: mayorWriteInBallot('1-1', 'Otis Redding'),
+      votes: ballotVotes(4, 'Otis Redding'),
     },
+    { ballotStyleId: '1-1', precinctId: '20', votes: ballotVotes(5) },
+    // West Lincoln — absentee
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: mayorWriteInBallot('1-1', 'Bill Withers'),
+      votes: ballotVotes(6, 'Nina Simone'),
       ballotType: BallotType.Absentee,
     },
     {
       ballotStyleId: '1-1',
       precinctId: '20',
-      votes: mayorWriteInBallot('1-1', 'Nina Simone'),
+      votes: ballotVotes(7),
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(8, 'Sam Cooke'),
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: ballotVotes(9),
       ballotType: BallotType.Absentee,
     },
     // East Lincoln (precinct 21, style 1-2)
     {
       ballotStyleId: '1-2',
       precinctId: '21',
-      votes: mayorWriteInBallot('1-2', 'Aretha Franklin'),
+      votes: ballotVotes(10, 'Etta James'),
     },
+    { ballotStyleId: '1-2', precinctId: '21', votes: ballotVotes(11) },
     {
       ballotStyleId: '1-2',
       precinctId: '21',
-      votes: mayorWriteInBallot('1-2', 'Sam Cooke'),
-    },
-    {
-      ballotStyleId: '1-2',
-      precinctId: '21',
-      votes: mayorWriteInBallot('1-2', 'Otis Redding'),
+      votes: ballotVotes(12),
       ballotType: BallotType.Absentee,
     },
   ]);
@@ -532,15 +561,15 @@ test('results', async ({ page }, testInfo) => {
     electionDefinition,
   });
   await page.getByText('Load CVRs').click();
-  await page.getByText('8').first().waitFor();
+  await page.getByText('13').first().waitFor();
   await screenshot('load-cvrs');
 
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('8 New CVRs Loaded').waitFor();
+  await page.getByText('13 New CVRs Loaded').waitFor();
   await screenshot('cvrs-loaded');
 
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 8').waitFor();
+  await page.getByText('Total CVR Count: 13').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
   // Full election tally report
@@ -586,8 +615,9 @@ test('results', async ({ page }, testInfo) => {
     name: 'tally-report-by-precinct',
   });
 
-  // Tally report builder — a custom report filtered to one precinct and grouped
-  // by voting method.
+  // Tally report builder — a custom report filtered to one precinct. Group by
+  // ballot style (a single group for this precinct) so the report stays above
+  // the privacy threshold.
   await page.getByRole('button', { name: 'Reports' }).click();
   await page.reload();
   await screenshotWithButtonHighlight(
@@ -605,7 +635,7 @@ test('results', async ({ page }, testInfo) => {
   await openDropdown(page, 'Select Filter Values');
   await selectOpenDropdownOption(page, 'West Lincoln');
 
-  await page.getByText('Voting Method').check();
+  await page.getByText('Ballot Style').check();
   await screenshot('tally-report-builder-report-by-selected');
 
   await screenshotWithButtonHighlight(
@@ -677,6 +707,10 @@ test('results', async ({ page }, testInfo) => {
 
   // Write-In Adjudication report (write-ins are unadjudicated/pending)
   await page.getByRole('button', { name: 'Reports' }).click();
+  await screenshotWithButtonHighlight(
+    'Write-In Adjudication Report',
+    'reports-write-in-adjudication-highlighted'
+  );
   await page.getByText('Write-In Adjudication Report').click();
   await page
     .getByRole('heading', { name: 'Write-In Adjudication Report' })
@@ -738,6 +772,23 @@ test('results', async ({ page }, testInfo) => {
     .click();
   await page.getByText('Election Results are Official').waitFor();
   await screenshot('reports-screen-official');
+
+  // Tally screen now reflects official results.
+  await page.getByRole('button', { name: 'Tally', exact: true }).click();
+  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await screenshot('tally-screen-official');
+
+  // A system administrator can revert results to unofficial.
+  await logOut(page);
+  await logInAsSystemAdministrator(page);
+  await page.getByRole('button', { name: 'Election', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Revert Election Results to Unofficial' })
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Revert Election Results to Unofficial',
+    'election-screen-revert-highlighted'
+  );
 });
 
 test('adjudication', async ({ page }, testInfo) => {
