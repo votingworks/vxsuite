@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   electionWithMsEitherNeitherFixtures,
   readElectionOpenPrimary,
@@ -1319,6 +1320,63 @@ describe('tabulateCastVoteRecords', () => {
   });
 });
 
+test('tabulateCastVoteRecords with a straight-party contest', async () => {
+  const election = electionStraightPartyFixtures.readElection();
+  const metadata = {
+    ballotStyleGroupId: '12' as BallotStyleGroupId,
+    precinctId: '23',
+    votingMethod: BallotType.Precinct,
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+  } as const;
+
+  const allVotes: Tabulation.Votes[] = [
+    { 'straight-party-ticket': ['0'], president: [] },
+    { 'straight-party-ticket': ['0'], president: [] },
+    { 'straight-party-ticket': ['1'], president: [] },
+    { 'straight-party-ticket': [] }, // undervote
+    { 'straight-party-ticket': ['0', '1'] }, // overvote
+  ];
+  const results = await tabulateCastVoteRecords({
+    election,
+    cvrs: allVotes.map((votes) => ({
+      card: { type: 'bmd' },
+      votes,
+      ...metadata,
+    })),
+  });
+  const result = assertDefined(results[GROUP_KEY]);
+
+  // The straight-party contest itself is tallied as a vote-for-1 contest.
+  expect(
+    result.contestResults['straight-party-ticket']
+  ).toEqual<Tabulation.StraightPartyContestResults>({
+    contestId: 'straight-party-ticket',
+    contestType: 'straight-party',
+    ballots: 5,
+    overvotes: 1,
+    undervotes: 1,
+    tallies: {
+      '0': 2,
+      '1': 1,
+      '2': 0,
+      '3': 0,
+      '4': 0,
+      '5': 0,
+      '6': 0,
+      '7': 0,
+      '8': 0,
+    },
+  });
+
+  // Basic test for derived votes. The derivation rules are covered in detail in
+  // straight_party.test.ts.
+  const { president } = result.contestResults;
+  assert(president?.contestType === 'candidate');
+  expect(president.tallies['barchi-hallaren']?.tally).toEqual(2);
+  expect(president.tallies['cramer-vuocolo']?.tally).toEqual(1);
+});
+
 describe('open primaries', () => {
   const openPrimaryElection = readElectionOpenPrimary();
 
@@ -1667,6 +1725,68 @@ test('combineManualElectionResults', () => {
   );
 
   // test for combineElectionResults
+  expect(
+    combineElectionResults({
+      election,
+      allElectionResults: [
+        convertManualElectionResults(manualResults1),
+        convertManualElectionResults(manualResults2),
+      ],
+    })
+  ).toEqual(convertManualElectionResults(combinedResults));
+});
+
+test('combineManualElectionResults with a straight-party contest', () => {
+  const election = electionStraightPartyFixtures.readElection();
+
+  const manualResults1 = buildManualResultsFixture({
+    election,
+    ballotCount: 10,
+    contestResultsSummaries: {
+      'straight-party-ticket': {
+        type: 'straight-party',
+        ballots: 10,
+        overvotes: 1,
+        undervotes: 2,
+        optionTallies: { '0': 4, '1': 3 },
+      },
+    },
+  });
+  const manualResults2 = buildManualResultsFixture({
+    election,
+    ballotCount: 20,
+    contestResultsSummaries: {
+      'straight-party-ticket': {
+        type: 'straight-party',
+        ballots: 20,
+        overvotes: 2,
+        undervotes: 3,
+        optionTallies: { '0': 10, '1': 5 },
+      },
+    },
+  });
+
+  const combinedResults = combineManualElectionResults({
+    election,
+    allManualResults: [manualResults1, manualResults2],
+  });
+
+  expect(combinedResults).toEqual(
+    buildManualResultsFixture({
+      election,
+      ballotCount: 30,
+      contestResultsSummaries: {
+        'straight-party-ticket': {
+          type: 'straight-party',
+          ballots: 30,
+          overvotes: 3,
+          undervotes: 5,
+          optionTallies: { '0': 14, '1': 8 },
+        },
+      },
+    })
+  );
+
   expect(
     combineElectionResults({
       election,
@@ -2207,8 +2327,25 @@ test('areContestResultsValid', () => {
     noTally: 10,
   };
 
+  const validStraightPartyContestResults: Tabulation.StraightPartyContestResults =
+    {
+      ballots: 50,
+      contestId: 'contest-1',
+      contestType: 'straight-party',
+      overvotes: 10,
+      undervotes: 5,
+      tallies: {
+        'party-1': 20,
+        'party-2': 10,
+        'party-3': 5,
+      },
+    };
+
   expect(areContestResultsValid(validCandidateContestResults)).toEqual(true);
   expect(areContestResultsValid(validYesNoContestResults)).toEqual(true);
+  expect(areContestResultsValid(validStraightPartyContestResults)).toEqual(
+    true
+  );
 
   expect(
     areContestResultsValid({
@@ -2258,6 +2395,28 @@ test('areContestResultsValid', () => {
     areContestResultsValid({
       ...validYesNoContestResults,
       noTally: validYesNoContestResults.noTally + 1,
+    })
+  ).toEqual(false);
+
+  expect(
+    areContestResultsValid({
+      ...validStraightPartyContestResults,
+      overvotes: validStraightPartyContestResults.overvotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validStraightPartyContestResults,
+      undervotes: validStraightPartyContestResults.undervotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validStraightPartyContestResults,
+      tallies: {
+        ...validStraightPartyContestResults.tallies,
+        'party-1': validStraightPartyContestResults.tallies['party-1']! + 1,
+      },
     })
   ).toEqual(false);
 });
