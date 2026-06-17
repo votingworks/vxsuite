@@ -25,6 +25,7 @@ exports[`safeParseElection shows VXF parsing errors by default 1`] = `
 - districts: Invalid input: expected array, received undefined
 - id: Invalid input: expected string, received undefined
 - parties: Invalid input: expected array, received undefined
+- pollingPlaces: Invalid input: expected array, received undefined
 - precincts: Invalid input: expected array, received undefined
 - seal: Invalid input: expected string, received undefined
 - state: Invalid input: expected string, received undefined

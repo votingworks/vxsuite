@@ -78,6 +78,14 @@ export const electionData = `
       "districtIds": ["D"]
     }
   ],
+  "pollingPlaces": [
+    {
+      "id": "polling-place-1",
+      "name": "Polling Place",
+      "precincts": { "P": { "type": "whole" } },
+      "type": "election_day"
+    }
+  ],
   "seal": "<svg>test seal</svg>",
   "state": "STATE",
   "type": "general",
@@ -89,6 +97,9 @@ export const electionData = `
     "en": {
        "ballotLanguage": {
           "en": "English"
+       },
+       "pollingPlaceName": {
+          "polling-place-1": "Polling Place"
        },
        "ballotStyleId": {
           "1": "1"
@@ -377,6 +388,14 @@ const electionTwoPartyPrimaryData = `
       "districtIds": ["district-1"]
     }
   ],
+  "pollingPlaces": [
+    {
+      "id": "polling-place-1",
+      "name": "Polling Place",
+      "precincts": { "precinct-1": { "type": "whole" }, "precinct-2": { "type": "whole" } },
+      "type": "election_day"
+    }
+  ],
   "ballotStyles": [
     {
       "id": "1M",
@@ -400,6 +419,9 @@ const electionTwoPartyPrimaryData = `
     "en": {
       "ballotLanguage": {
         "en": "English"
+      },
+      "pollingPlaceName": {
+        "polling-place-1": "Polling Place"
       },
       "ballotStyleId": {
         "1M": "1M",

@@ -70,7 +70,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"234eeed269fce78c9f8c1af4d761611429f9499c4203cdfa1e517be18731ecce"`
+    `"594d90c1ea60cfb0db0eb9428f6c493e626400d6c2dd62f6f9a49c211bedaafe"`
   );
 
   expect(
@@ -146,4 +146,33 @@ test('v4.0 ballot styles may omit languages; conversion to latest defaults them 
   for (const ballotStyle of upgraded.ballotStyles) {
     expect(ballotStyle.languages).toEqual(['en']);
   }
+});
+
+test('v4.0 elections may omit polling places; conversion to latest defaults one per precinct', () => {
+  // `pollingPlaces` was optional in v4.0 but v4.1+ requires at least one.
+  // Simulate a real v4.0 election that omits the field.
+  const v4p0Election = convertLatestElectionToV4p0(primaryElection);
+  const { pollingPlaces: _pollingPlaces, ...withoutPollingPlaces } =
+    v4p0Election;
+  const v4p0ElectionData = JSON.stringify(withoutPollingPlaces);
+
+  // The v4.0 schema accepts elections without `pollingPlaces`.
+  const v4p0Parsed =
+    safeParseElectionDefinitionV4p0(v4p0ElectionData).unsafeUnwrap();
+  expect(v4p0Parsed.election.pollingPlaces).toBeUndefined();
+
+  // Converting to the latest version generates an election-day polling place
+  // per precinct so the now-required field is satisfied.
+  const upgraded =
+    safeParseElectionDefinitionForAnySoftwareVersion(
+      v4p0ElectionData
+    ).unsafeUnwrap().election;
+  expect(upgraded.pollingPlaces).toEqual(
+    primaryElection.precincts.map((precinct) => ({
+      id: `${precinct.id}-polling-place`,
+      name: precinct.name,
+      precincts: { [precinct.id]: { type: 'whole' } },
+      type: 'election_day',
+    }))
+  );
 });

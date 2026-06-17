@@ -1211,44 +1211,39 @@ export function convertCdfBallotDefinitionToVxfElection(
       name: englishText(district.Name),
     })),
 
-    pollingPlaces:
-      pollingPlaces.length === 0
-        ? undefined
-        : pollingPlaces.map((place): Vxf.PollingPlace => {
-            const placePrecincts: Record<
-              Vxf.PrecinctId,
-              Vxf.PollingPlacePrecinct
-            > = {};
+    pollingPlaces: pollingPlaces.map((place): Vxf.PollingPlace => {
+      const placePrecincts: Record<Vxf.PrecinctId, Vxf.PollingPlacePrecinct> =
+        {};
 
-            const memberIds = place.ComposingGpUnitIds || [];
-            for (const precinct of precincts) {
-              if (memberIds.includes(precinct['@id'])) {
-                placePrecincts[precinct['@id']] = { type: 'whole' };
-                continue;
-              }
+      const memberIds = place.ComposingGpUnitIds || [];
+      for (const precinct of precincts) {
+        if (memberIds.includes(precinct['@id'])) {
+          placePrecincts[precinct['@id']] = { type: 'whole' };
+          continue;
+        }
 
-              const placeSplitIds: string[] = [];
-              let isPartial = false;
+        const placeSplitIds: string[] = [];
+        let isPartial = false;
 
-              for (const splitId of precinct.ComposingGpUnitIds || []) {
-                if (memberIds.includes(splitId)) placeSplitIds.push(splitId);
-                else isPartial = true;
-              }
+        for (const splitId of precinct.ComposingGpUnitIds || []) {
+          if (memberIds.includes(splitId)) placeSplitIds.push(splitId);
+          else isPartial = true;
+        }
 
-              if (placeSplitIds.length === 0) continue;
+        if (placeSplitIds.length === 0) continue;
 
-              placePrecincts[precinct['@id']] = isPartial
-                ? { type: 'partial', splitIds: placeSplitIds }
-                : { type: 'whole' };
-            }
+        placePrecincts[precinct['@id']] = isPartial
+          ? { type: 'partial', splitIds: placeSplitIds }
+          : { type: 'whole' };
+      }
 
-            return {
-              id: place['@id'],
-              name: englishText(place.Name),
-              type: place.IsMailOnly ? 'absentee' : 'election_day',
-              precincts: placePrecincts,
-            };
-          }),
+      return {
+        id: place['@id'],
+        name: englishText(place.Name),
+        type: place.IsMailOnly ? 'absentee' : 'election_day',
+        precincts: placePrecincts,
+      };
+    }),
 
     precincts: precincts.map((precinct) => {
       const precinctBase = {
