@@ -16,6 +16,7 @@ import {
   BallotId,
   BallotIdSchema,
   BallotStyleId,
+  BallotType,
   BatchInfo,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
@@ -44,6 +45,8 @@ export interface CastVoteRecordSpec {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   votes: VotesDict;
+  /** Precinct (default) or absentee — determines the CVR's voting method. */
+  ballotType?: BallotType;
   /** Partial marks on unvoted options, to simulate marginal marks. */
   marginalMarks?: MarginalMark[];
 }
@@ -217,7 +220,10 @@ export async function generateCastVoteRecordExport(
   const ballotMode = testMode ? 'test' : 'official';
   const groups = groupBy(
     ballots,
-    (ballot) => `${ballot.ballotStyleId}|${ballot.precinctId}`
+    (ballot) =>
+      `${ballot.ballotStyleId}|${ballot.precinctId}|${
+        ballot.ballotType ?? BallotType.Precinct
+      }`
   );
 
   const batchId = sha256(scannerId).slice(0, 8);
@@ -247,6 +253,7 @@ export async function generateCastVoteRecordExport(
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,
         votes: ballot.votes,
+        ballotType: ballot.ballotType,
         marginalMarks: ballot.marginalMarks,
         ballotMode,
       }))

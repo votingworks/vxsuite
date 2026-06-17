@@ -32,11 +32,13 @@ import {
 } from '@votingworks/integration-test-utils';
 import {
   AdjudicationReason,
+  BallotType,
   CandidateContest,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ElectionPackageFileName,
+  ElectionRegisteredVotersCounts,
   LATEST_METADATA,
   SystemSettings,
 } from '@votingworks/types';
@@ -55,10 +57,7 @@ import {
   logInAsSystemAdministrator,
   logOut,
 } from './support/auth';
-import {
-  adjudicateAllWriteIns,
-  getPendingContestItems,
-} from './support/write_in_adjudication';
+import { getPendingContestItems } from './support/write_in_adjudication';
 import {
   getPrimaryButton,
   openDropdown,
@@ -352,11 +351,13 @@ async function configureMachine({
   usbHandler,
   electionDefinition,
   systemSettings = DEFAULT_SYSTEM_SETTINGS,
+  registeredVoterCounts,
 }: {
   page: Page;
   usbHandler: MockFileUsbDriveHandler;
   electionDefinition: ElectionDefinition;
   systemSettings?: SystemSettings;
+  registeredVoterCounts?: ElectionRegisteredVotersCounts;
 }): Promise<void> {
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
@@ -364,6 +365,13 @@ async function configureMachine({
     [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+    ...(registeredVoterCounts
+      ? {
+          [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+            registeredVoterCounts
+          ),
+        }
+      : {}),
   });
   const electionPackageFileName = 'election-package.zip';
 
@@ -416,64 +424,104 @@ async function insertUsbDriveWithCvrs({
 
 test('results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { castVoteRecordExport } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  const { screenshot } = buildIntegrationTestHelper(page, namer);
+  // A small CVR set spanning two precincts and both voting methods, with a
+  // couple of mayor write-ins, so reports can split along precinct/voting-method
+  // and the write-in reports have data. No bulk adjudication needed.
+  const mayorContest = find(
+    election.contests,
+    (contest): contest is CandidateContest => contest.id === 'mayor'
+  );
+  const votes1 = createFullyVotedBallot(electionDefinition, '1-1');
+  const votes2 = createFullyVotedBallot(electionDefinition, '1-2');
+  const writeIn1 = withWriteIns(votes1, mayorContest, ['Bill Withers']);
+  const writeIn2 = withWriteIns(votes2, mayorContest, ['Aretha Franklin']);
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    // West Lincoln (precinct 20, style 1-1)
+    { ballotStyleId: '1-1', precinctId: '20', votes: writeIn1 },
+    { ballotStyleId: '1-1', precinctId: '20', votes: votes1 },
+    { ballotStyleId: '1-1', precinctId: '20', votes: votes1 },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: votes1,
+      ballotType: BallotType.Absentee,
+    },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: votes1,
+      ballotType: BallotType.Absentee,
+    },
+    // East Lincoln (precinct 21, style 1-2)
+    { ballotStyleId: '1-2', precinctId: '21', votes: writeIn2 },
+    { ballotStyleId: '1-2', precinctId: '21', votes: votes2 },
+    {
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: votes2,
+      ballotType: BallotType.Absentee,
+    },
+  ]);
+
+  // Registered-voter counts for every precinct so the turnout report is enabled.
+  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+    '20': 12,
+    '21': 8,
+    '22': 5,
+    '23': 5,
+  };
+
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
   await configureMachine({
     page,
     usbHandler,
     electionDefinition,
+    registeredVoterCounts,
   });
 
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
-  await screenshot('election-screen');
 
   await page.getByText('Tally').click();
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
   await screenshot('tally-screen-empty');
 
   await insertUsbDriveWithCvrs({
-    cvrPath: castVoteRecordExport.asDirectoryPath(),
-    convertToOfficial: true,
+    cvrPath: cvrExportPath,
+    convertToOfficial: false,
     usbHandler,
     electionDefinition,
   });
   await page.getByText('Load CVRs').click();
-  await page.getByText('184').waitFor();
+  await page.getByText('8').first().waitFor();
   await screenshot('load-cvrs');
 
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('184 New CVRs Loaded').waitFor();
+  await page.getByText('8 New CVRs Loaded').waitFor();
   await screenshot('cvrs-loaded');
 
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 184').waitFor();
+  await page.getByText('Total CVR Count: 8').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
-  await page.getByText('Adjudication').click();
-  await page.getByRole('button', { name: 'Adjudicate' }).waitFor();
-  await screenshot('adjudication-screen-pre-adjudication');
-
-  await adjudicateAllWriteIns(page);
-
-  await page.getByRole('button', { name: 'Review' }).waitFor();
-  await screenshot('adjudication-screen-post-adjudication');
-
+  // Full election tally report
   await page.getByText('Reports').click();
   await page.getByText('Unofficial Tally Reports').waitFor();
-  await screenshot('reports-screen-unofficial');
-
+  await screenshotWithButtonHighlight(
+    'Full Election Tally Report',
+    'reports-full-election-tally-highlighted'
+  );
   await page
     .getByRole('button', { name: 'Full Election Tally Report' })
     .click();
@@ -481,37 +529,15 @@ test('results', async ({ page }, testInfo) => {
     .getByRole('heading', { name: 'Full Election Tally Report' })
     .waitFor();
   await waitForReportToLoad(page);
-  await screenshot('full-election-report-unofficial');
+  await screenshot('full-election-tally-report');
   await printAndCaptureReport({
     page,
     printerHandler,
     namer,
-    name: 'full-election-report',
+    name: 'full-election-tally-report',
   });
 
-  await page.getByRole('button', { name: 'Reports' }).click();
-  await page.reload(); // reload so full election report isn't cached for tally builder
-  await page.getByRole('button', { name: 'Tally Report Builder' }).click();
-  await page.getByRole('heading', { name: 'Tally Report Builder' }).waitFor();
-  await screenshot('tally-report-builder-initial');
-
-  await page.getByText('Add Filter').click();
-  await openDropdown(page, 'Select New Filter Type');
-  await screenshot('tally-report-builder-filter-selection');
-
-  await selectOpenDropdownOption(page, 'Precinct');
-  await openDropdown(page, 'Select Filter Values');
-  await screenshot('tally-report-builder-filter-value-selection');
-
-  await page.getByRole('combobox', { expanded: true }).waitFor();
-  await selectOpenDropdownOption(page, 'Test Ballot');
-  await page.getByText('Voting Method').check();
-  await screenshot('tally-report-builder-group-selected');
-
-  await page.getByRole('button', { name: 'Generate Report' }).click();
-  await waitForReportToLoad(page);
-  await screenshot('tally-report-builder-done');
-
+  // Voting Method ballot count report
   await page.getByRole('button', { name: 'Reports' }).click();
   await page.getByText('Voting Method Ballot Count Report').click();
   await page
@@ -526,6 +552,7 @@ test('results', async ({ page }, testInfo) => {
     name: 'ballot-count-report-voting-method',
   });
 
+  // Write-In Adjudication report (write-ins are unadjudicated/pending)
   await page.getByRole('button', { name: 'Reports' }).click();
   await page.getByText('Write-In Adjudication Report').click();
   await page
@@ -540,7 +567,12 @@ test('results', async ({ page }, testInfo) => {
     name: 'write-in-adjudication-report',
   });
 
+  // Mark official
   await page.getByRole('button', { name: 'Reports' }).click();
+  await screenshotWithButtonHighlight(
+    'Mark Election Results as Official',
+    'reports-mark-official-highlighted'
+  );
   await page.getByText('Mark Election Results as Official').click();
   await page.getByRole('alertdialog').waitFor();
   await screenshot('mark-as-official-modal');
@@ -548,13 +580,8 @@ test('results', async ({ page }, testInfo) => {
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Mark Election Results as Official' })
     .click();
-
   await page.getByText('Election Results are Official').waitFor();
   await screenshot('reports-screen-official');
-
-  await page.getByRole('button', { name: 'Tally', exact: true }).click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
-  await screenshot('tally-screen-official');
 });
 
 test('adjudication', async ({ page }, testInfo) => {

@@ -36,6 +36,8 @@ export interface MarkedBallotSpec {
   precinctId: string;
   votes: VotesDict;
   ballotMode?: BallotMode;
+  /** Precinct (default) or absentee — determines the CVR's voting method. */
+  ballotType?: BallotType;
   /** Partial marks on unvoted options, to simulate marginal marks. */
   marginalMarks?: MarginalMark[];
 }
@@ -156,7 +158,7 @@ export async function renderMarkedBallots(
       election: first.electionDefinition.election,
       ballotStyleId: first.ballotStyleId,
       precinctId: first.precinctId,
-      ballotType: BallotType.Precinct,
+      ballotType: first.ballotType ?? BallotType.Precinct,
       ballotMode: first.ballotMode ?? 'official',
     };
 
