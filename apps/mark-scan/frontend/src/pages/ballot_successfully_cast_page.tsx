@@ -8,7 +8,7 @@ export function BallotSuccessfullyCastPage(): JSX.Element {
       title={appStrings.titleBallotSuccessfullyCastPage()}
       voterFacing
     >
-      <P align="left">{appStrings.noteThankYouForVoting()}</P>
+      <P>{appStrings.noteThankYouForVoting()}</P>
     </CenteredCardPageLayout>
   );
 }

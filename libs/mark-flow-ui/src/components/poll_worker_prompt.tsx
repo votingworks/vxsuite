@@ -4,6 +4,10 @@ import { Caption, H6, Icons, P } from '@votingworks/ui';
 
 const Container = styled.div`
   margin-top: 1.25em;
+
+  /* Even when an RTL language is in use, left align this element since it's always rendered in
+    English */
+  text-align: left;
 `;
 
 export function PollWorkerPrompt({
