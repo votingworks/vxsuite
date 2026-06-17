@@ -18,6 +18,7 @@ import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
 import { inferPartyFromVotes, partisanContests } from './open_primary';
+import { deriveStraightPartyVotes } from './straight_party';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -177,7 +178,9 @@ function addCastVoteRecordToElectionResult(
     }
   }
 
-  for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
+  const votes = deriveStraightPartyVotes(election, cvr.votes);
+
+  for (const [contestId, optionIds] of Object.entries(votes)) {
     if (voidedContestIds?.has(contestId)) {
       continue;
     }
