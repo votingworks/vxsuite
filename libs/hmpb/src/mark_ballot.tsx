@@ -38,10 +38,26 @@ export type UnmarkedWriteInVote = { contestId: ContestId } & Pick<
   'writeInIndex' | 'name'
 >;
 
+/** A partial mark on an unvoted option, used to simulate a marginal mark. */
+export interface MarginalMark {
+  contestId: ContestId;
+  optionId: string;
+  /** Fraction (0–1) of the bubble to fill. Defaults to {@link DEFAULT_MARGINAL_MARK_FILL_FRACTION}. */
+  fillFraction?: number;
+}
+
+/**
+ * Default partial-fill fraction for a {@link MarginalMark}. Tuned so the
+ * VxDefault bubble interprets to a score in the marginal range (~0.07), between
+ * the marginal (0.05) and definite (0.10) thresholds.
+ */
+export const DEFAULT_MARGINAL_MARK_FILL_FRACTION = 0.18;
+
 export async function markBallotDocument(
   ballotDocument: RenderDocument,
   votes: VotesDict,
-  unmarkedWriteIns?: UnmarkedWriteInVote[]
+  unmarkedWriteIns?: UnmarkedWriteInVote[],
+  marginalMarks?: MarginalMark[]
 ): Promise<RenderDocument> {
   const pages = await ballotDocument.inspectElements(`.${PAGE_CLASS}`);
   for (const [i, page] of pages.entries()) {
@@ -61,10 +77,31 @@ export async function markBallotDocument(
               const optionHasVote = contestVotes?.some(
                 (vote) => voteToOptionId(vote) === optionInfo.optionId
               );
-              return optionHasVote ? (
+              if (optionHasVote) {
+                return (
+                  <BubbleShape
+                    key={optionInfo.optionId}
+                    isFilled
+                    style={{
+                      position: 'absolute',
+                      top: bubble.y - page.y,
+                      left: bubble.x - page.x,
+                    }}
+                  />
+                );
+              }
+              const marginalMark = marginalMarks?.find(
+                (mark) =>
+                  mark.contestId === optionInfo.contestId &&
+                  mark.optionId === optionInfo.optionId
+              );
+              return marginalMark ? (
                 <BubbleShape
                   key={optionInfo.optionId}
-                  isFilled
+                  fillFraction={
+                    marginalMark.fillFraction ??
+                    DEFAULT_MARGINAL_MARK_FILL_FRACTION
+                  }
                   style={{
                     position: 'absolute',
                     top: bubble.y - page.y,

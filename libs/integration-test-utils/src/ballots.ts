@@ -3,6 +3,7 @@ import {
   createPlaywrightRendererPool,
   layOutBallotsAndCreateElectionDefinition,
   markBallotDocument,
+  type MarginalMark,
   renderBallotPdfWithMetadataQrCode,
 } from '@votingworks/hmpb';
 import {
@@ -35,6 +36,8 @@ export interface MarkedBallotSpec {
   precinctId: string;
   votes: VotesDict;
   ballotMode?: BallotMode;
+  /** Partial marks on unvoted options, to simulate marginal marks. */
+  marginalMarks?: MarginalMark[];
 }
 
 /**
@@ -169,7 +172,12 @@ export async function renderMarkedBallots(
     const pdfBytesList = await rendererPool.runTasks(
       specs.map((spec) => async (renderer) => {
         const doc = await renderer.loadDocumentFromContent(sharedBallotContent);
-        await markBallotDocument(doc, spec.votes);
+        await markBallotDocument(
+          doc,
+          spec.votes,
+          undefined,
+          spec.marginalMarks
+        );
         return renderBallotPdfWithMetadataQrCode(
           sharedBallotProps,
           doc,

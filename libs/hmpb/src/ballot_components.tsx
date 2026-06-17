@@ -242,12 +242,26 @@ export function BallotHashSlot(): JSX.Element {
 export const BUBBLE_HEIGHT_PX = 13;
 export const BUBBLE_WIDTH_PX = 19;
 
-export const BubbleShape = styled.div<{ isFilled?: boolean }>`
+export const BubbleShape = styled.div<{
+  isFilled?: boolean;
+  /**
+   * Fraction (0–1) of the bubble to fill solid from the bottom up, for
+   * rendering a partial (e.g. marginal) mark. Ignored when `isFilled` is set.
+   */
+  fillFraction?: number;
+}>`
   width: ${BUBBLE_WIDTH_PX}px;
   height: ${BUBBLE_HEIGHT_PX}px;
   border-radius: 7px;
   border: 1px solid black;
-  background-color: ${(p) => (p.isFilled ? 'black' : undefined)};
+  background: ${(p) => {
+    if (p.isFilled) return 'black';
+    if (p.fillFraction) {
+      const pct = p.fillFraction * 100;
+      return `linear-gradient(to top, black ${pct}%, transparent ${pct}%)`;
+    }
+    return undefined;
+  }};
 `;
 
 export const BUBBLE_CLASS = 'bubble';

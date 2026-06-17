@@ -31,6 +31,7 @@ import {
   withWriteIns,
 } from '@votingworks/integration-test-utils';
 import {
+  AdjudicationReason,
   CandidateContest,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
@@ -563,27 +564,46 @@ test('adjudication', async ({ page }, testInfo) => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  // Two fully-voted ballots whose only adjudication is a single write-in for
-  // "Bill Withers" in the mayor contest.
+  // Both ballots are fully voted. Ballot 1 has a "Bill Withers" write-in in the
+  // mayor contest; ballot 2 has a marginal mark on an unvoted option in the
+  // controller contest — so the two adjudication types are on different ballots
+  // and different contests.
   const mayorContest = find(
     election.contests,
     (contest): contest is CandidateContest => contest.id === 'mayor'
   );
-  const votes = withWriteIns(
-    createFullyVotedBallot(electionDefinition, '1-1'),
-    mayorContest,
-    ['Bill Withers']
-  );
-  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
-    { ballotStyleId: '1-1', precinctId: '20', votes },
-    { ballotStyleId: '1-1', precinctId: '20', votes },
+  const fullyVotedBallot = createFullyVotedBallot(electionDefinition, '1-1');
+  const writeInVotes = withWriteIns(fullyVotedBallot, mayorContest, [
+    'Bill Withers',
   ]);
+  const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
+    { ballotStyleId: '1-1', precinctId: '20', votes: writeInVotes },
+    {
+      ballotStyleId: '1-1',
+      precinctId: '20',
+      votes: fullyVotedBallot,
+      marginalMarks: [{ contestId: 'controller', optionId: 'oprah-winfrey' }],
+    },
+  ]);
+
+  // Marginal marks only surface for adjudication when enabled, and the marginal
+  // mark scores ~0.07, so the definite threshold must be above it.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: { marginal: 0.05, definite: 0.1 },
+  };
 
   const { screenshot, screenshotWithButtonHighlight } =
     buildIntegrationTestHelper(page, namer);
 
   await page.goto('/');
-  await configureMachine({ page, usbHandler, electionDefinition });
+  await configureMachine({
+    page,
+    usbHandler,
+    electionDefinition,
+    systemSettings,
+  });
 
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();

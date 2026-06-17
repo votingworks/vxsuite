@@ -9,6 +9,7 @@ import {
   buildCastVoteRecordReportMetadata,
 } from '@votingworks/backend';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
+import { type MarginalMark } from '@votingworks/hmpb';
 import { pdfToImages, type ImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -19,7 +20,7 @@ import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
-  DEFAULT_MARK_THRESHOLDS,
+  DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
   DEV_MACHINE_ID,
   ElectionDefinition,
   InterpretedHmpbPage,
@@ -30,7 +31,6 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
-import { randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import { basename, join, parse } from 'node:path';
@@ -43,6 +43,8 @@ export interface CastVoteRecordSpec {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   votes: VotesDict;
+  /** Partial marks on unvoted options, to simulate marginal marks. */
+  marginalMarks?: MarginalMark[];
 }
 
 /** Options for {@link generateCastVoteRecordExport}. */
@@ -124,7 +126,8 @@ async function renderInterpretAndWriteCvr({
         AdjudicationReason.BlankBallot,
         AdjudicationReason.MarginalMark,
       ],
-      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      markThresholds:
+        DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
     },
     sheet,
     castVoteRecordId,
@@ -168,7 +171,7 @@ async function renderInterpretAndWriteCvr({
     ballotMarkingMode: 'hand',
     interpretations: hmpbInterpretations,
     images,
-    markThresholds: DEFAULT_MARK_THRESHOLDS,
+    markThresholds: DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
   });
 
   return castVoteRecord;
@@ -212,8 +215,8 @@ export async function generateCastVoteRecordExport(
   // keeping a stable scanner-wide ballot order.
   const ballotMode = testMode ? 'test' : 'official';
   const groups = groupBy(
-    ballots,
-    (ballot) => `${ballot.ballotStyleId}|${ballot.precinctId}`
+    ballots.map((ballot, index) => ({ ballot, index })),
+    ({ ballot }) => `${ballot.ballotStyleId}|${ballot.precinctId}`
   );
 
   const batchId = sha256(scannerId).slice(0, 8);
@@ -238,18 +241,24 @@ export async function generateCastVoteRecordExport(
 
   for (const [, groupBallots] of groups) {
     const pdfPaths = await renderMarkedBallots(
-      groupBallots.map((ballot) => ({
+      groupBallots.map(({ ballot }) => ({
         electionDefinition,
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,
         votes: ballot.votes,
+        marginalMarks: ballot.marginalMarks,
         ballotMode,
       }))
     );
 
-    for (const [i, spec] of groupBallots.entries()) {
+    for (const [i, { ballot: spec, index }] of groupBallots.entries()) {
       const pdfPath = assertDefined(pdfPaths[i]);
-      const castVoteRecordId = unsafeParse(BallotIdSchema, randomUUID());
+      // A zero-padded, spec-order id so the adjudication queue (which sorts by
+      // CVR id) presents ballots in the order they were specified.
+      const castVoteRecordId = unsafeParse(
+        BallotIdSchema,
+        `cvr-${String(index).padStart(4, '0')}`
+      );
       const castVoteRecordDirectory = join(exportDirectory, castVoteRecordId);
       const castVoteRecord = await renderInterpretAndWriteCvr({
         electionDefinition,
