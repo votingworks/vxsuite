@@ -9,6 +9,7 @@ import {
   CandidateContest,
   CandidateContestOption,
   ContestOption,
+  StraightPartyContest,
   YesNoContestOption,
 } from '@votingworks/types';
 import fc from 'fast-check';
@@ -199,4 +200,29 @@ test('candidate contest with multi-endorsed candidates are deduplicated', () => 
   expect(contestOptionName(contest, options[0]!)).toEqual('Alice');
   expect(options[1]?.id).toEqual('candidate-b');
   expect(contestOptionName(contest, options[1]!)).toEqual('Bob');
+});
+
+test('straight party contest', () => {
+  const contest: StraightPartyContest = {
+    type: 'straight-party',
+    id: 'contest-1',
+    title: 'Straight Party Ticket',
+    districtId: 'district-1',
+    optionIds: ['party-1', 'party-2'],
+  };
+
+  const options = Array.from(allContestOptions(contest));
+
+  expect(options).toEqual([
+    {
+      type: 'straight-party',
+      id: 'party-1',
+      contestId: 'contest-1',
+    },
+    {
+      type: 'straight-party',
+      id: 'party-2',
+      contestId: 'contest-1',
+    },
+  ]);
 });

@@ -3,10 +3,8 @@ import {
   AdjudicationReasonInfo,
   Contest,
   BallotStyle,
-  CandidateVote,
   ContestOption,
   MarkStatus,
-  straightPartyNotYetImplemented,
   VotesDict,
   WriteInAreaStatus,
 } from '@votingworks/types';
@@ -35,17 +33,14 @@ function compareMarkStatusDescending(
 }
 
 function getExpectedVoteCount(contest: Contest): number {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (contest.type) {
     case 'candidate':
       return contest.seats;
     case 'yesno': // yes or no
+    case 'straight-party':
       return 1;
-    // istanbul ignore next
     default:
+      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -73,30 +68,9 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
 
     // Check for undervotes
     if (actualVoteCount < expectedSelectionCount) {
-      const optionIds: string[] = [];
-      /* istanbul ignore next */
-      if (contest.type === 'straight-party') {
-        return straightPartyNotYetImplemented();
-      }
-      const contestType = contest.type;
-      switch (contestType) {
-        case 'candidate':
-          for (const option of actualVotes as CandidateVote) {
-            optionIds.push(option.id);
-          }
-          break;
-        case 'yesno':
-          // There will never be any optionIds to populate for an undervoted
-          // yes/no contest.
-          // That's because a yes/no contest may have at most 1 vote.
-          // At this point in the code we know there is an undervote,
-          // so there must be 0 votes.
-          break;
-        default:
-          /* istanbul ignore next */
-          throwIllegalValue(contestType);
-      }
-
+      const optionIds = actualVotes.map((option) =>
+        typeof option === 'string' ? option : option.id
+      );
       reasons.push({
         type: AdjudicationReason.Undervote,
         contestId: contest.id,

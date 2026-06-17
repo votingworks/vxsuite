@@ -6,10 +6,14 @@ import {
   CandidateContest,
   ContestOptionId,
   MarkStatus,
+  StraightPartyContest,
   WriteInAreaStatus,
   YesNoContest,
 } from '@votingworks/types';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  readElectionStraightParty,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
@@ -393,4 +397,75 @@ describe('multiple marks for the same candidate', () => {
       ).toEqual(expected);
     }
   );
+});
+
+describe('straight-party contest', () => {
+  const straightPartyElection = readElectionStraightParty();
+  const straightPartyContest = find(
+    straightPartyElection.contests,
+    (c): c is StraightPartyContest => c.type === 'straight-party'
+  );
+  const straightPartyBallotStyle = straightPartyElection.ballotStyles[0]!;
+  const [partyId1, partyId2] = straightPartyContest.optionIds;
+
+  function scoresForMarkedParties(
+    markedPartyIds: readonly string[]
+  ): GetAllPossibleAdjudicationReasonsOptionStatus[] {
+    return [
+      ...allContestOptions(straightPartyContest, straightPartyBallotStyle),
+    ].map((option) => ({
+      option,
+      markStatus: markedPartyIds.includes(option.id)
+        ? MarkStatus.Marked
+        : MarkStatus.Unmarked,
+      writeInAreaStatus: WriteInAreaStatus.Ignored,
+    }));
+  }
+
+  test('valid vote', () => {
+    expect(
+      getAllPossibleAdjudicationReasons(
+        [straightPartyContest],
+        scoresForMarkedParties([partyId1!]),
+        straightPartyBallotStyle
+      )
+    ).toEqual([]);
+  });
+
+  test('overvote', () => {
+    expect(
+      getAllPossibleAdjudicationReasons(
+        [straightPartyContest],
+        scoresForMarkedParties([partyId1!, partyId2!]),
+        straightPartyBallotStyle
+      )
+    ).toEqual<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: straightPartyContest.id,
+        optionIds: [partyId1!, partyId2!],
+        expected: 1,
+      },
+    ]);
+  });
+
+  test('undervote', () => {
+    expect(
+      getAllPossibleAdjudicationReasons(
+        [straightPartyContest],
+        scoresForMarkedParties([]),
+        straightPartyBallotStyle
+      )
+    ).toEqual<AdjudicationReasonInfo[]>([
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: straightPartyContest.id,
+        optionIds: [],
+        expected: 1,
+      },
+      {
+        type: AdjudicationReason.BlankBallot,
+      },
+    ]);
+  });
 });

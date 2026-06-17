@@ -209,27 +209,20 @@ function convertScoredContestOptionToLegacyMark({
     width: scoredMark.matchedBounds.width,
     height: scoredMark.matchedBounds.height,
   };
-
-  if (option.type === 'candidate' || option.type === 'yesno') {
-    const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
-      contestId: option.contestId,
-      score: scoredMark.fillScore,
+  const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
+    contestId: option.contestId,
+    score: scoredMark.fillScore,
+    bounds,
+    scoredOffset: {
+      x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
+      y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
+    },
+    target: {
+      inner: bounds,
       bounds,
-      scoredOffset: {
-        x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
-        y: scoredMark.matchedBounds.top - scoredMark.expectedBounds.top,
-      },
-      target: {
-        inner: bounds,
-        bounds,
-      },
-    };
-
-    return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
-  }
-
-  /* istanbul ignore next */
-  throwIllegalValue(option);
+    },
+  };
+  return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
 }
 
 function convertScoredContestOptionsToMarkInfo(

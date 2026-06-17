@@ -7,6 +7,7 @@ import {
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
+  miGeneralElectionFixtures,
   allBaseBallotProps,
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
@@ -727,6 +728,45 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
     });
   });
 }
+
+describe('HMPB - MI general election (straight party contest)', () => {
+  const { electionPath, markedBallotPath, precinctId, ballotStyleId, votes } =
+    miGeneralElectionFixtures;
+
+  test('Marked ballot interpretation', async () => {
+    const electionDefinition = (
+      await readElection(electionPath)
+    ).unsafeUnwrap();
+
+    const ballotImagePaths = pdfToPageImages(markedBallotPath);
+    for await (const [sheetIndex, sheetImages] of iter(ballotImagePaths)
+      .chunksExact(2)
+      .enumerate()) {
+      const [frontResult, backResult] = await interpretSheet(
+        {
+          electionDefinition,
+          validPrecinctIds: new Set([precinctId]),
+          testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [],
+        },
+        sheetImages
+      );
+
+      const sheetNumber = sheetIndex + 1;
+      const gridLayout = electionDefinition.election.gridLayouts!.find(
+        (layout) => layout.ballotStyleId === ballotStyleId
+      )!;
+      const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(
+        sortVotesDict({ ...frontResult.votes, ...backResult.votes })
+      ).toEqual(sortVotesDict(expectedVotes));
+    }
+  });
+});
 
 test('Non-consecutive page numbers', async () => {
   const { electionPath, blankBallotPath } =
