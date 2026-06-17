@@ -15,6 +15,7 @@ import {
 const { election } = readElectionTwoPartyPrimaryDefinition();
 
 const scannerId = 'SC-00-000';
+const pollingPlaceId = 'polling-place-1';
 const mockDate = new Date(2018, 5, 27, 0, 0, 0);
 const electionId = '0000000000'; // fixed for resiliency to hash changes
 
@@ -39,6 +40,7 @@ test('builds well-formed cast vote record report', () => {
         startedAt: new Date(1989, 11, 13).toISOString(),
         endedAt: new Date(1989, 11, 14).toISOString(),
         count: 2,
+        pollingPlaceId,
       },
     ],
   });
@@ -297,6 +299,7 @@ test('buildBatchManifest - optional fields omitted', () => {
           label: 'Batch 1',
           startedAt: new Date(1989, 11, 13).toISOString(),
           count: 2,
+          pollingPlaceId,
         },
       ],
       scannerId,
@@ -309,6 +312,7 @@ test('buildBatchManifest - optional fields omitted', () => {
       startTime: new Date(1989, 11, 13).toISOString(),
       sheetCount: 2,
       scannerId,
+      pollingPlaceId,
     },
   ]);
 });

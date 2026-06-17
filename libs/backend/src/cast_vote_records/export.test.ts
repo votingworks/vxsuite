@@ -8,6 +8,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
+  anyPollingPlace,
   BatchInfo,
   CastVoteRecordExportFileName,
   CVR,
@@ -53,6 +54,7 @@ import {
 vi.setConfig({ testTimeout: 30_000 });
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+const pollingPlaceId = anyPollingPlace(electionDefinition.election).id;
 
 const batch1Id = uuid();
 const batch1: BatchInfo = {
@@ -61,6 +63,7 @@ const batch1: BatchInfo = {
   count: 0,
   label: 'Batch 1',
   startedAt: new Date().toISOString(),
+  pollingPlaceId,
 };
 
 let mockCentralScannerStore: MockCentralScannerStore;
@@ -1383,6 +1386,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - continuo
     label: 'Batch 1',
     startedAt: new Date().toISOString(),
     ballotCastingMode: 'election_day',
+    pollingPlaceId,
   };
   const batch2EarlyVoting: BatchInfo = {
     id: uuid(),
@@ -1391,6 +1395,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - continuo
     label: 'Batch 2',
     startedAt: new Date().toISOString(),
     ballotCastingMode: 'early_voting',
+    pollingPlaceId,
   };
 
   mockPrecinctScannerStore.setBatches([batch1ElectionDay, batch2EarlyVoting]);
@@ -1460,6 +1465,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - full exp
     label: 'Batch 1',
     startedAt: new Date().toISOString(),
     ballotCastingMode: 'election_day',
+    pollingPlaceId,
   };
   const batch2EarlyVoting: BatchInfo = {
     id: uuid(),
@@ -1468,6 +1474,7 @@ test('ballot_casting_mode is exported per batch for precinct scanners - full exp
     label: 'Batch 2',
     startedAt: new Date().toISOString(),
     ballotCastingMode: 'early_voting',
+    pollingPlaceId,
   };
 
   mockPrecinctScannerStore.setBatches([batch1ElectionDay, batch2EarlyVoting]);
@@ -1536,6 +1543,7 @@ test('ballot_casting_mode is preserved from batch creation - polls closing expor
     label: 'Batch 1',
     startedAt: new Date().toISOString(),
     ballotCastingMode: 'early_voting',
+    pollingPlaceId,
   };
 
   mockPrecinctScannerStore.setBatches([batchCreatedInEarlyVoting]);

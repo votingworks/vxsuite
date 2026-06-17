@@ -220,6 +220,7 @@ const singleBatch: BatchInfo = {
   startedAt: '2021-09-19T08:00:00.000Z',
   endedAt: '2021-09-19T11:05:00.000Z',
   count: 100,
+  pollingPlaceId: anyPollingPlace(generalElectionDefinition.election).id,
 };
 
 const multiBatch: BatchInfo[] = [
@@ -231,6 +232,7 @@ const multiBatch: BatchInfo[] = [
     startedAt: '2021-09-19T13:00:00.000Z',
     endedAt: '2021-09-19T15:00:00.000Z',
     count: 50,
+    pollingPlaceId: anyPollingPlace(generalElectionDefinition.election).id,
   },
 ];
 
