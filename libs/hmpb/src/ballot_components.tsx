@@ -256,6 +256,8 @@ export const BubbleShape = styled.div<{
   border: 1px solid black;
   background: ${(p) => {
     if (p.isFilled) return 'black';
+    /* istanbul ignore next - partial fill is only rendered when generating
+       marginal-mark fixtures via @votingworks/integration-test-utils */
     if (p.fillFraction) {
       const pct = p.fillFraction * 100;
       return `linear-gradient(to top, black ${pct}%, transparent ${pct}%)`;

@@ -90,11 +90,14 @@ export async function markBallotDocument(
                   />
                 );
               }
+              /* istanbul ignore next - marginal marks are only rendered when
+                 generating fixtures via @votingworks/integration-test-utils */
               const marginalMark = marginalMarks?.find(
                 (mark) =>
                   mark.contestId === optionInfo.contestId &&
                   mark.optionId === optionInfo.optionId
               );
+              /* istanbul ignore next */
               return marginalMark ? (
                 <BubbleShape
                   key={optionInfo.optionId}
@@ -169,9 +172,6 @@ export async function markBallotDocument(
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'end',
-                      // Match the look of printed test-deck write-ins.
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
                     }}
                   >
                     {optionVote.name}
