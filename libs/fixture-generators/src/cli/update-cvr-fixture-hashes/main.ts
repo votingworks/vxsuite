@@ -1,4 +1,5 @@
 import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import * as fs from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -143,18 +144,15 @@ export async function main(
       await fs.readFile(reportPath, 'utf8')
     );
 
-    for (const castVoteRecord of report.CVR ?? []) {
+    for (const castVoteRecord of assertDefined(report.CVR)) {
       // ElectionId is the ballot hash and is typed readonly on the CDF type.
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       (castVoteRecord.ElectionId as string) = newBallotHash;
 
       for (const ballotImage of castVoteRecord.BallotImage ?? []) {
-        const location = ballotImage.Location;
-        // An image entry may have no file location (nothing to update).
-        if (!location) continue;
         const imageFilePath = join(
           directoryPath,
-          location.replace('file:', '')
+          assertDefined(ballotImage.Location).replace('file:', '')
         );
         const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
 
