@@ -6,16 +6,19 @@
     "overallSessionTimeLimitHours": 12,
     "startingCardLockoutDurationSeconds": 15
   },
+
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,
-    "writeInTextArea": 0.05
+    "writeInTextArea": 0.025
   },
-  "centralScanAdjudicationReasons": [],
+
   "precinctScanAdjudicationReasons": [],
-  "adminAdjudicationReasons": [],
   "disallowCastingOvervotes": false,
-  "precinctScanEnableBmdBallotScanning": true,
+  "centralScanAdjudicationReasons": [],
+  "adminAdjudicationReasons": [],
+
   "maxCumulativeStreakWidth": 5,
-  "retryStreakWidthThreshold": 1
+  "retryStreakWidthThreshold": 1,
+  "precinctScanEnableBmdBallotScanning": true
 }

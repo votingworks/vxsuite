@@ -66,6 +66,14 @@ vi.mock(import('@votingworks/printing'), async (importActual) => {
   } as unknown as typeof import('@votingworks/printing');
 });
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn().mockReturnValue('1111111-0000000'),
+  };
+});
+
 beforeAll(async () => {
   ballots = await buildBallotsForElection({
     electionDefinition,

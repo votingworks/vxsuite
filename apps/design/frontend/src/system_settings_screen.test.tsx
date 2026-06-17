@@ -290,13 +290,13 @@ test('setting write-in text area threshold', async () => {
     electionRecord.systemSettings.markThresholds.writeInTextArea
   );
 
-  // change from 0.05 to 0.08
-  userEvent.type(thresholdInput, '{backspace}8');
+  // change from 0.025 to 0.045
+  userEvent.type(thresholdInput, '{backspace}{backspace}45');
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-      writeInTextArea: 0.08,
+      writeInTextArea: 0.045,
     },
     precinctScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
   };
@@ -1182,13 +1182,13 @@ test('validates streak width threshold must be less than max cumulative width', 
   const maxCumulativeStreakWidthInput = screen.getByRole<HTMLInputElement>(
     'spinbutton',
     {
-      name: 'Max Cumulative Streak Width (pixels)',
+      name: 'Max Cumulative Streak Width (Pixels)',
     }
   );
   const retryStreakWidthThresholdInput = screen.getByRole<HTMLInputElement>(
     'spinbutton',
     {
-      name: 'Retry Streak Width Threshold (pixels)',
+      name: 'Retry Streak Width Threshold (Pixels)',
     }
   );
 

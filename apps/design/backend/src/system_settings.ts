@@ -24,11 +24,11 @@ const commonSettings = {
  * Default settings applied across customers but not SLI
  */
 const commonCustomerSettings = {
-  precinctScanEnableBmdBallotScanning: true,
-  precinctScanDisableAlarms: true,
-  precinctScanDisableScreenReaderAudio: true,
   disableSystemLimitChecks: true,
   disableVoterHelpButtons: true,
+  precinctScanDisableAlarms: true,
+  precinctScanDisableScreenReaderAudio: true,
+  precinctScanEnableBmdBallotScanning: true,
 } as const;
 
 export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
@@ -98,8 +98,8 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     adminAdjudicationReasons: [],
 
     bmdPrintMode: 'summary',
-    quickResultsReportingUrl: resultsReportingUrl(),
     precinctScanNumberOfReportCopies: 2,
+    quickResultsReportingUrl: resultsReportingUrl(),
   },
 
   NH: {

@@ -318,7 +318,7 @@ export function SystemSettingsForm({
                     },
                   });
                 }}
-                step={0.01}
+                step={0.005}
                 min={0}
                 max={1}
                 disabled={!isEditing}
@@ -343,7 +343,7 @@ export function SystemSettingsForm({
                     },
                   });
                 }}
-                step={0.01}
+                step={0.005}
                 min={0}
                 max={1}
                 disabled={!isEditing}
@@ -370,7 +370,7 @@ export function SystemSettingsForm({
                       },
                     });
                   }}
-                  step={0.01}
+                  step={0.005}
                   min={0}
                   max={1}
                   disabled={!isEditing}
@@ -410,7 +410,7 @@ export function SystemSettingsForm({
             </InputGroup>
             {!systemSettings.disableVerticalStreakDetection && (
               <React.Fragment>
-                <InputGroup label="Max Cumulative Streak Width (pixels)">
+                <InputGroup label="Max Cumulative Streak Width (Pixels)">
                   <input
                     ref={maxCumulativeStreakWidthInputRef}
                     type="number"
@@ -431,7 +431,7 @@ export function SystemSettingsForm({
                     disabled={!isEditing}
                   />
                 </InputGroup>
-                <InputGroup label="Retry Streak Width Threshold (pixels)">
+                <InputGroup label="Retry Streak Width Threshold (Pixels)">
                   <input
                     ref={retryStreakWidthThresholdInputRef}
                     type="number"

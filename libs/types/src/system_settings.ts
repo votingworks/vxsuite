@@ -308,7 +308,7 @@ export function safeParseSystemSettings(
   return safeParseJson(value, SystemSettingsSchema);
 }
 
-const DEFAULT_UNMARKED_WRITE_IN_THRESHOLD = 0.05;
+const DEFAULT_UNMARKED_WRITE_IN_THRESHOLD = 0.025;
 
 /**
  * These are our defaults assuming marginal mark adjudication is disabled. The marginal threshold
@@ -359,7 +359,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
 
-  precinctScanEnableBmdBallotScanning: true,
   maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+  precinctScanEnableBmdBallotScanning: true,
 };
