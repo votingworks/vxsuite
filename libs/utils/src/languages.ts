@@ -6,9 +6,11 @@ export function languageSort(
 ): number {
   const languageOrder: LanguageCode[] = [
     LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
+    LanguageCode.ARABIC,
+    LanguageCode.BENGALI,
     LanguageCode.CHINESE_SIMPLIFIED,
     LanguageCode.CHINESE_TRADITIONAL,
+    LanguageCode.SPANISH,
   ];
   const indexA = languageOrder.indexOf(languageA);
   const indexB = languageOrder.indexOf(languageB);

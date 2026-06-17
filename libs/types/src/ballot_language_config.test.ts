@@ -47,10 +47,12 @@ test('getBallotLanguageConfigs', () => {
     getBallotLanguageConfigs(Object.values(LanguageCode)).sort(sortFn)
   ).toEqual(
     [
-      { languages: [LanguageCode.ENGLISH] },
-      { languages: [LanguageCode.SPANISH] },
+      { languages: [LanguageCode.ARABIC] },
+      { languages: [LanguageCode.BENGALI] },
       { languages: [LanguageCode.CHINESE_SIMPLIFIED] },
       { languages: [LanguageCode.CHINESE_TRADITIONAL] },
+      { languages: [LanguageCode.ENGLISH] },
+      { languages: [LanguageCode.SPANISH] },
     ].sort(sortFn)
   );
 });

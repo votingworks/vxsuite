@@ -22,7 +22,9 @@ test('vendored_translations.json', () => {
     vendoredTranslations
   )
     .map(Object.keys)
-    .map((keys) => new Set(keys));
+    .map((keys) => new Set(keys))
+    // Ignore languages that don't have vendored translations yet.
+    .filter((keySet) => keySet.size > 0);
   const firstKeySet = keySetsForEachLanguage[0];
   for (const keySet of keySetsForEachLanguage) {
     expect(areSetsEqual(assertDefined(firstKeySet), keySet)).toEqual(true);

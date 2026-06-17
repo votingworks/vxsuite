@@ -315,7 +315,8 @@ function ElectionInfoForm({
               }}
               options={[
                 { label: 'English', value: LanguageCode.ENGLISH },
-                { label: 'Spanish', value: LanguageCode.SPANISH },
+                { label: 'Arabic', value: LanguageCode.ARABIC },
+                { label: 'Bengali', value: LanguageCode.BENGALI },
                 {
                   label: 'Chinese (Simplified)',
                   value: LanguageCode.CHINESE_SIMPLIFIED,
@@ -324,6 +325,7 @@ function ElectionInfoForm({
                   label: 'Chinese (Traditional)',
                   value: LanguageCode.CHINESE_TRADITIONAL,
                 },
+                { label: 'Spanish', value: LanguageCode.SPANISH },
               ]}
             />
           </div>

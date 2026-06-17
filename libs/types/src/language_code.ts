@@ -2,6 +2,8 @@ import { z } from 'zod/v4';
 
 /* IETF language tags for supported VxSuite languages.  */
 export enum LanguageCode {
+  ARABIC = 'ar',
+  BENGALI = 'bn',
   CHINESE_SIMPLIFIED = 'zh-Hans',
   CHINESE_TRADITIONAL = 'zh-Hant',
   ENGLISH = 'en',

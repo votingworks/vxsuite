@@ -17,6 +17,14 @@ export const GoogleCloudVoices: Record<
   LanguageCode,
   { languageCode: string; name: string }
 > = {
+  [LanguageCode.ARABIC]: {
+    languageCode: 'ar-XA',
+    name: 'ar-XA-Wavenet-B',
+  },
+  [LanguageCode.BENGALI]: {
+    languageCode: 'bn-IN',
+    name: 'bn-IN-Wavenet-B',
+  },
   [LanguageCode.CHINESE_SIMPLIFIED]: {
     languageCode: 'cmn-CN',
     name: 'cmn-CN-Wavenet-B',

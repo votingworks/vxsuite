@@ -221,6 +221,8 @@ test('GoogleCloudTranslatorWithDbCache does not cache extremely large strings', 
 
 test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
   const vendoredTranslations: VendoredTranslations = {
+    [LanguageCode.ARABIC]: {},
+    [LanguageCode.BENGALI]: {},
     [LanguageCode.CHINESE_SIMPLIFIED]: {},
     [LanguageCode.CHINESE_TRADITIONAL]: {},
     [LanguageCode.SPANISH]: {

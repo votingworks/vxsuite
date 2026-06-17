@@ -1,22 +1,32 @@
 import { expect, test } from 'vitest';
+import { assert } from '@votingworks/basics';
 import { LanguageCode, Election } from '@votingworks/types';
 import { languageSort, getLanguageOptions } from './languages';
 
 test('languageSort', () => {
-  const languages = [
+  const languages: LanguageCode[] = [
     LanguageCode.CHINESE_TRADITIONAL,
     LanguageCode.SPANISH,
     LanguageCode.ENGLISH,
     LanguageCode.CHINESE_SIMPLIFIED,
+    LanguageCode.ARABIC,
+    LanguageCode.BENGALI,
   ];
+
+  assert(
+    new Set(languages).size === Object.values(LanguageCode).length,
+    'Language list should cover all supported languages'
+  );
 
   const sorted = languages.toSorted(languageSort);
 
   expect(sorted).toEqual([
     LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
+    LanguageCode.ARABIC,
+    LanguageCode.BENGALI,
     LanguageCode.CHINESE_SIMPLIFIED,
     LanguageCode.CHINESE_TRADITIONAL,
+    LanguageCode.SPANISH,
   ]);
 });
 
@@ -49,7 +59,7 @@ test('getLanguageOptions', () => {
 
   expect(getLanguageOptions(election as Election)).toEqual([
     LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
     LanguageCode.CHINESE_SIMPLIFIED,
+    LanguageCode.SPANISH,
   ]);
 });
