@@ -683,8 +683,11 @@ test('adjudication', async ({ page }, testInfo) => {
   await page.getByText('Ballot 2 of 2').waitFor();
   await screenshot('adjudication-marginal-ballot-view-after-changes');
 
-  // Finalize the last ballot
+  // Finalize the last ballot, returning to the adjudication start screen with
+  // the completed progress bar.
   await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByText('All ballots adjudicated').waitFor();
+  await screenshot('adjudication-complete');
 });
 
 test('manual results', async ({ page }, testInfo) => {
