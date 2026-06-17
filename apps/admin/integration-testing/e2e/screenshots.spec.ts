@@ -690,6 +690,69 @@ test('adjudication', async ({ page }, testInfo) => {
   await screenshot('adjudication-complete');
 });
 
+test('qualified write-in candidates', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const usbHandler = getMockFileUsbDriveHandler();
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // Qualified write-in mode restricts write-in adjudication to a pre-defined
+  // list of candidates, managed from the adjudication screen.
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    areWriteInCandidatesQualified: true,
+  };
+
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  await page.goto('/');
+  await configureMachine({
+    page,
+    usbHandler,
+    electionDefinition,
+    systemSettings,
+  });
+
+  await logInAsElectionManager(page, election);
+  await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
+
+  // Adjudication screen shows the Qualified Write-In Candidates card.
+  await page.getByText('Adjudication').click();
+  await page.getByRole('button', { name: 'Add Candidates' }).waitFor();
+  await screenshot('qualified-write-in-adjudication');
+  await screenshotWithButtonHighlight(
+    'Add Candidates',
+    'qualified-write-in-add-candidates-highlighted'
+  );
+
+  // Candidates screen, with the mayor contest selected by default.
+  await page.getByRole('button', { name: 'Add Candidates' }).click();
+  await page.getByRole('button', { name: 'Add Candidate' }).waitFor();
+  await screenshot('qualified-write-in-candidates-empty');
+  await screenshotWithButtonHighlight(
+    'Add Candidate',
+    'qualified-write-in-add-candidate-highlighted'
+  );
+
+  // Add three qualified candidates to the mayor contest.
+  const candidateNames = ['Bill Withers', 'Aretha Franklin', 'Otis Redding'];
+  for (const [i, name] of candidateNames.entries()) {
+    await page.getByRole('button', { name: 'Add Candidate' }).click();
+    await page.getByRole('textbox', { name: 'Candidate name: New' }).fill(name);
+    await screenshot(`qualified-write-in-candidate-${i + 1}`);
+  }
+
+  // Save the qualified candidates.
+  await screenshotWithButtonHighlight(
+    'Save',
+    'qualified-write-in-save-highlighted'
+  );
+  await page.getByRole('button', { name: 'Save' }).click();
+  await screenshot('qualified-write-in-saved');
+});
+
 test('manual results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockFileUsbDriveHandler();
