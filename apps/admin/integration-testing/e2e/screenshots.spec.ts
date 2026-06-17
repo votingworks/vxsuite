@@ -567,21 +567,24 @@ test('adjudication', async ({ page }, testInfo) => {
   // Both ballots are fully voted. Ballot 1 has a "Bill Withers" write-in in the
   // mayor contest; ballot 2 has a marginal mark on an unvoted option in the
   // controller contest — so the two adjudication types are on different ballots
-  // and different contests.
+  // and different contests. The two ballots use different ballot styles so the
+  // adjudication queue (which sorts by ballot style group before the
+  // admin-assigned CVR id) presents the write-in ballot first, deterministically.
   const mayorContest = find(
     election.contests,
     (contest): contest is CandidateContest => contest.id === 'mayor'
   );
-  const fullyVotedBallot = createFullyVotedBallot(electionDefinition, '1-1');
-  const writeInVotes = withWriteIns(fullyVotedBallot, mayorContest, [
-    'Bill Withers',
-  ]);
+  const writeInVotes = withWriteIns(
+    createFullyVotedBallot(electionDefinition, '1-1'),
+    mayorContest,
+    ['Bill Withers']
+  );
   const cvrExportPath = await generateCastVoteRecordExport(electionDefinition, [
     { ballotStyleId: '1-1', precinctId: '20', votes: writeInVotes },
     {
-      ballotStyleId: '1-1',
-      precinctId: '20',
-      votes: fullyVotedBallot,
+      ballotStyleId: '1-2',
+      precinctId: '21',
+      votes: createFullyVotedBallot(electionDefinition, '1-2'),
       marginalMarks: [{ contestId: 'controller', optionId: 'oprah-winfrey' }],
     },
   ]);
@@ -661,7 +664,26 @@ test('adjudication', async ({ page }, testInfo) => {
   await page.getByText(/Ballot \d+ of \d+/).waitFor();
   await screenshot('adjudication-ballot-view-after-changes');
 
-  // Finalize this ballot
+  // Accept ballot 1 and advance to ballot 2, which has the marginal mark.
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByText('Ballot 2 of 2').waitFor();
+  await screenshot('adjudication-marginal-ballot-view');
+
+  // Open the contest with the marginal mark
+  await getPendingContestItems(page).first().click();
+  await page.getByRole('button', { name: 'Confirm' }).waitFor();
+  await screenshot('adjudication-marginal-contest-view');
+
+  // Dismiss the marginal mark
+  await page.getByRole('button', { name: 'Dismiss' }).click();
+  await screenshot('adjudication-marginal-dismissed');
+
+  // Confirm back to the ballot view
+  await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByText('Ballot 2 of 2').waitFor();
+  await screenshot('adjudication-marginal-ballot-view-after-changes');
+
+  // Finalize the last ballot
   await page.getByRole('button', { name: 'Accept' }).click();
 });
 

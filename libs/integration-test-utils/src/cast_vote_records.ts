@@ -31,6 +31,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
+import { randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import { basename, join, parse } from 'node:path';
@@ -215,8 +216,8 @@ export async function generateCastVoteRecordExport(
   // keeping a stable scanner-wide ballot order.
   const ballotMode = testMode ? 'test' : 'official';
   const groups = groupBy(
-    ballots.map((ballot, index) => ({ ballot, index })),
-    ({ ballot }) => `${ballot.ballotStyleId}|${ballot.precinctId}`
+    ballots,
+    (ballot) => `${ballot.ballotStyleId}|${ballot.precinctId}`
   );
 
   const batchId = sha256(scannerId).slice(0, 8);
@@ -241,7 +242,7 @@ export async function generateCastVoteRecordExport(
 
   for (const [, groupBallots] of groups) {
     const pdfPaths = await renderMarkedBallots(
-      groupBallots.map(({ ballot }) => ({
+      groupBallots.map((ballot) => ({
         electionDefinition,
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,
@@ -251,14 +252,9 @@ export async function generateCastVoteRecordExport(
       }))
     );
 
-    for (const [i, { ballot: spec, index }] of groupBallots.entries()) {
+    for (const [i, spec] of groupBallots.entries()) {
       const pdfPath = assertDefined(pdfPaths[i]);
-      // A zero-padded, spec-order id so the adjudication queue (which sorts by
-      // CVR id) presents ballots in the order they were specified.
-      const castVoteRecordId = unsafeParse(
-        BallotIdSchema,
-        `cvr-${String(index).padStart(4, '0')}`
-      );
+      const castVoteRecordId = unsafeParse(BallotIdSchema, randomUUID());
       const castVoteRecordDirectory = join(exportDirectory, castVoteRecordId);
       const castVoteRecord = await renderInterpretAndWriteCvr({
         electionDefinition,
