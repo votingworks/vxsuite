@@ -18,6 +18,7 @@
     "clean:self": "rm -rf build && tsgo --build --clean tsconfig.build.json",
     "generate-cvr-fixtures": "./bin/generate-cvr-fixtures",
     "generate-election-packages": "./bin/regenerate-election-packages",
+    "update-cvr-fixture-hashes": "./bin/update-cvr-fixture-hashes",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
