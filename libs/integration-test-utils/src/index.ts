@@ -1,6 +1,7 @@
 export * from './api';
 export * from './auth';
 export * from './ballots';
+export * from './cast_vote_records';
 export * from './constants';
 export * from './fonts';
 export * from './screenshots';

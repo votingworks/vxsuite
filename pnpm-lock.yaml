@@ -4865,6 +4865,12 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../auth
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
+      '@votingworks/ballot-interpreter':
+        specifier: workspace:*
+        version: link:../ballot-interpreter
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -4889,6 +4895,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
     devDependencies:
       '@types/node':
         specifier: 20.17.31
