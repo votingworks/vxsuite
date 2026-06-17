@@ -564,12 +564,12 @@ test('adjudication', async ({ page }, testInfo) => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
-  // Both ballots are fully voted. Ballot 1 has a "Bill Withers" write-in in the
-  // mayor contest; ballot 2 has a marginal mark on an unvoted option in the
-  // controller contest — so the two adjudication types are on different ballots
-  // and different contests. The two ballots use different ballot styles so the
-  // adjudication queue (which sorts by ballot style group before the
-  // admin-assigned CVR id) presents the write-in ballot first, deterministically.
+  // Three ballots, each exercising a different adjudication type on a different
+  // ballot/contest. Ballot 1: a "Bill Withers" write-in in mayor. Ballot 2: a
+  // marginal mark in controller. Ballot 3: a blank ballot. The first two use
+  // different ballot styles so the queue (which sorts by ballot style group
+  // before the CVR id) presents the write-in ballot first; the blank ballot
+  // sorts last because the queue orders blank ballots after non-blank ones.
   const mayorContest = find(
     election.contests,
     (contest): contest is CandidateContest => contest.id === 'mayor'
@@ -587,13 +587,17 @@ test('adjudication', async ({ page }, testInfo) => {
       votes: createFullyVotedBallot(electionDefinition, '1-2'),
       marginalMarks: [{ contestId: 'controller', optionId: 'oprah-winfrey' }],
     },
+    { ballotStyleId: '1-1', precinctId: '20', votes: {} },
   ]);
 
   // Marginal marks only surface for adjudication when enabled, and the marginal
   // mark scores ~0.07, so the definite threshold must be above it.
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    adminAdjudicationReasons: [
+      AdjudicationReason.MarginalMark,
+      AdjudicationReason.BlankBallot,
+    ],
     markThresholds: { marginal: 0.05, definite: 0.1 },
   };
 
@@ -621,9 +625,9 @@ test('adjudication', async ({ page }, testInfo) => {
   });
   await page.getByText('Load CVRs').click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('2 New CVRs Loaded').waitFor();
+  await page.getByText('3 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 2').waitFor();
+  await page.getByText('Total CVR Count: 3').waitFor();
 
   // Adjudication start screen
   await page.getByText('Adjudication').click();
@@ -666,7 +670,7 @@ test('adjudication', async ({ page }, testInfo) => {
 
   // Accept ballot 1 and advance to ballot 2, which has the marginal mark.
   await page.getByRole('button', { name: 'Accept' }).click();
-  await page.getByText('Ballot 2 of 2').waitFor();
+  await page.getByText('Ballot 2 of 3').waitFor();
   await screenshot('adjudication-marginal-ballot-view');
 
   // Open the contest with the marginal mark
@@ -680,12 +684,24 @@ test('adjudication', async ({ page }, testInfo) => {
 
   // Confirm back to the ballot view
   await page.getByRole('button', { name: 'Confirm' }).click();
-  await page.getByText('Ballot 2 of 2').waitFor();
+  await page.getByText('Ballot 2 of 3').waitFor();
   await screenshot('adjudication-marginal-ballot-view-after-changes');
 
-  // Finalize the last ballot, returning to the adjudication start screen with
-  // the completed progress bar.
+  // Accept the marginal ballot and advance to the blank ballot, which sorts
+  // last in the queue.
   await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByText('Ballot 3 of 3').waitFor();
+  await page.getByText('Blank Ballot Detected').waitFor();
+  await screenshot('adjudication-blank-ballot-view');
+
+  // Confirm the ballot is indeed blank by accepting it as-is.
+  await screenshotWithButtonHighlight(
+    'Accept',
+    'adjudication-blank-ballot-accept-highlighted'
+  );
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  // Back on the adjudication start screen with the completed progress bar.
   await page.getByText('All ballots adjudicated').waitFor();
   await screenshot('adjudication-complete');
 });
