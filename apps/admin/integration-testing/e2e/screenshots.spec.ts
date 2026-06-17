@@ -626,20 +626,53 @@ test('results', async ({ page }, testInfo) => {
     name: 'tally-report-custom-filter',
   });
 
-  // Voting Method ballot count report
+  // Ballot count reports — voting-method grouping (with the CSV export
+  // highlighted) and a custom-filtered report via the builder.
   await page.getByRole('button', { name: 'Reports' }).click();
   await page.reload();
+  await screenshotWithLocatorHighlight(
+    page.getByRole('heading', { name: 'Unofficial Ballot Count Reports' }),
+    'reports-ballot-count-section-highlighted'
+  );
   await page.getByText('Voting Method Ballot Count Report').click();
   await page
     .getByRole('heading', { name: 'Voting Method Ballot Count Report' })
     .waitFor();
   await waitForReportToLoad(page);
   await screenshot('ballot-count-report-voting-method');
+  await screenshotWithButtonHighlight(
+    'Export Report CSV',
+    'ballot-count-report-voting-method-csv-highlighted'
+  );
   await printAndCaptureReport({
     page,
     printerHandler,
     namer,
     name: 'ballot-count-report-voting-method',
+  });
+
+  // Ballot count report builder — filtered to one precinct.
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page.reload();
+  await page
+    .getByRole('button', { name: 'Ballot Count Report Builder' })
+    .click();
+  await page
+    .getByRole('heading', { name: 'Ballot Count Report Builder' })
+    .waitFor();
+  await page.getByText('Add Filter').click();
+  await openDropdown(page, 'Select New Filter Type');
+  await selectOpenDropdownOption(page, 'Precinct');
+  await openDropdown(page, 'Select Filter Values');
+  await selectOpenDropdownOption(page, 'West Lincoln');
+  await page.getByRole('button', { name: 'Generate Report' }).click();
+  await waitForReportToLoad(page);
+  await screenshot('ballot-count-report-builder-generated');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'ballot-count-report-custom-filter',
   });
 
   // Write-In Adjudication report (write-ins are unadjudicated/pending)
