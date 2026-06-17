@@ -30,12 +30,12 @@ export enum ElectionPackageFileName {
 export interface ElectionPackage {
   ballots?: EncodedBallotEntry[];
   electionDefinition: ElectionDefinition;
-  metadata?: ElectionPackageMetadata; // TODO(kofi): Make required
+  metadata: ElectionPackageMetadata;
   registeredVoterCounts?: ElectionRegisteredVotersCounts;
-  systemSettings?: SystemSettings; // TODO(kevin): Make required
-  uiStringAudioClips?: UiStringAudioClips; // TODO(kofi): Make required
-  uiStringAudioIds?: UiStringAudioIdsPackage; // TODO(kofi): Make required
-  uiStrings?: UiStringsPackage; // TODO(kofi): Make required
+  systemSettings: SystemSettings;
+  uiStringAudioClips: UiStringAudioClips;
+  uiStringAudioIds: UiStringAudioIdsPackage;
+  uiStrings: UiStringsPackage;
 }
 
 export interface ElectionPackageWithHash {
