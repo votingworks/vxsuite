@@ -690,6 +690,21 @@ test('results', async ({ page }, testInfo) => {
     name: 'write-in-adjudication-report',
   });
 
+  // Voter turnout report (enabled by the registered-voter counts above)
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page
+    .getByRole('button', { name: 'Unofficial Voter Turnout Report' })
+    .click();
+  await page.getByRole('heading', { name: 'Voter Turnout Report' }).waitFor();
+  await waitForReportToLoad(page);
+  await screenshot('voter-turnout-report');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'voter-turnout-report',
+  });
+
   // Mark official
   await page.getByRole('button', { name: 'Reports' }).click();
   await screenshotWithButtonHighlight(
