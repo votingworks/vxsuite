@@ -8,7 +8,6 @@ import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
   DiagnosticRecord,
-  ElectionPackage,
 } from '@votingworks/types';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
@@ -16,6 +15,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   getDiskSpaceSummary,
   mockElectionPackageFileTree,
+  PartialElectionPackage,
 } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import {
@@ -278,7 +278,10 @@ test('saveReadinessReport - machine configured', async () => {
   });
 
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-  const electionPkg: ElectionPackage = { electionDefinition, systemSettings };
+  const electionPkg: PartialElectionPackage = {
+    electionDefinition,
+    systemSettings,
+  };
   mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(electionPkg));
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 

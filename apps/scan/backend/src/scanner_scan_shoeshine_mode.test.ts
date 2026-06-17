@@ -1,9 +1,9 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionPackage,
   SheetInterpretation,
 } from '@votingworks/types';
+import { PartialElectionPackage } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -33,7 +33,7 @@ beforeEach(() => {
   );
 });
 
-const electionPackage: ElectionPackage = {
+const electionPackage: PartialElectionPackage = {
   electionDefinition: vxFamousNamesFixtures.electionDefinition,
   systemSettings: {
     ...DEFAULT_SYSTEM_SETTINGS,
