@@ -690,6 +690,24 @@ test('results', async ({ page }, testInfo) => {
     name: 'write-in-adjudication-report',
   });
 
+  // Write-In Image report for the mayor contest — shows the real write-in
+  // crops from the ballot images.
+  await page.getByRole('button', { name: 'Reports' }).click();
+  await page.getByText('Write-In Image Report').click();
+  await page
+    .getByRole('heading', { name: 'Single Contest Write-In Image Report' })
+    .waitFor();
+  await openDropdown(page, 'Select Contest');
+  await selectOpenDropdownOption(page, 'Mayor');
+  await waitForReportToLoad(page);
+  await screenshot('write-in-image-report');
+  await printAndCaptureReport({
+    page,
+    printerHandler,
+    namer,
+    name: 'write-in-image-report',
+  });
+
   // Voter turnout report (enabled by the registered-voter counts above)
   await page.getByRole('button', { name: 'Reports' }).click();
   await page
