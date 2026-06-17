@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest';
 import { err, ok, Result } from '@votingworks/basics';
-import { electionGeneralFixtures } from '@votingworks/fixtures';
 import {
+  electionGeneralFixtures,
+  readElectionStraightPartyDefinition,
+} from '@votingworks/fixtures';
+import {
+  ElectionDefinition,
   SYSTEM_LIMITS,
   SystemLimits,
   SystemLimitViolation,
@@ -9,7 +13,10 @@ import {
 
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
+const straightPartyElectionDefinition = readElectionStraightPartyDefinition();
+
 test.each<{
+  electionDefinition?: ElectionDefinition;
   systemLimits: SystemLimits;
   checkMarkScanSystemLimits?: boolean;
   checkMarkSystemLimits?: boolean;
@@ -258,16 +265,85 @@ test.each<{
     checkMarkSystemLimits: true,
     expectedValidationResult: ok(),
   },
+  {
+    electionDefinition: straightPartyElectionDefinition,
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      contest: {
+        ...SYSTEM_LIMITS.contest,
+        candidates: 0,
+      },
+    },
+    expectedValidationResult: err({
+      limitScope: 'contest',
+      limitType: 'candidates',
+      valueExceedingLimit: expect.any(Number),
+      contestId: 'straight-party-ticket',
+    }),
+  },
+  // The straight-party contest counts its parties toward the election-wide
+  // candidate limit (85 non-straight-party candidates + 9 parties = 94).
+  {
+    electionDefinition: straightPartyElectionDefinition,
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      election: { ...SYSTEM_LIMITS.election, candidates: 85 },
+    },
+    expectedValidationResult: err({
+      limitScope: 'election',
+      limitType: 'candidates',
+      valueExceedingLimit: 94,
+    }),
+  },
+  // The straight-party contest counts 1 seat toward the mark-scan ballot-style
+  // seat limit (ballot style 12: 25 other seats + 1 = 26).
+  {
+    electionDefinition: straightPartyElectionDefinition,
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      markScanBallotStyle: {
+        ...SYSTEM_LIMITS.markScanBallotStyle,
+        seatsSummedAcrossContests: 25,
+      },
+    },
+    checkMarkScanSystemLimits: true,
+    expectedValidationResult: err({
+      limitScope: 'markScanBallotStyle',
+      limitType: 'seatsSummedAcrossContests',
+      valueExceedingLimit: 26,
+      ballotStyleId: '12',
+    }),
+  },
+  // The straight-party contest counts its parties toward the mark-scan
+  // ballot-style candidate limit (ballot style 12: 85 other candidates + 9 = 94).
+  {
+    electionDefinition: straightPartyElectionDefinition,
+    systemLimits: {
+      ...SYSTEM_LIMITS,
+      markScanBallotStyle: {
+        ...SYSTEM_LIMITS.markScanBallotStyle,
+        candidatesSummedAcrossContests: 85,
+      },
+    },
+    checkMarkScanSystemLimits: true,
+    expectedValidationResult: err({
+      limitScope: 'markScanBallotStyle',
+      limitType: 'candidatesSummedAcrossContests',
+      valueExceedingLimit: 94,
+      ballotStyleId: '12',
+    }),
+  },
 ])(
   'validateElectionDefinitionAgainstSystemLimits',
   ({
+    electionDefinition = electionGeneralFixtures.readElectionDefinition(),
     systemLimits,
     checkMarkScanSystemLimits,
     checkMarkSystemLimits,
     expectedValidationResult,
   }) => {
     const result = validateElectionDefinitionAgainstSystemLimits(
-      electionGeneralFixtures.readElectionDefinition(),
+      electionDefinition,
       {
         checkMarkScanSystemLimits,
         checkMarkSystemLimits,

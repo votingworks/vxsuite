@@ -2,7 +2,6 @@ import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionDefinition,
   ElectionStringKey,
-  straightPartyNotYetImplemented,
   SYSTEM_LIMITS,
   SystemLimits,
   SystemLimitViolation,
@@ -59,10 +58,6 @@ export function validateElectionDefinitionAgainstSystemLimits(
 
   let totalCandidates = 0;
   for (const contest of election.contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      return straightPartyNotYetImplemented();
-    }
     switch (contest.type) {
       case 'candidate': {
         if (contest.candidates.length > systemLimits.contest.candidates) {
@@ -86,6 +81,18 @@ export function validateElectionDefinitionAgainstSystemLimits(
       }
       case 'yesno': {
         totalCandidates += 2;
+        break;
+      }
+      case 'straight-party': {
+        if (contest.optionIds.length > systemLimits.contest.candidates) {
+          return err({
+            limitScope: 'contest',
+            limitType: 'candidates',
+            valueExceedingLimit: contest.optionIds.length,
+            contestId: contest.id,
+          });
+        }
+        totalCandidates += contest.optionIds.length;
         break;
       }
       default: {
@@ -171,10 +178,6 @@ export function validateElectionDefinitionAgainstSystemLimits(
       let seatsSummedAcrossContests = 0;
       let candidatesSummedAcrossContests = 0;
       for (const contest of ballotStyleContests) {
-        /* istanbul ignore next */
-        if (contest.type === 'straight-party') {
-          return straightPartyNotYetImplemented();
-        }
         switch (contest.type) {
           case 'candidate': {
             seatsSummedAcrossContests += contest.seats;
@@ -184,6 +187,11 @@ export function validateElectionDefinitionAgainstSystemLimits(
           case 'yesno': {
             seatsSummedAcrossContests += 1;
             candidatesSummedAcrossContests += 2;
+            break;
+          }
+          case 'straight-party': {
+            seatsSummedAcrossContests += 1;
+            candidatesSummedAcrossContests += contest.optionIds.length;
             break;
           }
           default: {
