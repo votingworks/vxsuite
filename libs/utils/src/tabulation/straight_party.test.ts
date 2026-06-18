@@ -5,7 +5,7 @@ import {
   Contest,
   Election,
   StraightPartyContest,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { electionStraightPartyFixtures } from '@votingworks/fixtures';
@@ -412,14 +412,16 @@ describe('other cases not covered by examples', () => {
   });
 
   test('non-partisan candidate contests and ballot measures are untouched', () => {
-    const yesNoContest: YesNoContest = {
+    const yesNoContest: BallotMeasureContest = {
       id: 'measure',
-      type: 'yesno',
+      type: 'measure',
       districtId,
       title: 'Measure',
       description: 'A ballot measure',
-      yesOption: { id: 'measure-yes', label: 'Yes' },
-      noOption: { id: 'measure-no', label: 'No' },
+      options: [
+        { id: 'measure-yes', label: 'Yes' },
+        { id: 'measure-no', label: 'No' },
+      ],
     };
     const election = buildElection([
       straightPartyContest,

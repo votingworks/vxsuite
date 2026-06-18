@@ -342,7 +342,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
       ballotCount: 20,
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 20,
           overvotes: 0,
           undervotes: 0,
@@ -487,7 +487,7 @@ test('tabulateFullCardCounts - manual results', () => {
       ballotCount: 20,
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 20,
           overvotes: 0,
           undervotes: 0,

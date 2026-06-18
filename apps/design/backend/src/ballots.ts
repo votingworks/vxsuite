@@ -8,7 +8,7 @@ import {
   PollingPlace,
   pollingPlacesGenerateFromPrecincts,
   UiStringsPackage,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
@@ -107,10 +107,8 @@ export function formatElectionForExport(
     Object.fromEntries(
       election.contests
         .filter(
-          (contest): contest is YesNoContest =>
-            contest.type === 'yesno' &&
-            contest.additionalOptions !== undefined &&
-            contest.additionalOptions.length > 0
+          (contest): contest is BallotMeasureContest =>
+            contest.type === 'measure' && contest.options.slice(2).length > 0
         )
         .map((contest) => [contest.id, contest.description])
     );

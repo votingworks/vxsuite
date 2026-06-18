@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { CandidateContest, YesNoContest, Precinct } from '@votingworks/types';
+import {
+  CandidateContest,
+  BallotMeasureContest,
+  Precinct,
+} from '@votingworks/types';
 import {
   getCandidateOrderingByPrecinctAlphabetical,
   getAllPossibleCandidateOrderings,
@@ -109,12 +113,12 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     expect(result[2].precinctsOrSplits).toEqual([{ precinctId: precinct2.id }]);
   });
 
-  test('skips yesno contests', () => {
+  test('skips ballot measure contests', () => {
     const candidateContest1 = electionGeneral.contests.find(
       (c): c is CandidateContest => c.type === 'candidate'
     )!;
-    const yesnoContest = electionGeneral.contests.find(
-      (c): c is YesNoContest => c.type === 'yesno'
+    const measureContest = electionGeneral.contests.find(
+      (c): c is BallotMeasureContest => c.type === 'measure'
     )!;
 
     const contest1: CandidateContest = {
@@ -131,7 +135,7 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     };
 
     const params: RotationParams = {
-      contests: [contest1, yesnoContest],
+      contests: [contest1, measureContest],
       precincts: [precinct],
       precinctsOrSplitIds: [{ precinctId: precinct.id }],
       districtIds: ['district-1'],
@@ -146,7 +150,7 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
       'contest-2'
     );
     expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
-      yesnoContest.id
+      measureContest.id
     );
   });
 });

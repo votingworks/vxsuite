@@ -3,7 +3,11 @@ import {
   readElectionGeneral,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import { CandidateContest, Election, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  Election,
+  BallotMeasureContest,
+} from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -257,14 +261,14 @@ test('candidate contest with term description', () => {
   screen.getByText('4 Years');
 });
 
-describe('yesno contest', () => {
+describe('ballot measure contest', () => {
   const election = electionGeneral;
   const contest = find(
     election.contests,
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   );
 
-  test.each([[contest.yesOption.id], [contest.noOption.id], [undefined]])(
+  test.each([[contest.options[0].id], [contest.options[1].id], [undefined]])(
     'with vote: %s',
     (vote) => {
       const contests = [contest];
@@ -287,7 +291,7 @@ describe('yesno contest', () => {
       within(contestCard).getByText(
         !vote
           ? 'You may still vote in this contest.'
-          : vote === contest.yesOption.id
+          : vote === contest.options[0].id
           ? 'Yes'
           : 'No'
       );
@@ -334,18 +338,18 @@ describe('ms-either-neither contest', () => {
     (c) => c.id === '750000015'
   );
   const pickOneContest = find(election.contests, (c) => c.id === '750000016');
-  assert(eitherNeitherContest.type === 'yesno');
-  assert(pickOneContest.type === 'yesno');
+  assert(eitherNeitherContest.type === 'measure');
+  assert(pickOneContest.type === 'measure');
 
   const contests = mergeMsEitherNeitherContests(election.contests);
   const mergedContest = find(contests, (c) => c.type === 'ms-either-neither');
 
   test.each([
-    [eitherNeitherContest.yesOption.id, pickOneContest.yesOption.id],
-    [eitherNeitherContest.yesOption.id, pickOneContest.noOption.id],
-    [eitherNeitherContest.noOption.id, pickOneContest.yesOption.id],
-    [eitherNeitherContest.noOption.id, pickOneContest.noOption.id],
-    [eitherNeitherContest.yesOption.id, undefined],
+    [eitherNeitherContest.options[0].id, pickOneContest.options[0].id],
+    [eitherNeitherContest.options[0].id, pickOneContest.options[1].id],
+    [eitherNeitherContest.options[1].id, pickOneContest.options[0].id],
+    [eitherNeitherContest.options[1].id, pickOneContest.options[1].id],
+    [eitherNeitherContest.options[0].id, undefined],
     [undefined, undefined],
   ])('with votes: %s/%s', (eitherNeitherVote, pickOneVote) => {
     render(
@@ -368,14 +372,14 @@ describe('ms-either-neither contest', () => {
 
     if (eitherNeitherVote) {
       contestVoteSummary.getByText(
-        eitherNeitherVote === eitherNeitherContest.yesOption.id
+        eitherNeitherVote === eitherNeitherContest.options[0].id
           ? /for approval of either/i
           : /against both/i
       );
     }
     if (pickOneVote) {
       contestVoteSummary.getByText(
-        pickOneVote === pickOneContest.yesOption.id
+        pickOneVote === pickOneContest.options[0].id
           ? /for initiative measure/i
           : /for alternative measure/i
       );

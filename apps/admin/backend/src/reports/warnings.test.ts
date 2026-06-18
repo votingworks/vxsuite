@@ -77,7 +77,7 @@ describe('getTallyReportWarning', () => {
       {
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 25,
             yesTally: 25,
             noTally: 0,
@@ -88,7 +88,7 @@ describe('getTallyReportWarning', () => {
       {
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 25,
             yesTally: 0,
             noTally: 25,
@@ -111,7 +111,7 @@ describe('getTallyReportWarning', () => {
       {
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 25,
             yesTally: 25,
             noTally: 0,
@@ -202,7 +202,7 @@ describe('getTallyReportWarning', () => {
         },
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 25,
             yesTally: 25,
             noTally: 0,
@@ -234,7 +234,7 @@ describe('getTallyReportWarning', () => {
         election,
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 10,
             yesTally: 9,
             noTally: 1, // this should prevent the warning

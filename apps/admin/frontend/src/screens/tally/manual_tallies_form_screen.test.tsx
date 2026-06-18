@@ -82,7 +82,7 @@ const resultsFixture = buildManualResultsFixture({
       },
     },
     'new-zoo-either': {
-      type: 'yesno',
+      type: 'measure',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
@@ -90,7 +90,7 @@ const resultsFixture = buildManualResultsFixture({
       noTally: 3,
     },
     'new-zoo-pick': {
-      type: 'yesno',
+      type: 'measure',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
@@ -98,7 +98,7 @@ const resultsFixture = buildManualResultsFixture({
       noTally: 3,
     },
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 10,
       overvotes: 2,
       undervotes: 2,
@@ -217,11 +217,11 @@ test('entering initial ballot count and contest tallies', async () => {
         );
       }
     } else {
-      assert(contestResults.contestType === 'yesno');
-      const yesInput = screen.getByLabelText(contest.yesOption.label);
+      assert(contestResults.contestType === 'measure');
+      const yesInput = screen.getByLabelText(contest.options[0].label);
       expect(yesInput).toHaveValue('');
       userEvent.type(yesInput, contestResults.yesTally.toString());
-      const noInput = screen.getByLabelText(contest.noOption.label);
+      const noInput = screen.getByLabelText(contest.options[1].label);
       expect(noInput).toHaveValue('');
       userEvent.type(noInput, contestResults.noTally.toString());
     }

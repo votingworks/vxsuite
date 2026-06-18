@@ -103,11 +103,14 @@ function makeContestAdjudicationData(
   }
   return {
     contestId,
-    options: [contest.yesOption, contest.noOption].map((option) => ({
+    options: [
+      assertDefined(contest.options[0]),
+      assertDefined(contest.options[1]),
+    ].map((option) => ({
       definition: {
         id: option.id,
         contestId,
-        type: 'yesno' as const,
+        type: 'measure' as const,
       },
       scannedVote: false,
       hasMarginalMark: false,
@@ -1193,11 +1196,11 @@ test('contest list shows correct status line captions', async () => {
     makeContestWithVotes('aquarium-council-fish', [0, 1, 2], [0], {
       hasOvervote: true,
     }),
-    // new-zoo-either: yesno, 1 vote. 0 initial → 2 adjudicated = Overvote Created
+    // new-zoo-either: measure, 1 vote. 0 initial → 2 adjudicated = Overvote Created
     makeContestWithVotes('new-zoo-either', [], [0, 1]),
-    // new-zoo-pick: yesno, 1 vote. 0 initial → 1 adjudicated = Undervote Resolved
+    // new-zoo-pick: measure, 1 vote. 0 initial → 1 adjudicated = Undervote Resolved
     makeContestWithVotes('new-zoo-pick', [], [0], { hasUndervote: true }),
-    // fishing: yesno, 1 vote. 1 initial → 0 adjudicated = Undervote Created
+    // fishing: measure, 1 vote. 1 initial → 0 adjudicated = Undervote Created
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
   ];
   const adjData = makeBallotAdjudicationData(
@@ -1266,10 +1269,10 @@ test('contest list suppresses undervote captions when not in system settings', a
     makeContestWithVotes('best-animal-mammal', [0, 1], [0, 1], {
       hasOvervote: true,
     }),
-    // new-zoo-pick: yesno, 1 vote. 0 initial → 1 adjudicated
+    // new-zoo-pick: measure, 1 vote. 0 initial → 1 adjudicated
     // "Undervote Resolved" when enabled, suppressed when disabled
     makeContestWithVotes('new-zoo-pick', [], [0], { hasUndervote: true }),
-    // fishing: yesno, 1 vote. 1 initial → 0 adjudicated
+    // fishing: measure, 1 vote. 1 initial → 0 adjudicated
     // "Undervote Created" when enabled, suppressed when disabled
     makeContestWithVotes('fishing', [0], [], { hasUndervote: true }),
   ];

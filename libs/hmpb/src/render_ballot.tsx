@@ -25,7 +25,7 @@ import {
   GridPosition,
   HmpbBallotPageMetadata,
   Outset,
-  YesNoContest,
+  BallotMeasureContest,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
@@ -701,15 +701,11 @@ export async function layOutBallotsAndCreateElectionDefinition<
       }
       return contest;
     })
-    // Temporary workaround to transform ballot measures with additional options
-    // into candidate contests, since VxSuite doesn't support the
-    // contest.additionalOptions field.
+    // Temporary workaround to transform ballot measures with more than two
+    // options into candidate contests, since VxSuite doesn't support ballot
+    // measures with additional options beyond the first two.
     .map((contest): Contest => {
-      if (
-        contest.type !== 'yesno' ||
-        !contest.additionalOptions ||
-        contest.additionalOptions.length === 0
-      ) {
+      if (contest.type !== 'measure' || contest.options.slice(2).length === 0) {
         return contest;
       }
       return convertBallotMeasureWithAdditionalOptionsToCandidateContest(
@@ -828,9 +824,9 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
 }
 
 export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
-  contest: YesNoContest
+  contest: BallotMeasureContest
 ): CandidateContest {
-  assert(contest.additionalOptions && contest.additionalOptions.length > 0);
+  assert(contest.options.slice(2).length > 0);
   return {
     type: 'candidate',
     id: contest.id,
@@ -838,14 +834,14 @@ export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
     title: contest.title,
     candidates: [
       {
-        id: contest.yesOption.id,
-        name: contest.yesOption.label,
+        id: contest.options[0].id,
+        name: contest.options[0].label,
       },
       {
-        id: contest.noOption.id,
-        name: contest.noOption.label,
+        id: contest.options[1].id,
+        name: contest.options[1].label,
       },
-      ...contest.additionalOptions.map((option) => ({
+      ...contest.options.slice(2).map((option) => ({
         id: option.id,
         name: option.label,
       })),

@@ -465,15 +465,15 @@ export function generateAllPrecinctsTallyReportRows(
             ...overvotesUndervotesAndBallotsCastRows,
           ];
         }
-        case 'yesno': {
+        case 'measure': {
           return [
             {
               precinct: precinct.name,
               precinctId: precinct.id,
               contest: contest.title,
               contestId: contest.id,
-              selection: contest.yesOption.label,
-              selectionId: contest.yesOption.id,
+              selection: contest.options[0].label,
+              selectionId: contest.options[0].id,
               totalVotes: `${contestIndex}`,
             },
             {
@@ -481,8 +481,8 @@ export function generateAllPrecinctsTallyReportRows(
               precinctId: precinct.id,
               contest: contest.title,
               contestId: contest.id,
-              selection: contest.noOption.label,
-              selectionId: contest.noOption.id,
+              selection: contest.options[1].label,
+              selectionId: contest.options[1].id,
               totalVotes: `${contestIndex + 1}`,
             },
             ...overvotesUndervotesAndBallotsCastRows,

@@ -8,13 +8,13 @@ import {
   MarkStatus,
   StraightPartyContest,
   WriteInAreaStatus,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import {
   readElectionStraightParty,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
 
@@ -46,7 +46,7 @@ assert(
 );
 const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
   ({ id }) => id === 'fishing'
-) as YesNoContest;
+) as BallotMeasureContest;
 
 const ballotStyleMammal =
   electionTwoPartyPrimaryDefinition.election.ballotStyles.find(
@@ -217,7 +217,10 @@ test('yesno contest overvotes', () => {
     {
       type: AdjudicationReason.Overvote,
       contestId: ballotMeasure3.id,
-      optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
+      optionIds: [
+        assertDefined(ballotMeasure3.options[0]).id,
+        assertDefined(ballotMeasure3.options[1]).id,
+      ],
       expected: 1,
     },
   ]);

@@ -7,10 +7,10 @@ import {
   Election,
   ElectionDefinition,
   OptionalVote,
-  OptionalYesNoVote,
+  OptionalBallotMeasureVote,
   PrecinctId,
   VotesDict,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import {
   ContestsWithMsEitherNeither,
@@ -49,16 +49,16 @@ export interface CandidateContestResultInterface {
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
-  contest: YesNoContest;
+  contest: BallotMeasureContest;
   election: Election;
-  vote: OptionalYesNoVote;
+  vote: OptionalBallotMeasureVote;
   selectionsAreEditable?: boolean;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;
   election: Election;
-  eitherNeitherContestVote: OptionalYesNoVote;
-  pickOneContestVote: OptionalYesNoVote;
+  eitherNeitherContestVote: OptionalBallotMeasureVote;
+  pickOneContestVote: OptionalBallotMeasureVote;
   selectionsAreEditable?: boolean;
 }
 

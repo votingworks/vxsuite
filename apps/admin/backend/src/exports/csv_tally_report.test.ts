@@ -415,7 +415,7 @@ test('incorporates manual data', async () => {
           },
         },
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 20,
           undervotes: 6,
           overvotes: 4,
@@ -509,7 +509,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
       ballotCount: 20,
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 1,
           undervotes: 0,
           overvotes: 0,

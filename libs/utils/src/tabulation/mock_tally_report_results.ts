@@ -22,7 +22,7 @@ function buildSimpleMockElectionResults(
       straightPartyNotYetImplemented();
     }
     contestResultsSummaries[contest.id] = {
-      type: contest.type === 'candidate' ? 'candidate' : 'yesno',
+      type: contest.type === 'candidate' ? 'candidate' : 'measure',
       ballots: ballotCount,
       undervotes:
         contest.type === 'candidate'

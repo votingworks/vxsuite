@@ -3,7 +3,13 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { z } from 'zod/v4';
 
-import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   isPrimary,
   ElectionId,
@@ -15,7 +21,7 @@ import {
   CandidateId,
   ContestId,
   safeParse,
-  YesNoContestSchema,
+  BallotMeasureContestSchema,
   ElectionStringKey,
   StraightPartyContest,
 } from '@votingworks/types';
@@ -995,7 +1001,17 @@ function draftContestFromContest(contest: Contest): DraftContest {
         ...contest,
         candidates: contest.candidates.map(draftCandidateFromCandidate),
       };
-    case 'yesno':
+    case 'measure':
+      return {
+        id: contest.id,
+        type: 'yesno',
+        districtId: contest.districtId,
+        title: contest.title,
+        description: contest.description,
+        yesOption: assertDefined(contest.options[0]),
+        noOption: assertDefined(contest.options[1]),
+        additionalOptions: contest.options.slice(2),
+      };
     case 'straight-party':
       return { ...contest };
     default: {
@@ -1022,8 +1038,14 @@ function tryContestFromDraftContest(
         })),
       });
 
-    case 'yesno':
-      return safeParse(YesNoContestSchema, draftContest);
+    case 'yesno': {
+      const { yesOption, noOption, additionalOptions, ...rest } = draftContest;
+      return safeParse(BallotMeasureContestSchema, {
+        ...rest,
+        type: 'measure',
+        options: [yesOption, noOption, ...(additionalOptions ?? [])],
+      });
+    }
 
     default: {
       /* istanbul ignore next */

@@ -4,7 +4,7 @@ import {
   Election,
   ElectionStringKey,
   UiStringsPackage,
-  YesNoContest,
+  BallotMeasureContest,
   getContests,
   safeParseElection,
   safeParseElectionDefinition,
@@ -47,12 +47,14 @@ function getDuplicatedContests(idSuffix: string) {
       straightPartyNotYetImplemented();
     }
 
-    assert(c.type === 'yesno');
-    const contest: YesNoContest = {
+    assert(c.type === 'measure');
+    const contest: BallotMeasureContest = {
       ...c,
       id: `${c.id}${idSuffix}`,
-      noOption: { ...c.noOption, id: `${c.noOption.id}${idSuffix}` },
-      yesOption: { ...c.yesOption, id: `${c.yesOption.id}${idSuffix}` },
+      options: c.options.map((option) => ({
+        ...option,
+        id: `${option.id}${idSuffix}`,
+      })),
     };
     return contest;
   });
@@ -118,8 +120,11 @@ const TEST_UI_STRINGS: UiStringsPackage = {
     [ElectionStringKey.JURISDICTION_NAME]: '富兰克林县',
     [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
       election.contests
-        .filter((contest): contest is YesNoContest => contest.type === 'yesno')
-        .flatMap((contest) => [contest.yesOption, contest.noOption])
+        .filter(
+          (contest): contest is BallotMeasureContest =>
+            contest.type === 'measure'
+        )
+        .flatMap((contest) => [contest.options[0], contest.options[1]])
         .map((option) => [option.id, option.id.endsWith('no') ? '不' : '是'])
     ),
     [ElectionStringKey.CONTEST_TITLE]: {
@@ -177,7 +182,7 @@ const initialArgs: BmdPaperBallotProps = {
       }
       return [
         c.id,
-        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+        c.type === 'measure' ? generateYesNoVote(c) : generateCandidateVotes(c),
       ];
     })
   ),

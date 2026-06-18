@@ -4,7 +4,7 @@ import {
   Election,
   ElectionStringKey,
   UiStringsPackage,
-  YesNoContest,
+  BallotMeasureContest,
   BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
@@ -143,7 +143,9 @@ const electionStringExtractorFns: Record<
   },
   [ElectionStringKey.CONTEST_DESCRIPTION](election) {
     return election.contests
-      .filter((contest): contest is YesNoContest => contest.type === 'yesno')
+      .filter(
+        (contest): contest is BallotMeasureContest => contest.type === 'measure'
+      )
       .map((contest) => ({
         stringKey: [ElectionStringKey.CONTEST_DESCRIPTION, contest.id],
         stringInEnglish: contest.description,
@@ -151,21 +153,23 @@ const electionStringExtractorFns: Record<
   },
   [ElectionStringKey.CONTEST_OPTION_LABEL](election) {
     return election.contests
-      .filter((contest): contest is YesNoContest => contest.type === 'yesno')
+      .filter(
+        (contest): contest is BallotMeasureContest => contest.type === 'measure'
+      )
       .flatMap((contest): ElectionString[] => [
         {
           stringKey: [
             ElectionStringKey.CONTEST_OPTION_LABEL,
-            contest.yesOption.id,
+            assertDefined(contest.options[0]).id,
           ],
-          stringInEnglish: contest.yesOption.label,
+          stringInEnglish: assertDefined(contest.options[0]).label,
         },
         {
           stringKey: [
             ElectionStringKey.CONTEST_OPTION_LABEL,
-            contest.noOption.id,
+            assertDefined(contest.options[1]).id,
           ],
-          stringInEnglish: contest.noOption.label,
+          stringInEnglish: assertDefined(contest.options[1]).label,
         },
       ]);
   },

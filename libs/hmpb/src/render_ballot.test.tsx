@@ -9,7 +9,7 @@ import {
   getBallotStyle,
   getContests,
   LanguageCode,
-  YesNoContest,
+  BallotMeasureContest,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
@@ -189,10 +189,10 @@ test('ballot measure contests with additional options are transformed into candi
   const specElection = fixtureSpec.allBallotProps[0].election;
   const ballotMeasureContest = find(
     specElection.contests,
-    (contest): contest is YesNoContest =>
-      contest.type === 'yesno' && contest.additionalOptions !== undefined
+    (contest): contest is BallotMeasureContest =>
+      contest.type === 'measure' && contest.options.slice(2).length > 0
   );
-  assert(ballotMeasureContest.additionalOptions!.length === 1);
+  assert(ballotMeasureContest.options.slice(2).length === 1);
 
   const electionAfterRender = (
     await readElection(fixtureSpec.electionPath)
@@ -211,16 +211,16 @@ test('ballot measure contests with additional options are transformed into candi
   expect(transformedContest.termDescription).toBeUndefined();
   expect(transformedContest.candidates).toEqual([
     {
-      id: ballotMeasureContest.yesOption.id,
-      name: ballotMeasureContest.yesOption.label,
+      id: ballotMeasureContest.options[0].id,
+      name: ballotMeasureContest.options[0].label,
     },
     {
-      id: ballotMeasureContest.noOption.id,
-      name: ballotMeasureContest.noOption.label,
+      id: ballotMeasureContest.options[1].id,
+      name: ballotMeasureContest.options[1].label,
     },
     {
-      id: ballotMeasureContest.additionalOptions![0].id,
-      name: ballotMeasureContest.additionalOptions![0].label,
+      id: ballotMeasureContest.options.slice(2)[0].id,
+      name: ballotMeasureContest.options.slice(2)[0].label,
     },
   ]);
 });
@@ -377,7 +377,7 @@ test.each(templateSpecificTestCases)(
           }
           break;
         }
-        case 'yesno': {
+        case 'measure': {
           const renderedOptions =
             ballotMeasureOptionsByContest.get(contest.id) ?? [];
           const optionIds = renderedOptions.map((option) => {
@@ -385,9 +385,9 @@ test.each(templateSpecificTestCases)(
             return option.optionId;
           });
           const expectedOptionIds = [
-            contest.yesOption.id,
-            contest.noOption.id,
-            ...(contest.additionalOptions ?? []).map((o) => o.id),
+            contest.options[0].id,
+            contest.options[1].id,
+            ...contest.options.slice(2).map((o) => o.id),
           ];
           expect(optionIds).toEqual(expectedOptionIds);
           break;

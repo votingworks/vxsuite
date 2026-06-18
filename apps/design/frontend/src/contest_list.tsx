@@ -71,7 +71,7 @@ export function ContestList(props: ContestListProps): React.ReactNode {
   const sections: Array<[string, Contest[] | undefined]> = [
     ['Straight Party', contestsByType['straight-party']],
     ['Candidate Contests', contestsByType['candidate']],
-    ['Ballot Measures', contestsByType['yesno']],
+    ['Ballot Measures', contestsByType['measure']],
   ];
 
   return (

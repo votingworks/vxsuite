@@ -164,7 +164,7 @@ describe('groupContestsByParty', () => {
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }
-        return c.type === 'yesno' || !c.partyId;
+        return c.type === 'measure' || !c.partyId;
       })
     ).toEqual(true);
   });
@@ -186,7 +186,7 @@ describe('groupContestsByParty', () => {
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }
-        return c.type === 'yesno' || !c.partyId;
+        return c.type === 'measure' || !c.partyId;
       })
     ).toEqual(true);
   });

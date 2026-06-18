@@ -42,8 +42,8 @@ const pickOneContest = find(
   election.contests,
   (c) => c.id === pickOneContestId
 );
-assert(eitherNeitherContest.type === 'yesno');
-assert(pickOneContest.type === 'yesno');
+assert(eitherNeitherContest.type === 'measure');
+assert(pickOneContest.type === 'measure');
 
 const precinctId = '6526';
 const pollingPlaceId = `${precinctId}-polling-place`;
@@ -85,26 +85,26 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Select and Unselect Options
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.yesOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[0]).label)
   );
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.noOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[1]).label)
   );
   await advanceTimersAndPromises(); // allow "deselection" timer to run
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.noOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[1]).label)
   );
   await advanceTimersAndPromises(); // allow "deselection" timer to run
 
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.yesOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[0]).label)
   );
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.noOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[1]).label)
   );
   await advanceTimersAndPromises(); // allow "deselection" timer to run
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.noOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[1]).label)
   );
   await advanceTimersAndPromises(); // allow "deselection" timer to run
 
@@ -144,10 +144,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Vote for either and first option
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.yesOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[0]).label)
   );
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.yesOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[0]).label)
   );
 
   // Go to Review Screen to confirm votes
@@ -173,10 +173,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Vote for neither and second option
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.noOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[1]).label)
   );
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.noOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[1]).label)
   );
 
   // Go to Review Screen to confirm votes
@@ -202,7 +202,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Vote for none and second option
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.noOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[1]).label)
   );
 
   // Go to Review Screen to confirm votes
@@ -226,10 +226,10 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
 
   // Vote for either and no option
   fireEvent.click(
-    screen.getByText(assertDefined(eitherNeitherContest.yesOption).label)
+    screen.getByText(assertDefined(eitherNeitherContest.options[0]).label)
   );
   fireEvent.click(
-    screen.getByText(assertDefined(pickOneContest.noOption).label)
+    screen.getByText(assertDefined(pickOneContest.options[1]).label)
   );
 
   // Go to Review Screen to confirm votes

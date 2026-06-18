@@ -1,11 +1,11 @@
-import { iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
   straightPartyNotYetImplemented,
   Vote,
   VotesDict,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 
 function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
@@ -16,12 +16,15 @@ function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
     .toArray();
 }
 
-function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
+function generateMockBallotMeasureVote(
+  c: BallotMeasureContest,
+  seed = 0
+): Vote {
   if (seed % 2 === 0) {
-    return [c.yesOption.id];
+    return [assertDefined(c.options[0]).id];
   }
 
-  return [c.noOption.id];
+  return [assertDefined(c.options[1]).id];
 }
 
 export function generateMockVotes(election: Election): VotesDict {
@@ -33,8 +36,8 @@ export function generateMockVotes(election: Election): VotesDict {
       }
       return [
         c.id,
-        c.type === 'yesno'
-          ? generateMockYesNoVote(c, index)
+        c.type === 'measure'
+          ? generateMockBallotMeasureVote(c, index)
           : generateMockCandidateVote(c, index),
       ];
     })

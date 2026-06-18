@@ -198,7 +198,7 @@ test('tabulateCastVoteRecords', async () => {
       },
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: fishingTally,
           overvotes: 0,
           undervotes: 0,

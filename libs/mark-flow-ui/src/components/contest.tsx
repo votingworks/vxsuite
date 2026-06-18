@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import {
   CandidateVote,
   Election,
-  OptionalYesNoVote,
+  OptionalBallotMeasureVote,
   VotesDict,
 } from '@votingworks/types';
 import { AccessibilityMode } from '@votingworks/ui';
@@ -101,11 +101,11 @@ export function Contest({
           isReviewMode={isReviewMode}
         />
       )}
-      {contest.type === 'yesno' && (
+      {contest.type === 'measure' && (
         <YesNoContest
           election={election}
           contest={contest}
-          vote={vote as OptionalYesNoVote}
+          vote={vote as OptionalBallotMeasureVote}
           updateVote={updateVote}
           isReviewMode={isReviewMode}
         />
@@ -115,10 +115,10 @@ export function Contest({
           election={election}
           contest={contest}
           eitherNeitherContestVote={
-            votes[contest.eitherNeitherContestId] as OptionalYesNoVote
+            votes[contest.eitherNeitherContestId] as OptionalBallotMeasureVote
           }
           pickOneContestVote={
-            votes[contest.pickOneContestId] as OptionalYesNoVote
+            votes[contest.pickOneContestId] as OptionalBallotMeasureVote
           }
           updateVote={updateVote}
           isReviewMode={isReviewMode}

@@ -17,11 +17,11 @@ import {
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
-  OptionalYesNoVote,
+  OptionalBallotMeasureVote,
   PrecinctId,
   VotesDict,
-  YesNoContest,
-  YesNoVote,
+  BallotMeasureContest,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import {
   getPrecinctsAndSplitsForBallotStyle,
@@ -588,23 +588,25 @@ function CandidateContestResult({
   );
 }
 
-interface YesNoContestResultProps {
-  contest: YesNoContest;
+interface BallotMeasureContestResultProps {
+  contest: BallotMeasureContest;
   primaryBallotLanguage: string;
-  vote: OptionalYesNoVote;
+  vote: OptionalBallotMeasureVote;
 }
 
-function YesNoContestResult({
+function BallotMeasureContestResult({
   contest,
   primaryBallotLanguage,
   vote = [],
-}: YesNoContestResultProps): JSX.Element {
+}: BallotMeasureContestResultProps): JSX.Element {
   const singleVote = getSingleYesNoVote(vote);
   if (!singleVote) {
     return <NoSelection primaryBallotLanguage={primaryBallotLanguage} />;
   }
   const option =
-    singleVote === contest.yesOption.id ? contest.yesOption : contest.noOption;
+    singleVote === contest.options[0].id
+      ? contest.options[0]
+      : contest.options[1];
   return (
     <VoteLine>
       <Font weight="bold">
@@ -886,11 +888,11 @@ export function BmdPaperBallot({
                       ballotStyle={ballotStyle}
                     />
                   )}
-                  {contest.type === 'yesno' && (
-                    <YesNoContestResult
+                  {contest.type === 'measure' && (
+                    <BallotMeasureContestResult
                       contest={contest}
                       primaryBallotLanguage={primaryBallotLanguage}
-                      vote={votes[contest.id] as YesNoVote}
+                      vote={votes[contest.id] as BallotMeasureVote}
                     />
                   )}
                 </ContestContainer>

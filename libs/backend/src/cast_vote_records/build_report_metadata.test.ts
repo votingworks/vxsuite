@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import {
   readElectionStraightPartyDefinition,
   readElectionTwoPartyPrimaryDefinition,
@@ -8,7 +8,7 @@ import {
   CandidateContest,
   CastVoteRecordBatchMetadata,
   CVR,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import {
   buildBatchManifest,
@@ -182,7 +182,7 @@ test('builds well-formed cast vote record report', () => {
 
   // Check ballot measure contests
   const ballotMeasureContests = election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   );
   const ReportBallotMeasureContests = ReportElection.Contest.filter(
     (ReportContest): ReportContest is CVR.BallotMeasureContest =>
@@ -199,12 +199,12 @@ test('builds well-formed cast vote record report', () => {
           Name: ballotMeasureContest.title,
           ContestSelection: [
             expect.objectContaining({
-              '@id': ballotMeasureContest.yesOption.id,
-              Selection: ballotMeasureContest.yesOption.label,
+              '@id': assertDefined(ballotMeasureContest.options[0]).id,
+              Selection: assertDefined(ballotMeasureContest.options[0]).label,
             }),
             expect.objectContaining({
-              '@id': ballotMeasureContest.noOption.id,
-              Selection: ballotMeasureContest.noOption.label,
+              '@id': assertDefined(ballotMeasureContest.options[1]).id,
+              Selection: assertDefined(ballotMeasureContest.options[1]).label,
             }),
           ],
         }),

@@ -31,7 +31,7 @@ assert(candidateWriteInContest.type === 'candidate');
 const yesNoContestId = 'fishing';
 const yesNoContest = election.contests.find((c) => c.id === yesNoContestId);
 assert(yesNoContest);
-assert(yesNoContest.type === 'yesno');
+assert(yesNoContest.type === 'measure');
 
 const candidateContestScannedResults = buildContestResultsFixture({
   contest: candidateContest,
@@ -106,7 +106,7 @@ test('candidate contest with manual results', () => {
 const yesNoContestScannedResults = buildContestResultsFixture({
   contest: yesNoContest,
   contestResultsSummary: {
-    type: 'yesno',
+    type: 'measure',
     ballots: 30,
     overvotes: 17,
     undervotes: 1,
@@ -118,7 +118,7 @@ const yesNoContestScannedResults = buildContestResultsFixture({
 const yesNoContestManualResults = buildContestResultsFixture({
   contest: yesNoContest,
   contestResultsSummary: {
-    type: 'yesno',
+    type: 'measure',
     ballots: 20,
     overvotes: 1,
     undervotes: 0,
@@ -191,7 +191,7 @@ test('numbers are formatted with commas when necessary', () => {
       scannedContestResults={buildContestResultsFixture({
         contest: yesNoContest,
         contestResultsSummary: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 6000,
           overvotes: 1000,
           undervotes: 1500,

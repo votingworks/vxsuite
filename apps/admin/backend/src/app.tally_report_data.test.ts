@@ -405,7 +405,7 @@ test('primary, full election', async () => {
   ).toEqual({
     ballots: 112,
     contestId: 'fishing',
-    contestType: 'yesno',
+    contestType: 'measure',
     yesOptionId: 'ban-fishing',
     noOptionId: 'allow-fishing',
     noTally: 8,

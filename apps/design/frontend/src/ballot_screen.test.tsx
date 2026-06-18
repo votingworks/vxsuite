@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
-import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
+import {
+  BallotType,
+  CandidateContest,
+  BallotMeasureContest,
+} from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
@@ -396,7 +400,7 @@ describe('Ballot rendering error handling', () => {
   test.each<{
     name: string;
     ballotTemplateId: BallotTemplateId;
-    contest: CandidateContest | YesNoContest;
+    contest: CandidateContest | BallotMeasureContest;
     expectedMessage: string;
   }>([
     {
@@ -419,12 +423,14 @@ describe('Ballot rendering error handling', () => {
       ballotTemplateId: 'VxDefaultBallot',
       contest: {
         id: 'long-contest',
-        type: 'yesno',
+        type: 'measure',
         title: 'Very Long Ballot Measure',
         districtId: electionRecord.election.districts[0].id,
         description: '',
-        yesOption: { id: 'yes', label: 'Yes' },
-        noOption: { id: 'no', label: 'No' },
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'no', label: 'No' },
+        ],
       },
       expectedMessage:
         'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size or higher density.',
@@ -434,12 +440,14 @@ describe('Ballot rendering error handling', () => {
       ballotTemplateId: 'NhBallot',
       contest: {
         id: 'long-contest',
-        type: 'yesno',
+        type: 'measure',
         title: 'Very Long Ballot Measure',
         districtId: electionRecord.election.districts[0].id,
         description: '',
-        yesOption: { id: 'yes', label: 'Yes' },
-        noOption: { id: 'no', label: 'No' },
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'no', label: 'No' },
+        ],
       },
       expectedMessage:
         'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size, higher density, or adding a line break to the contest description.',

@@ -270,8 +270,8 @@ interface FormContestResultsMetadata {
   undervotes: InputValue;
 }
 
-type FormYesNoContestResults = Omit<
-  Tabulation.YesNoContestResults,
+type FormBallotMeasureContestResults = Omit<
+  Tabulation.BallotMeasureContestResults,
   'ballots' | 'overvotes' | 'undervotes' | 'yesTally' | 'noTally'
 > &
   FormContestResultsMetadata & {
@@ -287,7 +287,9 @@ type FormCandidateContestResults = Omit<
     tallies: Record<CandidateId, FormCandidateTally>;
   };
 
-type FormContestResults = FormYesNoContestResults | FormCandidateContestResults;
+type FormContestResults =
+  | FormBallotMeasureContestResults
+  | FormCandidateContestResults;
 
 interface FormManualResults {
   readonly contestResults: Record<ContestId, FormContestResults>;
@@ -308,12 +310,12 @@ function emptyFormContestResults(
     return straightPartyNotYetImplemented();
   }
   switch (contest.type) {
-    case 'yesno':
+    case 'measure':
       return {
         contestId: contest.id,
-        contestType: 'yesno',
-        yesOptionId: contest.yesOption.id,
-        noOptionId: contest.noOption.id,
+        contestType: 'measure',
+        yesOptionId: contest.options[0].id,
+        noOptionId: contest.options[1].id,
         ballots: ballotCount ?? '',
         overvotes: '',
         undervotes: '',
@@ -624,7 +626,7 @@ function ContestForm({
         return contestResults.undervotes;
       case 'yesTally':
       case 'noTally':
-        assert(contestResults.contestType === 'yesno');
+        assert(contestResults.contestType === 'measure');
         return dataKey === 'yesTally'
           ? contestResults.yesTally
           : contestResults.noTally;
@@ -662,8 +664,8 @@ function ContestForm({
         break;
       case 'noTally':
       case 'yesTally':
-        assert(contestResults.contestType === 'yesno');
-        assert(newContestResults.contestType === 'yesno');
+        assert(contestResults.contestType === 'measure');
+        assert(newContestResults.contestType === 'measure');
         if (dataKey === 'yesTally') {
           newContestResults = {
             ...contestResults,
@@ -888,7 +890,7 @@ function ContestForm({
                 ))}
               </React.Fragment>
             )}
-            {contest.type === 'yesno' && (
+            {contest.type === 'measure' && (
               <React.Fragment>
                 <ContestDataRow>
                   <NumberInput
@@ -896,7 +898,7 @@ function ContestForm({
                     value={getValueForInput('yesTally')}
                     onChange={(value) => updateContestData('yesTally', value)}
                   />
-                  <label htmlFor="yes">{contest.yesOption.label}</label>
+                  <label htmlFor="yes">{contest.options[0].label}</label>
                 </ContestDataRow>
                 <ContestDataRow>
                   <NumberInput
@@ -904,7 +906,7 @@ function ContestForm({
                     value={getValueForInput('noTally')}
                     onChange={(value) => updateContestData('noTally', value)}
                   />
-                  <label htmlFor="no">{contest.noOption.label}</label>
+                  <label htmlFor="no">{contest.options[1].label}</label>
                 </ContestDataRow>
               </React.Fragment>
             )}

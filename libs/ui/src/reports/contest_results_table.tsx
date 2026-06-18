@@ -246,15 +246,17 @@ export function ContestResultsTable({
       }
       break;
     }
-    case 'yesno': {
-      assert(scannedContestResults.contestType === 'yesno');
-      assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
+    case 'measure': {
+      assert(scannedContestResults.contestType === 'measure');
+      assertIsOptional<Tabulation.BallotMeasureContestResults>(
+        manualContestResults
+      );
       const yesKey = `${contest.id}-yes`;
       contestTableRows.push(
         <ContestOptionRow
           key={yesKey}
           testId={yesKey}
-          optionLabel={contest.yesOption.label}
+          optionLabel={contest.options[0].label}
           scannedTally={scannedContestResults.yesTally}
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
@@ -265,7 +267,7 @@ export function ContestResultsTable({
         <ContestOptionRow
           key={noKey}
           testId={noKey}
-          optionLabel={contest.noOption.label}
+          optionLabel={contest.options[1].label}
           scannedTally={scannedContestResults.noTally}
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}

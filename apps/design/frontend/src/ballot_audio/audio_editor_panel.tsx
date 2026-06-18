@@ -3,7 +3,7 @@ import React from 'react';
 
 import { assertDefined } from '@votingworks/basics';
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey, YesNoContest } from '@votingworks/types';
+import { ElectionStringKey, BallotMeasureContest } from '@votingworks/types';
 
 import { LinkButton, LinkButtonProps } from '@votingworks/ui';
 import * as api from '../api';
@@ -96,7 +96,8 @@ export function ContestDescriptionPreview(props: {
     if (!contests) return undefined;
 
     return contests.find(
-      (c): c is YesNoContest => c.id === contestId && c.type === 'yesno'
+      (c): c is BallotMeasureContest =>
+        c.id === contestId && c.type === 'measure'
     );
   }, [contestId, contests]);
 

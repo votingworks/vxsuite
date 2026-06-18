@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest';
+import { assertDefined } from '@votingworks/basics';
 import {
   CandidateContest,
   PartyId,
-  YesNoContest,
+  BallotMeasureContest,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -37,7 +38,7 @@ const republicanContest = openPrimary.contests.find(
     c.type === 'candidate' && c.partyId === republicanPartyId
 )!;
 const nonpartisanContest = openPrimary.contests.find(
-  (c): c is YesNoContest => c.type === 'yesno'
+  (c): c is BallotMeasureContest => c.type === 'measure'
 )!;
 
 describe('partisanContests', () => {
@@ -99,7 +100,9 @@ describe('votedPartyIds', () => {
     expect(votedPartyIds(openPrimary, {})).toEqual([]);
     expect(
       votedPartyIds(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [
+          assertDefined(nonpartisanContest.options[0]).id,
+        ],
       })
     ).toEqual([]);
     expect(
@@ -175,7 +178,9 @@ describe('hasCrossoverVote', () => {
   test('false for open primary nonpartisan-only votes', () => {
     expect(
       hasCrossoverVote(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [
+          assertDefined(nonpartisanContest.options[0]).id,
+        ],
       })
     ).toEqual(false);
   });
@@ -197,7 +202,9 @@ describe('inferPartyFromVotes', () => {
     );
     expect(
       inferPartyFromVotes(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [
+          assertDefined(nonpartisanContest.options[0]).id,
+        ],
       })
     ).toEqual(Tabulation.NO_PARTY_ID);
   });

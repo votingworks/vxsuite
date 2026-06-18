@@ -144,7 +144,7 @@ test('renders as expected for all precincts in a primary election', () => {
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }
-        return c.type === 'yesno' || c.partyId === '0';
+        return c.type === 'measure' || c.partyId === '0';
       })}
       partyId="0"
       batches={[]}

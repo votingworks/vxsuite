@@ -19,7 +19,7 @@ import {
   CandidateContest as CandidateContestStruct,
   Election,
   PrecinctId,
-  YesNoContest,
+  BallotMeasureContest as BallotMeasureContestInterface,
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
@@ -407,7 +407,11 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+function BallotMeasureContest({
+  contest,
+}: {
+  contest: BallotMeasureContestInterface;
+}) {
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader>
@@ -448,7 +452,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             justifyContent: 'end',
           }}
         >
-          {[contest.yesOption, contest.noOption].map((option) => (
+          {[contest.options[0], contest.options[1]].map((option) => (
             <li
               key={option.id}
               className={BALLOT_MEASURE_OPTION_CLASS}
@@ -501,7 +505,7 @@ function Contest({
           ballotStyle={ballotStyle}
         />
       );
-    case 'yesno':
+    case 'measure':
       return <BallotMeasureContest contest={contest} />;
     default:
       return throwIllegalValue(contest);

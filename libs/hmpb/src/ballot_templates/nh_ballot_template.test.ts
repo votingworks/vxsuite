@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { CandidateContest, YesNoContest } from '@votingworks/types';
+import { CandidateContest, BallotMeasureContest } from '@votingworks/types';
 import {
   rotateCandidatesByStatute,
   rotateCandidatesByPrecinct,
@@ -331,20 +331,22 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       candidates: [{ id: '1', name: 'Alice' }],
     };
 
-    const yesnoContest: YesNoContest = {
-      id: 'yesno-1',
-      type: 'yesno',
+    const measureContest: BallotMeasureContest = {
+      id: 'measure-1',
+      type: 'measure',
       districtId: 'district-1',
       title: 'Ballot Measure',
       description: 'Test measure',
-      yesOption: { id: 'yes', label: 'Yes' },
-      noOption: { id: 'no', label: 'No' },
+      options: [
+        { id: 'yes', label: 'Yes' },
+        { id: 'no', label: 'No' },
+      ],
     };
 
     const [precinct1] = electionFamousNames.precincts;
 
     const params: RotationParams = {
-      contests: [candidateContest, yesnoContest],
+      contests: [candidateContest, measureContest],
       precincts: electionFamousNames.precincts,
       precinctsOrSplitIds: [{ precinctId: precinct1.id }],
       districtIds: ['district-1'],
@@ -355,7 +357,9 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].orderedCandidatesByContest).toHaveProperty('contest-1');
-    expect(result[0].orderedCandidatesByContest).not.toHaveProperty('yesno-1');
+    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+      'measure-1'
+    );
     expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
       'contest-2'
     );

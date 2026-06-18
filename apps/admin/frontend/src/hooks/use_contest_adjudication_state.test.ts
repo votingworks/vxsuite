@@ -6,10 +6,10 @@ import {
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import {
+  BallotMeasureContest,
   CandidateContest,
   Contest,
   ContestOption,
-  YesNoContest,
 } from '@votingworks/types';
 import { act, renderHook } from '@testing-library/react';
 import {
@@ -30,14 +30,16 @@ const candidateContest: CandidateContest = {
   ],
 };
 
-const yesNoContest: YesNoContest = {
+const ballotMeasureContest: BallotMeasureContest = {
   id: 'contest',
   districtId: 'district',
   title: 'Contest',
-  type: 'yesno',
+  type: 'measure',
   description: 'Question',
-  yesOption: { id: 'yes', label: 'Yes' },
-  noOption: { id: 'no', label: 'No' },
+  options: [
+    { id: 'yes', label: 'Yes' },
+    { id: 'no', label: 'No' },
+  ],
 };
 
 function makeOption(
@@ -573,7 +575,7 @@ test('initializes derived state correctly for candidate contest', () => {
   });
 });
 
-test('initializes derived state correctly for yes/no contest', () => {
+test('initializes derived state correctly for ballot measure contest', () => {
   const contestId = 'contest';
 
   const contestAdjudicationData: ContestAdjudicationData = {
@@ -581,18 +583,18 @@ test('initializes derived state correctly for yes/no contest', () => {
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId },
+        { type: 'measure', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
       makeOption(
-        { type: 'yesno', id: 'no', contestId },
+        { type: 'measure', id: 'no', contestId },
         { hasMarginalMark: true }
       ),
     ],
   };
 
   const { result } = renderAdjudicationState(
-    yesNoContest,
+    ballotMeasureContest,
     contestAdjudicationData,
     []
   );
@@ -609,11 +611,11 @@ test('initializes derived state correctly for yes/no contest', () => {
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId },
+        { type: 'measure', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
       makeOption(
-        { type: 'yesno', id: 'no', contestId },
+        { type: 'measure', id: 'no', contestId },
         { hasMarginalMark: true }
       ),
     ],
@@ -626,7 +628,7 @@ test('initializes derived state correctly for yes/no contest', () => {
     },
   };
   const { result: adjResult } = renderAdjudicationState(
-    yesNoContest,
+    ballotMeasureContest,
     adjudicatedContestAdjudicationData,
     [],
     adjudicatedContest
@@ -643,7 +645,7 @@ test('initializes derived state correctly for yes/no contest', () => {
   );
 });
 
-test('useContestAdjudicationState for yesno contest: selectedCandidateNames and checkWriteInNameForDoubleVote', () => {
+test('useContestAdjudicationState for ballot measure contest: selectedCandidateNames and checkWriteInNameForDoubleVote', () => {
   const contestId = 'contest';
 
   const contestAdjudicationData: ContestAdjudicationData = {
@@ -651,23 +653,23 @@ test('useContestAdjudicationState for yesno contest: selectedCandidateNames and 
     tag: {},
     options: [
       makeOption(
-        { type: 'yesno', id: 'yes', contestId },
+        { type: 'measure', id: 'yes', contestId },
         { hasMarginalMark: true }
       ),
-      makeOption({ type: 'yesno', id: 'no', contestId }),
+      makeOption({ type: 'measure', id: 'no', contestId }),
     ],
   };
 
   const { result } = renderAdjudicationState(
-    yesNoContest,
+    ballotMeasureContest,
     contestAdjudicationData,
     []
   );
 
-  // selectedCandidateNames returns [] for yesno contest
+  // selectedCandidateNames returns [] for ballot measure contest
   expect(result.current.selectedCandidateNames).toEqual([]);
 
-  // checkWriteInNameForDoubleVote returns undefined for yesno contest
+  // checkWriteInNameForDoubleVote returns undefined for ballot measure contest
   expect(
     result.current.checkWriteInNameForDoubleVote({
       writeInName: 'test',

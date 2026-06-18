@@ -16,7 +16,7 @@ import {
   PrecinctIdSchema,
   StraightPartyContest,
   unsafeParse,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import {
   assert,
@@ -834,20 +834,22 @@ test('adding a ballot measure', async () => {
   const electionId = election.id;
   const id = idFactory.next();
   idFactory.next(); // Skip over the extra ballot measure ID created when switching to ballot measure type
-  const newContest: YesNoContest = {
-    type: 'yesno',
+  const newContest: BallotMeasureContest = {
+    type: 'measure',
     title: 'New Ballot Measure',
     id,
     districtId: election.districts[0].id,
     description: 'New Ballot Measure Description',
-    yesOption: {
-      id: idFactory.next(),
-      label: 'Yes',
-    },
-    noOption: {
-      id: idFactory.next(),
-      label: 'No',
-    },
+    options: [
+      {
+        id: idFactory.next(),
+        label: 'Yes',
+      },
+      {
+        id: idFactory.next(),
+        label: 'No',
+      },
+    ],
   };
 
   apiMock.listContests
@@ -889,15 +891,15 @@ test('adding a ballot measure', async () => {
   const [yesInput, noInput] = inputs;
   expect(screen.queryButton('Add Option')).not.toBeInTheDocument();
   userEvent.clear(yesInput);
-  userEvent.type(yesInput, newContest.yesOption.label);
+  userEvent.type(yesInput, assertDefined(newContest.options[0]).label);
   userEvent.clear(noInput);
-  userEvent.type(noInput, newContest.noOption.label);
+  userEvent.type(noInput, assertDefined(newContest.options[1]).label);
 
   await within(descriptionEditor).findByText(newContest.description);
   const descriptionHtml = `<p>${newContest.description}</p>`;
 
   // Save contest
-  const newContestWithDescriptionHtml: YesNoContest = {
+  const newContestWithDescriptionHtml: BallotMeasureContest = {
     ...newContest,
     description: descriptionHtml,
   };
@@ -923,7 +925,7 @@ test('editing a ballot measure', async () => {
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   )!;
   const savedDistrict = election.districts.find(
     (district) => district.id === savedContest.districtId
@@ -931,19 +933,22 @@ test('editing a ballot measure', async () => {
   const updatedDistrict = election.districts.find(
     (district) => district.id !== savedContest.districtId
   )!;
-  const updatedContest: YesNoContest = {
+  const updatedContest: BallotMeasureContest = {
     ...savedContest,
     title: 'Updated Ballot Measure Title',
     districtId: updatedDistrict.id,
     description: 'Updated Ballot Measure Description',
-    yesOption: {
-      ...savedContest.yesOption,
-      label: 'Yea',
-    },
-    noOption: {
-      ...savedContest.noOption,
-      label: 'Nay',
-    },
+    options: [
+      {
+        ...assertDefined(savedContest.options[0]),
+        label: 'Yea',
+      },
+      {
+        ...assertDefined(savedContest.options[1]),
+        label: 'Nay',
+      },
+      ...savedContest.options.slice(2),
+    ],
   };
 
   apiMock.listContests
@@ -984,16 +989,16 @@ test('editing a ballot measure', async () => {
 
   // Change yes and no labels
   const [yesInput, noInput] = getOptionInputs();
-  expect(yesInput).toHaveValue(savedContest.yesOption.label);
+  expect(yesInput).toHaveValue(assertDefined(savedContest.options[0]).label);
   userEvent.clear(yesInput);
-  userEvent.type(yesInput, updatedContest.yesOption.label);
+  userEvent.type(yesInput, assertDefined(updatedContest.options[0]).label);
 
-  expect(noInput).toHaveValue(savedContest.noOption.label);
+  expect(noInput).toHaveValue(assertDefined(savedContest.options[1]).label);
   userEvent.clear(noInput);
-  userEvent.type(noInput, updatedContest.noOption.label);
+  userEvent.type(noInput, assertDefined(updatedContest.options[1]).label);
 
   // Save contest
-  const updatedContestWithDescriptionHtml: YesNoContest = {
+  const updatedContestWithDescriptionHtml: BallotMeasureContest = {
     ...updatedContest,
     description: descriptionHtml,
   };
@@ -1023,7 +1028,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   const { election } = electionRecord;
   const electionId = election.id;
   const savedContest = election.contests.find(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   )!;
 
   apiMock.listContests
@@ -1042,8 +1047,8 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   expect(optionInputs).toHaveLength(3);
 
   const [yesInput, noInput, additionalInput] = optionInputs;
-  expect(yesInput).toHaveValue(savedContest.yesOption.label);
-  expect(noInput).toHaveValue(savedContest.noOption.label);
+  expect(yesInput).toHaveValue(assertDefined(savedContest.options[0]).label);
+  expect(noInput).toHaveValue(assertDefined(savedContest.options[1]).label);
   expect(additionalInput).toHaveValue('');
 
   userEvent.type(additionalInput, 'Third Option');
@@ -1055,9 +1060,10 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   const [, , , fourthInput] = updatedOptionInputs;
   userEvent.type(fourthInput, 'Fourth Option');
 
-  const updatedContest: YesNoContest = {
+  const updatedContest: BallotMeasureContest = {
     ...savedContest,
-    additionalOptions: [
+    options: [
+      ...savedContest.options,
       { id: idFactory.next(), label: 'Third Option' },
       { id: idFactory.next(), label: 'Fourth Option' },
     ],
@@ -1083,8 +1089,12 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   for (const input of optionInputs) {
     expect(input).toBeDisabled();
   }
-  expect(optionInputs[0]).toHaveValue(savedContest.yesOption.label);
-  expect(optionInputs[1]).toHaveValue(savedContest.noOption.label);
+  expect(optionInputs[0]).toHaveValue(
+    assertDefined(savedContest.options[0]).label
+  );
+  expect(optionInputs[1]).toHaveValue(
+    assertDefined(savedContest.options[1]).label
+  );
   expect(optionInputs[2]).toHaveValue('Third Option');
   expect(optionInputs[3]).toHaveValue('Fourth Option');
   expect(screen.getButton('Add Option')).toBeDisabled();
@@ -1093,9 +1103,12 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   await navigateToContestEdit(history, electionId, savedContest.id);
   const [, , thirdInput] = getOptionInputs();
   userEvent.click(within(thirdInput.parentElement!).getButton('Remove Option'));
-  const updatedContest2: YesNoContest = {
+  const updatedContest2: BallotMeasureContest = {
     ...updatedContest,
-    additionalOptions: updatedContest.additionalOptions!.slice(1),
+    options: [
+      ...updatedContest.options.slice(0, 2),
+      ...updatedContest.options.slice(3),
+    ],
   };
   apiMock.updateContest
     .expectCallWith({
@@ -1225,7 +1238,7 @@ test('editing contests is restricted for elections with external source', async 
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
   const yesNoContest = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   )!;
 
   apiMock.listContests
@@ -1386,7 +1399,7 @@ test('cancelling', async () => {
   const history = renderScreen(electionId);
 
   const contest = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   )!;
   await navigateToContestView(history, electionId, contest.id);
   await expectViewModeContest(history, electionId, contest);
@@ -1475,7 +1488,7 @@ test('error messages for duplicate ballot measure', async () => {
   const electionId = election.id;
   const ballotMeasureContest = find(
     election.contests,
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   );
 
   apiMock.listContests
@@ -1623,7 +1636,7 @@ describe('audio editing', () => {
 
   const yesNoContest = find(
     election.contests,
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   );
 
   test(`configures audio edit buttons for candidates`, async () => {
@@ -1742,7 +1755,7 @@ describe('audio editing', () => {
       routes.election(electionId).contests.audio({
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-        subkey: yesNoContest.yesOption.id,
+        subkey: assertDefined(yesNoContest.options[0]).id,
       })
     );
     await navigateToContestView(history, electionId, yesNoContest.id);
@@ -1757,7 +1770,7 @@ describe('audio editing', () => {
       routes.election(electionId).contests.audio({
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-        subkey: yesNoContest.noOption.id,
+        subkey: assertDefined(yesNoContest.options[1]).id,
       })
     );
   });

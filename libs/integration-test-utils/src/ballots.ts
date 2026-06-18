@@ -67,7 +67,7 @@ export function createFullyVotedBallot(
       if (contest.type === 'candidate') {
         return [contest.id, contest.candidates.slice(0, contest.seats)];
       }
-      return [contest.id, [contest.yesOption.id]];
+      return [contest.id, [assertDefined(contest.options[0]).id]];
     })
   );
 }

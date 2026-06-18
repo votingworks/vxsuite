@@ -617,7 +617,7 @@ test.each([
         paperSize: hmpbPaperSize,
       },
       contests: baseElection.contests.map((c) => {
-        if (c.type === 'yesno' || !c.title.includes('President')) return c;
+        if (c.type === 'measure' || !c.title.includes('President')) return c;
 
         idContestWithTermDescription = c.id;
         return {

@@ -117,16 +117,12 @@ export function regenerateElectionIds(
               partyIds: candidate.partyIds?.map(replaceId),
             })),
           };
-        case 'yesno':
+        case 'measure':
           return {
-            yesOption: {
-              ...contest.yesOption,
-              id: replaceId(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: replaceId(contest.noOption.id),
-            },
+            options: contest.options.map((option) => ({
+              ...option,
+              id: replaceId(option.id),
+            })),
           };
         default: {
           /* istanbul ignore next */

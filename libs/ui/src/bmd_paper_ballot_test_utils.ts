@@ -6,7 +6,7 @@ import {
   Candidate,
   CandidateContest,
   Vote,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 
 export function generateCandidateVotes(contest: CandidateContest): Vote {
@@ -29,11 +29,11 @@ export function generateCandidateVotes(contest: CandidateContest): Vote {
   return votes;
 }
 
-export function generateYesNoVote(c: YesNoContest): Vote {
+export function generateYesNoVote(c: BallotMeasureContest): Vote {
   /* istanbul ignore next */
   if (Math.random() < 0.25) {
     return [] as Vote;
   }
 
-  return [assertDefined(sample([c.yesOption.id, c.noOption.id]))] as Vote;
+  return [assertDefined(sample([c.options[0].id, c.options[1].id]))] as Vote;
 }

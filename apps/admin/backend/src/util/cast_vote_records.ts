@@ -21,7 +21,7 @@ export function getNumberVotesAllowed(contest: Contest): number {
   switch (contest.type) {
     case 'candidate':
       return contest.seats;
-    case 'yesno':
+    case 'measure':
     case 'straight-party':
       return 1;
     default:

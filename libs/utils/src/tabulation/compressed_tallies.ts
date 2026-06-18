@@ -11,11 +11,16 @@ import {
   straightPartyNotYetImplemented,
   Tabulation,
   unsafeParse,
-  YesNoContestCompressedTally,
-  YesNoContestCompressedTallySchema,
+  BallotMeasureContestCompressedTally,
+  BallotMeasureContestCompressedTallySchema,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  throwIllegalValue,
+  typedAs,
+} from '@votingworks/basics';
 import { ContestResults } from '@votingworks/types/src/tabulation';
 import { getContestsForPrecinctAndElection } from './contest_filtering';
 import { singlePrecinctSelectionFor } from '../precinct_selection';
@@ -89,11 +94,11 @@ export function compressTally(
       return straightPartyNotYetImplemented();
     }
     switch (contest.type) {
-      case 'yesno': {
+      case 'measure': {
         const contestResults = results.contestResults[contest.id];
         assert(contestResults !== undefined);
-        assert(contestResults.contestType === 'yesno');
-        return typedAs<YesNoContestCompressedTally>([
+        assert(contestResults.contestType === 'measure');
+        return typedAs<BallotMeasureContestCompressedTally>([
           contestResults.undervotes, // undervotes
           contestResults.overvotes, // overvotes
           contestResults.ballots, // ballots cast
@@ -239,16 +244,16 @@ function getContestTalliesForCompressedContest(
     return straightPartyNotYetImplemented();
   }
   switch (contest.type) {
-    case 'yesno': {
+    case 'measure': {
       const [undervotes, overvotes, ballots, yesTally, noTally] = unsafeParse(
-        YesNoContestCompressedTallySchema,
+        BallotMeasureContestCompressedTallySchema,
         compressedContest
       );
       return {
         contestId: contest.id,
-        contestType: 'yesno',
-        yesOptionId: contest.yesOption.id,
-        noOptionId: contest.noOption.id,
+        contestType: 'measure',
+        yesOptionId: assertDefined(contest.options[0]).id,
+        noOptionId: assertDefined(contest.options[1]).id,
         ballots,
         undervotes,
         overvotes,
@@ -304,8 +309,8 @@ function getContestTalliesForCompressedContest(
   }
 }
 
-// The length of a yes/no contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
-const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
+// The length of a ballot measure contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
+const ballotMeasureContestCompressedTallyLength: BallotMeasureContestCompressedTally['length'] = 5;
 
 function getNumberOfEntriesInContest(contest: Contest): number {
   /* istanbul ignore next */
@@ -313,8 +318,8 @@ function getNumberOfEntriesInContest(contest: Contest): number {
     return straightPartyNotYetImplemented();
   }
   switch (contest.type) {
-    case 'yesno':
-      return yesNoContestCompressedTallyLength;
+    case 'measure':
+      return ballotMeasureContestCompressedTallyLength;
     case 'candidate':
       return (
         1 /* number of ballots */ +
@@ -368,11 +373,11 @@ export function decodeV0CompressedTally(
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
-    if (contest.type === 'yesno') {
+    if (contest.type === 'measure') {
       compressedTally.push(
         Array.from(
           uint16Array.slice(offset, offset + tallyLength)
-        ) as YesNoContestCompressedTally
+        ) as BallotMeasureContestCompressedTally
       );
       offset += tallyLength;
     } else if (contest.type === 'candidate') {
@@ -411,8 +416,8 @@ function decodeContestEntriesFromUint16Array(
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
-    if (contest.type === 'yesno') {
-      compressedEntry = entryArray as YesNoContestCompressedTally;
+    if (contest.type === 'measure') {
+      compressedEntry = entryArray as BallotMeasureContestCompressedTally;
     } else {
       compressedEntry = entryArray as CandidateContestCompressedTally;
     }

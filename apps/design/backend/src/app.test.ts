@@ -49,7 +49,7 @@ import {
   District,
   Party,
   PartyIdSchema,
-  YesNoContest,
+  BallotMeasureContest,
   PartyId,
   DistrictId,
   CastVoteRecordExportFileName,
@@ -563,14 +563,10 @@ test('create/list/delete elections', async () => {
               ),
             }
           : {
-              yesOption: {
-                ...contest.yesOption,
-                id: expectNotEqualTo(contest.yesOption.id),
-              },
-              noOption: {
-                ...contest.noOption,
-                id: expectNotEqualTo(contest.noOption.id),
-              },
+              options: contest.options.map((option) => ({
+                ...option,
+                id: expectNotEqualTo(option.id),
+              })),
             }),
       };
     })
@@ -2055,20 +2051,22 @@ test('CRUD contests', async () => {
   expect(await apiClient.listContests({ electionId })).toEqual([contest1]);
 
   // Create a ballot measure contest
-  const contest2: YesNoContest = {
+  const contest2: BallotMeasureContest = {
     id: 'contest-2',
     title: 'Contest 2',
-    type: 'yesno',
+    type: 'measure',
     districtId: district1.id,
     description: 'Contest 2 Description',
-    yesOption: {
-      id: 'yes-option',
-      label: 'Yes',
-    },
-    noOption: {
-      id: 'no-option',
-      label: 'No',
-    },
+    options: [
+      {
+        id: 'yes-option',
+        label: 'Yes',
+      },
+      {
+        id: 'no-option',
+        label: 'No',
+      },
+    ],
   };
   (
     await apiClient.createContest({ electionId, newContest: contest2 })
@@ -2146,7 +2144,7 @@ test('CRUD contests', async () => {
   ]);
 
   // Update ballot measure contest
-  const updatedContest2: YesNoContest = {
+  const updatedContest2: BallotMeasureContest = {
     ...contest2,
     title: 'Updated Contest 2',
     description: 'Updated Contest 2 Description',
@@ -2397,14 +2395,16 @@ test('CRUD contests', async () => {
       newContest: {
         ...contest2,
         id: 'duplicate-contest',
-        yesOption: {
-          id: 'dup-yes-option',
-          label: 'Yes',
-        },
-        noOption: {
-          id: 'dup-no-option',
-          label: 'Yes',
-        },
+        options: [
+          {
+            id: 'dup-yes-option',
+            label: 'Yes',
+          },
+          {
+            id: 'dup-no-option',
+            label: 'Yes',
+          },
+        ],
       },
     })
   ).toEqual(err('duplicate-option'));
@@ -2415,14 +2415,16 @@ test('CRUD contests', async () => {
       electionId,
       updatedContest: {
         ...contest2,
-        yesOption: {
-          id: 'dup-yes-option',
-          label: 'Yes',
-        },
-        noOption: {
-          id: 'dup-no-option',
-          label: 'Yes',
-        },
+        options: [
+          {
+            id: 'dup-yes-option',
+            label: 'Yes',
+          },
+          {
+            id: 'dup-no-option',
+            label: 'Yes',
+          },
+        ],
       },
     })
   ).toEqual(err('duplicate-option'));
@@ -3144,19 +3146,15 @@ test('cloneElection', async () => {
               })
             ),
           };
-        case 'yesno':
+        case 'measure':
           return {
             ...contest,
             id: expectNotEqualTo(contest.id),
             districtId: updatedDistrictId(contest.districtId),
-            yesOption: {
-              ...contest.yesOption,
-              id: expectNotEqualTo(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: expectNotEqualTo(contest.noOption.id),
-            },
+            options: contest.options.map((option) => ({
+              ...option,
+              id: expectNotEqualTo(option.id),
+            })),
           };
         default:
           throw throwIllegalValue(contest, 'type');

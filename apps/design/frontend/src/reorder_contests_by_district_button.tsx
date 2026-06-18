@@ -26,19 +26,19 @@ export function reorderContestsByDistrict(
   districtOrder: District[]
 ): readonly Contest[] {
   const candidateContests = contests.filter((c) => c.type === 'candidate');
-  const yesNoContests = contests.filter((c) => c.type === 'yesno');
-  assert(candidateContests.length + yesNoContests.length === contests.length);
+  const measureContests = contests.filter((c) => c.type === 'measure');
+  assert(candidateContests.length + measureContests.length === contests.length);
 
   const districtIds = districtOrder.map((d) => d.id);
   const reorderedCandidateContests = districtIds.flatMap((districtId) =>
     candidateContests.filter((c) => c.districtId === districtId)
   );
-  const reorderedYesNoContests = districtIds.flatMap((districtId) =>
-    yesNoContests.filter((c) => c.districtId === districtId)
+  const reorderedMeasureContests = districtIds.flatMap((districtId) =>
+    measureContests.filter((c) => c.districtId === districtId)
   );
   const reorderedContests = [
     ...reorderedCandidateContests,
-    ...reorderedYesNoContests,
+    ...reorderedMeasureContests,
   ];
 
   // Safeguard to make sure that we aren't accidentally losing contests

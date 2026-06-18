@@ -116,7 +116,7 @@ export function adjudicatedVotes(
                 : []
             ),
           ];
-        case 'yesno':
+        case 'measure':
           return [
             contest.id,
             adjudicationData.options.flatMap((option) =>

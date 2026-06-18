@@ -5,7 +5,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 
-// Returns a BMD page interpretation with a vote for the first option (candidate or yesOption) in the first contest of the provided election. Use when you just need a well-formed interpretation and the contents don't matter.
+// Returns a BMD page interpretation with a vote for the first option (candidate or ballot measure option) in the first contest of the provided election. Use when you just need a well-formed interpretation and the contents don't matter.
 export function getMockInterpretation(
   electionDefinition: ElectionDefinition
 ): InterpretedBmdPage {
@@ -22,9 +22,9 @@ export function getMockInterpretation(
         },
       ],
     };
-  } else if (contest.type === 'yesno') {
+  } else if (contest.type === 'measure') {
     votes = {
-      [contest.title]: [contest.yesOption.id],
+      [contest.title]: [contest.options[0].id],
     };
   }
 

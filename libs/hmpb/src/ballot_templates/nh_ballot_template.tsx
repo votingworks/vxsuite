@@ -27,7 +27,7 @@ import {
   NhPrecinctSplitOptions,
   Precinct,
   PrecinctId,
-  YesNoContest,
+  BallotMeasureContest as BallotMeasureContestInterface,
   ballotPaperDimensions,
   getBallotStyle,
   getPartyForBallotStyle,
@@ -230,7 +230,7 @@ export function getCandidateOrderingSetsForNhBallot({
               precinctId
             );
             break;
-          case 'yesno':
+          case 'measure':
             // do nothing
             break;
           default:
@@ -644,7 +644,7 @@ function BallotMeasureContest({
   compact,
   continuesOnNextPage,
 }: {
-  contest: YesNoContest;
+  contest: BallotMeasureContestInterface;
   compact?: boolean;
   continuesOnNextPage?: boolean;
 }) {
@@ -727,11 +727,7 @@ function BallotMeasureContest({
               justifyContent: 'end',
             }}
           >
-            {[
-              contest.yesOption,
-              contest.noOption,
-              ...(contest.additionalOptions ?? []),
-            ].map((option) => (
+            {contest.options.map((option) => (
               <li
                 key={option.id}
                 className={BALLOT_MEASURE_OPTION_CLASS}
@@ -793,7 +789,7 @@ function Contest({
           ballotStyle={ballotStyle}
         />
       );
-    case 'yesno':
+    case 'measure':
       return <BallotMeasureContest compact={compact} contest={contest} />;
     default:
       return throwIllegalValue(contest);
@@ -801,14 +797,17 @@ function Contest({
 }
 
 async function splitLongBallotMeasureAcrossPages(
-  tooLongContest: YesNoContest,
+  tooLongContest: BallotMeasureContestInterface,
   contestProps: Omit<Parameters<typeof Contest>[0], 'contest'>,
   ballotStyle: BallotStyle,
   dimensions: PixelDimensions,
   scratchpad: RenderScratchpad
 ): Promise<
   Result<
-    { firstContestElement: JSX.Element; restContest: YesNoContest },
+    {
+      firstContestElement: JSX.Element;
+      restContest: BallotMeasureContestInterface;
+    },
     BallotLayoutError
   >
 > {
@@ -866,7 +865,7 @@ async function splitLongBallotMeasureAcrossPages(
   const splitIndex = descriptionHtmlNode.toString().length;
 
   const firstDescriptionChunk = descriptionHtmlText.slice(0, splitIndex);
-  const firstContest: YesNoContest = {
+  const firstContest: BallotMeasureContestInterface = {
     ...tooLongContest,
     description: firstDescriptionChunk,
   };
@@ -883,7 +882,7 @@ async function splitLongBallotMeasureAcrossPages(
   const continuedTitle = tooLongContest.title.endsWith(continuedTitleSuffix)
     ? tooLongContest.title
     : `${tooLongContest.title}${continuedTitleSuffix}`;
-  const restContest: YesNoContest = {
+  const restContest: BallotMeasureContestInterface = {
     ...tooLongContest,
     title: continuedTitle,
     description: restDescription,
@@ -1012,7 +1011,7 @@ async function BallotPageContent(
   if (
     contestsLeftToLayout.length > 0 &&
     unusedHeight > dimensions.height * 0.75 &&
-    nextContest.type === 'yesno'
+    nextContest.type === 'measure'
   ) {
     const splitResult = await splitLongBallotMeasureAcrossPages(
       nextContest,

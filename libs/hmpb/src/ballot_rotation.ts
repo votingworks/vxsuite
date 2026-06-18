@@ -47,7 +47,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
         return straightPartyNotYetImplemented();
       }
       switch (contest.type) {
-        case 'yesno':
+        case 'measure':
           // do nothing
           break;
         case 'candidate': {
@@ -120,7 +120,7 @@ function getDefaultCandidateOrdering({
             })
         );
         break;
-      case 'yesno':
+      case 'measure':
         // do nothing
         break;
       default: {

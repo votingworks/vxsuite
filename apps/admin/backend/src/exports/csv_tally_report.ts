@@ -174,14 +174,16 @@ function* generateDataRows({
             manualVotes: manualTally,
           });
         }
-      } else if (contest.type === 'yesno') {
-        assert(scannedContestResults.contestType === 'yesno');
-        assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
+      } else if (contest.type === 'measure') {
+        assert(scannedContestResults.contestType === 'measure');
+        assertIsOptional<Tabulation.BallotMeasureContestResults>(
+          manualContestResults
+        );
         yield buildRow({
           metadataValues,
           contest,
-          selection: contest.yesOption.label,
-          selectionId: contest.yesOption.id,
+          selection: assertDefined(contest.options[0]).label,
+          selectionId: assertDefined(contest.options[0]).id,
           scannedVotes: scannedContestResults.yesTally,
           hasManualResults,
           manualVotes: manualContestResults?.yesTally ?? 0,
@@ -189,8 +191,8 @@ function* generateDataRows({
         yield buildRow({
           metadataValues,
           contest,
-          selection: contest.noOption.label,
-          selectionId: contest.noOption.id,
+          selection: assertDefined(contest.options[1]).label,
+          selectionId: assertDefined(contest.options[1]).id,
           scannedVotes: scannedContestResults.noTally,
           hasManualResults,
           manualVotes: manualContestResults?.noTally ?? 0,

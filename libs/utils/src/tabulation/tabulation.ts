@@ -16,7 +16,7 @@ import {
   PartyId,
   PrecinctSelection,
   Tabulation,
-  YesNoContest,
+  BallotMeasureContest,
   StraightPartyContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
@@ -26,13 +26,13 @@ import { inferPartyFromVotes, partisanContests } from './open_primary';
 import { deriveStraightPartyVotes } from './straight_party';
 
 export function getEmptyYesNoContestResults(
-  contest: YesNoContest
-): Tabulation.YesNoContestResults {
+  contest: BallotMeasureContest
+): Tabulation.BallotMeasureContestResults {
   return {
     contestId: contest.id,
-    contestType: 'yesno',
-    yesOptionId: contest.yesOption.id,
-    noOptionId: contest.noOption.id,
+    contestType: 'measure',
+    yesOptionId: assertDefined(contest.options[0]).id,
+    noOptionId: assertDefined(contest.options[1]).id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
@@ -103,7 +103,7 @@ function getEmptyContestResults(
         contest,
         includeGenericWriteInIfAllowed
       );
-    case 'yesno':
+    case 'measure':
       return getEmptyYesNoContestResults(contest);
     case 'straight-party':
       return getEmptyStraightPartyContestResults(contest);
@@ -244,7 +244,7 @@ function addCastVoteRecordToElectionResult(
         break;
       }
 
-      case 'yesno': {
+      case 'measure': {
         for (const optionId of optionIds) {
           if (optionId === contestResult.yesOptionId) {
             contestResult.yesTally += 1;
@@ -535,9 +535,9 @@ export function combineYesNoContestResults({
   contest,
   allContestResults,
 }: {
-  contest: YesNoContest;
-  allContestResults: Tabulation.YesNoContestResults[];
-}): Tabulation.YesNoContestResults {
+  contest: BallotMeasureContest;
+  allContestResults: Tabulation.BallotMeasureContestResults[];
+}): Tabulation.BallotMeasureContestResults {
   const combinedContestResults = getEmptyYesNoContestResults(contest);
   for (const contestResults of allContestResults) {
     combinedContestResults.overvotes += contestResults.overvotes;
@@ -625,11 +625,11 @@ export function combineContestResults({
         allContestResults:
           allContestResults as Tabulation.CandidateContestResults[],
       });
-    case 'yesno':
+    case 'measure':
       return combineYesNoContestResults({
         contest,
         allContestResults:
-          allContestResults as Tabulation.YesNoContestResults[],
+          allContestResults as Tabulation.BallotMeasureContestResults[],
       });
     case 'straight-party':
       return combineStraightPartyContestResults({
@@ -825,7 +825,7 @@ export type ContestResultsSummary = {
       writeInOptionTallies?: Record<Id, { name: string; tally: number }>;
     }
   | {
-      type: 'yesno';
+      type: 'measure';
       yesTally?: number;
       noTally?: number;
     }
@@ -851,9 +851,9 @@ export function buildContestResultsFixture({
   contestResults.ballots = contestResultsSummary.ballots;
 
   switch (contest.type) {
-    case 'yesno': {
-      assert(contestResultsSummary.type === 'yesno');
-      assert(contestResults.contestType === 'yesno');
+    case 'measure': {
+      assert(contestResultsSummary.type === 'measure');
+      assert(contestResults.contestType === 'measure');
       contestResults.yesTally = contestResultsSummary.yesTally ?? 0;
       contestResults.noTally = contestResultsSummary.noTally ?? 0;
       break;
@@ -1031,7 +1031,7 @@ function sumTallies(contestResults: Tabulation.ContestResults): number {
       return iter(Object.values(contestResults.tallies)).sum(
         ({ tally }) => tally
       );
-    case 'yesno':
+    case 'measure':
       return contestResults.yesTally + contestResults.noTally;
     case 'straight-party':
       return iter(Object.values(contestResults.tallies)).sum();

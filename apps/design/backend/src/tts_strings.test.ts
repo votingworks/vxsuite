@@ -111,19 +111,23 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
         description: 'Ballot measure 1 description.',
         id: 'contest3',
         title: 'Ballot Measure 1',
-        type: 'yesno',
+        type: 'measure',
 
-        noOption: { id: 'option_no', label: 'NO' },
-        yesOption: { id: 'option_yes', label: 'YES' },
+        options: [
+          { id: 'option_yes', label: 'YES' },
+          { id: 'option_no', label: 'NO' },
+        ],
       },
       {
         description: '<p>Ballot <b>measure</b> 2 description.</p>',
         id: 'contest4',
         title: 'Ballot Measure 2',
-        type: 'yesno',
+        type: 'measure',
 
-        noOption: { id: 'option_disagree', label: 'Agree to Disagree' },
-        yesOption: { id: 'option_agree', label: 'Agree' },
+        options: [
+          { id: 'option_agree', label: 'Agree' },
+          { id: 'option_disagree', label: 'Agree to Disagree' },
+        ],
       },
       {
         id: 'contest5',
