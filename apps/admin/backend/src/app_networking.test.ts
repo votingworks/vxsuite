@@ -299,7 +299,7 @@ test('client receives and caches election data from configured host', async () =
 
   // Configure an election on the host
   const electionDefinition = readElectionGeneralDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: globalThis.Buffer.from('test'),
@@ -339,7 +339,7 @@ test('client logs out when host election is unconfigured', async () => {
 
   // Configure an election on the host
   const electionDefinition = readElectionGeneralDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: globalThis.Buffer.from('test'),
@@ -365,16 +365,16 @@ test('client logs out when host election is unconfigured', async () => {
   expect(auth.logOut).toHaveBeenCalled();
 });
 
-function addElectionWithAdjudicableCvrs(
+async function addElectionWithAdjudicableCvrs(
   store: Store,
   count: number
-): {
+): Promise<{
   electionId: Id;
   cvrIds: Id[];
-} {
+}> {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: globalThis.Buffer.from('test'),
@@ -416,7 +416,7 @@ test('a ballot claimed via the peer API is released when the client goes stale',
     hostMachineId,
     clientMachineId
   );
-  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 1);
+  const { electionId, cvrIds } = await addElectionWithAdjudicableCvrs(store, 1);
   const cvrId = assertDefined(cvrIds[0]);
 
   await waitFor(() => {
@@ -464,7 +464,7 @@ test('a client logging out releases its ballot claim on the next heartbeat', asy
     hostMachineId,
     clientMachineId
   );
-  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 1);
+  const { electionId, cvrIds } = await addElectionWithAdjudicableCvrs(store, 1);
   const cvrId = assertDefined(cvrIds[0]);
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -509,7 +509,7 @@ test('client app adjudication proxies round-trip to the host over the networked 
     hostMachineId,
     clientMachineId
   );
-  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 2);
+  const { electionId, cvrIds } = await addElectionWithAdjudicableCvrs(store, 2);
 
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);

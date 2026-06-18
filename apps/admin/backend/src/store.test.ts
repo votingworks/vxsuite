@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { readFileSync } from 'node:fs';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -47,6 +48,7 @@ test('create a file store', () => {
   const store = Store.fileStore(
     tmpDbPath,
     join(tmpDir, 'ballot-images'),
+    join(tmpDir, 'election-packages'),
     mockBaseLogger({ fn: vi.fn })
   );
 
@@ -70,7 +72,7 @@ test('add an election', async () => {
   const electionPackageHash = sha256(electionPackageFileContents);
 
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData,
     electionPackageFileContents,
@@ -87,19 +89,17 @@ test('add an election', async () => {
     isOfficialResults: false,
     electionPackageHash,
   });
-  expect(store.getElectionPackageFileContents(electionId)).toEqual(
-    electionPackageFileContents
-  );
+  expect(
+    readFileSync(assertDefined(store.getElectionPackageFilePath(electionId)))
+  ).toEqual(electionPackageFileContents);
 
   expect(store.getElection('nonexistent-id')).toEqual(undefined);
-  expect(store.getElectionPackageFileContents('nonexistent-id')).toEqual(
-    undefined
-  );
+  expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
 });
 
-test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only counts', () => {
+test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only counts', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -117,9 +117,9 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only c
   expect(store.getRegisteredVoterCounts(electionId)).toEqual(counts);
 });
 
-test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct counts', () => {
+test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct counts', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -148,9 +148,9 @@ test('assert election exists', () => {
   );
 });
 
-test('setElectionResultsOfficial', () => {
+test('setElectionResultsOfficial', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -186,9 +186,9 @@ test('setElectionResultsOfficial', () => {
   );
 });
 
-test('current election id', () => {
+test('current election id', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -204,9 +204,9 @@ test('current election id', () => {
   expect(store.getCurrentElectionId()).toBeUndefined();
 });
 
-test('saveSystemSettings and getSystemSettings write and read system settings', () => {
+test('saveSystemSettings and getSystemSettings write and read system settings', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -216,9 +216,9 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
   expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
-test('scanner batches', () => {
+test('scanner batches', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -240,14 +240,14 @@ test('scanner batches', () => {
   expect(store.getScannerBatches(electionId)).toEqual([]);
 });
 
-test('delete empty scanner batches', () => {
+test('delete empty scanner batches', async () => {
   const fixtures = electionTwoPartyPrimaryFixtures;
   const election = fixtures.readElection();
   const ballotStyleGroups = getGroupedBallotStyles(election.ballotStyles);
   const ballotStyleGroup = assertDefined(ballotStyleGroups[0]);
 
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: fixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -303,9 +303,9 @@ test('delete empty scanner batches', () => {
   expect(store.getScannerBatches(electionId)).toEqual([batchWithCvrs]);
 });
 
-test('getWriteInCandidates returns no candidates for an empty contestIds filter', () => {
+test('getWriteInCandidates returns no candidates for an empty contestIds filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -324,13 +324,13 @@ test('getWriteInCandidates returns no candidates for an empty contestIds filter'
   );
 });
 
-test('manual results', () => {
+test('manual results', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -454,13 +454,13 @@ test('manual results', () => {
   expect(store.getManualResults({ election, electionId })).toEqual([]);
 });
 
-test('manual results - early_voting is a valid votingMethod', () => {
+test('manual results - early_voting is a valid votingMethod', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -522,9 +522,9 @@ describe('getTabulationGroups', () => {
   let electionId: Id;
   let election: Election;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     store = Store.memoryStore(makeTemporaryDirectory());
-    electionId = store.addElection({
+    electionId = await store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
       systemSettingsData,
       electionPackageFileContents: Buffer.of(),
@@ -725,9 +725,9 @@ describe('getFilteredContests', () => {
   let electionId: Id;
   let election: Election;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     store = Store.memoryStore(makeTemporaryDirectory());
-    electionId = store.addElection({
+    electionId = await store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
       systemSettingsData,
       electionPackageFileContents: Buffer.of(),
@@ -874,13 +874,13 @@ describe('machine ballot adjudication assignments', () => {
       .unsafeUnwrap()?.cvrId;
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
 
     store = Store.memoryStore(makeTemporaryDirectory());
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
-    electionId = store.addElection({
+    electionId = await store.addElection({
       electionData: electionDefinition.electionData,
       systemSettingsData,
       electionPackageFileContents: Buffer.of(),

@@ -53,9 +53,9 @@ test('isFilterCompatibleWithManualResults', () => {
 });
 
 describe('tabulateManualResults & tabulateManualBallotCounts', () => {
-  test('on incompatible filter', () => {
+  test('on incompatible filter', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
-    const electionId = store.addElection({
+    const electionId = await store.addElection({
       electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageFileContents: Buffer.of(),
@@ -79,12 +79,12 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       }).err()
     ).toEqual({ type: 'incompatible-filter' });
   });
-  test('grouping and filtering', () => {
+  test('grouping and filtering', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
     const { election, electionData } = electionDefinition;
-    const electionId = store.addElection({
+    const electionId = await store.addElection({
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageFileContents: Buffer.of(),

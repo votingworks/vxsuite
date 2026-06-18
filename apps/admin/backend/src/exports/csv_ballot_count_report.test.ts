@@ -26,7 +26,7 @@ test('uses appropriate headers', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -186,7 +186,7 @@ test('uses appropriate headers', async () => {
 test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -212,7 +212,7 @@ test('includes rows for empty but known result groups', async () => {
 test('does not include results groups when they are excluded by the filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -259,7 +259,7 @@ test('does not include results groups when they are excluded by the filter', asy
 test('excludes Manual column if no manual data exists', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -286,7 +286,7 @@ test('can include sheet counts', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
   const { electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),

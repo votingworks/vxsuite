@@ -80,7 +80,7 @@ function makeElectionDefinitionWithPollingPlaces(
   return safeParseElectionDefinition(JSON.stringify(election)).unsafeUnwrap();
 }
 
-function setupStore(
+async function setupStore(
   pollingPlaces: PollingPlace[],
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS,
   cvrs: MockCastVoteRecordFile = []
@@ -88,7 +88,7 @@ function setupStore(
   const electionDefinition =
     makeElectionDefinitionWithPollingPlaces(pollingPlaces);
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(systemSettings),
     electionPackageFileContents: Buffer.of(),
@@ -129,7 +129,7 @@ test('returns signed QR URLs when results match polling place', async () => {
       multiplier: 4,
     },
   ];
-  const { store, electionId } = setupStore(
+  const { store, electionId } = await setupStore(
     [ABSENTEE_PLACE_ALL],
     {
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -154,8 +154,8 @@ test('returns signed QR URLs when results match polling place', async () => {
   }
 });
 
-test('getMatchingAbsenteePollingPlaces returns no-cvrs-loaded when no ballots', () => {
-  const { store, electionId } = setupStore([
+test('getMatchingAbsenteePollingPlaces returns no-cvrs-loaded when no ballots', async () => {
+  const { store, electionId } = await setupStore([
     ABSENTEE_PLACE_ALL,
     ABSENTEE_PLACE_PRECINCT_1,
     ELECTION_DAY_PLACE,
@@ -166,7 +166,7 @@ test('getMatchingAbsenteePollingPlaces returns no-cvrs-loaded when no ballots', 
   );
 });
 
-test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CVR precincts', () => {
+test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CVR precincts', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M',
@@ -179,7 +179,7 @@ test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CV
       multiplier: 2,
     },
   ];
-  const { store, electionId } = setupStore(
+  const { store, electionId } = await setupStore(
     [ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
     DEFAULT_SYSTEM_SETTINGS,
     cvrs
@@ -195,7 +195,7 @@ test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CV
   ]);
 });
 
-test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee place covers the CVR precincts', () => {
+test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee place covers the CVR precincts', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '2F',
@@ -208,7 +208,7 @@ test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee pl
       multiplier: 2,
     },
   ];
-  const { store, electionId } = setupStore(
+  const { store, electionId } = await setupStore(
     [ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
     DEFAULT_SYSTEM_SETTINGS,
     cvrs
@@ -221,7 +221,7 @@ test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee pl
   expect(matches).toEqual([]);
 });
 
-test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR precincts', () => {
+test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR precincts', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M',
@@ -244,7 +244,7 @@ test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR prec
       multiplier: 3,
     },
   ];
-  const { store, electionId } = setupStore(
+  const { store, electionId } = await setupStore(
     [ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
     DEFAULT_SYSTEM_SETTINGS,
     cvrs

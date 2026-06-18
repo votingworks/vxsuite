@@ -198,7 +198,7 @@ test('logs when there is stored election results data present at startup', async
   // Add CVRs to db
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  const electionId = workspace.store.addElection({
+  const electionId = await workspace.store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),

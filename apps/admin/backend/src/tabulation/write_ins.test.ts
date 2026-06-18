@@ -154,12 +154,12 @@ const mockAquariumCouncilFishSummary: Tabulation.ContestWriteInSummary = {
   },
 };
 
-test('tabulateWriteInTallies', () => {
+test('tabulateWriteInTallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
@@ -468,12 +468,12 @@ test('modifyElectionResultsWithWriteInSummary', () => {
   });
 });
 
-test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candidates appear with 0 tally', () => {
+test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candidates appear with 0 tally', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -540,12 +540,12 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
   expect(contestSummary.pendingTally).toEqual(1);
 });
 
-test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies while injecting 0 for unadjudicated qualified candidates', () => {
+test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies while injecting 0 for unadjudicated qualified candidates', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
