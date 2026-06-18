@@ -420,6 +420,7 @@
     {
       "id": "1L",
       "groupId": "1L",
+      "languages": ["en"],
       "precincts": ["precinct-1", "precinct-3", "precinct-5"],
       "districts": ["district-1", "district-2"],
       "partyId": "0"
@@ -427,6 +428,7 @@
     {
       "id": "2L",
       "groupId": "2L",
+      "languages": ["en"],
       "precincts": ["precinct-2", "precinct-4", "precinct-5"],
       "districts": ["district-1", "district-3", "district-4"],
       "partyId": "0"
@@ -434,6 +436,7 @@
     {
       "id": "3C",
       "groupId": "3C",
+      "languages": ["en"],
       "precincts": [
         "precinct-1",
         "precinct-2",
@@ -447,6 +450,7 @@
     {
       "id": "4F",
       "groupId": "4F",
+      "languages": ["en"],
       "precincts": ["precinct-1"],
       "districts": ["district-1"],
       "partyId": "4"
@@ -454,6 +458,7 @@
     {
       "id": "5F",
       "groupId": "5F",
+      "languages": ["en"],
       "precincts": ["precinct-1"],
       "districts": ["district-1", "district-2"],
       "partyId": "4"
@@ -461,6 +466,7 @@
     {
       "id": "6F",
       "groupId": "6F",
+      "languages": ["en"],
       "precincts": ["precinct-5"],
       "districts": ["district-1", "district-2", "district-3", "district-4"],
       "partyId": "4"

@@ -837,6 +837,7 @@
     {
       "id": "ballot-style-1",
       "groupId": "ballot-style-1",
+      "languages": ["en"],
       "precincts": [
         "precinct-1"
       ],
@@ -851,6 +852,7 @@
     {
       "id": "ballot-style-2",
       "groupId": "ballot-style-2",
+      "languages": ["en"],
       "precincts": [
         "precinct-2"
       ],
