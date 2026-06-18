@@ -20,9 +20,7 @@ export function makeSinglePrecinctElection(): Election {
   return {
     ...election,
     precincts: [election.precincts[0]],
-    pollingPlaces: election.pollingPlaces
-      ? [election.pollingPlaces[0]]
-      : undefined,
+    pollingPlaces: [election.pollingPlaces[0]],
     ballotStyles: election.ballotStyles.map((ballotStyle) => ({
       ...ballotStyle,
       precincts: [election.precincts[0].id],

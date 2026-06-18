@@ -132,6 +132,20 @@ const electionWithNoContestsRecord = makeElectionRecord(
         districtIds: [],
       },
     ],
+    pollingPlaces: [
+      {
+        id: 'test-polling-place-1',
+        name: 'Test Polling Place 1',
+        precincts: { 'test-precinct-1': { type: 'whole' } },
+        type: 'election_day',
+      },
+      {
+        id: 'test-polling-place-2',
+        name: 'Test Polling Place 2',
+        precincts: { 'test-precinct-2': { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
     ballotStyles: [
       {
         id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
@@ -453,6 +467,20 @@ test('editing a candidate contest (primary election)', async () => {
           id: 'test-precinct-2',
           name: 'Test Precinct 2',
           districtIds: [],
+        },
+      ],
+      pollingPlaces: [
+        {
+          id: 'test-polling-place-1',
+          name: 'Test Polling Place 1',
+          precincts: { 'test-precinct-1': { type: 'whole' } },
+          type: 'election_day',
+        },
+        {
+          id: 'test-polling-place-2',
+          name: 'Test Polling Place 2',
+          precincts: { 'test-precinct-2': { type: 'whole' } },
+          type: 'election_day',
         },
       ],
       ballotStyles: [

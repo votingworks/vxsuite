@@ -114,6 +114,14 @@ const testElectionRecord = makeElectionRecord(
         districtIds: testDistricts.map((d) => d.id),
       },
     ],
+    pollingPlaces: [
+      {
+        id: 'test-polling-place',
+        name: 'Test Polling Place',
+        precincts: { 'test-precinct': { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
     seal: '',
     state: 'CA',
     title: 'Test Election',

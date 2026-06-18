@@ -16,6 +16,7 @@ import {
   Precinct,
   safeParse,
   PrecinctWithoutSplits,
+  pollingPlacesGenerateFromPrecincts,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { defaultConfig, GenerateElectionConfig } from './config';
@@ -182,6 +183,11 @@ export function generateElection(
     ballotStrings: {},
     districts,
     precincts,
+    pollingPlaces: pollingPlacesGenerateFromPrecincts(
+      precincts,
+      'election_day',
+      (precinct) => `polling-place-${precinct.id}`
+    ),
     ballotStyles,
     parties,
     contests,

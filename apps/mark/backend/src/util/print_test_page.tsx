@@ -37,6 +37,14 @@ function getMockElectionDefinition(): ElectionDefinition {
           districtIds: ['district-0'],
         },
       ],
+      pollingPlaces: [
+        {
+          id: 'polling-place-0',
+          name: 'Test Precinct',
+          precincts: { 'precinct-0': { type: 'whole' } },
+          type: 'election_day',
+        },
+      ],
       contests: [
         {
           id: 'contest-0',

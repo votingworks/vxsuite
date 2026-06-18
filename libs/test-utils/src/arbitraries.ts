@@ -507,6 +507,16 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
             .filter(hasUniqueIds),
           districts: fc.constant(districts),
           precincts: fc.constant(precincts),
+          pollingPlaces: fc.constant([
+            {
+              id: 'polling-place-1',
+              name: assertDefined(precincts[0]).name,
+              precincts: {
+                [assertDefined(precincts[0]).id]: { type: 'whole' as const },
+              },
+              type: 'election_day' as const,
+            },
+          ]),
           ballotLayout: arbitraryBallotLayout(),
           ballotStrings: arbitraryUiStrings(),
         })
