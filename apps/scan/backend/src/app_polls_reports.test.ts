@@ -681,9 +681,6 @@ test('can tabulate results and print polls closed report for straight party', as
         electionPackage: { electionDefinition },
       });
 
-      // TODO: remove this line when straight-party CVR export is implemented.
-      workspace.store.setIsContinuousExportEnabled(false);
-
       const { election } = electionDefinition;
       const ballotStyle = assertDefined(
         getBallotStyle({ election, ballotStyleId: '12' })
