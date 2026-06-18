@@ -3,9 +3,9 @@ use proptest::prelude::*;
 use types_rs::{
     ballot_card::BallotType,
     election::{
-        BallotStyle, BallotStyleGroupId, BallotStyleId, Candidate, CandidateContest, Contest,
-        ContestId, DistrictId, Election, NamedCandidate, OptionId, Precinct, PrecinctId,
-        YesNoContest, YesNoOption,
+        BallotMeasureContest, BallotMeasureOption, BallotStyle, BallotStyleGroupId, BallotStyleId,
+        Candidate, CandidateContest, Contest, ContestId, DistrictId, Election, NamedCandidate,
+        OptionId, Precinct, PrecinctId,
     },
 };
 
@@ -41,19 +41,21 @@ pub fn simple_election() -> Election {
                 party_id: None,
                 term_description: None,
             }),
-            Contest::YesNo(YesNoContest {
+            Contest::BallotMeasure(BallotMeasureContest {
                 id: ContestId::from("yn-1".to_owned()),
                 district_id: DistrictId::from("d-1".to_owned()),
                 title: "To be or not to be?".to_owned(),
                 description: "That is the question.".to_owned(),
-                yes_option: YesNoOption {
-                    id: OptionId::from("yn-1-yes".to_owned()),
-                    label: "Yes".to_owned(),
-                },
-                no_option: YesNoOption {
-                    id: OptionId::from("yn-1-no".to_owned()),
-                    label: "No".to_owned(),
-                },
+                options: vec![
+                    BallotMeasureOption {
+                        id: OptionId::from("yn-1-yes".to_owned()),
+                        label: "Yes".to_owned(),
+                    },
+                    BallotMeasureOption {
+                        id: OptionId::from("yn-1-no".to_owned()),
+                        label: "No".to_owned(),
+                    },
+                ],
             }),
         ],
     }
@@ -119,20 +121,24 @@ pub fn arbitrary_contests(district_id: DistrictId) -> impl Strategy<Value = Vec<
                     party_id: None,
                     term_description: None,
                 }),
-                ContestConfig::YesNo { district_id } => Contest::YesNo(YesNoContest {
-                    id: ContestId::from(format!("yn-{index}")),
-                    yes_option: YesNoOption {
-                        id: OptionId::from(format!("yn-{index}-yes")),
-                        label: "Yes".to_owned(),
-                    },
-                    no_option: YesNoOption {
-                        id: OptionId::from(format!("yn-{index}-no")),
-                        label: "No".to_owned(),
-                    },
-                    district_id: district_id.clone(),
-                    title: format!("Yes/No Contest {index}"),
-                    description: format!("Description for Yes/No Contest {index}"),
-                }),
+                ContestConfig::YesNo { district_id } => {
+                    Contest::BallotMeasure(BallotMeasureContest {
+                        id: ContestId::from(format!("yn-{index}")),
+                        options: vec![
+                            BallotMeasureOption {
+                                id: OptionId::from(format!("yn-{index}-yes")),
+                                label: "Yes".to_owned(),
+                            },
+                            BallotMeasureOption {
+                                id: OptionId::from(format!("yn-{index}-no")),
+                                label: "No".to_owned(),
+                            },
+                        ],
+                        district_id: district_id.clone(),
+                        title: format!("Yes/No Contest {index}"),
+                        description: format!("Description for Yes/No Contest {index}"),
+                    })
+                }
             })
             .collect()
     })

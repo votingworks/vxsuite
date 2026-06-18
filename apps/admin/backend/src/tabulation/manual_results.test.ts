@@ -100,7 +100,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         ballotCount,
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: ballotCount,
             overvotes: 0,
             undervotes: 0,

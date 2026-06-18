@@ -1,14 +1,14 @@
 import {
+  BallotMeasureContest,
   CandidateContest,
   Election,
   NcName,
   ResultsReporting,
   straightPartyNotYetImplemented,
   Tabulation,
-  YesNoContest,
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { MachineConfig, WriteInCandidateRecord } from '../types';
 
 const {
@@ -97,8 +97,8 @@ function buildWriteInCandidates(
 }
 
 function buildBallotMeasureContest(
-  contest: YesNoContest,
-  results: Tabulation.YesNoContestResults
+  contest: BallotMeasureContest,
+  results: Tabulation.BallotMeasureContestResults
 ): ResultsReporting.BallotMeasureContest {
   return {
     '@type': 'ElectionResults.BallotMeasureContest',
@@ -109,7 +109,9 @@ function buildBallotMeasureContest(
       {
         '@type': 'ElectionResults.BallotMeasureSelection',
         '@id': getYesOptionId(contest),
-        Selection: asInternationalizedText(contest.yesOption.label),
+        Selection: asInternationalizedText(
+          assertDefined(contest.options[0]).label
+        ),
         VoteCounts: [
           {
             '@type': 'ElectionResults.VoteCounts',
@@ -122,7 +124,9 @@ function buildBallotMeasureContest(
       {
         '@type': 'ElectionResults.BallotMeasureSelection',
         '@id': getNoOptionId(contest),
-        Selection: asInternationalizedText(contest.noOption.label),
+        Selection: asInternationalizedText(
+          assertDefined(contest.options[1]).label
+        ),
         VoteCounts: [
           {
             '@type': 'ElectionResults.VoteCounts',
@@ -196,8 +200,8 @@ function buildContests(
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
-    if (contest.type === 'yesno') {
-      assert(contestResults.contestType === 'yesno');
+    if (contest.type === 'measure') {
+      assert(contestResults.contestType === 'measure');
       reportContests.push(buildBallotMeasureContest(contest, contestResults));
     } else {
       assert(contestResults.contestType === 'candidate');

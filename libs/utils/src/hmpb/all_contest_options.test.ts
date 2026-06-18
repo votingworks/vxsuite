@@ -1,4 +1,4 @@
-import { assert, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   arbitraryBallotStyle,
   arbitraryCandidateContest,
@@ -8,9 +8,10 @@ import {
   BallotStyle,
   CandidateContest,
   CandidateContestOption,
+  Contest,
   ContestOption,
   StraightPartyContest,
-  YesNoContestOption,
+  BallotMeasureContestOption,
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { expect, expectTypeOf, test } from 'vitest';
@@ -70,28 +71,28 @@ test('candidate contest with write-ins', () => {
   );
 });
 
-test('yesno contest', () => {
+test('ballot measure contest', () => {
   fc.assert(
     fc.property(arbitraryYesNoContest(), (contest) => {
       const options = Array.from(allContestOptions(contest));
-      expectTypeOf(options).toEqualTypeOf<YesNoContestOption[]>();
+      expectTypeOf(options).toEqualTypeOf<BallotMeasureContestOption[]>();
       expect(options).toEqual<ContestOption[]>([
         {
-          type: 'yesno',
-          id: contest.yesOption.id,
+          type: 'measure',
+          id: assertDefined(contest.options[0]).id,
           contestId: contest.id,
         },
         {
-          type: 'yesno',
-          id: contest.noOption.id,
+          type: 'measure',
+          id: assertDefined(contest.options[1]).id,
           contestId: contest.id,
         },
       ]);
       expect(contestOptionName(contest, options[0]!)).toEqual(
-        contest.yesOption.label
+        assertDefined(contest.options[0]).label
       );
       expect(contestOptionName(contest, options[1]!)).toEqual(
-        contest.noOption.label
+        assertDefined(contest.options[1]).label
       );
     })
   );
@@ -105,14 +106,14 @@ test('any contest', () => {
         arbitraryYesNoContest()
       ),
       arbitraryBallotStyle(),
-      (contest, ballotStyle) => {
+      (contest: Contest, ballotStyle) => {
         const options = Array.from(allContestOptions(contest, ballotStyle));
         expectTypeOf(options).toEqualTypeOf<ContestOption[]>();
-        expectTypeOf(options).not.toEqualTypeOf<YesNoContestOption[]>();
+        expectTypeOf(options).not.toEqualTypeOf<BallotMeasureContestOption[]>();
         expectTypeOf(options).not.toEqualTypeOf<CandidateContestOption[]>();
         const types = new Set(options.map(({ type }) => type));
         expect(types.size).toEqual(1);
-        expect(iter(types).first()).toMatch(/^candidate|yesno$/);
+        expect(iter(types).first()).toMatch(/^candidate|measure$/);
       }
     )
   );

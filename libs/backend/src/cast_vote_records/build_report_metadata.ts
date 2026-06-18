@@ -1,4 +1,8 @@
-import { integers, throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  integers,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   Contest,
   BatchInfo,
@@ -6,7 +10,7 @@ import {
   CastVoteRecordBatchMetadata,
   CVR,
   Election,
-  YesNoContest,
+  BallotMeasureContest,
   StraightPartyContest,
 } from '@votingworks/types';
 
@@ -63,7 +67,7 @@ function buildCandidateContest(
 }
 
 function buildBallotMeasureContest(
-  contest: YesNoContest
+  contest: BallotMeasureContest
 ): CVR.BallotMeasureContest {
   return {
     '@id': contest.id,
@@ -72,13 +76,13 @@ function buildBallotMeasureContest(
     ContestSelection: [
       {
         '@type': 'CVR.BallotMeasureSelection',
-        '@id': contest.yesOption.id,
-        Selection: contest.yesOption.label,
+        '@id': assertDefined(contest.options[0]).id,
+        Selection: assertDefined(contest.options[0]).label,
       },
       {
         '@type': 'CVR.BallotMeasureSelection',
-        '@id': contest.noOption.id,
-        Selection: contest.noOption.label,
+        '@id': assertDefined(contest.options[1]).id,
+        Selection: assertDefined(contest.options[1]).label,
       },
     ],
   };
@@ -107,7 +111,7 @@ function buildContest(
   switch (contest.type) {
     case 'candidate':
       return buildCandidateContest(contest);
-    case 'yesno':
+    case 'measure':
       return buildBallotMeasureContest(contest);
     case 'straight-party':
       return buildStraightPartyContest(contest);

@@ -15,9 +15,9 @@ import {
   TEST_JURISDICTION,
   PageInterpretation,
   VotesDict,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
-import { deepEqual } from '@votingworks/basics';
+import { assertDefined, deepEqual } from '@votingworks/basics';
 import { Store } from '../store';
 import { makeHmpbSheet } from '../../test/helpers/shared_helpers';
 import { getScannerResultsMemoized, isBmdPage, isHmpbPage } from './results';
@@ -139,7 +139,7 @@ test('getScannerResults groups by inferred party for an open primary', async () 
       c.type === 'candidate' && c.partyId === republicanPartyId
   )!;
   const nonpartisanContest = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   )!;
   const ballotStyle = election.ballotStyles[0];
 
@@ -184,11 +184,11 @@ test('getScannerResults groups by inferred party for an open primary', async () 
   recordHmpbBallot({
     [democraticContest.id]: [democraticContest.candidates[0].id],
     [republicanContest.id]: [republicanContest.candidates[0].id],
-    [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+    [nonpartisanContest.id]: [assertDefined(nonpartisanContest.options[0]).id],
   });
   // One ballot with only nonpartisan votes
   recordHmpbBallot({
-    [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+    [nonpartisanContest.id]: [assertDefined(nonpartisanContest.options[0]).id],
   });
 
   const results = await getScannerResultsMemoized({ store });

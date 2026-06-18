@@ -12,7 +12,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  YesNoVote,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import { deepEqual, unique, assert, find } from '@votingworks/basics';
 import { buildContestResultsFixture } from '@votingworks/utils';
@@ -100,9 +100,9 @@ describe('generateTestDeckBallots', () => {
 
     const allSelections: Dictionary<string[]> = {};
     for (const contest of contests) {
-      if (contest.type === 'yesno') {
+      if (contest.type === 'measure') {
         allSelections[contest.id] = unique(
-          votes.flatMap((vote) => (vote[contest.id] ?? []) as YesNoVote)
+          votes.flatMap((vote) => (vote[contest.id] ?? []) as BallotMeasureVote)
         );
       } else if (contest.type === 'candidate') {
         const allCandidateVotes = votes.flatMap(
@@ -205,7 +205,7 @@ describe('generateTestDeckBallots', () => {
     const electionWithOnlyYesNoContests: Election = {
       ...electionGeneral,
       contests: electionGeneral.contests.filter(
-        (contest) => contest.type === 'yesno'
+        (contest) => contest.type === 'measure'
       ),
     };
     const ballots = generateTestDeckBallots({

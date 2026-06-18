@@ -236,7 +236,7 @@ test('MarkAndPrint end-to-end flow', async () => {
       userEvent.click(screen.getByText(presidentContest.candidates[0].name));
     }
 
-    // Vote for yesno contest
+    // Vote for ballot measure contest
     else if (title === measure102Contest.title) {
       userEvent.click(
         within(screen.getByTestId('contest-choices')).getByText('Yes')
@@ -290,7 +290,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     precinctId: '23',
     votes: {
       [presidentContest.id]: [presidentContest.candidates[0]],
-      [measure102Contest.id]: [measure102Contest.yesOption.id],
+      [measure102Contest.id]: [measure102Contest.options[0].id],
       [countyCommissionersContest.id]:
         countyCommissionersContest.candidates.slice(0, 2),
     },

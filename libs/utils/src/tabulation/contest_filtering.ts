@@ -118,7 +118,7 @@ export function groupContestsByParty(
       switch (c.type) {
         case 'candidate':
           return c.partyId === partyId;
-        case 'yesno':
+        case 'measure':
         case 'straight-party':
           // all yes/no and straight party contests are non-partisan
           return !partyId;

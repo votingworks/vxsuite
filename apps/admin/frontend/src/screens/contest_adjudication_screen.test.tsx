@@ -880,7 +880,7 @@ describe('vote adjudication', () => {
     expect(firstWriteInCheckbox).toBeDisabled();
   });
 
-  test('yesno contest can have votes adjudicated', async () => {
+  test('ballot measure contest can have votes adjudicated', async () => {
     const contestId: ContestId = 'fishing';
     const cvrId = 'id-174';
     const cvrContestTag: CvrContestTag = {
@@ -901,7 +901,7 @@ describe('vote adjudication', () => {
 
     await waitForBallotById('id-174');
 
-    // yesno options are rendered with their labels
+    // ballot measure options are rendered with their labels
     const yesCheckbox = getCheckboxByName('yes');
     const noCheckbox = getCheckboxByName('no');
     expect(yesCheckbox).not.toBeChecked();

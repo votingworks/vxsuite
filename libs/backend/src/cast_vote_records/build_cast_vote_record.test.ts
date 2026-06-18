@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   readElectionStraightPartyDefinition,
@@ -47,7 +47,9 @@ describe('buildCVRContestsFromVotes', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
       ballotStyleId: '1M',
-      votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
+      votes: {
+        [fishingContest.id]: [assertDefined(fishingContest.options[0]).id],
+      },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -85,7 +87,9 @@ describe('buildCVRContestsFromVotes', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
       ballotStyleId: '1M',
-      votes: { [fishingContest.id]: [fishingContest.noOption.id] },
+      votes: {
+        [fishingContest.id]: [assertDefined(fishingContest.options[1]).id],
+      },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -96,7 +100,7 @@ describe('buildCVRContestsFromVotes', () => {
       Undervotes: 0,
       CVRContestSelection: [
         expect.objectContaining({
-          ContestSelectionId: fishingContest.noOption.id,
+          ContestSelectionId: assertDefined(fishingContest.options[1]).id,
           OptionPosition: 1,
           SelectionPosition: [expect.anything()],
         }),
@@ -729,7 +733,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     expect(fishingContestSnapshot.CVRContestSelection).toMatchObject(
       expect.arrayContaining([
         expect.objectContaining({
-          ContestSelectionId: fishingContest.yesOption.id,
+          ContestSelectionId: assertDefined(fishingContest.options[0]).id,
           SelectionPosition: [
             expect.objectContaining({
               HasIndication: CVR.IndicationStatus.Unknown,

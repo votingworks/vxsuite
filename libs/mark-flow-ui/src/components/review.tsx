@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import {
   CandidateVote,
-  YesNoVote,
-  OptionalYesNoVote,
+  BallotMeasureVote,
+  OptionalBallotMeasureVote,
   Election,
   VotesDict,
   PrecinctId,
@@ -132,10 +132,10 @@ function YesNoContestResult({
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
   const selectedOption =
-    yesNo === contest.yesOption.id
-      ? contest.yesOption
-      : yesNo === contest.noOption.id
-      ? contest.noOption
+    yesNo === contest.options[0].id
+      ? contest.options[0]
+      : yesNo === contest.options[1].id
+      ? contest.options[1]
       : null;
 
   const votes: ContestVote[] = selectedOption
@@ -295,9 +295,9 @@ export function Review({
                 ballotStyle={ballotStyle}
               />
             )}
-            {contest.type === 'yesno' && (
+            {contest.type === 'measure' && (
               <YesNoContestResult
-                vote={votes[contest.id] as YesNoVote}
+                vote={votes[contest.id] as BallotMeasureVote}
                 contest={contest}
                 election={election}
                 selectionsAreEditable={selectionsAreEditable}
@@ -308,11 +308,13 @@ export function Review({
                 contest={contest}
                 election={election}
                 eitherNeitherContestVote={
-                  votes[contest.eitherNeitherContestId] as OptionalYesNoVote
+                  votes[
+                    contest.eitherNeitherContestId
+                  ] as OptionalBallotMeasureVote
                 }
                 selectionsAreEditable={selectionsAreEditable}
                 pickOneContestVote={
-                  votes[contest.pickOneContestId] as OptionalYesNoVote
+                  votes[contest.pickOneContestId] as OptionalBallotMeasureVote
                 }
               />
             )}

@@ -133,7 +133,7 @@ const scannedElectionResults = buildElectionResultsFixture({
   },
   contestResultsSummaries: {
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 791,
       overvotes: 3,
       undervotes: 88,
@@ -169,7 +169,7 @@ const manualElectionResults = buildManualResultsFixture({
   ballotCount: 100,
   contestResultsSummaries: {
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 100,
       overvotes: 0,
       undervotes: 0,

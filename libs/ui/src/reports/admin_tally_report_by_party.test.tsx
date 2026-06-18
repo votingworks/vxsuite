@@ -195,7 +195,7 @@ test('primary election, party report, test deck', () => {
             if (c.type === 'straight-party') {
               straightPartyNotYetImplemented();
             }
-            return c.type === 'yesno' || c.partyId === '0';
+            return c.type === 'measure' || c.partyId === '0';
           })
           .map((c) => c.id),
       })}

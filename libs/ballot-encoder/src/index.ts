@@ -18,8 +18,8 @@ import {
   straightPartyNotYetImplemented,
   unsafeParse,
   VotesDict,
-  YesNoContest,
-  YesNoVote,
+  BallotMeasureContest,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
@@ -160,25 +160,25 @@ export function encodeBallotConfigInto(
   return bits;
 }
 
-function writeYesNoVote(
+function writeBallotMeasureVote(
   bits: BitWriter,
-  ynVote: YesNoVote,
-  contest: YesNoContest
+  bmVote: BallotMeasureVote,
+  contest: BallotMeasureContest
 ): void {
-  if (!Array.isArray(ynVote)) {
+  if (!Array.isArray(bmVote)) {
     throw new Error(
-      `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
+      `cannot encode a non-array ballot measure vote: ${JSON.stringify(bmVote)}`
     );
   }
 
-  if (ynVote.length > 1) {
+  if (bmVote.length > 1) {
     throw new Error(
-      `cannot encode a yes/no overvote: ${JSON.stringify(ynVote)}`
+      `cannot encode a ballot measure overvote: ${JSON.stringify(bmVote)}`
     );
   }
 
-  // yesno votes get a single bit
-  bits.writeBoolean(ynVote[0] === contest.yesOption.id);
+  // ballot measure votes get a single bit
+  bits.writeBoolean(bmVote[0] === assertDefined(contest.options[0]).id);
 }
 
 function encodeBallotVotesInto(
@@ -200,10 +200,10 @@ function encodeBallotVotesInto(
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
-      if (contest.type === 'yesno') {
-        const ynVote = contestVote as YesNoVote;
+      if (contest.type === 'measure') {
+        const bmVote = contestVote as BallotMeasureVote;
 
-        writeYesNoVote(bits, ynVote, contest);
+        writeBallotMeasureVote(bits, bmVote, contest);
       } else {
         const choices = contestVote as CandidateVote;
 
@@ -287,11 +287,11 @@ function decodeBallotVotes(
     if (contest.type === 'straight-party') {
       return straightPartyNotYetImplemented();
     }
-    if (contest.type === 'yesno') {
-      // yesno votes get a single bit
+    if (contest.type === 'measure') {
+      // ballot measure votes get a single bit
       votes[contest.id] = bits.readBoolean()
-        ? [contest.yesOption.id]
-        : [contest.noOption.id];
+        ? [assertDefined(contest.options[0]).id]
+        : [assertDefined(contest.options[1]).id];
     } else {
       const contestVote: Candidate[] = [];
 

@@ -5,7 +5,11 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { assert, find } from '@votingworks/basics';
-import { CandidateContest, VotesDict, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  VotesDict,
+  BallotMeasureContest,
+} from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 
@@ -22,9 +26,9 @@ const candidateContest = find(
   electionGeneral.contests,
   (c): c is CandidateContest => c.type === 'candidate'
 );
-const yesnoContest = find(
+const measureContest = find(
   electionGeneral.contests,
-  (c): c is YesNoContest => c.type === 'yesno'
+  (c): c is BallotMeasureContest => c.type === 'measure'
 );
 const msEitherNeitherContest = find(
   mergeMsEitherNeitherContests(electionWithMsEitherNeither.contests),
@@ -57,13 +61,13 @@ test('write-in character limit across contests', () => {
   const manySeatCandidateContests = electionGeneral.contests.filter(
     (c) => c.type === 'candidate' && c.seats >= 3
   ) as CandidateContest[];
-  const yesNoContests = electionGeneral.contests.filter(
-    (c) => c.type === 'yesno'
+  const measureContests = electionGeneral.contests.filter(
+    (c) => c.type === 'measure'
   );
 
   assert(singleSeatCandidateContests.length >= 2);
   assert(manySeatCandidateContests.length >= 2);
-  assert(yesNoContests.length >= 1);
+  assert(measureContests.length >= 1);
 
   let i = 0;
   function createWriteIn(name: string, index: number) {
@@ -89,7 +93,7 @@ test('write-in character limit across contests', () => {
       createWriteIn('ABC', 1),
     ],
     [manySeatCandidateContests[1].id]: [createWriteIn('A', 0)],
-    [yesNoContests[0].id]: [yesNoContests[0].yesOption.id],
+    [measureContests[0].id]: [measureContests[0].options[0].id],
   };
 
   render(
@@ -115,19 +119,19 @@ test('write-in character limit across contests', () => {
   // Tested further in candidate_contest.test.tsx
 });
 
-test('yesno contest', () => {
+test('ballot measure contest', () => {
   render(
     <Contest
       ballotStyleId={electionGeneral.ballotStyles[0].id}
       election={electionGeneral}
-      contest={yesnoContest}
+      contest={measureContest}
       votes={{
-        [yesnoContest.id]: [yesnoContest.yesOption.id],
+        [measureContest.id]: [measureContest.options[0].id],
       }}
       updateVote={vi.fn()}
     />
   );
-  screen.getByRole('heading', { name: yesnoContest.title });
+  screen.getByRole('heading', { name: measureContest.title });
   // Tested further in yes_no_contest.test.tsx
 });
 

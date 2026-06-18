@@ -227,8 +227,8 @@ pub struct MarkThresholds {
 pub enum Contest {
     #[serde(rename = "candidate")]
     Candidate(CandidateContest),
-    #[serde(rename = "yesno")]
-    YesNo(YesNoContest),
+    #[serde(rename = "measure")]
+    BallotMeasure(BallotMeasureContest),
     #[serde(rename = "straight-party")]
     StraightParty(StraightPartyContest),
 }
@@ -237,7 +237,7 @@ impl Contest {
     pub fn id(&self) -> &ContestId {
         match self {
             Self::Candidate(CandidateContest { id, .. })
-            | Self::YesNo(YesNoContest { id, .. })
+            | Self::BallotMeasure(BallotMeasureContest { id, .. })
             | Self::StraightParty(StraightPartyContest { id, .. }) => id,
         }
     }
@@ -245,7 +245,7 @@ impl Contest {
     pub fn district_id(&self) -> &DistrictId {
         match self {
             Self::Candidate(CandidateContest { district_id, .. })
-            | Self::YesNo(YesNoContest { district_id, .. })
+            | Self::BallotMeasure(BallotMeasureContest { district_id, .. })
             | Self::StraightParty(StraightPartyContest { district_id, .. }) => district_id,
         }
     }
@@ -259,7 +259,7 @@ impl Contest {
             .any(|district_id| district_id == self.district_id())
             // and has matching party or no party
             && match self {
-                Contest::YesNo(_)
+                Contest::BallotMeasure(_)
                 | Contest::Candidate(CandidateContest { party_id: None, .. }) => true,
                 Contest::Candidate(CandidateContest { party_id, .. }) => {
                     party_id == &ballot_style.party_id
@@ -428,19 +428,18 @@ pub struct WriteInCandidate {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 #[must_use]
-pub struct YesNoContest {
+pub struct BallotMeasureContest {
     pub id: ContestId,
     pub district_id: DistrictId,
     pub title: String,
     pub description: String,
-    pub yes_option: YesNoOption,
-    pub no_option: YesNoOption,
+    pub options: Vec<BallotMeasureOption>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 #[must_use]
-pub struct YesNoOption {
+pub struct BallotMeasureOption {
     pub id: OptionId,
     pub label: String,
 }

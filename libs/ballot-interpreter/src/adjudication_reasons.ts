@@ -36,7 +36,7 @@ function getExpectedVoteCount(contest: Contest): number {
   switch (contest.type) {
     case 'candidate':
       return contest.seats;
-    case 'yesno': // yes or no
+    case 'measure': // yes or no
     case 'straight-party':
       return 1;
     default:

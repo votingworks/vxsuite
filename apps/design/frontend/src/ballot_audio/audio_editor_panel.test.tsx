@@ -1,7 +1,11 @@
 import { expect, test, vi } from 'vitest';
 
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { Contest, ElectionStringKey, YesNoContest } from '@votingworks/types';
+import {
+  Contest,
+  ElectionStringKey,
+  BallotMeasureContest,
+} from '@votingworks/types';
 
 import { AudioEditor, AudioEditorProps } from './audio_editor';
 import {
@@ -46,10 +50,10 @@ test('renders editor, along with a preview of the original text', () => {
 });
 
 test('renders contest descriptions using original, unstripped HTML', async () => {
-  const mockContest: Partial<YesNoContest> = {
+  const mockContest: Partial<BallotMeasureContest> = {
     id: 'contest-1',
     description: '<p data-testid="preview">Do you agree?<p>',
-    type: 'yesno',
+    type: 'measure',
   };
 
   const mockApi = createMockApiClient();

@@ -53,7 +53,7 @@ const scannedElectionResults = buildElectionResultsFixture({
   includeGenericWriteIn: true,
   contestResultsSummaries: {
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 3300,
       overvotes: 2,
       undervotes: 298,
@@ -96,7 +96,7 @@ const manualElectionResults = buildManualResultsFixture({
   ballotCount: 34,
   contestResultsSummaries: {
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 33,
       overvotes: 20,
       undervotes: 10,

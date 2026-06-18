@@ -120,11 +120,11 @@ export function generateTestDeckBallots({
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {};
         for (const contest of contests) {
-          if (contest.type === 'yesno') {
+          if (contest.type === 'measure') {
             votes[contest.id] =
               ballotNum % 2 === 0
-                ? [contest.yesOption.id]
-                : [contest.noOption.id];
+                ? [contest.options[0].id]
+                : [contest.options[1].id];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
@@ -156,7 +156,7 @@ export function generateTestDeckBallots({
               straightPartyNotYetImplemented();
             }
             return (
-              contest.type === 'yesno' ||
+              contest.type === 'measure' ||
               contest.candidates.length > contest.seats
             );
           });
@@ -171,10 +171,10 @@ export function generateTestDeckBallots({
               ballotFormat,
               votes: {
                 [overvoteContest.id]:
-                  overvoteContest.type === 'yesno'
+                  overvoteContest.type === 'measure'
                     ? [
-                        overvoteContest.yesOption.id,
-                        overvoteContest.noOption.id,
+                        overvoteContest.options[0].id,
+                        overvoteContest.options[1].id,
                       ]
                     : iter(overvoteContest.candidates)
                         .take(overvoteContest.seats + 1)

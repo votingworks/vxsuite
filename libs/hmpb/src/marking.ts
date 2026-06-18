@@ -295,12 +295,12 @@ type MarkInfo =
 function markInfo(
   votes: Vote,
   gridPos: GridPosition,
-  contest: CandidateContest | { type: 'yesno'; id: string },
+  contest: CandidateContest | { type: 'measure'; id: string },
   layout: { gridPositions: readonly GridPosition[] }
 ): MarkInfo | null {
   for (const vote of votes) {
-    // Handle yes/no votes
-    if (contest.type === 'yesno') {
+    // Handle ballot measure votes
+    if (contest.type === 'measure') {
       assert(gridPos.type === 'option');
       if (vote === gridPos.optionId) return {};
       continue;

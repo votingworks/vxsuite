@@ -10,7 +10,7 @@ import {
   DistrictIdSchema,
   HmpbBallotPaperSize,
   unsafeParse,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 
 import {
@@ -48,15 +48,17 @@ function candidateContest(districtId: string, index: number): CandidateContest {
   };
 }
 
-function yesNoContest(districtId: string, index: number): YesNoContest {
+function yesNoContest(districtId: string, index: number): BallotMeasureContest {
   return {
     id: `yesno-contest-${districtId}-${index}`,
-    type: 'yesno',
+    type: 'measure',
     title: `Yes/No Contest ${districtId} ${index}`,
     districtId,
     description: 'A ballot measure',
-    yesOption: { id: `yesno-contest-${districtId}-${index}-yes`, label: 'Yes' },
-    noOption: { id: `yesno-contest-${districtId}-${index}-no`, label: 'No' },
+    options: [
+      { id: `yesno-contest-${districtId}-${index}-yes`, label: 'Yes' },
+      { id: `yesno-contest-${districtId}-${index}-no`, label: 'No' },
+    ],
   };
 }
 

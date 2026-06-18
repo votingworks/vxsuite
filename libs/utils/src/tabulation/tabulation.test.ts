@@ -10,7 +10,7 @@ import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
   CVR,
   Tabulation,
-  YesNoContest,
+  BallotMeasureContest,
   safeParseJson,
   CastVoteRecordExportFileName,
   CandidateContest,
@@ -134,13 +134,13 @@ test('getEmptyElectionResult', () => {
   // check an empty yes-no contest
   const fishingContest = find(
     election.contests,
-    (c): c is YesNoContest => c.id === 'fishing'
+    (c): c is BallotMeasureContest => c.id === 'fishing'
   );
   expect(emptyElectionResult.contestResults[fishingContest.id]).toEqual({
     contestId: fishingContest.id,
-    contestType: 'yesno',
-    yesOptionId: fishingContest.yesOption.id,
-    noOptionId: fishingContest.noOption.id,
+    contestType: 'measure',
+    yesOptionId: assertDefined(fishingContest.options[0]).id,
+    noOptionId: assertDefined(fishingContest.options[1]).id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
@@ -284,13 +284,13 @@ test('buildElectionResultsFixture', () => {
       },
     },
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 10,
       yesTally: 4,
       noTally: 6,
     },
     'new-zoo-pick': {
-      type: 'yesno',
+      type: 'measure',
       ballots: 0,
       overvotes: 10,
     },
@@ -391,7 +391,7 @@ test('buildElectionResultsFixture', () => {
       fishing: {
         ballots: 10,
         contestId: 'fishing',
-        contestType: 'yesno',
+        contestType: 'measure',
         yesOptionId: 'ban-fishing',
         noOptionId: 'allow-fishing',
         noTally: 6,
@@ -402,7 +402,7 @@ test('buildElectionResultsFixture', () => {
       'new-zoo-either': {
         ballots: 0,
         contestId: 'new-zoo-either',
-        contestType: 'yesno',
+        contestType: 'measure',
         yesOptionId: 'new-zoo-either-approved',
         noOptionId: 'new-zoo-neither-approved',
         noTally: 0,
@@ -413,7 +413,7 @@ test('buildElectionResultsFixture', () => {
       'new-zoo-pick': {
         ballots: 0,
         contestId: 'new-zoo-pick',
-        contestType: 'yesno',
+        contestType: 'measure',
         yesOptionId: 'new-zoo-safari',
         noOptionId: 'new-zoo-traditional',
         noTally: 0,
@@ -931,7 +931,7 @@ describe('tabulateCastVoteRecords', () => {
             },
           },
           'new-zoo-either': {
-            type: 'yesno',
+            type: 'measure',
             ballots: 4,
             undervotes: 1,
             overvotes: 1,
@@ -939,7 +939,7 @@ describe('tabulateCastVoteRecords', () => {
             noTally: 1,
           },
           'new-zoo-pick': {
-            type: 'yesno',
+            type: 'measure',
             ballots: 4,
             undervotes: 1,
             overvotes: 1,
@@ -947,7 +947,7 @@ describe('tabulateCastVoteRecords', () => {
             noTally: 1,
           },
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 4,
             undervotes: 1,
             overvotes: 1,
@@ -1242,7 +1242,7 @@ describe('tabulateCastVoteRecords', () => {
             },
           },
           'new-zoo-either': {
-            type: 'yesno',
+            type: 'measure',
             ballots: 28,
             undervotes: 22,
             overvotes: 2,
@@ -1250,7 +1250,7 @@ describe('tabulateCastVoteRecords', () => {
             noTally: 2,
           },
           'new-zoo-pick': {
-            type: 'yesno',
+            type: 'measure',
             ballots: 28,
             undervotes: 22,
             overvotes: 2,
@@ -1258,7 +1258,7 @@ describe('tabulateCastVoteRecords', () => {
             noTally: 2,
           },
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 28,
             undervotes: 22,
             overvotes: 2,
@@ -1620,7 +1620,7 @@ test('combineManualElectionResults', () => {
     ballotCount: 10,
     contestResultsSummaries: {
       fishing: {
-        type: 'yesno',
+        type: 'measure',
         ballots: 10,
         overvotes: 3,
         undervotes: 2,
@@ -1652,7 +1652,7 @@ test('combineManualElectionResults', () => {
     ballotCount: 20,
     contestResultsSummaries: {
       fishing: {
-        type: 'yesno',
+        type: 'measure',
         ballots: 20,
         overvotes: 7,
         undervotes: 2,
@@ -1691,7 +1691,7 @@ test('combineManualElectionResults', () => {
       ballotCount: 30,
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 30,
           overvotes: 10,
           undervotes: 4,
@@ -1881,7 +1881,7 @@ test('mergeManualWriteInTallies', () => {
         ballotCount: 7,
         contestResultsSummaries: {
           fishing: {
-            type: 'yesno',
+            type: 'measure',
             ballots: 7,
             overvotes: 0,
             undervotes: 0,
@@ -1919,7 +1919,7 @@ test('mergeManualWriteInTallies', () => {
       ballotCount: 7,
       contestResultsSummaries: {
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 7,
           overvotes: 0,
           undervotes: 0,
@@ -2023,13 +2023,13 @@ test('combineCompressedElectionResults', () => {
       },
     },
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 10,
       yesTally: 4,
       noTally: 6,
     },
     'new-zoo-pick': {
-      type: 'yesno',
+      type: 'measure',
       ballots: 0,
       overvotes: 10,
     },
@@ -2056,7 +2056,7 @@ test('combineCompressedElectionResults', () => {
       },
     },
     fishing: {
-      type: 'yesno',
+      type: 'measure',
       ballots: 15,
       overvotes: 3,
       undervotes: 2,
@@ -2064,7 +2064,7 @@ test('combineCompressedElectionResults', () => {
       noTally: 4,
     },
     'new-zoo-pick': {
-      type: 'yesno',
+      type: 'measure',
       ballots: 15,
       overvotes: 3,
       undervotes: 2,
@@ -2136,7 +2136,7 @@ test('combineCompressedElectionResults', () => {
           },
         },
         fishing: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 25,
           overvotes: 3,
           undervotes: 2,
@@ -2144,7 +2144,7 @@ test('combineCompressedElectionResults', () => {
           noTally: 10,
         },
         'new-zoo-pick': {
-          type: 'yesno',
+          type: 'measure',
           ballots: 15,
           overvotes: 13,
           undervotes: 2,
@@ -2175,7 +2175,7 @@ test('combineCompressedElectionResults - can combine results from different prec
     contestResultsSummaries: {
       // Add results for a contest in all precincts
       '750000015': {
-        type: 'yesno',
+        type: 'measure',
         ballots: 10,
         yesTally: 4,
         noTally: 6,
@@ -2204,7 +2204,7 @@ test('combineCompressedElectionResults - can combine results from different prec
     contestResultsSummaries: {
       // Add results for a contest in all precincts
       '750000015': {
-        type: 'yesno',
+        type: 'measure',
         ballots: 5,
         undervotes: 1,
         overvotes: 1,
@@ -2315,10 +2315,10 @@ test('areContestResultsValid', () => {
     },
   };
 
-  const validYesNoContestResults: Tabulation.YesNoContestResults = {
+  const validYesNoContestResults: Tabulation.BallotMeasureContestResults = {
     ballots: 50,
     contestId: 'contest-1',
-    contestType: 'yesno',
+    contestType: 'measure',
     overvotes: 10,
     undervotes: 5,
     yesOptionId: 'yes',

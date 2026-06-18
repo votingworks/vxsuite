@@ -3,7 +3,7 @@ import {
   readElectionGeneral,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
+import { BallotMeasureContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   useIsPatDeviceConnected,
@@ -30,7 +30,7 @@ const mockUseIsPatDeviceConnected = vi.mocked(useIsPatDeviceConnected);
 const MockWithScrollButtons = vi.mocked(WithScrollButtons);
 
 const contest = electionTwoPartyPrimary.contests.find(
-  (c) => c.id === 'fishing' && c.type === 'yesno'
+  (c) => c.id === 'fishing' && c.type === 'measure'
 ) as YesNoContestInterface;
 
 function getOption(accessibleName: string | RegExp) {
@@ -75,7 +75,7 @@ test('changing votes', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={updateVote}
     />
   );
@@ -108,7 +108,7 @@ test('audio cue for vote', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={updateVote}
     />
   );
@@ -146,7 +146,7 @@ test('can focus and click scroll buttons with PAT device', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={vi.fn()}
     />
   );
@@ -166,7 +166,7 @@ test('scroll button focus is disabled when no PAT device is connected', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={vi.fn()}
     />
   );
@@ -195,7 +195,7 @@ test('shows review mode navigation instructions when isReviewMode is true', () =
 test('renders rich text', () => {
   const richTextContest = electionGeneral.contests.find(
     (c): c is YesNoContestInterface =>
-      c.type === 'yesno' && Boolean(c.description.match(/<p>/))
+      c.type === 'measure' && Boolean(c.description.match(/<p>/))
   )!;
   render(
     <YesNoContest

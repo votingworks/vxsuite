@@ -344,20 +344,22 @@ export function convertMsElection(
 
         return {
           id: uniqueId(contestId),
-          type: 'yesno',
+          type: 'measure',
           title: contestTitle,
           districtId: uniqueId(districtId),
           description,
-          yesOption: {
-            // For ballot measures, candidateId is already the SEMS unique ID,
-            // so we don't need to map it using getCandidateSemsId.
-            id: uniqueId(yesCandidateRow.candidateId),
-            label: yesLabel,
-          },
-          noOption: {
-            id: uniqueId(noCandidateRow.candidateId),
-            label: noLabel,
-          },
+          options: [
+            {
+              // For ballot measures, candidateId is already the SEMS unique ID,
+              // so we don't need to map it using getCandidateSemsId.
+              id: uniqueId(yesCandidateRow.candidateId),
+              label: yesLabel,
+            },
+            {
+              id: uniqueId(noCandidateRow.candidateId),
+              label: noLabel,
+            },
+          ],
         };
       }
 

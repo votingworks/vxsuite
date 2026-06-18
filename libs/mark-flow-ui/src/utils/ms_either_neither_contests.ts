@@ -2,10 +2,10 @@ import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   Contest,
   ContestId,
-  YesNoOption,
+  BallotMeasureOption,
   getContestDistrictName as getContestDistrictNameBase,
   Election,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 
 /**
@@ -17,14 +17,14 @@ import {
 export interface MsEitherNeitherContest extends Omit<Contest, 'type'> {
   readonly type: 'ms-either-neither';
   readonly eitherNeitherContestId: ContestId;
-  readonly eitherNeitherContest: YesNoContest;
+  readonly eitherNeitherContest: BallotMeasureContest;
   readonly pickOneContestId: ContestId;
-  readonly pickOneContest: YesNoContest;
+  readonly pickOneContest: BallotMeasureContest;
   readonly description: string;
-  readonly eitherOption: YesNoOption;
-  readonly neitherOption: YesNoOption;
-  readonly firstOption: YesNoOption;
-  readonly secondOption: YesNoOption;
+  readonly eitherOption: BallotMeasureOption;
+  readonly neitherOption: BallotMeasureOption;
+  readonly firstOption: BallotMeasureOption;
+  readonly secondOption: BallotMeasureOption;
 }
 
 /**
@@ -48,28 +48,28 @@ export function mergeMsEitherNeitherContests(
 ): ContestsWithMsEitherNeither {
   const eitherNeitherContest = contests.find(
     (contest) =>
-      contest.type === 'yesno' &&
-      contest.yesOption.label.startsWith('FOR APPROVAL OF EITHER') &&
+      contest.type === 'measure' &&
+      contest.options[0].label.startsWith('FOR APPROVAL OF EITHER') &&
       /* istanbul ignore next */
-      contest.noOption.label.startsWith('AGAINST BOTH')
+      contest.options[1].label.startsWith('AGAINST BOTH')
   );
   if (!eitherNeitherContest) {
     return contests;
   }
-  assert(eitherNeitherContest.type === 'yesno');
-  assertDefined(eitherNeitherContest.yesOption);
-  assertDefined(eitherNeitherContest.noOption);
+  assert(eitherNeitherContest.type === 'measure');
+  assertDefined(eitherNeitherContest.options[0]);
+  assertDefined(eitherNeitherContest.options[1]);
   const pickOneContest = contests.find(
     (contest) =>
-      contest.type === 'yesno' &&
+      contest.type === 'measure' &&
       /* istanbul ignore next */
-      contest.yesOption.label.startsWith('FOR') &&
+      contest.options[0].label.startsWith('FOR') &&
       /* istanbul ignore next */
-      contest.noOption.label.startsWith('FOR') &&
+      contest.options[1].label.startsWith('FOR') &&
       contest.description === eitherNeitherContest.description
   );
   assert(pickOneContest);
-  assert(pickOneContest.type === 'yesno');
+  assert(pickOneContest.type === 'measure');
 
   const mergedContest: MsEitherNeitherContest = {
     type: 'ms-either-neither',
@@ -81,10 +81,10 @@ export function mergeMsEitherNeitherContests(
     pickOneContestId: pickOneContest.id,
     pickOneContest,
     description: eitherNeitherContest.description,
-    eitherOption: assertDefined(eitherNeitherContest.yesOption),
-    neitherOption: assertDefined(eitherNeitherContest.noOption),
-    firstOption: assertDefined(pickOneContest.yesOption),
-    secondOption: assertDefined(pickOneContest.noOption),
+    eitherOption: assertDefined(eitherNeitherContest.options[0]),
+    neitherOption: assertDefined(eitherNeitherContest.options[1]),
+    firstOption: assertDefined(pickOneContest.options[0]),
+    secondOption: assertDefined(pickOneContest.options[1]),
   };
 
   const contestsWithoutEitherNeither = contests.filter(

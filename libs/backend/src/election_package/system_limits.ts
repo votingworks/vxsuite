@@ -79,7 +79,7 @@ export function validateElectionDefinitionAgainstSystemLimits(
         totalCandidates += contest.candidates.length;
         break;
       }
-      case 'yesno': {
+      case 'measure': {
         totalCandidates += 2;
         break;
       }
@@ -184,7 +184,7 @@ export function validateElectionDefinitionAgainstSystemLimits(
             candidatesSummedAcrossContests += contest.candidates.length;
             break;
           }
-          case 'yesno': {
+          case 'measure': {
             seatsSummedAcrossContests += 1;
             candidatesSummedAcrossContests += 2;
             break;

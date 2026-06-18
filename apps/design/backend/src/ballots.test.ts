@@ -112,13 +112,15 @@ test('formatElectionForExport', () => {
   ];
   const ballotMeasureContest = find(
     election.contests,
-    (contest) => contest.type === 'yesno'
+    (contest) => contest.type === 'measure'
   );
+  assert(ballotMeasureContest.type === 'measure');
   const contests = election.contests.map((c) =>
     c.id === ballotMeasureContest.id
       ? {
-          ...c,
-          additionalOptions: [
+          ...ballotMeasureContest,
+          options: [
+            ...ballotMeasureContest.options,
             {
               id: 'additional-option-1',
               label: 'Additional Option 1',

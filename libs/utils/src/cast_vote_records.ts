@@ -260,8 +260,8 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
           .map((num) => `write-in-${num}`)
           .toArray(),
       ];
-    case 'yesno':
-      return [contest.yesOption.id, contest.noOption.id];
+    case 'measure':
+      return [...contest.options.map((option) => option.id)];
     case 'straight-party':
       return [...contest.optionIds];
     default:

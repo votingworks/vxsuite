@@ -701,7 +701,7 @@ describe('ERR file import', () => {
         contestResults: {
           'question-a': {
             contestId: 'question-a',
-            contestType: 'yesno',
+            contestType: 'measure',
             yesOptionId: 'fishing-yes',
             noOptionId: 'fishing-no',
             yesTally: 30,

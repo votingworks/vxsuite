@@ -14,7 +14,7 @@ import {
   PollingPlace,
   Precinct,
   PrecinctSplit,
-  YesNoOption,
+  BallotMeasureOption,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 
@@ -68,7 +68,7 @@ export const electionStrings = {
     </UiRichTextString>
   ),
 
-  [Key.CONTEST_OPTION_LABEL]: (option: YesNoOption) => (
+  [Key.CONTEST_OPTION_LABEL]: (option: BallotMeasureOption) => (
     <UiString uiStringKey={Key.CONTEST_OPTION_LABEL} uiStringSubKey={option.id}>
       {option.label}
     </UiString>

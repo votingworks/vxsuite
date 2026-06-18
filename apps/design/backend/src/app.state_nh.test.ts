@@ -14,7 +14,7 @@ import {
   BallotType,
   Precinct,
   PrecinctWithoutSplits,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
@@ -195,11 +195,13 @@ test.each<{
         ...baseElectionDefinition.election.contests,
         {
           id: 'long-ballot-measure',
-          type: 'yesno',
+          type: 'measure',
           title: 'Long Ballot Measure',
           description: ballotMeasureDescription,
-          yesOption: { id: 'yes-option', label: 'Yes' },
-          noOption: { id: 'no-option', label: 'No' },
+          options: [
+            { id: 'yes-option', label: 'Yes' },
+            { id: 'no-option', label: 'No' },
+          ],
           districtId: baseElectionDefinition.election.districts[0].id,
         },
       ],
@@ -293,13 +295,15 @@ test('ballot measure contest editing with additional contest options', async () 
   const contests = await apiClient.listContests({ electionId });
   const ballotMeasureContest = find(
     contests,
-    (contest) => contest.type === 'yesno'
+    (contest) => contest.type === 'measure'
   );
-  expect(ballotMeasureContest.additionalOptions).toBeUndefined();
+  assert(ballotMeasureContest.type === 'measure');
+  expect(ballotMeasureContest.options.slice(2)).toEqual([]);
 
-  const expectedContest: YesNoContest = {
+  const expectedContest: BallotMeasureContest = {
     ...ballotMeasureContest,
-    additionalOptions: [
+    options: [
+      ...ballotMeasureContest.options,
       {
         id: 'additional-option-1',
         label: 'Additional Option 1',
@@ -319,10 +323,11 @@ test('ballot measure contest editing with additional contest options', async () 
   const updatedContests = await apiClient.listContests({ electionId });
   const updatedContest = find(
     updatedContests,
-    (contest): contest is YesNoContest => contest.id === ballotMeasureContest.id
+    (contest): contest is BallotMeasureContest =>
+      contest.id === ballotMeasureContest.id
   );
-  expect(updatedContest.additionalOptions).toEqual(
-    expectedContest.additionalOptions
+  expect(updatedContest.options.slice(2)).toEqual(
+    expectedContest.options.slice(2)
   );
 });
 

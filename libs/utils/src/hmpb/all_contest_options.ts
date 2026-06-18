@@ -14,8 +14,8 @@ import {
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
   straightPartyNotYetImplemented,
-  YesNoContest,
-  YesNoContestOption,
+  BallotMeasureContest,
+  BallotMeasureContestOption,
   StraightPartyContest,
   StraightPartyContestOption,
 } from '@votingworks/types';
@@ -33,9 +33,9 @@ export function allContestOptionsWithMultiEndorsements(
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export function allContestOptionsWithMultiEndorsements(
-  contest: YesNoContest,
+  contest: BallotMeasureContest,
   ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
+): Generator<BallotMeasureContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
@@ -92,15 +92,15 @@ export function* allContestOptionsWithMultiEndorsements(
       break;
     }
 
-    case 'yesno': {
+    case 'measure': {
       yield {
-        type: 'yesno',
-        id: contest.yesOption.id,
+        type: 'measure',
+        id: assertDefined(contest.options[0]).id,
         contestId: contest.id,
       };
       yield {
-        type: 'yesno',
-        id: contest.noOption.id,
+        type: 'measure',
+        id: assertDefined(contest.options[1]).id,
         contestId: contest.id,
       };
       break;
@@ -136,9 +136,9 @@ export function allContestOptions(
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
 export function allContestOptions(
-  contest: YesNoContest,
+  contest: BallotMeasureContest,
   ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
+): Generator<BallotMeasureContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
@@ -194,12 +194,9 @@ export function contestOptionName(
         ? 'Write-In'
         : find(contest.candidates, (c) => c.id === option.id).name;
     }
-    case 'yesno': {
-      assert(contest.type === 'yesno');
-      return find(
-        [contest.yesOption, contest.noOption],
-        (o) => o.id === option.id
-      ).label;
+    case 'measure': {
+      assert(contest.type === 'measure');
+      return find(contest.options, (o) => o.id === option.id).label;
     }
     default:
       /* istanbul ignore next */

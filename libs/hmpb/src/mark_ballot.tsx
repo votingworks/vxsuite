@@ -227,7 +227,7 @@ export function createTestVotes(contests: readonly Contest[]): {
         }
         return [contest.id, candidates];
       }
-      if (contest.additionalOptions && contest.additionalOptions.length > 0) {
+      if (contest.options.slice(2).length > 0) {
         return [
           contest.id,
           [
@@ -238,7 +238,7 @@ export function createTestVotes(contests: readonly Contest[]): {
       }
       return [
         contest.id,
-        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+        i % 2 === 0 ? [contest.options[0].id] : [contest.options[1].id],
       ];
     })
   );

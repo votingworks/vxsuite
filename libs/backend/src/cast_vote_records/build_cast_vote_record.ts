@@ -25,8 +25,8 @@ import {
   StraightPartyVote,
   Vote,
   VotesDict,
-  YesNoContest,
-  YesNoVote,
+  BallotMeasureContest,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
@@ -117,8 +117,8 @@ function buildCVRBallotMeasureContest({
   electionDefinition,
   ballotStyleId,
 }: {
-  contest: YesNoContest;
-  vote: YesNoVote;
+  contest: BallotMeasureContest;
+  vote: BallotMeasureVote;
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
 }): CVR.CVRContest {
@@ -440,11 +440,11 @@ export function buildCVRContestsFromVotes({
       ({ contestId }) => contestId === contest.id
     );
     switch (contest.type) {
-      case 'yesno':
+      case 'measure':
         cvrContests.push(
           buildCVRBallotMeasureContest({
             contest,
-            vote: contestVote as YesNoVote,
+            vote: contestVote as BallotMeasureVote,
             electionDefinition,
             ballotStyleId,
           })

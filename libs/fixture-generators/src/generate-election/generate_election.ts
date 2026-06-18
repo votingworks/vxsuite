@@ -142,24 +142,26 @@ export function generateElection(
     }
     return {
       ...baseContest,
-      type: 'yesno',
+      type: 'measure',
       description: randomString(maxStringLengths.contestBallotMeasureText, [
         ballotMeasureText,
       ]),
-      yesOption: {
-        id: `${baseContest.id}-option-yes`,
-        label: randomString(
-          maxStringLengths.contestBallotMeasureOptionLabel,
-          words.yes
-        ),
-      },
-      noOption: {
-        id: `${baseContest.id}-option-no`,
-        label: randomString(
-          maxStringLengths.contestBallotMeasureOptionLabel,
-          words.no
-        ),
-      },
+      options: [
+        {
+          id: `${baseContest.id}-option-yes`,
+          label: randomString(
+            maxStringLengths.contestBallotMeasureOptionLabel,
+            words.yes
+          ),
+        },
+        {
+          id: `${baseContest.id}-option-no`,
+          label: randomString(
+            maxStringLengths.contestBallotMeasureOptionLabel,
+            words.no
+          ),
+        },
+      ],
     };
   }
   const contests = range(0, config.numContests).map(generateContest);

@@ -12,9 +12,9 @@ import {
   StraightPartyContest,
   Tabulation,
   WriteInCandidate,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
-import { find, typedAs } from '@votingworks/basics';
+import { assertDefined, find, typedAs } from '@votingworks/basics';
 import {
   convertMarksToVotesDict,
   getContestVoteOptionsForCandidateContest,
@@ -31,11 +31,11 @@ const electionWithMsEitherNeither =
 test('getContestVoteOptionsForYesNoContest', () => {
   const contest = find(
     electionWithMsEitherNeither.contests,
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   );
   expect(getContestVoteOptionsForYesNoContest(contest)).toEqual([
-    contest.yesOption.id,
-    contest.noOption.id,
+    assertDefined(contest.options[0]).id,
+    assertDefined(contest.options[1]).id,
   ]);
 });
 
@@ -187,17 +187,17 @@ test('markInfoToVotesDict candidate', () => {
   ).toEqual({ [mayorContest.id]: [sherlockCandidate] });
 });
 
-test('markInfoToVotesDict yesno', () => {
+test('markInfoToVotesDict measure', () => {
   const election =
     electionGridLayoutNewHampshireTestBallotFixtures.readElection();
   const yesnoContest = find(
     election.contests,
-    (c): c is YesNoContest => c.type === 'yesno'
+    (c): c is BallotMeasureContest => c.type === 'measure'
   );
   const yesMark: BallotTargetMark = {
-    type: 'yesno',
+    type: 'measure',
     contestId: yesnoContest.id,
-    optionId: yesnoContest.yesOption.id,
+    optionId: assertDefined(yesnoContest.options[0]).id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },
@@ -207,9 +207,9 @@ test('markInfoToVotesDict yesno', () => {
     },
   };
   const noMark: BallotTargetMark = {
-    type: 'yesno',
+    type: 'measure',
     contestId: yesnoContest.id,
-    optionId: yesnoContest.noOption.id,
+    optionId: assertDefined(yesnoContest.options[1]).id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },
@@ -224,7 +224,7 @@ test('markInfoToVotesDict yesno', () => {
       { marginal: 0.04, definite: 0.1 },
       [yesMark]
     )
-  ).toEqual({ [yesnoContest.id]: [yesnoContest.yesOption.id] });
+  ).toEqual({ [yesnoContest.id]: [assertDefined(yesnoContest.options[0]).id] });
   expect(
     convertMarksToVotesDict(
       election.contests,
@@ -242,7 +242,10 @@ test('markInfoToVotesDict yesno', () => {
       [yesMark, noMark]
     )
   ).toEqual({
-    [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
+    [yesnoContest.id]: [
+      assertDefined(yesnoContest.options[0]).id,
+      assertDefined(yesnoContest.options[1]).id,
+    ],
   });
 });
 

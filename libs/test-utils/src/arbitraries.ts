@@ -26,8 +26,8 @@ import {
   PartyId,
   Precinct,
   PrecinctId,
-  YesNoContest,
-  YesNoOption,
+  BallotMeasureContest,
+  BallotMeasureOption,
   UiStringsPackage,
   ElectionId,
   BallotStyleGroupId,
@@ -226,8 +226,8 @@ export function arbitraryDateTime({
 export function arbitraryYesNoOption({
   id,
 }: {
-  id: fc.Arbitrary<YesNoOption['id']>;
-}): fc.Arbitrary<YesNoOption> {
+  id: fc.Arbitrary<BallotMeasureOption['id']>;
+}): fc.Arbitrary<BallotMeasureOption> {
   return fc.record({
     id,
     label: fc.string({ minLength: 1 }),
@@ -241,9 +241,9 @@ export function arbitraryYesNoContest({
   id = arbitraryContestId(),
   districtId = arbitraryDistrictId(),
 }: {
-  id?: fc.Arbitrary<YesNoContest['id']>;
+  id?: fc.Arbitrary<BallotMeasureContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
-} = {}): fc.Arbitrary<YesNoContest> {
+} = {}): fc.Arbitrary<BallotMeasureContest> {
   return fc
     .tuple(
       arbitraryYesNoOption({ id: arbitraryId() }),
@@ -252,13 +252,12 @@ export function arbitraryYesNoContest({
     .filter(([yesOption, noOption]) => yesOption.id !== noOption.id)
     .map(([yesOption, noOption]) =>
       fc.record({
-        type: fc.constant('yesno' as const),
+        type: fc.constant('measure' as const),
         title: fc.string({ minLength: 1 }),
         description: fc.string({ minLength: 1 }),
         id,
         districtId,
-        yesOption: fc.constant(yesOption),
-        noOption: fc.constant(noOption),
+        options: fc.constant([yesOption, noOption]),
       })
     )
     .chain((x) => x);
@@ -338,7 +337,7 @@ export function arbitraryContests({
     .filter((contests) =>
       hasUniqueIds(
         contests.flatMap((contest) =>
-          contest.type === 'yesno' ? [contest.yesOption, contest.noOption] : []
+          contest.type === 'measure' ? contest.options : []
         )
       )
     );

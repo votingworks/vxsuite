@@ -65,18 +65,23 @@ function regenerateElectionIds(election, precincts) {
               partyIds: candidate.partyIds?.map(replaceId),
             })),
           };
-        case 'yesno':
-          return {
-            yesOption: {
-              ...contest.yesOption,
-              id: replaceId(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: replaceId(contest.noOption.id),
-            },
-          };
         default: {
+          // This migration runs against historical v4.0 election data, whose
+          // ballot measures used the `yesno` shape (yesOption/noOption) rather
+          // than the current `measure`/`options` shape.
+          const yesNoContest = /** @type {any} */ (contest);
+          if (yesNoContest.type === 'yesno') {
+            return {
+              yesOption: {
+                ...yesNoContest.yesOption,
+                id: replaceId(yesNoContest.yesOption.id),
+              },
+              noOption: {
+                ...yesNoContest.noOption,
+                id: replaceId(yesNoContest.noOption.id),
+              },
+            };
+          }
           throw new Error(`Unknown contest type: ${contest}`);
         }
       }
@@ -133,7 +138,11 @@ exports.up = async (pgm) => {
                 cand.id,
                 ...(cand.partyIds ?? []),
               ])
-            : [c.yesOption.id, c.noOption.id]),
+            : // Historical v4.0 ballot measures used the yesno shape.
+              [
+                /** @type {any} */ (c).yesOption.id,
+                /** @type {any} */ (c).noOption.id,
+              ]),
         ];
       }),
     ];

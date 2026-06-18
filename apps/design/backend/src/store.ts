@@ -33,7 +33,7 @@ import {
   Candidate,
   CandidateId,
   PartyId,
-  YesNoContest,
+  BallotMeasureContest,
   CandidateContest,
   Signature,
   TtsEdit,
@@ -49,7 +49,7 @@ import {
   unsafeParse,
   DistrictSchema,
   PartySchema,
-  YesNoOption,
+  BallotMeasureOption,
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
@@ -468,7 +468,7 @@ async function insertContest(
         );
         const contestIds = allContests.map((row) => row.id);
         const firstBallotMeasureIndex = allContests.findIndex(
-          (row) => row.type === 'yesno'
+          (row) => row.type === 'measure'
         );
         if (firstBallotMeasureIndex !== -1) {
           // Remove the newly inserted contest from its current position (should be last)
@@ -490,7 +490,7 @@ async function insertContest(
       break;
     }
 
-    case 'yesno': {
+    case 'measure': {
       await client.query(
         `
           insert into contests (
@@ -517,11 +517,11 @@ async function insertContest(
         contest.type,
         contest.districtId,
         contest.description,
-        contest.yesOption.id,
-        contest.yesOption.label,
-        contest.noOption.id,
-        contest.noOption.label,
-        JSON.stringify(contest.additionalOptions),
+        contest.options[0].id,
+        contest.options[0].label,
+        contest.options[1].id,
+        contest.options[1].label,
+        JSON.stringify(contest.options.slice(2)),
         ...(ballotOrder ? [ballotOrder] : [])
       );
       break;
@@ -1069,7 +1069,7 @@ export class Store {
         yesOptionLabel: string | null;
         noOptionId: string | null;
         noOptionLabel: string | null;
-        additionalOptions: YesNoOption[] | null;
+        additionalOptions: BallotMeasureOption[] | null;
       }>;
       const candidateRows = (
         await client.query(
@@ -1136,22 +1136,24 @@ export class Store {
               candidates,
             });
           }
-          case 'yesno': {
-            return typedAs<YesNoContest>({
+          case 'measure': {
+            return typedAs<BallotMeasureContest>({
               id: row.id,
               title: row.title,
               type: row.type,
               districtId: row.districtId,
               description: assertDefined(row.description),
-              yesOption: {
-                id: assertDefined(row.yesOptionId),
-                label: assertDefined(row.yesOptionLabel),
-              },
-              noOption: {
-                id: assertDefined(row.noOptionId),
-                label: assertDefined(row.noOptionLabel),
-              },
-              additionalOptions: row.additionalOptions ?? undefined,
+              options: [
+                {
+                  id: assertDefined(row.yesOptionId),
+                  label: assertDefined(row.yesOptionLabel),
+                },
+                {
+                  id: assertDefined(row.noOptionId),
+                  label: assertDefined(row.noOptionLabel),
+                },
+                ...(row.additionalOptions ?? []),
+              ],
             });
           }
           default: {
@@ -2080,8 +2082,8 @@ export class Store {
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
     if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
+      contest.type === 'measure' &&
+      contest.options[0].label === contest.options[1].label
     ) {
       return err('duplicate-option');
     }
@@ -2103,8 +2105,8 @@ export class Store {
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
     if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
+      contest.type === 'measure' &&
+      contest.options[0].label === contest.options[1].label
     ) {
       return err('duplicate-option');
     }

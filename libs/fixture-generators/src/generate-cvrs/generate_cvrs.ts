@@ -32,7 +32,7 @@ import {
   straightPartyNotYetImplemented,
   Vote,
   VotesDict,
-  YesNoVote,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import {
   allContestOptions,
@@ -262,14 +262,17 @@ export function* generateCvrs({
                   getCandidateOptionsForContest(contest)
                 );
                 break;
-              case 'yesno':
+              case 'measure': {
+                const yesOption = assertDefined(contest.options[0]);
+                const noOption = assertDefined(contest.options[1]);
                 optionsForEachContest.set(contest.id, [
-                  [contest.yesOption.id],
-                  [contest.noOption.id],
-                  [contest.yesOption.id, contest.noOption.id],
+                  [yesOption.id],
+                  [noOption.id],
+                  [yesOption.id, noOption.id],
                   [],
                 ]);
                 break;
+              }
               // istanbul ignore next
               default:
                 throwIllegalValue(contest);
@@ -462,10 +465,10 @@ export function* generateCvrs({
                             CVRContestSelection: contestOptionIds.map(
                               (optionId) => {
                                 const hasIndication =
-                                  contest.type === 'yesno'
-                                    ? (contestVotes as YesNoVote).includes(
-                                        optionId
-                                      )
+                                  contest.type === 'measure'
+                                    ? (
+                                        contestVotes as BallotMeasureVote
+                                      ).includes(optionId)
                                     : (contestVotes as CandidateVote).find(
                                         (c) => c.id === optionId
                                       );

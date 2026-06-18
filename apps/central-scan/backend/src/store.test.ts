@@ -11,10 +11,10 @@ import {
   PageInterpretationWithFiles,
   SheetOf,
   TEST_JURISDICTION,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import { randomUUID as uuid } from 'node:crypto';
-import { sleep } from '@votingworks/basics';
+import { assertDefined, sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -404,8 +404,8 @@ test('adjudication', () => {
   const candidateContests = election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
-  const yesnoContests = election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
+  const measureContests = election.contests.filter(
+    (contest): contest is BallotMeasureContest => contest.type === 'measure'
   );
 
   const store = Store.memoryStore();
@@ -443,12 +443,12 @@ test('adjudication', () => {
                 inner: zeroRect,
               },
             },
-            ...(yesnoContests[i]
+            ...(measureContests[i]
               ? ([
                   {
-                    type: 'yesno',
-                    contestId: yesnoContests[i].id,
-                    optionId: yesnoContests[i].yesOption.id,
+                    type: 'measure',
+                    contestId: measureContests[i].id,
+                    optionId: assertDefined(measureContests[i].options[0]).id,
                     score: 1, // definite
                     scoredOffset: { x: 0, y: 0 },
                     bounds: zeroRect,

@@ -1,4 +1,3 @@
-const { throwIllegalValue } = require('@votingworks/basics');
 const {
   hasSplits,
   straightPartyNotYetImplemented,
@@ -402,7 +401,11 @@ exports.up = async (pgm) => {
           break;
         }
 
-        case 'yesno': {
+        default: {
+          // This migration runs against historical v4.0 election data, whose
+          // only non-candidate contest is a `yesno` ballot measure (the old
+          // yesOption/noOption shape, before the v4.1 measure/options change).
+          const yesNoContest = /** @type {any} */ (contest);
           pgm.sql(`
             INSERT INTO contests (
               id,
@@ -417,23 +420,20 @@ exports.up = async (pgm) => {
               no_option_label
             )
             VALUES (
-              '${contest.id}',
+              '${yesNoContest.id}',
               '${election.id}',
-              '${quote(contest.title)}',
-              '${contest.type}',
-              '${contest.districtId}',
-              '${quote(contest.description)}',
-              '${contest.yesOption.id}',
-              '${quote(contest.yesOption.label)}',
-              '${contest.noOption.id}',
-              '${quote(contest.noOption.label)}'
+              '${quote(yesNoContest.title)}',
+              '${yesNoContest.type}',
+              '${yesNoContest.districtId}',
+              '${quote(yesNoContest.description)}',
+              '${yesNoContest.yesOption.id}',
+              '${quote(yesNoContest.yesOption.label)}',
+              '${yesNoContest.noOption.id}',
+              '${quote(yesNoContest.noOption.label)}'
             )
           `);
           break;
         }
-
-        default:
-          throwIllegalValue(contest);
       }
     }
   }

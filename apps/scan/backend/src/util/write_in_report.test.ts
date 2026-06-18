@@ -519,7 +519,7 @@ function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {
   store.recordSheet({ sheetId, batchId, pages: sheet, isAccepted: true });
 }
 
-test('excludes non-write-in candidate contests and yes/no contests', async () => {
+test('excludes non-write-in candidate contests and ballot measure contests', async () => {
   const store = createPrimaryStore();
   const result = await store.getWriteInReportData();
 
@@ -533,7 +533,7 @@ test('excludes non-write-in candidate contests and yes/no contests', async () =>
   expect(contestIds).not.toContain('best-animal-mammal');
   expect(contestIds).not.toContain('best-animal-fish');
 
-  // Yes/no contests excluded
+  // Ballot measure contests excluded
   expect(contestIds).not.toContain('new-zoo-either');
   expect(contestIds).not.toContain('new-zoo-pick');
   expect(contestIds).not.toContain('fishing');

@@ -12,10 +12,10 @@ import {
 } from '@votingworks/ui';
 
 import {
-  YesNoVote,
+  BallotMeasureVote,
   Election,
   getContestDistrict,
-  YesNoOption,
+  BallotMeasureOption,
 } from '@votingworks/types';
 
 import { UpdateVoteFunction } from '../config/types';
@@ -52,8 +52,8 @@ const Divider = styled.div`
 interface Props {
   election: Election;
   contest: MsEitherNeitherContestInterface;
-  eitherNeitherContestVote?: YesNoVote;
-  pickOneContestVote?: YesNoVote;
+  eitherNeitherContestVote?: BallotMeasureVote;
+  pickOneContestVote?: BallotMeasureVote;
   updateVote: UpdateVoteFunction;
   isReviewMode?: boolean;
 }
@@ -107,7 +107,7 @@ export function MsEitherNeitherContest({
   function handleUpdatePickOne(targetVote: string) {
     const currentVote = pickOneContestVote?.[0];
     const newVote =
-      currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
+      currentVote === targetVote ? ([] as BallotMeasureVote) : [targetVote];
 
     if (newVote.length === 0) {
       setDeselectedOptionId(targetVote);
@@ -134,7 +134,7 @@ export function MsEitherNeitherContest({
     }
   }, [deselectedOptionId]);
 
-  function getOptionLabel(option: YesNoOption): JSX.Element {
+  function getOptionLabel(option: BallotMeasureOption): JSX.Element {
     const optionLabel = electionStrings.contestOptionLabel(option);
 
     const selectedOptionIds = new Set<string>();

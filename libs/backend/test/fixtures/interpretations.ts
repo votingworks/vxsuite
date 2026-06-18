@@ -11,7 +11,7 @@ import {
   PageInterpretation,
   SheetOf,
   TargetShape,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
@@ -21,7 +21,7 @@ const { election, ballotHash } = electionDefinition;
 export const fishingContest = find(
   election.contests,
   (contest) => contest.id === 'fishing'
-) as YesNoContest;
+) as BallotMeasureContest;
 export const fishCouncilContest = find(
   election.contests,
   (contest) => contest.id === 'aquarium-council-fish'
@@ -115,20 +115,20 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
   markInfo: {
     marks: [
       {
-        type: 'yesno',
+        type: 'measure',
         bounds: defaultShape.bounds,
         contestId: fishingContest.id,
         target: defaultShape,
-        optionId: fishingContest.noOption.id,
+        optionId: assertDefined(fishingContest.options[1]).id,
         score: 0.17,
         scoredOffset: { x: 1, y: 1 },
       },
       {
-        type: 'yesno',
+        type: 'measure',
         bounds: defaultShape.bounds,
         contestId: fishingContest.id,
         target: defaultShape,
-        optionId: fishingContest.yesOption.id,
+        optionId: assertDefined(fishingContest.options[0]).id,
         score: 0.03,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -137,7 +137,7 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
   },
   adjudicationInfo,
   votes: {
-    [fishingContest.id]: [fishingContest.noOption.id],
+    [fishingContest.id]: [assertDefined(fishingContest.options[1]).id],
   },
   layout: {
     pageSize: { width: 0, height: 0 },
@@ -160,8 +160,8 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
             target: defaultShape,
             bounds: defaultShape.bounds,
             definition: {
-              type: 'yesno',
-              id: fishingContest.yesOption.id,
+              type: 'measure',
+              id: assertDefined(fishingContest.options[0]).id,
               contestId: fishingContest.id,
             },
           },
@@ -176,7 +176,7 @@ export const interpretedHmpbPage2WithMarginalMark: InterpretedHmpbPage = {
   markInfo: {
     ...interpretedHmpbPage2.markInfo,
     marks: interpretedHmpbPage2.markInfo.marks.map((mark) =>
-      mark.optionId === fishingContest.yesOption.id
+      mark.optionId === assertDefined(fishingContest.options[0]).id
         ? { ...mark, score: 0.09 }
         : mark
     ),
@@ -193,7 +193,7 @@ export const interpretedBmdPage: InterpretedBmdPage = {
     contestIds: [fishingContest.id, fishCouncilContest.id],
   },
   votes: {
-    [fishingContest.id]: [fishingContest.noOption.id],
+    [fishingContest.id]: [assertDefined(fishingContest.options[1]).id],
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
   },
   adjudicationInfo: {
@@ -214,7 +214,7 @@ export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
     contestIds: [fishingContest.id, fishCouncilContest.id],
   },
   votes: {
-    [fishingContest.id]: [fishingContest.noOption.id],
+    [fishingContest.id]: [assertDefined(fishingContest.options[1]).id],
     [fishCouncilContest.id]: [
       { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
     ],
@@ -316,7 +316,7 @@ export const interpretedBmdPage2: InterpretedBmdPage = {
     contestIds: [fishingContest.id],
   },
   votes: {
-    [fishingContest.id]: [fishingContest.noOption.id],
+    [fishingContest.id]: [assertDefined(fishingContest.options[1]).id],
   },
   adjudicationInfo: {
     requiresAdjudication: false,

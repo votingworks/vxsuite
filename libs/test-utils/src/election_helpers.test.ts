@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   createTestElection,
   createElectionDefinition,
@@ -27,7 +27,7 @@ describe('createTestElection', () => {
       candidatesPerContest: 2,
     });
 
-    const yesNoContests = election.contests.filter((c) => c.type === 'yesno');
+    const yesNoContests = election.contests.filter((c) => c.type === 'measure');
     expect(yesNoContests).toHaveLength(4);
   });
 
@@ -82,7 +82,7 @@ describe('createTestElection', () => {
       'Office of the Commissioner for Long Department Name'
     );
 
-    const yesNoContest = election.contests.find((c) => c.type === 'yesno');
+    const yesNoContest = election.contests.find((c) => c.type === 'measure');
     expect(yesNoContest?.title).toContain(
       'Amendment to the State Constitution'
     );
@@ -96,13 +96,13 @@ describe('createTestElection', () => {
       longYesNoLabels: true,
     });
 
-    const yesNoContest = election.contests.find((c) => c.type === 'yesno');
-    expect(yesNoContest?.type).toEqual('yesno');
-    if (yesNoContest?.type === 'yesno') {
-      expect(yesNoContest.yesOption.label).toContain(
+    const yesNoContest = election.contests.find((c) => c.type === 'measure');
+    expect(yesNoContest?.type).toEqual('measure');
+    if (yesNoContest?.type === 'measure') {
+      expect(assertDefined(yesNoContest.options[0]).label).toContain(
         'Yes, I approve of this proposition'
       );
-      expect(yesNoContest.noOption.label).toContain(
+      expect(assertDefined(yesNoContest.options[1]).label).toContain(
         'No, I do not approve of this proposition'
       );
     }
@@ -251,8 +251,10 @@ describe('createMockVotes', () => {
     const votes = createMockVotes([...election.contests]);
 
     for (const contest of election.contests) {
-      if (contest.type === 'yesno') {
-        expect(votes[contest.id]).toEqual([contest.yesOption.id]);
+      if (contest.type === 'measure') {
+        expect(votes[contest.id]).toEqual([
+          assertDefined(contest.options[0]).id,
+        ]);
       }
     }
   });

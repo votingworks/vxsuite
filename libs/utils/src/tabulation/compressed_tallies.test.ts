@@ -220,7 +220,7 @@ describe('compressTally', () => {
       includeGenericWriteIn: true,
       contestResultsSummaries: {
         [yesNoContestId]: {
-          type: 'yesno',
+          type: 'measure',
           ballots: 20,
           undervotes: 1,
           overvotes: 3,
@@ -273,7 +273,7 @@ describe('readCompressTally', () => {
       expect(contestTally.undervotes).toEqual(0);
       expect(contestTally.overvotes).toEqual(0);
 
-      if (contestTally.contestType === 'yesno') {
+      if (contestTally.contestType === 'measure') {
         expect(contestTally.yesTally).toEqual(0);
         expect(contestTally.noTally).toEqual(0);
       } else {
@@ -417,7 +417,7 @@ describe('readCompressTally', () => {
     );
     compressedTally[yesNoContestIdx] = [6, 4, 20, 3, 7];
     const yesNoContest = electionEitherNeither.contests[yesNoContestIdx];
-    assert(yesNoContest?.type === 'yesno');
+    assert(yesNoContest?.type === 'measure');
     const tally = readV0CompressedTallyAsContestResults({
       election: electionEitherNeither,
       precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -426,7 +426,7 @@ describe('readCompressTally', () => {
       ),
     });
     const yesNoTally = tally['750000017'];
-    assert(yesNoTally?.contestType === 'yesno');
+    assert(yesNoTally?.contestType === 'measure');
     expect(yesNoTally.ballots).toEqual(20);
     expect(yesNoTally.undervotes).toEqual(6);
     expect(yesNoTally.overvotes).toEqual(4);
@@ -445,7 +445,7 @@ test('primary tally can compress and be read back and end with the original tall
     },
     contestResultsSummaries: {
       fishing: {
-        type: 'yesno',
+        type: 'measure',
         ballots: 300,
         undervotes: 3,
         overvotes: 3,
@@ -745,7 +745,7 @@ describe('per-precinct tally encoding (V1)', () => {
       cardCounts: { bmd: [10], hmpb: [] },
       contestResultsSummaries: {
         '750000017': {
-          type: 'yesno',
+          type: 'measure',
           ballots: 10,
           undervotes: 0,
           overvotes: 0,
@@ -787,7 +787,7 @@ describe('per-precinct tally encoding (V1)', () => {
       encodedTally: assertDefined(splits[0]).encodedTally,
     });
     const yesNoResult = decoded1['750000017'];
-    assert(yesNoResult?.contestType === 'yesno');
+    assert(yesNoResult?.contestType === 'measure');
     expect(yesNoResult.yesTally).toEqual(7);
     expect(yesNoResult.noTally).toEqual(3);
   });

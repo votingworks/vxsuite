@@ -1,4 +1,9 @@
-import { assert, throwIllegalValue, uniqueBy } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  throwIllegalValue,
+  uniqueBy,
+} from '@votingworks/basics';
 import {
   BallotTargetMark,
   Candidate,
@@ -15,14 +20,14 @@ import {
   Vote,
   VotesDict,
   WriteInIdSchema,
-  YesNoContest,
-  YesNoContestOptionId,
-  YesNoVote,
+  BallotMeasureContest,
+  BallotMeasureContestOptionId,
+  BallotMeasureVote,
 } from '@votingworks/types';
 
 export function getSingleYesNoVote(
-  vote?: YesNoVote
-): YesNoContestOptionId | undefined {
+  vote?: BallotMeasureVote
+): BallotMeasureContestOptionId | undefined {
   if (vote?.length === 1) {
     return vote[0];
   }
@@ -41,9 +46,12 @@ export function normalizeWriteInId(candidateId: CandidateId): string {
  * Gets all the vote options a voter can make for a given yes/no contest.
  */
 export function getContestVoteOptionsForYesNoContest(
-  contest: YesNoContest
-): readonly YesNoContestOptionId[] {
-  return [contest.yesOption.id, contest.noOption.id];
+  contest: BallotMeasureContest
+): readonly BallotMeasureContestOptionId[] {
+  return [
+    assertDefined(contest.options[0]).id,
+    assertDefined(contest.options[1]).id,
+  ];
 }
 
 /**
@@ -126,11 +134,11 @@ function markToCandidateVotes(
   return [candidate];
 }
 
-function markToYesNoVotes(
+function markToBallotMeasureVotes(
   markThresholds: Pick<MarkThresholds, 'definite'>,
   mark: BallotTargetMark
-): YesNoVote {
-  assert(mark.type === 'yesno');
+): BallotMeasureVote {
+  assert(mark.type === 'measure');
   return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
     ? [mark.optionId]
     : [];
@@ -156,7 +164,7 @@ function deduplicateVotes(vote: Vote): Vote {
     return vote;
   }
 
-  // if YesNoVote or StraightPartyVote, no deduplication is necessary
+  // if BallotMeasureVote or StraightPartyVote, no deduplication is necessary
   if (typeof vote[0] === 'string') {
     return vote;
   }
@@ -172,8 +180,8 @@ function markToVotes(
   switch (contest.type) {
     case 'candidate':
       return markToCandidateVotes(contest, markThresholds, mark);
-    case 'yesno':
-      return markToYesNoVotes(markThresholds, mark);
+    case 'measure':
+      return markToBallotMeasureVotes(markThresholds, mark);
     case 'straight-party':
       return markToStraightPartyVotes(markThresholds, mark);
     default:

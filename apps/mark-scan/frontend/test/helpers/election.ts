@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import {
+  BallotMeasureContest,
   CandidateContest,
   getBallotStyle,
   getContests,
-  YesNoContest,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
@@ -38,8 +38,8 @@ export const countyCommissionersContest = election.contests.find(
 
 export const measure102Contest = election.contests.find(
   (c) =>
-    c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'yesno'
-) as YesNoContest;
+    c.title === 'Measure 102: Vehicle Abatement Program' && c.type === 'measure'
+) as BallotMeasureContest;
 
 export const singleSeatContestWithWriteIn = election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1

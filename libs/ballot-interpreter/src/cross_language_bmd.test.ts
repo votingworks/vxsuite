@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
+import { assertDefined } from '@votingworks/basics';
 import {
   Contest,
   BallotType,
@@ -10,7 +11,7 @@ import {
   getBallotStyle,
   Candidate,
   straightPartyNotYetImplemented,
-  YesNoVote,
+  BallotMeasureVote,
 } from '@votingworks/types';
 import {
   decodeSummaryBallotPage,
@@ -65,7 +66,7 @@ function generateVotesForContests(
         votes[contest.id] = selected;
       }
     } else {
-      votes[contest.id] = [contest.yesOption.id];
+      votes[contest.id] = [assertDefined(contest.options[0]).id];
     }
   }
   return votes;
@@ -266,7 +267,7 @@ function tsVotesToRustVotes(
       });
       rustVotes[contest.id] = { type: 'candidate', value: candidates };
     } else {
-      const optionId = (voteArr as YesNoVote)[0]!;
+      const optionId = (voteArr as BallotMeasureVote)[0]!;
       rustVotes[contest.id] = { type: 'yesNo', value: optionId };
     }
   }

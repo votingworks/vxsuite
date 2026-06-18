@@ -112,7 +112,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
 
   const isVoteComplete = (() => {
     switch (contest.type) {
-      case 'yesno':
+      case 'measure':
         return !!vote;
       case 'candidate':
         return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;

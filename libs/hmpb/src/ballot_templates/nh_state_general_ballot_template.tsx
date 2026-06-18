@@ -23,7 +23,7 @@ import {
   getContests,
   Party,
   straightPartyNotYetImplemented,
-  YesNoContest,
+  BallotMeasureContest as BallotMeasureContestInterface,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -615,7 +615,7 @@ function BallotMeasureContest({
   contest,
   contestNumber,
 }: {
-  contest: YesNoContest;
+  contest: BallotMeasureContestInterface;
   contestNumber: number;
 }) {
   return (
@@ -644,7 +644,7 @@ function BallotMeasureContest({
           gap: '3rem',
         }}
       >
-        {[contest.yesOption, contest.noOption].map((option) => (
+        {[contest.options[0], contest.options[1]].map((option) => (
           <li key={option.id} className={BALLOT_MEASURE_OPTION_CLASS}>
             <div
               style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}

@@ -5,7 +5,7 @@ import {
   ElectionDefinition,
   ElectionStringKey,
   VotesDict,
-  YesNoContest,
+  BallotMeasureContest,
   getContests,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
@@ -245,7 +245,7 @@ describe('non-English ballot style', () => {
   test('yes/no contest', async () => {
     const contest = find(
       contests,
-      (c): c is YesNoContest => c.type === 'yesno'
+      (c): c is BallotMeasureContest => c.type === 'measure'
     );
     render(
       <BmdPaperBallot
@@ -256,7 +256,7 @@ describe('non-English ballot style', () => {
         }}
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
-        votes={{ [contest.id]: [contest.yesOption.id] }}
+        votes={{ [contest.id]: [contest.options[0].id] }}
         onRendered={() => {}}
         machineType="markScan"
         pageNumber={1}
@@ -275,14 +275,14 @@ describe('non-English ballot style', () => {
 
     expectDualLanguageString({
       key: ElectionStringKey.CONTEST_OPTION_LABEL,
-      subKey: contest.yesOption.id,
+      subKey: contest.options[0].id,
     });
   });
 
   test('yes/no contest undervote', async () => {
     const contest = find(
       contests,
-      (c): c is YesNoContest => c.type === 'yesno'
+      (c): c is BallotMeasureContest => c.type === 'measure'
     );
 
     render(
@@ -332,7 +332,9 @@ describe('English ballot style', () => {
         }
         return [
           c.id,
-          c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+          c.type === 'measure'
+            ? generateYesNoVote(c)
+            : generateCandidateVotes(c),
         ];
       })
     );

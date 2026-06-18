@@ -1,4 +1,4 @@
-import { DateWithoutTime } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   Contest,
   BallotStyle,
@@ -12,7 +12,7 @@ import {
   safeParseElectionDefinition,
   straightPartyNotYetImplemented,
   VotesDict,
-  YesNoContest,
+  BallotMeasureContest,
 } from '@votingworks/types';
 
 /**
@@ -92,9 +92,9 @@ export function createTestElection(
 
   // Generate yes/no contests
   for (let i = 0; i < numYesNoContests; i += 1) {
-    const yesNoContest: YesNoContest = {
+    const ballotMeasureContest: BallotMeasureContest = {
       id: `yesno-contest-${i}`,
-      type: 'yesno',
+      type: 'measure',
       districtId: district.id,
       title: longContestTitles
         ? `Proposition ${
@@ -104,20 +104,22 @@ export function createTestElection(
       description: `This is a description for proposition ${
         i + 1
       }. It explains what the proposition does.`,
-      yesOption: {
-        id: `yesno-${i}-yes`,
-        label: longYesNoLabels
-          ? `Yes, I approve of this proposition and all of its amendments and changes to the existing law`
-          : `Yes`,
-      },
-      noOption: {
-        id: `yesno-${i}-no`,
-        label: longYesNoLabels
-          ? `No, I do not approve of this proposition and prefer the current law to remain unchanged`
-          : `No`,
-      },
+      options: [
+        {
+          id: `yesno-${i}-yes`,
+          label: longYesNoLabels
+            ? `Yes, I approve of this proposition and all of its amendments and changes to the existing law`
+            : `Yes`,
+        },
+        {
+          id: `yesno-${i}-no`,
+          label: longYesNoLabels
+            ? `No, I do not approve of this proposition and prefer the current law to remain unchanged`
+            : `No`,
+        },
+      ],
     };
-    contests.push(yesNoContest);
+    contests.push(ballotMeasureContest);
   }
 
   const ballotStyle: BallotStyle = {
@@ -188,7 +190,7 @@ export function createMockVotes(
     if (contest.type === 'candidate') {
       votes[contest.id] = contest.candidates.slice(0, contest.seats);
     } else {
-      votes[contest.id] = [contest.yesOption.id];
+      votes[contest.id] = [assertDefined(contest.options[0]).id];
     }
   }
   return votes;

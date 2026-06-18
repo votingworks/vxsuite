@@ -16,8 +16,8 @@ test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges t
   const { contests } = electionWithMsEitherNeither;
   const eitherNeitherContest = find(contests, (c) => c.id === '750000015');
   const pickOneContest = find(contests, (c) => c.id === '750000016');
-  assert(eitherNeitherContest.type === 'yesno');
-  assert(pickOneContest.type === 'yesno');
+  assert(eitherNeitherContest.type === 'measure');
+  assert(pickOneContest.type === 'measure');
 
   const mergedContests = mergeMsEitherNeitherContests(contests);
   const mergedContest = find(
@@ -39,10 +39,10 @@ test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges t
     eitherNeitherContestId: eitherNeitherContest.id,
     pickOneContestId: pickOneContest.id,
     description: eitherNeitherContest.description,
-    eitherOption: eitherNeitherContest.yesOption,
-    neitherOption: eitherNeitherContest.noOption,
-    firstOption: pickOneContest.yesOption,
-    secondOption: pickOneContest.noOption,
+    eitherOption: eitherNeitherContest.options[0],
+    neitherOption: eitherNeitherContest.options[1],
+    firstOption: pickOneContest.options[0],
+    secondOption: pickOneContest.options[1],
   });
 });
 

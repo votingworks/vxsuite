@@ -380,7 +380,7 @@ function snapshotBallotMeasureCrops(
     // Skip pages without yes-no
     if (
       !interpretation.layout.contests.some((contest) =>
-        contest.options.some((option) => option.definition?.type === 'yesno')
+        contest.options.some((option) => option.definition?.type === 'measure')
       )
     ) {
       continue;
@@ -394,7 +394,7 @@ function snapshotBallotMeasureCrops(
 
     for (const contest of interpretation.layout.contests) {
       for (const option of contest.options) {
-        if (option.definition?.type === 'yesno') {
+        if (option.definition?.type === 'measure') {
           const { bounds } = option;
           context.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
         }
@@ -904,7 +904,7 @@ describe('Contest option bounds', () => {
     const { election } = baseElectionDefinition;
     const electionWithMeasureOnly = {
       ...election,
-      contests: election.contests.filter((c) => c.type === 'yesno'),
+      contests: election.contests.filter((c) => c.type === 'measure'),
     } as const;
 
     const ballotProps = allBaseBallotProps(electionWithMeasureOnly);

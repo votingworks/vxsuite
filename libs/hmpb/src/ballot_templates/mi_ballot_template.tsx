@@ -20,7 +20,7 @@ import {
   CandidateContest as CandidateContestStruct,
   Election,
   PrecinctId,
-  YesNoContest,
+  BallotMeasureContest as BallotMeasureContestInterface,
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
@@ -407,7 +407,11 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+function BallotMeasureContest({
+  contest,
+}: {
+  contest: BallotMeasureContestInterface;
+}) {
   return (
     <Box>
       <ContestHeader>
@@ -446,7 +450,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             justifyContent: 'end',
           }}
         >
-          {[contest.yesOption, contest.noOption].map((option) => (
+          {[contest.options[0], contest.options[1]].map((option) => (
             <li
               key={option.id}
               className={BALLOT_MEASURE_OPTION_CLASS}
@@ -548,7 +552,7 @@ function Contest({
           numContestColumns={numContestColumns}
         />
       );
-    case 'yesno':
+    case 'measure':
       return <BallotMeasureContest contest={contest} />;
     case 'straight-party':
       return (
@@ -654,7 +658,7 @@ function buildContestSections(
     },
     {
       header: <SectionHeader>Proposal Section</SectionHeader>,
-      contests: contests.filter((contest) => contest.type === 'yesno'),
+      contests: contests.filter((contest) => contest.type === 'measure'),
     },
   ]);
 }
@@ -719,7 +723,7 @@ function buildOpenPrimaryContestSections(
       },
       {
         header: <SectionHeader>Proposal Section</SectionHeader>,
-        contests: contests.filter((contest) => contest.type === 'yesno'),
+        contests: contests.filter((contest) => contest.type === 'measure'),
       },
     ]),
   };

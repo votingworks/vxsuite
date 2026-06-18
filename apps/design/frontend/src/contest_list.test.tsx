@@ -48,14 +48,14 @@ const yesNoContest1 = typedAs<Partial<Contest>>({
   id: 'yesNoContest1',
   title: 'YesNo Contest 1',
   districtId: district1.id,
-  type: 'yesno',
+  type: 'measure',
 }) as Contest;
 
 const yesNoContest2 = typedAs<Partial<Contest>>({
   id: 'yesNoContest2',
   title: 'YesNo Contest Contest 2',
   districtId: district2.id,
-  type: 'yesno',
+  type: 'measure',
 }) as Contest;
 
 const straightPartyContest = typedAs<Partial<Contest>>({

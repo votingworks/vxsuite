@@ -128,7 +128,7 @@ function getVotesAllowed(contest: Contest): number {
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
-  return contest.type === 'yesno' ? 1 : contest.seats;
+  return contest.type === 'measure' ? 1 : contest.seats;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';

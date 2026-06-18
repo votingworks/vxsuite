@@ -1,5 +1,6 @@
 import {
   assert,
+  assertDefined,
   err,
   find,
   iter,
@@ -151,11 +152,11 @@ function prettyPrintInterpretation({
           ? gridPosition.type === 'option'
             ? candidate?.name ?? gridPosition.optionId
             : `Write-In #${gridPosition.writeInIndex + 1}`
-          : contest.type === 'yesno'
+          : contest.type === 'measure'
           ? gridPosition.type === 'option' &&
-            gridPosition.optionId === contest.yesOption.id
-            ? contest.yesOption.label
-            : contest.noOption.label
+            gridPosition.optionId === assertDefined(contest.options[0]).id
+            ? assertDefined(contest.options[0]).label
+            : assertDefined(contest.options[1]).label
           : 'Unknown';
 
       stdout.write(

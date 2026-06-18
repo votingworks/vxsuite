@@ -1522,7 +1522,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
         officialOptionTallies: {},
       },
       [contestIdLast]: {
-        type: 'yesno',
+        type: 'measure',
         ballots: 200,
         undervotes: 20,
         overvotes: 10,
@@ -1709,7 +1709,7 @@ test('quick results reporting clears previous partial reports on numPages change
         officialOptionTallies: {},
       },
       [contestIdLast]: {
-        type: 'yesno',
+        type: 'measure',
         ballots: 200,
         undervotes: 20,
         overvotes: 10,

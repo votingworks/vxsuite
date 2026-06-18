@@ -1,9 +1,9 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import {
-  YesNoVote,
-  YesNoContest as YesNoContestInterface,
+  BallotMeasureVote,
+  BallotMeasureContest as YesNoContestInterface,
   Election,
-  YesNoContestOptionId,
+  BallotMeasureContestOptionId,
   getContestDistrict,
 } from '@votingworks/types';
 import {
@@ -32,7 +32,7 @@ import { UpdateVoteFunction } from '../config/types';
 interface Props {
   election: Election;
   contest: YesNoContestInterface;
-  vote?: YesNoVote;
+  vote?: BallotMeasureVote;
   updateVote: UpdateVoteFunction;
   isReviewMode?: boolean;
 }
@@ -47,7 +47,7 @@ export function YesNoContest({
   const district = getContestDistrict(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =
-    useState<Optional<YesNoContestOptionId>>();
+    useState<Optional<BallotMeasureContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
@@ -59,7 +59,7 @@ export function YesNoContest({
     }
   }, [deselectedVote]);
 
-  function handleUpdateSelection(newVote: YesNoContestOptionId) {
+  function handleUpdateSelection(newVote: BallotMeasureContestOptionId) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
@@ -68,7 +68,7 @@ export function YesNoContest({
     }
   }
 
-  function handleChangeVoteAlert(newValue: YesNoContestOptionId) {
+  function handleChangeVoteAlert(newValue: BallotMeasureContestOptionId) {
     setOvervoteSelection(newValue);
   }
 
@@ -104,7 +104,7 @@ export function YesNoContest({
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
-            {[contest.yesOption, contest.noOption].map((option) => {
+            {[contest.options[0], contest.options[1]].map((option) => {
               const isChecked = getSingleYesNoVote(vote) === option.id;
               const isDisabled = !isChecked && !!vote;
               function handleDisabledClick() {
