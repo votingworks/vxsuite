@@ -3,8 +3,8 @@ use proptest::prelude::*;
 use types_rs::{
     ballot_card::BallotType,
     election::{
-        BallotStyle, BallotStyleGroupId, BallotStyleId, Candidate, CandidateContest, Contest,
-        BallotMeasureContest, BallotMeasureOption, ContestId, DistrictId, Election, NamedCandidate,
+        BallotMeasureContest, BallotMeasureOption, BallotStyle, BallotStyleGroupId, BallotStyleId,
+        Candidate, CandidateContest, Contest, ContestId, DistrictId, Election, NamedCandidate,
         OptionId, Precinct, PrecinctId,
     },
 };
