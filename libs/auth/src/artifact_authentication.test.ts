@@ -112,6 +112,7 @@ beforeEach(() => {
     artifactToExport: {
       type: 'election_package',
       filePath: electionPackagePath,
+      exportFileName: 'election-package.zip',
     },
     artifactToImport: {
       type: 'election_package',

@@ -53,6 +53,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
@@ -145,6 +146,17 @@ function assertFilterDoesNotContainNoPartyId(
   assert(!partyIds.some(Tabulation.isNoPartyId));
 }
 
+function constructElectionPackageFilePath(
+  electionPackagesPath: string,
+  electionId: string
+): string {
+  assert(
+    !electionId.includes(sep),
+    `Election ID contains a path separator: ${electionId}`
+  );
+  return join(electionPackagesPath, `${electionId}.zip`);
+}
+
 /**
  * The canonical sort-key expressions for the ballot adjudication queue, for
  * the given `cvrs` table alias.
@@ -166,7 +178,8 @@ function adjudicationSortKeyExprs(alias: string): string[] {
 export class Store implements BaseStore {
   private constructor(
     private readonly client: DbClient,
-    private readonly ballotImagesPath: string
+    private readonly ballotImagesPath: string,
+    private readonly electionPackagesPath: string
   ) {}
 
   getDbPath(): string {
@@ -182,22 +195,29 @@ export class Store implements BaseStore {
    * `imageDirPath` must be provided, but may be a temporary directory if
    * desired.
    */
-  static memoryStore(imageDirPath: string): Store {
-    return new Store(DbClient.memoryClient(SchemaPath), imageDirPath);
+  static memoryStore(persistenceDirPath: string): Store {
+    return new Store(
+      DbClient.memoryClient(SchemaPath),
+      join(persistenceDirPath, 'ballot-images'),
+      join(persistenceDirPath, 'election-packages')
+    );
   }
 
   /**
-   * Builds and returns a new store with a database at `dbPath` and ballot
-   * images stored in `ballotImagesPath`.
+   * Builds and returns a new store with a database at `dbPath`, ballot images
+   * stored in `ballotImagesPath`, and election packages stored in
+   * `electionPackagesPath`.
    */
   static fileStore(
     dbPath: string,
     ballotImagesPath: string,
+    electionPackagesPath: string,
     logger: BaseLogger
   ): Store {
     return new Store(
       DbClient.fileClient(dbPath, logger, SchemaPath),
-      ballotImagesPath
+      ballotImagesPath,
+      electionPackagesPath
     );
   }
 
@@ -207,6 +227,7 @@ export class Store implements BaseStore {
   async reset(): Promise<void> {
     this.client.reset();
     await this.clearBallotImages();
+    await this.clearElectionPackages();
   }
 
   isEarlyVotingEnabled(electionId: Id): boolean {
@@ -246,7 +267,7 @@ export class Store implements BaseStore {
   /**
    * Creates an election record and returns its ID.
    */
-  addElection({
+  async addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents,
@@ -256,8 +277,16 @@ export class Store implements BaseStore {
     systemSettingsData: string;
     electionPackageFileContents: Buffer;
     electionPackageHash: string;
-  }): Id {
+  }): Promise<Id> {
     const id = uuid();
+
+    const electionPackageFilePath = constructElectionPackageFilePath(
+      this.electionPackagesPath,
+      id
+    );
+    await mkdir(dirname(electionPackageFilePath), { recursive: true });
+    await writeFile(electionPackageFilePath, electionPackageFileContents);
+
     this.withTransaction(() => {
       this.client.run(
         `
@@ -265,14 +294,12 @@ export class Store implements BaseStore {
           id,
           election_data,
           system_settings_data,
-          election_package_file_contents,
           election_package_hash
-        ) values (?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?)
         `,
         id,
         electionData,
         systemSettingsData,
-        electionPackageFileContents,
         electionPackageHash
       );
       this.createElectionMetadataRecords(id);
@@ -351,17 +378,18 @@ export class Store implements BaseStore {
     };
   }
 
-  getElectionPackageFileContents(electionId: string): Buffer | undefined {
+  getElectionPackageFilePath(electionId: string): string | undefined {
     const result = this.client.one(
       `
-      select
-        election_package_file_contents as electionPackageFileContents
+      select id
       from elections
       where id = ?
       `,
       electionId
-    ) as { electionPackageFileContents: Buffer } | undefined;
-    return result?.electionPackageFileContents;
+    ) as { id: Id } | undefined;
+    return result
+      ? constructElectionPackageFilePath(this.electionPackagesPath, electionId)
+      : undefined;
   }
 
   setRegisteredVoterCounts(
@@ -1239,11 +1267,19 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Deletes all ballot image files from the image directory. Called when the
-   * store is reset (e.g., on unconfigure).
+   * Deletes all ballot image files from the ballot images directory. Called when the store is
+   * reset (e.g., on unconfigure).
    */
   async clearBallotImages(): Promise<void> {
     await emptyDir(this.ballotImagesPath);
+  }
+
+  /**
+   * Deletes all election package files from the election packages directory. Called when the store
+   * is reset (e.g., on unconfigure).
+   */
+  async clearElectionPackages(): Promise<void> {
+    await emptyDir(this.electionPackagesPath);
   }
 
   addScannerBatch(scannerBatch: ScannerBatch): void {
