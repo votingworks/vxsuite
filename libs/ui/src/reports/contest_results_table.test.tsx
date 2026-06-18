@@ -1,8 +1,11 @@
 import { expect, test } from 'vitest';
 import { buildContestResultsFixture } from '@votingworks/utils';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionStraightPartyFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { assert } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestResultsTable } from './contest_results_table';
@@ -244,6 +247,64 @@ test('uses write-in adjudication aggregation', () => {
   within(fishing).getByText(hasTextAcrossElements('Elephant30'));
   within(fishing).getByText(hasTextAcrossElements('Giraffe (Write-In)60'));
   within(fishing).getByText(hasTextAcrossElements('Other Write-In20'));
+});
+
+const straightPartyElection = electionStraightPartyFixtures.readElection();
+const straightPartyContest = find(
+  straightPartyElection.contests,
+  (c) => c.type === 'straight-party'
+);
+
+const straightPartyScannedResults = buildContestResultsFixture({
+  contest: straightPartyContest,
+  contestResultsSummary: {
+    type: 'straight-party',
+    ballots: 30,
+    overvotes: 2,
+    undervotes: 3,
+    // '0' = Federalist, '8' = Republican
+    optionTallies: { '0': 10, '8': 15 },
+  },
+});
+
+test('straight-party contest with scanned results only', () => {
+  render(
+    <ContestResultsTable
+      election={straightPartyElection}
+      contest={straightPartyContest}
+      scannedContestResults={straightPartyScannedResults}
+    />
+  );
+  const table = screen.getByTestId('results-table-straight-party-ticket');
+  within(table).getByText('Straight Party');
+  within(table).getByText(/30 ballots cast/);
+  within(table).getByText(/2 overvotes/);
+  within(table).getByText(/3 undervotes/);
+  within(table).getByText(hasTextAcrossElements('Federalist Party10'));
+  within(table).getByText(hasTextAcrossElements('Republican Party15'));
+});
+
+test('straight-party contest with manual results', () => {
+  const straightPartyManualResults = buildContestResultsFixture({
+    contest: straightPartyContest,
+    contestResultsSummary: {
+      type: 'straight-party',
+      ballots: 5,
+      optionTallies: { '0': 5 },
+    },
+  });
+  render(
+    <ContestResultsTable
+      election={straightPartyElection}
+      contest={straightPartyContest}
+      scannedContestResults={straightPartyScannedResults}
+      manualContestResults={straightPartyManualResults}
+    />
+  );
+  const table = screen.getByTestId('results-table-straight-party-ticket');
+  within(table).getByText('Straight Party');
+  within(table).getByText(hasTextAcrossElements('Federalist Party10515'));
+  within(table).getByText(hasTextAcrossElements('Republican Party15015'));
 });
 
 test('doesnt show term description if none given', () => {

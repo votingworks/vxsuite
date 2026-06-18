@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
+  readElectionStraightParty,
   readElectionTwoPartyPrimaryDefinition,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
@@ -188,6 +189,19 @@ describe('groupContestsByParty', () => {
         return c.type === 'yesno' || !c.partyId;
       })
     ).toEqual(true);
+  });
+
+  test('in a general election with a straight-party contest', () => {
+    const election = readElectionStraightParty();
+    const result = groupContestsByParty(election, election.contests);
+
+    // A general election produces a single non-partisan group containing
+    // every contest, including the straight-party contest.
+    expect(result).toHaveLength(1);
+    const nonPartisanGroup = result[0];
+    assert(nonPartisanGroup !== undefined);
+    expect(nonPartisanGroup.partyId).toBeUndefined();
+    expect(nonPartisanGroup.contests).toEqual(election.contests);
   });
 
   test('with mixed contest types and empty contest list', () => {

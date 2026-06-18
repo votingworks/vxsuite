@@ -6,10 +6,9 @@ import {
   getContestDistrictName,
   Tabulation,
   Contest,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
-import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
+import { throwIllegalValue, assert, Optional, find } from '@votingworks/basics';
 
 import { ReportTable } from './layout';
 import { Font } from '../typography';
@@ -220,11 +219,6 @@ export function ContestResultsTable({
 
   const hasManualResults = Boolean(manualContestResults);
 
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
-
   switch (contest.type) {
     case 'candidate': {
       assert(scannedContestResults.contestType === 'candidate');
@@ -277,6 +271,28 @@ export function ContestResultsTable({
           showManualTally={hasManualResults}
         />
       );
+      break;
+    }
+    case 'straight-party': {
+      assert(scannedContestResults.contestType === 'straight-party');
+      assertIsOptional<Tabulation.StraightPartyContestResults>(
+        manualContestResults
+      );
+      for (const partyId of contest.optionIds) {
+        const key = `${contest.id}-${partyId}`;
+        contestTableRows.push(
+          <ContestOptionRow
+            key={key}
+            testId={key}
+            optionLabel={
+              find(election.parties, (party) => party.id === partyId).fullName
+            }
+            scannedTally={scannedContestResults.tallies[partyId]}
+            manualTally={manualContestResults?.tallies[partyId] ?? 0}
+            showManualTally={hasManualResults}
+          />
+        );
+      }
       break;
     }
     default: {
