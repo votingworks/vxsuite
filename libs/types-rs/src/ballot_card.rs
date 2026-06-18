@@ -10,7 +10,7 @@ use crate::geometry::{Inch, Size};
 use crate::{codable, coding};
 
 codable!(PrecinctIndex, u32, 0..=8191);
-codable!(BallotStyleIndex, u32, 0..=8191);
+codable!(BallotStyleIndex, u32, 0..=65535);
 codable!(PageNumber, u8, 1..=30);
 codable!(BallotAuditIdLength, u8, 1..=255);
 
@@ -333,7 +333,7 @@ pub mod tests {
     #[test]
     fn test_bit_counts() {
         assert_eq!(PrecinctIndex::BITS, 13);
-        assert_eq!(BallotStyleIndex::BITS, 13);
+        assert_eq!(BallotStyleIndex::BITS, 16);
     }
 
     #[test]

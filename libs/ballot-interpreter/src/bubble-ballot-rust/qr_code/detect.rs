@@ -327,7 +327,7 @@ mod test {
     #[test]
     fn test_classify_bubble_ballot() {
         assert_eq!(
-            classify_qr_payload(&[0x56, 0x50, 0x02, 0xff]),
+            classify_qr_payload(&[0x56, 0x42, 0x01, 0xff]),
             QrCodeKind::BubbleBallot
         );
     }
@@ -335,7 +335,7 @@ mod test {
     #[test]
     fn test_classify_summary_ballot() {
         assert_eq!(
-            classify_qr_payload(&[0x56, 0x42, 0x01, 0xab]),
+            classify_qr_payload(&[0x56, 0x53, 0x01, 0xab]),
             QrCodeKind::SummaryBallot
         );
     }

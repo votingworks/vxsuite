@@ -346,7 +346,7 @@ pub const PARTIAL_BALLOT_HASH_BYTE_LENGTH: usize = 10;
 pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
 
 /// The first bytes of an encoded [`Metadata`].
-pub const PRELUDE: &[u8; 3] = b"VP\x02";
+pub const PRELUDE: &[u8; 3] = b"VB\x01";
 
 #[must_use]
 pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
@@ -409,7 +409,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -429,20 +429,20 @@ mod test {
             0b0000_0000,
             //BBBB BBBB
 
-            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b0000_0010,
-            //BBNN NNNM
+            // 5 bits for ballot style index, 3 bits for page number
+            0b0000_0000,
+            //BBBB BNNN
 
-            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits for ballot audit ID length
-            0b0000_1000,
-            //TTTT FLLL
+            // 2 bits for page number, 1 bit for test mode, 4 bits for ballot type, 1 bit for ballot audit ID flag
+            0b0100_0001,
+            //NNMT TTTF
 
-            // 5 bits for ballot audit ID length, 3 bits start of ballot audit ID
-            0b1010_0011,
-            //LLLL LIII
+            // 8 bits for ballot audit ID length
+            0b0001_0100,
+            //LLLL LLLL
 
-            // Rest of ballot audit ID
-            163, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
+            // Ballot audit ID ("test-audit-ballot-id")
+            116, 101, 115, 116, 45, 97, 117, 100, 105, 116, 45, 98, 97, 108, 108, 111, 116, 45, 105, 100
         ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -507,7 +507,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -556,7 +556,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -573,16 +573,16 @@ mod test {
             //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b1000_0000,
+            0b0001_0000,
             //BBBB BBBB
 
-            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b0100_0010,
-            //BBNN NNNM
+            // 5 bits for ballot style index, 3 bits for page number
+            0b0000_1000,
+            //BBBB BNNN
 
-            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
+            // 2 bits for page number, 1 bit for test mode, 4 bits for ballot type, 1 bit for ballot audit ID flag
             0b0000_0000,
-            //TTTT F---
+            //NNMT TTTF
         ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -609,7 +609,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -629,13 +629,13 @@ mod test {
             0b0000_0000,
             //BBBB BBBB
 
-            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b0000_0010,
-            //BBNN NNNM
+            // 5 bits for ballot style index, 3 bits for page number
+            0b0000_0000,
+            //BBBB BNNN
 
-            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
-            0b1111_0000,
-            //TTTT F---
+            // 2 bits for page number, 1 bit for test mode, 4 bits for ballot type, 1 bit for ballot audit ID flag
+            0b0101_1110,
+            //NNMT TTTF
         ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -664,7 +664,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -684,13 +684,13 @@ mod test {
             0b0000_0000,
             //BBBB BBBB
 
-            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b0011_1110,
-            //BBNN NNNM
+            // 5 bits for ballot style index, 3 bits for page number
+            0b0000_0111,
+            //BBBB BNNN
 
-            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
-            0b0000_0000,
-            //TTTT F---
+            // 2 bits for page number, 1 bit for test mode, 4 bits for ballot type, 1 bit for ballot audit ID flag
+            0b1100_0000,
+            //NNMT TTTF
         ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -711,7 +711,7 @@ mod test {
 
         let mut bytes = vec![
             // 3-byte prelude
-            b'V', b'P', 2,
+            b'V', b'B', 1,
         ];
 
         // 10-byte ballot hash
@@ -731,20 +731,20 @@ mod test {
             0b0000_0000,
             //BBBB BBBB
 
-            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b0000_0010,
-            //BBNN NNNM
+            // 5 bits for ballot style index, 3 bits for page number
+            0b0000_0000,
+            //BBBB BNNN
 
-            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits for ballot audit ID length
-            0b0000_1000,
-            //TTTT FLLL
+            // 2 bits for page number, 1 bit for test mode, 4 bits for ballot type, 1 bit for ballot audit ID flag
+            0b0100_0001,
+            //NNMT TTTF
 
-            // 5 bits for ballot audit ID length, 3 bits start of ballot audit ID
-            0b1010_0011,
-            //LLLL LIII
+            // 8 bits for ballot audit ID length
+            0b0001_0100,
+            //LLLL LLLL
 
-            // Rest of ballot audit ID (with invalid UTF-8 char at beginning)
-            255, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
+            // Ballot audit ID (with invalid UTF-8 char at beginning)
+            255, 101, 115, 116, 45, 97, 117, 100, 105, 116, 45, 98, 97, 108, 108, 111, 116, 45, 105, 100
         ]);
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
