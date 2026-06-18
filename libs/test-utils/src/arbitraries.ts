@@ -396,12 +396,14 @@ export function arbitraryBallotStyle({
   districtIds = fc.array(arbitraryDistrictId()),
   precinctIds = fc.array(arbitraryPrecinctId()),
   partyId = fc.constant(undefined),
+  languages = fc.constant(['en']),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
   groupId?: fc.Arbitrary<BallotStyle['groupId']>;
   districtIds?: fc.Arbitrary<Array<District['id']>>;
   precinctIds?: fc.Arbitrary<Array<Precinct['id']>>;
   partyId?: fc.Arbitrary<PartyId | undefined>;
+  languages?: fc.Arbitrary<BallotStyle['languages']>;
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,
@@ -409,6 +411,7 @@ export function arbitraryBallotStyle({
     districts: districtIds,
     precincts: precinctIds,
     partyId,
+    languages,
   });
 }
 

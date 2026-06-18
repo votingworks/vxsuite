@@ -28,7 +28,13 @@ const generalElectionDefinition = safeParseElectionDefinition(
     ...generalElection,
     // Add a dummy ballot style to satisfy validation
     ballotStyles: [
-      { id: 'dummy', groupId: 'dummy', precincts: [], districts: [] },
+      {
+        id: 'dummy',
+        groupId: 'dummy',
+        precincts: [],
+        districts: [],
+        languages: ['en'],
+      },
     ],
   })
 ).unsafeUnwrap();
@@ -49,6 +55,7 @@ const primaryElectionDefinition = safeParseElectionDefinition(
         precincts: [],
         districts: [],
         partyId: primaryElection.parties[0].id,
+        languages: ['en'],
       },
     ],
   })

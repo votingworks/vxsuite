@@ -139,6 +139,7 @@ const electionWithNoContestsRecord = makeElectionRecord(
         districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
         precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
         partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+        languages: ['en'],
       },
       {
         id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
@@ -146,6 +147,7 @@ const electionWithNoContestsRecord = makeElectionRecord(
         districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
         precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
         partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+        languages: ['en'],
       },
     ],
     contests: [],
@@ -460,6 +462,7 @@ test('editing a candidate contest (primary election)', async () => {
           districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
           precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
           partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+          languages: ['en'],
         },
         {
           id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
@@ -467,6 +470,7 @@ test('editing a candidate contest (primary election)', async () => {
           districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
           precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
           partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+          languages: ['en'],
         },
       ],
       parties: [

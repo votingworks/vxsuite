@@ -122,6 +122,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
         groupId: 'card-number-4',
         precincts: baseElection.ballotStyles[0]!.precincts,
         districts: baseElection.ballotStyles[0]!.districts,
+        languages: baseElection.ballotStyles[0]!.languages,
       },
     ],
   });

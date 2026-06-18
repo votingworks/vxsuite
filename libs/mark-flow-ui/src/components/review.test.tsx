@@ -460,6 +460,7 @@ describe('cross-endorsed candidates', () => {
       contests: [contest],
       ballotStyles: [
         {
+          languages: ['en'],
           id: 'ballot-style-1',
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
@@ -520,6 +521,7 @@ describe('cross-endorsed candidates', () => {
       contests: [contest],
       ballotStyles: [
         {
+          languages: ['en'],
           id: 'ballot-style-1',
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
@@ -580,6 +582,7 @@ describe('cross-endorsed candidates', () => {
       contests: [contest],
       ballotStyles: [
         {
+          languages: ['en'],
           id: 'ballot-style-1',
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
@@ -651,6 +654,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
+          languages: ['en'],
           orderedCandidatesByContest: {
             governor: [
               { id: 'alice', partyIds: ['0'] },

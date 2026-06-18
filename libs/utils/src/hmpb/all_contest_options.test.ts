@@ -140,6 +140,7 @@ test('candidate contest with ballot style ordering', () => {
     groupId: 'group-1',
     precincts: ['precinct-1'],
     districts: ['district-1'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       'contest-1': [
         { id: 'candidate-c' },
@@ -183,6 +184,7 @@ test('candidate contest with multi-endorsed candidates are deduplicated', () => 
     groupId: 'group-1',
     precincts: ['precinct-1'],
     districts: ['district-1'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       'contest-1': [
         { id: 'candidate-a', partyIds: ['party-1'] },

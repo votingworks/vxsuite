@@ -17,7 +17,8 @@ export const electionData = `
       ],
       "precincts": [
         "P"
-      ]
+      ],
+      "languages": ["en"]
     }
   ],
   "districts": [
@@ -382,14 +383,16 @@ const electionTwoPartyPrimaryData = `
       "groupId": "1M",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": ["en"]
     },
     {
       "id": "2F",
       "groupId": "2F",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
-      "partyId": "1"
+      "partyId": "1",
+      "languages": ["en"]
     }
   ],
   "seal": "<svg>test seal</svg>",

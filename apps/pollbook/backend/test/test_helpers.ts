@@ -212,6 +212,7 @@ export function getTestElection(): Election {
         groupId: 'bs-1',
         precincts: [],
         districts: [],
+        languages: ['en'],
       },
     ],
     ballotLayout: {
