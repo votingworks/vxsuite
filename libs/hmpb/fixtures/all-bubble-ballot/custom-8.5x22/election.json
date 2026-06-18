@@ -13,6 +13,9 @@
       ],
       "districts": [
         "test-district"
+      ],
+      "languages": [
+        "en"
       ]
     }
   ],

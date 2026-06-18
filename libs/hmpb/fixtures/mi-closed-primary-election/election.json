@@ -89,7 +89,10 @@
       "districts": [
         "district-1"
       ],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "2F",
@@ -101,7 +104,10 @@
       "districts": [
         "district-1"
       ],
-      "partyId": "1"
+      "partyId": "1",
+      "languages": [
+        "en"
+      ]
     }
   ],
   "contests": [
