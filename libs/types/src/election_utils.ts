@@ -464,8 +464,8 @@ export function vote(
     const choice = shorthand[contest.id];
     if (!choice) {
       votes[contest.id] = [];
-    } else if (contest.type === 'yesno') {
-      assert(Array.isArray(choice), 'yesno shorthand must be an array');
+    } else if (contest.type === 'measure') {
+      assert(Array.isArray(choice), 'measure shorthand must be an array');
       votes[contest.id] = choice;
     } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
       votes[contest.id] = contest.candidates.filter((c) =>

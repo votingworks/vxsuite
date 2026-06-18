@@ -2,14 +2,14 @@ import { z } from 'zod/v4';
 
 const nonnegativeInteger = z.number().nonnegative().int();
 
-export type YesNoContestCompressedTally = [
+export type BallotMeasureContestCompressedTally = [
   undervotes: number,
   overvotes: number,
   ballotsCast: number,
   yes: number,
   no: number,
 ];
-export const YesNoContestCompressedTallySchema: z.ZodSchema<YesNoContestCompressedTally> =
+export const BallotMeasureContestCompressedTallySchema: z.ZodSchema<BallotMeasureContestCompressedTally> =
   z.tuple([
     nonnegativeInteger,
     nonnegativeInteger,
@@ -51,12 +51,12 @@ export const CandidateContestCompressedTallySchema: z.ZodSchema<CandidateContest
     CandidateContestWithoutWriteInsCompressedTallySchema,
   ]);
 export type CompressedTallyEntry =
-  | YesNoContestCompressedTally
+  | BallotMeasureContestCompressedTally
   | CandidateContestCompressedTally;
 export type CompressedTally = CompressedTallyEntry[];
 export const CompressedTallySchema: z.ZodSchema<CompressedTally> = z.array(
   z.union([
-    YesNoContestCompressedTallySchema,
+    BallotMeasureContestCompressedTallySchema,
     CandidateContestCompressedTallySchema,
   ])
 );

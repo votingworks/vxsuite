@@ -86,18 +86,18 @@ function findTotalVoteCounts(
 }
 
 /**
- * Converts an ERR-formatted BallotMeasureContest or RetentionContest to Vx-formatted YesNoContestResults.
+ * Converts an ERR-formatted BallotMeasureContest or RetentionContest to Vx-formatted BallotMeasureContestResults.
  * BallotMeasureContest and RetentionContest treated identically, though the latter has extra fields we ignore.
  * @param contest ERR-formatted contest
- * @returns Vx-formatted YesNoContestResults.
+ * @returns Vx-formatted BallotMeasureContestResults.
  */
-function convertToYesNoContest(
+function convertToBallotMeasureContestResults(
   contest:
     | ResultsReporting.BallotMeasureContest
     // RetentionContest inherits from BallotMeasureContest.
     // It also has additional fields for candidate that we ignore.
     | ResultsReporting.RetentionContest
-): VxTabulation.YesNoContestResults {
+): VxTabulation.BallotMeasureContestResults {
   const contestSelections = assertDefined(
     contest.ContestSelection
   ) as ResultsReporting.BallotMeasureSelection[];
@@ -132,7 +132,7 @@ function convertToYesNoContest(
 
   return {
     contestId: trimVxIdPrefix(contest['@id']),
-    contestType: 'yesno',
+    contestType: 'measure',
     yesOptionId: trimVxIdPrefix(yesOption['@id']),
     noOptionId: trimVxIdPrefix(noOption['@id']),
     yesTally,
@@ -318,7 +318,7 @@ function convertContestsListToVxResultsRecord(
         convertCandidateContest(contest, candidateNameRecord);
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
-        convertToYesNoContest(contest);
+        convertToBallotMeasureContestResults(contest);
     } else {
       return err(
         new Error(

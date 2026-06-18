@@ -63,17 +63,17 @@ test('getCandidateSelectionId', () => {
 });
 
 test('getYesOptionId', () => {
-  const yesNoContest = assertDefined(
-    election.contests.find((contest) => contest.type === 'yesno')
+  const measureContest = assertDefined(
+    election.contests.find((contest) => contest.type === 'measure')
   );
-  expect(getYesOptionId(yesNoContest)).toEqual('vx_YNC-option-yes');
+  expect(getYesOptionId(measureContest)).toEqual('vx_YNC-option-yes');
 });
 
 test('getNoOptionId', () => {
-  const yesNoContest = assertDefined(
-    election.contests.find((contest) => contest.type === 'yesno')
+  const measureContest = assertDefined(
+    election.contests.find((contest) => contest.type === 'measure')
   );
-  expect(getNoOptionId(yesNoContest)).toEqual('vx_YNC-option-no');
+  expect(getNoOptionId(measureContest)).toEqual('vx_YNC-option-no');
 });
 
 test('getPartyIdForCandidate', () => {

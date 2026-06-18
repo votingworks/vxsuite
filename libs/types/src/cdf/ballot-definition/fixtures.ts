@@ -62,17 +62,19 @@ export const testVxfElection: Election = {
     {
       id: 'contest-2',
       districtId: 'district-1',
-      type: 'yesno',
+      type: 'measure',
       title: 'Proposition 1',
       description: 'Should we do this thing?',
-      yesOption: {
-        id: 'contest-2-option-yes',
-        label: 'Yes',
-      },
-      noOption: {
-        id: 'contest-2-option-no',
-        label: 'No',
-      },
+      options: [
+        {
+          id: 'contest-2-option-yes',
+          label: 'Yes',
+        },
+        {
+          id: 'contest-2-option-no',
+          label: 'No',
+        },
+      ],
     },
     {
       id: 'contest-3',

@@ -257,7 +257,7 @@ test('safeParseVxfElectionDefinition computes the ballot hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().ballotHash
   ).toMatchInlineSnapshot(
-    `"f2bfc50a41666158570a2abb08430952cd3bcb702d3b5c7489be693bfcc3a025"`
+    `"726bdc1e759b380d412c8ac47afe4b951d08ece33ed454825672e241b19644df"`
   );
 });
 

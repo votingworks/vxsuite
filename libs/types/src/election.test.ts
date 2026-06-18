@@ -46,7 +46,7 @@ import {
   ElectionDefinitionSchema,
   PartyIdSchema,
   WriteInIdSchema,
-  YesNoContest,
+  BallotMeasureContest,
   BmdBallotPaperSize,
   hasSplits,
   DistrictId,
@@ -88,7 +88,7 @@ test('can build votes from an array of candidate IDs', () => {
   });
 });
 
-test('can build votes from yesno values', () => {
+test('can build votes from measure values', () => {
   const yesNoContest = find(election.contests, (c) => c.id === 'YNC');
   expect(vote([yesNoContest], { YNC: ['option-yes'] })).toEqual({
     YNC: ['option-yes'],
@@ -398,13 +398,13 @@ test('isVotePresent', () => {
 test('validates votes by checking that contests are present in a given ballot style', () => {
   const ballotStyle = election.ballotStyles[0];
 
-  const yesno = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
-  ) as YesNoContest;
+  const measure = election.contests.find(
+    (c): c is BallotMeasureContest => c.type === 'measure'
+  ) as BallotMeasureContest;
   expect(() =>
     validateVotes({
       votes: {
-        [yesno.id]: [yesno.yesOption.id],
+        [measure.id]: [measure.options[0].id],
       },
       ballotStyle,
       election,
@@ -514,8 +514,8 @@ test('election schema', () => {
   const candidateContest = election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
-  const yesnoContest = election.contests.find(
-    (c): c is YesNoContest => c.type === 'yesno'
+  const measureContest = election.contests.find(
+    (c): c is BallotMeasureContest => c.type === 'measure'
   )!;
   const parsedElection = safeParseElection({
     ...election,
@@ -534,7 +534,7 @@ test('election schema', () => {
           })),
         ],
       },
-      yesnoContest,
+      measureContest,
     ],
   }).unsafeUnwrap();
 

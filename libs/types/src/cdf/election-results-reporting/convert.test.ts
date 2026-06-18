@@ -156,7 +156,7 @@ describe('getManualResultsFromErrElectionResults', () => {
       contestResults: {
         'question-a': {
           contestId: 'question-a',
-          contestType: 'yesno',
+          contestType: 'measure',
           yesOptionId: 'fishing-yes',
           noOptionId: 'fishing-no',
           yesTally: 30,
@@ -167,7 +167,7 @@ describe('getManualResultsFromErrElectionResults', () => {
         },
         judge: {
           contestId: 'judge',
-          contestType: 'yesno',
+          contestType: 'measure',
           yesOptionId: 'retain-yes',
           noOptionId: 'retain-no',
           yesTally: 55,
@@ -291,7 +291,7 @@ describe('getManualResultsFromErrElectionResults', () => {
       contestResults: {
         fishing: {
           contestId: 'fishing',
-          contestType: 'yesno',
+          contestType: 'measure',
           yesOptionId: 'fishing-for',
           noOptionId: 'fishing-against',
           yesTally: 45,
@@ -316,7 +316,7 @@ describe('getManualResultsFromErrElectionResults', () => {
       contestResults: {
         fishing: {
           contestId: 'fishing',
-          contestType: 'yesno',
+          contestType: 'measure',
           yesOptionId: 'fishing-yes',
           noOptionId: 'fishing-no',
           yesTally: 60,
@@ -341,7 +341,7 @@ describe('getManualResultsFromErrElectionResults', () => {
       contestResults: {
         fishing: {
           contestId: 'fishing',
-          contestType: 'yesno',
+          contestType: 'measure',
           yesOptionId: 'fishing-yes',
           noOptionId: 'fishing-no',
           yesTally: 60,

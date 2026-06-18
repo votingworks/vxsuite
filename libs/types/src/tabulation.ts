@@ -23,8 +23,8 @@ type ContestResultsBase = ContestResultsMetadata & {
   readonly contestType: Contest['type'];
 };
 
-export type YesNoContestResults = ContestResultsBase & {
-  readonly contestType: 'yesno';
+export type BallotMeasureContestResults = ContestResultsBase & {
+  readonly contestType: 'measure';
   yesOptionId: ContestOptionId;
   noOptionId: ContestOptionId;
   yesTally: number;
@@ -51,7 +51,7 @@ export type StraightPartyContestResults = ContestResultsBase & {
  * some cast vote record attributes.
  */
 export type ContestResults =
-  | YesNoContestResults
+  | BallotMeasureContestResults
   | CandidateContestResults
   | StraightPartyContestResults;
 

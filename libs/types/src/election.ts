@@ -167,13 +167,13 @@ export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 
-interface ContestBase {
+export interface ContestBase {
   readonly id: ContestId;
   readonly districtId: DistrictId;
   readonly title: string;
 }
 
-const ContestBaseSchema = z.object({
+export const ContestBaseSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),
@@ -240,29 +240,26 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     }
   });
 
-export interface YesNoOption {
+export interface BallotMeasureOption {
   readonly id: Id;
   readonly label: string;
 }
-export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
-  id: IdSchema,
-  label: z.string().nonempty(),
-});
+export const BallotMeasureOptionSchema: z.ZodSchema<BallotMeasureOption> =
+  z.object({
+    id: IdSchema,
+    label: z.string().nonempty(),
+  });
 
-export interface YesNoContest extends ContestBase {
-  readonly type: 'yesno';
+export interface BallotMeasureContest extends ContestBase {
+  readonly type: 'measure';
   readonly description: string;
-  readonly yesOption: YesNoOption;
-  readonly noOption: YesNoOption;
-  readonly additionalOptions?: readonly YesNoOption[];
+  readonly options: readonly BallotMeasureOption[];
 }
-export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
+export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> =
   ContestBaseSchema.extend({
-    type: z.literal('yesno'),
+    type: z.literal('measure'),
     description: z.string().nonempty(),
-    yesOption: YesNoOptionSchema,
-    noOption: YesNoOptionSchema,
-    additionalOptions: z.array(YesNoOptionSchema).optional(),
+    options: z.array(BallotMeasureOptionSchema).nonempty(),
   });
 
 export interface StraightPartyContest extends ContestBase {
@@ -283,10 +280,13 @@ export function straightPartyNotYetImplemented(): never {
   throw new Error('Straight party contests are not yet implemented');
 }
 
-export type Contest = CandidateContest | YesNoContest | StraightPartyContest;
+export type Contest =
+  | CandidateContest
+  | BallotMeasureContest
+  | StraightPartyContest;
 export const ContestSchema: z.ZodSchema<Contest> = z.union([
   CandidateContestSchema,
-  YesNoContestSchema,
+  BallotMeasureContestSchema,
   StraightPartyContestSchema,
 ]);
 
@@ -301,14 +301,12 @@ export const ContestsSchema = z.array(ContestSchema).check((ctx) => {
     });
   }
   for (const [index, id] of findDuplicateIds(
-    contests.flatMap((c) =>
-      c.type === 'yesno' ? [c.yesOption, c.noOption] : []
-    )
+    contests.flatMap((c) => (c.type === 'measure' ? c.options : []))
   )) {
     ctx.issues.push({
       code: 'custom',
-      path: [index, 'yes/noOption', 'id'],
-      message: `Duplicate yes/no contest option '${id}' found.`,
+      path: [index, 'options', 'id'],
+      message: `Duplicate ballot measure contest option '${id}' found.`,
       input: contests,
     });
   }
@@ -1028,18 +1026,18 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     writeInIndex: z.number().nonnegative().optional(),
   });
 
-export type YesNoContestOptionId = Id;
-export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> =
+export type BallotMeasureContestOptionId = Id;
+export const BallotMeasureContestOptionIdSchema: z.ZodSchema<BallotMeasureContestOptionId> =
   IdSchema;
-export interface YesNoContestOption {
-  type: YesNoContest['type'];
-  id: YesNoContestOptionId;
-  contestId: YesNoContest['id'];
+export interface BallotMeasureContestOption {
+  type: BallotMeasureContest['type'];
+  id: BallotMeasureContestOptionId;
+  contestId: BallotMeasureContest['id'];
 }
-export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
+export const BallotMeasureContestOptionSchema: z.ZodSchema<BallotMeasureContestOption> =
   z.object({
-    type: z.literal('yesno'),
-    id: YesNoContestOptionIdSchema,
+    type: z.literal('measure'),
+    id: BallotMeasureContestOptionIdSchema,
     contestId: ContestIdSchema,
   });
 
@@ -1057,11 +1055,11 @@ export const StraightPartyContestOptionSchema: z.ZodSchema<StraightPartyContestO
 
 export type ContestOption =
   | CandidateContestOption
-  | YesNoContestOption
+  | BallotMeasureContestOption
   | StraightPartyContestOption;
 export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
-  YesNoContestOptionSchema,
+  BallotMeasureContestOptionSchema,
   StraightPartyContestOptionSchema,
 ]);
 
@@ -1069,7 +1067,7 @@ export type ContestOptionId = ContestOption['id'];
 export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   CandidateIdSchema,
   WriteInIdSchema,
-  YesNoContestOptionIdSchema,
+  BallotMeasureContestOptionIdSchema,
   PartyIdSchema,
 ]);
 
@@ -1077,21 +1075,21 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
 export type CandidateVote = readonly Candidate[];
 export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
   z.array(CandidateSchema);
-export type YesNoVote = readonly YesNoContestOptionId[];
-export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.array(
-  YesNoContestOptionIdSchema
+export type BallotMeasureVote = readonly BallotMeasureContestOptionId[];
+export const BallotMeasureVoteSchema: z.ZodSchema<BallotMeasureVote> = z.array(
+  BallotMeasureContestOptionIdSchema
 );
 export type StraightPartyVote = readonly PartyId[];
 export const StraightPartyVoteSchema: z.ZodSchema<StraightPartyVote> =
   z.array(PartyIdSchema);
 
-export type OptionalYesNoVote = Optional<YesNoVote>;
-export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
-  YesNoVoteSchema.optional();
-export type Vote = CandidateVote | YesNoVote | StraightPartyVote;
+export type OptionalBallotMeasureVote = Optional<BallotMeasureVote>;
+export const OptionalBallotMeasureVoteSchema: z.ZodSchema<OptionalBallotMeasureVote> =
+  BallotMeasureVoteSchema.optional();
+export type Vote = CandidateVote | BallotMeasureVote | StraightPartyVote;
 export const VoteSchema: z.ZodSchema<Vote> = z.union([
   CandidateVoteSchema,
-  YesNoVoteSchema,
+  BallotMeasureVoteSchema,
   StraightPartyVoteSchema,
 ]);
 export type OptionalVote = Optional<Vote>;
@@ -1267,13 +1265,13 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
     scoredOffset: OffsetSchema,
   });
 
-export interface BallotYesNoTargetMark {
-  type: YesNoContest['type'];
+export interface BallotMeasureTargetMark {
+  type: BallotMeasureContest['type'];
   /** The area of the detected bubble. */
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
-  optionId: YesNoContestOptionId;
+  optionId: BallotMeasureContestOptionId;
   score: number;
   /**
    * How far away `bounds` was from where it was expected. Thus, the expected
@@ -1281,13 +1279,13 @@ export interface BallotYesNoTargetMark {
    */
   scoredOffset: Offset;
 }
-export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
+export const BallotMeasureTargetMarkSchema: z.ZodSchema<BallotMeasureTargetMark> =
   z.object({
-    type: z.literal('yesno'),
+    type: z.literal('measure'),
     bounds: RectSchema,
     contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    optionId: YesNoContestOptionIdSchema,
+    optionId: BallotMeasureContestOptionIdSchema,
     score: z.number(),
     scoredOffset: OffsetSchema,
   });
@@ -1319,11 +1317,11 @@ export const BallotStraightPartyTargetMarkSchema: z.ZodSchema<BallotStraightPart
 
 export type BallotTargetMark =
   | BallotCandidateTargetMark
-  | BallotYesNoTargetMark
+  | BallotMeasureTargetMark
   | BallotStraightPartyTargetMark;
 export const BallotTargetMarkSchema: z.ZodSchema<BallotTargetMark> = z.union([
   BallotCandidateTargetMarkSchema,
-  BallotYesNoTargetMarkSchema,
+  BallotMeasureTargetMarkSchema,
   BallotStraightPartyTargetMarkSchema,
 ]);
 

@@ -6,7 +6,7 @@ import {
   District,
   Election,
   Party,
-  YesNoContest,
+  BallotMeasureContest,
 } from '../../election';
 
 // Helpers for formatting IDs as xmlschema NCNames.
@@ -79,17 +79,19 @@ export function getCandidateSelectionId(
 }
 
 /**
- * Gets the ID for the "Yes" option in a YesNoContest, formatted as an NCName.
+ * Gets the ID for the "Yes" option (the first option) in a ballot measure
+ * contest, formatted as an NCName.
  */
-export function getYesOptionId(contest: YesNoContest): string {
-  return asNcName(contest.yesOption.id);
+export function getYesOptionId(contest: BallotMeasureContest): string {
+  return asNcName(contest.options[0].id);
 }
 
 /**
- * Gets the ID for the "No" option in a YesNoContest, formatted as an NCName.
+ * Gets the ID for the "No" option (the second option) in a ballot measure
+ * contest, formatted as an NCName.
  */
-export function getNoOptionId(contest: YesNoContest): string {
-  return asNcName(contest.noOption.id);
+export function getNoOptionId(contest: BallotMeasureContest): string {
+  return asNcName(contest.options[1].id);
 }
 
 /**
