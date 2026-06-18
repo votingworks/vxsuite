@@ -79,11 +79,6 @@ export function getRelatedBallotStyle(params: {
     return err(`ballot style not found: ${sourceBallotStyleId}`);
   }
 
-  // For legacy language-agnostic ballot styles, return the same ballot style:
-  if (iter(sourceBallotStyle.languages).isEmpty()) {
-    return ok(sourceBallotStyle);
-  }
-
   const ballotStyleGroups = getBallotStyleGroupMap(ballotStyles);
   const matchingGroup = assertDefined(
     ballotStyleGroups.get(sourceBallotStyle.groupId)
@@ -100,13 +95,8 @@ export function getRelatedBallotStyle(params: {
 }
 
 /**
- * Returns ballot style group details from the given total set of ballot styles
- *
- * The returned list will include all legacy language-agnostic ballot styles as their own
- * group as well, if included in the original list.
- *
+ * Returns ballot style group details from the given total set of ballot styles.
  */
-
 export function getGroupedBallotStyles(
   ballotStyles: readonly BallotStyle[]
 ): BallotStyleGroup[] {
@@ -117,18 +107,15 @@ export function getGroupedBallotStyles(
         ballotStylesByGroupId.get(groupId)
       );
       let englishBallotStyle: BallotStyle | undefined;
-      let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
         if (deepEqual(ballotStyle.languages, ['en'])) {
           englishBallotStyle = ballotStyle;
-        } else if (!ballotStyle.languages) {
-          legacyBallotStyle = ballotStyle;
         }
       }
 
       const defaultLanguageBallotStyle = assertDefined(
-        englishBallotStyle || legacyBallotStyle,
+        englishBallotStyle,
         'Expected at least one English language ballot style per ballot style group.'
       );
       return {

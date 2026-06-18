@@ -110,11 +110,6 @@ describe('ballot style groups', () => {
     partyId: 'purple-party',
   });
 
-  const style3LegacySchema = makeBallotStyle({
-    id: 'ballot-style-3',
-    groupId: 'ballot-style-3',
-  });
-
   test('getGroupedBallotStyles', () => {
     expect(
       getGroupedBallotStyles([
@@ -124,7 +119,6 @@ describe('ballot style groups', () => {
         style2GreenEnglishMultiLanguage,
         style2GreenNonEnglishSingleLanguage,
         style2PurpleEnglish,
-        style3LegacySchema,
       ])
     ).toEqual([
       {
@@ -149,12 +143,6 @@ describe('ballot style groups', () => {
         id: '2-P',
         defaultLanguageBallotStyle: style2PurpleEnglish,
       },
-      {
-        ballotStyles: [style3LegacySchema],
-        ...style3LegacySchema,
-        id: 'ballot-style-3',
-        defaultLanguageBallotStyle: style3LegacySchema,
-      },
     ]);
   });
 
@@ -168,7 +156,6 @@ describe('ballot style groups', () => {
         style2GreenEnglishMultiLanguage,
         style2GreenNonEnglishSingleLanguage,
         style2PurpleEnglish,
-        style3LegacySchema,
       ],
     };
     expect(
@@ -211,18 +198,6 @@ describe('ballot style groups', () => {
     expect(
       getBallotStyleGroup({
         election,
-        ballotStyleGroupId: 'ballot-style-3',
-      })
-    ).toEqual({
-      ...style3LegacySchema,
-      ballotStyles: [style3LegacySchema],
-      id: 'ballot-style-3',
-      defaultLanguageBallotStyle: style3LegacySchema,
-    });
-
-    expect(
-      getBallotStyleGroup({
-        election,
         ballotStyleGroupId: style1English.id,
       })
     ).toBeUndefined();
@@ -236,7 +211,6 @@ describe('ballot style groups', () => {
       style2GreenEnglishMultiLanguage,
       style2GreenNonEnglishSingleLanguage,
       style2PurpleEnglish,
-      style3LegacySchema,
     ];
 
     expect(
@@ -254,16 +228,6 @@ describe('ballot style groups', () => {
         targetBallotStyleLanguage: 'es-US',
       }).unsafeUnwrap()
     ).toEqual(style1Spanish);
-  });
-
-  test('getRelatedBallotStyle handles legacy styles', () => {
-    expect(
-      getRelatedBallotStyle({
-        ballotStyles: [style1English, style1Spanish, style3LegacySchema],
-        sourceBallotStyleId: style3LegacySchema.id,
-        targetBallotStyleLanguage: 'es-US',
-      }).unsafeUnwrap()
-    ).toEqual(style3LegacySchema);
   });
 
   test('getRelatedBallotStyle source style not found', () => {

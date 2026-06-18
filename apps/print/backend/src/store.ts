@@ -350,7 +350,7 @@ export class Store {
         const ballotStyle = election.ballotStyles.find(
           (bs) => bs.id === row.ballotStyleId
         );
-        return assertDefined(ballotStyle).languages?.includes(
+        return assertDefined(ballotStyle).languages.includes(
           assertDefined(input.languageCode)
         );
       });

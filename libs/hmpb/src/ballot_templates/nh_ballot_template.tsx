@@ -412,8 +412,7 @@ function BallotPageFrame({
   // dual-language ballots (e.g. the header layout, the logic to split long
   // ballot measures across pages).
   assert(
-    (!ballotStyle.languages || ballotStyle.languages.length === 1) &&
-      languageCode === LanguageCode.ENGLISH,
+    ballotStyle.languages.length === 1 && languageCode === LanguageCode.ENGLISH,
     'NH ballot template only supports English'
   );
   return ok(
