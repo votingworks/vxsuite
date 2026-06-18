@@ -107,3 +107,19 @@ pnpm generate-election-packages
 Run with `FORCE_RETRANSLATE=1` to make new translations generate for all
 election packages. Note you will need to run `pnpm build` in `libs/fixtures`
 after running this to register the new fixtures.
+
+## Full Fixture Regeneration
+
+If you find yourself needing to regenerate all fixtures this workflow can be
+helpful to know:
+
+- Manual updates to election.json files and electionBase.json files (not ones
+  with "Generated" in the title)
+- From libs/fixtures - `pnpm build`
+- From libs/fixture-generators - `pnpm generate-election-packages`
+- From libs/fixtures - `pnpm build`
+- From libs/fixture-generators - `pnpm generate-cvr-fixtures`
+- From libs/hmpb - `pnpm generate-fixtures` You should then be able to run
+  type-check and tests to test your changes. Using pnpm update-snapshots from
+  vxsuite root may be useful to update snapshots that change with the fixtures.
+  Note there are also manually defined fixtures in libs/ballot-interpreter.
