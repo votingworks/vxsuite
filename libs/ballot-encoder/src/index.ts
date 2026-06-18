@@ -50,9 +50,9 @@ export const MAXIMUM_PAGE_NUMBERS = 30;
 export const MAXIMUM_PRECINCT_INDEX = 8191; // 2^13 - 1
 
 /**
- * Maximum ballot style index that we can encode in 13 bits.
+ * Maximum ballot style index that we can encode in 16 bits.
  */
-export const MAXIMUM_BALLOT_STYLE_INDEX = 8191; // 2^13 - 1
+export const MAXIMUM_BALLOT_STYLE_INDEX = 65535; // 2^16 - 1
 
 /**
  * Slices a ballot hash down to the length used in ballot encoding. Useful
@@ -81,14 +81,14 @@ export const HexEncoding = new CustomEncoding('0123456789abcdef');
  * The bytes we expect a bubble ballot to start with.
  */
 export const BubbleBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* P = Paper */ 80, /* version = */ 2,
+  /* V = VotingWorks */ 86, /* B = bubble ballot */ 66, /* version = */ 1,
 ];
 
 /**
  * The bytes we expect a summary ballot to start with.
  */
 export const SummaryBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* B = summary ballot */ 66, /* version = */ 1,
+  /* V = VotingWorks */ 86, /* S = summary ballot */ 83, /* version = */ 1,
 ];
 
 /**
