@@ -4,10 +4,10 @@ import {
   ContestOptionId,
   ElectionDefinition,
   MarkThresholds,
-  straightPartyNotYetImplemented,
   Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups, hasCrossoverVote } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
@@ -18,16 +18,16 @@ import {
  * Returns the number of allowed votes for the contest
  */
 export function getNumberVotesAllowed(contest: Contest): number {
-  if (contest.type === 'yesno') {
-    return 1;
+  switch (contest.type) {
+    case 'candidate':
+      return contest.seats;
+    case 'yesno':
+    case 'straight-party':
+      return 1;
+    default:
+      /* istanbul ignore next */
+      return throwIllegalValue(contest);
   }
-
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
-
-  return contest.seats;
 }
 
 /**

@@ -1,35 +1,28 @@
 import {
   HmpbBallotPaperSize,
   BallotType,
-  BatchInfo,
-  CVR,
-  CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
   ballotPaperDimensions,
   DEV_MACHINE_ID,
   anyPollingPlace,
 } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
-  buildCastVoteRecordReportMetadata,
-  buildBatchManifest,
+  CastVoteRecordToExport,
+  writeCastVoteRecordExport,
 } from '@votingworks/backend';
 import { readElection } from '@votingworks/fs';
 import * as fs from 'node:fs/promises';
 import yargs from 'yargs/yargs';
-import { writeImageData, createImageData } from '@votingworks/image-utils';
+import { encodeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'node:path';
-import {
-  computeCastVoteRecordRootHashFromScratch,
-  prepareSignatureFile,
-} from '@votingworks/auth';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { sha256 } from 'js-sha256';
 import {
   generateBallotPageLayouts,
   generateCvrs,
   populateImageAndLayoutFileHashes,
   replaceUniqueId,
-  getBatchIdForScannerId,
 } from '../../generate-cvrs';
 
 /**
@@ -206,126 +199,81 @@ export async function main(
   }
 
   const { election, ballotHash } = electionDefinition;
-  const batchesByScannerId: Array<{
-    scannerId: string;
-    batches: BatchInfo[];
-  }> = scannerIds.map((scannerId) => ({
-    scannerId,
-    batches: [
-      {
-        id: getBatchIdForScannerId(scannerId),
-        batchNumber: 1,
-        label: getBatchIdForScannerId(scannerId),
-        startedAt: new Date().toISOString(),
-        count: castVoteRecords.length / scannerIds.length,
-        pollingPlaceId,
-      },
-    ],
-  }));
-  const reportMetadata = buildCastVoteRecordReportMetadata({
-    election,
-    electionId: ballotHash,
-    generatingDeviceId: assertDefined(scannerIds[0]),
-    scannerIds,
-    reportTypes: [CVR.ReportType.OriginatingDeviceExport],
-    isTestMode: testMode,
-    batchInfo: batchesByScannerId.flatMap(({ batches }) => batches),
-  });
-
-  // make the parent folder if it does not exist
-  await fs.mkdir(outputPath, { recursive: true });
 
   const imagesByPaperSize = new Map<
     HmpbBallotPaperSize,
-    { path: string; sha256: string }
+    { contents: Buffer; sha256: string }
   >();
+  const castVoteRecordsToExport: CastVoteRecordToExport[] = [];
   for (const castVoteRecord of castVoteRecords) {
-    const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
-    await fs.mkdir(castVoteRecordDirectory);
+    if (!castVoteRecord.BallotImage) {
+      castVoteRecordsToExport.push({ castVoteRecord });
+      continue;
+    }
+    const referencedFiles: Array<{
+      fileName: string;
+      contents: string | Uint8Array;
+    }> = [];
+    const layouts = generateBallotPageLayouts(election, {
+      ballotStyleId: castVoteRecord.BallotStyleId,
+      ballotType: BallotType.Precinct,
+      ballotHash,
+      isTestMode: testMode,
+      precinctId: castVoteRecord.BallotStyleUnitId,
+    });
+    for (const i of [0, 1] as const) {
+      const imageFileName = assertDefined(
+        castVoteRecord.BallotImage[i]?.Location
+      ).replace('file:', '');
+      const layoutFileName = imageFileName.replace('.jpg', '.layout.json');
 
-    if (castVoteRecord.BallotImage) {
-      const layouts = generateBallotPageLayouts(election, {
-        ballotStyleId: castVoteRecord.BallotStyleId,
-        ballotType: BallotType.Precinct,
-        ballotHash,
-        isTestMode: testMode,
-        precinctId: castVoteRecord.BallotStyleUnitId,
-      });
-      for (const i of [0, 1] as const) {
-        const imageFilePath = join(
-          castVoteRecordDirectory,
-          assertDefined(castVoteRecord.BallotImage[i]?.Location).replace(
-            'file:',
-            ''
-          )
-        );
-        const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
-        const existingImageInfo = imagesByPaperSize.get(
+      let image = imagesByPaperSize.get(election.ballotLayout.paperSize);
+      if (!image) {
+        const { width, height } = ballotPaperDimensions(
           election.ballotLayout.paperSize
         );
-        let imageHash: string;
-
-        if (existingImageInfo) {
-          await fs.copyFile(existingImageInfo.path, imageFilePath);
-          imageHash = existingImageInfo.sha256;
-        } else {
-          const { width, height } = ballotPaperDimensions(
-            election.ballotLayout.paperSize
-          );
-          const pageDpi = 200;
-
-          const imageData = createImageData(
-            new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
-            width * pageDpi,
-            height * pageDpi
-          );
-          await writeImageData(imageFilePath, imageData);
-          imageHash = sha256(await fs.readFile(imageFilePath));
-          imagesByPaperSize.set(election.ballotLayout.paperSize, {
-            path: imageFilePath,
-            sha256: imageHash,
-          });
-        }
-
-        const layout = layouts[i];
-        let layoutFileHash = sha256('bmd-ballot');
-        if (layout) {
-          const layoutFileContents = JSON.stringify(layout);
-          await fs.writeFile(layoutFilePath, layoutFileContents);
-          layoutFileHash = sha256(layoutFileContents);
-        }
-
-        populateImageAndLayoutFileHashes(
-          assertDefined(castVoteRecord.BallotImage[i]),
-          { imageHash, layoutFileHash }
+        const pageDpi = 200;
+        const imageData = createImageData(
+          new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
+          width * pageDpi,
+          height * pageDpi
         );
+        const contents = await encodeImageData(imageData, 'image/jpeg');
+        image = { contents, sha256: sha256(contents) };
+        imagesByPaperSize.set(election.ballotLayout.paperSize, image);
       }
-    }
+      referencedFiles.push({
+        fileName: imageFileName,
+        contents: image.contents,
+      });
 
-    const castVoteRecordReport: CVR.CastVoteRecordReport = {
-      ...reportMetadata,
-      CVR: [castVoteRecord],
-    };
-    await fs.writeFile(
-      join(
-        castVoteRecordDirectory,
-        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-      ),
-      JSON.stringify(castVoteRecordReport)
-    );
+      const layout = layouts[i];
+      let layoutFileHash = sha256('bmd-ballot');
+      if (layout) {
+        const layoutFileContents = JSON.stringify(layout);
+        referencedFiles.push({
+          fileName: layoutFileName,
+          contents: layoutFileContents,
+        });
+        layoutFileHash = sha256(layoutFileContents);
+      }
+
+      populateImageAndLayoutFileHashes(
+        assertDefined(castVoteRecord.BallotImage[i]),
+        { imageHash: image.sha256, layoutFileHash }
+      );
+    }
+    castVoteRecordsToExport.push({ castVoteRecord, referencedFiles });
   }
-  const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
-    arePollsClosed: true,
-    castVoteRecordReportMetadata: reportMetadata,
-    castVoteRecordRootHash:
-      await computeCastVoteRecordRootHashFromScratch(outputPath),
-    batchManifest: batchesByScannerId.flatMap((b) => buildBatchManifest(b)),
-  };
-  const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);
-  await fs.writeFile(
-    join(outputPath, CastVoteRecordExportFileName.METADATA),
-    metadataFileContents
-  );
+
+  const { metadataFileContents } = await writeCastVoteRecordExport({
+    exportDirectoryPath: outputPath,
+    electionDefinition,
+    castVoteRecords: castVoteRecordsToExport,
+    pollingPlaceId,
+    isTestMode: testMode,
+  });
+
   process.env['VX_MACHINE_TYPE'] = 'scan'; // Required by prepareSignatureFile
   const signatureFile = await prepareSignatureFile({
     type: 'cast_vote_records',

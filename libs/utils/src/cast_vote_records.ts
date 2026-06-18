@@ -22,7 +22,6 @@ import {
   safeParseJson,
   safeParseNumber,
   Side,
-  straightPartyNotYetImplemented,
   Tabulation,
 } from '@votingworks/types';
 
@@ -253,10 +252,6 @@ export function isCastVoteRecordWriteInValid(
 }
 
 function getValidContestOptions(contest: Contest): ContestOptionId[] {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (contest.type) {
     case 'candidate':
       return [
@@ -267,6 +262,8 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];
+    case 'straight-party':
+      return [...contest.optionIds];
     default:
       /* istanbul ignore next */
       return throwIllegalValue(contest);

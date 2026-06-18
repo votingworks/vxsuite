@@ -1,11 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionStraightPartyFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { BallotType, CVR } from '@votingworks/types';
 
+import { ok } from '@votingworks/basics';
 import {
   buildCVRSnapshotBallotTypeMetadata,
+  castVoteRecordHasValidContestReferences,
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
@@ -110,6 +115,76 @@ describe('getCurrentSnapshot', () => {
         CVRSnapshot: [],
       })
     ).toBeUndefined();
+  });
+});
+
+describe('castVoteRecordHasValidContestReferences', () => {
+  const { contests } =
+    electionStraightPartyFixtures.readElectionDefinition().election;
+
+  function cvrContest(
+    contestId: string,
+    selectionIds: string[]
+  ): CVR.CVRContest {
+    return {
+      '@type': 'CVR.CVRContest',
+      ContestId: contestId,
+      CVRContestSelection: selectionIds.map((id) => ({
+        '@type': 'CVR.CVRContestSelection',
+        ContestSelectionId: id,
+        SelectionPosition: [
+          {
+            '@type': 'CVR.SelectionPosition',
+            HasIndication: CVR.IndicationStatus.Yes,
+            NumberVotes: 1,
+          },
+        ],
+      })),
+    };
+  }
+
+  function cvrWith(cvrContests: CVR.CVRContest[]): CVR.CVR {
+    return {
+      ...mockCastVoteRecord,
+      CVRSnapshot: [
+        {
+          '@type': 'CVR.CVRSnapshot',
+          '@id': '0',
+          Type: CVR.CVRType.Modified,
+          CVRContest: cvrContests,
+        },
+      ],
+    };
+  }
+
+  test('valid references across contest types', () => {
+    const cvr = cvrWith([
+      cvrContest('president', ['barchi-hallaren']),
+      cvrContest('judicial-robert-demergue', [
+        'judicial-robert-demergue-option-yes',
+      ]),
+      cvrContest('straight-party-ticket', ['0']),
+    ]);
+
+    expect(castVoteRecordHasValidContestReferences(cvr, contests)).toEqual(
+      ok()
+    );
+  });
+
+  test('contest not found', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      cvrWith([cvrContest('not-a-real-contest', ['0'])]),
+      contests
+    );
+    expect(result.err()).toEqual('contest-not-found');
+  });
+
+  test('straight-party option not found', () => {
+    const result = castVoteRecordHasValidContestReferences(
+      cvrWith([cvrContest('straight-party-ticket', ['not-a-real-party'])]),
+      contests
+    );
+    expect(result.err()).toEqual('contest-option-not-found');
   });
 });
 

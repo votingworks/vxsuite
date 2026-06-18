@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
@@ -12,12 +13,24 @@ import {
   getFeatureFlagMock,
   getGroupKey,
 } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
+  anyPollingPlace,
+  BallotIdSchema,
   BallotStyleGroupId,
+  BallotType,
+  CVR,
   DEFAULT_SYSTEM_SETTINGS,
+  getContests,
+  InterpretedBmdPage,
   Tabulation,
+  unsafeParse,
+  VotesDict,
 } from '@votingworks/types';
+import {
+  buildCastVoteRecord,
+  writeCastVoteRecordExport,
+} from '@votingworks/backend';
 import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
@@ -963,5 +976,131 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
   expect(precinctResultsWithManual.contestResults[candidateContestId]).toEqual(
     partialExpectedResults.contestResults[candidateContestId]
+  );
+});
+
+test('tabulateElectionResults - imports and derives straight-party votes', async () => {
+  const electionDefinition =
+    electionStraightPartyFixtures.readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = assertDefined(
+    election.ballotStyles.find((bs) => bs.id === '5')
+  );
+  const precinctId = assertDefined(ballotStyle.precincts[0]);
+
+  function blankVotes(): VotesDict {
+    return Object.fromEntries(
+      getContests({ ballotStyle, election }).map((contest) => [contest.id, []])
+    );
+  }
+
+  function buildStraightPartyCvr(id: string, votes: VotesDict): CVR.CVR {
+    const ballotId = unsafeParse(BallotIdSchema, id);
+    const interpretation: InterpretedBmdPage = {
+      type: 'InterpretedBmdPage',
+      metadata: {
+        ballotHash,
+        precinctId,
+        ballotStyleId: ballotStyle.id,
+        isTestMode: true,
+        ballotType: BallotType.Precinct,
+        pageNumber: 1,
+        totalPages: 1,
+        ballotAuditId: ballotId,
+        contestIds: [],
+      },
+      votes,
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+    };
+    return buildCastVoteRecord({
+      electionDefinition,
+      electionId: ballotHash,
+      scannerId: 'VX-00-000',
+      castVoteRecordId: ballotId,
+      batchId: 'batch-1',
+      ballotMarkingMode: 'machine',
+      interpretation,
+    });
+  }
+
+  // Only vote the straight-party contest, letting the other partisan contest
+  // votes be derived.
+  const exportDirectoryPath = makeTemporaryDirectory();
+  const castVoteRecords = [
+    buildStraightPartyCvr('cvr-1', {
+      ...blankVotes(),
+      'straight-party-ticket': ['0'],
+    }),
+    buildStraightPartyCvr('cvr-2', {
+      ...blankVotes(),
+      'straight-party-ticket': ['0'],
+    }),
+    buildStraightPartyCvr('cvr-3', {
+      ...blankVotes(),
+      'straight-party-ticket': ['1'],
+    }),
+  ];
+
+  await writeCastVoteRecordExport({
+    exportDirectoryPath,
+    electionDefinition,
+    castVoteRecords: castVoteRecords.map((castVoteRecord) => ({
+      castVoteRecord,
+    })),
+    pollingPlaceId: anyPollingPlace(election).id,
+    isTestMode: true,
+  });
+
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const importResult = await importCastVoteRecords(
+    store,
+    exportDirectoryPath,
+    logger
+  );
+  const { id: fileId } = importResult.unsafeUnwrap();
+  expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(3);
+
+  const results = (await tabulateElectionResults({ electionId, store }))[
+    GROUP_KEY
+  ];
+  assert(results);
+
+  const expectedResults = buildElectionResultsFixture({
+    election,
+    cardCounts: { bmd: [3], hmpb: [] },
+    contestResultsSummaries: {
+      'straight-party-ticket': {
+        type: 'straight-party',
+        ballots: 3,
+        optionTallies: { '0': 2, '1': 1 },
+      },
+      president: {
+        type: 'candidate',
+        ballots: 3,
+        officialOptionTallies: { 'barchi-hallaren': 2, 'cramer-vuocolo': 1 },
+      },
+    },
+    includeGenericWriteIn: true,
+  });
+
+  expect(results.contestResults['straight-party-ticket']).toEqual(
+    expectedResults.contestResults['straight-party-ticket']
+  );
+  expect(results.contestResults['president']).toEqual(
+    expectedResults.contestResults['president']
   );
 });
