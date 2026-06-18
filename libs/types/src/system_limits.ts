@@ -3,10 +3,10 @@
  */
 export const SYSTEM_LIMITS = {
   election: {
-    ballotStyles: 1000,
-    candidates: 1000,
+    ballotStyles: 5000,
+    candidates: 2000,
     contests: 1000,
-    precincts: 1000,
+    precincts: 2500,
   },
   contest: {
     candidates: 100,
