@@ -498,6 +498,7 @@ exports[`convert election with ballot measures 1`] = `
       "name": "Veterans",
     },
   ],
+  "pollingPlaces": [],
   "precincts": [
     {
       "districtIds": [
@@ -1732,6 +1733,7 @@ exports[`convert election with precinct splits 1`] = `
       "name": "American Constitution",
     },
   ],
+  "pollingPlaces": [],
   "precincts": [
     {
       "districtIds": [
@@ -2833,6 +2835,7 @@ exports[`convert general election 1`] = `
       "name": "American Constitution",
     },
   ],
+  "pollingPlaces": [],
   "precincts": [
     {
       "districtIds": [
@@ -4189,6 +4192,7 @@ exports[`convert primary election 1`] = `
       "name": "American Constitution",
     },
   ],
+  "pollingPlaces": [],
   "precincts": [
     {
       "districtIds": [

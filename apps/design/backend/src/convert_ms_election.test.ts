@@ -11,6 +11,7 @@ import { Jurisdiction } from './types';
 import { readFixture } from '../test/helpers';
 import { vxOrganization } from '../test/mocks';
 import { defaultSystemSettings } from './system_settings';
+import { addPollingPlacesForExport } from './ballots';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -40,8 +41,11 @@ async function expectValidElection(election: Election) {
     ballotTemplateId: 'VxDefaultBallot',
     systemSettings: defaultSystemSettings(jurisdiction),
   });
+  // MS is a non-editing state, so the working election is stored without
+  // polling places; they are generated at export. Validate the export form.
+  const stored = (await store.getElection(election.id)).election;
   expect(
-    safeParseElection((await store.getElection(election.id)).election).err()
+    safeParseElection(addPollingPlacesForExport(stored, jurisdiction)).err()
   ).toBeUndefined();
 }
 
