@@ -70,7 +70,7 @@ fn test_round_trip_with_votes() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc),
-            Contest::YesNo(_) | Contest::StraightParty(_) => None,
+            Contest::BallotMeasure(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -105,7 +105,7 @@ fn test_round_trip_with_write_in() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc),
-            Contest::YesNo(_) | Contest::StraightParty(_) => None,
+            Contest::BallotMeasure(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -140,7 +140,7 @@ fn test_round_trip_yesno_contest() {
         .contests
         .iter()
         .find_map(|contest| match contest {
-            Contest::YesNo(yn) => Some(yn),
+            Contest::BallotMeasure(yn) => Some(yn),
             Contest::Candidate(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
@@ -157,7 +157,7 @@ fn test_round_trip_yesno_contest() {
         contest_ids: vec![yesno_contest.id.clone()],
         votes: HashMap::from([(
             yesno_contest.id.clone(),
-            ContestVote::YesNo(yesno_contest.yes_option.id.clone()),
+            ContestVote::BallotMeasure(yesno_contest.options.first().unwrap().id.clone()),
         )]),
     };
 
@@ -174,7 +174,7 @@ fn test_partial_contests_on_page() {
         .iter()
         .find_map(|contest| match contest {
             Contest::Candidate(cc) => Some(cc.id.clone()),
-            Contest::YesNo(_) | Contest::StraightParty(_) => None,
+            Contest::BallotMeasure(_) | Contest::StraightParty(_) => None,
         })
         .unwrap();
 
@@ -227,7 +227,10 @@ fn max_votes_for(contest: &Contest) -> (ContestId, ContestVote) {
                     .collect(),
             ),
         ),
-        Contest::YesNo(yn) => (yn.id.clone(), ContestVote::YesNo(yn.yes_option.id.clone())),
+        Contest::BallotMeasure(yn) => (
+            yn.id.clone(),
+            ContestVote::BallotMeasure(yn.options.first().unwrap().id.clone()),
+        ),
         Contest::StraightParty(_) => {
             unimplemented!("STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented")
         }

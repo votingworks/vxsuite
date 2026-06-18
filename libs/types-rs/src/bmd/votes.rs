@@ -28,13 +28,13 @@ impl CandidateVote {
         }
     }
 }
-pub type YesNoVote = OptionId;
+pub type BallotMeasureVote = OptionId;
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),
-    YesNo(YesNoVote),
+    BallotMeasure(BallotMeasureVote),
 }
 
 impl ToBitStreamWith<'_> for ContestVote {
@@ -83,17 +83,21 @@ impl ToBitStreamWith<'_> for ContestVote {
                 }
             }
 
-            (Contest::YesNo(yesno_contest), Self::YesNo(vote)) => {
-                if vote == &yesno_contest.yes_option.id {
+            (Contest::BallotMeasure(measure_contest), Self::BallotMeasure(vote)) => {
+                // The first option is the "yes" option (true bit), the second is
+                // the "no" option (false bit).
+                let yes_option = measure_contest.options.first();
+                let no_option = measure_contest.options.get(1);
+                if Some(vote) == yes_option.map(|option| &option.id) {
                     w.write_bit(true)?;
-                } else if vote == &yesno_contest.no_option.id {
+                } else if Some(vote) == no_option.map(|option| &option.id) {
                     w.write_bit(false)?;
                 } else {
                     return Err(Error::InvalidVotes {
-                        message: format!("Contest '{}' has a vote for option '{vote}', but that is not one of the options for that contest (yes={}, no={})",
-                            yesno_contest.id,
-                            yesno_contest.yes_option.id,
-                            yesno_contest.no_option.id,
+                        message: format!("Contest '{}' has a vote for option '{vote}', but that is not one of the options for that contest (yes={:?}, no={:?})",
+                            measure_contest.id,
+                            yes_option.map(|option| &option.id),
+                            no_option.map(|option| &option.id),
                         )
                     });
                 }
@@ -159,13 +163,21 @@ impl FromBitStreamWith<'_> for ContestVote {
 
                 Ok(Self::Candidate(votes))
             }
-            Contest::YesNo(yesno_contest) => {
-                // yesno votes get a single bit
-                Ok(Self::YesNo(if r.read_bit()? {
-                    yesno_contest.yes_option.id.clone()
+            Contest::BallotMeasure(measure_contest) => {
+                // ballot measure votes get a single bit: the first option ("yes")
+                // for a set bit, the second option ("no") otherwise.
+                let option = if r.read_bit()? {
+                    measure_contest.options.first()
                 } else {
-                    yesno_contest.no_option.id.clone()
-                }))
+                    measure_contest.options.get(1)
+                };
+                let option = option.ok_or_else(|| Error::InvalidVotes {
+                    message: format!(
+                        "Contest '{}' does not have enough options to decode a vote",
+                        measure_contest.id
+                    ),
+                })?;
+                Ok(Self::BallotMeasure(option.id.clone()))
             }
             Contest::StraightParty(_) => {
                 unimplemented!(
@@ -181,7 +193,7 @@ impl ContestVote {
     pub fn has_votes(&self) -> bool {
         match self {
             Self::Candidate(votes) => !votes.is_empty(),
-            Self::YesNo(_) => true,
+            Self::BallotMeasure(_) => true,
         }
     }
 }
