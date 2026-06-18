@@ -432,7 +432,7 @@ export interface BallotStyle {
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
-  readonly languages?: readonly string[]; // TODO(kofi): Make required.
+  readonly languages: readonly string[];
   readonly orderedCandidatesByContest?: Record<
     ContestId,
     OrderedCandidateOption[]
@@ -454,17 +454,20 @@ export interface BallotStyleGroup {
   readonly partyId?: PartyId;
 }
 
-export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
+// Declared without an explicit `z.ZodSchema<BallotStyle>` annotation (using
+// `satisfies` instead) so the inferred `ZodObject` type stays available for
+// `.extend()` — software_versions.ts derives a v4.0 variant from it.
+export const BallotStyleSchema = z.object({
   id: BallotStyleIdSchema,
   groupId: BallotStyleGroupIdSchema,
   precincts: z.array(PrecinctIdSchema),
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
-  languages: z.array(z.string()).optional(),
+  languages: z.array(z.string()),
   orderedCandidatesByContest: z
     .record(z.string(), z.array(OrderedCandidateOptionSchema))
     .optional(),
-});
+}) satisfies z.ZodType<BallotStyle>;
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
   .nonempty()

@@ -2,6 +2,8 @@ import { z } from 'zod/v4';
 import { assert, ok, Result } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
+  BallotStyle,
+  BallotStyleSchema,
   Election,
   ElectionDefinition,
   ElectionSchema,
@@ -32,12 +34,24 @@ const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
 const { jurisdiction: _jurisdiction, ...electionShapeForV4p0 } =
   ElectionSchema.shape;
 
-type ElectionV4p0 = Omit<Election, 'type' | 'jurisdiction'> & {
+// v4.0 treated BallotStyle.languages as optional; v4.1+ requires it. Keep the
+// field optional in the v4.0 shape so existing v4.0 elections (which may omit
+// it) still parse. convertV4p0ElectionToLatest defaults it to ['en'].
+type BallotStyleV4p0 = Omit<BallotStyle, 'languages'> & {
+  languages?: readonly string[];
+};
+const BallotStyleV4p0Schema = BallotStyleSchema.extend({
+  languages: z.array(z.string()).optional(),
+});
+
+type ElectionV4p0 = Omit<Election, 'type' | 'jurisdiction' | 'ballotStyles'> & {
   type: ElectionTypeV4p0;
   county: Election['jurisdiction'];
+  ballotStyles: readonly BallotStyleV4p0[];
 };
 export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
   ...electionShapeForV4p0,
+  ballotStyles: z.array(BallotStyleV4p0Schema),
   county: JurisdictionSchema,
   type: ElectionTypeSchemaV4p0,
 });
@@ -79,9 +93,15 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
 }
 
 function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
-  const { county, ballotStrings, ...rest } = election;
+  const { county, ballotStrings, ballotStyles, ...rest } = election;
   return {
     ...rest,
+    // v4.0 may omit ballot-style languages; v4.1+ requires them. Default to
+    // English when absent.
+    ballotStyles: ballotStyles.map((ballotStyle) => ({
+      ...ballotStyle,
+      languages: ballotStyle.languages ?? ['en'],
+    })),
     jurisdiction: county,
     ballotStrings: renameBallotStringKey(
       ballotStrings,
