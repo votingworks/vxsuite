@@ -66,6 +66,7 @@ function makeElection(): Election {
         groupId: BALLOT_STYLE_ID,
         precincts: [PRECINCT_ID],
         districts: [DISTRICT_ID],
+        languages: ['en'],
       },
     ],
     ballotLayout: {

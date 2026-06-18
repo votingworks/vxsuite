@@ -68,6 +68,7 @@ export function createElection({
         groupId: ballotStyleGroupId,
         districts: [districtId],
         precincts: [precinctId],
+        languages: ['en'],
       },
     ],
     contests,

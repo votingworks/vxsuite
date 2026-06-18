@@ -59,6 +59,7 @@ function getMockElectionDefinition(): ElectionDefinition {
           precincts: ['precinct-0'],
           districts: ['district-0'],
           groupId: 'ballot-style-0',
+          languages: ['en'],
         },
       ],
       ballotLayout: {
