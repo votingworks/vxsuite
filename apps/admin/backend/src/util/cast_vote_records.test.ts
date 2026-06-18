@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import {
   electionOpenPrimaryFixtures,
+  electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -131,6 +132,60 @@ test('overvote candidate', () => {
       mockVotes({
         'zoo-council-mammal': ['zebra', 'lion', 'kangaroo', 'elephant'],
       }),
+      0
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: false,
+    hasOvervote: true,
+    hasWriteIn: false,
+    hasMarginalMark: false,
+    hasCrossoverVote: false,
+  });
+});
+
+const straightPartyElectionDefinition =
+  electionStraightPartyFixtures.readElectionDefinition();
+
+test('straight party valid', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      straightPartyElectionDefinition,
+      { 'straight-party-ticket': ['0'] },
+      0
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: false,
+    hasOvervote: false,
+    hasWriteIn: false,
+    hasMarginalMark: false,
+    hasCrossoverVote: false,
+  });
+});
+
+test('straight party undervote', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      straightPartyElectionDefinition,
+      { 'straight-party-ticket': [], president: ['barchi-hallaren'] },
+      0
+    )
+  ).toEqual<CastVoteRecordAdjudicationFlags>({
+    isBlank: false,
+    hasUndervote: true,
+    hasOvervote: false,
+    hasWriteIn: false,
+    hasMarginalMark: false,
+    hasCrossoverVote: false,
+  });
+});
+
+test('straight party overvote', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      straightPartyElectionDefinition,
+      { 'straight-party-ticket': ['0', '1'] },
       0
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
