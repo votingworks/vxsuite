@@ -530,6 +530,12 @@ describe('cloneElection', () => {
         destJurisdiction
       );
 
+      // Remove the source election's polling places so cloning must regenerate
+      // them from the precincts.
+      for (const place of await api.listPollingPlaces({ electionId })) {
+        await api.deletePollingPlace({ electionId, id: place.id });
+      }
+
       const clonedElectionId = await api.cloneElection({
         electionId,
         destElectionId: 'clonedElection',
