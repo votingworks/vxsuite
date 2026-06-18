@@ -61,6 +61,7 @@ const bmdMetadata: SummaryBallotPageMetadata = {
 };
 
 function addBmdSheet(store: Store, votes: VotesDict): void {
+  store.setPollingPlaceId('place-1');
   const batchId = store.getOngoingBatchId() ?? store.addBatch();
   const sheetId = uuid();
   const sheet: SheetOf<PageInterpretationWithFiles> = [
@@ -101,6 +102,7 @@ test('returns all write-in-eligible contests even with no ballots', async () => 
 
 test('extracts BMD write-ins as text entries', async () => {
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
 
   addBmdSheet(store, {
@@ -125,6 +127,7 @@ test('extracts BMD write-ins as text entries', async () => {
 
 test('extracts multiple BMD write-ins across contests', async () => {
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
 
   addBmdSheet(store, {
@@ -175,6 +178,7 @@ test('extracts multiple BMD write-ins across contests', async () => {
 
 test('excludes write-ins from overvoted contests', async () => {
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
 
   // Mayor allows 1 seat, so 2 votes is an overvote
@@ -211,6 +215,7 @@ test('excludes write-ins from overvoted contests', async () => {
 
 test('handles BMD multi-page ballots', async () => {
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   const batchId = store.addBatch();
   const sheetId = uuid();
 
@@ -265,6 +270,7 @@ test('handles BMD multi-page ballots', async () => {
 
 test('skips non-interpreted pages (blank pages)', async () => {
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   const batchId = store.addBatch();
   const sheetId = uuid();
 
@@ -349,6 +355,7 @@ function addHmpbSheet(
   votes: VotesDict,
   layout: BallotPageLayout
 ): void {
+  store.setPollingPlaceId('place-1');
   const batchId = store.getOngoingBatchId() ?? store.addBatch();
   const sheetId = uuid();
   const backLayout: BallotPageLayout = {
@@ -399,6 +406,7 @@ test('extracts HMPB write-ins as image entries', async () => {
   );
 
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
   const layout = makeHmpbLayout(['mayor']);
 
@@ -431,6 +439,7 @@ test('HMPB write-ins gracefully handle failed image load', async () => {
   // Default mock returns error for loadImageData, so write-ins from
   // HMPB pages should be silently dropped when the image cannot be loaded.
   const store = createStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
   const layout = makeHmpbLayout(['mayor']);
 
@@ -484,6 +493,7 @@ const primaryBmdMetadata: SummaryBallotPageMetadata = {
 };
 
 function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {
+  store.setPollingPlaceId('place-1');
   const batchId = store.getOngoingBatchId() ?? store.addBatch();
   const sheetId = uuid();
   const sheet: SheetOf<PageInterpretationWithFiles> = [
@@ -560,6 +570,7 @@ test('uses contest title as contestName', async () => {
 
 test('extracts write-ins from primary election ballots', async () => {
   const store = createPrimaryStore();
+  store.setPollingPlaceId('place-1');
   store.addBatch();
 
   addPrimaryBmdSheet(store, {

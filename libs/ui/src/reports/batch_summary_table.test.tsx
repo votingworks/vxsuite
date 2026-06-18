@@ -3,6 +3,8 @@ import { BatchInfo } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { BatchSummaryTable } from './batch_summary_table';
 
+const pollingPlaceId = 'polling-place-1';
+
 const batch1: BatchInfo = {
   id: 'a3c38c4b-0012-4ab1-b4ef-0d95671595ca',
   batchNumber: 1,
@@ -10,6 +12,7 @@ const batch1: BatchInfo = {
   startedAt: '2021-09-19T11:00:00.000Z',
   endedAt: '2021-09-19T11:05:00.000Z',
   count: 10,
+  pollingPlaceId,
 };
 
 const batch2: BatchInfo = {
@@ -19,6 +22,7 @@ const batch2: BatchInfo = {
   startedAt: '2021-09-19T12:00:00.000Z',
   endedAt: '2021-09-19T12:30:00.000Z',
   count: 5,
+  pollingPlaceId,
 };
 
 test('renders column headers and no data rows when batches is empty', () => {

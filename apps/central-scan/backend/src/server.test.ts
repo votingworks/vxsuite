@@ -5,7 +5,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { anyPollingPlace, TEST_JURISDICTION } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
@@ -58,11 +58,13 @@ test('logs when sheet counts are present at startup', () => {
 
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
   workspace.store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
   });
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(workspace.store.getBallotsCounted()).toEqual(0);
   // Create a batch and add a sheet to it

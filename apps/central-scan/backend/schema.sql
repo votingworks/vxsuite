@@ -16,7 +16,7 @@ create table batches (
   batch_number integer primary key autoincrement,
   id varchar(36) unique,
   label text,
-  polling_place_id text,
+  polling_place_id text not null,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   deleted_at datetime,

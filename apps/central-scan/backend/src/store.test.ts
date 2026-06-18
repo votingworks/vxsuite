@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import {
   AdjudicationReason,
+  anyPollingPlace,
   BallotMetadata,
   BallotType,
   CandidateContest,
@@ -84,17 +85,11 @@ test('addBatch stamps the selected polling place id', () => {
     electionPackageHash,
   });
 
-  // No polling place selected: batch is untagged
-  const untaggedBatchId = store.addBatch();
-
   // Once a polling place is selected, subsequent batches are tagged with it
   store.setPollingPlaceId('pp-1');
   const taggedBatchId = store.addBatch();
 
   const batches = store.getBatches();
-  expect(
-    batches.find((batch) => batch.id === untaggedBatchId)?.pollingPlaceId
-  ).toBeUndefined();
   expect(
     batches.find((batch) => batch.id === taggedBatchId)?.pollingPlaceId
   ).toEqual('pp-1');
@@ -184,6 +179,12 @@ test('batch cleanup works correctly', () => {
 
   store.reset();
 
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
   const firstBatchId = store.addBatch();
   store.addBatch();
   store.finishBatch({ batchId: firstBatchId });
@@ -223,6 +224,7 @@ test('getBatches', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
@@ -285,6 +287,7 @@ test('canUnconfigure in test mode', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -299,6 +302,7 @@ test('canUnconfigure not in test mode', async () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(false);
 
   // Can unconfigure if no batches added
@@ -410,6 +414,7 @@ test('adjudication', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
       ballotHash,
@@ -594,6 +599,7 @@ test('iterating over sheets', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
   expect(Array.from(store.forEachSheet())).toEqual([]);
@@ -699,6 +705,7 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // the filenames must be unique in the database so, to insert multiple sheets
   // for this test we must include random filenames with the fixture
@@ -793,6 +800,7 @@ test('resetElectionSession', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   store.setPollsState('polls_open');
 
@@ -834,6 +842,7 @@ test('getBallotsCounted', () => {
     jurisdiction,
     electionPackageHash,
   });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(store.getBallotsCounted()).toEqual(0);
 

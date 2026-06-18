@@ -34,6 +34,7 @@ const testBatches: BatchInfo[] = [
     startedAt: '2021-09-19T10:00:00.000Z',
     endedAt: '2021-09-19T11:05:00.000Z',
     count: 23,
+    pollingPlaceId: pollingPlace.id,
   },
 ];
 

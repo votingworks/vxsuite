@@ -12,6 +12,7 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  anyPollingPlace,
   BallotMetadata,
   BallotType,
   convertVxfElectionToCdfBallotDefinition,
@@ -137,10 +138,11 @@ beforeEach(() => {
 test('getElectionDefinition', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const electionPackageHash = 'test-election-package-hash';
-  await withApp(async ({ apiClient, importer }) => {
+  await withApp(async ({ apiClient, importer, store }) => {
     expect(await apiClient.getElectionRecord()).toEqual(null);
 
     importer.configure(electionDefinition, jurisdiction, electionPackageHash);
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     expect(await apiClient.getElectionRecord()).toEqual({
       electionDefinition,
@@ -162,6 +164,7 @@ test('unconfigure', async () => {
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -200,6 +203,7 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -224,6 +228,7 @@ test('clearing scanning data', async () => {
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -263,12 +268,14 @@ test('clearing scanning data', async () => {
 test('getting / setting test mode', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(
       electionDefinition,
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     expect(await apiClient.getTestMode()).toEqual(true);
 
@@ -519,12 +526,14 @@ test('getNextReviewSheet returns interpretation and image data for uninterpretab
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  await withApp(async ({ apiClient, importer, workspace }) => {
+  await withApp(async ({ apiClient, importer, store, workspace }) => {
     importer.configure(
       electionDefinition,
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+
     const batchId = workspace.store.addBatch();
     workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
       { imagePath: frontImagePath, interpretation: { type: 'BlankPage' } },
@@ -560,12 +569,14 @@ test('getNextReviewSheet returns interpretation, image data, and layouts for int
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  await withApp(async ({ apiClient, importer, workspace }) => {
+  await withApp(async ({ apiClient, importer, store, workspace }) => {
     importer.configure(
       electionDefinition,
       jurisdiction,
       'test-election-package-hash'
     );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+
     const batchId = workspace.store.addBatch();
 
     const metadata: BallotMetadata = {
