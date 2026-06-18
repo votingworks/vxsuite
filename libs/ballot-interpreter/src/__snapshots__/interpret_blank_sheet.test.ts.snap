@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`blank sheet of paper 1`] = `
+[
+  {
+    "reason": "missingTimingMarks",
+    "type": "UnreadablePage",
+  },
+  {
+    "reason": "missingTimingMarks",
+    "type": "UnreadablePage",
+  },
+]
+`;
