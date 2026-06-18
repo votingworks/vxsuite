@@ -9,6 +9,22 @@ import {
 } from './software_versions';
 import { election, primaryElection } from '../test/election';
 
+// v4.0 represents ballot measures as `type: 'yesno'` with discrete
+// yesOption/noOption fields, so the conversion maps the latest `options` array
+// back to that shape.
+function contestsToV4p0(contests: Election['contests']) {
+  return contests.map((contest) => {
+    if (contest.type !== 'measure') return contest;
+    const { options, ...rest } = contest;
+    return {
+      ...rest,
+      type: 'yesno',
+      yesOption: options[0],
+      noOption: options[1],
+    };
+  });
+}
+
 const generalElectionData = JSON.stringify(election);
 const closedPrimaryElectionData = JSON.stringify(primaryElection);
 const v4p0PrimaryElectionData = JSON.stringify(
@@ -22,6 +38,7 @@ test('convertLatestElectionToV4p0', () => {
     ...election,
     jurisdiction: undefined,
     county: election.jurisdiction,
+    contests: contestsToV4p0(election.contests),
     ballotStrings: {
       ...election.ballotStrings,
       en: {
@@ -38,6 +55,7 @@ test('convertLatestElectionToV4p0', () => {
     type: 'primary',
     jurisdiction: undefined,
     county: primaryElection.jurisdiction,
+    contests: contestsToV4p0(primaryElection.contests),
     ballotStrings: {
       ...primaryElection.ballotStrings,
       en: {
@@ -70,7 +88,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"234eeed269fce78c9f8c1af4d761611429f9499c4203cdfa1e517be18731ecce"`
+    `"30970d35a428a7379627fbfa936a17015149cc3c382bafbd80bfa158f28325b1"`
   );
 
   expect(
