@@ -668,8 +668,8 @@ test.each([
     const [precinctId] = Object.keys(config.pollingPlace.precincts);
     await apiClient.printBallot({
       precinctId,
-      ballotStyleId: electionDefinition.election.ballotStyles.find(
-        (bs) => bs.languages?.includes(languageCode)
+      ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
+        bs.languages.includes(languageCode)
       )!.id,
       votes: mockVotes,
       languageCode,

@@ -9,7 +9,10 @@ test('getMockMultiLanguageElectionDefinition', () => {
       id: bs.id,
       languages: bs.languages,
     }))
-  ).toEqual([{ id: '12' }, { id: '5' }]);
+  ).toEqual([
+    { id: '12', languages: ['en'] },
+    { id: '5', languages: ['en'] },
+  ]);
 
   const modifiedElectionDefinition = getMockMultiLanguageElectionDefinition(
     electionDefinition,

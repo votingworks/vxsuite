@@ -123,7 +123,7 @@ beforeEach(() => {
 describe('non-English ballot style', () => {
   const spanishBallotStyle = find(
     election.ballotStyles,
-    (b) => b.languages?.[0] === 'es-US'
+    (b) => b.languages[0] === 'es-US'
   );
 
   const contests = getContests({ ballotStyle: spanishBallotStyle, election });
@@ -318,7 +318,7 @@ describe('non-English ballot style', () => {
 describe('English ballot style', () => {
   const englishBallotStyle = find(
     election.ballotStyles,
-    (b) => b.languages?.[0] === 'en'
+    (b) => b.languages[0] === 'en'
   );
 
   const contests = getContests({ ballotStyle: englishBallotStyle, election });

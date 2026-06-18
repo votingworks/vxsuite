@@ -81,7 +81,7 @@ test('renders report for Primary Election with precinct splits, parties, multipl
       (ballotStyle) =>
         ballotStyle.precincts.includes(splitPrecinct.id) &&
         ballotStyle.partyId === mammalParty.id &&
-        ballotStyle.languages?.includes(LanguageCode.ENGLISH) &&
+        ballotStyle.languages.includes(LanguageCode.ENGLISH) &&
         split.districtIds.every((d) => ballotStyle.districts.includes(d))
     )?.id
   );
@@ -91,7 +91,7 @@ test('renders report for Primary Election with precinct splits, parties, multipl
       (ballotStyle) =>
         ballotStyle.precincts.includes(nonSplitPrecinct.id) &&
         ballotStyle.partyId === fishParty.id &&
-        ballotStyle.languages?.includes(LanguageCode.SPANISH) &&
+        ballotStyle.languages.includes(LanguageCode.SPANISH) &&
         nonSplitPrecinct.districtIds.every((d) =>
           ballotStyle.districts.includes(d)
         )
@@ -271,7 +271,7 @@ test('sums totals across multiple rows', () => {
       (ballotStyle) =>
         ballotStyle.precincts.includes(splitPrecinct.id) &&
         ballotStyle.partyId === mammalParty.id &&
-        ballotStyle.languages?.includes(LanguageCode.ENGLISH) &&
+        ballotStyle.languages.includes(LanguageCode.ENGLISH) &&
         split.districtIds.every((d) => ballotStyle.districts.includes(d))
     )?.id
   );
@@ -281,7 +281,7 @@ test('sums totals across multiple rows', () => {
       (ballotStyle) =>
         ballotStyle.precincts.includes(nonSplitPrecinct.id) &&
         ballotStyle.partyId === mammalParty.id &&
-        ballotStyle.languages?.includes(LanguageCode.ENGLISH) &&
+        ballotStyle.languages.includes(LanguageCode.ENGLISH) &&
         nonSplitPrecinct.districtIds.every((d) =>
           ballotStyle.districts.includes(d)
         )
