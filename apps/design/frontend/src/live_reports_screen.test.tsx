@@ -1608,36 +1608,6 @@ describe('Results navigation and display', () => {
 });
 
 describe('Edge cases', () => {
-  test('shows configuration error when election has no polling places', async () => {
-    apiMock.getSystemSettings
-      .expectRepeatedCallsWith({ electionId })
-      .resolves(mockSystemSettingsWithUrl);
-
-    // Election with pollingPlaces explicitly undefined
-    const electionWithoutPlaces: Election = {
-      ...election,
-      pollingPlaces: undefined,
-    };
-    apiMock.getLiveReportsSummary
-      .expectRepeatedCallsWith({ electionId })
-      .resolves(
-        ok({
-          election: electionWithoutPlaces,
-          ballotHash: 'abc123def456',
-          isLive: false,
-          reportsByPollingPlace: {},
-        })
-      );
-
-    renderScreen();
-
-    await screen.findByRole('heading', { name: 'Live Reports' });
-    await screen.findByText(/Polling places are required/);
-    // Cards and summary should not be rendered
-    expect(screen.queryByTestId('overview-card-election_day')).toBeNull();
-    expect(screen.queryByTestId('no-reports-sent-count')).toBeNull();
-  });
-
   test('delete button is hidden when DELETE_LIVE_REPORTS state feature is off', async () => {
     apiMock.getSystemSettings
       .expectRepeatedCallsWith({ electionId })

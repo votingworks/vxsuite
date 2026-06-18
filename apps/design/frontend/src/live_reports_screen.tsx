@@ -733,12 +733,6 @@ function LiveReportsOverviewScreen({
           minHeight: 0,
         }}
       >
-        {pollingPlaces.length === 0 && (
-          <Callout color="warning" icon="Warning">
-            Polling places are required to support live reports. Please
-            configure polling places for this election.
-          </Callout>
-        )}
         {pollingPlaces.length > 0 && (
           <React.Fragment>
             <LiveReportsTabBar
