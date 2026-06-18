@@ -1,6 +1,9 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { assert, find, iter } from '@votingworks/basics';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  readElectionStraightPartyDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   CandidateContest,
   CastVoteRecordBatchMetadata,
@@ -208,6 +211,42 @@ test('builds well-formed cast vote record report', () => {
       ])
     );
   }
+});
+
+test('builds straight party contests as CVR.PartyContest', () => {
+  const { election: straightPartyElection } =
+    readElectionStraightPartyDefinition();
+  const report = buildCastVoteRecordReportMetadata({
+    election: straightPartyElection,
+    electionId,
+    generatingDeviceId: scannerId,
+    scannerIds: [scannerId],
+    reportTypes: [CVR.ReportType.OriginatingDeviceExport],
+    isTestMode: false,
+    batchInfo: [],
+  });
+
+  const contests = report.Election[0]!.Contest;
+  const partyContest = find(
+    contests,
+    (contest) => contest['@id'] === 'straight-party-ticket'
+  );
+  expect(partyContest).toEqual({
+    '@type': 'CVR.PartyContest',
+    '@id': 'straight-party-ticket',
+    Name: 'Straight Party',
+    ContestSelection: [
+      { '@type': 'CVR.PartySelection', '@id': '0', PartyIds: ['0'] },
+      { '@type': 'CVR.PartySelection', '@id': '1', PartyIds: ['1'] },
+      { '@type': 'CVR.PartySelection', '@id': '2', PartyIds: ['2'] },
+      { '@type': 'CVR.PartySelection', '@id': '3', PartyIds: ['3'] },
+      { '@type': 'CVR.PartySelection', '@id': '4', PartyIds: ['4'] },
+      { '@type': 'CVR.PartySelection', '@id': '5', PartyIds: ['5'] },
+      { '@type': 'CVR.PartySelection', '@id': '6', PartyIds: ['6'] },
+      { '@type': 'CVR.PartySelection', '@id': '7', PartyIds: ['7'] },
+      { '@type': 'CVR.PartySelection', '@id': '8', PartyIds: ['8'] },
+    ],
+  });
 });
 
 test('represents test mode as an "OtherReportType"', () => {

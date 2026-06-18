@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { assert, find } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  readElectionStraightPartyDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -1005,6 +1006,116 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
           ContestSelectionId: 'vincent-van-gogh',
           OptionPosition: 0,
         }),
+      ],
+    });
+  });
+});
+
+describe('buildCVRContestsFromVotes with straight party contest', () => {
+  const straightPartyElectionDefinition = readElectionStraightPartyDefinition();
+  const straightPartyContestId = 'straight-party-ticket';
+  const ballotStyleId = '12';
+
+  test('single party selection', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: straightPartyElectionDefinition,
+      ballotStyleId,
+      votes: { [straightPartyContestId]: ['3'] },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual<CVR.CVRContest>({
+      '@type': 'CVR.CVRContest',
+      ContestId: straightPartyContestId,
+      Overvotes: 0,
+      Undervotes: 0,
+      Status: undefined,
+      CVRContestSelection: [
+        {
+          '@type': 'CVR.CVRContestSelection',
+          ContestSelectionId: '3',
+          OptionPosition: 3,
+          Status: undefined,
+          SelectionPosition: [
+            {
+              '@type': 'CVR.SelectionPosition',
+              HasIndication: CVR.IndicationStatus.Yes,
+              NumberVotes: 1,
+              IsAllocable: CVR.AllocationStatus.Yes,
+              Status: undefined,
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  test('undervote', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: straightPartyElectionDefinition,
+      ballotStyleId,
+      votes: { [straightPartyContestId]: [] },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual<CVR.CVRContest>({
+      '@type': 'CVR.CVRContest',
+      ContestId: straightPartyContestId,
+      Overvotes: 0,
+      Undervotes: 1,
+      Status: [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated],
+      CVRContestSelection: [],
+    });
+  });
+
+  test('overvote', () => {
+    const result = buildCVRContestsFromVotes({
+      electionDefinition: straightPartyElectionDefinition,
+      ballotStyleId,
+      votes: { [straightPartyContestId]: ['3', '7'] },
+      options: { ballotMarkingMode: 'machine' },
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual<CVR.CVRContest>({
+      '@type': 'CVR.CVRContest',
+      ContestId: straightPartyContestId,
+      Overvotes: 1,
+      Undervotes: 0,
+      Status: [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules],
+      CVRContestSelection: [
+        {
+          '@type': 'CVR.CVRContestSelection',
+          ContestSelectionId: '3',
+          OptionPosition: 3,
+          Status: [CVR.ContestSelectionStatus.InvalidatedRules],
+          SelectionPosition: [
+            {
+              '@type': 'CVR.SelectionPosition',
+              HasIndication: CVR.IndicationStatus.Yes,
+              NumberVotes: 1,
+              IsAllocable: CVR.AllocationStatus.No,
+              Status: [CVR.PositionStatus.InvalidatedRules],
+            },
+          ],
+        },
+        {
+          '@type': 'CVR.CVRContestSelection',
+          ContestSelectionId: '7',
+          OptionPosition: 7,
+          Status: [CVR.ContestSelectionStatus.InvalidatedRules],
+          SelectionPosition: [
+            {
+              '@type': 'CVR.SelectionPosition',
+              HasIndication: CVR.IndicationStatus.Yes,
+              NumberVotes: 1,
+              IsAllocable: CVR.AllocationStatus.No,
+              Status: [CVR.PositionStatus.InvalidatedRules],
+            },
+          ],
+        },
       ],
     });
   });
