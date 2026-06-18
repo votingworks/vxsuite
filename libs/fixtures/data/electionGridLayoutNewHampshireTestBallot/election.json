@@ -318,16 +318,18 @@
       "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
       "districtId": "town-id-00701-precinct-id-default",
       "title": "Constitutional Amendment Question #1",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall there be a convention to amend or revise the constitution?",
-      "yesOption": {
-        "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
+          "label": "No"
+        }
+      ]
     }
   ],
   "gridLayouts": [
