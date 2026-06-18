@@ -88,7 +88,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"30970d35a428a7379627fbfa936a17015149cc3c382bafbd80bfa158f28325b1"`
+    `"95ab4fe5feddf6ef37edaa514b62df2220e138e2b64ba06b96678436ee578ac6"`
   );
 
   expect(
