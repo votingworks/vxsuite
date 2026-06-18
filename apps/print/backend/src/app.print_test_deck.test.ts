@@ -16,7 +16,6 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  generateTestDeckBallots,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
@@ -26,6 +25,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { generateTestDeckBallots } from '@votingworks/test-decks';
 import {
   buildTestEnvironment,
   configureMachine,

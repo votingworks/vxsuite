@@ -30,7 +30,6 @@ import {
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  generateTestDeckBallots,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
@@ -43,6 +42,7 @@ import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { generateTestDeckBallots } from '@votingworks/test-decks';
 import {
   buildTestEnvironment,
   configureMachine,

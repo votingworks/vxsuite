@@ -1397,6 +1397,32 @@ jobs:
       - store_artifacts:
           path: libs/printing/src/__image_snapshots__/__diff_output__/
 
+  # @votingworks/test-decks
+  test-libs-test-decks:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-decks build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-decks lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-decks test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-decks/reports/
+      - store_artifacts:
+          path: libs/test-decks/src/__image_snapshots__/__diff_output__/
+
   # @votingworks/test-utils
   test-libs-test-utils:
     executor: nodejs
@@ -1757,6 +1783,9 @@ workflows:
           context:
             - screenshots-publishing
       - test-libs-printing:
+          context:
+            - screenshots-publishing
+      - test-libs-test-decks:
           context:
             - screenshots-publishing
       - test-libs-test-utils:

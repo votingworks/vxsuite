@@ -15,6 +15,7 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import { deepEqual, unique, assert, find } from '@votingworks/basics';
+import { buildContestResultsFixture } from '@votingworks/utils';
 import {
   generateTestDeckWriteIn,
   numBallotPositions,
@@ -24,13 +25,11 @@ import {
   getTallyReportResults,
 } from './test_decks';
 
-import { buildContestResultsFixture } from './tabulation/tabulation';
-
 const electionGeneral = readElectionGeneral();
 
 describe('numBallotPositions', () => {
   test('returns 2 for yes-no contests', () => {
-    const yesNoContest = electionGeneral.contests[13]!;
+    const yesNoContest = electionGeneral.contests[13];
     expect(numBallotPositions(yesNoContest)).toEqual(2);
   });
 
@@ -211,7 +210,7 @@ describe('generateTestDeckBallots', () => {
     };
     const ballots = generateTestDeckBallots({
       election: electionWithOnlyYesNoContests,
-      precinctId: electionWithOnlyYesNoContests.precincts[0]!.id,
+      precinctId: electionWithOnlyYesNoContests.precincts[0].id,
       ballotFormat: 'bubble',
     });
     const overvotedBallots = ballots.filter((ballot) =>
