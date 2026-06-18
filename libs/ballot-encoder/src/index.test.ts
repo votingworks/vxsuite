@@ -362,7 +362,7 @@ test('throws on trying to encode a bad yes/no vote', () => {
   };
 
   expect(() => encodeSummaryBallotPage(election, page)).toThrowError(
-    'cannot encode a non-array yes/no vote: "judicial-robert-demergue-option-yes"'
+    'cannot encode a non-array ballot measure vote: "judicial-robert-demergue-option-yes"'
   );
 
   // Overvotes fail too.
