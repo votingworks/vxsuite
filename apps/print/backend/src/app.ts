@@ -25,13 +25,13 @@ import {
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
 } from '@votingworks/backend';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
-  isElectionManagerAuth,
   TestDeckBallot,
-} from '@votingworks/utils';
+} from '@votingworks/test-decks';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   cleanupCachedBrowser,

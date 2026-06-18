@@ -99,6 +99,7 @@ import {
 import path, { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
+import { createPrecinctSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
   ApiClient,
   ELECTION_PACKAGE_FILE_NAME_REGEX,
@@ -111,7 +112,6 @@ import {
 import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   createPrecinctTestDeck,
-  createPrecinctSummaryBallotTestDeck,
   createTestDeckTallyReports,
   precinctTallyReportFileName,
 } from './test_decks';
@@ -237,10 +237,17 @@ vi.mock(import('./test_decks.js'), async (importActual) => {
   return {
     ...original,
     createPrecinctTestDeck: vi.fn(original.createPrecinctTestDeck),
+    createTestDeckTallyReports: vi.fn(original.createTestDeckTallyReports),
+  };
+});
+
+vi.mock(import('@votingworks/test-decks'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
     createPrecinctSummaryBallotTestDeck: vi.fn(
       original.createPrecinctSummaryBallotTestDeck
     ),
-    createTestDeckTallyReports: vi.fn(original.createTestDeckTallyReports),
   };
 });
 
