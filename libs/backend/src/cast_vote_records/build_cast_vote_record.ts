@@ -21,7 +21,9 @@ import {
   MarkStatus,
   MarkThresholds,
   SheetOf,
-  straightPartyNotYetImplemented,
+  StraightPartyContest,
+  StraightPartyVote,
+  Vote,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -99,6 +101,16 @@ export function buildCvrImageData({
   };
 }
 
+// VVSG 2.0 1.1.5-E.2
+function countOvervotes(votes: Vote, votesAllowed: number): number {
+  return votes.length > votesAllowed ? votesAllowed : 0;
+}
+
+// VVSG 2.0 1.1.5-E.2
+function countUndervotes(votes: Vote, votesAllowed: number): number {
+  return votes.length < votesAllowed ? votesAllowed - votes.length : 0;
+}
+
 function buildCVRBallotMeasureContest({
   contest,
   vote,
@@ -110,14 +122,17 @@ function buildCVRBallotMeasureContest({
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
 }): CVR.CVRContest {
-  const overvoted = vote.length > 1;
-  const undervoted = vote.length < 1;
+  const votesAllowed = 1;
+  const overvotes = countOvervotes(vote, votesAllowed);
+  const undervotes = countUndervotes(vote, votesAllowed);
+  const overvoted = overvotes > 0;
+  const undervoted = undervotes > 0;
 
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: vote.length > 1 ? 1 : 0,
-    Undervotes: Math.max(1 - vote.length, 0),
+    Overvotes: overvotes,
+    Undervotes: undervotes,
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
       : undervoted
@@ -181,8 +196,10 @@ function buildCVRCandidateContest({
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest {
-  const overvoted = vote.length > contest.seats;
-  const undervoted = vote.length < contest.seats;
+  const overvotes = countOvervotes(vote, contest.seats);
+  const undervotes = countUndervotes(vote, contest.seats);
+  const overvoted = overvotes > 0;
+  const undervoted = undervotes > 0;
 
   const statuses: CVR.ContestStatus[] = [];
   if (vote.length === 0) {
@@ -232,8 +249,12 @@ function buildCVRCandidateContest({
       const { isWriteIn } = candidate;
 
       const selectionStatuses: CVR.ContestSelectionStatus[] = [];
-      if (overvoted) selectionStatuses.push(CVR.ContestSelectionStatus.InvalidatedRules);
-      if (isWriteIn) selectionStatuses.push(CVR.ContestSelectionStatus.NeedsAdjudication);
+      if (overvoted) {
+        selectionStatuses.push(CVR.ContestSelectionStatus.InvalidatedRules);
+      }
+      if (isWriteIn) {
+        selectionStatuses.push(CVR.ContestSelectionStatus.NeedsAdjudication);
+      }
 
       return {
         '@type': 'CVR.CVRContestSelection',
@@ -318,14 +339,69 @@ function buildCVRCandidateContest({
   return {
     '@type': 'CVR.CVRContest',
     ContestId: contest.id,
-    Overvotes: vote.length > contest.seats ? contest.seats : 0, // VVSG 2.0 1.1.5-E.2
-    Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
+    Overvotes: overvotes,
+    Undervotes: undervotes,
     WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
     Status: statuses.length > 0 ? statuses : undefined,
     CVRContestSelection: [
       ...markedVoteSelections,
       ...unmarkedWriteInSelections,
     ],
+  };
+}
+
+function buildCVRStraightPartyContest({
+  contest,
+  electionDefinition,
+  ballotStyleId,
+  vote,
+}: {
+  contest: StraightPartyContest;
+  electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+  vote: StraightPartyVote;
+}): CVR.CVRContest {
+  const votesAllowed = 1;
+  const overvotes = countOvervotes(vote, votesAllowed);
+  const undervotes = countUndervotes(vote, votesAllowed);
+  const overvoted = overvotes > 0;
+  const undervoted = undervotes > 0;
+
+  return {
+    '@type': 'CVR.CVRContest',
+    ContestId: contest.id,
+    Overvotes: overvotes,
+    Undervotes: undervotes,
+    Status: overvoted
+      ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
+      : undervoted
+      ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
+      : undefined,
+    CVRContestSelection: vote.map((partyId) => ({
+      '@type': 'CVR.CVRContestSelection',
+      ContestSelectionId: partyId,
+      // include position on the ballot per VVSG 2.0 1.1.5-C.2
+      OptionPosition: CachedElectionLookups.getOptionPosition(
+        electionDefinition,
+        ballotStyleId,
+        contest.id,
+        partyId
+      ),
+      Status: overvoted
+        ? [CVR.ContestSelectionStatus.InvalidatedRules]
+        : undefined,
+      SelectionPosition: [
+        {
+          '@type': 'CVR.SelectionPosition',
+          HasIndication: CVR.IndicationStatus.Yes,
+          NumberVotes: 1,
+          IsAllocable: overvoted
+            ? CVR.AllocationStatus.No
+            : CVR.AllocationStatus.Yes,
+          Status: overvoted ? [CVR.PositionStatus.InvalidatedRules] : undefined,
+        },
+      ],
+    })),
   };
 }
 
@@ -363,10 +439,6 @@ export function buildCVRContestsFromVotes({
     const contestUnmarkedWriteIns = unmarkedWriteIns?.filter(
       ({ contestId }) => contestId === contest.id
     );
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      return straightPartyNotYetImplemented();
-    }
     switch (contest.type) {
       case 'yesno':
         cvrContests.push(
@@ -387,6 +459,16 @@ export function buildCVRContestsFromVotes({
             vote: contestVote as CandidateVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
+          })
+        );
+        break;
+      case 'straight-party':
+        cvrContests.push(
+          buildCVRStraightPartyContest({
+            contest,
+            electionDefinition,
+            ballotStyleId,
+            vote: contestVote as StraightPartyVote,
           })
         );
         break;

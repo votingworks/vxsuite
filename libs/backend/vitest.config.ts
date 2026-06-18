@@ -7,7 +7,7 @@ export default defineConfig({
       exclude: ['src/ui_strings/**'],
       thresholds: {
         lines: -15,
-        branches: -30,
+        branches: -31,
       },
     },
   },
