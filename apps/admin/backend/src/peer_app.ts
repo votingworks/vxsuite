@@ -43,9 +43,10 @@ const debug = rootDebug.extend('peer-app');
 export interface PeerAppContext {
   workspace: Workspace;
   logger: BaseLogger;
+  machineId: string;
 }
 
-function buildPeerApi({ workspace, logger }: PeerAppContext) {
+function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
   const { store } = workspace;
 
   // Client adjudication operations are only served while the host has client
@@ -55,7 +56,7 @@ function buildPeerApi({ workspace, logger }: PeerAppContext) {
   function isClientAdjudicationAllowed(): boolean {
     return (
       store.getIsClientAdjudicationEnabled() &&
-      !store.getMultipleHostsDetected(getMachineConfig().machineId)
+      !store.getMultipleHostsDetected(machineId)
     );
   }
 

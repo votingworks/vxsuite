@@ -311,6 +311,7 @@ test('parallel claims from more machines than ballots assign each ballot exactly
     electionDefinition
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 3);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const results = await Promise.all(
     range(1, 6).map((i) =>
@@ -334,6 +335,7 @@ test('releaseBallot frees a claimed CVR', async () => {
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
@@ -398,6 +400,7 @@ test('claimAndLoadBallot advances past a just-completed ballot', async () => {
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 3);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   // Arrange for client-001 to hold the SECOND ballot in queue order, with
   // the first ballot released back to the pool. The accept-and-next cursor
