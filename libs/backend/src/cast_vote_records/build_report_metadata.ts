@@ -1,4 +1,4 @@
-import { integers } from '@votingworks/basics';
+import { integers, throwIllegalValue } from '@votingworks/basics';
 import {
   Contest,
   BatchInfo,
@@ -6,8 +6,8 @@ import {
   CastVoteRecordBatchMetadata,
   CVR,
   Election,
-  straightPartyNotYetImplemented,
   YesNoContest,
+  StraightPartyContest,
 } from '@votingworks/types';
 
 /**
@@ -84,16 +84,37 @@ function buildBallotMeasureContest(
   };
 }
 
+function buildStraightPartyContest(
+  contest: StraightPartyContest
+): CVR.PartyContest {
+  return {
+    '@id': contest.id,
+    '@type': 'CVR.PartyContest',
+    Name: contest.title,
+    ContestSelection: contest.optionIds.map(
+      (partyId): CVR.PartySelection => ({
+        '@id': partyId,
+        '@type': 'CVR.PartySelection',
+        PartyIds: [partyId],
+      })
+    ),
+  };
+}
+
 function buildContest(
   contest: Contest
-): CVR.CandidateContest | CVR.BallotMeasureContest {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
+): CVR.CandidateContest | CVR.BallotMeasureContest | CVR.PartyContest {
+  switch (contest.type) {
+    case 'candidate':
+      return buildCandidateContest(contest);
+    case 'yesno':
+      return buildBallotMeasureContest(contest);
+    case 'straight-party':
+      return buildStraightPartyContest(contest);
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(contest);
   }
-  return contest.type === 'candidate'
-    ? buildCandidateContest(contest)
-    : buildBallotMeasureContest(contest);
 }
 
 function buildElection({
