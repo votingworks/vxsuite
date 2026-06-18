@@ -689,46 +689,52 @@
       "id": "ballot-measure-1",
       "districtId": "district-county",
       "title": "County Road Millage Renewal",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample renew the previously authorized millage of 1.5 mills ($1.50 per $1,000 of taxable value) for a period of 10 years, 2026 through 2035 inclusive, for the purpose of funding road maintenance, repair, and improvement throughout the county? It is estimated that this millage would raise approximately $3,200,000 in the first year.",
-      "yesOption": {
-        "id": "ballot-measure-1-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-1-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-1-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-1-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "ballot-measure-2",
       "districtId": "district-county",
       "title": "Public Safety Millage",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample levy a new millage of 0.75 mills ($0.75 per $1,000 of taxable value) for a period of 5 years, 2026 through 2030 inclusive, for the purpose of funding police, fire, and emergency medical services throughout the county? It is estimated that this millage would raise approximately $1,600,000 in the first year. This is a new additional millage.",
-      "yesOption": {
-        "id": "ballot-measure-2-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-2-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-2-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-2-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "ballot-measure-3",
       "districtId": "district-county",
       "title": "Library Millage Renewal",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample renew the previously authorized millage of 0.5 mills ($0.50 per $1,000 of taxable value) for a period of 8 years, 2026 through 2033 inclusive, for the purpose of providing funds for the operation, maintenance, and improvement of the county library system?",
-      "yesOption": {
-        "id": "ballot-measure-3-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-3-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-3-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-3-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "county-commissioner-democratic-south",
@@ -847,46 +853,52 @@
       "id": "ballot-measure-1-south",
       "districtId": "district-county-south",
       "title": "County Road Millage Renewal (South)",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample renew the previously authorized millage of 1.5 mills ($1.50 per $1,000 of taxable value) for a period of 10 years, 2026 through 2035 inclusive, for the purpose of funding road maintenance, repair, and improvement throughout the county? It is estimated that this millage would raise approximately $3,200,000 in the first year.",
-      "yesOption": {
-        "id": "ballot-measure-1-yes-south",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-1-no-south",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-1-yes-south",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-1-no-south",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "ballot-measure-2-south",
       "districtId": "district-county-south",
       "title": "Public Safety Millage (South)",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample levy a new millage of 0.75 mills ($0.75 per $1,000 of taxable value) for a period of 5 years, 2026 through 2030 inclusive, for the purpose of funding police, fire, and emergency medical services throughout the county? It is estimated that this millage would raise approximately $1,600,000 in the first year. This is a new additional millage.",
-      "yesOption": {
-        "id": "ballot-measure-2-yes-south",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-2-no-south",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-2-yes-south",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-2-no-south",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "ballot-measure-3-south",
       "districtId": "district-county-south",
       "title": "Library Millage Renewal (South)",
-      "type": "yesno",
+      "type": "measure",
       "description": "Shall the County of Sample renew the previously authorized millage of 0.5 mills ($0.50 per $1,000 of taxable value) for a period of 8 years, 2026 through 2033 inclusive, for the purpose of providing funds for the operation, maintenance, and improvement of the county library system?",
-      "yesOption": {
-        "id": "ballot-measure-3-yes-south",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ballot-measure-3-no-south",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "ballot-measure-3-yes-south",
+          "label": "Yes"
+        },
+        {
+          "id": "ballot-measure-3-no-south",
+          "label": "No"
+        }
+      ]
     }
   ],
   "gridLayouts": [
