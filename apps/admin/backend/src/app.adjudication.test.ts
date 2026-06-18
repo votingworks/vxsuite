@@ -26,6 +26,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { LogEventId } from '@votingworks/logging';
 import { sha256 } from 'js-sha256';
 import { readdirSync } from 'node:fs';
 import {
@@ -707,6 +708,29 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
       afterCvrId: lastInQueue,
     })
   ).toEqual(adjudicationQueue[0]);
+
+  // The accept-and-next flow anchors on the ballot that was just
+  // adjudicated — the cursor must still resolve when `afterCvrId` points at
+  // an adjudicated ballot, continuing from its queue position rather than
+  // restarting from the front (queue[0] is still pending here).
+  expect(
+    await apiClient.adjudicateCvr({
+      cvrId: assertDefined(adjudicationQueue[1]),
+      contests: [],
+    })
+  ).toEqual(ok());
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: adjudicationQueue[1],
+    })
+  ).toEqual(adjudicationQueue[2]);
+
+  // Advancing past an earlier ballot skips the adjudicated one.
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: adjudicationQueue[0],
+    })
+  ).toEqual(adjudicationQueue[2]);
 });
 
 test('host claimAndLoadBallot returns data and bypasses claim when multi-station is off', async () => {
@@ -771,6 +795,38 @@ test('adjudicateCvr requires active claim', async () => {
   expect(await apiClient.adjudicateCvr({ cvrId, contests: [] })).toEqual(
     err({ type: 'claim-failed' })
   );
+});
+
+test('host adjudicates its claimed ballot and can re-adjudicate it when multi-station is enabled', async () => {
+  const { auth, apiClient, logger } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.AdminClientAdjudicationToggled,
+    expect.objectContaining({ enabled: true })
+  );
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  const cvrId = assertDefined(queue[0]);
+
+  // The host claims the ballot, then adjudication succeeds
+  (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
+  expect(await apiClient.adjudicateCvr({ cvrId, contests: [] })).toEqual(ok());
+
+  // The claim is now completed, not active — but re-adjudicating an
+  // already-adjudicated ballot is allowed without a fresh claim, which is
+  // how the host edits a previously adjudicated ballot
+  expect(await apiClient.adjudicateCvr({ cvrId, contests: [] })).toEqual(ok());
 });
 
 test('claim and release are no-ops when multi-station is disabled', async () => {

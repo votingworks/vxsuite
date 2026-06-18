@@ -3,6 +3,7 @@ import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
 import {
+  electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
@@ -10,21 +11,33 @@ import {
   Admin,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
+  Id,
 } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, err } from '@votingworks/basics';
+import * as grout from '@votingworks/grout';
+import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   startHostNetworking,
   startClientNetworking,
   getHostServiceName,
 } from './networking';
 import { buildPeerApp } from './peer_app';
+import type { PeerApi } from './peer_app';
+import { buildClientApp } from './client_app';
+import type { ClientApi } from './client_app';
 import { Store } from './store';
 import { ClientConnectionStatus } from './types';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file';
+import {
+  buildMockLogger,
+  mockElectionManagerAuth,
+  mockMachineLocked,
+} from '../test/app';
 
 import { ClientStore } from './client_store';
-import { createWorkspace } from './util/workspace';
+import { createClientWorkspace, createWorkspace } from './util/workspace';
 import {
   NETWORK_POLLING_INTERVAL_MS,
   STALE_MACHINE_THRESHOLD_MS,
@@ -72,18 +85,28 @@ interface HostAndClientContext {
   peerServer: Server;
   peerPort: number;
   clientStore: ClientStore;
+  clientApiClient: grout.Client<ClientApi>;
   auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 }
 
 let peerServer: Server | undefined;
+let clientServer: Server | undefined;
+
+function closeServer(server?: Server): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (!server) {
+      resolve();
+      return;
+    }
+    server.close((error) => (error ? reject(error) : resolve()));
+  });
+}
 
 afterEach(async () => {
-  if (peerServer) {
-    await new Promise<void>((resolve, reject) => {
-      peerServer?.close((error) => (error ? reject(error) : resolve()));
-    });
-    peerServer = undefined;
-  }
+  await closeServer(peerServer);
+  peerServer = undefined;
+  await closeServer(clientServer);
+  clientServer = undefined;
 });
 
 async function setupHostAndClient(
@@ -97,12 +120,25 @@ async function setupHostAndClient(
   const peerApp = buildPeerApp({ workspace, logger });
   peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;
-  const clientStore = new ClientStore();
+
+  const clientWorkspace = createClientWorkspace(makeTemporaryDirectory());
+  const { clientStore } = clientWorkspace;
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
+  const clientApp = buildClientApp({
+    auth,
+    workspace: clientWorkspace,
+    logger: buildMockLogger(auth, clientStore),
+    multiUsbDrive: createMockMultiUsbDrive().multiUsbDrive,
+  });
+  clientServer = clientApp.listen();
+  const { port: clientPort } = clientServer.address() as AddressInfo;
+  const clientApiClient = grout.createClient<ClientApi>({
+    baseUrl: `http://localhost:${clientPort}/api`,
+  });
 
   mockHasOnlineInterface.mockResolvedValue(true);
 
   startHostNetworking({ machineId: hostMachineId, peerPort, store, logger });
-  const auth = buildMockDippedSmartCardAuth(vi.fn);
   startClientNetworking({
     machineId: clientMachineId,
     clientStore,
@@ -122,7 +158,7 @@ async function setupHostAndClient(
     },
   ]);
 
-  return { store, peerServer, peerPort, clientStore, auth };
+  return { store, peerServer, peerPort, clientStore, clientApiClient, auth };
 }
 
 test('client discovers host and connects - host stores client info in database', async () => {
@@ -326,4 +362,234 @@ test('client logs out when host election is unconfigured', async () => {
   });
 
   expect(auth.logOut).toHaveBeenCalled();
+});
+
+function addElectionWithAdjudicableCvrs(
+  store: Store,
+  count: number
+): {
+  electionId: Id;
+  cvrIds: Id[];
+} {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageHash: 'test-hash',
+  });
+  store.setCurrentElectionId(electionId);
+  const cvrIds = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: Array.from({ length: count }, () => ({
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['write-in-0'] },
+      card: { type: 'bmd' },
+    })),
+    store,
+  });
+  return { electionId, cvrIds };
+}
+
+// Claims the next available ballot for `machineId` directly on the host
+// store. Returns undefined while another machine holds the only ballot.
+function claimNextOnHost(
+  store: Store,
+  electionId: Id,
+  machineId: string
+): Id | undefined {
+  return store.claimAndLoadBallotData({ electionId, machineId }).unsafeUnwrap()
+    ?.cvrId;
+}
+
+test('a ballot claimed via the peer API is released when the client goes stale', async () => {
+  const hostMachineId = 'HOST-006';
+  const clientMachineId = 'CLIENT-006';
+  const { store, peerPort, clientStore } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 1);
+  const cvrId = assertDefined(cvrIds[0]);
+
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+  });
+
+  // The client claims the only adjudicable ballot over the real peer API
+  const peerApiClient = grout.createClient<PeerApi>({
+    baseUrl: `http://127.0.0.1:${peerPort}/api`,
+  });
+  const claimed = await peerApiClient.claimAndLoadBallot({
+    machineId: clientMachineId,
+  });
+  expect(claimed?.cvrId).toEqual(cvrId);
+  expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
+
+  // The client stops heartbeating
+  mockDiscoverHttpServices.mockResolvedValue([]);
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineWaitingForHost
+    );
+  });
+
+  // The claim survives a disconnect shorter than the stale threshold
+  expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
+
+  // Once the client is stale, the host's polling loop releases the claim and
+  // another machine can pick up the ballot
+  vi.advanceTimersByTime(STALE_MACHINE_THRESHOLD_MS);
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toEqual(cvrId);
+  });
+});
+
+test('a client logging out releases its ballot claim on the next heartbeat', async () => {
+  const hostMachineId = 'HOST-007';
+  const clientMachineId = 'CLIENT-007';
+  const { store, peerPort, auth } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 1);
+  const cvrId = assertDefined(cvrIds[0]);
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(
+      store.getMachines().find((m) => m.machineId === clientMachineId)
+    ).toMatchObject({
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
+    });
+  });
+
+  const peerApiClient = grout.createClient<PeerApi>({
+    baseUrl: `http://127.0.0.1:${peerPort}/api`,
+  });
+  const claimed = await peerApiClient.claimAndLoadBallot({
+    machineId: clientMachineId,
+  });
+  expect(claimed?.cvrId).toEqual(cvrId);
+  expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
+
+  // Lock the client machine — its next heartbeat reports OnlineLocked, which
+  // makes the host release the claim
+  mockMachineLocked(auth);
+
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(
+      store.getMachines().find((m) => m.machineId === clientMachineId)
+    ).toMatchObject({ status: Admin.ClientMachineStatus.OnlineLocked });
+    expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toEqual(cvrId);
+  });
+});
+
+test('client app adjudication proxies round-trip to the host over the networked connection', async () => {
+  const hostMachineId = 'HOST-008';
+  const clientMachineId = 'CLIENT-008';
+  const { store, clientStore, clientApiClient } = await setupHostAndClient(
+    hostMachineId,
+    clientMachineId
+  );
+  const { electionId, cvrIds } = addElectionWithAdjudicableCvrs(store, 2);
+
+  await waitFor(() => {
+    vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineConnectedToHost
+    );
+  });
+
+  // The client claims one ballot; the host then claims and gets the other
+  const clientClaim = assertDefined(
+    (await clientApiClient.claimAndLoadBallot({})).unsafeUnwrap()
+  );
+  expect(cvrIds).toContain(clientClaim.cvrId);
+  expect(clientClaim.data.isResolved).toEqual(false);
+
+  const hostClaimedCvrId = claimNextOnHost(store, electionId, hostMachineId);
+  expect(cvrIds).toContain(hostClaimedCvrId);
+  expect(hostClaimedCvrId).not.toEqual(clientClaim.cvrId);
+
+  // Adjudicating the host's ballot as the client fails
+  expect(
+    await clientApiClient.adjudicateCvr({
+      cvrId: assertDefined(hostClaimedCvrId),
+      contests: [],
+    })
+  ).toEqual(err({ type: 'claim-failed' }));
+
+  expect(
+    (
+      await clientApiClient.getWriteInCandidates({
+        contestIds: ['zoo-council-mammal'],
+      })
+    ).unsafeUnwrap()
+  ).toEqual([]);
+
+  // Adjudicating the client's own ballot succeeds; with the other ballot
+  // still held by the host, there is nothing left to claim
+  (
+    await clientApiClient.adjudicateCvr({
+      cvrId: clientClaim.cvrId,
+      contests: [],
+    })
+  ).unsafeUnwrap();
+  expect(
+    (await clientApiClient.claimAndLoadBallot({})).unsafeUnwrap()
+  ).toBeUndefined();
+
+  // Once the host releases its ballot, the client can claim, release, and
+  // re-claim it through the proxy
+  store.releaseBallotClaim({
+    electionId,
+    cvrId: assertDefined(hostClaimedCvrId),
+  });
+  const reclaim = assertDefined(
+    (await clientApiClient.claimAndLoadBallot({})).unsafeUnwrap()
+  );
+  expect(reclaim.cvrId).toEqual(hostClaimedCvrId);
+
+  (
+    await clientApiClient.releaseBallot({ cvrId: reclaim.cvrId })
+  ).unsafeUnwrap();
+  expect(
+    store.getNextCvrIdForBallotAdjudication({
+      electionId,
+      machineId: 'OTHER-MACHINE',
+    })
+  ).toEqual(hostClaimedCvrId);
+
+  // Claim it back and finish the queue
+  const finalClaim = assertDefined(
+    (await clientApiClient.claimAndLoadBallot({})).unsafeUnwrap()
+  );
+  (
+    await clientApiClient.adjudicateCvr({
+      cvrId: finalClaim.cvrId,
+      contests: [],
+    })
+  ).unsafeUnwrap();
+  expect(
+    store.getNextCvrIdForBallotAdjudication({
+      electionId,
+      machineId: 'OTHER-MACHINE',
+    })
+  ).toBeUndefined();
 });
