@@ -11,39 +11,39 @@ export type ReadFileError =
   | { type: 'ReadFileError'; error: globalThis.Error };
 
 /**
- * Reads the entire contents of a file. If the file is larger than `maxSize`
- * then an error is returned without reading the file.
+ * Reads the entire contents of a file. If `maxSize` is provided and the file is
+ * larger than `maxSize` then an error is returned without reading the file.
  *
  * @param path The path to the file to read.
  * @param maxSize The maximum size of the file to read in bytes.
  */
 export async function readFile(
   path: string,
-  { maxSize }: { maxSize: number }
+  options?: { maxSize?: number }
 ): Promise<Result<Buffer, ReadFileError>>;
 /**
- * Reads the entire contents of a file. If the file is larger than `maxSize`
- * then an error is returned without reading the file.
+ * Reads the entire contents of a file. If `maxSize` is provided and the file is
+ * larger than `maxSize` then an error is returned without reading the file.
  *
  * @param path The path to the file to read.
  * @param maxSize The maximum size of the file to read in bytes.
  */
 export async function readFile(
   path: string,
-  { maxSize, encoding }: { maxSize: number; encoding: BufferEncoding }
+  { maxSize, encoding }: { maxSize?: number; encoding: BufferEncoding }
 ): Promise<Result<string, ReadFileError>>;
 /**
- * Reads the entire contents of a file. If the file is larger than `maxSize`
- * then an error is returned without reading the file.
+ * Reads the entire contents of a file. If `maxSize` is provided and the file is
+ * larger than `maxSize` then an error is returned without reading the file.
  *
  * @param path The path to the file to read.
  * @param maxSize The maximum size of the file to read in bytes.
  */
 export async function readFile(
   path: string,
-  { maxSize, encoding }: { maxSize: number; encoding?: BufferEncoding }
+  { maxSize, encoding }: { maxSize?: number; encoding?: BufferEncoding } = {}
 ): Promise<Result<Buffer | string, ReadFileError>> {
-  if (maxSize < 0) {
+  if (maxSize !== undefined && maxSize < 0) {
     throw new Error('maxSize must be non-negative');
   }
 
@@ -56,7 +56,7 @@ export async function readFile(
   const fd = openResult.ok();
   const stat = await fd.stat();
 
-  if (stat.size > maxSize) {
+  if (maxSize !== undefined && stat.size > maxSize) {
     await fd.close();
     return err({
       type: 'FileExceedsMaxSize',

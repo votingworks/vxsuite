@@ -34,6 +34,17 @@ test('file exceeds max size', async () => {
   );
 });
 
+test('no maxSize reads any size', async () => {
+  const content = 'file contents';
+  const path = makeTemporaryFile({ content });
+
+  const buffer = (await readFile(path)).unsafeUnwrap();
+  expect(buffer).toBeInstanceOf(Buffer);
+  expect(buffer.toString('utf-8')).toEqual(content);
+
+  expect(await readFile(path, { encoding: 'utf-8' })).toEqual(ok(content));
+});
+
 test('invalid maxSize', async () => {
   await expect(readFile('path', { maxSize: -1 })).rejects.toThrow(
     'maxSize must be non-negative'

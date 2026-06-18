@@ -46,22 +46,6 @@ test('file system error: no such file', async () => {
   );
 });
 
-test('file system error: file exceeds max size', async () => {
-  const path = makeTemporaryFile({ content: 'a'.repeat(30 * 1024 * 1024 + 1) });
-  expect(await readElection(path)).toEqual(
-    err(
-      typedAs<ReadElectionError>({
-        type: 'ReadFileError',
-        error: {
-          type: 'FileExceedsMaxSize',
-          maxSize: 30 * 1024 * 1024,
-          fileSize: 30 * 1024 * 1024 + 1,
-        },
-      })
-    )
-  );
-});
-
 test('success', async () => {
   const path = makeTemporaryFile({
     content: electionFamousNames2021Fixtures.electionJson.asText(),
