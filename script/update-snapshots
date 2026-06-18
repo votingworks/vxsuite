@@ -124,7 +124,14 @@ if [ "$run_vitest" = true ]; then
 fi
 
 if [ "$include_integration" = true ]; then
-  pnpm "${integration_filters[@]}" -r --no-bail --if-present run test -- --update-snapshots
+  # Run `pnpm test -- --update-snapshots` in each integration package directly.
+  # A single-package `pnpm run` forwards the `--update-snapshots` flag to
+  # Playwright, but `pnpm -r run test -- --update-snapshots` drops it (so the
+  # tests would run instead of updating). Resolve the filters to dirs first.
+  while IFS= read -r dir; do
+    [ -n "$dir" ] || continue
+    (cd "$dir" && pnpm test -- --update-snapshots) || true
+  done < <(pnpm "${integration_filters[@]}" -r exec pwd 2>/dev/null)
 fi
 
 exit 0
