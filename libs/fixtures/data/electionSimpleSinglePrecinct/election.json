@@ -64,16 +64,18 @@
       "id": "yhufrdz6tk0l",
       "districtId": "tkjw2h0e9dkk",
       "title": "Do you like boring elections?",
-      "type": "yesno",
+      "type": "measure",
       "description": "<p>Do you like boring elections?</p>",
-      "yesOption": {
-        "id": "iazynfkx2mg7",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "786d95x8vbmu",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "iazynfkx2mg7",
+          "label": "Yes"
+        },
+        {
+          "id": "786d95x8vbmu",
+          "label": "No"
+        }
+      ]
     }
   ],
   "jurisdiction": {
