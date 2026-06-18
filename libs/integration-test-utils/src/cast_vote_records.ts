@@ -13,6 +13,7 @@ import { type MarginalMark } from '@votingworks/hmpb';
 import { pdfToImages, type ImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
+  anyPollingPlace,
   BallotId,
   BallotIdSchema,
   BallotStyleId,
@@ -234,6 +235,9 @@ export async function generateCastVoteRecordExport(
       label: batchId,
       startedAt: new Date().toISOString(),
       count: ballots.length,
+      // [TODO] This will need to be varied based on caller input to get
+      // screenshot coverage on multiple polling places in VxAdmin.
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     },
   ];
   const reportMetadata = buildCastVoteRecordReportMetadata({
