@@ -1062,6 +1062,7 @@ describe('candidate ordering', () => {
       contests: [contest],
       ballotStyles: [
         {
+          languages: ['en'],
           id: 'ballot-style-1',
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
@@ -1116,6 +1117,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
@@ -1182,6 +1184,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
@@ -1241,6 +1244,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
@@ -1304,6 +1308,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
@@ -1367,6 +1372,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
@@ -1430,6 +1436,7 @@ describe('cross-endorsed candidates', () => {
       ballotStyles: [
         {
           id: 'ballot-style-1',
+          languages: ['en'],
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],

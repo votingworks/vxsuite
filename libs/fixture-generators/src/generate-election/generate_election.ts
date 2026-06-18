@@ -90,6 +90,7 @@ export function generateElection(
       districts: unique(
         ballotStylePrecincts.flatMap((precinct) => precinct.districtIds)
       ),
+      languages: ['en'],
     };
   }
   const ballotStyles = range(0, config.numBallotStyles).map(

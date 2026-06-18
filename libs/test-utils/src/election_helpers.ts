@@ -125,6 +125,7 @@ export function createTestElection(
     groupId: 'ballot-style-1',
     precincts: [precinct.id],
     districts: [district.id],
+    languages: ['en'],
   };
 
   const election: Election = {

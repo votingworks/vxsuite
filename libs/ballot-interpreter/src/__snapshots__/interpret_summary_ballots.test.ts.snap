@@ -11,7 +11,7 @@ exports[`VX BMD interpretation > crops black headers and footers 1`] = `
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -165,7 +165,7 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -319,7 +319,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -473,7 +473,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -627,7 +627,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -781,7 +781,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -935,7 +935,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -1089,7 +1089,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [
@@ -1243,7 +1243,7 @@ exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
     },
     "metadata": {
       "ballotAuditId": "fixture-audit-id",
-      "ballotHash": "eca3e887b697019ce3c3",
+      "ballotHash": "04a4aa71482a50954b8e",
       "ballotStyleId": "1-4",
       "ballotType": "precinct",
       "contestIds": [

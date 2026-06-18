@@ -68,11 +68,7 @@ function BallotStylesSection(props: BallotStylesSectionProps): React.ReactNode {
           {ballotStyleGroups.map((group) => {
             const ballotStylesInGroup = group.ballotStyles;
             const languages = iter(ballotStylesInGroup)
-              .flatMap(
-                (bs) =>
-                  /* istanbul ignore next - unexpected condition */
-                  bs.languages || []
-              )
+              .flatMap((bs) => bs.languages)
               .map((code) =>
                 format.languageDisplayName({
                   languageCode: code,

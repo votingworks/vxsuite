@@ -110,7 +110,7 @@ const electionStringExtractorFns: Record<
   [ElectionStringKey.BALLOT_LANGUAGE](election) {
     const electionLanguages = unique(
       election.ballotStyles
-        .flatMap((ballotStyle) => ballotStyle.languages ?? [])
+        .flatMap((ballotStyle) => ballotStyle.languages)
         .concat([DEFAULT_LANGUAGE_CODE])
     );
     return electionLanguages.map((languageCode) => ({

@@ -4862,7 +4862,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
     ballotStyles.find(
       (style) =>
         ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
-        style.languages!.includes(LanguageCode.ENGLISH)
+        style.languages.includes(LanguageCode.ENGLISH)
     )
   );
 
@@ -4932,7 +4932,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
         ballotStyles.find(
           (style) =>
             style.districts.includes(precinct.districtIds[0]) &&
-            style.languages!.includes(LanguageCode.ENGLISH)
+            style.languages.includes(LanguageCode.ENGLISH)
         )
       ).id,
       ballotType: BallotType.Precinct,

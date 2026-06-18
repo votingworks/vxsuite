@@ -4,7 +4,7 @@ exports[`happy path: back, front 1`] = `
 {
   "metadata": {
     "ballotAuditId": "fixture-audit-id",
-    "ballotHash": "db2d42ac1ae847887462",
+    "ballotHash": "ed8eb7c1cf9c5405d3d9",
     "ballotStyleId": "1-4",
     "ballotType": "precinct",
     "contestIds": [
@@ -146,7 +146,7 @@ exports[`happy path: back, front upside down 1`] = `
 {
   "metadata": {
     "ballotAuditId": "fixture-audit-id",
-    "ballotHash": "db2d42ac1ae847887462",
+    "ballotHash": "ed8eb7c1cf9c5405d3d9",
     "ballotStyleId": "1-4",
     "ballotType": "precinct",
     "contestIds": [
@@ -288,7 +288,7 @@ exports[`happy path: front upside down, back 1`] = `
 {
   "metadata": {
     "ballotAuditId": "fixture-audit-id",
-    "ballotHash": "db2d42ac1ae847887462",
+    "ballotHash": "ed8eb7c1cf9c5405d3d9",
     "ballotStyleId": "1-4",
     "ballotType": "precinct",
     "contestIds": [
@@ -430,7 +430,7 @@ exports[`happy path: front, back 1`] = `
 {
   "metadata": {
     "ballotAuditId": "fixture-audit-id",
-    "ballotHash": "db2d42ac1ae847887462",
+    "ballotHash": "ed8eb7c1cf9c5405d3d9",
     "ballotStyleId": "1-4",
     "ballotType": "precinct",
     "contestIds": [

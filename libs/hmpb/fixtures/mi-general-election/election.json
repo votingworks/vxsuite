@@ -16,6 +16,9 @@
         "franklin-county",
         "district-1",
         "district-2"
+      ],
+      "languages": [
+        "en"
       ]
     },
     {
@@ -27,6 +30,9 @@
       "districts": [
         "franklin-county",
         "district-1"
+      ],
+      "languages": [
+        "en"
       ]
     }
   ],

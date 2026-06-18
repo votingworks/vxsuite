@@ -895,6 +895,7 @@ test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates whe
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       CC: [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }],
     },
@@ -948,6 +949,7 @@ test('getOrderedCandidatesForContestInBallotStyle handles different orderings', 
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
       mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
@@ -1009,6 +1011,7 @@ test('getOrderedCandidatesForContestInBallotStyle preserves original ordering wh
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       'contest-1': [{ id: 'bob' }, { id: 'alice' }],
     },
@@ -1096,6 +1099,7 @@ test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candida
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       governor: [
         { id: 'alice', partyIds: ['party-a'] }, // Alice as Party A candidate
@@ -1163,6 +1167,7 @@ test('getOrderedContests handles cross-endorsed candidates represented by one op
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       governor: [
         { id: 'alice', partyIds: ['party-a', 'party-b'] }, // Alice as Party A and B candidate
@@ -1219,6 +1224,7 @@ test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ball
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [
         { id: 'carol' },
@@ -1266,6 +1272,7 @@ test('getCandidateVoteSortedForBallotStyleRotation preserves order when no rotat
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
   };
 
   const inputVote: CandidateVote = [
@@ -1304,6 +1311,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates a
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
     },
@@ -1349,6 +1357,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in can
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [{ id: 'bob' }, { id: 'alice' }],
     },
@@ -1396,6 +1405,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes',
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [{ id: 'bob' }, { id: 'alice' }],
     },
@@ -1439,6 +1449,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles empty vote', () => {
     groupId: '1',
     districts: ['D'],
     precincts: ['P'],
+    languages: ['en'],
     orderedCandidatesByContest: {
       president: [{ id: 'bob' }, { id: 'alice' }],
     },

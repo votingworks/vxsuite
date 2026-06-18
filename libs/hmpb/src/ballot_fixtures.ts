@@ -291,7 +291,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
   function makeElectionFixtureSpec(election: Election) {
     const electionDir = join(
       dir,
-      [election.ballotLayout.paperSize, election.ballotStyles[0].languages?.[0]]
+      [election.ballotLayout.paperSize, election.ballotStyles[0].languages[0]]
         .filter((label) => Boolean(label))
         .join('-')
     );
@@ -318,7 +318,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
     const contests = getContests({ election, ballotStyle });
     const { votes, unmarkedWriteIns } = createTestVotes(contests);
     const { paperSize } = election.ballotLayout;
-    const languageCode = ballotStyle.languages?.[0] ?? 'en';
+    const languageCode = ballotStyle.languages[0];
     return {
       electionDir,
       paperSize,

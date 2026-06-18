@@ -89,7 +89,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
     ballotStyles.find(
       (style) =>
         ballotStyleHasPrecinctOrSplit(style, { precinct, split }) &&
-        style.languages!.includes(LanguageCode.ENGLISH)
+        style.languages.includes(LanguageCode.ENGLISH)
     )
   );
 
@@ -153,7 +153,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
         ballotStyles.find(
           (style) =>
             style.districts.includes(precinct.districtIds[0]) &&
-            style.languages!.includes(LanguageCode.ENGLISH)
+            style.languages.includes(LanguageCode.ENGLISH)
         )
       ).id,
       ballotType: BallotType.Precinct,
@@ -355,9 +355,7 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
 
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
   const ballotStyle = assertDefined(
-    ballotStyles.find((style) =>
-      style.languages!.includes(LanguageCode.ENGLISH)
-    )
+    ballotStyles.find((style) => style.languages.includes(LanguageCode.ENGLISH))
   );
   const precinct = (await apiClient.listPrecincts({ electionId }))[0];
 

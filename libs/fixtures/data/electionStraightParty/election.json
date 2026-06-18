@@ -846,6 +846,7 @@
     {
       "id": "12",
       "groupId": "12",
+      "languages": ["en"],
       "precincts": [
         "23",
         "21"
@@ -859,6 +860,7 @@
     {
       "id": "5",
       "groupId": "5",
+      "languages": ["en"],
       "precincts": [
         "21"
       ],

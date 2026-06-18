@@ -400,6 +400,7 @@ export function convertMsElection(
         precincts: [],
         districts: [],
         partyId: type === 'closed-primary' ? parties[0].id : undefined,
+        languages: ['en'],
       },
     ],
   };

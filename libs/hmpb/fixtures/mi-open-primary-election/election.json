@@ -159,6 +159,9 @@
         "district-legislative",
         "district-county",
         "district-judicial"
+      ],
+      "languages": [
+        "en"
       ]
     },
     {
@@ -173,6 +176,9 @@
         "district-legislative",
         "district-county-south",
         "district-judicial"
+      ],
+      "languages": [
+        "en"
       ]
     }
   ],

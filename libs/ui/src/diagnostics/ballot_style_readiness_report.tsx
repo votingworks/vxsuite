@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Contest, ElectionDefinition, getContests } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { Font, H2, H3 } from '../typography';
@@ -117,7 +118,7 @@ export function BallotStyleReadinessReport(
               <BallotStyleDetail
                 label="Language"
                 values={format.languageDisplayName({
-                  languageCode: b.languages?.[0] || 'en',
+                  languageCode: assertDefined(b.languages[0]),
                   displayLanguageCode: 'en',
                   style: 'long',
                 })}

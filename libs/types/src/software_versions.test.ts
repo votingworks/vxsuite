@@ -70,7 +70,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"fe05f99d5886bfcbbbc388844ec44e77dbde2c2426a836188350cdcef3f60c5d"`
+    `"234eeed269fce78c9f8c1af4d761611429f9499c4203cdfa1e517be18731ecce"`
   );
 
   expect(
@@ -117,4 +117,33 @@ test('safeParseElectionDefinitionForAnySoftwareVersion', () => {
   expect(result.err()).toEqual(
     safeParseElectionDefinition(invalidElectionData).err()
   );
+});
+
+test('v4.0 ballot styles may omit languages; conversion to latest defaults them to en', () => {
+  // `languages` was optional in v4.0 but is required in v4.1+. Simulate a real
+  // v4.0 election whose ballot styles omit the field.
+  const v4p0Election = convertLatestElectionToV4p0(primaryElection);
+  const v4p0ElectionData = JSON.stringify({
+    ...v4p0Election,
+    ballotStyles: v4p0Election.ballotStyles.map((ballotStyle) => {
+      const { languages: _languages, ...rest } = ballotStyle;
+      return rest;
+    }),
+  });
+
+  // The v4.0 schema accepts ballot styles without `languages`.
+  const v4p0Parsed =
+    safeParseElectionDefinitionV4p0(v4p0ElectionData).unsafeUnwrap();
+  expect(v4p0Parsed.election.ballotStyles[0]?.languages).toBeUndefined();
+
+  // Converting to the latest version fills in ['en'] so the now-required field
+  // is satisfied.
+  const upgraded =
+    safeParseElectionDefinitionForAnySoftwareVersion(
+      v4p0ElectionData
+    ).unsafeUnwrap().election;
+  expect(upgraded.ballotStyles.length).toBeGreaterThan(0);
+  for (const ballotStyle of upgraded.ballotStyles) {
+    expect(ballotStyle.languages).toEqual(['en']);
+  }
 });

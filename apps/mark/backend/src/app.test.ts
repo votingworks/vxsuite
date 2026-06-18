@@ -534,8 +534,8 @@ test('printing ballots', async () => {
   const mockVotes = generateMockVotes(electionDefinition.election);
   await apiClient.printBallot({
     precinctId: '21',
-    ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes('en')
+    ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
+      bs.languages.includes('en')
     )!.id,
     votes: mockVotes,
     languageCode: 'en',
@@ -550,8 +550,8 @@ test('printing ballots', async () => {
   // vote a ballot in Chinese
   await apiClient.printBallot({
     precinctId: '21',
-    ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes('zh-Hans')
+    ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
+      bs.languages.includes('zh-Hans')
     )!.id,
     votes: mockVotes,
     languageCode: 'zh-Hans',

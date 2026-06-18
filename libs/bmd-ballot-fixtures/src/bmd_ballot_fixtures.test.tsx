@@ -41,7 +41,7 @@ test('renderBmdBallotFixture for primary election', async () => {
     electionDefinition,
     ballotStyleId: find(
       electionDefinition.election.ballotStyles,
-      (bs) => bs.languages?.[0] === 'en'
+      (bs) => bs.languages[0] === 'en'
     ).id,
   });
   const pages = await iter(pdfToImages(pdf, { scale: 200 / 72 }))

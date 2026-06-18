@@ -28,7 +28,14 @@ import {
   getSingleYesNoVote,
 } from '@votingworks/utils';
 
-import { assert, err, find, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  find,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { QrCode, QrCodeLevel } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
@@ -693,7 +700,7 @@ export function BmdPaperBallot({
   } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
-  const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
+  const primaryBallotLanguage = assertDefined(ballotStyle.languages[0]);
 
   const precinctOrSplit = find(
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),

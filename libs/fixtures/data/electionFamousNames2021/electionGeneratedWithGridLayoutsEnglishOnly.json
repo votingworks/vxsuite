@@ -143,6 +143,9 @@
       "districts": [
         "district-1"
       ],
+      "languages": [
+        "en"
+      ],
       "orderedCandidatesByContest": {
         "mayor": [
           {
@@ -374,6 +377,9 @@
       ],
       "districts": [
         "district-1"
+      ],
+      "languages": [
+        "en"
       ],
       "orderedCandidatesByContest": {
         "mayor": [
@@ -607,6 +613,9 @@
       "districts": [
         "district-1"
       ],
+      "languages": [
+        "en"
+      ],
       "orderedCandidatesByContest": {
         "mayor": [
           {
@@ -838,6 +847,9 @@
       ],
       "districts": [
         "district-1"
+      ],
+      "languages": [
+        "en"
       ],
       "orderedCandidatesByContest": {
         "mayor": [

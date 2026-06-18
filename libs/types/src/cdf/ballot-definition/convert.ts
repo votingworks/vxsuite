@@ -1368,7 +1368,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0],
-        languages: ballotStyle.Language,
+        languages: ballotStyle.Language ?? ['en'],
         orderedCandidatesByContest,
       };
     }),

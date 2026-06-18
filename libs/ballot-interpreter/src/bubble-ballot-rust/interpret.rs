@@ -717,7 +717,7 @@ mod test {
     #[test]
     fn test_interpret_returns_binarized_images() {
         let (side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
         assert!(is_binary_image(&card.front.normalized_image));
         assert!(is_binary_image(&card.back.normalized_image));
@@ -725,7 +725,7 @@ mod test {
 
     #[test]
     fn test_debug_images_with_cropping() {
-        let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter-en", 1);
         let side_a_image_original_dimensions = side_a_image.dimensions();
         let side_a_image = {
             let inset = Inset {
@@ -760,7 +760,7 @@ mod test {
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let detected = qr_code::detect_with_strategy(
             &side_a_image,
             qr_code::SearchStrategy::BubbleCorners,
@@ -782,7 +782,7 @@ mod test {
     #[test]
     fn test_vertical_streaks_not_through_bubbles() {
         let (mut side_a_image, mut side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let thin_complete_streak_x = side_a_image.width() / 5;
         let thick_complete_streak_x: PixelPosition = side_a_image.width() as PixelPosition * 2 / 5;
         let thick_complete_streak_x_range =
@@ -839,7 +839,7 @@ mod test {
     #[test]
     fn test_vertical_streaks_through_bubbles() {
         let (mut side_a_image, mut side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let thin_complete_streak_x = side_a_image.width() / 5;
         let thick_complete_streak_x_through_bubbles = side_a_image.width() * 2 / 5 - 20;
         let fuzzy_streak_x = side_a_image.width() * 3 / 5;
@@ -906,7 +906,7 @@ mod test {
     #[test]
     fn test_vertical_streak_through_left_timing_mark_is_allowed() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let timing_mark_x = 60;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
@@ -930,7 +930,7 @@ mod test {
     #[test]
     fn test_vertical_streak_through_right_timing_mark_is_allowed() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         let timing_mark_x = side_a_image.width() - 60;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
@@ -951,7 +951,7 @@ mod test {
 
     #[test]
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
-        let (_, _, mut options) = load_hmpb_fixture("vx-general-election/letter", 3);
+        let (_, _, mut options) = load_hmpb_fixture("vx-general-election/letter-en", 3);
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("test/fixtures/vx-general-election-letter");
         let (side_a_image_rotated, side_b_image_rotated) = load_ballot_card_images(
@@ -1147,7 +1147,7 @@ mod test {
     #[test]
     fn test_rejects_ballot_with_unexpected_ballot_hash() {
         let (side_a_image, side_b_image, mut options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // The fixture's default `expected_ballot_hash` matches the QR-encoded
         // hash, so interpretation succeeds.
@@ -1177,14 +1177,14 @@ mod test {
     fn test_rejects_ballot_with_grid_position_outside_timing_mark_grid() {
         // Letter-sized ballot images (the physical paper we'll scan).
         let (side_a_image, side_b_image, mut options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         // Override the election with the 17"-tall variant's election.json,
         // which has gridLayouts placing contests at rows that don't exist on
         // a letter-sized ballot's timing-mark grid. Keep the letter ballot's
         // hash so the hash check passes — we want to exercise the
         // scoring-time check, not the hash check.
         let custom_election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../hmpb/fixtures/vx-general-election/custom-8.5x17/election.json");
+            .join("../hmpb/fixtures/vx-general-election/custom-8.5x17-en/election.json");
         let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
         options.election = custom_election;
 
@@ -1212,7 +1212,7 @@ mod test {
     fn test_partial_streak_through_timing_marks() {
         // Load a blank HMPB fixture (no marks expected on bubbles).
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         // First, interpret the clean image to get timing marks.
         let clean_interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
@@ -1253,7 +1253,7 @@ mod test {
     fn test_wide_streak_through_timing_marks() {
         // Load a blank HMPB fixture (no marks expected on bubbles).
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         // First, interpret the clean image to get timing marks.
         let clean_interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options)
@@ -1302,7 +1302,7 @@ mod test {
         const STREAK_HALF_WIDTH: i32 = 5; // 10 px wide, exceeds median filter window (8)
 
         let (mut side_a_image, side_b_image, mut options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
         options.max_cumulative_streak_width = 20;
 
         let clean_interpretation =
@@ -1382,7 +1382,7 @@ mod test {
     #[test]
     fn test_missing_top_and_bottom_timing_marks_does_not_break_interpretation() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // We no longer record top/bottom marks on `TimingMarks`, so use the
         // four corners (which we still record) to compute approximate
@@ -1443,7 +1443,7 @@ mod test {
     #[test]
     fn test_obscured_top_and_bottom_timing_marks_does_not_break_interpretation() {
         let (side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // We no longer record top/bottom marks on `TimingMarks`, so use the
         // four corners (which we still record) to compute approximate
@@ -1486,7 +1486,7 @@ mod test {
     #[test]
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter", 3);
+            load_hmpb_fixture("vx-general-election/letter-en", 3);
         // Set a minimum scale of 98.5%.
         let minimum_detected_scale = UnitIntervalScore(0.985);
         let options = Options {
@@ -1547,7 +1547,7 @@ mod test {
         .into_luma8();
 
         // Create a clean second side (use any valid ballot image)
-        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // Set thresholds so that the streaks are narrow enough to pass normal threshold
         // but fail the retry threshold. Looking at the actual fixture, it has thin streaks
@@ -1574,7 +1574,7 @@ mod test {
     #[test]
     fn test_retry_streak_detection_no_streaks() {
         let (mut side_a_image, side_b_image, mut options) =
-            load_hmpb_fixture("vx-general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // First, find the timing marks so we can remove them
         let card = Pair::new(
@@ -1637,7 +1637,7 @@ mod test {
         .into_luma8();
 
         // Create a clean second side
-        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // Set thresholds so that streaks are caught by the normal threshold
         options.max_cumulative_streak_width = 1; // Very strict - catch any streaks immediately
@@ -1666,7 +1666,7 @@ mod test {
         .into_luma8();
 
         // Create a clean second side
-        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter", 1);
+        let (_, side_b_image, mut options) = load_hmpb_fixture("vx-general-election/letter-en", 1);
 
         // Test with retry threshold = 2px (should detect streaks during retry)
         // Set normal threshold high enough to not catch initially
