@@ -5,7 +5,7 @@ import type {
   ContestOptionAdjudicationData,
   CvrContestTag,
 } from '@votingworks/admin-backend';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
 import {
   Contest,
   BallotPageContestOptionLayout,
@@ -14,11 +14,15 @@ import {
   Election,
   Rect,
   Side,
-  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
+  StraightPartyVote,
 } from '@votingworks/types';
-import { contestOptionName, hasCrossoverVote } from '@votingworks/utils';
+import {
+  contestOptionName,
+  hasCrossoverVote,
+  selectedStraightPartyId,
+} from '@votingworks/utils';
 
 export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
@@ -92,10 +96,6 @@ export function adjudicatedVotes(
   return Object.fromEntries(
     contests.map(({ contest, adjudicationData }): [string, Vote] => {
       const adjudicatedContest = adjudicatedContests.get(contest.id);
-      /* istanbul ignore next */
-      if (contest.type === 'straight-party') {
-        return straightPartyNotYetImplemented();
-      }
       switch (contest.type) {
         case 'candidate':
           return [
@@ -117,6 +117,7 @@ export function adjudicatedVotes(
             ),
           ];
         case 'yesno':
+        case 'straight-party':
           return [
             contest.id,
             adjudicationData.options.flatMap((option) =>
@@ -205,4 +206,18 @@ export function contestPartyLabel(
     contest.partyId
     ? find(election.parties, (p) => p.id === contest.partyId).fullName
     : undefined;
+}
+
+export function selectedStraightPartyIdAfterAdjudication(
+  election: Election,
+  votesAfterAdjudication: VotesDict
+): string | undefined {
+  const straightPartyContest = election.contests.find(
+    (contest) => contest.type === 'straight-party'
+  );
+  if (!straightPartyContest) return undefined;
+  const straightPartyContestVotes = assertDefined(
+    votesAfterAdjudication[straightPartyContest.id]
+  ) as StraightPartyVote;
+  return selectedStraightPartyId(straightPartyContestVotes);
 }

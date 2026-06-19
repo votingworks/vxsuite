@@ -8,7 +8,10 @@ import type {
 import type { ContestOptionId, Contest } from '@votingworks/types';
 import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 
-import { contestOptionName } from '@votingworks/utils';
+import {
+  contestOptionName,
+  deriveStraightPartyVotesForContest,
+} from '@votingworks/utils';
 import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 import { normalizeWriteInName } from '../utils/adjudication';
 
@@ -89,6 +92,7 @@ export function useContestAdjudicationState(initialValues: {
   writeInCandidates: WriteInCandidateRecord[];
   contest: Contest;
   adjudicatedOptions?: AdjudicatedContestOptions;
+  selectedStraightPartyId?: string;
 }): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -116,12 +120,14 @@ export function useContestAdjudicationState(initialValues: {
   firstOptionIdPendingAdjudication?: ContestOptionId;
   selectedCandidateNames: string[];
   voteCount: number;
+  derivedStraightPartyVotes: ContestOptionId[];
 } {
   const {
     contestAdjudicationData,
     contest,
     adjudicatedOptions = {},
     writeInCandidates,
+    selectedStraightPartyId,
   } = initialValues;
   const [optionState, setState] =
     useState<AdjudicatedContestOptions>(adjudicatedOptions);
@@ -370,7 +376,16 @@ export function useContestAdjudicationState(initialValues: {
     return result;
   }
 
-  const voteCount = optionsList.filter((o) => getOptionHasVote(o.id)).length;
+  const votedOptionIds = optionsList
+    .filter((o) => getOptionHasVote(o.id))
+    .map((o) => o.id);
+  const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
+    contest,
+    votedOptionIds,
+    selectedStraightPartyId
+  );
+
+  const voteCount = votedOptionIds.length + derivedStraightPartyVotes.length;
 
   const isModified = !deepEqual(optionState, adjudicatedOptions);
 
@@ -388,5 +403,6 @@ export function useContestAdjudicationState(initialValues: {
     firstOptionIdPendingAdjudication,
     selectedCandidateNames,
     voteCount,
+    derivedStraightPartyVotes,
   };
 }

@@ -10,9 +10,14 @@ import {
 
 const StyledCheckboxButton = styled(CheckboxButton)<{
   onlyRoundBottom?: boolean;
+  primaryOutline?: boolean;
 }>`
   border-radius: ${({ onlyRoundBottom }) =>
     onlyRoundBottom ? '0 0 0.5rem 0.5rem' : '0.5rem'};
+  border-color: ${(p) =>
+    p.primaryOutline ? p.theme.colors.primary : undefined};
+  background-color: ${(p) =>
+    p.primaryOutline ? p.theme.colors.containerLow : undefined};
 `;
 
 interface Props {
@@ -24,6 +29,7 @@ interface Props {
   onDismissFlag?: () => void;
   caption?: React.ReactNode;
   disabled?: boolean;
+  isDerivedVote?: boolean;
 }
 
 export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
@@ -37,6 +43,7 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
       onDismissFlag,
       caption,
       disabled,
+      isDerivedVote,
     },
     ref
   ) => {
@@ -51,9 +58,10 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
         <StyledCheckboxButton
           key={option.id}
           label={option.label}
-          isChecked={isSelected}
+          isChecked={isSelected || Boolean(isDerivedVote)}
           disabled={disabled}
           onlyRoundBottom={showMarginalMarkFlag}
+          primaryOutline={isDerivedVote}
           onChange={() => {
             if (!isSelected) {
               onSelect();

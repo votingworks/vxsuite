@@ -201,6 +201,7 @@ interface ContestAdjudicationScreenProps {
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
+  selectedStraightPartyId?: string;
 }
 
 export function ContestAdjudicationScreen({
@@ -212,6 +213,7 @@ export function ContestAdjudicationScreen({
   onConfirmContest,
   adjudicatedOptions,
   writeInCandidates,
+  selectedStraightPartyId,
 }: ContestAdjudicationScreenProps): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
@@ -257,11 +259,13 @@ export function ContestAdjudicationScreen({
     firstOptionIdPendingAdjudication,
     selectedCandidateNames,
     voteCount,
+    derivedStraightPartyVotes,
   } = useContestAdjudicationState({
     contestAdjudicationData,
     writeInCandidates,
     contest,
     adjudicatedOptions,
+    selectedStraightPartyId,
   });
 
   // Vote and write-in state for adjudication management
@@ -403,11 +407,14 @@ export function ContestAdjudicationScreen({
                 contestOptions.find((o) => o.definition.id === optionId)
               );
               const currentVote = getOptionHasVote(optionId);
+              const isDerivedVote =
+                derivedStraightPartyVotes.includes(optionId);
               const marginalMarkStatus = getOptionMarginalMarkStatus(optionId);
               return (
                 <ContestOptionButton
                   key={optionId + cvrId}
                   isSelected={currentVote}
+                  isDerivedVote={isDerivedVote}
                   marginalMarkStatus={marginalMarkStatus}
                   ref={
                     optionId === firstOptionIdPendingAdjudication

@@ -1,4 +1,10 @@
-import { Election, Tabulation } from '@votingworks/types';
+import {
+  Contest,
+  ContestOptionId,
+  Election,
+  PartyId,
+  Tabulation,
+} from '@votingworks/types';
 import { assert, assertDefined, mapObject } from '@votingworks/basics';
 
 export function deriveStraightPartyVotes(
@@ -13,11 +19,10 @@ export function deriveStraightPartyVotes(
   }
   assert(election.type === 'general');
 
-  const straightPartyVotes = assertDefined(votes[straightPartyContest.id]);
-  if (straightPartyVotes.length !== 1) {
-    return votes;
-  }
-  const selectedStraightPartyId = assertDefined(straightPartyVotes[0]);
+  const straightPartyId = selectedStraightPartyId(
+    assertDefined(votes[straightPartyContest.id])
+  );
+  if (!straightPartyId) return votes;
 
   const contestsById = Object.fromEntries(
     election.contests.map((contest) => [contest.id, contest])
@@ -25,18 +30,41 @@ export function deriveStraightPartyVotes(
 
   return mapObject(votes, (optionIds, contestId) => {
     const contest = assertDefined(contestsById[contestId]);
-    if (contest.type !== 'candidate') return optionIds;
-    const remainingSeats = contest.seats - optionIds.length;
-    const unselectedStraightPartyCandidateIds = contest.candidates
-      .filter(
-        (candidate) =>
-          candidate.partyIds?.includes(selectedStraightPartyId) &&
-          !optionIds.includes(candidate.id)
-      )
-      .map((candidate) => candidate.id);
-    if (remainingSeats >= unselectedStraightPartyCandidateIds.length) {
-      return [...optionIds, ...unselectedStraightPartyCandidateIds];
-    }
-    return optionIds;
+    const derivedVotes = deriveStraightPartyVotesForContest(
+      contest,
+      optionIds,
+      straightPartyId
+    );
+    return [...optionIds, ...derivedVotes];
   });
+}
+
+export function selectedStraightPartyId(
+  straightPartyContestVotes: readonly ContestOptionId[]
+): PartyId | undefined {
+  if (straightPartyContestVotes.length !== 1) {
+    return undefined;
+  }
+  return assertDefined(straightPartyContestVotes[0]);
+}
+
+export function deriveStraightPartyVotesForContest(
+  contest: Contest,
+  votedOptionIds: readonly ContestOptionId[],
+  straightPartyId?: PartyId
+): ContestOptionId[] {
+  if (!(contest.type === 'candidate' && straightPartyId)) {
+    return [];
+  }
+  const remainingSeats = contest.seats - votedOptionIds.length;
+  const unselectedStraightPartyCandidateIds = contest.candidates
+    .filter(
+      (candidate) =>
+        candidate.partyIds?.includes(straightPartyId) &&
+        !votedOptionIds.includes(candidate.id)
+    )
+    .map((candidate) => candidate.id);
+  return remainingSeats >= unselectedStraightPartyCandidateIds.length
+    ? unselectedStraightPartyCandidateIds
+    : [];
 }
