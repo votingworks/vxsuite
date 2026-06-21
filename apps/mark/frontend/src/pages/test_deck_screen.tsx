@@ -9,7 +9,7 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { PrecinctId } from '@votingworks/types';
-import { getElectionRecord } from '../api';
+import { getElectionRecord, printTestDeck } from '../api';
 
 export interface TestDeckScreenProps {
   onBackButtonPress: () => void;
@@ -21,6 +21,7 @@ export function TestDeckScreen({
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<PrecinctId>();
 
   const electionRecordQuery = getElectionRecord.useQuery();
+  const printTestDeckMutation = printTestDeck.useMutation();
 
   if (!electionRecordQuery.isSuccess) {
     return (
@@ -46,7 +47,12 @@ export function TestDeckScreen({
           </Button>
         </P>
         <P>
-          <Button onPress={() => {}}>Print All Test Decks</Button>
+          <Button
+            disabled={printTestDeckMutation.isLoading}
+            onPress={() => printTestDeckMutation.mutate({})}
+          >
+            Print All Test Decks
+          </Button>
         </P>
         <P>
           <SearchSelect
@@ -64,7 +70,12 @@ export function TestDeckScreen({
           />
         </P>
         <P>
-          <Button disabled={!selectedPrecinctId} onPress={() => {}}>
+          <Button
+            disabled={!selectedPrecinctId || printTestDeckMutation.isLoading}
+            onPress={() =>
+              printTestDeckMutation.mutate({ precinctId: selectedPrecinctId })
+            }
+          >
             Print Precinct Test Deck
           </Button>
         </P>
