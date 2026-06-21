@@ -580,6 +580,7 @@ export function buildApi(ctx: AppContext) {
 
       const allCvrs = generateTestDeckCastVoteRecords(election, {
         includeSummaryBallots: false,
+        includeBubbleBallots: true,
       });
       const cvrs = precinctId
         ? allCvrs.filter((cvr) => cvr.precinctId === precinctId)

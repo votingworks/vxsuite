@@ -240,6 +240,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
+      includeBubbleBallots: true,
     });
     const tallyReportResults = await getTallyReportResults(election, cvrs);
 
@@ -282,6 +283,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: true,
+      includeBubbleBallots: true,
     });
     const tallyReportResults = await getTallyReportResults(election, cvrs);
 
@@ -320,6 +322,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
+      includeBubbleBallots: true,
     });
     const tallyReportResults = await getTallyReportResults(election, cvrs);
 
@@ -374,6 +377,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: true,
+      includeBubbleBallots: true,
     });
     const tallyReportResults = await getTallyReportResults(election, cvrs);
 
@@ -426,6 +430,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
+      includeBubbleBallots: true,
     });
     const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
     const tallyReportResults = await getTallyReportResults(
@@ -472,6 +477,7 @@ describe('getTallyReportResults', () => {
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
       includeSummaryBallots: false,
+      includeBubbleBallots: true,
     });
     const precinctCvrs = cvrs.filter((cvr) => cvr.precinctId === precinct.id);
     const tallyReportResults = await getTallyReportResults(
@@ -520,5 +526,32 @@ describe('getTallyReportResults', () => {
         includeGenericWriteIn: false,
       })
     );
+  });
+});
+
+describe('generateTestDeckCastVoteRecords', () => {
+  test('excludes bubble ballots when includeBubbleBallots is false', () => {
+    const election = electionFamousNames2021Fixtures.readElection();
+
+    const cvrs = generateTestDeckCastVoteRecords(election, {
+      includeSummaryBallots: true,
+      includeBubbleBallots: false,
+    });
+
+    expect(cvrs.length).toBeGreaterThan(0);
+    // Bubble ballots produce 'hmpb' CVRs; summary ballots produce 'bmd' CVRs
+    expect(cvrs.some((cvr) => cvr.card.type === 'hmpb')).toEqual(false);
+    expect(cvrs.every((cvr) => cvr.card.type === 'bmd')).toEqual(true);
+  });
+
+  test('returns an empty array when both ballot types are excluded', () => {
+    const election = electionFamousNames2021Fixtures.readElection();
+
+    const cvrs = generateTestDeckCastVoteRecords(election, {
+      includeSummaryBallots: false,
+      includeBubbleBallots: false,
+    });
+
+    expect(cvrs).toEqual([]);
   });
 });
