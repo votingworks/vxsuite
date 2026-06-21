@@ -37,8 +37,15 @@ import {
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Printer } from '@votingworks/printing';
+import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
+import {
+  createPrecinctSummaryBallotTestDeck,
+  generateTestDeckBallots,
+  generateTestDeckCastVoteRecords,
+  getTallyReportResults,
+} from '@votingworks/test-decks';
+import { AdminTallyReportByParty } from '@votingworks/ui';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
@@ -54,6 +61,7 @@ import { setUpBarcodeActivation } from './barcodes/activation';
 import { Player as AudioPlayer, SoundName } from './audio/player';
 import { saveReadinessReport } from './readiness_report';
 import { printTestPage } from './util/print_test_page';
+import { getCurrentTime } from './util/get_current_time';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
 const TEST_UPS_USER_FAIL_REASON =
@@ -276,6 +284,79 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
+    },
+
+    async printTestDeck(input: { precinctId?: PrecinctId }): Promise<void> {
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
+      const { election } = electionDefinition;
+      const { precinctId } = input;
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: 'Attempting to print summary ballot test deck',
+        testDeckProps: JSON.stringify({ precinctId: precinctId || 'all' }),
+      });
+
+      try {
+        const ballotSpecs = generateTestDeckBallots({
+          election,
+          precinctId,
+          ballotFormat: 'summary',
+        });
+        const deckPdf = await createPrecinctSummaryBallotTestDeck({
+          electionDefinition,
+          ballotSpecs,
+          isLiveMode: false,
+        });
+        if (deckPdf) {
+          await printer.print({ data: deckPdf, sides: PrintSides.OneSided });
+        }
+
+        const allCvrs = generateTestDeckCastVoteRecords(election, {
+          includeSummaryBallots: true,
+          includeBubbleBallots: false,
+        });
+        const cvrs = precinctId
+          ? allCvrs.filter((cvr) => cvr.precinctId === precinctId)
+          : allCvrs;
+        const tallyReportResults = await getTallyReportResults(
+          election,
+          cvrs,
+          precinctId
+        );
+        const precinctName = precinctId
+          ? election.precincts.find((p) => p.id === precinctId)?.name
+          : undefined;
+        const tallyReportPdf = (
+          await renderToPdf({
+            document: AdminTallyReportByParty({
+              electionDefinition,
+              title: precinctName,
+              isOfficial: false,
+              isTest: true,
+              isForLogicAndAccuracyTesting: true,
+              testId: 'vxmark-test-deck-tally-report',
+              tallyReportResults,
+              generatedAtTime: new Date(getCurrentTime()),
+            }),
+          })
+        ).unsafeUnwrap();
+        await printer.print({
+          data: tallyReportPdf,
+          sides: PrintSides.OneSided,
+        });
+
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'Printed summary ballot test deck',
+          disposition: 'success',
+          ballotCount: ballotSpecs.length,
+        });
+      } catch (error) {
+        /* istanbul ignore next */
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'Error printing summary ballot test deck',
+          disposition: 'failure',
+          errorDetails: error instanceof Error ? error.message : String(error),
+        });
+      }
     },
 
     async setPollsState(input: { pollsState: PollsState }) {
