@@ -614,7 +614,6 @@ async function interpretBmdBallot(
 ): Promise<SheetOf<PageInterpretation>> {
   const {
     electionDefinition,
-    disableBmdBallotScanning,
     frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath,
   } = options;
@@ -622,8 +621,7 @@ async function interpretBmdBallot(
   const rgbaImages = mapSheet(ballotImages, ensureRgba);
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
-    rgbaImages,
-    disableBmdBallotScanning
+    rgbaImages
   );
 
   if (interpretResult.isErr()) {
@@ -667,19 +665,6 @@ async function interpretBmdBallot(
           },
         ];
       }
-      case 'bmd-ballot-scanning-disabled': {
-        return [
-          {
-            type: 'UnreadablePage',
-            reason: 'bmdBallotScanningDisabled',
-          },
-          {
-            type: 'UnreadablePage',
-            reason: 'bmdBallotScanningDisabled',
-          },
-        ];
-      }
-
       default:
         /* istanbul ignore next - compile-time check */
         throwIllegalValue(error, 'type');
@@ -742,9 +727,6 @@ export async function interpretSimplexBmdBallot(
  */
 function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
   const [frontType, backType] = mapSheet(result, (r) => r.type);
-  const [frontReason, backReason] = mapSheet(result, (r) =>
-    'reason' in r ? r.reason : undefined
-  );
 
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
@@ -765,12 +747,6 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
   }
 
   if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
-    if (
-      frontReason === 'bmdBallotScanningDisabled' ||
-      backReason === 'bmdBallotScanningDisabled'
-    ) {
-      return -85;
-    }
     return -90;
   }
 

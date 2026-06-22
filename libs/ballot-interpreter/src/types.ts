@@ -15,7 +15,6 @@ export interface InterpreterOptions {
   markThresholds: MarkThresholds;
   validPrecinctIds: Set<string>;
   testMode: boolean;
-  disableBmdBallotScanning?: boolean;
   minimumDetectedScale?: number;
   maxCumulativeStreakWidth?: number;
   retryStreakWidthThreshold?: number;

@@ -154,7 +154,6 @@ export type InvalidInterpretationReasonInfo =
     }
   | {
       type:
-        | 'bmd_ballot_scanning_disabled'
         | 'invalid_test_mode'
         | 'invalid_precinct'
         | 'vertical_streaks_detected'

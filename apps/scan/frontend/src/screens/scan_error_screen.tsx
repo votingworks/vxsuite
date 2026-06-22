@@ -98,12 +98,6 @@ export function ScanErrorScreen({
           errorMessage: appStrings.warningScannerMismatchedPrecinct(),
           caption: appStrings.instructionsAskForHelp(),
         };
-      case 'bmd_ballot_scanning_disabled':
-        return {
-          title: appStrings.titleScannerBmdBallot(),
-          errorMessage: appStrings.warningScannerBmdBallotScanningDisabled(),
-          caption: appStrings.instructionsAskForHelp(),
-        };
       // non-restart scanner errors
       case 'double_feed_detected':
         return {

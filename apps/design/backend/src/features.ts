@@ -36,11 +36,6 @@ export interface UserFeaturesConfig {
    */
   SYSTEM_SETTINGS_SCREEN?: boolean;
   /**
-   * Allow the user to toggle VxScan's ability to scan BMD ballots.
-   * Requires the system settings screen to be enabled.
-   */
-  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING?: boolean;
-  /**
    * Allow the user to toggle VxScan's alarms.
    * Requires the system settings screen to be enabled.
    */
@@ -207,7 +202,6 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
-  VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING: true,
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
   VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,

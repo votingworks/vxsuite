@@ -681,23 +681,6 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
-            {features.VXSCAN_BMD_BALLOT_SCANNING_SYSTEM_SETTING && (
-              <CheckboxButton
-                label="Enable Summary Ballot Scanning on VxScan"
-                isChecked={Boolean(
-                  systemSettings.precinctScanEnableBmdBallotScanning
-                )}
-                onChange={(isChecked) =>
-                  setSystemSettings({
-                    ...systemSettings,
-                    precinctScanEnableBmdBallotScanning: isChecked
-                      ? true
-                      : undefined, // Completely omit when unchecked
-                  })
-                }
-                disabled={!isEditing}
-              />
-            )}
             {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Disable Alarms on VxScan"
