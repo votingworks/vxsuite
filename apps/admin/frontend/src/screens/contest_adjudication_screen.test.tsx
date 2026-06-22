@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   readElectionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -252,6 +253,7 @@ function renderScreen(
     writeInCandidates = [] as WriteInCandidateRecord[],
     onConfirmContest = vi.fn(),
     adjudicatedOptions,
+    selectedStraightPartyId,
   }: {
     areWriteInCandidatesQualified?: boolean;
     ballotImages?: BallotImages;
@@ -261,6 +263,7 @@ function renderScreen(
     writeInCandidates?: WriteInCandidateRecord[];
     onConfirmContest?: (input: AdjudicatedCvrContest) => void;
     adjudicatedOptions?: AdjudicatedContestOptions;
+    selectedStraightPartyId?: string;
   } = {}
 ) {
   const images =
@@ -279,6 +282,7 @@ function renderScreen(
         writeInCandidates={writeInCandidates}
         onConfirmContest={onConfirmContest}
         adjudicatedOptions={adjudicatedOptions}
+        selectedStraightPartyId={selectedStraightPartyId}
       />,
       { electionDefinition: electionDef, apiMock }
     ),
@@ -1817,5 +1821,84 @@ describe('candidate ordering', () => {
       name: /Thomas Edison/i,
     });
     expect(edisonCheckboxes).toHaveLength(1);
+  });
+});
+
+describe('straight party voting', () => {
+  const straightPartyElectionDefinition =
+    electionStraightPartyFixtures.readElectionDefinition();
+  const cvrId = 'sp-cvr';
+
+  test('renders derived straight-party votes as checked', async () => {
+    const data = buildContestAdjudicationData({
+      electionDef: straightPartyElectionDefinition,
+      contestId: 'president',
+    });
+    renderScreen(data, cvrId, {
+      electionDef: straightPartyElectionDefinition,
+      ballotImages: buildBmdBallotImages(cvrId),
+      selectedStraightPartyId: '0',
+    });
+
+    await waitForBallotById(cvrId);
+
+    expect(getCheckboxByName('Barchi')).toBeChecked();
+    expect(getCheckboxByName('Cramer')).not.toBeChecked();
+  });
+
+  test('captions candidates with their party name and "Straight party vote"', async () => {
+    const data = buildContestAdjudicationData({
+      electionDef: straightPartyElectionDefinition,
+      contestId: 'president',
+      votes: ['barchi-hallaren'],
+    });
+    renderScreen(data, cvrId, {
+      electionDef: straightPartyElectionDefinition,
+      ballotImages: buildBmdBallotImages(cvrId),
+      selectedStraightPartyId: '0',
+    });
+
+    await waitForBallotById(cvrId);
+
+    const partyCheckbox = getCheckboxByName('Barchi');
+    expect(partyCheckbox).toHaveTextContent(
+      'Federalist Party - Straight party vote'
+    );
+    const otherPartyCheckbox = getCheckboxByName('Cramer');
+    expect(otherPartyCheckbox).toHaveTextContent('People');
+    expect(otherPartyCheckbox).not.toHaveTextContent('Straight party vote');
+  });
+
+  test('omits candidate party caption for candidates without a party', async () => {
+    const data = buildContestAdjudicationData({
+      electionDef: straightPartyElectionDefinition,
+      contestId: 'county-registrar-of-wills',
+    });
+    renderScreen(data, cvrId, {
+      electionDef: straightPartyElectionDefinition,
+      ballotImages: buildBmdBallotImages(cvrId),
+      selectedStraightPartyId: '0',
+    });
+
+    await waitForBallotById(cvrId);
+
+    expect(getCheckboxByName('Ramachandrani')).toBeInTheDocument();
+    expect(screen.queryByText(/Straight party vote/)).not.toBeInTheDocument();
+  });
+
+  test('omits option party caption for non-candidate contests', async () => {
+    const data = buildContestAdjudicationData({
+      electionDef: straightPartyElectionDefinition,
+      contestId: 'question-a',
+    });
+    renderScreen(data, cvrId, {
+      electionDef: straightPartyElectionDefinition,
+      ballotImages: buildBmdBallotImages(cvrId),
+      selectedStraightPartyId: '0',
+    });
+
+    await waitForBallotById(cvrId);
+
+    expect(screen.queryByText(/Straight party vote/)).not.toBeInTheDocument();
   });
 });

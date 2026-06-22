@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
   electionOpenPrimaryFixtures,
+  electionStraightPartyFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -8,7 +9,6 @@ import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import type { BallotPageLayout, Rect } from '@votingworks/types';
 import type {
@@ -46,6 +46,9 @@ const { election: primaryElection } = electionDefinition;
 const openPrimaryDefinition =
   electionOpenPrimaryFixtures.readElectionDefinition();
 const openPrimaryElection = openPrimaryDefinition.election;
+const straightPartyElectionDefinition =
+  electionStraightPartyFixtures.readElectionDefinition();
+const straightPartyElection = straightPartyElectionDefinition.election;
 
 let apiMock: ApiMock;
 
@@ -97,9 +100,20 @@ function makeContestAdjudicationData(
       tag,
     };
   }
-  /* istanbul ignore next */
   if (contest.type === 'straight-party') {
-    straightPartyNotYetImplemented();
+    return {
+      contestId,
+      options: contest.optionIds.map((partyId) => ({
+        definition: {
+          id: partyId,
+          contestId,
+          type: 'straight-party' as const,
+        },
+        scannedVote: false,
+        hasMarginalMark: false,
+      })),
+      tag,
+    };
   }
   return {
     contestId,
@@ -2165,6 +2179,96 @@ test('crossover voting created indicator persists when the ballot is resolved', 
   getContestListItem(/Democratic Party/).getByText('Crossover vote created');
   getContestListItem(/Republican Party/).getByText('Crossover vote created');
   expect(screen.queryByText(/Crossover Voting/)).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('straight party derived votes update when the straight party contest is adjudicated', async () => {
+  const straightPartyContest = makeContestAdjudicationData(
+    'straight-party-ticket',
+    makeContestTag({ hasWriteIn: false }),
+    straightPartyElection
+  );
+  // Set up a scanned straight party vote for the Federalist Party
+  assertDefined(
+    straightPartyContest.options.find((o) => o.definition.id === '0')
+  ).scannedVote = true;
+  const presidentContest = makeContestAdjudicationData(
+    'president',
+    makeContestTag({ hasWriteIn: false }),
+    straightPartyElection
+  );
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    straightPartyContest,
+    presidentContest,
+  ]);
+
+  const ballotCoordinates = { x: 0, y: 0, width: 1000, height: 1000 } as const;
+  const ballotImages: BallotImages = {
+    cvrId: CVR_ID_1,
+    front: {
+      type: 'hmpb',
+      imageUrl: `mock-front-image-${CVR_ID_1}`,
+      ballotCoordinates,
+      layout: makeHmpbPageLayout(['straight-party-ticket', 'president']),
+    },
+    back: {
+      type: 'hmpb',
+      imageUrl: `mock-back-image-${CVR_ID_1}`,
+      ballotCoordinates,
+      layout: makeHmpbPageLayout([]),
+    },
+  };
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
+  apiMock.expectGetWriteInCandidates(
+    [],
+    adjData.contests.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(ballotImages);
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: straightPartyElectionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText(/Ballot ID:/);
+
+  // Federalist candidate in President should show as a derived vote
+  userEvent.click(screen.getByText('President and Vice-President'));
+  expect(
+    await screen.findByRole('checkbox', { name: /Barchi/i })
+  ).toHaveTextContent('Federalist Party - Straight party vote');
+  expect(screen.getByRole('checkbox', { name: /Barchi/i })).toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: /Cramer/i })
+  ).not.toHaveTextContent('Straight party vote');
+  expect(screen.getByRole('checkbox', { name: /Cramer/i })).not.toBeChecked();
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  // Adjudicate the straight party contest from Federalist to People's Party
+  userEvent.click(await screen.findByText('Straight Party'));
+  userEvent.click(await screen.findByRole('checkbox', { name: /Federalist/i }));
+  userEvent.click(screen.getByRole('checkbox', { name: /People/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+
+  // The derived vote has updated to the People's Party candidate
+  userEvent.click(await screen.findByText('President and Vice-President'));
+  expect(
+    await screen.findByRole('checkbox', { name: /Cramer/i })
+  ).toHaveTextContent('Straight party vote');
+  expect(screen.getByRole('checkbox', { name: /Cramer/i })).toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: /Barchi/i })
+  ).not.toHaveTextContent('Straight party vote');
+  expect(screen.getByRole('checkbox', { name: /Barchi/i })).not.toBeChecked();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
