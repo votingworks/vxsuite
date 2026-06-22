@@ -5,6 +5,7 @@ import { Button, ButtonProps } from './button';
 
 /** Props for {@link SegmentedButton}. */
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
+  collapseLeft?: boolean;
   disabled?: boolean;
   hideLabel?: boolean;
   /**
@@ -43,6 +44,7 @@ const LabelContainer = styled.div`
 `;
 
 interface OptionsContainerProps {
+  collapseLeft?: boolean;
   isVertical?: boolean;
   disabled?: boolean;
 }
@@ -62,6 +64,17 @@ const desktopStyles = css<OptionsContainerProps>`
   }
 `;
 
+const collapseLeftCss = css`
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+
+  > :first-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+`;
+
 const OptionsContainer = styled.span<OptionsContainerProps>`
   background: ${(p) => p.theme.colors.containerLow};
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
@@ -73,6 +86,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   padding: ${(p) => (p.theme.sizeMode === 'desktop' ? undefined : '0.75rem')};
 
   ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
+  ${(p) => /* istanbul ignore next */ p.collapseLeft && collapseLeftCss}
 `;
 
 type OptionButtonProps<T extends SegmentedButtonOptionId> = ButtonProps<T> & {
@@ -118,6 +132,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
     selectedOptionId,
     vertical,
     className,
+    collapseLeft,
   } = props;
 
   return (
@@ -128,6 +143,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
         aria-disabled={disabled}
         aria-label={label}
         aria-orientation={vertical ? 'vertical' : 'horizontal'}
+        collapseLeft={collapseLeft}
         isVertical={vertical}
         role="listbox"
       >
