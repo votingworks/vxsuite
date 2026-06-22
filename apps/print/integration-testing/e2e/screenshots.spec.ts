@@ -308,8 +308,11 @@ test('election manager: print screen options', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Print Ballot' }).waitFor();
   await screenshot('em-print-no-selections');
 
-  // Make selections: split, then party (language defaults to English).
-  await page.getByText('Precinct 4 - Split 1', { exact: true }).click();
+  // Make selections: precinct, split, then party (language defaults to English).
+  await page.getByRole('option', { name: 'Precinct 4', exact: true }).click();
+  await page
+    .getByRole('option', { name: 'Precinct 4 - Split 1', exact: true })
+    .click();
   await page.getByRole('radio', { name: partyName }).click();
   await screenshot('em-print-with-selections');
 
