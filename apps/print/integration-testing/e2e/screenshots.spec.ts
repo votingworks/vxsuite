@@ -10,6 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   buildIntegrationTestHelper,
+  captureReadinessReport,
   createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
 import {
@@ -94,8 +95,11 @@ test('election manager: configuration and settings', async ({
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
   const usbHandler = getMockFileUsbDriveHandler();
-  const { screenshot, screenshotWithButtonHighlight } =
-    buildIntegrationTestHelper(page, namer);
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    withContainerVerticallyExpanded,
+  } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
 
   // Locked, unconfigured: prompt to insert an election manager card.
@@ -240,6 +244,28 @@ test('election manager: configuration and settings', async ({
     .click();
   await page.getByRole('alertdialog').waitFor({ state: 'hidden' });
   await page.unroute('**/api/generateSignedHashValidationQrCodeValue');
+
+  // Diagnostics screen (full height — the readiness report content can exceed
+  // the viewport, so grow the window to capture it all).
+  await navigateTo(page, 'Diagnostics');
+  await page.getByRole('heading', { name: 'Diagnostics' }).waitFor();
+  await withContainerVerticallyExpanded('main', async () => {
+    await screenshot('em-diagnostics-full');
+  });
+
+  // Save the readiness report to the USB drive (still inserted from
+  // configuration), then capture the saved PDF.
+  await page.getByRole('button', { name: 'Save Readiness Report' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
+  await page.getByText('Readiness Report Saved').waitFor();
+  await captureReadinessReport('readiness-report', namer);
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Close' })
+    .click();
 
   // Election screen — unconfigure machine.
   await navigateTo(page, 'Election');
