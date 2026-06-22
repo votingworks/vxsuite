@@ -1,7 +1,6 @@
 import { promises as fs } from 'node:fs';
 import {
   assert,
-  assertDefined,
   err,
   integers,
   ok,
@@ -262,7 +261,7 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
           .toArray(),
       ];
     case 'measure':
-      return [contest.yesOption.id, contest.noOption.id];
+      return [...contest.options.map((option) => option.id)];
     case 'straight-party':
       return [...contest.optionIds];
     default:
