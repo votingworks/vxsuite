@@ -100,6 +100,7 @@ function setupStore(
       electionId,
       mockCastVoteRecordFile: cvrs,
       store,
+      pollingPlaceId: 'polling-place-1',
     });
   }
   return { store, electionId, electionDefinition };

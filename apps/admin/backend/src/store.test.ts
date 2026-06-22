@@ -288,6 +288,7 @@ test('delete empty scanner batches', () => {
         card: { type: 'bmd' },
       },
     ],
+    pollingPlaceId: 'polling-place-1',
   });
 
   const emptyBatch: ScannerBatch = {
@@ -864,6 +865,7 @@ describe('machine ballot adjudication assignments', () => {
           card: { type: 'bmd' },
         },
       ],
+      pollingPlaceId: 'polling-place-1',
     });
     return assertDefined(cvrIds[0]);
   }

@@ -748,6 +748,7 @@ test('general, reports grouped by voting method with early voting data', async (
     electionId,
     mockCastVoteRecordFile,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const tallyReportList = await apiClient.getResultsForTallyReports({
@@ -839,6 +840,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
     electionId,
     mockCastVoteRecordFile: mockEarlyVotingCvrs,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const tallyReportList = await apiClient.getResultsForTallyReports({
@@ -940,6 +942,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
     electionId,
     mockCastVoteRecordFile,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   // Gather write-ins from the adjudication queue
@@ -1198,6 +1201,7 @@ test('open primary, grouped by precinct', async () => {
     electionId,
     mockCastVoteRecordFile,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const tallyReports = await apiClient.getResultsForTallyReports({

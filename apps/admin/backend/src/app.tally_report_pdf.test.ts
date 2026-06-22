@@ -566,6 +566,7 @@ test('tally report PDF - open primary', async () => {
     electionId,
     mockCastVoteRecordFile,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   // shows report populated with data

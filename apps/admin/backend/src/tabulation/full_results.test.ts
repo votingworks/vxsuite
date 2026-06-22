@@ -184,7 +184,12 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 34,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   // because we're only testing filtering and grouping, these results can be simple
   function getMockElectionResults(

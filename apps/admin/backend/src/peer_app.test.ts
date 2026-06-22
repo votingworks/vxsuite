@@ -271,6 +271,7 @@ function addTestCvrs(
     electionId,
     mockCastVoteRecordFile: mockFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
 }
 
@@ -514,6 +515,7 @@ function addCvrWithImages(
     electionId,
     mockCastVoteRecordFile: mockFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   const cvrId = assertDefined(cvrIds[0]);
   const { electionDefinition } = assertDefined(store.getElection(electionId));

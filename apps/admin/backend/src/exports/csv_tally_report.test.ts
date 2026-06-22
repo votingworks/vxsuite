@@ -48,7 +48,12 @@ test('uses appropriate headers', async () => {
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const SHARED_HEADERS = [
     'Contest',
@@ -393,7 +398,12 @@ test('incorporates manual data', async () => {
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   store.setManualResults({
     electionId,
@@ -497,7 +507,12 @@ test('separate rows for manual data when grouping by an incompatible dimension',
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   store.setManualResults({
     electionId,
@@ -666,7 +681,12 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const iterable = generateTallyReportCsv({
     store,

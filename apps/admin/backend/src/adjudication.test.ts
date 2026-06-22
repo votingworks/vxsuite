@@ -57,6 +57,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', () => {
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -156,6 +157,7 @@ test('adjudicateCvr write-in logging and candidate cleanup', () => {
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -337,6 +339,7 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -486,6 +489,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', () => {
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -739,6 +743,7 @@ test('blank ballot appears in adjudication queue when BlankBallot reason is enab
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -784,6 +789,7 @@ test('blank ballot does not appear in adjudication queue when BlankBallot reason
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -821,6 +827,7 @@ test('marginal mark CVR does not appear in adjudication queue when MarginalMark 
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -859,6 +866,7 @@ test('CVR with only an unmarked write-in appears in adjudication queue', () => {
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -902,6 +910,7 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
 
@@ -989,6 +998,7 @@ test('open primary crossover vote', () => {
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(crossoverCvrId !== undefined);
   assert(singlePartyCvrId !== undefined);

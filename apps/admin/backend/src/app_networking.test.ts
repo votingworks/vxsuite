@@ -9,6 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   Admin,
+  anyPollingPlace,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -391,6 +392,7 @@ function addElectionWithAdjudicableCvrs(
       votes: { 'zoo-council-mammal': ['write-in-0'] },
       card: { type: 'bmd' },
     })),
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     store,
   });
   return { electionId, cvrIds };

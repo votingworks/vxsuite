@@ -243,7 +243,12 @@ test('tabulateWriteInTallies', () => {
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   // because we're only testing filtering
   function getMockElectionWriteInSummary(
@@ -497,6 +502,7 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
       },
     ],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const chimera = store.addWriteInCandidate({
@@ -568,6 +574,7 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
       },
     ],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const chimera = store.addWriteInCandidate({

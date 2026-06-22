@@ -112,6 +112,7 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
     electionId,
     mockCastVoteRecordFile,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   // Multiplier expands rows in order, so:
   //   cvrIds[0..1] = Dem-only (HMPB sheet 1)
@@ -237,6 +238,7 @@ export async function seedOpenPrimaryWriteIns({
     electionId,
     mockCastVoteRecordFile: file,
     store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   const demCandidate = await apiClient.addWriteInCandidate({
