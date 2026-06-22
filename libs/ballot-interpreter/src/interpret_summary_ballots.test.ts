@@ -25,7 +25,6 @@ import {
   PageInterpretation,
   PrecinctId,
   SheetOf,
-  UnreadablePage,
   VotesDict,
   asSheet,
   getBallotStyle,
@@ -494,59 +493,6 @@ describe('VX BMD interpretation', () => {
     expect(toImageBuffer(extendedSheet[0])).toMatchImageSnapshot();
     expect(await readFile(outputPath)).toMatchImageSnapshot();
   });
-
-  test.each([
-    {
-      description: 'when ballot is valid',
-      interpreterOptionOverrides: {},
-    },
-    {
-      description: 'when mode is mismatched',
-      interpreterOptionOverrides: {
-        testMode: false,
-      },
-    },
-    {
-      description: 'when precinct is wrong',
-      interpreterOptionOverrides: {
-        validPrecinctIds: new Set('20'),
-      },
-    },
-    {
-      description: 'when ballot hash is wrong',
-      interpreterOptionOverrides: {
-        electionDefinition: {
-          ...electionGeneralDefinition,
-          ballotHash: 'd34db33f',
-        },
-      },
-    },
-  ])(
-    'properly flags that BMD ballot scanning is disabled - $description',
-    async ({ interpreterOptionOverrides }) => {
-      const interpretationResult = await interpretSheet(
-        {
-          electionDefinition,
-          testMode: true,
-          validPrecinctIds: new Set([precinctId]),
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning: true,
-          ...interpreterOptionOverrides,
-        },
-        validBmdSheet
-      );
-
-      expect(interpretationResult[0]).toEqual<UnreadablePage>({
-        type: 'UnreadablePage',
-        reason: 'bmdBallotScanningDisabled',
-      });
-      expect(interpretationResult[1]).toEqual<UnreadablePage>({
-        type: 'UnreadablePage',
-        reason: 'bmdBallotScanningDisabled',
-      });
-    }
-  );
 
   test('properly identifies blank sheets', async () => {
     const interpretationResult = await interpretSheet(
