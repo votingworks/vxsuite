@@ -760,7 +760,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           message: (error as Error).message,
         });
 
-        throw err;
+        throw error;
       }
     },
 
