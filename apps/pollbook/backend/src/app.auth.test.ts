@@ -3,6 +3,7 @@ import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -62,9 +63,11 @@ describe('generateSignedHashValidationQrCodeValue', () => {
         new Error('oops')
       );
 
-      await expect(
-        localApiClient.generateSignedHashValidationQrCodeValue
-      ).rejects.toThrow();
+      await suppressingConsoleOutput(() =>
+        expect(
+          localApiClient.generateSignedHashValidationQrCodeValue
+        ).rejects.toThrow()
+      );
     });
   });
 });
