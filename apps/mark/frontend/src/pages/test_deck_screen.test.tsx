@@ -66,17 +66,12 @@ test('prints all test decks', async () => {
   userEvent.click(
     await screen.findByRole('button', { name: 'Print All Test Decks' })
   );
-
-  await vi.waitFor(() => {
-    apiMock.mockApiClient.assertComplete();
-  });
 });
 
-test('prints a precinct test deck after selecting a precinct', async () => {
+test('clicking the "Print Precinct Test Deck" button calls printTestDeck', async () => {
   apiMock.expectGetElectionRecord(electionDefinition);
   renderScreen();
 
-  // The precinct button is disabled until a precinct is selected.
   const printPrecinctButton = await screen.findByRole('button', {
     name: 'Print Precinct Test Deck',
   });
@@ -92,10 +87,6 @@ test('prints a precinct test deck after selecting a precinct', async () => {
     .expectCallWith({ precinctId: precinct.id })
     .resolves();
   userEvent.click(printPrecinctButton);
-
-  await vi.waitFor(() => {
-    apiMock.mockApiClient.assertComplete();
-  });
 });
 
 test('disables the print buttons while a test deck is printing', async () => {

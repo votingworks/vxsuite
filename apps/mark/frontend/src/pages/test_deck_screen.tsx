@@ -56,7 +56,7 @@ export function TestDeckScreen({
         </P>
         <P>
           <SearchSelect
-            aria-label="Select a precinct…"
+            aria-label="Select a precinct"
             isMulti={false}
             isSearchable
             options={precincts.map((precinct) => ({
