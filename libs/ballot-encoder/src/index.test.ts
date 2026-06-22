@@ -1,5 +1,8 @@
 import { expect, test } from 'vitest';
-import { readElectionGeneralDefinition as readElectionDefinition } from '@votingworks/fixtures';
+import {
+  readElectionGeneralDefinition as readElectionDefinition,
+  readElectionStraightPartyDefinition,
+} from '@votingworks/fixtures';
 import {
   BallotType,
   Candidate,
@@ -325,6 +328,36 @@ test('encodes & decodes multi-page summary ballot with yes/no votes', () => {
     pageNumber: 1,
     totalPages: 1,
     ballotAuditId: 'yesno-audit-id',
+    contests: pageContests,
+    votes,
+  };
+
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+
+  expect(decoded.votes).toEqual(votes);
+});
+
+test('encodes & decodes summary ballot with a straight party contest vote', () => {
+  const electionDefinition = readElectionStraightPartyDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.filter((c) => c.id === 'straight-party-ticket');
+  const votes = vote(pageContests, {
+    'straight-party-ticket': ['0'],
+  });
+
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'straight-party-audit-id',
     contests: pageContests,
     votes,
   };
