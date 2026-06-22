@@ -990,6 +990,7 @@ export class Store implements BaseStore {
     exportedTimestamp,
     sha256Hash,
     scannerIds,
+    pollingPlaceIds,
   }: {
     id: Id;
     electionId: Id;
@@ -998,6 +999,7 @@ export class Store implements BaseStore {
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
     scannerIds: Set<string>;
+    pollingPlaceIds: Set<string>;
   }): void {
     this.client.run(
       `
@@ -1009,9 +1011,10 @@ export class Store implements BaseStore {
           export_timestamp,
           precinct_ids,
           scanner_ids,
+          polling_place_ids,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1021,6 +1024,7 @@ export class Store implements BaseStore {
       exportedTimestamp,
       JSON.stringify([]),
       JSON.stringify([...scannerIds]),
+      JSON.stringify([...pollingPlaceIds]),
       sha256Hash
     );
   }
@@ -1432,6 +1436,7 @@ export class Store implements BaseStore {
         filename,
         export_timestamp as exportTimestamp,
         count(cvr_id) as numCvrsImported,
+        polling_place_ids as pollingPlaceIds,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
@@ -1456,6 +1461,7 @@ export class Store implements BaseStore {
       filename: string;
       exportTimestamp: string;
       numCvrsImported: number;
+      pollingPlaceIds: string;
       precinctIds: string;
       scannerIds: string;
       sha256Hash: string;
@@ -1474,6 +1480,7 @@ export class Store implements BaseStore {
             result.exportTimestamp
           ),
           numCvrsImported: result.numCvrsImported,
+          pollingPlaceIds: safeParseJson(result.pollingPlaceIds).unsafeUnwrap(),
           precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
           scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),
