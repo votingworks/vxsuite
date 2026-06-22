@@ -3,6 +3,7 @@ use std::{fmt::Debug, mem::swap};
 /// Represents a pair of two values of the same type. This type is useful for
 /// doing similar things to what you might do with iterables, but optimized for
 /// collections with exactly two elements such as ballot card pages.
+#[derive(Clone)]
 pub struct Pair<T> {
     first: T,
     second: T,
