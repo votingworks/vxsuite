@@ -150,11 +150,6 @@ export const SystemSettingsSchema = z
     precinctScanEnableBallotAuditIds: z.boolean().optional(),
 
     /**
-     * Enables BMD ballot scanning on VxScan. If unspecified, BMD ballots will be rejected on VxScan.
-     */
-    precinctScanEnableBmdBallotScanning: z.boolean().optional(),
-
-    /**
      * We detect the print scale of ballots and reject those with a detected scale less than
      * {@link DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE} to prevent issues with bubble scoring on ballots
      * that are printed at too low of a scale. This setting allows overriding that default value. The
@@ -368,5 +363,4 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
 
   maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
-  precinctScanEnableBmdBallotScanning: true,
 };
