@@ -7,7 +7,14 @@ import {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import { getContestDistrictName, Id } from '@votingworks/types';
+import {
+  CandidateContest,
+  CandidateId,
+  Election,
+  getContestDistrictName,
+  Id,
+  PartyId,
+} from '@votingworks/types';
 import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import type {
@@ -121,6 +128,10 @@ const ContestOptionButtonCaption = styled.span`
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
+const ContestOptionPartyCaption = styled.div`
+  font-size: 0.75rem;
+`;
+
 const CompactH1 = styled(H1)`
   font-size: 1.125rem;
   margin: 0;
@@ -192,6 +203,32 @@ function renderContestOptionButtonCaption({
   );
 }
 
+function CandidateOptionPartyCaption({
+  contest,
+  candidateId,
+  election,
+  selectedStraightPartyId,
+}: {
+  contest: CandidateContest;
+  candidateId: CandidateId;
+  election: Election;
+  selectedStraightPartyId?: PartyId;
+}) {
+  const candidate = find(contest.candidates, (c) => c.id === candidateId);
+  const parties = (candidate.partyIds ?? []).map((partyId) =>
+    find(election.parties, (party) => party.id === partyId)
+  );
+  if (parties.length === 0) return null;
+  const partyNames = parties.map((p) => p.fullName).join(', ');
+  return (
+    <ContestOptionPartyCaption>
+      {partyNames}
+      {parties.some((party) => party.id === selectedStraightPartyId) &&
+        ' - Straight party vote'}
+    </ContestOptionPartyCaption>
+  );
+}
+
 interface ContestAdjudicationScreenProps {
   areWriteInCandidatesQualified: boolean;
   ballotImages: BallotImages;
@@ -201,7 +238,7 @@ interface ContestAdjudicationScreenProps {
   onConfirmContest: (input: AdjudicatedCvrContest) => void;
   adjudicatedOptions?: AdjudicatedContestOptions;
   writeInCandidates: WriteInCandidateRecord[];
-  selectedStraightPartyId?: string;
+  selectedStraightPartyId?: PartyId;
 }
 
 export function ContestAdjudicationScreen({
@@ -223,6 +260,9 @@ export function ContestAdjudicationScreen({
   const contest = find(election.contests, (c) => c.id === contestId);
   const isCandidateContest = contest.type === 'candidate';
   const partyLabel = contestPartyLabel(election, contest);
+  const electionHasStraightPartyContest = election.contests.some(
+    (c) => c.type === 'straight-party'
+  );
 
   const officialOptions = useMemo(
     () =>
@@ -403,11 +443,25 @@ export function ContestAdjudicationScreen({
           </BallotVoteCount>
           <ContestOptionButtonList role="listbox">
             {officialOptions.map((officialOption) => {
-              const { id: optionId, name: optionLabel } = officialOption;
+              const { id: optionId, name: optionName } = officialOption;
+
               const { scannedVote } = assertDefined(
                 contestOptions.find((o) => o.definition.id === optionId)
               );
               const currentVote = getOptionHasVote(optionId);
+              const optionLabel = (
+                <div>
+                  <div>{optionName}</div>
+                  {electionHasStraightPartyContest && isCandidateContest && (
+                    <CandidateOptionPartyCaption
+                      contest={contest}
+                      candidateId={optionId}
+                      election={election}
+                      selectedStraightPartyId={selectedStraightPartyId}
+                    />
+                  )}
+                </div>
+              );
               const isDerivedVote =
                 derivedStraightPartyVotes.includes(optionId);
               const marginalMarkStatus = getOptionMarginalMarkStatus(optionId);
@@ -435,7 +489,7 @@ export function ContestAdjudicationScreen({
                     isBmd ||
                     // Disabled when there is a write-in selection for the candidate
                     (!currentVote &&
-                      selectedCandidateNames.includes(optionLabel))
+                      selectedCandidateNames.includes(optionName))
                   }
                   caption={renderContestOptionButtonCaption({
                     scannedVote,

@@ -5,7 +5,12 @@ import type {
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import type { ContestOptionId, Contest, Election } from '@votingworks/types';
+import type {
+  ContestOptionId,
+  Contest,
+  Election,
+  PartyId,
+} from '@votingworks/types';
 import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 
 import {
@@ -93,7 +98,7 @@ export function useContestAdjudicationState(initialValues: {
   writeInCandidates: WriteInCandidateRecord[];
   contest: Contest;
   adjudicatedOptions?: AdjudicatedContestOptions;
-  selectedStraightPartyId?: string;
+  selectedStraightPartyId?: PartyId;
 }): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;

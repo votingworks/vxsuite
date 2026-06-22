@@ -12,6 +12,7 @@ import {
   ContestId,
   ContestOptionId,
   Election,
+  PartyId,
   Rect,
   Side,
   Vote,
@@ -216,7 +217,7 @@ export function contestPartyLabel(
 export function selectedStraightPartyIdAfterAdjudication(
   election: Election,
   votesAfterAdjudication: VotesDict
-): string | undefined {
+): PartyId | undefined {
   const straightPartyContest = election.contests.find(
     (contest) => contest.type === 'straight-party'
   );
