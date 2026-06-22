@@ -142,6 +142,14 @@ export function createTestElection(
     parties: [party],
     districts: [district],
     precincts: [precinct],
+    pollingPlaces: [
+      {
+        id: 'polling-place-1',
+        name: precinct.name,
+        precincts: { [precinct.id]: { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
     ballotStyles: [ballotStyle],
     contests,
     ballotLayout: {

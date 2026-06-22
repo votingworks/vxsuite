@@ -26,7 +26,7 @@ const generalElection = convertMsElection(
 const generalElectionDefinition = safeParseElectionDefinition(
   JSON.stringify({
     ...generalElection,
-    // Add a dummy ballot style to satisfy validation
+    // Add a dummy ballot style and polling place to satisfy validation
     ballotStyles: [
       {
         id: 'dummy',
@@ -34,6 +34,14 @@ const generalElectionDefinition = safeParseElectionDefinition(
         precincts: [],
         districts: [],
         languages: ['en'],
+      },
+    ],
+    pollingPlaces: [
+      {
+        id: 'dummy',
+        name: 'dummy',
+        precincts: {},
+        type: 'election_day',
       },
     ],
   })
@@ -47,7 +55,7 @@ const primaryElection = convertMsElection(
 const primaryElectionDefinition = safeParseElectionDefinition(
   JSON.stringify({
     ...primaryElection,
-    // Add a dummy ballot style to satisfy validation
+    // Add a dummy ballot style and polling place to satisfy validation
     ballotStyles: [
       {
         id: 'dummy',
@@ -56,6 +64,14 @@ const primaryElectionDefinition = safeParseElectionDefinition(
         districts: [],
         partyId: primaryElection.parties[0].id,
         languages: ['en'],
+      },
+    ],
+    pollingPlaces: [
+      {
+        id: 'dummy',
+        name: 'dummy',
+        precincts: {},
+        type: 'election_day',
       },
     ],
   })

@@ -94,14 +94,14 @@ test('convert MS results', async () => {
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(vxUser);
+  auth0.setLoggedInUser(anotherNonVxUser);
 
   // Load the election
   const electionId = unsafeParse(ElectionIdSchema, 'election-3');
   (
     await apiClient.loadElection({
       newId: electionId,
-      jurisdictionId: vxJurisdiction.id,
+      jurisdictionId: msJurisdiction.id,
       upload: {
         format: 'ms-sems',
         electionFileContents: readFixture('ms-sems-election-general-10.csv'),
@@ -139,7 +139,7 @@ test('convert MS results', async () => {
   });
   const electionPackageContents = getExportedFile({
     storage: fileStorageClient,
-    jurisdictionId: vxJurisdiction.id,
+    jurisdictionId: msJurisdiction.id,
     url: exportMeta.electionPackageUrl,
   });
   const { electionPackage } = (

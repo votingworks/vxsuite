@@ -59,7 +59,7 @@ export function regenerateElectionIds(
   precincts: Precinct[];
   parties: Party[];
   contests: Contest[];
-  pollingPlaces?: PollingPlace[];
+  pollingPlaces: PollingPlace[];
 } {
   const idMap = new Map<string, string>();
   function replaceId<T extends string>(id: T): T {
@@ -136,10 +136,11 @@ export function regenerateElectionIds(
     })(),
   }));
 
-  const pollingPlaces: PollingPlace[] | undefined = (() => {
+  const pollingPlaces: PollingPlace[] = (() => {
     // Note: For states where editing is not enabled, polling places are
-    // generated at export-time.
-    if (!stateFeatures.EDIT_POLLING_PLACES) return undefined;
+    // generated at export-time (see addPollingPlacesForExport), so leave them
+    // empty here.
+    if (!stateFeatures.EDIT_POLLING_PLACES) return [];
 
     if (!election.pollingPlaces?.length) {
       return pollingPlacesGenerateFromPrecincts(

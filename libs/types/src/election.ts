@@ -725,7 +725,7 @@ export interface Election {
   readonly gridLayouts?: readonly GridLayout[];
   readonly id: ElectionId;
   readonly parties: Parties;
-  readonly pollingPlaces?: readonly PollingPlace[];
+  readonly pollingPlaces: readonly PollingPlace[];
   readonly precincts: readonly Precinct[];
   readonly seal: string;
   readonly signature?: Signature;
@@ -746,7 +746,7 @@ export const ElectionSchema = z
     districts: DistrictsSchema,
     id: ElectionIdSchema,
     parties: PartiesSchema,
-    pollingPlaces: PollingPlacesSchema.optional(),
+    pollingPlaces: PollingPlacesSchema,
     precincts: PrecinctsSchema,
     seal: z.string(),
     signature: SignatureSchema.optional(),

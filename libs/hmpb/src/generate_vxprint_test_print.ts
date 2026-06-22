@@ -59,6 +59,14 @@ function makeElection(): Election {
     precincts: [
       { id: PRECINCT_ID, name: 'Test Precinct', districtIds: [DISTRICT_ID] },
     ],
+    pollingPlaces: [
+      {
+        id: 'polling-place-1',
+        name: 'Test Precinct',
+        precincts: { [PRECINCT_ID]: { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
     contests,
     ballotStyles: [
       {

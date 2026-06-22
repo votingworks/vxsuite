@@ -60803,6 +60803,18 @@
   ],
   "id": "all-bubble-ballot-election",
   "parties": [],
+  "pollingPlaces": [
+    {
+      "id": "polling-place-1",
+      "name": "Test Precinct",
+      "precincts": {
+        "test-precinct": {
+          "type": "whole"
+        }
+      },
+      "type": "election_day"
+    }
+  ],
   "precincts": [
     {
       "districtIds": [

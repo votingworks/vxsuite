@@ -383,6 +383,17 @@ export function convertMsElection(
     jurisdiction,
     districts,
     precincts,
+    // Polling places are generated at export-time (see
+    // addPollingPlacesForExport) for MS, but need a dummy place to pass
+    // validation.
+    pollingPlaces: [
+      {
+        id: 'dummy',
+        name: 'dummy',
+        precincts: {},
+        type: 'election_day',
+      },
+    ],
     parties,
     contests,
     seal,
@@ -407,6 +418,7 @@ export function convertMsElection(
   const validElection = safeParseVxfElection(election).unsafeUnwrap();
   return {
     ...validElection,
+    pollingPlaces: [],
     ballotStyles: [],
   };
 }

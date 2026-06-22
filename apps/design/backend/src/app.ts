@@ -155,6 +155,7 @@ export function createBlankElection(
     seal: '',
     districts: [],
     precincts: [],
+    pollingPlaces: [],
     contests: [],
     parties: [],
     ballotStyles: [],

@@ -1222,7 +1222,7 @@ export class Store {
             : undefined,
         districts,
         precincts,
-        pollingPlaces: pollingPlaces.length > 0 ? pollingPlaces : undefined,
+        pollingPlaces,
         ballotStyles,
         parties,
         contests,

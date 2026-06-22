@@ -91,6 +91,14 @@ export function createElection({
         districtIds: [districtId],
       },
     ],
+    pollingPlaces: [
+      {
+        id: 'polling-place-1',
+        name: 'Test Precinct',
+        precincts: { [precinctId]: { type: 'whole' } },
+        type: 'election_day',
+      },
+    ],
     state: 'Test State',
     title: 'Test Election - All Bubble Ballot',
     type: 'general',

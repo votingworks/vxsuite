@@ -8,7 +8,10 @@ import {
   ElectionDefinition,
   ElectionSchema,
   JurisdictionSchema,
+  PollingPlace,
+  PollingPlacesSchema,
 } from './election';
+import { pollingPlacesGenerateFromPrecincts } from './polling_places';
 import { safeParseElectionDefinition } from './election_parsing';
 import { safeParse, safeParseJson } from './generic';
 import { ElectionStringKey, UiStringsPackage } from './ui_string_translations';
@@ -44,14 +47,19 @@ const BallotStyleV4p0Schema = BallotStyleSchema.extend({
   languages: z.array(z.string()).optional(),
 });
 
-type ElectionV4p0 = Omit<Election, 'type' | 'jurisdiction' | 'ballotStyles'> & {
+type ElectionV4p0 = Omit<
+  Election,
+  'type' | 'jurisdiction' | 'ballotStyles' | 'pollingPlaces'
+> & {
   type: ElectionTypeV4p0;
   county: Election['jurisdiction'];
   ballotStyles: readonly BallotStyleV4p0[];
+  pollingPlaces?: readonly PollingPlace[];
 };
 export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
   ...electionShapeForV4p0,
   ballotStyles: z.array(BallotStyleV4p0Schema),
+  pollingPlaces: PollingPlacesSchema.optional(),
   county: JurisdictionSchema,
   type: ElectionTypeSchemaV4p0,
 });
@@ -93,7 +101,8 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
 }
 
 function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
-  const { county, ballotStrings, ballotStyles, ...rest } = election;
+  const { county, ballotStrings, ballotStyles, pollingPlaces, ...rest } =
+    election;
   return {
     ...rest,
     // v4.0 may omit ballot-style languages; v4.1+ requires them. Default to
@@ -102,6 +111,15 @@ function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
       ...ballotStyle,
       languages: ballotStyle.languages ?? ['en'],
     })),
+    // v4.0 may omit polling places; v4.1+ requires at least one. Default to a
+    // single election-day polling place per precinct when absent.
+    pollingPlaces:
+      pollingPlaces ??
+      pollingPlacesGenerateFromPrecincts(
+        election.precincts,
+        'election_day',
+        (precinct) => `${precinct.id}-polling-place`
+      ),
     jurisdiction: county,
     ballotStrings: renameBallotStringKey(
       ballotStrings,

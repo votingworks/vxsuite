@@ -149,7 +149,7 @@ test('formatElectionForExport', () => {
 test('addPollingPlacesForExport - non-editing state generates election_day places plus a Central Scanning absentee place', () => {
   const electionInput: Election = {
     ...election,
-    pollingPlaces: undefined,
+    pollingPlaces: [],
   };
 
   const result = addPollingPlacesForExport(electionInput, msJurisdiction);
@@ -182,7 +182,7 @@ test('addPollingPlacesForExport - non-editing state generates election_day place
 test('addPollingPlacesForExport - state that allows empty absentee polling places gets no Central Scanning place', () => {
   const electionInput: Election = {
     ...election,
-    pollingPlaces: undefined,
+    pollingPlaces: [],
   };
 
   const result = addPollingPlacesForExport(electionInput, nhJurisdiction);

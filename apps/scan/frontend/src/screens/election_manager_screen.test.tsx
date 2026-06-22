@@ -19,7 +19,6 @@ import {
 import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
   PollingPlaceType,
   PollsState,
 } from '@votingworks/types';
@@ -223,22 +222,6 @@ test('disables location picker if any ballots have been cast', async () => {
   await waitFor(apiMock.mockApiClient.assertComplete);
 
   expectLocationPickerMode('disabled');
-});
-
-test('omits location picker if empty (degrades gracefully for old elections)', async () => {
-  apiMock.mockApiClient.getPollsInfo.reset();
-  apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetConfig({ ballotCastingMode: 'early_voting' });
-
-  const baseDefinition = electionGeneralDefinition;
-  const baseElection = electionGeneralDefinition.election;
-  const election: Election = { ...baseElection, pollingPlaces: undefined };
-
-  renderScreen({ electionDefinition: { ...baseDefinition, election } });
-  await waitFor(apiMock.mockApiClient.assertComplete);
-
-  const testId = MOCK_POLLING_PLACE_PICKER_ID;
-  expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
 });
 
 test('omits location picker if only one location is available', async () => {

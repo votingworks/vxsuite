@@ -438,7 +438,7 @@ function LocationPicker(props: {
 
   const selectPollingPlace = setPollingPlaceId.useMutation();
 
-  const nLocations = election.pollingPlaces?.length || 0;
+  const nLocations = election.pollingPlaces.length;
   if (nLocations <= 1) return null;
 
   const mode = (() => {

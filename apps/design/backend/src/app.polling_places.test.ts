@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
+  convertLatestElectionToV4p0,
   PollingPlace,
   pollingPlaceGenerateFromPrecinct,
   pollingPlacesGenerateFromPrecincts,
@@ -328,10 +329,18 @@ describe('loadElection', () => {
     });
     auth0.setLoggedInUser(user);
 
-    const electionFileContents = JSON.stringify({
-      ...electionDef.election,
-      pollingPlaces,
-    });
+    // v4.1+ elections must carry polling places. To exercise the
+    // "missing polling places" path, upload a v4.0 election, which may legally
+    // omit them.
+    const electionFileContents = pollingPlaces
+      ? JSON.stringify({ ...electionDef.election, pollingPlaces })
+      : JSON.stringify(
+          (() => {
+            const { pollingPlaces: _pollingPlaces, ...v4p0Election } =
+              convertLatestElectionToV4p0(electionDef.election);
+            return v4p0Election;
+          })()
+        );
 
     const electionId = (
       await api.loadElection({
@@ -447,10 +456,18 @@ describe('cloneElection', () => {
     });
     auth0.setLoggedInUser(user);
 
-    const electionFileContents = JSON.stringify({
-      ...electionDef.election,
-      pollingPlaces,
-    });
+    // v4.1+ elections must carry polling places. To exercise the
+    // "missing polling places" path, upload a v4.0 election, which may legally
+    // omit them.
+    const electionFileContents = pollingPlaces
+      ? JSON.stringify({ ...electionDef.election, pollingPlaces })
+      : JSON.stringify(
+          (() => {
+            const { pollingPlaces: _pollingPlaces, ...v4p0Election } =
+              convertLatestElectionToV4p0(electionDef.election);
+            return v4p0Election;
+          })()
+        );
 
     const electionId = (
       await api.loadElection({
@@ -512,6 +529,12 @@ describe('cloneElection', () => {
         user,
         destJurisdiction
       );
+
+      // Remove the source election's polling places so cloning must regenerate
+      // them from the precincts.
+      for (const place of await api.listPollingPlaces({ electionId })) {
+        await api.deletePollingPlace({ electionId, id: place.id });
+      }
 
       const clonedElectionId = await api.cloneElection({
         electionId,

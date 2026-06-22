@@ -43,6 +43,7 @@ function getMockElectionDefinition(): ElectionDefinition {
       })),
       contests: [],
       ballotStyles: [],
+      pollingPlaces: [],
       ballotLayout: {
         paperSize: HmpbBallotPaperSize.Letter,
         metadataEncoding: 'qr-code',

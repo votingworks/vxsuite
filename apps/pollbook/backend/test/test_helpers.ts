@@ -205,6 +205,12 @@ export function getTestElection(): Election {
       name: `Test Precinct ${i}`,
       districtIds: [],
     })),
+    pollingPlaces: Array.from({ length: 5 }, (_, i) => ({
+      id: `polling-place-${i}`,
+      name: `Test Polling Place ${i}`,
+      precincts: { [`precinct-${i}`]: { type: 'whole' } },
+      type: 'election_day',
+    })),
     contests: [],
     ballotStyles: [
       {
