@@ -41,9 +41,11 @@ import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import {
   AdjudicatedContests,
+  adjudicatedVotes,
   ContestListItem,
   deriveCrossoverVoteStatus,
   isContestTagOnlyUndervote,
+  selectedStraightPartyIdAfterAdjudication,
 } from '../utils/adjudication';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
 
@@ -505,6 +507,8 @@ export interface BallotAdjudicationScreenProps {
 export function BallotAdjudicationScreen(
   props: BallotAdjudicationScreenProps
 ): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
+  const { election } = assertDefined(electionDefinition);
   const {
     cvrId,
     ballotAdjudicationData,
@@ -522,6 +526,22 @@ export function BallotAdjudicationScreen(
   );
   const [adjudicatedContests, setAdjudicatedContests] =
     useState<AdjudicatedContests>(adjudicatedContestsBaseline);
+
+  const contestItems = contestListItems(
+    ballotImages,
+    ballotAdjudicationData.contests,
+    adjudicatedContests,
+    election
+  );
+  const votesAfterAdjudication = adjudicatedVotes(
+    election,
+    contestItems,
+    adjudicatedContests
+  );
+  const selectedStraightPartyId = selectedStraightPartyIdAfterAdjudication(
+    election,
+    votesAfterAdjudication
+  );
 
   if (selectedContestId && !isClaimed) {
     return (
@@ -548,6 +568,7 @@ export function BallotAdjudicationScreen(
             new Map(prev).set(input.contestId, input)
           );
         }}
+        selectedStraightPartyId={selectedStraightPartyId}
       />
     );
   }
@@ -559,6 +580,7 @@ export function BallotAdjudicationScreen(
         !deepEqual(adjudicatedContests, adjudicatedContestsBaseline)
       }
       setSelectedContestId={setSelectedContestId}
+      contestItems={contestItems}
       {...props}
     />
   );
@@ -568,6 +590,7 @@ function BallotView({
   adjudicatedContests,
   haveEditsBeenMade,
   setSelectedContestId,
+  contestItems,
   cvrId,
   ballotAdjudicationData,
   ballotImages,
@@ -585,17 +608,11 @@ function BallotView({
   adjudicatedContests: AdjudicatedContests;
   haveEditsBeenMade: boolean;
   setSelectedContestId: (contestId: ContestId | null) => void;
+  contestItems: ContestListItem[];
 } & Omit<BallotAdjudicationScreenProps, 'writeInCandidates'>): React.ReactNode {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
-  const { tag: cvrTag, contests: contestAdjudicationData } =
-    ballotAdjudicationData;
-  const contestItems = contestListItems(
-    ballotImages,
-    contestAdjudicationData,
-    adjudicatedContests,
-    election
-  );
+  const { tag: cvrTag } = ballotAdjudicationData;
   const firstUnresolvedContest =
     cvrTag.isBlankBallot || cvrTag.hasCrossoverVote
       ? undefined

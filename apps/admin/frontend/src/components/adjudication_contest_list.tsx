@@ -7,7 +7,6 @@ import {
   Election,
   getContestDistrictName,
   Side,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import type {
   AdjudicatedContestOption,
@@ -124,11 +123,7 @@ const StatusLineAdjudicated = styled(StatusLine).attrs({
 `;
 
 function getVotesAllowed(contest: Contest): number {
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
-  return contest.type === 'yesno' ? 1 : contest.seats;
+  return contest.type === 'candidate' ? contest.seats : 1;
 }
 
 type VoteStatus = 'overvote' | 'undervote' | 'normal';
@@ -196,6 +191,7 @@ function getAdjudicatedContestStatusLine(
 }
 
 function getAdjudicatedOptionStatusLine(
+  election: Election,
   option: ContestOptionAdjudicationData,
   contest: Contest,
   adjudicatedOption?: AdjudicatedContestOption
@@ -245,8 +241,8 @@ function getAdjudicatedOptionStatusLine(
     const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        Marginal mark for {contestOptionName(contest, definition)} adjudicated
-        as {newValue}
+        Marginal mark for {contestOptionName(election, contest, definition)}{' '}
+        adjudicated as {newValue}
       </StatusLineAdjudicated>
     );
   }
@@ -256,8 +252,8 @@ function getAdjudicatedOptionStatusLine(
     const newValue = currentVote ? 'valid' : 'invalid';
     return (
       <StatusLineAdjudicated>
-        {preface} for {contestOptionName(contest, definition)} adjudicated as{' '}
-        {newValue}
+        {preface} for {contestOptionName(election, contest, definition)}{' '}
+        adjudicated as {newValue}
       </StatusLineAdjudicated>
     );
   }
@@ -267,10 +263,12 @@ function ContestAdjudicationSummary({
   item,
   showUndervoteStatus,
   adjudicatedContest,
+  election,
 }: {
   item: ContestListItem;
   showUndervoteStatus: boolean;
   adjudicatedContest?: AdjudicatedCvrContest;
+  election: Election;
 }): JSX.Element | null {
   if (!adjudicatedContest) {
     const { tag } = item.adjudicationData;
@@ -315,6 +313,7 @@ function ContestAdjudicationSummary({
   const optionLines = item.adjudicationData.options.map((option) => (
     <React.Fragment key={option.definition.id}>
       {getAdjudicatedOptionStatusLine(
+        election,
         option,
         item.contest,
         adjudicatedContest.adjudicatedContestOptionById[option.definition.id]
@@ -465,6 +464,7 @@ function BallotSideContestList({
                     item={item}
                     showUndervoteStatus={showUndervoteStatus}
                     adjudicatedContest={adjudicatedContest}
+                    election={election}
                   />
                 )}
               </Column>

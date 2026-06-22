@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { sha256 } from 'js-sha256';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionStraightPartyFixtures,
@@ -15,11 +16,11 @@ import {
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
+  AdjudicationReason,
   anyPollingPlace,
   BallotIdSchema,
   BallotStyleGroupId,
   BallotType,
-  CVR,
   DEFAULT_SYSTEM_SETTINGS,
   getContests,
   InterpretedBmdPage,
@@ -994,7 +995,9 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
     );
   }
 
-  function buildStraightPartyCvr(id: string, votes: VotesDict): CVR.CVR {
+  function buildStraightPartyCvr(id: string, votes: VotesDict) {
+    const dummyImageContents = Buffer.from('dummy-ballot-image');
+    const dummyImageHash = sha256(dummyImageContents);
     const ballotId = unsafeParse(BallotIdSchema, id);
     const interpretation: InterpretedBmdPage = {
       type: 'InterpretedBmdPage',
@@ -1017,15 +1020,25 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
         ignoredReasonInfos: [],
       },
     };
-    return buildCastVoteRecord({
-      electionDefinition,
-      electionId: ballotHash,
-      scannerId: 'VX-00-000',
-      castVoteRecordId: ballotId,
-      batchId: 'batch-1',
-      ballotMarkingMode: 'machine',
-      interpretation,
-    });
+    return {
+      castVoteRecord: buildCastVoteRecord({
+        electionDefinition,
+        electionId: ballotHash,
+        scannerId: 'VX-00-000',
+        castVoteRecordId: ballotId,
+        batchId: 'batch-1',
+        ballotMarkingMode: 'machine',
+        interpretation,
+        images: [
+          { imageHash: dummyImageHash, imageRelativePath: 'front.jpg' },
+          { imageHash: dummyImageHash, imageRelativePath: 'back.jpg' },
+        ],
+      }),
+      referencedFiles: [
+        { fileName: 'front.jpg', contents: dummyImageContents },
+        { fileName: 'back.jpg', contents: dummyImageContents },
+      ],
+    };
   }
 
   // Only vote the straight-party contest, letting the other partisan contest
@@ -1044,14 +1057,17 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
       ...blankVotes(),
       'straight-party-ticket': ['1'],
     }),
+    buildStraightPartyCvr('cvr-4', {
+      ...blankVotes(),
+      // Overvote, which will require adjudication
+      'straight-party-ticket': ['0', '1'],
+    }),
   ];
 
   await writeCastVoteRecordExport({
     exportDirectoryPath,
     electionDefinition,
-    castVoteRecords: castVoteRecords.map((castVoteRecord) => ({
-      castVoteRecord,
-    })),
+    castVoteRecords,
     pollingPlaceId: anyPollingPlace(election).id,
     isTestMode: true,
   });
@@ -1060,7 +1076,10 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData: JSON.stringify({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      adminAdjudicationReasons: [AdjudicationReason.Overvote],
+    }),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -1072,35 +1091,88 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
     logger
   );
   const { id: fileId } = importResult.unsafeUnwrap();
-  expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(3);
+  expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(4);
 
-  const results = (await tabulateElectionResults({ electionId, store }))[
-    GROUP_KEY
-  ];
-  assert(results);
-
-  const expectedResults = buildElectionResultsFixture({
+  const resultsBeforeAdjudication = (
+    await tabulateElectionResults({ electionId, store })
+  )[GROUP_KEY];
+  assert(resultsBeforeAdjudication);
+  const expectedResultsBeforeAdjudication = buildElectionResultsFixture({
     election,
-    cardCounts: { bmd: [3], hmpb: [] },
+    cardCounts: { bmd: [4], hmpb: [] },
     contestResultsSummaries: {
       'straight-party-ticket': {
         type: 'straight-party',
-        ballots: 3,
+        ballots: 4,
+        overvotes: 1,
         optionTallies: { '0': 2, '1': 1 },
       },
       president: {
         type: 'candidate',
-        ballots: 3,
+        ballots: 4,
+        undervotes: 1,
         officialOptionTallies: { 'barchi-hallaren': 2, 'cramer-vuocolo': 1 },
       },
     },
     includeGenericWriteIn: true,
   });
-
-  expect(results.contestResults['straight-party-ticket']).toEqual(
-    expectedResults.contestResults['straight-party-ticket']
+  expect(
+    resultsBeforeAdjudication.contestResults['straight-party-ticket']
+  ).toEqual(
+    expectedResultsBeforeAdjudication.contestResults['straight-party-ticket']
   );
-  expect(results.contestResults['president']).toEqual(
-    expectedResults.contestResults['president']
+  expect(resultsBeforeAdjudication.contestResults['president']).toEqual(
+    expectedResultsBeforeAdjudication.contestResults['president']
+  );
+
+  const queue = store.getBallotAdjudicationQueue({ electionId });
+  expect(queue).toHaveLength(1);
+  const [cvrId] = queue;
+  assert(cvrId !== undefined);
+  adjudicateCvr(
+    {
+      cvrId,
+      contests: [
+        {
+          contestId: 'straight-party-ticket',
+          adjudicatedContestOptionById: {
+            '1': { type: 'official-option', hasVote: false },
+          },
+        },
+      ],
+    },
+    'test-machine',
+    store,
+    logger
+  );
+
+  const resultsAfterAdjudication = (
+    await tabulateElectionResults({ electionId, store })
+  )[GROUP_KEY];
+  assert(resultsAfterAdjudication);
+  const expectedResultsAfterAdjudication = buildElectionResultsFixture({
+    election,
+    cardCounts: { bmd: [4], hmpb: [] },
+    contestResultsSummaries: {
+      'straight-party-ticket': {
+        type: 'straight-party',
+        ballots: 4,
+        optionTallies: { '0': 3, '1': 1 },
+      },
+      president: {
+        type: 'candidate',
+        ballots: 4,
+        officialOptionTallies: { 'barchi-hallaren': 3, 'cramer-vuocolo': 1 },
+      },
+    },
+    includeGenericWriteIn: true,
+  });
+  expect(
+    resultsAfterAdjudication.contestResults['straight-party-ticket']
+  ).toEqual(
+    expectedResultsAfterAdjudication.contestResults['straight-party-ticket']
+  );
+  expect(resultsAfterAdjudication.contestResults['president']).toEqual(
+    expectedResultsAfterAdjudication.contestResults['president']
   );
 });

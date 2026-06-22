@@ -5,10 +5,18 @@ import type {
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import type { ContestOptionId, Contest } from '@votingworks/types';
+import type {
+  ContestOptionId,
+  Contest,
+  Election,
+  PartyId,
+} from '@votingworks/types';
 import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 
-import { contestOptionName } from '@votingworks/utils';
+import {
+  contestOptionName,
+  deriveStraightPartyVotesForContest,
+} from '@votingworks/utils';
 import type { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 import { normalizeWriteInName } from '../utils/adjudication';
 
@@ -85,10 +93,12 @@ export function isMarginalMarkPending(
 }
 
 export function useContestAdjudicationState(initialValues: {
+  election: Pick<Election, 'parties'>;
   contestAdjudicationData: ContestAdjudicationData;
   writeInCandidates: WriteInCandidateRecord[];
   contest: Contest;
   adjudicatedOptions?: AdjudicatedContestOptions;
+  selectedStraightPartyId?: PartyId;
 }): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -116,12 +126,15 @@ export function useContestAdjudicationState(initialValues: {
   firstOptionIdPendingAdjudication?: ContestOptionId;
   selectedCandidateNames: string[];
   voteCount: number;
+  derivedStraightPartyVotes: ContestOptionId[];
 } {
   const {
+    election,
     contestAdjudicationData,
     contest,
     adjudicatedOptions = {},
     writeInCandidates,
+    selectedStraightPartyId,
   } = initialValues;
   const [optionState, setState] =
     useState<AdjudicatedContestOptions>(adjudicatedOptions);
@@ -130,7 +143,7 @@ export function useContestAdjudicationState(initialValues: {
     .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
     .map((o) => ({
       ...o.definition,
-      name: contestOptionName(contest, o.definition),
+      name: contestOptionName(election, contest, o.definition),
     }));
 
   function getOptionState(
@@ -370,7 +383,16 @@ export function useContestAdjudicationState(initialValues: {
     return result;
   }
 
-  const voteCount = optionsList.filter((o) => getOptionHasVote(o.id)).length;
+  const votedOptionIds = optionsList
+    .filter((o) => getOptionHasVote(o.id))
+    .map((o) => o.id);
+  const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
+    contest,
+    votedOptionIds,
+    selectedStraightPartyId
+  );
+
+  const voteCount = votedOptionIds.length + derivedStraightPartyVotes.length;
 
   const isModified = !deepEqual(optionState, adjudicatedOptions);
 
@@ -388,5 +410,6 @@ export function useContestAdjudicationState(initialValues: {
     firstOptionIdPendingAdjudication,
     selectedCandidateNames,
     voteCount,
+    derivedStraightPartyVotes,
   };
 }

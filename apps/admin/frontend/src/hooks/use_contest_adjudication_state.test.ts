@@ -9,6 +9,7 @@ import {
   CandidateContest,
   Contest,
   ContestOption,
+  Election,
   YesNoContest,
 } from '@votingworks/types';
 import { act, renderHook } from '@testing-library/react';
@@ -40,6 +41,17 @@ const yesNoContest: YesNoContest = {
   noOption: { id: 'no', label: 'No' },
 };
 
+const election: Pick<Election, 'parties'> = {
+  parties: [
+    {
+      id: 'party',
+      name: 'Party',
+      fullName: 'Party Full Name',
+      abbrev: 'P',
+    },
+  ],
+};
+
 function makeOption(
   definition: ContestOption,
   overrides: Partial<Omit<ContestOptionAdjudicationData, 'definition'>> = {}
@@ -61,6 +73,7 @@ function renderAdjudicationState(
 ) {
   return renderHook(() =>
     useContestAdjudicationState({
+      election,
       contestAdjudicationData,
       writeInCandidates,
       contest,

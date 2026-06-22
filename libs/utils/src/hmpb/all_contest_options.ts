@@ -13,11 +13,11 @@ import {
   CandidateContestOption,
   ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
-  straightPartyNotYetImplemented,
   YesNoContest,
   YesNoContestOption,
   StraightPartyContest,
   StraightPartyContestOption,
+  Election,
 } from '@votingworks/types';
 
 /**
@@ -180,13 +180,10 @@ export function* allContestOptions(
  * Given a {@link ContestOption}, returns the display name for that option based on the contest definition.
  */
 export function contestOptionName(
+  election: Pick<Election, 'parties'>,
   contest: Contest,
   option: ContestOption
 ): string {
-  /* istanbul ignore next */
-  if (option.type === 'straight-party') {
-    return straightPartyNotYetImplemented();
-  }
   switch (option.type) {
     case 'candidate': {
       assert(contest.type === 'candidate');
@@ -200,6 +197,10 @@ export function contestOptionName(
         [contest.yesOption, contest.noOption],
         (o) => o.id === option.id
       ).label;
+    }
+    case 'straight-party': {
+      assert(contest.type === 'straight-party');
+      return find(election.parties, (p) => p.id === option.id).fullName;
     }
     default:
       /* istanbul ignore next */

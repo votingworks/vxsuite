@@ -5,20 +5,25 @@ import type {
   ContestOptionAdjudicationData,
   CvrContestTag,
 } from '@votingworks/admin-backend';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
 import {
   Contest,
   BallotPageContestOptionLayout,
   ContestId,
   ContestOptionId,
   Election,
+  PartyId,
   Rect,
   Side,
-  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
+  StraightPartyVote,
 } from '@votingworks/types';
-import { contestOptionName, hasCrossoverVote } from '@votingworks/utils';
+import {
+  contestOptionName,
+  hasCrossoverVote,
+  selectedStraightPartyId,
+} from '@votingworks/utils';
 
 export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
@@ -86,16 +91,13 @@ export function isContestCrossoverVoted(
 }
 
 export function adjudicatedVotes(
+  election: Election,
   contests: ContestListItem[],
   adjudicatedContests: AdjudicatedContests
 ): VotesDict {
   return Object.fromEntries(
     contests.map(({ contest, adjudicationData }): [string, Vote] => {
       const adjudicatedContest = adjudicatedContests.get(contest.id);
-      /* istanbul ignore next */
-      if (contest.type === 'straight-party') {
-        return straightPartyNotYetImplemented();
-      }
       switch (contest.type) {
         case 'candidate':
           return [
@@ -110,13 +112,18 @@ export function adjudicatedVotes(
                 ? [
                     {
                       ...option.definition,
-                      name: contestOptionName(contest, option.definition),
+                      name: contestOptionName(
+                        election,
+                        contest,
+                        option.definition
+                      ),
                     },
                   ]
                 : []
             ),
           ];
         case 'yesno':
+        case 'straight-party':
           return [
             contest.id,
             adjudicationData.options.flatMap((option) =>
@@ -163,7 +170,7 @@ export function deriveCrossoverVoteStatus(
 ): BallotCrossoverVoteStatus {
   const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
-    adjudicatedVotes(contestItems, adjudicatedContests)
+    adjudicatedVotes(election, contestItems, adjudicatedContests)
   );
   return {
     ballotHasScannedCrossoverVote,
@@ -205,4 +212,18 @@ export function contestPartyLabel(
     contest.partyId
     ? find(election.parties, (p) => p.id === contest.partyId).fullName
     : undefined;
+}
+
+export function selectedStraightPartyIdAfterAdjudication(
+  election: Election,
+  votesAfterAdjudication: VotesDict
+): PartyId | undefined {
+  const straightPartyContest = election.contests.find(
+    (contest) => contest.type === 'straight-party'
+  );
+  if (!straightPartyContest) return undefined;
+  const straightPartyContestVotes = assertDefined(
+    votesAfterAdjudication[straightPartyContest.id]
+  ) as StraightPartyVote;
+  return selectedStraightPartyId(straightPartyContestVotes);
 }
