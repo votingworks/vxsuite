@@ -260,13 +260,11 @@ impl Contest {
             // and has matching party or no party
             && match self {
                 Contest::YesNo(_)
+                | Contest::StraightParty(_)
                 | Contest::Candidate(CandidateContest { party_id: None, .. }) => true,
                 Contest::Candidate(CandidateContest { party_id, .. }) => {
                     party_id == &ballot_style.party_id
                 }
-                Contest::StraightParty(_) => unimplemented!(
-                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
-                ),
             }
     }
 }

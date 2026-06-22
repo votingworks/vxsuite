@@ -9,7 +9,6 @@ import {
   getContests,
   getBallotStyle,
   Candidate,
-  straightPartyNotYetImplemented,
   YesNoVote,
 } from '@votingworks/types';
 import {
@@ -23,6 +22,7 @@ import {
   arbitraryElectionDefinition,
 } from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
+import { throwIllegalValue } from '@votingworks/basics';
 import { napi } from './bubble-ballot-ts/napi';
 import type {
   BridgeDecodeBmdResult,
@@ -41,31 +41,38 @@ function generateVotesForContests(
 ): VotesDict {
   const votes: VotesDict = {};
   for (const contest of contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      return straightPartyNotYetImplemented();
-    }
-    if (contest.type === 'candidate') {
-      const namedCandidates = contest.candidates.filter((c) => !c.isWriteIn);
-      const selected = namedCandidates.slice(0, contest.seats);
-      if (
-        includeWriteIns &&
-        contest.allowWriteIns &&
-        selected.length < contest.seats
-      ) {
-        votes[contest.id] = [
-          ...selected,
-          {
-            id: 'write-in-TEST',
-            name: 'TEST',
-            isWriteIn: true,
-          },
-        ];
-      } else {
-        votes[contest.id] = selected;
+    switch (contest.type) {
+      case 'candidate': {
+        const namedCandidates = contest.candidates.filter((c) => !c.isWriteIn);
+        const selected = namedCandidates.slice(0, contest.seats);
+        if (
+          includeWriteIns &&
+          contest.allowWriteIns &&
+          selected.length < contest.seats
+        ) {
+          votes[contest.id] = [
+            ...selected,
+            {
+              id: 'write-in-TEST',
+              name: 'TEST',
+              isWriteIn: true,
+            },
+          ];
+        } else {
+          votes[contest.id] = selected;
+        }
+        break;
       }
-    } else {
-      votes[contest.id] = [contest.yesOption.id];
+      case 'yesno': {
+        votes[contest.id] = [contest.yesOption.id];
+        break;
+      }
+      case 'straight-party': {
+        votes[contest.id] = contest.optionIds.slice(0, 1);
+        break;
+      }
+      default:
+        throwIllegalValue(contest);
     }
   }
   return votes;
@@ -249,25 +256,37 @@ function tsVotesToRustVotes(
     const voteArr = vote as unknown[];
     if (voteArr.length === 0) continue;
 
-    if (contest.type === 'candidate') {
-      const candidates: RustCandidateVote[] = voteArr.map((c) => {
-        const candidate = c as Candidate;
-        if (candidate.isWriteIn) {
+    switch (contest.type) {
+      case 'candidate': {
+        const candidates: RustCandidateVote[] = voteArr.map((c) => {
+          const candidate = c as Candidate;
+          if (candidate.isWriteIn) {
+            return {
+              type: 'writeInCandidate',
+              candidateId: candidate.id,
+              name: candidate.name ?? '',
+            };
+          }
           return {
-            type: 'writeInCandidate',
+            type: 'namedCandidate',
             candidateId: candidate.id,
-            name: candidate.name ?? '',
           };
-        }
-        return {
-          type: 'namedCandidate',
-          candidateId: candidate.id,
-        };
-      });
-      rustVotes[contest.id] = { type: 'candidate', value: candidates };
-    } else {
-      const optionId = (voteArr as YesNoVote)[0]!;
-      rustVotes[contest.id] = { type: 'yesNo', value: optionId };
+        });
+        rustVotes[contest.id] = { type: 'candidate', value: candidates };
+        break;
+      }
+      case 'yesno': {
+        const optionId = (voteArr as YesNoVote)[0]!;
+        rustVotes[contest.id] = { type: 'yesNo', value: optionId };
+        break;
+      }
+      case 'straight-party': {
+        const partyIds = voteArr as string[];
+        rustVotes[contest.id] = { type: 'straightParty', value: partyIds };
+        break;
+      }
+      default:
+        throwIllegalValue(contest);
     }
   }
   return rustVotes;
