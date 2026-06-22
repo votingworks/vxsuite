@@ -98,13 +98,15 @@ export function PrintScreen({
 
     const { election } = getElectionRecordQuery.data.electionDefinition;
 
-    if (!pollingPlaceId) return election.precincts;
+    // Election managers can print ballots for any precinct, so don't filter
+    // down to the configured polling place's precincts.
+    if (isElectionManagerAuth || !pollingPlaceId) return election.precincts;
 
     const place = pollingPlaceFromElection(election, pollingPlaceId);
     const precinctIds = pollingPlacePrecinctIds(place);
 
     return election.precincts.filter((p) => precinctIds.has(p.id));
-  }, [getElectionRecordQuery.data, pollingPlaceId]);
+  }, [getElectionRecordQuery.data, pollingPlaceId, isElectionManagerAuth]);
 
   if (!selectedPrecinctId && precincts.length > 0) {
     const defaultSelection = precincts[0].id;
