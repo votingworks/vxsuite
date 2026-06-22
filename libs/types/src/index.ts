@@ -19,6 +19,7 @@ export * from './cdf/ballot-definition/convert';
 export * from './cdf/ballot-definition/fixtures';
 export * from './converter_client';
 export * from './diagnostics';
+export * from './ballot_positions';
 export * from './dom';
 export * from './election';
 export * from './election_parsing';

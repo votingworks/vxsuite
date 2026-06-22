@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
-import { Election } from './election';
+import { Election, SheetPositions } from './election';
 import { safeParseElectionDefinition } from './election_parsing';
 import {
   convertLatestElectionToV4p0,
@@ -70,7 +70,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"594d90c1ea60cfb0db0eb9428f6c493e626400d6c2dd62f6f9a49c211bedaafe"`
+    `"2eed58532057418228ff007d96c26a6d43529a5cf7d4e04ec925c3ae27861f30"`
   );
 
   expect(
@@ -175,4 +175,75 @@ test('v4.0 elections may omit polling places; conversion to latest defaults one 
       type: 'election_day',
     }))
   );
+});
+
+test('ballot positions round-trip through the v4.0 gridLayouts shape', () => {
+  // v4.1+ stores geometry as hierarchical `ballotPositions` per ballot style;
+  // v4.0 stores it as a flat `gridLayouts` array on the election. Each option's
+  // bounds correspond to a single shared outset ({ top:1, left:1, right:9,
+  // bottom:1 }) so the geometry round-trips exactly.
+  const ballotPositions: SheetPositions[] = [
+    // One sheet: [front contests, back contests].
+    [
+      // front
+      [
+        {
+          contestId: 'contest-1',
+          bounds: { row: 11, column: 1, width: 10, height: 4 },
+          options: [
+            {
+              type: 'option',
+              bubbleCenter: { row: 12, column: 2 },
+              bounds: { row: 11, column: 1, width: 10, height: 2 },
+              optionId: 'candidate-1',
+              partyIds: ['party-1'],
+            },
+            {
+              type: 'write-in',
+              bubbleCenter: { row: 14, column: 2 },
+              bounds: { row: 13, column: 1, width: 10, height: 2 },
+              writeInIndex: 0,
+              writeInArea: { row: 13, column: 2.5, width: 3, height: 1 },
+            },
+          ],
+        },
+      ],
+      // back
+      [
+        {
+          contestId: 'contest-2',
+          bounds: { row: 19, column: 1, width: 10, height: 2 },
+          options: [
+            {
+              type: 'option',
+              bubbleCenter: { row: 20, column: 2 },
+              bounds: { row: 19, column: 1, width: 10, height: 2 },
+              optionId: 'contest-2-option-yes',
+            },
+          ],
+        },
+      ],
+    ],
+  ];
+  const [firstBallotStyle, ...restBallotStyles] = election.ballotStyles;
+  const electionWithPositions: Election = {
+    ...election,
+    ballotStyles: [
+      { ...firstBallotStyle, ballotPositions },
+      ...restBallotStyles,
+    ],
+  };
+
+  // Converting to v4.0 moves ballotPositions into a flat gridLayouts array and
+  // drops it from the ballot styles.
+  const v4p0Election = convertLatestElectionToV4p0(electionWithPositions);
+  expect(v4p0Election.gridLayouts).toHaveLength(1);
+  expect(v4p0Election.ballotStyles[0]).not.toHaveProperty('ballotPositions');
+
+  // Converting back reconstructs the identical ballotPositions.
+  const roundTripped = safeParseElectionDefinitionForAnySoftwareVersion(
+    JSON.stringify(v4p0Election)
+  ).unsafeUnwrap().election;
+  expect(roundTripped.ballotStyles[0]?.ballotPositions).toEqual(ballotPositions);
+  expect(roundTripped.ballotStyles[1]?.ballotPositions).toBeUndefined();
 });

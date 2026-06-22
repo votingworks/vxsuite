@@ -3,17 +3,38 @@ import { assert, ok, Result } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotStyle,
+  BallotStyleId,
+  BallotStyleIdSchema,
   BallotStyleSchema,
+  ContestId,
+  ContestIdSchema,
   Election,
   ElectionDefinition,
   ElectionSchema,
   JurisdictionSchema,
+  PartyId,
+  PartyIdSchema,
   PollingPlace,
   PollingPlacesSchema,
+  SheetPositions,
 } from './election';
+import {
+  ballotPositionsFromGridPositions,
+  flattenBallotPositions,
+  gridRectToRect,
+  outsetFromOptionPosition,
+  DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
+  type FlatOptionPosition,
+} from './ballot_positions';
+import {
+  Outset,
+  OutsetSchema,
+  Rect,
+  RectSchema,
+} from './geometry';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places';
 import { safeParseElectionDefinition } from './election_parsing';
-import { safeParse, safeParseJson } from './generic';
+import { Id, IdSchema, safeParse, safeParseJson } from './generic';
 import { ElectionStringKey, UiStringsPackage } from './ui_string_translations';
 
 export const SoftwareVersions = ['v4.0', 'v4.1'] as const;
@@ -37,13 +58,74 @@ const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
 const { jurisdiction: _jurisdiction, ...electionShapeForV4p0 } =
   ElectionSchema.shape;
 
-// v4.0 treated BallotStyle.languages as optional; v4.1+ requires it. Keep the
-// field optional in the v4.0 shape so existing v4.0 elections (which may omit
-// it) still parse. convertV4p0ElectionToLatest defaults it to ['en'].
-type BallotStyleV4p0 = Omit<BallotStyle, 'languages'> & {
+// v4.0 stored ballot geometry as a flat `gridLayouts` array on the election
+// (one shared `optionBoundsFromTargetMark` outset + flat grid positions). v4.1+
+// moves this onto each ballot style as hierarchical `ballotPositions` with
+// per-option/contest bounds. Keep the old shape here so VxDesign can export
+// elections compatible with deployed v4.0 software, and convert between them.
+interface GridPositionOptionV4p0 {
+  readonly type: 'option';
+  readonly sheetNumber: number;
+  readonly side: 'front' | 'back';
+  readonly column: number;
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly optionId: Id;
+  readonly partyIds?: readonly PartyId[];
+}
+interface GridPositionWriteInV4p0 {
+  readonly type: 'write-in';
+  readonly sheetNumber: number;
+  readonly side: 'front' | 'back';
+  readonly column: number;
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly writeInIndex: number;
+  readonly writeInArea: Rect;
+}
+type GridPositionV4p0 = GridPositionOptionV4p0 | GridPositionWriteInV4p0;
+interface GridLayoutV4p0 {
+  readonly ballotStyleId: BallotStyleId;
+  readonly optionBoundsFromTargetMark: Outset;
+  readonly gridPositions: readonly GridPositionV4p0[];
+}
+const GridLayoutV4p0Schema: z.ZodSchema<GridLayoutV4p0> = z.object({
+  ballotStyleId: BallotStyleIdSchema,
+  optionBoundsFromTargetMark: OutsetSchema,
+  gridPositions: z.array(
+    z.union([
+      z.object({
+        type: z.literal('option'),
+        sheetNumber: z.number().int().positive(),
+        side: z.union([z.literal('front'), z.literal('back')]),
+        column: z.number().nonnegative(),
+        row: z.number().nonnegative(),
+        contestId: ContestIdSchema,
+        optionId: IdSchema,
+        partyIds: z.array(PartyIdSchema).optional(),
+      }),
+      z.object({
+        type: z.literal('write-in'),
+        sheetNumber: z.number().int().positive(),
+        side: z.union([z.literal('front'), z.literal('back')]),
+        column: z.number().nonnegative(),
+        row: z.number().nonnegative(),
+        contestId: ContestIdSchema,
+        writeInIndex: z.number().int().nonnegative(),
+        writeInArea: RectSchema,
+      }),
+    ])
+  ),
+});
+
+// v4.0 treated BallotStyle.languages as optional; v4.1+ requires it. v4.0 also
+// has no `ballotPositions` (that geometry lived in the election's `gridLayouts`).
+type BallotStyleV4p0 = Omit<BallotStyle, 'languages' | 'ballotPositions'> & {
   languages?: readonly string[];
 };
-const BallotStyleV4p0Schema = BallotStyleSchema.extend({
+const BallotStyleV4p0Schema = BallotStyleSchema.omit({
+  ballotPositions: true,
+}).extend({
   languages: z.array(z.string()).optional(),
 });
 
@@ -55,14 +137,69 @@ type ElectionV4p0 = Omit<
   county: Election['jurisdiction'];
   ballotStyles: readonly BallotStyleV4p0[];
   pollingPlaces?: readonly PollingPlace[];
+  gridLayouts?: readonly GridLayoutV4p0[];
 };
 export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
   ...electionShapeForV4p0,
   ballotStyles: z.array(BallotStyleV4p0Schema),
   pollingPlaces: PollingPlacesSchema.optional(),
+  gridLayouts: z.array(GridLayoutV4p0Schema).optional(),
   county: JurisdictionSchema,
   type: ElectionTypeSchemaV4p0,
 });
+
+// v4.0 <-> v4.1 geometry conversion helpers.
+function gridLayoutV4p0ToBallotPositions(
+  gridLayout: GridLayoutV4p0
+): SheetPositions[] {
+  return ballotPositionsFromGridPositions(
+    gridLayout.gridPositions,
+    gridLayout.optionBoundsFromTargetMark
+  );
+}
+
+function optionPositionToGridPositionV4p0(
+  flat: FlatOptionPosition
+): GridPositionV4p0 {
+  const { sheetNumber, side, contestId, option } = flat;
+  const base = {
+    sheetNumber,
+    side,
+    contestId,
+    column: option.bubbleCenter.column,
+    row: option.bubbleCenter.row,
+  } as const;
+  return option.type === 'write-in'
+    ? {
+        ...base,
+        type: 'write-in',
+        writeInIndex: option.writeInIndex,
+        writeInArea: gridRectToRect(option.writeInArea),
+      }
+    : {
+        ...base,
+        type: 'option',
+        optionId: option.optionId,
+        ...(option.partyIds ? { partyIds: option.partyIds } : {}),
+      };
+}
+
+function ballotPositionsToGridLayoutV4p0(
+  ballotStyleId: BallotStyleId,
+  ballotPositions: readonly SheetPositions[]
+): GridLayoutV4p0 {
+  const flat = flattenBallotPositions(ballotPositions);
+  const firstOption = flat[0]?.option;
+  return {
+    ballotStyleId,
+    // v4.0 uses a single shared outset; recover it from any option (uniform
+    // across options today) or fall back to the default.
+    optionBoundsFromTargetMark: firstOption
+      ? outsetFromOptionPosition(firstOption)
+      : DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
+    gridPositions: flat.map(optionPositionToGridPositionV4p0),
+  };
+}
 
 /**
  * Renames an election-string key (e.g. `jurisdictionName` <-> `countyName`)
@@ -87,10 +224,25 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
     election.type !== 'open-primary',
     'v4.0 does not support open primaries'
   );
-  const { jurisdiction, ballotStrings, ...rest } = election;
+  const { jurisdiction, ballotStrings, ballotStyles, ...rest } = election;
+  // v4.1+ stores ballot geometry as `ballotPositions` on each ballot style;
+  // v4.0 stores it as a flat `gridLayouts` array on the election.
+  const gridLayouts = ballotStyles
+    .filter((ballotStyle) => ballotStyle.ballotPositions)
+    .map((ballotStyle) =>
+      ballotPositionsToGridLayoutV4p0(
+        ballotStyle.id,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ballotStyle.ballotPositions!
+      )
+    );
   return {
     ...rest,
     county: jurisdiction,
+    ballotStyles: ballotStyles.map(
+      ({ ballotPositions: _ballotPositions, ...ballotStyle }) => ballotStyle
+    ),
+    gridLayouts: gridLayouts.length > 0 ? gridLayouts : undefined,
     ballotStrings: renameBallotStringKey(
       ballotStrings,
       ElectionStringKey.JURISDICTION_NAME,
@@ -101,8 +253,22 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
 }
 
 function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
-  const { county, ballotStrings, ballotStyles, pollingPlaces, ...rest } =
-    election;
+  const {
+    county,
+    ballotStrings,
+    ballotStyles,
+    pollingPlaces,
+    gridLayouts,
+    ...rest
+  } = election;
+  // v4.0 stores ballot geometry as a flat `gridLayouts` array on the election;
+  // v4.1+ moves it onto each ballot style as `ballotPositions`.
+  const ballotPositionsByStyleId = new Map<BallotStyleId, SheetPositions[]>(
+    (gridLayouts ?? []).map((gridLayout) => [
+      gridLayout.ballotStyleId,
+      gridLayoutV4p0ToBallotPositions(gridLayout),
+    ])
+  );
   return {
     ...rest,
     // v4.0 may omit ballot-style languages; v4.1+ requires them. Default to
@@ -110,6 +276,9 @@ function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
     ballotStyles: ballotStyles.map((ballotStyle) => ({
       ...ballotStyle,
       languages: ballotStyle.languages ?? ['en'],
+      ...(ballotPositionsByStyleId.has(ballotStyle.id)
+        ? { ballotPositions: ballotPositionsByStyleId.get(ballotStyle.id) }
+        : {}),
     })),
     // v4.0 may omit polling places; v4.1+ requires at least one. Default to a
     // single election-day polling place per precinct when absent.

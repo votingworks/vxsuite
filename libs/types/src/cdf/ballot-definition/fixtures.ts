@@ -10,204 +10,22 @@ import {
   SelectionCaptureMethod,
   BallotSideType,
 } from '.';
-import { HmpbBallotPaperSize, Election } from '../../election';
+import {
+  HmpbBallotPaperSize,
+  Election,
+  SheetPositions,
+} from '../../election';
+import { Outset } from '../../geometry';
+import {
+  ballotPositionsFromGridPositions,
+  type FlatGridPosition,
+} from '../../ballot_positions';
 
-export const testVxfElection: Election = {
-  id: 'election-1',
-  type: 'general',
-  title: 'Lincoln Municipal General Election',
-  state: 'State of Hamilton',
-  jurisdiction: {
-    id: 'county-1',
-    name: 'Franklin County',
-  },
-  date: new DateWithoutTime('2021-06-06'),
-  seal: '<svg>test seal</svg>',
-  parties: [
-    {
-      id: 'party-1',
-      name: 'Democratic Party',
-      fullName: 'Democratic Party',
-      abbrev: 'D',
-    },
-    {
-      id: 'party-2',
-      name: 'Republican Party',
-      fullName: 'Republican Party',
-      abbrev: 'R',
-    },
-  ],
-  contests: [
-    {
-      id: 'contest-1',
-      districtId: 'district-1',
-      type: 'candidate',
-      title: 'Mayor',
-      seats: 1,
-      allowWriteIns: true,
-      candidates: [
-        {
-          id: 'candidate-1',
-          name: 'Sherlock Holmes',
-          partyIds: ['party-1'],
-        },
-        {
-          id: 'candidate-2',
-          name: 'Thomas Edison',
-          partyIds: ['party-2'],
-        },
-      ],
-      termDescription: '1 year',
-    },
-    {
-      id: 'contest-2',
-      districtId: 'district-1',
-      type: 'yesno',
-      title: 'Proposition 1',
-      description: 'Should we do this thing?',
-      yesOption: {
-        id: 'contest-2-option-yes',
-        label: 'Yes',
-      },
-      noOption: {
-        id: 'contest-2-option-no',
-        label: 'No',
-      },
-    },
-    {
-      id: 'contest-3',
-      districtId: 'district-2',
-      type: 'candidate',
-      title: 'Controller',
-      seats: 1,
-      allowWriteIns: false,
-      candidates: [
-        {
-          id: 'candidate-3',
-          name: 'Winston Churchill',
-        },
-      ],
-    },
-  ],
-  districts: [
-    {
-      id: 'district-1',
-      name: 'City of Lincoln',
-    },
-    {
-      id: 'district-2',
-      name: 'City of Washington',
-    },
-  ],
-  pollingPlaces: [
-    {
-      id: 'polling-place-1',
-      name: 'North Lincoln (Partial)',
-      type: 'election_day',
-      precincts: {
-        'precinct-1': { type: 'partial', splitIds: ['precinct-1-split-2'] },
-      },
-    },
-    {
-      id: 'polling-place-2',
-      name: 'South Lincoln',
-      type: 'absentee',
-      precincts: {
-        'precinct-2': { type: 'whole' },
-      },
-    },
-    {
-      id: 'polling-place-3',
-      name: 'Early Voting',
-      type: 'early_voting',
-      precincts: {
-        'precinct-1': { type: 'whole' },
-        'precinct-2': { type: 'whole' },
-      },
-    },
-  ],
-  precincts: [
-    {
-      id: 'precinct-1',
-      name: 'North Lincoln',
-      splits: [
-        {
-          name: 'North Lincoln - Split 1',
-          id: 'precinct-1-split-1',
-          districtIds: ['district-1'],
-        },
-        {
-          name: 'North Lincoln - Split 2',
-          id: 'precinct-1-split-2',
-          districtIds: ['district-2'],
-        },
-      ],
-    },
-    {
-      id: 'precinct-2',
-      name: 'South Lincoln',
-      districtIds: ['district-1', 'district-2'],
-    },
-  ],
-  ballotStyles: [
-    // Simulate a split precinct with two ballot styles for the same precinct
-    {
-      id: '1_en',
-      groupId: '1',
-      precincts: ['precinct-1'],
-      districts: ['district-1'],
-      languages: ['en'],
-      orderedCandidatesByContest: {
-        'contest-1': [
-          { id: 'candidate-1', partyIds: ['party-1'] },
-          { id: 'candidate-2', partyIds: ['party-2'] },
-        ],
-      },
-    },
-    {
-      id: '2_en',
-      groupId: '2',
-      precincts: ['precinct-1'],
-      districts: ['district-2'],
-      languages: ['en'],
-      orderedCandidatesByContest: {
-        'contest-3': [{ id: 'candidate-3' }],
-      },
-    },
-    {
-      id: '3_en',
-      groupId: '3',
-      precincts: ['precinct-2'],
-      districts: ['district-1', 'district-2'],
-      languages: ['en'],
-      orderedCandidatesByContest: {
-        'contest-1': [
-          { id: 'candidate-2', partyIds: ['party-2'] },
-          { id: 'candidate-1', partyIds: ['party-1'] },
-        ],
-        'contest-3': [{ id: 'candidate-3' }],
-      },
-    },
-    {
-      id: '3_es-US',
-      groupId: '3',
-      precincts: ['precinct-2'],
-      districts: ['district-1', 'district-2'],
-      languages: ['es-US'],
-      orderedCandidatesByContest: {
-        'contest-1': [
-          { id: 'candidate-2', partyIds: ['party-2'] },
-          { id: 'candidate-1', partyIds: ['party-1'] },
-        ],
-        'contest-3': [{ id: 'candidate-3' }],
-      },
-    },
-  ],
-  ballotLayout: {
-    paperSize: HmpbBallotPaperSize.Letter,
-    metadataEncoding: 'qr-code',
-  },
-  gridLayouts: [
+const testVxfGridLayouts: ReadonlyArray<{
+  ballotStyleId: string;
+  optionBoundsFromTargetMark: Outset;
+  gridPositions: FlatGridPosition[];
+}> = [
     {
       ballotStyleId: '1_en',
       optionBoundsFromTargetMark: {
@@ -438,7 +256,218 @@ export const testVxfElection: Election = {
         },
       ],
     },
+];
+
+const testVxfBallotPositionsByStyleId: Record<string, SheetPositions[]> =
+  Object.fromEntries(
+    testVxfGridLayouts.map((gridLayout) => [
+      gridLayout.ballotStyleId,
+      ballotPositionsFromGridPositions(
+        gridLayout.gridPositions,
+        gridLayout.optionBoundsFromTargetMark
+      ),
+    ])
+  );
+
+export const testVxfElection: Election = {
+  id: 'election-1',
+  type: 'general',
+  title: 'Lincoln Municipal General Election',
+  state: 'State of Hamilton',
+  jurisdiction: {
+    id: 'county-1',
+    name: 'Franklin County',
+  },
+  date: new DateWithoutTime('2021-06-06'),
+  seal: '<svg>test seal</svg>',
+  parties: [
+    {
+      id: 'party-1',
+      name: 'Democratic Party',
+      fullName: 'Democratic Party',
+      abbrev: 'D',
+    },
+    {
+      id: 'party-2',
+      name: 'Republican Party',
+      fullName: 'Republican Party',
+      abbrev: 'R',
+    },
   ],
+  contests: [
+    {
+      id: 'contest-1',
+      districtId: 'district-1',
+      type: 'candidate',
+      title: 'Mayor',
+      seats: 1,
+      allowWriteIns: true,
+      candidates: [
+        {
+          id: 'candidate-1',
+          name: 'Sherlock Holmes',
+          partyIds: ['party-1'],
+        },
+        {
+          id: 'candidate-2',
+          name: 'Thomas Edison',
+          partyIds: ['party-2'],
+        },
+      ],
+      termDescription: '1 year',
+    },
+    {
+      id: 'contest-2',
+      districtId: 'district-1',
+      type: 'yesno',
+      title: 'Proposition 1',
+      description: 'Should we do this thing?',
+      yesOption: {
+        id: 'contest-2-option-yes',
+        label: 'Yes',
+      },
+      noOption: {
+        id: 'contest-2-option-no',
+        label: 'No',
+      },
+    },
+    {
+      id: 'contest-3',
+      districtId: 'district-2',
+      type: 'candidate',
+      title: 'Controller',
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'candidate-3',
+          name: 'Winston Churchill',
+        },
+      ],
+    },
+  ],
+  districts: [
+    {
+      id: 'district-1',
+      name: 'City of Lincoln',
+    },
+    {
+      id: 'district-2',
+      name: 'City of Washington',
+    },
+  ],
+  pollingPlaces: [
+    {
+      id: 'polling-place-1',
+      name: 'North Lincoln (Partial)',
+      type: 'election_day',
+      precincts: {
+        'precinct-1': { type: 'partial', splitIds: ['precinct-1-split-2'] },
+      },
+    },
+    {
+      id: 'polling-place-2',
+      name: 'South Lincoln',
+      type: 'absentee',
+      precincts: {
+        'precinct-2': { type: 'whole' },
+      },
+    },
+    {
+      id: 'polling-place-3',
+      name: 'Early Voting',
+      type: 'early_voting',
+      precincts: {
+        'precinct-1': { type: 'whole' },
+        'precinct-2': { type: 'whole' },
+      },
+    },
+  ],
+  precincts: [
+    {
+      id: 'precinct-1',
+      name: 'North Lincoln',
+      splits: [
+        {
+          name: 'North Lincoln - Split 1',
+          id: 'precinct-1-split-1',
+          districtIds: ['district-1'],
+        },
+        {
+          name: 'North Lincoln - Split 2',
+          id: 'precinct-1-split-2',
+          districtIds: ['district-2'],
+        },
+      ],
+    },
+    {
+      id: 'precinct-2',
+      name: 'South Lincoln',
+      districtIds: ['district-1', 'district-2'],
+    },
+  ],
+  ballotStyles: [
+    // Simulate a split precinct with two ballot styles for the same precinct
+    {
+      id: '1_en',
+      ballotPositions: testVxfBallotPositionsByStyleId['1_en'],
+      groupId: '1',
+      precincts: ['precinct-1'],
+      districts: ['district-1'],
+      languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-1', partyIds: ['party-1'] },
+          { id: 'candidate-2', partyIds: ['party-2'] },
+        ],
+      },
+    },
+    {
+      id: '2_en',
+      ballotPositions: testVxfBallotPositionsByStyleId['2_en'],
+      groupId: '2',
+      precincts: ['precinct-1'],
+      districts: ['district-2'],
+      languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-3': [{ id: 'candidate-3' }],
+      },
+    },
+    {
+      id: '3_en',
+      ballotPositions: testVxfBallotPositionsByStyleId['3_en'],
+      groupId: '3',
+      precincts: ['precinct-2'],
+      districts: ['district-1', 'district-2'],
+      languages: ['en'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-2', partyIds: ['party-2'] },
+          { id: 'candidate-1', partyIds: ['party-1'] },
+        ],
+        'contest-3': [{ id: 'candidate-3' }],
+      },
+    },
+    {
+      id: '3_es-US',
+      ballotPositions: testVxfBallotPositionsByStyleId['3_es-US'],
+      groupId: '3',
+      precincts: ['precinct-2'],
+      districts: ['district-1', 'district-2'],
+      languages: ['es-US'],
+      orderedCandidatesByContest: {
+        'contest-1': [
+          { id: 'candidate-2', partyIds: ['party-2'] },
+          { id: 'candidate-1', partyIds: ['party-1'] },
+        ],
+        'contest-3': [{ id: 'candidate-3' }],
+      },
+    },
+  ],
+  ballotLayout: {
+    paperSize: HmpbBallotPaperSize.Letter,
+    metadataEncoding: 'qr-code',
+  },
   ballotStrings: {
     en: {
       ballotLanguage: { en: 'English' },

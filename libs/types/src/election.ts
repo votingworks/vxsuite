@@ -12,8 +12,6 @@ import {
 import {
   Offset,
   OffsetSchema,
-  Outset,
-  OutsetSchema,
   Rect,
   RectSchema,
   Size,
@@ -437,6 +435,12 @@ export interface BallotStyle {
     ContestId,
     OrderedCandidateOption[]
   >;
+  /**
+   * The grid positions (bubble centers and bounding boxes) of every contest and
+   * option on this ballot style's HMPB, organized by sheet. Absent for ballot
+   * styles that have not been laid out (e.g. BMD-only or draft elections).
+   */
+  readonly ballotPositions?: readonly SheetPositions[];
 }
 
 export type BallotStyleGroupId = string;
@@ -454,6 +458,116 @@ export interface BallotStyleGroup {
   readonly partyId?: PartyId;
 }
 
+/**
+ * A measurement in timing-mark grid units (relative to the timing mark grid,
+ * where 1 unit is the distance between adjacent timing marks).
+ */
+export type GridUnit = number;
+
+/** A point in timing-mark grid coordinates. */
+export interface GridPoint {
+  readonly row: GridUnit;
+  readonly column: GridUnit;
+}
+export const GridPointSchema: z.ZodSchema<GridPoint> = z.object({
+  row: z.number(),
+  column: z.number(),
+});
+
+/** A rectangle in timing-mark grid coordinates. */
+export interface GridRect {
+  readonly row: GridUnit;
+  readonly column: GridUnit;
+  readonly width: GridUnit;
+  readonly height: GridUnit;
+}
+export const GridRectSchema: z.ZodSchema<GridRect> = z.object({
+  row: z.number(),
+  column: z.number(),
+  width: z.number().nonnegative(),
+  height: z.number().nonnegative(),
+});
+
+export interface OptionPosition {
+  readonly type: 'option';
+  /** Center of the bubble (target mark) for this option, in grid coordinates. */
+  readonly bubbleCenter: GridPoint;
+  /**
+   * Bounding box of this option (in grid coordinates), used to crop/highlight
+   * the option in the adjudication UI.
+   */
+  readonly bounds: GridRect;
+  /**
+   * Identifying information for the specific option this position represents.
+   * For candidate options this maps to an OrderedCandidateOption; a
+   * multi-endorsed candidate may have multiple positions for the same option id
+   * but different parties.
+   */
+  readonly optionId: Id;
+  readonly partyIds?: readonly PartyId[];
+}
+export const OptionPositionSchema: z.ZodSchema<OptionPosition> = z.object({
+  type: z.literal('option'),
+  bubbleCenter: GridPointSchema,
+  bounds: GridRectSchema,
+  optionId: IdSchema,
+  partyIds: z.array(PartyIdSchema).optional(),
+});
+
+export interface WriteInPosition {
+  readonly type: 'write-in';
+  /** Center of the bubble (target mark) for this option, in grid coordinates. */
+  readonly bubbleCenter: GridPoint;
+  /** Bounding box of this option (in grid coordinates). */
+  readonly bounds: GridRect;
+  readonly writeInIndex: number;
+  /**
+   * The grid coordinates of the area of the ballot where the voter is expected
+   * to write the write-in candidate name. We use this to detect unmarked
+   * write-ins (when the voter wrote in a candidate name but didn't fill in the
+   * bubble).
+   */
+  readonly writeInArea: GridRect;
+}
+export const WriteInPositionSchema: z.ZodSchema<WriteInPosition> = z.object({
+  type: z.literal('write-in'),
+  bubbleCenter: GridPointSchema,
+  bounds: GridRectSchema,
+  writeInIndex: z.number().int().nonnegative(),
+  writeInArea: GridRectSchema,
+});
+
+export type ContestOptionPosition = OptionPosition | WriteInPosition;
+export const ContestOptionPositionSchema: z.ZodSchema<ContestOptionPosition> =
+  z.union([OptionPositionSchema, WriteInPositionSchema]);
+
+export interface ContestPosition {
+  readonly contestId: ContestId;
+  /** Bounding box of the whole contest (in grid coordinates). */
+  readonly bounds: GridRect;
+  readonly options: readonly ContestOptionPosition[];
+}
+export const ContestPositionSchema: z.ZodSchema<ContestPosition> = z.object({
+  contestId: ContestIdSchema,
+  bounds: GridRectSchema,
+  options: z.array(ContestOptionPositionSchema),
+});
+
+/**
+ * The contest positions for a single sheet, as a `[front, back]` tuple.
+ *
+ * Mirrors `SheetOf<ContestPosition[]>`; inlined as a tuple to avoid a circular
+ * import with hmpb.ts (which imports from this module).
+ */
+export type SheetPositions = readonly [
+  front: readonly ContestPosition[],
+  back: readonly ContestPosition[],
+];
+export const SheetPositionsSchema: z.ZodSchema<SheetPositions> = z.tuple([
+  z.array(ContestPositionSchema),
+  z.array(ContestPositionSchema),
+]);
+
 // Declared without an explicit `z.ZodSchema<BallotStyle>` annotation (using
 // `satisfies` instead) so the inferred `ZodObject` type stays available for
 // `.extend()` — software_versions.ts derives a v4.0 variant from it.
@@ -467,6 +581,7 @@ export const BallotStyleSchema = z.object({
   orderedCandidatesByContest: z
     .record(z.string(), z.array(OrderedCandidateOptionSchema))
     .optional(),
+  ballotPositions: z.array(SheetPositionsSchema).optional(),
 }) satisfies z.ZodType<BallotStyle>;
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
@@ -539,101 +654,6 @@ export enum AdjudicationReason {
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
   z.enum(AdjudicationReason);
-
-export interface GridPositionOption {
-  readonly type: 'option';
-  readonly sheetNumber: number;
-  readonly side: 'front' | 'back';
-  /**
-   * X coordinate for the center of the bubble for this option, relative to the
-   * timing mark grid.
-   */
-  readonly column: number;
-  /**
-   * Y coordinate for the center of the bubble for this option, relative to the
-   * timing mark grid.
-   */
-  readonly row: number;
-  readonly contestId: ContestId;
-
-  /**
-   * Identifying information for the specific option this grid position represents.
-   * For candidate options this maps to a OrderedCandidateOption, a multi-endorsed candidate
-   * may have multiple grid positions / ordered candidate options for the same candidate / option id
-   * but different parties.
-   */
-  readonly optionId: Id;
-  readonly partyIds?: readonly PartyId[];
-}
-export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
-  z.object({
-    type: z.literal('option'),
-    sheetNumber: z.number().int().positive(),
-    side: z.union([z.literal('front'), z.literal('back')]),
-    column: z.number().nonnegative(),
-    row: z.number().nonnegative(),
-    contestId: ContestIdSchema,
-    optionId: IdSchema,
-    partyIds: z.array(PartyIdSchema).optional(),
-  });
-
-export interface GridPositionWriteIn {
-  readonly type: 'write-in';
-  readonly sheetNumber: number;
-  readonly side: 'front' | 'back';
-  /**
-   * X coordinate for the center of the bubble for this option, relative to the
-   * timing mark grid.
-   */
-  readonly column: number;
-  /**
-   * Y coordinate for the center of the bubble for this option, relative to the
-   * timing mark grid.
-   */
-  readonly row: number;
-  readonly contestId: ContestId;
-  readonly writeInIndex: number;
-  /**
-   * The absolute grid coordinates of the area of the ballot where the voter is
-   * expected to write the write-in candidate name. We use this to detect
-   * unmarked write-ins (when the voter written in a candidate name but didn't
-   * fill in the bubble).
-   */
-  readonly writeInArea: Rect;
-}
-export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
-  z.object({
-    type: z.literal('write-in'),
-    sheetNumber: z.number().int().positive(),
-    side: z.union([z.literal('front'), z.literal('back')]),
-    column: z.number().nonnegative(),
-    row: z.number().nonnegative(),
-    contestId: ContestIdSchema,
-    writeInIndex: z.number().int().nonnegative(),
-    writeInArea: RectSchema,
-  });
-
-export type GridPosition = GridPositionOption | GridPositionWriteIn;
-export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
-  GridPositionOptionSchema,
-  GridPositionWriteInSchema,
-]);
-export interface GridLayout {
-  readonly ballotStyleId: BallotStyleId;
-  /**
-   * Area in timing mark units around a target mark (i.e. bubble) to consider
-   * part of the option for that target mark. This is used to crop the ballot
-   * image to show the write-in area for a given grid position.
-   */
-  readonly optionBoundsFromTargetMark: Outset;
-  readonly gridPositions: readonly GridPosition[];
-}
-export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
-  ballotStyleId: BallotStyleIdSchema,
-  optionBoundsFromTargetMark: OutsetSchema,
-  gridPositions: z.array(GridPositionSchema),
-});
-
 export interface Signature {
   image: string;
   caption: string;
@@ -722,7 +742,6 @@ export interface Election {
   readonly jurisdiction: Jurisdiction;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];
-  readonly gridLayouts?: readonly GridLayout[];
   readonly id: ElectionId;
   readonly parties: Parties;
   readonly pollingPlaces: readonly PollingPlace[];
@@ -740,7 +759,6 @@ export const ElectionSchema = z
     ballotStrings: UiStringsPackageSchema,
     ballotStyles: BallotStylesSchema,
     contests: ContestsSchema,
-    gridLayouts: z.array(GridLayoutSchema).optional(),
     jurisdiction: JurisdictionSchema,
     date: DateWithoutTimeSchema,
     districts: DistrictsSchema,
