@@ -27,16 +27,14 @@ pub struct InterpretedContestLayout {
 
 fn build_option_layout(
     timing_marks: &TimingMarks,
-    grid_layout: &GridLayout,
     grid_position: &GridPosition,
 ) -> Option<InterpretedContestOptionLayout> {
-    // Option bounding box parameters
-    let column_offset = -grid_layout.option_bounds_from_target_mark.left;
-    let row_offset = -grid_layout.option_bounds_from_target_mark.top;
-    let width: SubGridUnit = grid_layout.option_bounds_from_target_mark.left
-        + grid_layout.option_bounds_from_target_mark.right;
-    let height: SubGridUnit = grid_layout.option_bounds_from_target_mark.top
-        + grid_layout.option_bounds_from_target_mark.bottom;
+    // Option bounding box, stored per-option in grid coordinates.
+    let bounds = grid_position.bounds();
+    let left = bounds.column;
+    let right = bounds.column + bounds.width;
+    let top = bounds.row;
+    let bottom = bounds.row + bounds.height;
 
     let clamp_row = |row: SubGridUnit| -> SubGridUnit {
         row.clamp(
@@ -53,22 +51,12 @@ fn build_option_layout(
 
     let bubble_location = grid_position.location();
 
-    let top_left_location: Point<SubGridUnit> = Point::new(
-        clamp_column(bubble_location.column + column_offset),
-        clamp_row(bubble_location.row + row_offset),
-    );
-    let bottom_left_location: Point<SubGridUnit> = Point::new(
-        clamp_column(bubble_location.column + column_offset),
-        clamp_row(bubble_location.row + row_offset + height),
-    );
-    let top_right_location: Point<SubGridUnit> = Point::new(
-        clamp_column(bubble_location.column + column_offset + width),
-        clamp_row(bubble_location.row + row_offset),
-    );
-    let bottom_right_location: Point<SubGridUnit> = Point::new(
-        clamp_column(bubble_location.column + column_offset + width),
-        clamp_row(bubble_location.row + row_offset + height),
-    );
+    let top_left_location: Point<SubGridUnit> = Point::new(clamp_column(left), clamp_row(top));
+    let bottom_left_location: Point<SubGridUnit> =
+        Point::new(clamp_column(left), clamp_row(bottom));
+    let top_right_location: Point<SubGridUnit> = Point::new(clamp_column(right), clamp_row(top));
+    let bottom_right_location: Point<SubGridUnit> =
+        Point::new(clamp_column(right), clamp_row(bottom));
 
     let top_left_point =
         timing_marks.point_for_location(top_left_location.x, top_left_location.y)?;
@@ -125,7 +113,7 @@ pub fn build_interpreted_page_layout(
 
             let options = grid_positions
                 .iter()
-                .map(|grid_position| build_option_layout(timing_marks, grid_layout, grid_position))
+                .map(|grid_position| build_option_layout(timing_marks, grid_position))
                 .collect::<Option<Vec<_>>>()?;
 
             // Use the union of the option bounds as an approximation of the contest bounds

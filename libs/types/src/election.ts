@@ -568,6 +568,67 @@ export const SheetPositionsSchema: z.ZodSchema<SheetPositions> = z.tuple([
   z.array(ContestPositionSchema),
 ]);
 
+// GridPosition is the ballot interpreter's per-mark output type: it tags a
+// scored bubble with the contest/option it represents and where the bubble sits
+// on the timing-mark grid. It is NOT part of the election definition (ballot
+// geometry now lives in `ballotPositions` above); it only describes interpreted
+// marks, so it is kept here as the shared contract between the interpreter and
+// its TypeScript consumers.
+export interface GridPositionOption {
+  readonly type: 'option';
+  readonly sheetNumber: number;
+  readonly side: 'front' | 'back';
+  /** X coordinate of the bubble center, relative to the timing mark grid. */
+  readonly column: number;
+  /** Y coordinate of the bubble center, relative to the timing mark grid. */
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly optionId: Id;
+  readonly partyIds?: readonly PartyId[];
+}
+export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
+  z.object({
+    type: z.literal('option'),
+    sheetNumber: z.number().int().positive(),
+    side: z.union([z.literal('front'), z.literal('back')]),
+    column: z.number().nonnegative(),
+    row: z.number().nonnegative(),
+    contestId: ContestIdSchema,
+    optionId: IdSchema,
+    partyIds: z.array(PartyIdSchema).optional(),
+  });
+
+export interface GridPositionWriteIn {
+  readonly type: 'write-in';
+  readonly sheetNumber: number;
+  readonly side: 'front' | 'back';
+  /** X coordinate of the bubble center, relative to the timing mark grid. */
+  readonly column: number;
+  /** Y coordinate of the bubble center, relative to the timing mark grid. */
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly writeInIndex: number;
+  /** Grid coordinates of the write-in area, used to detect unmarked write-ins. */
+  readonly writeInArea: Rect;
+}
+export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
+  z.object({
+    type: z.literal('write-in'),
+    sheetNumber: z.number().int().positive(),
+    side: z.union([z.literal('front'), z.literal('back')]),
+    column: z.number().nonnegative(),
+    row: z.number().nonnegative(),
+    contestId: ContestIdSchema,
+    writeInIndex: z.number().int().nonnegative(),
+    writeInArea: RectSchema,
+  });
+
+export type GridPosition = GridPositionOption | GridPositionWriteIn;
+export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
+  GridPositionOptionSchema,
+  GridPositionWriteInSchema,
+]);
+
 // Declared without an explicit `z.ZodSchema<BallotStyle>` annotation (using
 // `satisfies` instead) so the inferred `ZodObject` type stays available for
 // `.extend()` — software_versions.ts derives a v4.0 variant from it.

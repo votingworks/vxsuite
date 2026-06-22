@@ -350,11 +350,14 @@ pub fn ballot_card(
     side_b_image: GrayImage,
     options: &Options,
 ) -> Result<InterpretedBallotCard> {
-    let Some(ref grid_layouts) = options.election.grid_layouts else {
+    // v4.1+ stores ballot geometry as `ballotPositions` on each ballot style;
+    // flatten it into the per-bubble grid layouts the interpreter scores against.
+    let grid_layouts = options.election.grid_layouts();
+    if grid_layouts.is_empty() {
         return Err(Error::InvalidElection {
-            message: "required field `gridLayouts` is missing".to_owned(),
+            message: "election has no ballot positions".to_owned(),
         });
-    };
+    }
     let mut ballot_card = Pair::new(
         (
             SIDE_A_LABEL,
