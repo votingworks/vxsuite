@@ -9,12 +9,18 @@ import {
   CandidateContest,
   CandidateContestOption,
   ContestOption,
+  Party,
   StraightPartyContest,
   YesNoContestOption,
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { expect, expectTypeOf, test } from 'vitest';
 import { allContestOptions, contestOptionName } from './all_contest_options';
+
+const parties: Party[] = [
+  { id: 'party-1', name: 'Party 1', fullName: 'Party One', abbrev: 'P1' },
+  { id: 'party-2', name: 'Party 2', fullName: 'Party Two', abbrev: 'P2' },
+];
 
 test('candidate contest with no write-ins', () => {
   fc.assert(
@@ -29,7 +35,7 @@ test('candidate contest with no write-ins', () => {
           assert(option.type === 'candidate');
           expect(option.id).toEqual(contest.candidates[i]?.id);
           expect(option.contestId).toEqual(contest.id);
-          expect(contestOptionName(contest, option)).toEqual(
+          expect(contestOptionName({ parties }, contest, option)).toEqual(
             contest.candidates[i]?.name
           );
           expect(option.isWriteIn).toEqual(false);
@@ -55,7 +61,7 @@ test('candidate contest with write-ins', () => {
               `write-in-${i - contest.candidates.length}`
           );
           expect(option.contestId).toEqual(contest.id);
-          expect(contestOptionName(contest, option)).toEqual(
+          expect(contestOptionName({ parties }, contest, option)).toEqual(
             contest.candidates[i]?.name ?? 'Write-In'
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
@@ -87,10 +93,10 @@ test('yesno contest', () => {
           contestId: contest.id,
         },
       ]);
-      expect(contestOptionName(contest, options[0]!)).toEqual(
+      expect(contestOptionName({ parties }, contest, options[0]!)).toEqual(
         contest.yesOption.label
       );
-      expect(contestOptionName(contest, options[1]!)).toEqual(
+      expect(contestOptionName({ parties }, contest, options[1]!)).toEqual(
         contest.noOption.label
       );
     })
@@ -155,11 +161,13 @@ test('candidate contest with ballot style ordering', () => {
   // Verify the order matches the ballot style ordering
   expect(options).toHaveLength(3);
   expect(options[0]?.id).toEqual('candidate-c');
-  expect(contestOptionName(contest, options[0]!)).toEqual('Charlie');
+  expect(contestOptionName({ parties }, contest, options[0]!)).toEqual(
+    'Charlie'
+  );
   expect(options[1]?.id).toEqual('candidate-a');
-  expect(contestOptionName(contest, options[1]!)).toEqual('Alice');
+  expect(contestOptionName({ parties }, contest, options[1]!)).toEqual('Alice');
   expect(options[2]?.id).toEqual('candidate-b');
-  expect(contestOptionName(contest, options[2]!)).toEqual('Bob');
+  expect(contestOptionName({ parties }, contest, options[2]!)).toEqual('Bob');
 });
 
 test('candidate contest with multi-endorsed candidates are deduplicated', () => {
@@ -199,9 +207,9 @@ test('candidate contest with multi-endorsed candidates are deduplicated', () => 
   // Verify multi-endorsed candidate appears only once (deduplicated by id)
   expect(options).toHaveLength(2);
   expect(options[0]?.id).toEqual('candidate-a');
-  expect(contestOptionName(contest, options[0]!)).toEqual('Alice');
+  expect(contestOptionName({ parties }, contest, options[0]!)).toEqual('Alice');
   expect(options[1]?.id).toEqual('candidate-b');
-  expect(contestOptionName(contest, options[1]!)).toEqual('Bob');
+  expect(contestOptionName({ parties }, contest, options[1]!)).toEqual('Bob');
 });
 
 test('straight party contest', () => {
@@ -227,4 +235,10 @@ test('straight party contest', () => {
       contestId: 'contest-1',
     },
   ]);
+  expect(contestOptionName({ parties }, contest, options[0]!)).toEqual(
+    'Party One'
+  );
+  expect(contestOptionName({ parties }, contest, options[1]!)).toEqual(
+    'Party Two'
+  );
 });
