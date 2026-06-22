@@ -11,6 +11,7 @@ export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   filename: '',
   exportTimestamp: '',
   numCvrsImported: 0,
+  pollingPlaceIds: [],
   precinctIds: [],
   scannerIds: [],
   sha256Hash: '',
@@ -41,6 +42,7 @@ export const mockCastVoteRecordFileMetadata: CastVoteRecordFileMetadata[] = [
     scannerIds: ['0002'],
     exportTimestamp: new Date(2020, 11, 9, 15, 59, 32),
     isTestModeResults: false,
+    pollingPlaceIds: ['polling-place-1'],
   },
   {
     name: TEST_FILE1,
@@ -49,6 +51,7 @@ export const mockCastVoteRecordFileMetadata: CastVoteRecordFileMetadata[] = [
     scannerIds: ['0001'],
     exportTimestamp: new Date(2020, 11, 9, 15, 49, 32),
     isTestModeResults: true,
+    pollingPlaceIds: ['polling-place-2'],
   },
   {
     name: TEST_FILE2,
@@ -57,6 +60,7 @@ export const mockCastVoteRecordFileMetadata: CastVoteRecordFileMetadata[] = [
     scannerIds: ['0003'],
     exportTimestamp: new Date(2020, 11, 7, 15, 49, 32),
     isTestModeResults: true,
+    pollingPlaceIds: ['polling-place-3'],
   },
 ];
 
