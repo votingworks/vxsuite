@@ -90,6 +90,7 @@ export function isContestCrossoverVoted(
 }
 
 export function adjudicatedVotes(
+  election: Election,
   contests: ContestListItem[],
   adjudicatedContests: AdjudicatedContests
 ): VotesDict {
@@ -110,7 +111,11 @@ export function adjudicatedVotes(
                 ? [
                     {
                       ...option.definition,
-                      name: contestOptionName(contest, option.definition),
+                      name: contestOptionName(
+                        election,
+                        contest,
+                        option.definition
+                      ),
                     },
                   ]
                 : []
@@ -164,7 +169,7 @@ export function deriveCrossoverVoteStatus(
 ): BallotCrossoverVoteStatus {
   const ballotHasCrossoverVoteAfterAdjudication = hasCrossoverVote(
     election,
-    adjudicatedVotes(contestItems, adjudicatedContests)
+    adjudicatedVotes(election, contestItems, adjudicatedContests)
   );
   return {
     ballotHasScannedCrossoverVote,

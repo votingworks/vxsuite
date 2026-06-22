@@ -231,9 +231,9 @@ export function ContestAdjudicationScreen({
         .filter((option) => option.type !== 'candidate' || !option.isWriteIn)
         .map((option) => ({
           ...option,
-          name: contestOptionName(contest, option),
+          name: contestOptionName(election, contest, option),
         })),
-    [contestOptions, contest]
+    [election, contestOptions, contest]
   );
 
   const writeInOptionIds = useMemo(
@@ -261,6 +261,7 @@ export function ContestAdjudicationScreen({
     voteCount,
     derivedStraightPartyVotes,
   } = useContestAdjudicationState({
+    election,
     contestAdjudicationData,
     writeInCandidates,
     contest,

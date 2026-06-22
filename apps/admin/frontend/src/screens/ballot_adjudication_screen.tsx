@@ -534,6 +534,7 @@ export function BallotAdjudicationScreen(
     election
   );
   const votesAfterAdjudication = adjudicatedVotes(
+    election,
     contestItems,
     adjudicatedContests
   );

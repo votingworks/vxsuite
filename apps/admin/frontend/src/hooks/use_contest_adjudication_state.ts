@@ -5,7 +5,7 @@ import type {
   ContestAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import type { ContestOptionId, Contest } from '@votingworks/types';
+import type { ContestOptionId, Contest, Election } from '@votingworks/types';
 import { assert, assertDefined, deepEqual, find } from '@votingworks/basics';
 
 import {
@@ -88,6 +88,7 @@ export function isMarginalMarkPending(
 }
 
 export function useContestAdjudicationState(initialValues: {
+  election: Pick<Election, 'parties'>;
   contestAdjudicationData: ContestAdjudicationData;
   writeInCandidates: WriteInCandidateRecord[];
   contest: Contest;
@@ -123,6 +124,7 @@ export function useContestAdjudicationState(initialValues: {
   derivedStraightPartyVotes: ContestOptionId[];
 } {
   const {
+    election,
     contestAdjudicationData,
     contest,
     adjudicatedOptions = {},
@@ -136,7 +138,7 @@ export function useContestAdjudicationState(initialValues: {
     .filter((o) => o.definition.type !== 'candidate' || !o.definition.isWriteIn)
     .map((o) => ({
       ...o.definition,
-      name: contestOptionName(contest, o.definition),
+      name: contestOptionName(election, contest, o.definition),
     }));
 
   function getOptionState(

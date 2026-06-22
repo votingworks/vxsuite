@@ -842,7 +842,7 @@ function ContestForm({
                         }
                       />
                       <label htmlFor={`${candidate.id}`}>
-                        {contestOptionName(contest, candidate)}
+                        {contestOptionName(election, contest, candidate)}
                       </label>
                     </ContestDataRow>
                   ))}
