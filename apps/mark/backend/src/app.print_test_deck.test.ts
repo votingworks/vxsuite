@@ -43,6 +43,14 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
+// Summary ballots embed a `ballotAuditId` (a random UUID) in their QR code. Pin
+// it so the printed-ballot PDF snapshots are deterministic.
+vi.mock('node:crypto', async (importActual) => ({
+  ...(await importActual<typeof import('node:crypto')>()),
+  // eslint-disable-next-line vx/gts-identifiers
+  randomUUID: () => '00000000-0000-0000-0000-000000000000',
+}));
+
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -103,13 +111,15 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   const precinctId = electionDefinition.election.precincts[0].id;
   await apiClient.printTestDeck({ precinctId });
 
-  // One combined summary-ballot deck PDF + one tally report. The ballot deck's
-  // QR codes embed a random `ballotAuditId`, so its rendering is snapshot-tested
-  // deterministically in libs/test-decks; here we verify the tally report, which
+  // One combined summary-ballot deck PDF + one tally report. The tally report
   // must reflect summary ballots only.
   const jobs = mockPrinterHandler.getPrintJobHistory();
   expect(jobs).toHaveLength(2);
 
+  await expect(jobs[0].filename).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'test-deck-precinct-summary-ballots',
+    failureThreshold: 0.0001,
+  });
   await expect(jobs[1].filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-precinct-tally-report',
     failureThreshold: 0.0001,

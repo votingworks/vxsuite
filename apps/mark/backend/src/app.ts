@@ -1,4 +1,5 @@
 import util from 'node:util';
+import { randomUUID as uuid } from 'node:crypto';
 import express, { Application } from 'express';
 import {
   generateSignedHashValidationQrCodeValue,
@@ -305,6 +306,7 @@ export function buildApi(ctx: Context) {
           electionDefinition,
           ballotSpecs,
           isLiveMode: false,
+          generateBallotAuditId: () => uuid(),
         });
         if (deckPdf) {
           await printer.print({ data: deckPdf, sides: PrintSides.OneSided });
