@@ -239,17 +239,23 @@ function getBallotContestLayouts(
 
 export function generateTestDeckCastVoteRecords(
   election: Election,
-  options: { includeSummaryBallots: boolean }
+  options: { includeSummaryBallots: boolean; includeBubbleBallots: boolean }
 ): Tabulation.CastVoteRecord[] {
-  const { includeSummaryBallots = false } = options;
+  const { includeSummaryBallots, includeBubbleBallots } = options;
 
-  // Generate HMPB ballot specs
-  const hmpbBallotSpecs: TestDeckBallot[] = generateTestDeckBallots({
-    election,
-    ballotFormat: 'bubble',
-    includeBlankBallots: false,
-    includeOvervotedBallots: false,
-  });
+  if (!includeSummaryBallots && !includeBubbleBallots) {
+    return [];
+  }
+
+  // Generate HMPB ballot specs if configured
+  const hmpbBallotSpecs: TestDeckBallot[] = includeBubbleBallots
+    ? generateTestDeckBallots({
+        election,
+        ballotFormat: 'bubble',
+        includeBlankBallots: false,
+        includeOvervotedBallots: false,
+      })
+    : [];
 
   // Generate summary ballot specs if configured
   const summaryBallotSpecs: TestDeckBallot[] = includeSummaryBallots

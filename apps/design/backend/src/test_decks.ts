@@ -86,6 +86,7 @@ export async function createTestDeckTallyReports({
   const reports = new Map<string, Uint8Array>();
 
   const cvrs = generateTestDeckCastVoteRecords(election, {
+    includeBubbleBallots: true,
     includeSummaryBallots,
   });
 
