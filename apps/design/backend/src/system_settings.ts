@@ -52,6 +52,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
 
     bmdPrintMode: 'bubble_ballot',
     enableEarlyVoting: true,
+    enableTestDeckPrinting: true,
     quickResultsReportingUrl: resultsReportingUrl(),
   },
 
@@ -99,6 +100,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     adminAdjudicationReasons: [],
 
     bmdPrintMode: 'summary',
+    enableTestDeckPrinting: true,
     precinctScanNumberOfReportCopies: 2,
     quickResultsReportingUrl: resultsReportingUrl(),
   },
