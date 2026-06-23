@@ -52,6 +52,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     ],
 
     bmdPrintMode: 'bubble_ballot',
+    enableEarlyVoting: true,
     quickResultsReportingUrl: resultsReportingUrl(),
   },
 
@@ -75,6 +76,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
 
     areWriteInCandidatesQualified: true,
     bmdPrintMode: 'bubble_ballot',
+    enableEarlyVoting: true,
     precinctScanEnableWriteInImageReport: true,
     quickResultsReportingUrl: resultsReportingUrl(),
   },
@@ -135,6 +137,7 @@ export const SLI_DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   adminAdjudicationReasons: [],
 
   bmdPrintMode: 'bubble_ballot',
+  enableEarlyVoting: true,
 };
 
 export function defaultSystemSettings(
