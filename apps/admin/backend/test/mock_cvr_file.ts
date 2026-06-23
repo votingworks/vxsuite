@@ -45,10 +45,12 @@ const mockPageLayout: BallotPageLayout = {
  */
 export function addMockCvrFileToStore({
   electionId,
+  pollingPlaceId,
   mockCastVoteRecordFile,
   store,
 }: {
   electionId: Id;
+  pollingPlaceId: Id;
   mockCastVoteRecordFile: MockCastVoteRecordFile;
   store: Store;
 }): string[] {
@@ -62,6 +64,7 @@ export function addMockCvrFileToStore({
       ballotCastingMode: mockCastVoteRecord.ballotCastingMode,
       startedAt: new Date().toISOString(),
     });
+
     scannerIds.add(mockCastVoteRecord.scannerId);
   }
   const cvrFileId = uuid();
@@ -73,6 +76,7 @@ export function addMockCvrFileToStore({
     exportedTimestamp: new Date().toISOString(),
     sha256Hash: 'mock-hash',
     scannerIds,
+    pollingPlaceIds: new Set(pollingPlaceId),
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));

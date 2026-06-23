@@ -61,7 +61,12 @@ test('uses appropriate headers', async () => {
       multiplier: 2,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
@@ -352,7 +357,12 @@ test('can include sheet counts', async () => {
       multiplier: 10,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const iterable = generateBallotCountReportCsv({
     store,

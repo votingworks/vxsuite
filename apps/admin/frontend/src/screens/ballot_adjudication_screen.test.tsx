@@ -742,6 +742,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
       filename: 'test.jsonl',
       exportTimestamp: new Date().toISOString(),
       numCvrsImported: 1,
+      pollingPlaceIds: ['precinct-1-polling-place'],
       precinctIds: ['precinct-1'],
       scannerIds: ['scanner-1'],
       sha256Hash: 'hash',

@@ -160,14 +160,25 @@ export async function listCastVoteRecordExportsInDirectory(
     if (entry.type === FileSystemEntryType.Directory) {
       const exportDirectoryNameComponents =
         parseCastVoteRecordReportExportDirectoryName(entry.name);
+
       if (!exportDirectoryNameComponents) {
         continue;
       }
+
       const metadataResult = await readCastVoteRecordExportMetadata(entry.path);
       if (metadataResult.isErr()) {
         continue;
       }
+
       const metadata = metadataResult.ok();
+      const scannerIds = new Set<string>();
+      const pollingPlaceIds = new Set<string>();
+
+      for (const batch of metadata.batchManifest) {
+        scannerIds.add(batch.scannerId);
+        pollingPlaceIds.add(batch.pollingPlaceId);
+      }
+
       castVoteRecordExportSummaries.push({
         cvrCount: iter(metadata.batchManifest)
           .map((batch) => batch.sheetCount)
@@ -178,7 +189,8 @@ export async function listCastVoteRecordExportsInDirectory(
         isTestModeResults: exportDirectoryNameComponents.inTestMode,
         name: entry.name,
         path: entry.path,
-        scannerIds: [exportDirectoryNameComponents.machineId],
+        pollingPlaceIds: [...pollingPlaceIds],
+        scannerIds: [...scannerIds],
       });
     }
   }
@@ -248,6 +260,8 @@ export async function importCastVoteRecords(
 
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
+    const pollingPlaceIds = new Set<string>();
+
     for (const batch of batchManifest) {
       store.addScannerBatch({
         batchId: batch.id,
@@ -257,7 +271,9 @@ export async function importCastVoteRecords(
         ballotCastingMode: batch.ballotCastingMode,
         startedAt: batch.startTime,
       });
+
       scannerIds.add(batch.scannerId);
+      pollingPlaceIds.add(batch.pollingPlaceId);
     }
 
     // Create a top-level record for the import
@@ -268,6 +284,7 @@ export async function importCastVoteRecords(
       exportedTimestamp,
       filename: exportDirectoryName,
       isTestMode: isTestReport(castVoteRecordReportMetadata),
+      pollingPlaceIds,
       scannerIds,
       sha256Hash: exportHash,
     });

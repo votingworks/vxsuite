@@ -386,6 +386,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     electionId,
     mockCastVoteRecordFile: mockEarlyVotingCvrs,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
   const officialCandidateName = 'Obadiah Carrigan';

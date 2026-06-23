@@ -112,7 +112,12 @@ test('tabulateScannedCardCounts - grouping', () => {
       multiplier: 34,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const testCases: Array<{
     groupBy?: Tabulation.GroupBy;
@@ -258,7 +263,12 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
       multiplier: 7,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   // Without date grouping, each batch is its own group (3 total)
   expect(
@@ -330,7 +340,12 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
       multiplier: 30,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   store.setManualResults({
     electionId,
@@ -422,7 +437,12 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       multiplier: 6,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const groupKey = getGroupKey({}, {});
   expect(
@@ -474,7 +494,12 @@ test('tabulateFullCardCounts - manual results', () => {
       multiplier: 30,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   // add manual results
   store.setManualResults({
@@ -658,7 +683,12 @@ test('tabulateFullCardCounts - blankBallots', () => {
       multiplier: 2,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const testCases: Array<{
     adjudicationFlags?: Admin.ReportingFilter['adjudicationFlags'];
@@ -770,7 +800,12 @@ test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', () => {
       multiplier: 4,
     },
   ];
-  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
 
   const [crossoverCounts] = groupMapToGroupList(
     tabulateFullCardCounts({

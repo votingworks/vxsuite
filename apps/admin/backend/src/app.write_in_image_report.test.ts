@@ -117,6 +117,7 @@ function addHmpbWriteInCvr(
       { ...BASE_CVR, card: { type: 'hmpb', sheetNumber: 1 }, votes: {} },
     ],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
   const { electionDefinition: ed } = assertDefined(
@@ -152,6 +153,7 @@ function addBmdTextWriteIn(
     electionId,
     mockCastVoteRecordFile: [{ ...BASE_CVR, card: { type: 'bmd' }, votes: {} }],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
   const { electionDefinition: ed } = assertDefined(
@@ -352,6 +354,7 @@ function addHmpbCvrWithLayouts(
       { ...BASE_CVR, card: { type: 'hmpb', sheetNumber: 1 }, votes: {} },
     ],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
   const { electionDefinition: ed } = assertDefined(
@@ -536,6 +539,7 @@ test('CVR image cache: getBallotImagesAndLayouts called once per CVR', async () 
       { ...BASE_CVR, card: { type: 'hmpb', sheetNumber: 1 }, votes: {} },
     ],
     store,
+    pollingPlaceId: 'polling-place-1',
   });
   assert(cvrId !== undefined);
   const { electionDefinition: ed } = assertDefined(

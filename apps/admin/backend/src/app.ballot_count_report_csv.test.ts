@@ -205,6 +205,7 @@ test('creates accurate ballot count reports', async () => {
     electionId,
     mockCastVoteRecordFile: mockEarlyVotingCvrs,
     store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
   });
 
   // add manual data

@@ -75,6 +75,7 @@ export interface CastVoteRecordFileMetadata {
   readonly path: string;
   readonly cvrCount: number;
   readonly scannerIds: readonly string[];
+  readonly pollingPlaceIds: readonly string[];
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
 }
@@ -139,6 +140,7 @@ export interface CastVoteRecordFileRecord {
   readonly filename: string;
   readonly exportTimestamp: Iso8601Timestamp;
   readonly numCvrsImported: number;
+  readonly pollingPlaceIds: string[];
   readonly precinctIds: string[];
   readonly scannerIds: string[];
   readonly sha256Hash: string;
@@ -155,6 +157,7 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     filename: z.string().nonempty(),
     exportTimestamp: Iso8601TimestampSchema,
     numCvrsImported: z.number(),
+    pollingPlaceIds: z.array(z.string()),
     precinctIds: z.array(z.string()),
     scannerIds: z.array(z.string()),
     sha256Hash: z.string().nonempty(),

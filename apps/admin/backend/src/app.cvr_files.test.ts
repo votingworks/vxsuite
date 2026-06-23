@@ -41,7 +41,7 @@ import {
   ListCastVoteRecordExportsInDirectory,
   listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records';
-import { CvrFileImportInfo } from './types';
+import { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types';
 
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -131,12 +131,13 @@ test('happy path - mock election flow', async () => {
   const availableCastVoteRecordFiles =
     await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles).toMatchObject([
-    expect.objectContaining({
+    expect.objectContaining<Partial<CastVoteRecordFileMetadata>>({
       name: testExportDirectoryName,
       cvrCount: 184,
       exportTimestamp: new Date(expectedExportTimestamp),
       isTestModeResults: true,
       scannerIds: [DEV_MACHINE_ID],
+      pollingPlaceIds: expect.toSatisfy((ids) => ids.length === 1),
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -150,6 +151,7 @@ test('happy path - mock election flow', async () => {
 
   // add a file
   let exportDirectoryPath = availableCastVoteRecordFiles[0]!.path;
+  const { pollingPlaceIds } = availableCastVoteRecordFiles[0]!;
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
     path: exportDirectoryPath,
   });
@@ -180,6 +182,7 @@ test('happy path - mock election flow', async () => {
       exportTimestamp: expectedExportTimestamp,
       filename: testExportDirectoryName,
       numCvrsImported: 184,
+      pollingPlaceIds,
       precinctIds: ['town-id-00701-precinct-id-default'],
       scannerIds: [DEV_MACHINE_ID],
     }),

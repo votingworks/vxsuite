@@ -92,6 +92,7 @@ test('getMatchingAbsenteePollingPlaces and getLiveResultsReportingUrl', async ()
         multiplier: 2,
       },
     ],
+    pollingPlaceId: 'polling-place-1',
   });
 
   const matching = (
