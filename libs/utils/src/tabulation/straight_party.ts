@@ -3,26 +3,24 @@ import {
   ContestOptionId,
   Election,
   PartyId,
+  StraightPartyVote,
   Tabulation,
+  VotesDict,
 } from '@votingworks/types';
-import { assert, assertDefined, mapObject } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  mapObject,
+  Optional,
+} from '@votingworks/basics';
 
 export function deriveStraightPartyVotes(
   election: Election,
   votes: Tabulation.Votes
 ): Tabulation.Votes {
-  const straightPartyContest = election.contests.find(
-    (contest) => contest.type === 'straight-party'
-  );
-  if (!straightPartyContest) {
-    return votes;
-  }
-  assert(election.type === 'general');
-
-  const straightPartyId = selectedStraightPartyId(
-    assertDefined(votes[straightPartyContest.id])
-  );
+  const straightPartyId = selectedStraightPartyId(election, votes);
   if (!straightPartyId) return votes;
+  assert(election.type === 'general');
 
   const contestsById = Object.fromEntries(
     election.contests.map((contest) => [contest.id, contest])
@@ -40,12 +38,20 @@ export function deriveStraightPartyVotes(
 }
 
 export function selectedStraightPartyId(
-  straightPartyContestVotes: readonly ContestOptionId[]
+  election: Election,
+  votes: VotesDict
 ): PartyId | undefined {
-  if (straightPartyContestVotes.length !== 1) {
+  const straightPartyContest = election.contests.find(
+    (contest) => contest.type === 'straight-party'
+  );
+  if (!straightPartyContest) return undefined;
+  const straightPartyContestVotes = votes[
+    straightPartyContest.id
+  ] as Optional<StraightPartyVote>;
+  if (straightPartyContestVotes?.length !== 1) {
     return undefined;
   }
-  return assertDefined(straightPartyContestVotes[0]);
+  return straightPartyContestVotes[0];
 }
 
 export function deriveStraightPartyVotesForContest(

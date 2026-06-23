@@ -5,25 +5,19 @@ import type {
   ContestOptionAdjudicationData,
   CvrContestTag,
 } from '@votingworks/admin-backend';
-import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   Contest,
   BallotPageContestOptionLayout,
   ContestId,
   ContestOptionId,
   Election,
-  PartyId,
   Rect,
   Side,
   Vote,
   VotesDict,
-  StraightPartyVote,
 } from '@votingworks/types';
-import {
-  contestOptionName,
-  hasCrossoverVote,
-  selectedStraightPartyId,
-} from '@votingworks/utils';
+import { contestOptionName, hasCrossoverVote } from '@votingworks/utils';
 
 export type AdjudicatedContests = Map<ContestId, AdjudicatedCvrContest>;
 
@@ -212,18 +206,4 @@ export function contestPartyLabel(
     contest.partyId
     ? find(election.parties, (p) => p.id === contest.partyId).fullName
     : undefined;
-}
-
-export function selectedStraightPartyIdAfterAdjudication(
-  election: Election,
-  votesAfterAdjudication: VotesDict
-): PartyId | undefined {
-  const straightPartyContest = election.contests.find(
-    (contest) => contest.type === 'straight-party'
-  );
-  if (!straightPartyContest) return undefined;
-  const straightPartyContestVotes = assertDefined(
-    votesAfterAdjudication[straightPartyContest.id]
-  ) as StraightPartyVote;
-  return selectedStraightPartyId(straightPartyContestVotes);
 }
