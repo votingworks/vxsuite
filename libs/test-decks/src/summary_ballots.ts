@@ -20,11 +20,13 @@ export async function createPrecinctSummaryBallotTestDeck({
   ballotSpecs,
   isLiveMode,
   emitProgress,
+  generateBallotAuditId = uuid,
 }: {
   electionDefinition: ElectionDefinition;
   ballotSpecs: TestDeckBallot[];
   isLiveMode: boolean;
   emitProgress?: (ballotsRendered: number) => void;
+  generateBallotAuditId?: () => string;
 }): Promise<Uint8Array | undefined> {
   if (ballotSpecs.length === 0) {
     return undefined;
@@ -66,7 +68,7 @@ export async function createPrecinctSummaryBallotTestDeck({
         'mark'
       );
 
-      const ballotAuditId = uuid();
+      const ballotAuditId = generateBallotAuditId();
 
       for (const pageBreak of pageBreaks) {
         const pageContests = getContestsForPage(
