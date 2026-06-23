@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { DesktopPalette, Icons, SegmentedButton } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
