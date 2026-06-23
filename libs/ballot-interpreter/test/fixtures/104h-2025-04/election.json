@@ -103,7 +103,226 @@
       "groupId": "1",
       "precincts": ["j6ydtpkgvwyz"],
       "districts": ["so8zqmh2y2r5"],
-      "languages": ["en"]
+      "languages": ["en"],
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "2z8wwfkv1pqe",
+              "bounds": {
+                "column": 1.7187076088296955,
+                "row": 14.158276031434186,
+                "width": 0,
+                "height": 3.7942043222003914
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.158276031434186,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 14.158276031434186,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "e5svlnablxhr"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.423010805500983,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 15.423010805500983,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "kt67jeq7posc"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.687745579567782,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 16.687745579567782,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "sh6brr6z1qnl"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.952480353634577,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 17.952480353634577,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "zfmlpijs312z"
+                }
+              ]
+            },
+            {
+              "contestId": "fgim6l2uk3nb",
+              "bounds": {
+                "column": 12.284622024910593,
+                "row": 14.158276031434186,
+                "width": 0,
+                "height": 3.7942043222003914
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.158276031434186,
+                    "column": 12.284622024910593
+                  },
+                  "bounds": {
+                    "column": 12.284622024910593,
+                    "row": 14.158276031434186,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "5un9orlkr8mv"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.423010805500983,
+                    "column": 12.284622024910593
+                  },
+                  "bounds": {
+                    "column": 12.284622024910593,
+                    "row": 15.423010805500983,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "y30abp7zt1br"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.687745579567782,
+                    "column": 12.284622024910593
+                  },
+                  "bounds": {
+                    "column": 12.284622024910593,
+                    "row": 16.687745579567782,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "5g7phaxg7hp1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.952480353634577,
+                    "column": 12.284622024910593
+                  },
+                  "bounds": {
+                    "column": 12.284622024910593,
+                    "row": 17.952480353634577,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "c6j1gtllibb5"
+                }
+              ]
+            },
+            {
+              "contestId": "autxsj0cdzod",
+              "bounds": {
+                "column": 1.7187076088296955,
+                "row": 23.67325638506876,
+                "width": 0,
+                "height": 1.264734774066799
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.67325638506876,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 23.67325638506876,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "11a0rk2efv1l"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.93799115913556,
+                    "column": 1.7187076088296955
+                  },
+                  "bounds": {
+                    "column": 1.7187076088296955,
+                    "row": 24.93799115913556,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "ardy4snjybl0"
+                }
+              ]
+            },
+            {
+              "contestId": "klhpdgrdszt0",
+              "bounds": {
+                "column": 17.567579232951044,
+                "row": 25.181114931237722,
+                "width": 0,
+                "height": 1.2647347740667954
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.181114931237722,
+                    "column": 17.567579232951044
+                  },
+                  "bounds": {
+                    "column": 17.567579232951044,
+                    "row": 25.181114931237722,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "wkogyhxjb778"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.445849705304518,
+                    "column": 17.567579232951044
+                  },
+                  "bounds": {
+                    "column": 17.567579232951044,
+                    "row": 26.445849705304518,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "optionId": "altkrzty6a94"
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     }
   ],
   "contests": [
@@ -206,127 +425,6 @@
         "id": "altkrzty6a94",
         "label": "No"
       }
-    }
-  ],
-  "gridLayouts": [
-    {
-      "ballotStyleId": "1_en",
-      "optionBoundsFromTargetMark": {
-        "top": 0,
-        "right": 0,
-        "bottom": 0,
-        "left": 0
-      },
-      "gridPositions": [
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 14.158276031434186,
-          "contestId": "2z8wwfkv1pqe",
-          "optionId": "e5svlnablxhr"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 15.423010805500983,
-          "contestId": "2z8wwfkv1pqe",
-          "optionId": "kt67jeq7posc"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 16.687745579567782,
-          "contestId": "2z8wwfkv1pqe",
-          "optionId": "sh6brr6z1qnl"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 17.952480353634577,
-          "contestId": "2z8wwfkv1pqe",
-          "optionId": "zfmlpijs312z"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.284622024910593,
-          "row": 14.158276031434186,
-          "contestId": "fgim6l2uk3nb",
-          "optionId": "5un9orlkr8mv"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.284622024910593,
-          "row": 15.423010805500983,
-          "contestId": "fgim6l2uk3nb",
-          "optionId": "y30abp7zt1br"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.284622024910593,
-          "row": 16.687745579567782,
-          "contestId": "fgim6l2uk3nb",
-          "optionId": "5g7phaxg7hp1"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.284622024910593,
-          "row": 17.952480353634577,
-          "contestId": "fgim6l2uk3nb",
-          "optionId": "c6j1gtllibb5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 23.67325638506876,
-          "contestId": "autxsj0cdzod",
-          "optionId": "11a0rk2efv1l"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.7187076088296955,
-          "row": 24.93799115913556,
-          "contestId": "autxsj0cdzod",
-          "optionId": "ardy4snjybl0"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 17.567579232951044,
-          "row": 25.181114931237722,
-          "contestId": "klhpdgrdszt0",
-          "optionId": "wkogyhxjb778"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 17.567579232951044,
-          "row": 26.445849705304518,
-          "contestId": "klhpdgrdszt0",
-          "optionId": "altkrzty6a94"
-        }
-      ]
     }
   ],
   "jurisdiction": {
