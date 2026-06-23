@@ -149,14 +149,14 @@ pub struct GridRect {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ContestOptionPosition {
-    #[serde(rename = "option")]
+    #[serde(rename_all = "camelCase", rename = "option")]
     Option {
         bubble_center: GridPoint,
         bounds: GridRect,
         option_id: OptionId,
     },
 
-    #[serde(rename = "write-in")]
+    #[serde(rename_all = "camelCase", rename = "write-in")]
     WriteIn {
         bubble_center: GridPoint,
         bounds: GridRect,
@@ -770,6 +770,74 @@ mod tests {
             contests: vec![],
         };
         assert!(election.grid_layouts().is_empty());
+    }
+
+    #[test]
+    fn test_ballot_positions_deserialization_is_camel_case() {
+        // The TypeScript renderer emits ballotPositions with camelCase fields
+        // (bubbleCenter, optionId, writeInIndex, writeInArea). Deserialize a
+        // ballot style's positions and confirm grid_layouts() flattens them.
+        let json = r#"{
+            "id": "bs-1",
+            "groupId": "bs-1",
+            "precincts": [],
+            "districts": [],
+            "languages": ["en"],
+            "ballotPositions": [
+                [
+                    [
+                        {
+                            "contestId": "contest-1",
+                            "bounds": { "row": 1, "column": 1, "width": 10, "height": 4 },
+                            "options": [
+                                {
+                                    "type": "option",
+                                    "bubbleCenter": { "row": 2, "column": 3 },
+                                    "bounds": { "row": 1, "column": 1, "width": 10, "height": 2 },
+                                    "optionId": "option-1"
+                                },
+                                {
+                                    "type": "write-in",
+                                    "bubbleCenter": { "row": 5, "column": 3 },
+                                    "bounds": { "row": 4, "column": 1, "width": 10, "height": 2 },
+                                    "writeInIndex": 0,
+                                    "writeInArea": { "row": 4, "column": 5, "width": 4, "height": 1 }
+                                }
+                            ]
+                        }
+                    ],
+                    []
+                ]
+            ]
+        }"#;
+        let ballot_style: BallotStyle = serde_json::from_str(json).unwrap();
+        let election = Election {
+            title: "Test".to_string(),
+            ballot_styles: vec![ballot_style],
+            precincts: vec![],
+            mark_thresholds: None,
+            contests: vec![],
+        };
+        let grid_layouts = election.grid_layouts();
+        assert_eq!(grid_layouts.len(), 1);
+        assert_eq!(grid_layouts[0].grid_positions.len(), 2);
+        match &grid_layouts[0].grid_positions[0] {
+            GridPosition::Option {
+                option_id, bounds, ..
+            } => {
+                assert_eq!(*option_id, OptionId::from("option-1".to_string()));
+                assert_eq!(
+                    *bounds,
+                    GridRect {
+                        row: 1.0,
+                        column: 1.0,
+                        width: 10.0,
+                        height: 2.0
+                    }
+                );
+            }
+            GridPosition::WriteIn { .. } => panic!("expected Option"),
+        }
     }
 
     #[test]
