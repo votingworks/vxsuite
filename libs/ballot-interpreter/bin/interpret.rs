@@ -340,25 +340,16 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
                 None
             };
 
-            // Show YES option
-            println!(
-                "   {}",
-                stringify_vote!(
-                    yesno_contest.yes_option.label.as_str(),
-                    selected_option_id == Some(&yesno_contest.yes_option.id),
-                    green
-                )
-            );
-
-            // Show NO option
-            println!(
-                "   {}",
-                stringify_vote!(
-                    yesno_contest.no_option.label.as_str(),
-                    selected_option_id == Some(&yesno_contest.no_option.id),
-                    red
-                )
-            );
+            for option in &yesno_contest.options {
+                println!(
+                    "   {}",
+                    stringify_vote!(
+                        option.label.as_str(),
+                        selected_option_id == Some(&option.id),
+                        green
+                    )
+                );
+            }
         }
         Contest::StraightParty(_) => {
             unimplemented!("STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented")

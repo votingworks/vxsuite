@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import {
   readElectionGeneralDefinition as readElectionDefinition,
   readElectionStraightPartyDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotType,
@@ -398,14 +399,21 @@ test('throws on trying to encode a bad yes/no vote', () => {
     'cannot encode a non-array yes/no vote: "judicial-robert-demergue-option-yes"'
   );
 
-  // Overvotes fail too.
+  // Overvotes are encodable (both bits set); the scanner detects the overvote
+  // after decoding, not the encoder.
   page.votes['judicial-robert-demergue'] = [
     'judicial-robert-demergue-option-yes',
     'judicial-robert-demergue-option-no',
   ];
-  expect(() => encodeSummaryBallotPage(election, page)).toThrowError(
-    'cannot encode a yes/no overvote: ["judicial-robert-demergue-option-yes","judicial-robert-demergue-option-no"]'
+  expect(() => encodeSummaryBallotPage(election, page)).not.toThrow();
+  const decoded = decodeSummaryBallotPage(
+    electionDefinition,
+    encodeSummaryBallotPage(election, page)
   );
+  expect(decoded.votes['judicial-robert-demergue']).toEqual([
+    'judicial-robert-demergue-option-yes',
+    'judicial-robert-demergue-option-no',
+  ]);
 });
 
 function buildEmptyVotesBmdPage(): {
@@ -485,4 +493,69 @@ test('decode ballot hash from summary ballot metadata', () => {
   expect(decodeBallotHash(encoded)).toEqual(
     ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
   );
+});
+
+test('encodes & decodes 3-option yesno contest — all three options round-trip', () => {
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+  const { election, ballotHash } = electionDefinition;
+  // The fishing contest has three options: ban-fishing (YES), allow-fishing
+  // (NO), and regulate-fishing (REGULATE). Pick a ballot style that includes it.
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.filter((c) => c.id === 'fishing');
+
+  function roundTrip(fishingVote: string[]): string[] {
+    const votes = vote(pageContests, { fishing: fishingVote });
+    const page: SummaryBallotPage = {
+      ballotHash,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      isTestMode: false,
+      ballotType: BallotType.Precinct,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'fishing-audit-id',
+      contests: pageContests,
+      votes,
+    };
+    const encoded = encodeSummaryBallotPage(election, page);
+    const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+    return decoded.votes['fishing'] as string[];
+  }
+
+  expect(roundTrip(['ban-fishing'])).toEqual(['ban-fishing']);
+  expect(roundTrip(['allow-fishing'])).toEqual(['allow-fishing']);
+  expect(roundTrip(['regulate-fishing'])).toEqual(['regulate-fishing']);
+});
+
+test('3-option yesno overvote encodes and decodes correctly', () => {
+  // Overvotes are encodable (N bits set); the scanner detects the overvote
+  // after decoding, not the encoder.
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinct = election.precincts[0]!;
+  const contests = getContests({ election, ballotStyle });
+  const pageContests = contests.filter((c) => c.id === 'fishing');
+
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: false,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'fishing-overvote-audit-id',
+    contests: pageContests,
+    votes: { fishing: ['ban-fishing', 'regulate-fishing'] },
+  };
+
+  expect(() => encodeSummaryBallotPage(election, page)).not.toThrow();
+  const decoded = decodeSummaryBallotPage(
+    electionDefinition,
+    encodeSummaryBallotPage(election, page)
+  );
+  expect(decoded.votes['fishing']).toEqual(['ban-fishing', 'regulate-fishing']);
 });
