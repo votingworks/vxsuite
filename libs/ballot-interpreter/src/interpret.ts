@@ -43,6 +43,7 @@ import {
 import {
   allContestOptions,
   convertMarksToVotesDict,
+  electionHasBallotPositions,
   time,
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
@@ -825,7 +826,7 @@ export async function interpretSheet(
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpb = options.electionDefinition.election.gridLayouts
+    const hmpb = electionHasBallotPositions(options.electionDefinition.election)
       ? await interpretHmpb(sheet, options)
       : undefined;
 

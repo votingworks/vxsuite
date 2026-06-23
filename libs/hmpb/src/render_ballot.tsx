@@ -641,21 +641,22 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // regardless of precinct/ballot type/mode, so we just deduplicate by ballot
   // style id. NH "federal office only" variants aren't tabulated so exclude them.
   const ballotPositionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>(
-    iter(ballotLayouts)
-      .filter(
-        (ballot) =>
-          !(
-            'isFederalOfficeOnly' in ballot.props &&
-            ballot.props.isFederalOfficeOnly
-          )
-      )
-      .map((ballot) => ballot.ballotStylePositions)
-      .toMap((positions) => positions.ballotStyleId)
-      .entries()
-      .map(([ballotStyleId, [firstPositions]]) => [
-        ballotStyleId,
-        assertDefined(firstPositions).ballotPositions,
-      ])
+    iter(
+      iter(ballotLayouts)
+        .filter(
+          (ballot) =>
+            !(
+              'isFederalOfficeOnly' in ballot.props &&
+              ballot.props.isFederalOfficeOnly
+            )
+        )
+        .map((ballot) => ballot.ballotStylePositions)
+        .toMap((positions) => positions.ballotStyleId)
+        .entries()
+    ).map(([ballotStyleId, [firstPositions]]) => [
+      ballotStyleId,
+      assertDefined(firstPositions).ballotPositions,
+    ])
   );
 
   const contests = election.contests

@@ -25,7 +25,10 @@ import {
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
 } from '@votingworks/backend';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  electionHasBallotPositions,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
@@ -531,7 +534,7 @@ export function buildApi(ctx: AppContext) {
         return 0;
       }
       const { election } = electionRecord.electionDefinition;
-      if (!election.gridLayouts) {
+      if (!electionHasBallotPositions(election)) {
         return 0;
       }
 

@@ -27,6 +27,7 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
+  gridPositionsFromBallotPositions,
   mapSheet,
   Size,
   straightPartyNotYetImplemented,
@@ -38,6 +39,7 @@ import {
   allContestOptions,
   buildCVRSnapshotBallotTypeMetadata,
   CachedElectionLookups,
+  electionHasBallotPositions,
   hasWriteIns,
 } from '@votingworks/utils';
 import {
@@ -137,7 +139,7 @@ export function generateBallotPageLayouts(
   election: Election,
   metadata: BallotMetadata
 ): readonly BallotPageLayout[] {
-  if (!election.gridLayouts) {
+  if (!electionHasBallotPositions(election)) {
     return [];
   }
 
@@ -148,15 +150,15 @@ export function generateBallotPageLayouts(
     })
   );
 
-  const gridLayout = election.gridLayouts.find(
-    (layout) => layout.ballotStyleId === metadata.ballotStyleId
-  );
-
-  if (!gridLayout) {
+  if (!ballotStyle.ballotPositions) {
     throw new Error(
-      `no grid layout found for ballot style ${metadata.ballotStyleId}`
+      `no ballot positions found for ballot style ${metadata.ballotStyleId}`
     );
   }
+
+  const gridPositions = gridPositionsFromBallotPositions(
+    ballotStyle.ballotPositions
+  );
 
   const { paperSize } = election.ballotLayout;
   const { width, height } = ballotPaperDimensions(paperSize);
@@ -173,7 +175,7 @@ export function generateBallotPageLayouts(
     },
     contests: election.contests
       .filter((contest) =>
-        gridLayout.gridPositions.some(
+        gridPositions.some(
           (position) =>
             position.side === side && position.contestId === contest.id
         )
@@ -221,9 +223,10 @@ export function* generateCvrs({
   const { election } = electionDefinition;
   const { ballotStyles } = election;
 
-  // Currently we can generate only BMD ballots for non-gridLayouts elections.
-  // For gridLayouts elections we just generate HMPB ballots for simplicity but could generated BMD.
-  const bmdBallots = Boolean(!election.gridLayouts);
+  // Currently we can generate only BMD ballots for elections without ballot
+  // positions. For elections with ballot positions we just generate HMPB
+  // ballots for simplicity but could generate BMD.
+  const bmdBallots = !electionHasBallotPositions(election);
 
   for (const ballotStyle of ballotStyles) {
     const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;

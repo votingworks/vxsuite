@@ -385,9 +385,9 @@ export function buildApi(ctx: AppContext) {
                 precincts,
                 parties,
                 contests: contestsWithSplitCandidateNames,
-                // Remove any existing ballot styles/grid layouts so we can generate our own
+                // Remove any existing ballot styles (and their ballot
+                // positions) so we can generate our own
                 ballotStyles: [],
-                gridLayouts: undefined,
                 // Fill in a blank seal if none is provided
                 seal: sourceElection.seal ?? '',
                 signature: sourceElection.signature,

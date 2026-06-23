@@ -4,7 +4,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { getMaxSheetsPerBallot } from './index';
+import { electionHasBallotPositions, getMaxSheetsPerBallot } from './index';
 
 test('getMaxSheetsPerBallot', () => {
   // election with no gridLayouts available
@@ -23,4 +23,16 @@ test('getMaxSheetsPerBallot', () => {
       electionFamousNames2021Fixtures.makeMultiSheetElection()
     )
   ).toEqual(3);
+});
+
+test('electionHasBallotPositions', () => {
+  // election with no ballot positions
+  expect(electionHasBallotPositions(readElectionGeneral())).toEqual(false);
+
+  // election whose ballot styles have ballot positions
+  expect(
+    electionHasBallotPositions(
+      electionFamousNames2021Fixtures.makeMultiSheetElection()
+    )
+  ).toEqual(true);
 });
