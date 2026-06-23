@@ -1,9 +1,15 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   readElectionGeneral,
+  readElectionStraightParty,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import { CandidateContest, Election, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  Election,
+  StraightPartyContest,
+  YesNoContest,
+} from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -689,5 +695,56 @@ describe('cross-endorsed candidates', () => {
     // Should show both party affiliations
     screen.getByText('Federalist');
     screen.getByText(/People/);
+  });
+});
+
+describe('straight party contest', () => {
+  const electionStraightParty = readElectionStraightParty();
+  const straightPartyContest = find(
+    electionStraightParty.contests,
+    (c): c is StraightPartyContest => c.type === 'straight-party'
+  );
+
+  test('with a vote shows the selected party', () => {
+    const returnToContest = vi.fn();
+    render(
+      <Review
+        election={electionStraightParty}
+        contests={[straightPartyContest]}
+        precinctId={electionStraightParty.precincts[0].id}
+        votes={{
+          [straightPartyContest.id]: [straightPartyContest.optionIds[0]],
+        }}
+        returnToContest={returnToContest}
+        ballotStyle={electionStraightParty.ballotStyles[0]}
+      />
+    );
+    const contestCard = screen
+      .getByText('Straight Party')
+      .closest('div[role="button"]') as HTMLElement;
+    screen.getByText('Federalist Party');
+    expect(
+      within(contestCard).queryByText('You may still vote in this contest.')
+    ).toEqual(null);
+
+    userEvent.click(within(contestCard).getButton(/Change/));
+    expect(returnToContest).toHaveBeenCalledWith(straightPartyContest.id);
+  });
+
+  test('with no vote shows the undervote warning', () => {
+    render(
+      <Review
+        election={electionStraightParty}
+        contests={[straightPartyContest]}
+        precinctId={electionStraightParty.precincts[0].id}
+        votes={{}}
+        returnToContest={vi.fn()}
+        ballotStyle={electionStraightParty.ballotStyles[0]}
+      />
+    );
+    const contestCard = screen
+      .getByText('Straight Party')
+      .closest('div[role="button"]') as HTMLElement;
+    within(contestCard).getByText('You may still vote in this contest.');
   });
 });
