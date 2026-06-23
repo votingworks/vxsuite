@@ -13,8 +13,13 @@ import {
 } from '@votingworks/ui';
 
 import { Toolbar } from './toolbar';
-import { routeMap } from '../routes';
-import { getElectionRecord, getMachineConfig, getPollingPlaceId } from '../api';
+import { electionManagerRoutes, routeMap } from '../routes';
+import {
+  getElectionRecord,
+  getMachineConfig,
+  getPollingPlaceId,
+  getSystemSettings,
+} from '../api';
 
 export function ScreenWrapper({
   children,
@@ -29,11 +34,13 @@ export function ScreenWrapper({
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const getPollingPlaceIdQuery = getPollingPlaceId.useQuery();
+  const getSystemSettingsQuery = getSystemSettings.useQuery();
 
   if (
     !getElectionRecordQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
-    !getPollingPlaceIdQuery.isSuccess
+    !getPollingPlaceIdQuery.isSuccess ||
+    !getSystemSettingsQuery.isSuccess
   ) {
     return null;
   }
@@ -41,8 +48,14 @@ export function ScreenWrapper({
   const electionRecord = getElectionRecordQuery.data;
   const machineConfig = getMachineConfigQuery.data;
   const pollingPlaceId = getPollingPlaceIdQuery.data;
+  const { enableTestDeckPrinting } = getSystemSettingsQuery.data;
 
   const showNavItems = electionRecord !== null || authType === 'system_admin';
+  const navRoutes = Object.values(routeMap[authType]).filter((route) =>
+    route.path === electionManagerRoutes.testDecks.path
+      ? enableTestDeckPrinting
+      : true
+  );
 
   return (
     <Screen flexDirection="row">
@@ -52,7 +65,7 @@ export function ScreenWrapper({
         </Link>
         <NavList>
           {showNavItems &&
-            Object.values(routeMap[authType]).map((route) => (
+            navRoutes.map((route) => (
               <NavListItem key={route.path}>
                 <NavLink
                   to={route.path}

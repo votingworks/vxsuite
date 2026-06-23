@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ApiMock,
@@ -31,22 +32,21 @@ afterEach(() => {
 function mockBaseQueries({
   pollingPlaceId = null,
 }: { pollingPlaceId?: string | null } = {}) {
-  apiMock.getElectionRecord.expectOptionalRepeatedCallsWith().resolves({
-    electionDefinition,
-    electionPackageHash: 'test-hash',
-  });
-  apiMock.getMachineConfig.expectOptionalRepeatedCallsWith().resolves({
-    machineId: 'test-machine',
-    codeVersion: 'test-version',
-  });
-  apiMock.getPollingPlaceId
-    .expectOptionalRepeatedCallsWith()
-    .resolves(pollingPlaceId);
-  apiMock.getDeviceStatuses.expectOptionalRepeatedCallsWith().resolves({
+  apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
     usbDrive: { status: 'no_drive' },
     printer: { connected: true, config: HP_LASER_PRINTER_CONFIG },
   });
-  apiMock.getTestMode.expectOptionalRepeatedCallsWith().resolves(true);
+  apiMock.getElectionRecord.expectCallWith().resolves({
+    electionDefinition,
+    electionPackageHash: 'test-hash',
+  });
+  apiMock.getMachineConfig.expectCallWith().resolves({
+    machineId: 'test-machine',
+    codeVersion: 'test-version',
+  });
+  apiMock.getPollingPlaceId.expectCallWith().resolves(pollingPlaceId);
+  apiMock.getSystemSettings.expectCallWith().resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getTestMode.expectCallWith().resolves(true);
 }
 
 function renderScreen({
