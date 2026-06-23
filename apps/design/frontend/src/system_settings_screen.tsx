@@ -860,6 +860,17 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxButton
+              label="Enable Early Voting"
+              isChecked={Boolean(systemSettings.enableEarlyVoting)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  enableEarlyVoting: isChecked ? true : undefined, // Completely omit when unchecked
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
       </Row>
