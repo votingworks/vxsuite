@@ -64,7 +64,6 @@ const Content = styled.div`
 `;
 
 const DetailsBody = styled.ul`
-  align-items: start;
   align-items: center;
   display: grid;
   gap: ${GAP};
