@@ -33,6 +33,7 @@ import {
   BallotStyleGroupId,
   PrecinctSplit,
   Contest,
+  ElectionType,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -314,13 +315,43 @@ export function arbitraryCandidateContest({
   });
 }
 
+function arbitraryStraightPartyContest({
+  id = arbitraryContestId(),
+  districtId = arbitraryDistrictId(),
+  partyIds = fc.array(arbitraryPartyId(), { minLength: 1 }),
+}: {
+  id?: fc.Arbitrary<Contest['id']>;
+  districtId?: fc.Arbitrary<District['id']>;
+  partyIds?: fc.Arbitrary<Array<Party['id']>>;
+} = {}): fc.Arbitrary<Contest> {
+  return fc.record({
+    type: fc.constant('straight-party' as const),
+    id,
+    title: fc.string({ minLength: 1 }),
+    districtId,
+    optionIds: partyIds,
+  });
+}
+
 export function arbitraryContests({
+  electionType,
   partyIds,
 }: {
+  electionType?: ElectionType;
   partyIds?: fc.Arbitrary<Array<Party['id']>>;
 } = {}): fc.Arbitrary<readonly Contest[]> {
+  const arbitraryStraightPartyContests: fc.Arbitrary<Contest[]> = (
+    partyIds ?? fc.constant([])
+  ).chain((ids) =>
+    electionType === 'general' && ids.length === 0
+      ? fc.constant([])
+      : fc
+          .option(arbitraryStraightPartyContest({ partyIds }))
+          .map((contest) => (contest ? [contest] : []))
+  );
   return fc
     .tuple(
+      arbitraryStraightPartyContests,
       fc.array(
         arbitraryCandidateContest({
           partyIds,
@@ -329,7 +360,8 @@ export function arbitraryContests({
       ),
       fc.array(arbitraryYesNoContest())
     )
-    .map(([candidateContests, otherContests]) => [
+    .map(([straightPartyContests, candidateContests, otherContests]) => [
+      ...straightPartyContests,
       ...candidateContests,
       ...otherContests,
     ])
@@ -486,6 +518,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({
+            electionType: type,
             partyIds: fc.constant(parties.map(({ id }) => id)),
           }),
           ballotStyles: fc

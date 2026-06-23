@@ -15,13 +15,18 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
-  straightPartyNotYetImplemented,
   unsafeParse,
   VotesDict,
   YesNoContest,
   YesNoVote,
+  StraightPartyVote,
 } from '@votingworks/types';
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
 
 /**
@@ -196,45 +201,59 @@ function encodeBallotVotesInto(
     const contestVote = votes[contest.id];
 
     if (isVotePresent(contestVote)) {
-      /* istanbul ignore next */
-      if (contest.type === 'straight-party') {
-        return straightPartyNotYetImplemented();
-      }
-      if (contest.type === 'yesno') {
-        const ynVote = contestVote as YesNoVote;
-
-        writeYesNoVote(bits, ynVote, contest);
-      } else {
-        const choices = contestVote as CandidateVote;
-
-        // candidate choices get one bit per candidate
-        for (const candidate of contest.candidates) {
-          bits.writeBoolean(
-            choices.some((choice) => choice.id === candidate.id)
-          );
+      switch (contest.type) {
+        case 'yesno': {
+          const ynVote = contestVote as YesNoVote;
+          writeYesNoVote(bits, ynVote, contest);
+          break;
         }
+        case 'candidate': {
+          const choices = contestVote as CandidateVote;
 
-        if (contest.allowWriteIns) {
-          // write write-in data
-          const writeInCount = iter(choices)
-            .filter((choice) => choice.isWriteIn)
-            .count();
-          const nonWriteInCount = choices.length - writeInCount;
-          const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount);
+          // candidate choices get one bit per candidate
+          for (const candidate of contest.candidates) {
+            bits.writeBoolean(
+              choices.some((choice) => choice.id === candidate.id)
+            );
+          }
 
-          if (maximumWriteIns > 0) {
-            bits.writeUint(writeInCount, { max: maximumWriteIns });
+          if (contest.allowWriteIns) {
+            // write write-in data
+            const writeInCount = iter(choices)
+              .filter((choice) => choice.isWriteIn)
+              .count();
+            const nonWriteInCount = choices.length - writeInCount;
+            const maximumWriteIns = Math.max(
+              0,
+              contest.seats - nonWriteInCount
+            );
 
-            for (const choice of choices) {
-              if (choice.isWriteIn) {
-                bits.writeString(choice.name, {
-                  encoding: WriteInEncoding,
-                  maxLength: MAXIMUM_WRITE_IN_LENGTH,
-                });
+            if (maximumWriteIns > 0) {
+              bits.writeUint(writeInCount, { max: maximumWriteIns });
+
+              for (const choice of choices) {
+                if (choice.isWriteIn) {
+                  bits.writeString(choice.name, {
+                    encoding: WriteInEncoding,
+                    maxLength: MAXIMUM_WRITE_IN_LENGTH,
+                  });
+                }
               }
             }
           }
+          break;
         }
+        case 'straight-party': {
+          for (const partyId of contest.optionIds) {
+            bits.writeBoolean(
+              (contestVote as StraightPartyVote).includes(partyId)
+            );
+          }
+          break;
+        }
+        default:
+          /* istanbul ignore next */
+          throwIllegalValue(contest);
       }
     }
   }
@@ -283,48 +302,65 @@ function decodeBallotVotes(
 
   // read vote data
   for (const contest of contestsWithAnswers) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      return straightPartyNotYetImplemented();
-    }
-    if (contest.type === 'yesno') {
-      // yesno votes get a single bit
-      votes[contest.id] = bits.readBoolean()
-        ? [contest.yesOption.id]
-        : [contest.noOption.id];
-    } else {
-      const contestVote: Candidate[] = [];
-
-      // candidate choices get one bit per candidate
-      for (const candidate of contest.candidates) {
-        if (bits.readBoolean()) {
-          contestVote.push(candidate);
-        }
+    switch (contest.type) {
+      case 'yesno': {
+        // yesno votes get a single bit
+        votes[contest.id] = bits.readBoolean()
+          ? [contest.yesOption.id]
+          : [contest.noOption.id];
+        break;
       }
+      case 'candidate': {
+        const contestVote: Candidate[] = [];
 
-      if (contest.allowWriteIns) {
-        // read write-in data
-        const maximumWriteIns = Math.max(0, contest.seats - contestVote.length);
-
-        if (maximumWriteIns > 0) {
-          const writeInCount = bits.readUint({ max: maximumWriteIns });
-
-          for (let i = 0; i < writeInCount; i += 1) {
-            const name = bits.readString({
-              encoding: WriteInEncoding,
-              maxLength: MAXIMUM_WRITE_IN_LENGTH,
-            });
-
-            contestVote.push({
-              id: `write-in-${name}`,
-              name,
-              isWriteIn: true,
-            });
+        // candidate choices get one bit per candidate
+        for (const candidate of contest.candidates) {
+          if (bits.readBoolean()) {
+            contestVote.push(candidate);
           }
         }
-      }
 
-      votes[contest.id] = contestVote;
+        if (contest.allowWriteIns) {
+          // read write-in data
+          const maximumWriteIns = Math.max(
+            0,
+            contest.seats - contestVote.length
+          );
+
+          if (maximumWriteIns > 0) {
+            const writeInCount = bits.readUint({ max: maximumWriteIns });
+
+            for (let i = 0; i < writeInCount; i += 1) {
+              const name = bits.readString({
+                encoding: WriteInEncoding,
+                maxLength: MAXIMUM_WRITE_IN_LENGTH,
+              });
+
+              contestVote.push({
+                id: `write-in-${name}`,
+                name,
+                isWriteIn: true,
+              });
+            }
+          }
+        }
+
+        votes[contest.id] = contestVote;
+        break;
+      }
+      case 'straight-party': {
+        const contestVote = [];
+        for (const partyId of contest.optionIds) {
+          if (bits.readBoolean()) {
+            contestVote.push(partyId);
+          }
+        }
+        votes[contest.id] = contestVote;
+        break;
+      }
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(contest);
     }
   }
 

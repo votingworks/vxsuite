@@ -32,7 +32,6 @@ import {
   hasSplits,
   PrecinctOrSplit,
   CandidateVote,
-  straightPartyNotYetImplemented,
 } from './election';
 
 /**
@@ -457,15 +456,14 @@ export function vote(
 ): VotesDict {
   const votes: VotesDict = {};
   for (const contest of contests) {
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
     const choice = shorthand[contest.id];
     if (!choice) {
       votes[contest.id] = [];
-    } else if (contest.type === 'yesno') {
-      assert(Array.isArray(choice), 'yesno shorthand must be an array');
+    } else if (contest.type === 'yesno' || contest.type === 'straight-party') {
+      assert(
+        Array.isArray(choice),
+        'yesno/straight-party shorthand must be an array'
+      );
       votes[contest.id] = choice;
     } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
       votes[contest.id] = contest.candidates.filter((c) =>

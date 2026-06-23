@@ -4,7 +4,7 @@ use super::error::Error;
 use super::write_in_name::WriteInName;
 use crate::{
     coding::BitSize,
-    election::{Contest, OptionId},
+    election::{Contest, OptionId, PartyId},
 };
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -35,6 +35,7 @@ pub type YesNoVote = OptionId;
 pub enum ContestVote {
     Candidate(Vec<CandidateVote>),
     YesNo(YesNoVote),
+    StraightParty(Vec<PartyId>),
 }
 
 impl ToBitStreamWith<'_> for ContestVote {
@@ -96,6 +97,12 @@ impl ToBitStreamWith<'_> for ContestVote {
                             yesno_contest.no_option.id,
                         )
                     });
+                }
+            }
+
+            (Contest::StraightParty(straight_party_contest), Self::StraightParty(votes)) => {
+                for party_id in &straight_party_contest.option_ids {
+                    w.write_bit(votes.contains(party_id))?;
                 }
             }
 
@@ -167,10 +174,15 @@ impl FromBitStreamWith<'_> for ContestVote {
                     yesno_contest.no_option.id.clone()
                 }))
             }
-            Contest::StraightParty(_) => {
-                unimplemented!(
-                    "STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented"
-                )
+            Contest::StraightParty(straight_party_contest) => {
+                // straight-party votes get one bit per party
+                let mut votes = Vec::new();
+                for party_id in &straight_party_contest.option_ids {
+                    if r.read_bit()? {
+                        votes.push(party_id.clone());
+                    }
+                }
+                Ok(Self::StraightParty(votes))
             }
         }
     }
@@ -182,6 +194,7 @@ impl ContestVote {
         match self {
             Self::Candidate(votes) => !votes.is_empty(),
             Self::YesNo(_) => true,
+            Self::StraightParty(votes) => !votes.is_empty(),
         }
     }
 }
