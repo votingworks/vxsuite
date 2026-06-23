@@ -211,30 +211,31 @@ interface BallotContestLayout {
 }
 
 function getBallotContestLayouts(election: Election): BallotContestLayout[] {
-  return election.ballotStyles
-    .filter((ballotStyle) => ballotStyle.ballotPositions)
-    .map((ballotStyle) => {
-      const gridPositions = gridPositionsFromBallotPositions(
-        assertDefined(ballotStyle.ballotPositions)
-      );
-      const numSheets = Math.max(...gridPositions.map((gp) => gp.sheetNumber));
-      const contestIdsBySheet: BallotContestLayout['contestIdsBySheet'] =
-        Array.from({
-          length: numSheets,
-        }).map(() => []);
-      const oneContestOptionPerContest = uniqueBy(
-        gridPositions,
-        ({ contestId }) => contestId
-      );
-      for (const contestOption of oneContestOptionPerContest) {
-        const { sheetNumber, contestId } = contestOption;
-        assertDefined(contestIdsBySheet[sheetNumber - 1]).push(contestId);
-      }
-      return {
-        ballotStyleId: ballotStyle.id,
-        contestIdsBySheet,
-      };
-    });
+  return election.ballotStyles.map((ballotStyle) => {
+    const gridPositions = gridPositionsFromBallotPositions(
+      assertDefined(
+        ballotStyle.ballotPositions,
+        `ballotStyle '${ballotStyle.id}' is missing ballotPositions`
+      )
+    );
+    const numSheets = Math.max(...gridPositions.map((gp) => gp.sheetNumber));
+    const contestIdsBySheet: BallotContestLayout['contestIdsBySheet'] =
+      Array.from({
+        length: numSheets,
+      }).map(() => []);
+    const oneContestOptionPerContest = uniqueBy(
+      gridPositions,
+      ({ contestId }) => contestId
+    );
+    for (const contestOption of oneContestOptionPerContest) {
+      const { sheetNumber, contestId } = contestOption;
+      assertDefined(contestIdsBySheet[sheetNumber - 1]).push(contestId);
+    }
+    return {
+      ballotStyleId: ballotStyle.id,
+      contestIdsBySheet,
+    };
+  });
 }
 
 export function generateTestDeckCastVoteRecords(
