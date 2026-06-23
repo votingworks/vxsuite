@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -95,6 +95,22 @@ test('add an election', async () => {
 
   expect(store.getElection('nonexistent-id')).toEqual(undefined);
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
+});
+
+test('addElection cleanup in case of failure', async () => {
+  const tempDirectory = makeTemporaryDirectory();
+  const store = Store.memoryStore(tempDirectory);
+  await expect(
+    store.addElection({
+      electionData: `${electionTwoPartyPrimaryFixtures.electionJson.asText()}!UH-OH-CORRUPTED`,
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-hash',
+    })
+  ).rejects.toThrow();
+
+  expect(readdirSync(tempDirectory)).toContain('election-packages');
+  expect(readdirSync(join(tempDirectory, 'election-packages'))).toEqual([]);
 });
 
 test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only counts', async () => {

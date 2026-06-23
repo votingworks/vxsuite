@@ -53,7 +53,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
@@ -191,8 +191,8 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Builds and returns a new store whose data is kept in memory. An
-   * `imageDirPath` must be provided, but may be a temporary directory if
+   * Builds and returns a new store whose data is kept in memory. A
+   * `persistenceDirPath` must be provided, but may be a temporary directory if
    * desired.
    */
   static memoryStore(persistenceDirPath: string): Store {
@@ -285,25 +285,31 @@ export class Store implements BaseStore {
       id
     );
     await mkdir(dirname(electionPackageFilePath), { recursive: true });
-    await writeFile(electionPackageFilePath, electionPackageFileContents);
 
-    this.withTransaction(() => {
-      this.client.run(
-        `
-        insert into elections (
+    try {
+      await writeFile(electionPackageFilePath, electionPackageFileContents);
+      this.withTransaction(() => {
+        this.client.run(
+          `
+          insert into elections (
+            id,
+            election_data,
+            system_settings_data,
+            election_package_hash
+          ) values (?, ?, ?, ?)
+          `,
           id,
-          election_data,
-          system_settings_data,
-          election_package_hash
-        ) values (?, ?, ?, ?)
-        `,
-        id,
-        electionData,
-        systemSettingsData,
-        electionPackageHash
-      );
-      this.createElectionMetadataRecords(id);
-    });
+          electionData,
+          systemSettingsData,
+          electionPackageHash
+        );
+        this.createElectionMetadataRecords(id);
+      });
+    } catch (error) {
+      // Be sure to clean up the election package file in case of failure
+      await unlink(electionPackageFilePath);
+      throw error;
+    }
 
     return id;
   }
