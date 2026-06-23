@@ -122,18 +122,26 @@ function normalizeRustVotes(
 
 /**
  * Normalizes TypeScript VotesDict for comparison: candidate votes become
- * arrays of candidate IDs, yes/no votes become the selected option ID.
+ * arrays of candidate IDs, yes/no votes become the selected option ID string,
+ * and straight-party votes become arrays of party IDs (matching the Rust side).
  */
-function normalizeTsVotes(votes: Record<string, unknown>): NormalizedVotes {
+function normalizeTsVotes(
+  votes: Record<string, unknown>,
+  contests: readonly Contest[]
+): NormalizedVotes {
   const normalized: NormalizedVotes = {};
   for (const [contestId, vote] of Object.entries(votes)) {
     if (!vote) continue;
     const voteArr = vote as unknown[];
     if (voteArr.length === 0) continue;
 
+    const contest = contests.find((c) => c.id === contestId);
     const first = voteArr[0];
     if (typeof first === 'string') {
-      normalized[contestId] = first;
+      // straight-party votes are string[] and should stay as an array;
+      // yesno/measure votes are [optionId] and collapse to a bare string.
+      normalized[contestId] =
+        contest?.type === 'straight-party' ? (voteArr as string[]) : first;
     } else if (typeof first === 'object' && first !== null && 'id' in first) {
       normalized[contestId] = voteArr.map((c) => (c as { id: string }).id);
     }
@@ -226,7 +234,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
             election,
             ballotStyle.id
           );
-          const tsVotes = normalizeTsVotes(votes);
+          const tsVotes = normalizeTsVotes(votes, pageContests);
           expect(rustVotes).toEqual(tsVotes);
         }
       }
@@ -365,8 +373,8 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
             pageContests.map((c) => c.id)
           );
 
-          const tsVotes = normalizeTsVotes(votes);
-          const decodedVotes = normalizeTsVotes(decoded.votes);
+          const tsVotes = normalizeTsVotes(votes, pageContests);
+          const decodedVotes = normalizeTsVotes(decoded.votes, pageContests);
           expect(decodedVotes).toEqual(tsVotes);
         }
       }
