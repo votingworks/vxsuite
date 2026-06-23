@@ -59,14 +59,12 @@ import { randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
   asSqliteBool,
-  BooleanEnvironmentVariableName,
   fromSqliteBool,
   getBallotStyleGroup,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
   inferPartyFromVotes,
   partisanContests,
-  isFeatureFlagEnabled,
   SqliteBool,
 } from '@votingworks/utils';
 import {
@@ -211,16 +209,16 @@ export class Store implements BaseStore {
     await this.clearBallotImages();
   }
 
-  isEarlyVotingEnabled(): boolean {
-    return isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING);
+  isEarlyVotingEnabled(electionId: Id): boolean {
+    return this.getSystemSettings(electionId).enableEarlyVoting ?? false;
   }
 
   /**
    * Derive the voting method from the ballot type and the
    * batch's ballot casting mode, if early voting is enabled.
    */
-  private getVotingMethodSqlExpr(): string {
-    if (this.isEarlyVotingEnabled()) {
+  private getVotingMethodSqlExpr(electionId: Id): string {
+    if (this.isEarlyVotingEnabled(electionId)) {
       return `(CASE WHEN scanner_batches.ballot_casting_mode = 'early_voting' THEN 'early_voting' ELSE cvrs.ballot_type END)`;
     }
     return `cvrs.ballot_type`;
@@ -727,7 +725,8 @@ export class Store implements BaseStore {
    */
   private addVotingMethodRecords({ electionId }: { electionId: Id }): void {
     const votingMethods = Tabulation.SUPPORTED_VOTING_METHODS.filter(
-      (method) => method !== 'early_voting' || this.isEarlyVotingEnabled()
+      (method) =>
+        method !== 'early_voting' || this.isEarlyVotingEnabled(electionId)
     );
     const params: Bindable[] = [];
     for (const votingMethod of votingMethods) {
@@ -1528,7 +1527,7 @@ export class Store implements BaseStore {
 
     if (filter.votingMethods) {
       whereParts.push(
-        `${this.getVotingMethodSqlExpr()} in ${asQueryPlaceholders(
+        `${this.getVotingMethodSqlExpr(electionId)} in ${asQueryPlaceholders(
           filter.votingMethods
         )}`
       );
@@ -1635,7 +1634,7 @@ export class Store implements BaseStore {
           cvrs.ballot_style_group_id as ballotStyleGroupId,
           ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
-          ${this.getVotingMethodSqlExpr()} as votingMethod,
+          ${this.getVotingMethodSqlExpr(electionId)} as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.card_type as cardType,
@@ -1758,8 +1757,10 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push(`${this.getVotingMethodSqlExpr()} as votingMethod`);
-      groupByParts.push(this.getVotingMethodSqlExpr());
+      selectParts.push(
+        `${this.getVotingMethodSqlExpr(electionId)} as votingMethod`
+      );
+      groupByParts.push(this.getVotingMethodSqlExpr(electionId));
     }
 
     for (const row of this.client.each(
@@ -2484,7 +2485,9 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByVotingMethod) {
-      selectParts.push(`${this.getVotingMethodSqlExpr()} as votingMethod`);
+      selectParts.push(
+        `${this.getVotingMethodSqlExpr(electionId)} as votingMethod`
+      );
     }
 
     const officialCandidateNameLookup =

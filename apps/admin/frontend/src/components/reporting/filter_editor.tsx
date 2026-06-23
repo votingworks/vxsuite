@@ -14,12 +14,8 @@ import {
   getBallotStyleLabel,
 } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
-import {
-  BooleanEnvironmentVariableName,
-  getGroupedBallotStyles,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import { getScannerBatches } from '../../api';
+import { getGroupedBallotStyles } from '@votingworks/utils';
+import { getScannerBatches, getSystemSettings } from '../../api';
 import {
   getPartiesWithPrimaryElections,
   getValidDistricts,
@@ -98,10 +94,12 @@ function generateOptionsForFilter({
   filterType,
   election,
   scannerBatches,
+  isEarlyVotingEnabled,
 }: {
   filterType: FilterType;
   election: Election;
   scannerBatches: ScannerBatch[];
+  isEarlyVotingEnabled: boolean;
 }): SelectOption[] {
   switch (filterType) {
     case 'precinct':
@@ -134,7 +132,7 @@ function generateOptionsForFilter({
     }
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
-        ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
+        ...(isEarlyVotingEnabled
           ? [
               {
                 value: 'early_voting' as const,
@@ -249,6 +247,10 @@ export function FilterEditor({
 
   const scannerBatchesQuery = getScannerBatches.useQuery();
   const scannerBatches = scannerBatchesQuery.data ?? [];
+  const getSystemSettingsQuery = getSystemSettings.useQuery();
+  const isEarlyVotingEnabled = Boolean(
+    getSystemSettingsQuery.data?.enableEarlyVoting
+  );
 
   function onUpdatedRows(updatedRows: FilterRows) {
     setRows(updatedRows);
@@ -324,6 +326,7 @@ export function FilterEditor({
                 filterType,
                 election,
                 scannerBatches,
+                isEarlyVotingEnabled,
               })}
               value={row.filterValues}
               onChange={(filterValues) => {

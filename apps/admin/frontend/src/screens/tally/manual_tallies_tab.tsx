@@ -16,11 +16,9 @@ import {
   Icons,
 } from '@votingworks/ui';
 import {
-  BooleanEnvironmentVariableName,
   getBallotStyleGroupsForPrecinctOrSplit,
   getGroupedBallotStyles,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import {
   BallotStyleGroup,
@@ -36,7 +34,11 @@ import { routerPaths } from '../../router_paths';
 
 import { AppContext } from '../../contexts/app_context';
 import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
-import { deleteManualResults, getManualResultsMetadata } from '../../api';
+import {
+  deleteManualResults,
+  getManualResultsMetadata,
+  getSystemSettings,
+} from '../../api';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 import {
   BallotStyleLabel,
@@ -50,18 +52,21 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'absentee',
 ];
 
-function getManualTallyVotingMethods(): ManualResultsVotingMethod[] {
-  return isFeatureFlagEnabled(BooleanEnvironmentVariableName.EARLY_VOTING)
+function getManualTallyVotingMethods(
+  options: { isEarlyVotingEnabled?: boolean } = {}
+): ManualResultsVotingMethod[] {
+  return options.isEarlyVotingEnabled
     ? ['early_voting', ...ALL_MANUAL_TALLY_BALLOT_TYPES]
     : ALL_MANUAL_TALLY_BALLOT_TYPES;
 }
 
 function getAllPossibleManualTallyIdentifiers(
-  election: Election
+  election: Election,
+  options: { isEarlyVotingEnabled?: boolean } = {}
 ): ManualResultsIdentifier[] {
   return getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
     bs.precincts.flatMap((precinctId) =>
-      getManualTallyVotingMethods().map((votingMethod) => ({
+      getManualTallyVotingMethods(options).map((votingMethod) => ({
         ballotStyleGroupId: bs.id,
         precinctId,
         votingMethod,
@@ -166,6 +171,10 @@ export function ManualTalliesTab(): JSX.Element | null {
   const { election } = electionDefinition;
 
   const getManualTallyMetadataQuery = getManualResultsMetadata.useQuery();
+  const getSystemSettingsQuery = getSystemSettings.useQuery();
+  const isEarlyVotingEnabled = Boolean(
+    getSystemSettingsQuery.data?.enableEarlyVoting
+  );
 
   const manualTallyMetadataRecords = useMemo(() => {
     if (!getManualTallyMetadataQuery.data) return [];
@@ -192,7 +201,9 @@ export function ManualTalliesTab(): JSX.Element | null {
   // metadata for tallies which do not exist yet and thus could be added
   const uncreatedManualTallyMetadata = useMemo(
     () =>
-      getAllPossibleManualTallyIdentifiers(election).filter(
+      getAllPossibleManualTallyIdentifiers(election, {
+        isEarlyVotingEnabled,
+      }).filter(
         (identifier) =>
           !manualTallyMetadataRecords.some(
             ({ ballotStyleGroupId, precinctId, votingMethod }) =>
@@ -201,7 +212,7 @@ export function ManualTalliesTab(): JSX.Element | null {
               votingMethod === identifier.votingMethod
           )
       ),
-    [election, manualTallyMetadataRecords]
+    [election, manualTallyMetadataRecords, isEarlyVotingEnabled]
   );
 
   const [selectedPrecinctAndBallotStyle, setSelectedPrecinctAndBallotStyle] =
@@ -231,15 +242,16 @@ export function ManualTalliesTab(): JSX.Element | null {
 
   const selectableVotingMethods: ManualResultsVotingMethod[] =
     selectedPrecinctAndBallotStyle
-      ? getManualTallyVotingMethods().filter((votingMethod) =>
-          uncreatedManualTallyMetadata.some(
-            (metadata) =>
-              metadata.ballotStyleGroupId ===
-                selectedPrecinctAndBallotStyle.ballotStyleGroup.id &&
-              metadata.precinctId ===
-                selectedPrecinctAndBallotStyle.precinctOrSplit.precinct.id &&
-              metadata.votingMethod === votingMethod
-          )
+      ? getManualTallyVotingMethods({ isEarlyVotingEnabled }).filter(
+          (votingMethod) =>
+            uncreatedManualTallyMetadata.some(
+              (metadata) =>
+                metadata.ballotStyleGroupId ===
+                  selectedPrecinctAndBallotStyle.ballotStyleGroup.id &&
+                metadata.precinctId ===
+                  selectedPrecinctAndBallotStyle.precinctOrSplit.precinct.id &&
+                metadata.votingMethod === votingMethod
+            )
         )
       : [];
 
