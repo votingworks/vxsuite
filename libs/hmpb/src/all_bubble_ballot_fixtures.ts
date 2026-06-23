@@ -6,6 +6,7 @@ import {
   ElectionDefinition,
   formatBallotHash,
   GridPositionOption,
+  gridPositionsFromBallotPositions,
   HmpbBallotPaperSize,
   VotesDict,
   LATEST_SOFTWARE_VERSION,
@@ -111,11 +112,12 @@ export function allBubbleBallotFixtures(
         );
 
         debug(`Generating: ${cyclingTestDeckPath}`);
-        const [gridLayout] = assertDefined(
-          electionDefinition.election.gridLayouts
+        const [ballotStyle] = electionDefinition.election.ballotStyles;
+        const gridPositions = gridPositionsFromBallotPositions(
+          assertDefined(ballotStyle.ballotPositions)
         );
         const gridPositionByCandidateId = Object.fromEntries(
-          gridLayout.gridPositions.map((position) => [
+          gridPositions.map((position) => [
             (position as GridPositionOption).optionId,
             position,
           ])

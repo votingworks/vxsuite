@@ -162,14 +162,23 @@ test('reorder candidates based on rotation from template', async () => {
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
   );
 
-  const {
-    contests: fixtureContests,
-    gridLayouts: _fixtureGridLayouts,
-    ...restFixtureElection
-  } = fixtureElection;
-  const { contests, gridLayouts: _gridLayouts, ...restElection } = election;
+  const { contests: fixtureContests, ...restFixtureElection } = fixtureElection;
+  const { contests, ...restElection } = election;
 
-  expect(restElection).toEqual(restFixtureElection);
+  // Ballot positions are generated during layout, so strip them from the
+  // ballot styles before comparing against the fixture election.
+  function withoutBallotPositions(e: typeof restElection) {
+    return {
+      ...e,
+      ballotStyles: e.ballotStyles.map(
+        ({ ballotPositions: _ballotPositions, ...ballotStyle }) => ballotStyle
+      ),
+    };
+  }
+
+  expect(withoutBallotPositions(restElection)).toEqual(
+    withoutBallotPositions(restFixtureElection)
+  );
   for (const [contest, fixtureContest] of iter(contests).zip(fixtureContests)) {
     assert(contest.id === fixtureContest.id);
     assert(contest.type === 'candidate');

@@ -6,6 +6,7 @@ import {
   ContestOptionPosition,
   ContestPosition,
   GridPoint,
+  GridPosition,
   GridRect,
   GridUnit,
   PartyId,
@@ -185,6 +186,42 @@ export function flattenBallotPositions(
     }
   }
   return flat;
+}
+
+/**
+ * Flattens a ballot style's {@link SheetPositions} into the interpreter's flat
+ * {@link GridPosition} list (bubble center as column/row, write-in area as an
+ * (x, y) {@link Rect}). The TypeScript mirror of the Rust
+ * `Election::grid_layouts()`; per-option bounds are not carried since
+ * `GridPosition` is the per-bubble representation.
+ */
+export function gridPositionsFromBallotPositions(
+  ballotPositions: readonly SheetPositions[]
+): GridPosition[] {
+  return flattenBallotPositions(ballotPositions).map(
+    ({ sheetNumber, side, contestId, option }): GridPosition => {
+      const base = {
+        sheetNumber,
+        side,
+        contestId,
+        column: option.bubbleCenter.column,
+        row: option.bubbleCenter.row,
+      } as const;
+      return option.type === 'write-in'
+        ? {
+            ...base,
+            type: 'write-in',
+            writeInIndex: option.writeInIndex,
+            writeInArea: gridRectToRect(option.writeInArea),
+          }
+        : {
+            ...base,
+            type: 'option',
+            optionId: option.optionId,
+            ...(option.partyIds ? { partyIds: option.partyIds } : {}),
+          };
+    }
+  );
 }
 
 /**
