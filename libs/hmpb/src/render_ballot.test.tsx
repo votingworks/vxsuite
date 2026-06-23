@@ -12,6 +12,7 @@ import {
   YesNoContest,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
+  convertLatestElectionToV4p0,
 } from '@votingworks/types';
 import {
   assert,
@@ -134,6 +135,27 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
+});
+
+test('rendered ballot can convert to v4p0 election', async () => {
+  const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
+  const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
+  const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
+    rendererPool,
+    ballotTemplates.VxDefaultBallot,
+    allBallotProps,
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+  );
+
+  // Verify at least one ballot style has ballotPositions (i.e., the renderer
+  // is actually producing them — a missing field would make this test vacuous).
+  const stylesWithPositions = election.ballotStyles.filter(
+    (bs) => bs.ballotPositions && bs.ballotPositions.length > 0
+  );
+  expect(stylesWithPositions.length).toBeGreaterThan(0);
+
+  // This will throw if any ballot style has non-uniform option bounds.
+  expect(() => convertLatestElectionToV4p0(election)).not.toThrow();
 });
 
 test('reorder candidates based on rotation from template', async () => {

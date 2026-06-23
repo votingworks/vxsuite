@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { assert, ok, Result } from '@votingworks/basics';
+import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotStyle,
@@ -26,12 +26,7 @@ import {
   DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
   type FlatOptionPosition,
 } from './ballot_positions';
-import {
-  Outset,
-  OutsetSchema,
-  Rect,
-  RectSchema,
-} from './geometry';
+import { Outset, OutsetSchema, Rect, RectSchema } from './geometry';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places';
 import { safeParseElectionDefinition } from './election_parsing';
 import { Id, IdSchema, safeParse, safeParseJson } from './generic';
@@ -184,19 +179,47 @@ function optionPositionToGridPositionV4p0(
       };
 }
 
+// Recovering an outset from (bounds, bubbleCenter) via arithmetic like
+// `(row + height) - row` can accumulate floating-point rounding noise.
+// Grid coordinates from the renderer are measured in browser pixels then
+// converted to grid units using floats, so the noise can reach ~1e-4 grid
+// units even when the source outset was identical across all options.
+const OUTSET_EPSILON = 1e-4;
+
+function outsetEqual(a: Outset, b: Outset): boolean {
+  return (
+    Math.abs(a.top - b.top) < OUTSET_EPSILON &&
+    Math.abs(a.left - b.left) < OUTSET_EPSILON &&
+    Math.abs(a.right - b.right) < OUTSET_EPSILON &&
+    Math.abs(a.bottom - b.bottom) < OUTSET_EPSILON
+  );
+}
+
 function ballotPositionsToGridLayoutV4p0(
   ballotStyleId: BallotStyleId,
   ballotPositions: readonly SheetPositions[]
 ): GridLayoutV4p0 {
   const flat = flattenBallotPositions(ballotPositions);
   const firstOption = flat[0]?.option;
+  const optionBoundsFromTargetMark = firstOption
+    ? outsetFromOptionPosition(firstOption)
+    : DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET;
+
+  // v4.0 uses a single shared outset for all options. Assert that every option
+  // produces the same outset before collapsing — if the renderer ever starts
+  // computing distinct per-option bounds, this will fail.
+  for (const { option } of flat) {
+    assert(
+      outsetEqual(outsetFromOptionPosition(option), optionBoundsFromTargetMark),
+      `ballotPositions for ballot style '${ballotStyleId}' have non-uniform option bounds, ` +
+        `which cannot be losslessly represented in the v4.0 gridLayouts format. ` +
+        `Update convertLatestElectionToV4p0 to handle per-option bounds.`
+    );
+  }
+
   return {
     ballotStyleId,
-    // v4.0 uses a single shared outset; recover it from any option (uniform
-    // across options today) or fall back to the default.
-    optionBoundsFromTargetMark: firstOption
-      ? outsetFromOptionPosition(firstOption)
-      : DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
+    optionBoundsFromTargetMark,
     gridPositions: flat.map(optionPositionToGridPositionV4p0),
   };
 }
@@ -232,8 +255,8 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
     .map((ballotStyle) =>
       ballotPositionsToGridLayoutV4p0(
         ballotStyle.id,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ballotStyle.ballotPositions!
+
+        assertDefined(ballotStyle.ballotPositions)
       )
     );
   return {

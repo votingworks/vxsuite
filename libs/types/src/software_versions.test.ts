@@ -244,6 +244,53 @@ test('ballot positions round-trip through the v4.0 gridLayouts shape', () => {
   const roundTripped = safeParseElectionDefinitionForAnySoftwareVersion(
     JSON.stringify(v4p0Election)
   ).unsafeUnwrap().election;
-  expect(roundTripped.ballotStyles[0]?.ballotPositions).toEqual(ballotPositions);
+  expect(roundTripped.ballotStyles[0]?.ballotPositions).toEqual(
+    ballotPositions
+  );
   expect(roundTripped.ballotStyles[1]?.ballotPositions).toBeUndefined();
+});
+
+test('convertLatestElectionToV4p0 throws when ballot style has non-uniform option bounds', () => {
+  // Two options with different bounds (different outsets from their bubble
+  // centers) — this is what real per-option measurements will look like once
+  // the render accuracy work lands.
+  const nonUniformBallotPositions: SheetPositions[] = [
+    [
+      [
+        {
+          contestId: 'contest-1',
+          bounds: { row: 9, column: 1, width: 10, height: 4 },
+          options: [
+            {
+              type: 'option',
+              bubbleCenter: { row: 10, column: 2 },
+              // outset: top=1, left=1, right=9, bottom=3  (height 4)
+              bounds: { row: 9, column: 1, width: 10, height: 4 },
+              optionId: 'candidate-1',
+            },
+            {
+              type: 'option',
+              bubbleCenter: { row: 14, column: 2 },
+              // outset: top=1, left=1, right=9, bottom=1  (height 2) — DIFFERENT
+              bounds: { row: 13, column: 1, width: 10, height: 2 },
+              optionId: 'candidate-2',
+            },
+          ],
+        },
+      ],
+      [],
+    ],
+  ];
+  const [firstBallotStyle, ...restBallotStyles] = election.ballotStyles;
+  const electionWithNonUniform: Election = {
+    ...election,
+    ballotStyles: [
+      { ...firstBallotStyle, ballotPositions: nonUniformBallotPositions },
+      ...restBallotStyles,
+    ],
+  };
+
+  expect(() => convertLatestElectionToV4p0(electionWithNonUniform)).toThrow(
+    /non-uniform option bounds/
+  );
 });
