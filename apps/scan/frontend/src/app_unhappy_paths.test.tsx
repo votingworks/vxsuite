@@ -8,10 +8,6 @@ import userEvent from '@testing-library/user-event';
 import { ServerError } from '@votingworks/grout';
 import { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import type { ErrorType } from '@votingworks/fujitsu-thermal-printer';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import {
   configure,
@@ -37,24 +33,12 @@ const defaultConfig: Partial<PrecinctScannerConfig> = {
 
 let apiMock: ApiMock;
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} noAudio {...props} />);
 }
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
