@@ -418,6 +418,13 @@ export const playSound = {
   },
 } as const;
 
+export const printTestDeck = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestDeck);
+  },
+} as const;
+
 export const getDiskSpaceSummary = {
   queryKey(): QueryKey {
     return ['getDiskSpaceSummary'];
