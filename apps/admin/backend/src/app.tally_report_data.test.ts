@@ -13,6 +13,7 @@ import {
 import { assert, assertDefined, find, ok } from '@votingworks/basics';
 import {
   BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   Tabulation,
 } from '@votingworks/types';
@@ -51,14 +52,20 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
 });
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
+
+function configureMachineWithEarlyVoting(
+  ...[apiClient, auth, electionDefinition]: Parameters<typeof configureMachine>
+): Promise<string> {
+  return configureMachine(apiClient, auth, electionDefinition, undefined, {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  });
+}
 
 test('general, full election, write in adjudication', async () => {
   const electionDefinition =
@@ -67,7 +74,7 @@ test('general, full election, write in adjudication', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -226,7 +233,7 @@ test('general, reports by voting method, manual data', async () => {
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -361,7 +368,7 @@ test('primary, full election', async () => {
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -425,7 +432,7 @@ test('primary, full election, with manual results', async () => {
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -480,7 +487,7 @@ test('single language primary, reports by ballot style', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -541,7 +548,7 @@ test('multi language, filtered by ballot style - grouped by precinct', async () 
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -601,7 +608,7 @@ test('multi language, filtered by party - grouped by ballot style', async () => 
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -635,7 +642,7 @@ test('multi language, reports by ballot style - agnostic to language specific ba
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -692,7 +699,7 @@ test('general, reports grouped by voting method with early voting data', async (
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -799,7 +806,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -899,7 +906,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -1020,7 +1027,7 @@ test('open primary, full election with crossover and adjudications', async () =>
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -1103,7 +1110,7 @@ test('open primary, grouped by precinct', async () => {
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -1266,7 +1273,7 @@ test('open primary, crossover ballots write-ins excluded from partisan tallies',
   const electionDefinition =
     electionOpenPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition

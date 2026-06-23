@@ -11,7 +11,11 @@ import {
 } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
-import { formatBallotHash, Tabulation } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  formatBallotHash,
+  Tabulation,
+} from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
 import { MockMultiUsbDrive } from '@votingworks/usb-drive';
@@ -50,14 +54,20 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
 });
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
+
+function configureMachineWithEarlyVoting(
+  ...[apiClient, auth, electionDefinition]: Parameters<typeof configureMachine>
+): Promise<string> {
+  return configureMachine(apiClient, auth, electionDefinition, undefined, {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  });
+}
 
 test('logs failure if export fails', async () => {
   const electionDefinition =
@@ -65,7 +75,7 @@ test('logs failure if export fails', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -102,7 +112,7 @@ test('logs success if export succeeds', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -163,7 +173,7 @@ test('creates accurate ballot count reports', async () => {
   const { election } = electionDefinition;
 
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -307,7 +317,7 @@ test('open primary: groups by inferred party with a No Party row', async () => {
   const electionDefinition =
     electionOpenPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -402,7 +412,7 @@ test('open primary: groupByParty with No Party filter', async () => {
   const electionDefinition =
     electionOpenPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition

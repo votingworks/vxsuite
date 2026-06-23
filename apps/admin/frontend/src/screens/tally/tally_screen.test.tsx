@@ -33,6 +33,7 @@ test('has tabs for CVRs and Manual Tallies', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<TallyScreen />, {
     electionDefinition,
     apiMock,

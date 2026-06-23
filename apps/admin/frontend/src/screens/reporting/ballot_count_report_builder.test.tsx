@@ -26,6 +26,7 @@ test('happy path', async () => {
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<BallotCountReportBuilder />, {
     electionDefinition,
     apiMock,
@@ -120,6 +121,7 @@ test('does not show party options for non-primary elections', () => {
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<BallotCountReportBuilder />, {
     electionDefinition,
     apiMock,
@@ -144,6 +146,7 @@ test('shows sheet option for multi-sheet elections', () => {
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<BallotCountReportBuilder />, {
     electionDefinition,
     apiMock,

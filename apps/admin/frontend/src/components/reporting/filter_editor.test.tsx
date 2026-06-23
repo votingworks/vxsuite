@@ -29,6 +29,7 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -137,6 +138,7 @@ test('scanner, batch selection', async () => {
       startedAt: '2024-11-05T10:05:00.000Z',
     },
   ]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -178,6 +180,7 @@ test('party selection', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -207,6 +210,7 @@ test('open primary party selection includes "No Party"', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -237,6 +241,7 @@ test('adjudication status selection', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -270,6 +275,7 @@ test('adjudication status selection includes "Crossover Vote" in open primary', 
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -296,6 +302,7 @@ test('district filter', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}
@@ -324,6 +331,7 @@ test('can cancel adding a filter', () => {
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <FilterEditor
       election={election}

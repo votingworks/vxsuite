@@ -15,17 +15,14 @@ import {
   Id,
   Election,
   ElectionRegisteredVotersCounts,
+  SystemSettings,
 } from '@votingworks/types';
 import { assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-  getGroupedBallotStyles,
-} from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file';
 import { Store } from './store';
 import {
@@ -36,16 +33,13 @@ import {
 import { getCurrentTime } from './get_current_time';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals';
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 vi.mock('./get_current_time');
 
-featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
+const systemSettings: SystemSettings = {
+  ...DEFAULT_SYSTEM_SETTINGS,
+  enableEarlyVoting: true,
+};
+const systemSettingsData = JSON.stringify(systemSettings);
 
 test('create a file store', () => {
   const tmpDir = makeTemporaryDirectory();
@@ -69,17 +63,16 @@ test('create a memory store', () => {
 test('add an election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const systemSettings = DEFAULT_SYSTEM_SETTINGS;
   const electionPackageFileContents = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
-    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: systemSettingsData,
   });
   const electionPackageHash = sha256(electionPackageFileContents);
 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents,
     electionPackageHash,
   });
@@ -108,7 +101,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only c
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-hash',
   });
@@ -128,7 +121,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-hash',
   });
@@ -159,7 +152,7 @@ test('setElectionResultsOfficial', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -197,7 +190,7 @@ test('current election id', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -227,7 +220,7 @@ test('scanner batches', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -256,7 +249,7 @@ test('delete empty scanner batches', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: fixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -314,7 +307,7 @@ test('getWriteInCandidates returns no candidates for an empty contestIds filter'
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -339,7 +332,7 @@ test('manual results', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -469,7 +462,7 @@ test('manual results - early_voting is a valid votingMethod', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -533,7 +526,7 @@ describe('getTabulationGroups', () => {
     store = Store.memoryStore(makeTemporaryDirectory());
     electionId = store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      systemSettingsData,
       electionPackageFileContents: Buffer.of(),
       electionPackageHash: 'test-election-package-hash',
     });
@@ -736,7 +729,7 @@ describe('getFilteredContests', () => {
     store = Store.memoryStore(makeTemporaryDirectory());
     electionId = store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      systemSettingsData,
       electionPackageFileContents: Buffer.of(),
       electionPackageHash: 'test-election-package-hash',
     });
@@ -889,7 +882,7 @@ describe('machine ballot adjudication assignments', () => {
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
     electionId = store.addElection({
       electionData: electionDefinition.electionData,
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      systemSettingsData,
       electionPackageFileContents: Buffer.of(),
       electionPackageHash: 'test-hash',
     });

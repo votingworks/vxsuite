@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionOpenPrimaryFixtures,
@@ -9,12 +9,11 @@ import {
   Admin,
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   buildManualResultsFixture,
-  getFeatureFlagMock,
   getGroupKey,
   groupMapToGroupList,
 } from '@votingworks/utils';
@@ -28,14 +27,11 @@ import {
   tabulateScannedCardCounts,
 } from './card_counts';
 
-const featureFlagMock = getFeatureFlagMock();
-vi.mock(import('@votingworks/utils'), async (importActual) => ({
-  ...(await importActual()),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
-featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.EARLY_VOTING);
+const systemSettings: SystemSettings = {
+  ...DEFAULT_SYSTEM_SETTINGS,
+  enableEarlyVoting: true,
+};
+const systemSettingsData = JSON.stringify(systemSettings);
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
@@ -43,7 +39,7 @@ test('tabulateScannedCardCounts - grouping', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -202,7 +198,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -313,7 +309,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -398,7 +394,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -475,7 +471,7 @@ test('tabulateFullCardCounts - manual results', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -629,7 +625,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -749,7 +745,7 @@ test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', () => {
     electionOpenPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });

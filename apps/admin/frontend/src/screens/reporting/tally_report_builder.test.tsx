@@ -26,6 +26,7 @@ test('happy path', async () => {
 
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<TallyReportBuilder />, {
     electionDefinition,
     apiMock,
