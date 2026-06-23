@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import {
   Election,
   getContestDistrict,
@@ -44,10 +44,23 @@ export function StraightPartyContest({
   const district = getContestDistrict(election, contest);
   const votesRemaining = 1 - vote.length;
   const [showOvervoteWarning, setShowOvervoteWarning] = useState(false);
+  const [recentlyDeselectedOption, setRecentlyDeselectedOption] =
+    useState<PartyId>();
+
+  useEffect(() => {
+    if (recentlyDeselectedOption) {
+      const timer = setTimeout(
+        () => setRecentlyDeselectedOption(undefined),
+        100
+      );
+      return () => clearTimeout(timer);
+    }
+  }, [recentlyDeselectedOption]);
 
   function handleOptionPress(optionId: PartyId) {
     if (vote.includes(optionId)) {
       updateVote(contest.id, []);
+      setRecentlyDeselectedOption(optionId);
     } else if (vote.length > 0) {
       setShowOvervoteWarning(true);
     } else {
@@ -79,17 +92,34 @@ export function StraightPartyContest({
       </ContestHeader>
       <WithScrollButtons>
         <ChoicesGrid>
-          {contest.optionIds.map((partyId) => (
-            <ContestChoiceButton
-              key={partyId}
-              isSelected={vote.includes(partyId)}
-              label={electionStrings.partyFullName(
-                find(election.parties, (party) => party.id === partyId)
-              )}
-              choice={partyId}
-              onPress={handleOptionPress}
-            />
-          ))}
+          {contest.optionIds.map((partyId) => {
+            const isSelected = vote.includes(partyId);
+            let prefixAudioText: ReactNode = null;
+            let suffixAudioText: ReactNode = null;
+            if (isSelected) {
+              prefixAudioText = appStrings.labelSelectedOption();
+              suffixAudioText = appStrings.noteBmdContestCompleted();
+            } else if (recentlyDeselectedOption === partyId) {
+              prefixAudioText = appStrings.labelDeselectedOption();
+            }
+            return (
+              <ContestChoiceButton
+                key={partyId}
+                isSelected={isSelected}
+                label={
+                  <React.Fragment>
+                    <AudioOnly>{prefixAudioText}</AudioOnly>
+                    {electionStrings.partyFullName(
+                      find(election.parties, (party) => party.id === partyId)
+                    )}
+                    <AudioOnly>{suffixAudioText}</AudioOnly>
+                  </React.Fragment>
+                }
+                choice={partyId}
+                onPress={handleOptionPress}
+              />
+            );
+          })}
         </ChoicesGrid>
       </WithScrollButtons>
       {showOvervoteWarning && (
