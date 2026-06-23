@@ -637,25 +637,41 @@ export async function layOutBallotsAndCreateElectionDefinition<
       ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
-  // Each ballot style gets one set of positions. The geometry is the same
-  // regardless of precinct/ballot type/mode, so we just deduplicate by ballot
-  // style id. NH "federal office only" variants aren't tabulated so exclude them.
-  const ballotPositionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>(
-    iter(
-      iter(ballotLayouts)
-        .filter(
-          (ballot) =>
-            !(
-              'isFederalOfficeOnly' in ballot.props &&
-              ballot.props.isFederalOfficeOnly
-            )
+  // All ballots of a given ballot style must have the same positions.
+  // Changing precinct/ballot type/ballot mode shouldn't matter.
+  // We need to check sample ballots as well. Even though they don't have visible timing marks, we
+  // can still compute positions for them, and it's important that their bubble positions match
+  // official ballots.
+  const positionsByBallotStyle = iter(ballotLayouts)
+    // NH state ballots have a "federal office only" variant that only includes
+    // federal offices, which of course changes the layout of the bubbles. These
+    // ballots aren't tabulated, so we can simply filter them out.
+    .filter(
+      (ballot) =>
+        !(
+          'isFederalOfficeOnly' in ballot.props &&
+          ballot.props.isFederalOfficeOnly
         )
-        .map((ballot) => ballot.ballotStylePositions)
-        .toMap((positions) => positions.ballotStyleId)
-        .entries()
-    ).map(([ballotStyleId, [firstPositions]]) => [
+    )
+    .map((ballot) => ballot.ballotStylePositions)
+    .toMap((positions) => positions.ballotStyleId);
+  for (const [ballotStyleId, positions] of positionsByBallotStyle.entries()) {
+    const [firstPositions, ...restPositions] = positions;
+    const hasDifferingPositions = restPositions.some(
+      (p) => !deepEqual(p, firstPositions)
+    );
+    if (hasDifferingPositions) {
+      throw new Error(
+        `Found multiple distinct ballot positions for ballot style ${ballotStyleId}`
+      );
+    }
+  }
+  // Now that all positions for a ballot style are guaranteed to be equal, we
+  // can just use one per ballot style.
+  const ballotPositionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>(
+    iter(positionsByBallotStyle.entries()).map(([ballotStyleId, positions]) => [
       ballotStyleId,
-      assertDefined(firstPositions).ballotPositions,
+      assertDefined(iter(positions.values()).first()).ballotPositions,
     ])
   );
 
