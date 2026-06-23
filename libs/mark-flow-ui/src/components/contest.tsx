@@ -3,6 +3,7 @@ import {
   CandidateVote,
   Election,
   OptionalYesNoVote,
+  StraightPartyVote,
   VotesDict,
 } from '@votingworks/types';
 import { AccessibilityMode } from '@votingworks/ui';
@@ -11,6 +12,7 @@ import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { YesNoContest } from './yes_no_contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { UpdateVoteFunction } from '../config/types';
+import { StraightPartyContest } from './straight_party_contest';
 
 export interface ContestProps {
   /**
@@ -106,6 +108,15 @@ export function Contest({
           election={election}
           contest={contest}
           vote={vote as OptionalYesNoVote}
+          updateVote={updateVote}
+          isReviewMode={isReviewMode}
+        />
+      )}
+      {contest.type === 'straight-party' && (
+        <StraightPartyContest
+          election={election}
+          contest={contest}
+          vote={vote as StraightPartyVote | undefined}
           updateVote={updateVote}
           isReviewMode={isReviewMode}
         />
