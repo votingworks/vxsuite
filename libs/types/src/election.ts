@@ -250,17 +250,19 @@ export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
 export interface YesNoContest extends ContestBase {
   readonly type: 'yesno';
   readonly description: string;
-  readonly yesOption: YesNoOption;
-  readonly noOption: YesNoOption;
-  readonly additionalOptions?: readonly YesNoOption[];
+  /**
+   * Ordered list of options (at least two). The first option is conventionally
+   * "yes" and the second "no";
+   */
+  readonly options: readonly [YesNoOption, YesNoOption, ...YesNoOption[]];
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
   ContestBaseSchema.extend({
     type: z.literal('yesno'),
     description: z.string().nonempty(),
-    yesOption: YesNoOptionSchema,
-    noOption: YesNoOptionSchema,
-    additionalOptions: z.array(YesNoOptionSchema).optional(),
+    options: z.array(YesNoOptionSchema).min(2) as unknown as z.ZodType<
+      readonly [YesNoOption, YesNoOption, ...YesNoOption[]]
+    >,
   });
 
 export interface StraightPartyContest extends ContestBase {
@@ -299,13 +301,11 @@ export const ContestsSchema = z.array(ContestSchema).check((ctx) => {
     });
   }
   for (const [index, id] of findDuplicateIds(
-    contests.flatMap((c) =>
-      c.type === 'yesno' ? [c.yesOption, c.noOption] : []
-    )
+    contests.flatMap((c) => (c.type === 'yesno' ? c.options : []))
   )) {
     ctx.issues.push({
       code: 'custom',
-      path: [index, 'yes/noOption', 'id'],
+      path: [index, 'options', 'id'],
       message: `Duplicate yes/no contest option '${id}' found.`,
       input: contests,
     });

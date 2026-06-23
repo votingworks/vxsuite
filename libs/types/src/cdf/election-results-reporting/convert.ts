@@ -133,10 +133,10 @@ function convertToYesNoContest(
   return {
     contestId: trimVxIdPrefix(contest['@id']),
     contestType: 'yesno',
-    yesOptionId: trimVxIdPrefix(yesOption['@id']),
-    noOptionId: trimVxIdPrefix(noOption['@id']),
-    yesTally,
-    noTally,
+    tallies: {
+      [trimVxIdPrefix(yesOption['@id'])]: yesTally,
+      [trimVxIdPrefix(noOption['@id'])]: noTally,
+    },
     overvotes,
     undervotes,
     ballots: yesTally + noTally + overvotes + undervotes,
