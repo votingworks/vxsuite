@@ -11,6 +11,7 @@ export interface ContestChoiceButtonProps<T> {
   caption?: React.ReactNode;
   choice: T;
   isSelected?: boolean;
+  isDerivedVote?: boolean;
   label: React.ReactNode;
   onPress: (value: T) => void;
 
@@ -25,6 +26,7 @@ export interface ContestChoiceButtonProps<T> {
 interface StyleProps {
   gridArea?: string;
   isSelected: boolean;
+  isDerivedVote: boolean;
   variant?: ButtonVariant;
 }
 
@@ -39,6 +41,14 @@ const selectedChoiceStyles = css<StyleProps>`
     ${(p) => p.theme.colors.primary};
 `;
 
+const derivedVoteStyles = css<StyleProps>`
+  color: ${(p) => p.theme.colors.primary};
+
+  /* Use box-shadow instead of border to avoid a change in height */
+  box-shadow: inset 0 0 0 ${(p) => p.theme.sizes.bordersRem.thin}rem
+    ${(p) => p.theme.colors.primary};
+`;
+
 /* istanbul ignore next */
 const OuterContainer = styled(Button)<StyleProps>`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid currentColor;
@@ -50,6 +60,7 @@ const OuterContainer = styled(Button)<StyleProps>`
   width: 100%;
 
   ${(p) => p.isSelected && selectedChoiceStyles};
+  ${(p) => p.isDerivedVote && derivedVoteStyles};
 
   &:active {
     ${selectedChoiceStyles};
@@ -88,6 +99,7 @@ export function ContestChoiceButton<T>(
     choice,
     gridArea,
     isSelected,
+    isDerivedVote,
     label,
     onPress,
   } = props;
@@ -97,16 +109,17 @@ export function ContestChoiceButton<T>(
   return (
     <OuterContainer
       aria-label={ariaLabel}
-      aria-selected={isSelected}
+      aria-selected={!!(isSelected || isDerivedVote)}
       gridArea={gridArea}
       isSelected={!!isSelected}
+      isDerivedVote={!!isDerivedVote}
       onPress={handlePress}
       role="option"
       variant={isSelected ? 'primary' : 'neutral'}
     >
       <Content>
         <CheckboxContainer>
-          <Checkbox checked={isSelected} />
+          <Checkbox checked={isSelected || isDerivedVote} />
         </CheckboxContainer>
         <LabelContainer>
           <Label>{label}</Label>

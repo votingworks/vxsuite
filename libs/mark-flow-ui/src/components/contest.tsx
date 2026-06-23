@@ -7,6 +7,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { AccessibilityMode } from '@votingworks/ui';
+import { selectedStraightPartyId } from '@votingworks/utils';
 import { CandidateContest } from './candidate_contest';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { YesNoContest } from './yes_no_contest';
@@ -101,6 +102,7 @@ export function Contest({
               numWriteInCharactersUsedAcrossContests,
           }}
           isReviewMode={isReviewMode}
+          selectedStraightPartyId={selectedStraightPartyId(election, votes)}
         />
       )}
       {contest.type === 'yesno' && (
