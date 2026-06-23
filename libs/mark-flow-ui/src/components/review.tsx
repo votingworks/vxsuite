@@ -11,6 +11,7 @@ import {
   ContestId,
   BallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
+  StraightPartyVote,
 } from '@votingworks/types';
 import {
   Caption,
@@ -33,6 +34,7 @@ import { getSingleYesNoVote } from '@votingworks/utils';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
+  StraightPartyContestResultInterface,
   YesNoContestResultInterface,
 } from '../config/types';
 
@@ -157,6 +159,39 @@ function YesNoContestResult({
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={!yesNo ? noVotesString : undefined}
+      votes={votes}
+    />
+  );
+}
+
+function StraightPartyContestResult({
+  vote = [],
+  contest,
+  election,
+  selectionsAreEditable,
+}: StraightPartyContestResultInterface): JSX.Element {
+  const district = getContestDistrict(election, contest);
+  const selectedParty = election.parties.find((party) => party.id === vote[0]);
+
+  const votes: ContestVote[] = selectedParty
+    ? [
+        {
+          id: selectedParty.id,
+          label: electionStrings.partyFullName(selectedParty),
+        },
+      ]
+    : [];
+
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
+
+  return (
+    <VoterContestSummary
+      districtName={electionStrings.districtName(district)}
+      title={electionStrings.contestTitle(contest)}
+      titleType="h2"
+      undervoteWarning={!selectedParty ? noVotesString : undefined}
       votes={votes}
     />
   );
@@ -298,6 +333,14 @@ export function Review({
             {contest.type === 'yesno' && (
               <YesNoContestResult
                 vote={votes[contest.id] as YesNoVote}
+                contest={contest}
+                election={election}
+                selectionsAreEditable={selectionsAreEditable}
+              />
+            )}
+            {contest.type === 'straight-party' && (
+              <StraightPartyContestResult
+                vote={votes[contest.id] as StraightPartyVote}
                 contest={contest}
                 election={election}
                 selectionsAreEditable={selectionsAreEditable}
