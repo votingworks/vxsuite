@@ -38,7 +38,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ElectionPackageFileName,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   LATEST_METADATA,
   SystemSettings,
   VotesDict,
@@ -358,7 +358,7 @@ async function configureMachine({
   usbHandler: MockFileUsbDriveHandler;
   electionDefinition: ElectionDefinition;
   systemSettings?: SystemSettings;
-  registeredVoterCounts?: ElectionRegisteredVotersCounts;
+  registeredVoterCounts?: ElectionRegisteredVoterCounts;
 }): Promise<void> {
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
@@ -368,7 +368,7 @@ async function configureMachine({
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
     ...(registeredVoterCounts
       ? {
-          [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+          [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
             registeredVoterCounts
           ),
         }
@@ -545,7 +545,7 @@ test('results', async ({ page }, testInfo) => {
   ]);
 
   // Registered-voter counts for every precinct so the turnout report is enabled.
-  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
     '20': 15,
     '21': 8,
     '22': 5,

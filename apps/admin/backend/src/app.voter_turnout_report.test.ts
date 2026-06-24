@@ -14,7 +14,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
 import {
@@ -76,7 +76,7 @@ test('configure persists registered voter counts from election package', async (
   const { apiClient, auth, workspace } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
     'precinct-1': 500,
     'precinct-2': 400,
   };
@@ -87,7 +87,7 @@ test('configure persists registered voter counts from election package', async (
       DEFAULT_SYSTEM_SETTINGS
     ),
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
-    [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
       registeredVoterCounts
     ),
   });
@@ -263,7 +263,7 @@ test('voter turnout report with split precinct registered voter counts', async (
   const { apiClient, auth, workspace } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
     'precinct-c2': {
       splits: {
         'precinct-c2-split-1': 200,
@@ -278,7 +278,7 @@ test('voter turnout report with split precinct registered voter counts', async (
       DEFAULT_SYSTEM_SETTINGS
     ),
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
-    [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
       registeredVoterCounts
     ),
   });
