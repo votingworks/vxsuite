@@ -32,3 +32,6 @@ afterEach(() => {
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+// Not implemented in jsdom:
+HTMLElement.prototype.scrollIntoView = vi.fn();
