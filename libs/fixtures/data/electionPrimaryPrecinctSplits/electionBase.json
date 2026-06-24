@@ -440,14 +440,16 @@
       "title": "Water District 1 Fishing",
       "type": "yesno",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
-      "yesOption": {
-        "id": "water-1-fishing-ban-fishing",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "water-1-fishing-allow-fishing",
-        "label": "NO"
-      }
+      "options": [
+        {
+          "id": "water-1-fishing-ban-fishing",
+          "label": "YES"
+        },
+        {
+          "id": "water-1-fishing-allow-fishing",
+          "label": "NO"
+        }
+      ]
     },
     {
       "id": "water-2-fishing",
@@ -455,14 +457,16 @@
       "title": "Water District 2 Fishing",
       "type": "yesno",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
-      "yesOption": {
-        "id": "water-2-fishing-ban-fishing",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "water-2-fishing-allow-fishing",
-        "label": "NO"
-      }
+      "options": [
+        {
+          "id": "water-2-fishing-ban-fishing",
+          "label": "YES"
+        },
+        {
+          "id": "water-2-fishing-allow-fishing",
+          "label": "NO"
+        }
+      ]
     }
   ],
   "jurisdiction": {
