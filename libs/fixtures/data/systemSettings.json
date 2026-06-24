@@ -19,6 +19,5 @@
   "adminAdjudicationReasons": [],
 
   "maxCumulativeStreakWidth": 5,
-  "retryStreakWidthThreshold": 1,
-  "precinctScanEnableBmdBallotScanning": true
+  "retryStreakWidthThreshold": 1
 }

@@ -214,7 +214,6 @@ async function interpretSheet(
     allowOfficialBallotsInTestMode,
     disableVerticalStreakDetection,
     markThresholds,
-    precinctScanEnableBmdBallotScanning,
     minimumDetectedBallotScaleOverride,
     maxCumulativeStreakWidth,
     retryStreakWidthThreshold,
@@ -233,7 +232,6 @@ async function interpretSheet(
       markThresholds,
       adjudicationReasons: store.getAdjudicationReasons(),
       allowOfficialBallotsInTestMode,
-      disableBmdBallotScanning: !precinctScanEnableBmdBallotScanning,
       minimumDetectedScale:
         minimumDetectedBallotScaleOverride ??
         DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,

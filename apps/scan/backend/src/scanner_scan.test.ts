@@ -371,45 +371,6 @@ test('ballot with wrong precinct rejected', async () => {
   );
 });
 
-test('BMD ballot rejected when BMD ballot scanning disabled', async () => {
-  await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage: {
-          electionDefinition:
-            electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
-          systemSettings: {
-            ...DEFAULT_SYSTEM_SETTINGS,
-            precinctScanEnableBmdBallotScanning: false,
-          },
-        },
-      });
-
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
-
-      await simulateScan(
-        apiClient,
-        mockScanner,
-        await ballotImages.completeBmd()
-      );
-
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: { type: 'bmd_ballot_scanning_disabled' },
-      };
-      await waitForStatus(apiClient, { state: 'rejecting', interpretation });
-      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
-        'toFrontAndHold'
-      );
-      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
-      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-
-      await waitForStatus(apiClient, { state: 'rejected', interpretation });
-    }
-  );
-});
-
 test('ballot printed at an invalid scale is rejected', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

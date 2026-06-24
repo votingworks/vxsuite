@@ -60,230 +60,197 @@ describe('HMPB - VX Famous Names', () => {
     vxFamousNamesFixtures;
   const precinctId = assertDefined(vxFamousNamesFixtures.precinctId);
 
-  test.each([false, true])(
-    'Blank ballot interpretation',
-    async (disableBmdBallotScanning) => {
-      const { election } = electionDefinition;
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-      expect(images).toHaveLength(2);
+  test('Blank ballot interpretation', async () => {
+    const { election } = electionDefinition;
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+    expect(images).toHaveLength(2);
 
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          validPrecinctIds: new Set([precinctId]),
-          testMode: true,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
+
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    expect(frontResult.votes).toEqual({
+      attorney: [],
+      'chief-of-police': [],
+      controller: [],
+      mayor: [],
+      'public-works-director': [],
+    });
+    assert(backResult.type === 'InterpretedHmpbPage');
+    expect(backResult.votes).toEqual({
+      'board-of-alderman': [],
+      'city-council': [],
+      'parks-and-recreation-director': [],
+    });
+
+    expect(frontResult.metadata).toEqual({
+      source: 'qr-code',
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+      precinctId,
+      ballotStyleId: election.ballotStyles[0]!.id,
+      pageNumber: 1,
+      isTestMode: true,
+      ballotType: BallotType.Precinct,
+    });
+    expect(backResult.metadata).toEqual({
+      source: 'qr-code',
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+      precinctId,
+      ballotStyleId: election.ballotStyles[0]!.id,
+      pageNumber: 2,
+      isTestMode: true,
+      ballotType: BallotType.Precinct,
+    });
+  });
+
+  test('Marked ballot interpretation', async () => {
+    const images = asSheet(await pdfToPageImages(markedBallotPath).toArray());
+    expect(images).toHaveLength(2);
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
+
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    assert(backResult.type === 'InterpretedHmpbPage');
+    expect(
+      sortVotesDict({
+        ...frontResult.votes,
+        ...backResult.votes,
+      })
+    ).toEqual(sortVotesDict(votes));
+  });
+
+  test('Wrong election', async () => {
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition: {
+          ...electionDefinition,
+          // Valid-hex but deliberately wrong hash.
+          ballotHash: 'f'.repeat(64),
         },
-        images
-      );
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
 
-      assert(frontResult.type === 'InterpretedHmpbPage');
-      expect(frontResult.votes).toEqual({
-        attorney: [],
-        'chief-of-police': [],
-        controller: [],
-        mayor: [],
-        'public-works-director': [],
-      });
-      assert(backResult.type === 'InterpretedHmpbPage');
-      expect(backResult.votes).toEqual({
-        'board-of-alderman': [],
-        'city-council': [],
-        'parks-and-recreation-director': [],
-      });
+    expect(frontResult.type).toEqual('InvalidBallotHashPage');
+    expect(backResult.type).toEqual('InvalidBallotHashPage');
+  });
 
-      expect(frontResult.metadata).toEqual({
-        source: 'qr-code',
-        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
-        precinctId,
-        ballotStyleId: election.ballotStyles[0]!.id,
-        pageNumber: 1,
-        isTestMode: true,
-        ballotType: BallotType.Precinct,
-      });
-      expect(backResult.metadata).toEqual({
-        source: 'qr-code',
-        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
-        precinctId,
-        ballotStyleId: election.ballotStyles[0]!.id,
-        pageNumber: 2,
-        isTestMode: true,
-        ballotType: BallotType.Precinct,
-      });
-    }
-  );
+  test('Wrong precinct', async () => {
+    const { election } = electionDefinition;
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+    assert(precinctId !== election.precincts[1]!.id);
 
-  test.each([false, true])(
-    'Marked ballot interpretation',
-    async (disableBmdBallotScanning) => {
-      const images = asSheet(await pdfToPageImages(markedBallotPath).toArray());
-      expect(images).toHaveLength(2);
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([election.precincts[1]!.id]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
 
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          validPrecinctIds: new Set([precinctId]),
-          testMode: true,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
-        },
-        images
-      );
+    expect(frontResult.type).toEqual('InvalidPrecinctPage');
+    expect(backResult.type).toEqual('InvalidPrecinctPage');
+  });
 
-      assert(frontResult.type === 'InterpretedHmpbPage');
-      assert(backResult.type === 'InterpretedHmpbPage');
-      expect(
-        sortVotesDict({
-          ...frontResult.votes,
-          ...backResult.votes,
-        })
-      ).toEqual(sortVotesDict(votes));
-    }
-  );
+  test('Wrong test mode', async () => {
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
 
-  test.each([false, true])(
-    'Wrong election',
-    async (disableBmdBallotScanning) => {
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition: {
-            ...electionDefinition,
-            // Valid-hex but deliberately wrong hash.
-            ballotHash: 'f'.repeat(64),
-          },
-          validPrecinctIds: new Set([precinctId]),
-          testMode: true,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
-        },
-        images
-      );
-
-      expect(frontResult.type).toEqual('InvalidBallotHashPage');
-      expect(backResult.type).toEqual('InvalidBallotHashPage');
-    }
-  );
-
-  test.each([false, true])(
-    'Wrong precinct',
-    async (disableBmdBallotScanning) => {
-      const { election } = electionDefinition;
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-      assert(precinctId !== election.precincts[1]!.id);
-
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          validPrecinctIds: new Set([election.precincts[1]!.id]),
-          testMode: true,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
-        },
-        images
-      );
-
-      expect(frontResult.type).toEqual('InvalidPrecinctPage');
-      expect(backResult.type).toEqual('InvalidPrecinctPage');
-    }
-  );
-
-  test.each([false, true])(
-    'Wrong test mode',
-    async (disableBmdBallotScanning) => {
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          validPrecinctIds: new Set([precinctId]),
-          testMode: false,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
-        },
-        images
-      );
-
-      expect(frontResult.type).toEqual('InvalidTestModePage');
-      expect(backResult.type).toEqual('InvalidTestModePage');
-    }
-  );
-
-  test.each([false, true])(
-    'normalizes ballot mode',
-    async (disableBmdBallotScanning) => {
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-
-      const options: InterpreterOptions = {
+    const [frontResult, backResult] = await interpretSheet(
+      {
         electionDefinition,
         validPrecinctIds: new Set([precinctId]),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        disableBmdBallotScanning,
-      };
+      },
+      images
+    );
 
-      const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-      vi.mocked(normalizeBallotMode).mockImplementation(
-        (_input, interpreterOptions) => {
-          expect(interpreterOptions).toEqual(options);
+    expect(frontResult.type).toEqual('InvalidTestModePage');
+    expect(backResult.type).toEqual('InvalidTestModePage');
+  });
 
-          return blankPageInterpretation;
-        }
-      );
+  test('normalizes ballot mode', async () => {
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
 
-      const interpretationResult = await interpretSheet(options, images);
-      expect(interpretationResult[0]).toEqual(blankPageInterpretation);
-      expect(interpretationResult[1]).toEqual(blankPageInterpretation);
-    }
-  );
+    const options: InterpreterOptions = {
+      electionDefinition,
+      validPrecinctIds: new Set([precinctId]),
+      testMode: false,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    };
 
-  test.each([false, true])(
-    'streaks on ballot',
-    async (disableBmdBallotScanning) => {
-      const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
-      const [frontImage, backImage] = images;
-      const canvas = createCanvas(frontImage.width, frontImage.height);
-      const context = canvas.getContext('2d');
-      context.imageSmoothingEnabled = false;
-      context.putImageData(frontImage, 0, 0);
-      context.fillStyle = 'black';
-      // Make a giant vertical streak that will trigger the cumulative streak threshold
-      context.fillRect(canvas.width / 2, 0, 6, canvas.height);
-      const streakImage = context.getImageData(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+    const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
+    vi.mocked(normalizeBallotMode).mockImplementation(
+      (_input, interpreterOptions) => {
+        expect(interpreterOptions).toEqual(options);
 
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          validPrecinctIds: new Set([precinctId]),
-          testMode: true,
-          markThresholds: DEFAULT_MARK_THRESHOLDS,
-          adjudicationReasons: [],
-          disableBmdBallotScanning,
-        },
-        [streakImage, backImage]
-      );
+        return blankPageInterpretation;
+      }
+    );
 
-      const streaksInterpretation: PageInterpretation = {
-        type: 'UnreadablePage',
-        reason: 'verticalStreaksDetected',
-      };
-      expect(frontResult).toEqual(streaksInterpretation);
-      expect(backResult).toEqual(streaksInterpretation);
-    }
-  );
+    const interpretationResult = await interpretSheet(options, images);
+    expect(interpretationResult[0]).toEqual(blankPageInterpretation);
+    expect(interpretationResult[1]).toEqual(blankPageInterpretation);
+  });
+
+  test('streaks on ballot', async () => {
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+    const [frontImage, backImage] = images;
+    const canvas = createCanvas(frontImage.width, frontImage.height);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.putImageData(frontImage, 0, 0);
+    context.fillStyle = 'black';
+    // Make a giant vertical streak that will trigger the cumulative streak threshold
+    context.fillRect(canvas.width / 2, 0, 6, canvas.height);
+    const streakImage = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      [streakImage, backImage]
+    );
+
+    const streaksInterpretation: PageInterpretation = {
+      type: 'UnreadablePage',
+      reason: 'verticalStreaksDetected',
+    };
+    expect(frontResult).toEqual(streaksInterpretation);
+    expect(backResult).toEqual(streaksInterpretation);
+  });
 });
 
 function snapshotWriteInCrops(

@@ -206,7 +206,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             allowBallotDuplication: false,
           };
 
-        case 'bmd_ballot_scanning_disabled':
         case 'unreadable':
         case 'unknown':
           return unreadableEjectInfo;

@@ -1694,10 +1694,6 @@ export const appStrings = {
     <UiString uiStringKey="titleScannerError">Scanner Error</UiString>
   ),
 
-  titleScannerBmdBallot: () => (
-    <UiString uiStringKey="titleScannerBmdBallot">BMD Ballot</UiString>
-  ),
-
   unrecoverableError: () => (
     <UiString uiStringKey="unrecoverableError">Something went wrong</UiString>
   ),
@@ -1852,12 +1848,6 @@ export const appStrings = {
   warningScannerTestBallotInOfficialMode: () => (
     <UiString uiStringKey="warningScannerTestBallotInOfficialMode">
       The scanner is in official ballot mode. Test ballots may not be scanned.
-    </UiString>
-  ),
-
-  warningScannerBmdBallotScanningDisabled: () => (
-    <UiString uiStringKey="warningScannerBmdBallotScanningDisabled">
-      The scanner cannot scan BMD ballots. Use a central scanner instead.
     </UiString>
   ),
 

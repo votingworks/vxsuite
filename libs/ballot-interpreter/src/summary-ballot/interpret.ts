@@ -42,9 +42,6 @@ export type InterpretError =
       type: 'mismatched-election';
       expectedBallotHash: string;
       actualBallotHash: string;
-    }
-  | {
-      type: 'bmd-ballot-scanning-disabled';
     };
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
@@ -54,8 +51,7 @@ export type InterpretResult = Result<Interpretation, InterpretError>;
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,
-  card: SheetOf<ImageData>,
-  disableBmdBallotScanning: boolean = false
+  card: SheetOf<ImageData>
 ): Promise<InterpretResult> {
   const croppedCard = mapSheet(card, (imageData) => {
     const threshold = otsu(imageData.data);
@@ -89,12 +85,6 @@ export async function interpret(
 
   // A BMD ballot QR code was found
 
-  if (disableBmdBallotScanning) {
-    return err({
-      type: 'bmd-ballot-scanning-disabled',
-    });
-  }
-
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
   const actualBallotHash = decodeBallotHash(foundQrCode.data);
   const expectedBallotHash = electionDefinition.ballotHash.slice(
@@ -123,10 +113,7 @@ export async function interpret(
 
   const blankPageImage = frontResult.isOk() ? croppedCard[1] : croppedCard[0];
 
-  const decoded = decodeSummaryBallotPage(
-    electionDefinition,
-    foundQrCode.data
-  );
+  const decoded = decodeSummaryBallotPage(electionDefinition, foundQrCode.data);
   return ok({
     metadata: decoded.metadata,
     votes: decoded.votes,

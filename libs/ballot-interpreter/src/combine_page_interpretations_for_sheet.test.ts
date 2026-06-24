@@ -297,31 +297,6 @@ test('treats either page having invalid scale as an invalid sheet', () => {
   });
 });
 
-test('treats either page having BMD ballot scanning disabled as an invalid sheet', () => {
-  const bmdDisabledPage: PageInterpretation = {
-    type: 'UnreadablePage',
-    reason: 'bmdBallotScanningDisabled',
-  };
-  expect(
-    combinePageInterpretationsForSheet(
-      [bmdDisabledPage, { type: 'UnreadablePage' }],
-      election
-    )
-  ).toEqual<SheetInterpretation>({
-    type: 'InvalidSheet',
-    reason: { type: 'bmd_ballot_scanning_disabled' },
-  });
-  expect(
-    combinePageInterpretationsForSheet(
-      [{ type: 'UnreadablePage' }, bmdDisabledPage],
-      election
-    )
-  ).toEqual<SheetInterpretation>({
-    type: 'InvalidSheet',
-    reason: { type: 'bmd_ballot_scanning_disabled' },
-  });
-});
-
 test('treats either page having vertical streaks as an invalid sheet', () => {
   const verticalStreaksPage: PageInterpretation = {
     type: 'UnreadablePage',

@@ -28,7 +28,6 @@ const commonCustomerSettings = {
   disableVoterHelpButtons: true,
   precinctScanDisableAlarms: true,
   precinctScanDisableScreenReaderAudio: true,
-  precinctScanEnableBmdBallotScanning: true,
 } as const;
 
 export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
