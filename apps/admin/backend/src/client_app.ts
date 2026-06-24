@@ -15,7 +15,10 @@ import {
 } from '@votingworks/basics';
 import { createSystemCallApi } from '@votingworks/backend';
 import { Logger, LogEventId } from '@votingworks/logging';
-import { isSystemAdministratorAuth } from '@votingworks/utils';
+import {
+  isIntegrationTest,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import {
   MultiUsbDrive,
   UsbDriveStatus,
@@ -420,6 +423,40 @@ export function buildClientApp({
   multiUsbDrive: MultiUsbDrive;
 }): Application {
   const app: Application = express();
+
+  // Integration-test-only seeding route. Client networking is disabled under
+  // integration tests (see server.ts), so tests drive the client connection
+  // status deterministically by seeding the client store here. Registered
+  // before the grout router so it takes precedence over `/api`.
+  /* istanbul ignore next - integration-test-only */
+  if (isIntegrationTest()) {
+    app.post('/api/test/set-connection', express.json(), (req, res) => {
+      const {
+        status,
+        hostMachineId = 'VX-ADMIN-01',
+        isClientAdjudicationEnabled = false,
+      }: {
+        status: ClientConnectionStatus;
+        hostMachineId?: string;
+        isClientAdjudicationEnabled?: boolean;
+      } = req.body;
+      const { clientStore } = workspace;
+      if (status === ClientConnectionStatus.OnlineConnectedToHost) {
+        clientStore.setConnection(status, {
+          address: 'http://localhost:0',
+          machineId: hostMachineId,
+          apiClient: grout.createClient<PeerApi>({
+            baseUrl: 'http://localhost:0/api',
+          }),
+        });
+      } else {
+        clientStore.setConnection(status);
+      }
+      clientStore.setIsClientAdjudicationEnabled(isClientAdjudicationEnabled);
+      res.json({});
+    });
+  }
+
   const api = buildClientApi({ auth, workspace, logger, multiUsbDrive });
   app.use('/api', grout.buildRouter(api, express));
   return app;

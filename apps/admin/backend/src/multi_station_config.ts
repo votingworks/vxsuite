@@ -4,6 +4,7 @@ import {
   BooleanEnvironmentVariableName,
   getRequiredEnvVar,
   isFeatureFlagEnabled,
+  isIntegrationTest,
   isNodeEnvProduction,
 } from '@votingworks/utils';
 
@@ -13,9 +14,9 @@ const LOCAL_ETHERNET_STATE_FILENAME = 'local-ethernet-state';
  * Multi-station adjudication is enabled only when both:
  *   1. The REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN feature flag is set, AND
  *   2. In production, $VX_CONFIG_ROOT/local-ethernet-state exists with the
- *      content "enable". In non-production environments the file check is
- *      skipped (treated as enabled) since /vx/config doesn't exist on dev
- *      machines.
+ *      content "enable". In non-production environments (and integration
+ *      tests, which run with NODE_ENV=production) the file check is skipped
+ *      (treated as enabled) since /vx/config doesn't exist on dev machines.
  *
  * The file lets ops toggle the feature on a built machine without a rebuild —
  * editing the file and rebooting picks up the new value at process start.
@@ -28,7 +29,7 @@ export function isMultiStationAdjudicationEnabled(): boolean {
   ) {
     return false;
   }
-  if (!isNodeEnvProduction()) {
+  if (!isNodeEnvProduction() || isIntegrationTest()) {
     return true;
   }
   try {

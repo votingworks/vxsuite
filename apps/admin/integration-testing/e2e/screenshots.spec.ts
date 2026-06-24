@@ -31,6 +31,7 @@ import {
   withWriteIns,
 } from '@votingworks/integration-test-utils';
 import {
+  Admin,
   AdjudicationReason,
   BallotType,
   CandidateContest,
@@ -1169,4 +1170,126 @@ test('manual results', async ({ page }, testInfo) => {
     namer,
     name: 'manual-results-tally-report',
   });
+});
+
+// The multi-station adjudication feature relies on backend state that is
+// normally produced by the avahi network-discovery loop, which has no real
+// peers in the test environment. The loop is disabled under integration tests
+// (see server.ts), so this test drives the network status deterministically by
+// posting to the host's `/api/test/seed-networking` route — registering fake
+// adjudication stations and toggling the multiple-hosts conflict.
+test('multi-station adjudication', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const usbHandler = getMockFileUsbDriveHandler();
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const {
+    screenshot,
+    screenshotWithButtonHighlight,
+    screenshotWithLocatorHighlight,
+  } = buildIntegrationTestHelper(page, namer);
+
+  // Seeds the host's machines table, then advances the clock so the polled
+  // network-status query (paused by the installed fake clock) refetches.
+  async function seedNetworking(data: {
+    isOnline?: boolean;
+    clients?: Array<{
+      machineId: string;
+      status: Admin.ClientMachineStatus;
+      authType?: string | null;
+    }>;
+    multipleHosts?: boolean;
+  }) {
+    const response = await page.request.post('/api/test/seed-networking', {
+      data,
+    });
+    expect(response.ok()).toBeTruthy();
+    await page.clock.fastForward(2000);
+  }
+
+  await page.goto('/');
+
+  // System administrator settings — switch to adjudication station mode. The
+  // machine is unconfigured and logged out from the beforeEach reset, which is
+  // exactly when this control is offered.
+  await logInAsSystemAdministrator(page);
+  await page.getByText('Settings').click();
+  await page.getByRole('heading', { name: 'Settings' }).waitFor();
+  await page
+    .getByRole('button', { name: 'Switch to Adjudication Station Mode' })
+    .waitFor();
+  await screenshotWithButtonHighlight(
+    'Switch to Adjudication Station Mode',
+    'settings-switch-to-adjudication-station-highlighted'
+  );
+  await logOut(page);
+
+  // Election manager on the host machine.
+  await configureMachine({ page, usbHandler, electionDefinition });
+  await logInAsElectionManager(page, election);
+  await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
+  await screenshot('host-election-manager');
+
+  // Host adjudication landing page with adjudication stations connected.
+  await page.getByText('Adjudication', { exact: true }).click();
+  await page
+    .getByRole('heading', { name: 'Multi-Station Adjudication' })
+    .waitFor();
+  await seedNetworking({
+    isOnline: true,
+    clients: [
+      {
+        machineId: 'VX-ADMIN-11',
+        status: Admin.ClientMachineStatus.Active,
+        authType: 'election_manager',
+      },
+      {
+        machineId: 'VX-ADMIN-12',
+        status: Admin.ClientMachineStatus.Adjudicating,
+        authType: 'election_manager',
+      },
+      {
+        machineId: 'VX-ADMIN-13',
+        status: Admin.ClientMachineStatus.OnlineLocked,
+      },
+    ],
+  });
+  await page.getByText('VX-ADMIN-11').waitFor();
+  await screenshot('host-adjudication-stations-connected');
+
+  // Multi-station is off by default — highlight the control that turns it on.
+  await page.getByText(/Stations cannot adjudicate/).waitFor();
+  await screenshotWithButtonHighlight(
+    'Enable Multi-Station',
+    'host-enable-multi-station-highlighted'
+  );
+
+  // Turn it on, then highlight the control that turns it back off.
+  await page.getByRole('button', { name: 'Enable Multi-Station' }).click();
+  await page.getByText(/Stations can adjudicate/).waitFor();
+  await screenshotWithButtonHighlight(
+    'Disable',
+    'host-disable-multi-station-highlighted'
+  );
+
+  // Network status problem — another host is active on the network. The
+  // conflict surfaces as a danger banner and disables the multi-station toggle.
+  await seedNetworking({
+    isOnline: true,
+    multipleHosts: true,
+    clients: [
+      {
+        machineId: 'VX-ADMIN-11',
+        status: Admin.ClientMachineStatus.Active,
+        authType: 'election_manager',
+      },
+    ],
+  });
+  await page.getByText(/Multiple hosts detected/).waitFor();
+  await screenshotWithLocatorHighlight(
+    page.getByText(/Multiple hosts detected/),
+    'host-network-problem-highlighted'
+  );
 });

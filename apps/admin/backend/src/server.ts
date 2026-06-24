@@ -152,12 +152,18 @@ export async function start(options: StartOptions = {}): Promise<Server> {
           });
         });
 
-        startHostNetworking({
-          machineId: getMachineConfig().machineId,
-          peerPort,
-          store: workspace.store,
-          logger: baseLogger,
-        });
+        // In integration tests there are no real peers to discover, and the
+        // avahi polling loop would overwrite the machine/network state that
+        // tests seed via the test-only seeding route. Skip it so seeded state
+        // stays stable for screenshots.
+        if (!isIntegrationTest()) {
+          startHostNetworking({
+            machineId: getMachineConfig().machineId,
+            peerPort,
+            store: workspace.store,
+            logger: baseLogger,
+          });
+        }
       }
 
       app = buildApp({
@@ -213,12 +219,17 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const multiUsbDrive =
         options.multiUsbDrive ?? detectMultiUsbDrive(logger);
 
-      startClientNetworking({
-        machineId: getMachineConfig().machineId,
-        clientStore: clientWorkspace.clientStore,
-        auth,
-        logger: baseLogger,
-      });
+      // See the host-mode note above: skip avahi discovery in integration
+      // tests so the client connection status seeded via the test-only route
+      // is not overwritten by the polling loop.
+      if (!isIntegrationTest()) {
+        startClientNetworking({
+          machineId: getMachineConfig().machineId,
+          clientStore: clientWorkspace.clientStore,
+          auth,
+          logger: baseLogger,
+        });
+      }
 
       app = buildClientApp({
         auth,

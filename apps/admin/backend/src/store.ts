@@ -3259,6 +3259,11 @@ export class Store implements BaseStore {
     );
   }
 
+  /* istanbul ignore next - used only by the integration-test seeding route */
+  clearNetworkedMachines(): void {
+    this.client.run('delete from machines');
+  }
+
   getMachine(machineId: string): MachineRecord | undefined {
     return this.client.one(
       `select

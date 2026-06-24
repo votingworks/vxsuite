@@ -15,6 +15,7 @@ import {
   PrinterStatus,
   SystemSettings,
   Tabulation,
+  UserRole,
   convertElectionResultsReportingReportToVxManualResults,
   getContests,
 } from '@votingworks/types';
@@ -1535,6 +1536,56 @@ export function buildApp({
   printer: Printer;
 }): Application {
   const app: Application = express();
+
+  // Integration-test-only seeding route. Networking is disabled under
+  // integration tests (see server.ts), so tests drive the multi-station
+  // network status deterministically by seeding the machines table here.
+  // Registered before the grout router so it takes precedence over `/api`.
+  /* istanbul ignore next - integration-test-only */
+  if (isIntegrationTest()) {
+    app.post('/api/test/seed-networking', express.json(), (req, res) => {
+      const {
+        isOnline = true,
+        clients = [],
+        multipleHosts = false,
+      }: {
+        isOnline?: boolean;
+        clients?: Array<{
+          machineId: string;
+          status: Admin.ClientMachineStatus;
+          authType?: UserRole | null;
+        }>;
+        multipleHosts?: boolean;
+      } = req.body;
+      const { machineId } = getMachineConfig();
+      const { store } = workspace;
+      store.clearNetworkedMachines();
+      store.setNetworkedMachineStatus(
+        machineId,
+        'host',
+        isOnline
+          ? Admin.ClientMachineStatus.Active
+          : Admin.ClientMachineStatus.Offline
+      );
+      if (multipleHosts) {
+        store.setNetworkedMachineStatus(
+          'VX-ADMIN-02',
+          'host',
+          Admin.ClientMachineStatus.Active
+        );
+      }
+      for (const client of clients) {
+        store.setNetworkedMachineStatus(
+          client.machineId,
+          'client',
+          client.status,
+          client.authType ?? null
+        );
+      }
+      res.json({});
+    });
+  }
+
   const api = buildApi({
     auth,
     workspace,
