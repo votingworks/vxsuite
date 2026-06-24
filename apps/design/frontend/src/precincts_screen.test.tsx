@@ -87,7 +87,7 @@ beforeEach(() => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.getRegisteredVotersCounts
+  apiMock.getRegisteredVoterCounts
     .expectRepeatedCallsWith({ electionId })
     .resolves({});
 
@@ -465,7 +465,7 @@ test('editing a precinct - removing splits preserves last split voter count', as
     .expectCallWith({
       electionId,
       updatedPrecinct: precinctWithoutSplits,
-      registeredVotersCounts: 400,
+      registeredVoterCounts: 400,
     })
     .resolves(ok());
   apiMock.listPrecincts
@@ -985,12 +985,12 @@ test('shows voter count field by default', async () => {
   screen.getByLabelText('Registered Voters');
 });
 
-test('DISABLE_REGISTERED_VOTERS_COUNTS hides voter count field', async () => {
+test('DISABLE_REGISTERED_VOTER_COUNTS hides voter count field', async () => {
   const savedPrecinct = election.precincts[0];
   assert(!hasSplits(savedPrecinct));
 
   mockStateFeatures(apiMock, electionId, {
-    DISABLE_REGISTERED_VOTERS_COUNTS: true,
+    DISABLE_REGISTERED_VOTER_COUNTS: true,
   });
   apiMock.listPrecincts
     .expectCallWith({ electionId })
@@ -1034,7 +1034,7 @@ test('saves registered voter counts for a precinct with splits', async () => {
     .expectCallWith({
       electionId,
       updatedPrecinct: savedPrecinct,
-      registeredVotersCounts: { splits: { [split2.id]: 300 } },
+      registeredVoterCounts: { splits: { [split2.id]: 300 } },
     })
     .resolves(ok());
   apiMock.listPrecincts

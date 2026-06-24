@@ -161,7 +161,7 @@ export interface StateFeaturesConfig {
   /**
    * Hides the registered voter count fields in the precinct form.
    */
-  DISABLE_REGISTERED_VOTERS_COUNTS?: boolean;
+  DISABLE_REGISTERED_VOTER_COUNTS?: boolean;
   /**
    * Allows an election to have no absentee polling places. Enabled for states
    * where central scanning is only ever an emergency fallback (NH).

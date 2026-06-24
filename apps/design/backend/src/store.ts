@@ -53,10 +53,10 @@ import {
   PollingPlace,
   PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
-  PrecinctRegisteredVotersCountEntry,
+  PrecinctRegisteredVoterCountEntry,
   safeParseElectionDefinitionForAnySoftwareVersion,
   SoftwareVersion,
   ElectionType,
@@ -1787,35 +1787,35 @@ export class Store {
   /**
    * Sets the registered voter counts for a precinct or splits in a precinct.
    * @param precinct The precinct to update.
-   * @param registeredVotersCounts Will unset the registered voter count if undefined.
+   * @param registeredVoterCounts Will unset the registered voter count if undefined.
    */
   async setPrecinctRegisteredVoterCounts(
     precinct: Precinct,
-    registeredVotersCounts?: PrecinctRegisteredVotersCountEntry
+    registeredVoterCounts?: PrecinctRegisteredVoterCountEntry
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         await client.query(
-          `delete from precinct_registered_voters_counts where precinct_id = $1`,
+          `delete from precinct_registered_voter_counts where precinct_id = $1`,
           precinct.id
         );
         if (
           !hasSplits(precinct) &&
-          registeredVotersCounts !== undefined &&
-          isPrecinctCount(registeredVotersCounts)
+          registeredVoterCounts !== undefined &&
+          isPrecinctCount(registeredVoterCounts)
         ) {
           await client.query(
             `
-              insert into precinct_registered_voters_counts (precinct_id, count)
+              insert into precinct_registered_voter_counts (precinct_id, count)
               values ($1, $2)
             `,
             precinct.id,
-            registeredVotersCounts
+            registeredVoterCounts
           );
         }
         await client.query(
           `
-            delete from precinct_split_registered_voters_counts
+            delete from precinct_split_registered_voter_counts
             where split_id in (
               select id from precinct_splits where precinct_id = $1
             )
@@ -1824,15 +1824,15 @@ export class Store {
         );
         if (
           hasSplits(precinct) &&
-          registeredVotersCounts !== undefined &&
-          isSplitCounts(registeredVotersCounts)
+          registeredVoterCounts !== undefined &&
+          isSplitCounts(registeredVoterCounts)
         ) {
           for (const split of precinct.splits) {
-            const splitCount = registeredVotersCounts.splits[split.id];
+            const splitCount = registeredVoterCounts.splits[split.id];
             if (splitCount !== undefined) {
               await client.query(
                 `
-                  insert into precinct_split_registered_voters_counts (split_id, count)
+                  insert into precinct_split_registered_voter_counts (split_id, count)
                   values ($1, $2)
                 `,
                 split.id,
@@ -1863,16 +1863,16 @@ export class Store {
     assert(rowCount === 1, 'Precinct not found');
   }
 
-  async getRegisteredVotersCounts(
+  async getRegisteredVoterCounts(
     electionId: ElectionId
-  ): Promise<ElectionRegisteredVotersCounts> {
+  ): Promise<ElectionRegisteredVoterCounts> {
     return this.db.withClient(async (client) => {
       const precinctRows = (
         await client.query(
           `
             select p.id, prc.count
             from precincts p
-            left join precinct_registered_voters_counts prc on prc.precinct_id = p.id
+            left join precinct_registered_voter_counts prc on prc.precinct_id = p.id
             where p.election_id = $1
           `,
           electionId
@@ -1888,7 +1888,7 @@ export class Store {
               psrc.count
             from precinct_splits ps
             join precincts p on ps.precinct_id = p.id
-            left join precinct_split_registered_voters_counts psrc on psrc.split_id = ps.id
+            left join precinct_split_registered_voter_counts psrc on psrc.split_id = ps.id
             where p.election_id = $1
           `,
           electionId
@@ -1912,7 +1912,7 @@ export class Store {
         }
       }
 
-      const counts: ElectionRegisteredVotersCounts = {};
+      const counts: ElectionRegisteredVoterCounts = {};
       for (const row of precinctRows) {
         const splits = splitsByPrecinctId.get(row.id) ?? [];
         if (splits.length > 0) {
