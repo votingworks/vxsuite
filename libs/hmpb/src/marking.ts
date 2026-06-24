@@ -10,16 +10,15 @@ import {
 import fontKit from '@pdf-lib/fontkit';
 import fs from 'node:fs';
 
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   Candidate,
-  CandidateContest,
+  Contest,
   Election,
   GridPosition,
   gridPositionsFromBallotPositions,
   Rect,
-  straightPartyNotYetImplemented,
   Vote,
   VotesDict,
 } from '@votingworks/types';
@@ -144,10 +143,6 @@ export async function generateMarkOverlay(
 
     const contest = election.contests.find((c) => c.id === pos.contestId);
     assert(contest, `contest ${pos.contestId} not found`);
-    /* istanbul ignore next */
-    if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
-    }
 
     const mark = markInfo(contestVotes, pos, contest, { gridPositions });
     if (!mark) continue;
@@ -297,32 +292,42 @@ type MarkInfo =
 function markInfo(
   votes: Vote,
   gridPos: GridPosition,
-  contest: CandidateContest | { type: 'yesno'; id: string },
+  contest: Contest,
   layout: { gridPositions: readonly GridPosition[] }
 ): MarkInfo | null {
   for (const vote of votes) {
-    // Handle yes/no votes
-    if (contest.type === 'yesno') {
-      assert(gridPos.type === 'option');
-      if (vote === gridPos.optionId) return {};
-      continue;
-    }
-    // For candidate contests only
-    assert(contest.type === 'candidate');
-    const candidateVote = vote as Candidate;
-    if (gridPos.type === 'write-in') {
-      if (gridPos.writeInIndex === candidateVote.writeInIndex) {
-        return {
-          writeInArea: gridPos.writeInArea,
-          writeInName: candidateVote.name,
-        };
+    switch (contest.type) {
+      case 'yesno':
+      case 'straight-party': {
+        assert(gridPos.type === 'option');
+        if (vote === gridPos.optionId) return {};
+        continue;
       }
 
-      continue;
-    }
+      case 'candidate': {
+        const candidateVote = vote as Candidate;
+        if (gridPos.type === 'write-in') {
+          if (gridPos.writeInIndex === candidateVote.writeInIndex) {
+            return {
+              writeInArea: gridPos.writeInArea,
+              writeInName: candidateVote.name,
+            };
+          }
 
-    if (voteMatchesGridPosition(candidateVote, gridPos, layout.gridPositions)) {
-      return {};
+          continue;
+        }
+
+        if (
+          voteMatchesGridPosition(candidateVote, gridPos, layout.gridPositions)
+        ) {
+          return {};
+        }
+        break;
+      }
+
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(contest);
     }
   }
 
