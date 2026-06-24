@@ -10,7 +10,10 @@ import {
 } from '@votingworks/image-utils';
 
 import { generateMarkOverlay } from './marking';
-import { vxGeneralElectionFixtures } from './ballot_fixtures';
+import {
+  miGeneralElectionFixtures,
+  vxGeneralElectionFixtures,
+} from './ballot_fixtures';
 
 test('places marks consistently', async () => {
   const fixture = find(
@@ -73,6 +76,34 @@ test('composites marks onto base ballot PDF', async () => {
   const compositePages = pdfToImages(compositePdf, { scale });
 
   for await (const page of compositePages) {
+    expect(toImageBuffer(page.page)).toMatchImageSnapshot();
+  }
+});
+
+test('marks the selected party in a straight party contest', async () => {
+  const { electionPath, ballotStyleId, votes, blankBallotPath } =
+    miGeneralElectionFixtures;
+
+  const election = safeParseElection(
+    JSON.parse(fs.readFileSync(electionPath, 'utf8'))
+  ).unsafeUnwrap();
+
+  expect(votes['straight-party-ticket']).toEqual(['0']);
+
+  const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
+
+  const markedBallotPdf = await generateMarkOverlay(
+    election,
+    ballotStyleId,
+    votes,
+    { offsetMmX: 0, offsetMmY: 0 },
+    baseBallotPdf
+  );
+
+  const scale = 1;
+  const markedPages = pdfToImages(markedBallotPdf, { scale });
+
+  for await (const page of markedPages) {
     expect(toImageBuffer(page.page)).toMatchImageSnapshot();
   }
 });
