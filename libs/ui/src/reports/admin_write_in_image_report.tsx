@@ -156,8 +156,8 @@ export function AdminWriteInImageReport({
                   </React.Fragment>
                 ) : !qualifiedWriteInsEnabled && totalWriteIns === 0 ? (
                   <P>
-                    <Icons.Info />
-                    No write-in candidates have received votes in this contest.
+                    <Icons.Info /> No write-in candidates have received votes in
+                    this contest.
                   </P>
                 ) : (
                   <React.Fragment>
