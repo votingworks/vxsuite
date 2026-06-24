@@ -2,7 +2,12 @@ import { useContext, useState } from 'react';
 import { SearchSelect } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { CandidateContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  Election,
+  getContestDistrictName,
+  getPartyAbbreviationByPartyId,
+} from '@votingworks/types';
 import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
@@ -33,6 +38,29 @@ const SelectContestContainer = styled.div`
     white-space: nowrap;
   }
 `;
+
+/**
+ * Concatenates the relevant attributes to ensure a unique label for each
+ * contest since contests can have the same title.
+ */
+function constructContestLabel(
+  contest: CandidateContest,
+  election: Election
+): string {
+  const parts = [contest.title, getContestDistrictName(election, contest)];
+  if (contest.partyId) {
+    parts.push(
+      getPartyAbbreviationByPartyId({
+        partyId: contest.partyId,
+        election,
+      })
+    );
+  }
+  if (contest.termDescription) {
+    parts.push(contest.termDescription);
+  }
+  return parts.join(' · ');
+}
 
 export function WriteInImageReportScreen(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -68,10 +96,12 @@ export function WriteInImageReportScreen(): JSX.Element {
             isMulti={false}
             isSearchable
             value={contestId}
-            options={writeInContests.map((c) => ({
-              value: c.id,
-              label: c.title,
-            }))}
+            options={writeInContests
+              .map((contest) => ({
+                value: contest.id,
+                label: constructContestLabel(contest, election),
+              }))
+              .sort((o1, o2) => o1.label.localeCompare(o2.label))}
             onChange={(value) => setContestId(value)}
             aria-label="Select Contest"
             style={{ width: '30rem' }}

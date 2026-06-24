@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -29,7 +32,9 @@ const MAYOR_CONTEST_ID = 'mayor';
 function selectContest(contestTitle: string) {
   const select = screen.getByRole('combobox');
   fireEvent.keyDown(select, { key: 'ArrowDown' });
-  fireEvent.click(screen.getByText(contestTitle));
+  // Option labels are disambiguated (e.g. "Mayor · City of Lincoln"), so match
+  // the title as a substring.
+  fireEvent.click(screen.getByText(contestTitle, { exact: false }));
 }
 
 test('initial state: no contest selected, no actions shown', async () => {
@@ -123,6 +128,23 @@ test('export report PDF', async () => {
   await screen.findByText('Write-In Image Report Saved');
   userEvent.click(within(exportModal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+});
+
+test('contest options are disambiguated by district, party, and term, and sorted by label', () => {
+  renderInAppContext(<WriteInImageReportScreen />, {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  const select = screen.getByRole('combobox');
+  fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+  expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual([
+    'Zoo Council · District 1 · F · For three years',
+    'Zoo Council · District 1 · Ma · For three years',
+  ]);
 });
 
 test('shows warning and disables actions when PDF is too large', async () => {

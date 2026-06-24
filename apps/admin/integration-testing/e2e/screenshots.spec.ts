@@ -764,7 +764,7 @@ test('results', async ({ page }, testInfo) => {
     .getByRole('heading', { name: 'Single Contest Write-In Image Report' })
     .waitFor();
   await openDropdown(page, 'Select Contest');
-  await selectOpenDropdownOption(page, 'Mayor');
+  await selectOpenDropdownOption(page, 'Mayor', { exact: false });
   await waitForReportToLoad(page);
   await screenshot('write-in-image-report');
   await printAndCaptureReport({
