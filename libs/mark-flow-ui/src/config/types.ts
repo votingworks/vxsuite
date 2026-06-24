@@ -8,6 +8,7 @@ import {
   ElectionDefinition,
   OptionalVote,
   OptionalYesNoVote,
+  PartyId,
   PrecinctId,
   StraightPartyContest,
   StraightPartyVote,
@@ -49,6 +50,7 @@ export interface CandidateContestResultInterface {
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
   vote?: CandidateVote;
+  selectedStraightPartyId?: PartyId;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;

@@ -30,7 +30,12 @@ import {
   Font,
 } from '@votingworks/ui';
 
-import { getSingleYesNoVote } from '@votingworks/utils';
+import {
+  deriveStraightPartyVotesForContest,
+  getSingleYesNoVote,
+  selectedStraightPartyId,
+} from '@votingworks/utils';
+import { find } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -64,20 +69,31 @@ function CandidateContestResult({
   election,
   selectionsAreEditable,
   ballotStyle,
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  selectedStraightPartyId,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
-  const remainingChoices = numVotesRemaining(contest, vote);
+  const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
+    contest,
+    vote.map((c) => c.id),
+    selectedStraightPartyId
+  );
+  const remainingChoices =
+    numVotesRemaining(contest, vote) - derivedStraightPartyVotes.length;
+
+  const derivedVoteCandidates = derivedStraightPartyVotes.map((id) =>
+    find(contest.candidates, (c) => c.id === id)
+  );
+  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
+    inputVote: [...vote, ...derivedVoteCandidates],
+    contest,
+    ballotStyle,
+  });
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
     : appStrings.noteBallotContestNoSelection();
-
-  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
-    inputVote: vote,
-    contest,
-    ballotStyle,
-  });
 
   return (
     <VoterContestSummary
@@ -87,7 +103,7 @@ function CandidateContestResult({
       titleType="h2"
       undervoteWarning={
         remainingChoices > 0 ? (
-          vote.length === 0 ? (
+          orderedVotes.length === 0 ? (
             noVotesString
           ) : (
             <React.Fragment>
@@ -97,15 +113,27 @@ function CandidateContestResult({
           )
         ) : undefined
       }
-      votes={orderedVotes.map(
-        (candidate): ContestVote => ({
+      votes={orderedVotes.map((candidate): ContestVote => {
+        const isDerivedVote = derivedStraightPartyVotes.includes(candidate.id);
+        const matchesSelectedStraightParty =
+          selectedStraightPartyId &&
+          candidate.partyIds?.includes(selectedStraightPartyId);
+        return {
           caption: candidate.isWriteIn ? (
             appStrings.labelWriteInParenthesized()
           ) : (
-            <CandidatePartyList
-              candidate={candidate}
-              electionParties={election.parties}
-            />
+            <React.Fragment>
+              <CandidatePartyList
+                candidate={candidate}
+                electionParties={election.parties}
+              />
+              {matchesSelectedStraightParty && (
+                <span>
+                  {' - '}
+                  {appStrings.labelStraightPartyVote()}
+                </span>
+              )}
+            </React.Fragment>
           ),
           id: candidate.id,
           partyIds: candidate.partyIds,
@@ -119,8 +147,9 @@ function CandidateContestResult({
           ) : (
             electionStrings.candidateName(candidate)
           ),
-        })
-      )}
+          isDerivedVote,
+        };
+      })}
     />
   );
 }
@@ -328,6 +357,10 @@ export function Review({
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
                 ballotStyle={ballotStyle}
+                selectedStraightPartyId={selectedStraightPartyId(
+                  election,
+                  votes
+                )}
               />
             )}
             {contest.type === 'yesno' && (
