@@ -194,6 +194,10 @@
         {
           "id": "allow-fishing",
           "label": "NO"
+        },
+        {
+          "id": "regulate-fishing",
+          "label": "REGULATE"
         }
       ]
     }
@@ -259,7 +263,8 @@
         "new-zoo-safari": "FOR Initiative No. 12",
         "new-zoo-traditional": "FOR Alternative Measure No. 12 A",
         "ban-fishing": "YES",
-        "allow-fishing": "NO"
+        "allow-fishing": "NO",
+        "regulate-fishing": "REGULATE"
       },
       "contestTerm": {
         "best-animal-mammal": "For three years",
