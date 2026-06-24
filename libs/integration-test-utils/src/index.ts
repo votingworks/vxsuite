@@ -4,6 +4,7 @@ export * from './ballots';
 export * from './cast_vote_records';
 export * from './constants';
 export * from './fonts';
+export * from './global_setup';
 export * from './screenshots';
 export * from './pdf';
 export * from './playwright_config';

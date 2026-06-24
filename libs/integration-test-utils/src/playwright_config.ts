@@ -6,6 +6,10 @@ import {
 import { join } from 'node:path';
 import { BASE_URL, OUTPUT_DIR } from './constants';
 
+// Resolves to the built `global_setup.js` alongside this compiled module, so
+// the path is correct regardless of which app loads the shared config.
+const GLOBAL_SETUP_PATH = join(__dirname, 'global_setup.js');
+
 /** Options for {@link defineIntegrationTestPlaywrightConfig}. */
 export interface IntegrationTestPlaywrightConfigOptions {
   /** Browser viewport size — the setting that varies between apps. */
@@ -26,6 +30,9 @@ export function defineIntegrationTestPlaywrightConfig(
   return defineConfig({
     testDir: './e2e',
     outputDir: OUTPUT_DIR,
+    // Wait for the backend (not just the Vite dev server) to be reachable
+    // before any test runs, so API calls in `beforeEach` don't race startup.
+    globalSetup: GLOBAL_SETUP_PATH,
     ...(options.timeout !== undefined ? { timeout: options.timeout } : {}),
     // All test suites share one server, so they cannot run in parallel; global
     // state like Java card mocking also precludes parallelism.
