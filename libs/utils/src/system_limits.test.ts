@@ -11,7 +11,7 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
       valueExceedingLimit: SYSTEM_LIMITS.election.ballotStyles + 1,
     },
     expectedString:
-      'Number of ballot styles in election (1001) exceeds system limit of 1000.',
+      'Number of ballot styles in election (5001) exceeds system limit of 5000.',
   },
   {
     violation: {
@@ -20,7 +20,7 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
       valueExceedingLimit: SYSTEM_LIMITS.election.candidates + 1,
     },
     expectedString:
-      'Number of candidates in election (1001) exceeds system limit of 1000.',
+      'Number of candidates in election (2001) exceeds system limit of 2000.',
   },
   {
     violation: {
@@ -38,7 +38,7 @@ test.each<{ violation: SystemLimitViolation; expectedString: string }>([
       valueExceedingLimit: SYSTEM_LIMITS.election.precincts + 1,
     },
     expectedString:
-      'Number of precincts in election (1001) exceeds system limit of 1000.',
+      'Number of precincts in election (2501) exceeds system limit of 2500.',
   },
   {
     violation: {

@@ -33,11 +33,11 @@ const systemSettings: SystemSettings = {
 };
 const systemSettingsData = JSON.stringify(systemSettings);
 
-test('tabulateScannedCardCounts - grouping', () => {
+test('tabulateScannedCardCounts - grouping', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -192,11 +192,11 @@ test('tabulateScannedCardCounts - grouping', () => {
   }
 });
 
-test('tabulateScannedCardCounts - groupByBatchDate', () => {
+test('tabulateScannedCardCounts - groupByBatchDate', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -303,11 +303,11 @@ test('tabulateScannedCardCounts - groupByBatchDate', () => {
   ]);
 });
 
-test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
+test('tabulateFullCardCounts - groupByBatchDate with manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -388,11 +388,11 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', () => {
   ]);
 });
 
-test('tabulateScannedCardCounts - merging card tallies', () => {
+test('tabulateScannedCardCounts - merging card tallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -465,11 +465,11 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   });
 });
 
-test('tabulateFullCardCounts - manual results', () => {
+test('tabulateFullCardCounts - manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -619,11 +619,11 @@ test('tabulateFullCardCounts - manual results', () => {
   ]);
 });
 
-test('tabulateFullCardCounts - blankBallots', () => {
+test('tabulateFullCardCounts - blankBallots', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -739,11 +739,11 @@ test('tabulateFullCardCounts - blankBallots', () => {
   }
 });
 
-test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', () => {
+test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionOpenPrimaryFixtures.readElectionDefinition();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),

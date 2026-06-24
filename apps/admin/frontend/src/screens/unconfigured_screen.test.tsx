@@ -85,17 +85,17 @@ test('configures from election packages on USB drive', async () => {
     within(rows[0])
       .getAllByRole('columnheader')
       .map((th) => th.textContent)
-  ).toEqual(['File Name', 'Created At']);
+  ).toEqual(['File Name', 'Created At', '']);
   expect(
     within(rows[1])
       .getAllByRole('cell')
       .map((td) => td.textContent)
-  ).toEqual(['election-package-1.zip', '01/01/2023 12:00:00 AM']);
+  ).toEqual(['election-package-1.zip', '01/01/2023 12:00:00 AM', '']);
   expect(
     within(rows[2])
       .getAllByRole('cell')
       .map((td) => td.textContent)
-  ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM']);
+  ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM', '']);
 
   apiMock.expectConfigure(electionPackages[0].path);
   userEvent.click(screen.getByText('election-package-1.zip'));

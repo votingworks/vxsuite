@@ -54,6 +54,21 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
     pub max_cumulative_streak_width: PixelUnit,
     pub retry_streak_width_threshold: PixelUnit,
+    pub metadata_source: MetadataSource,
+}
+
+#[derive(Debug, Clone)]
+pub enum MetadataSource {
+    /// Detect and decode the QR codes printed on the ballot. This is the only
+    /// option available in production.
+    QrCode,
+
+    /// Use the provided metadata directly, skipping QR code detection and
+    /// decoding entirely. This is only meant for tests that use field-captured
+    /// fixtures whose QR codes predate the current metadata encoding and can
+    /// no longer be decoded.
+    #[cfg(test)]
+    Provided(Pair<(Metadata, Orientation)>),
 }
 
 #[derive(Debug, Clone, Copy, DeserializeFromStr, PartialEq, Default)]
@@ -328,6 +343,7 @@ impl ScanInterpreter {
             minimum_detected_scale: self.minimum_detected_scale,
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
+            metadata_source: MetadataSource::QrCode,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -396,7 +412,13 @@ pub fn ballot_card(
                 ballot_card.geometry(),
             ))
         },
-        || ballot_card.decode_ballot_barcodes(&options.election, &options.expected_ballot_hash),
+        || match &options.metadata_source {
+            MetadataSource::QrCode => {
+                ballot_card.decode_ballot_barcodes(&options.election, &options.expected_ballot_hash)
+            }
+            #[cfg(test)]
+            MetadataSource::Provided(metadata) => Ok(metadata.clone()),
+        },
     );
 
     let mut timing_marks = match timing_marks_result {
@@ -564,8 +586,9 @@ mod test {
     use itertools::Itertools;
     use sha2::{Digest, Sha256};
     use types_rs::{
-        bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH, PRELUDE},
-        election::{ContestId, OptionId},
+        ballot_card::{BallotType, PageNumber},
+        bubble_ballot::PartialBallotHash,
+        election::{BallotStyleId, ContestId, OptionId, PrecinctId},
         geometry::{PixelPosition, Rect},
     };
 
@@ -606,31 +629,23 @@ mod test {
         (election, hash)
     }
 
-    /// Pulls the partial ballot hash out of a ballot image's QR code. Used by
-    /// tests whose ballot images were not generated from the election.json
-    /// bytes in the fixture directory (so `sha256(electionData)` doesn't
-    /// match the QR-encoded hash). For those fixtures, the QR code is the
-    /// source of truth for which hash the ballot was generated with.
-    fn decode_ballot_hash_from_image(
-        image: &GrayImage,
-    ) -> types_rs::bubble_ballot::PartialBallotHash {
-        use crate::debug::ImageDebugWriter;
-        use crate::qr_code;
-        let qr = qr_code::detect_with_strategy(
-            image,
-            qr_code::SearchStrategy::BubbleCorners,
-            &ImageDebugWriter::disabled(),
-        )
-        .unwrap();
-        let (prelude, payload) = qr.bytes().split_at(PRELUDE.len());
-        assert_eq!(prelude, PRELUDE);
-        let (ballot_hash, _) = payload.split_at(PARTIAL_BALLOT_HASH_BYTE_LENGTH);
-        ballot_hash.try_into().unwrap()
+    /// Builds a [`MetadataSource::Provided`] from a front page's metadata,
+    /// inferring the back page. Used for field-captured fixtures whose QR codes
+    /// predate the current metadata encoding and can no longer be decoded. The
+    /// supplied values mirror what those QR codes originally encoded.
+    fn provided_metadata(front: Metadata) -> MetadataSource {
+        let back = bubble_ballot::infer_missing_page_metadata(&front);
+        MetadataSource::Provided(Pair::new(
+            (front, Orientation::Portrait),
+            (back, Orientation::Portrait),
+        ))
     }
 
     fn load_ballot_card_fixture(
         fixture_name: &str,
         (side_a_name, side_b_name): (&str, &str),
+        (precinct_id, ballot_style_id): (&str, &str),
+        is_test_mode: bool,
     ) -> (GrayImage, GrayImage, Options) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
         let election_path = fixture_path.join(fixture_name).join("election.json");
@@ -650,6 +665,15 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            metadata_source: provided_metadata(Metadata {
+                ballot_hash: expected_ballot_hash,
+                precinct_id: PrecinctId::from(precinct_id.to_owned()),
+                ballot_style_id: BallotStyleId::from(ballot_style_id.to_owned()),
+                page_number: PageNumber::new_unchecked(1),
+                is_test_mode,
+                ballot_type: BallotType::Precinct,
+                ballot_audit_id: None,
+            }),
         };
         (side_a_image, side_b_image, options)
     }
@@ -680,6 +704,7 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            metadata_source: MetadataSource::QrCode,
         };
         (side_a_image, side_b_image, options)
     }
@@ -962,9 +987,18 @@ mod test {
             &fixture_path.join("blank-ballot-p4-rotated-1deg.jpg"),
         );
         // These rotated ballots were generated against a different bytes
-        // version of the election than the one in `hmpb/fixtures/...`. Use the
-        // hash baked into the QR code as the ground truth.
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image_rotated);
+        // version of the election than the one in `hmpb/fixtures/...` and their
+        // QR codes predate the current metadata encoding, so we supply the
+        // metadata directly instead of decoding it.
+        options.metadata_source = provided_metadata(Metadata {
+            ballot_hash: options.expected_ballot_hash,
+            precinct_id: PrecinctId::from("23".to_owned()),
+            ballot_style_id: BallotStyleId::from("12".to_owned()),
+            page_number: PageNumber::new_unchecked(3),
+            is_test_mode: false,
+            ballot_type: BallotType::Absentee,
+            ballot_audit_id: None,
+        });
 
         let interpretation =
             ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
@@ -984,11 +1018,12 @@ mod test {
 
     #[test]
     fn test_high_rotation_is_rejected() {
-        let (mut side_a_image, side_b_image, mut options) =
-            load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
-        // These fixtures have an election.json whose SHA-256 doesn't match the
-        // QR-encoded hash; use the QR's hash as ground truth.
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
+        let (mut side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "vxqa-2024-10",
+            ("rotation-front.png", "rotation-back.png"),
+            ("yxrf8bdlu2zz", "1_en"),
+            false,
+        );
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1017,9 +1052,12 @@ mod test {
 
     #[test]
     fn test_high_skew_is_rejected() {
-        let (mut side_a_image, side_b_image, mut options) =
-            load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
+        let (mut side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "vxqa-2024-10",
+            ("skew-front.png", "skew-back.png"),
+            ("yxrf8bdlu2zz", "1_en"),
+            false,
+        );
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1043,11 +1081,12 @@ mod test {
 
     #[test]
     fn test_imprinting_over_timing_marks() {
-        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "104h-2025-04",
             ("imprinter-front.png", "imprinter-back.png"),
+            ("j6ydtpkgvwyz", "1_en"),
+            true,
         );
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1093,14 +1132,15 @@ mod test {
 
     #[test]
     fn test_fold_through_timing_mark() {
-        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "104h-2025-04",
             (
                 "fold-through-timing-mark-front.png",
                 "fold-through-timing-mark-back.png",
             ),
+            ("j6ydtpkgvwyz", "1_en"),
+            true,
         );
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         let interpretation =
             ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
@@ -1136,14 +1176,15 @@ mod test {
     /// marks along the edge we're looking for, it doesn't have to pass
     /// through exactly the corner's centers like the previous one did.
     fn test_best_fit_line_regression() {
-        let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "vxqa-2024-10",
             (
                 "best-fit-line-regression-test-front.png",
                 "best-fit-line-regression-test-back.png",
             ),
+            ("yxrf8bdlu2zz", "1_en"),
+            false,
         );
-        options.expected_ballot_hash = decode_ballot_hash_from_image(&side_a_image);
         ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 

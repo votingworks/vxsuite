@@ -36,7 +36,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Printer } from '@votingworks/printing';
-import { createReadStream, promises as fs } from 'node:fs';
+import { createReadStream } from 'node:fs';
 import path, { join } from 'node:path';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -49,7 +49,6 @@ import {
   isSystemAdministratorAuth,
   systemLimitViolationToString,
 } from '@votingworks/utils';
-import { dirSync } from 'tmp';
 import {
   ElectionPackageError,
   ElectionPackageWithFileContents,
@@ -406,54 +405,42 @@ function buildApi({
       const { electionDefinition, id: electionId } = electionRecord;
       const { election, ballotHash } = electionDefinition;
 
-      const tempDirectory = dirSync().name;
-      try {
-        const electionPackageFileName = generateFilenameForElectionPackage(
-          new Date()
-        );
-        const tempDirectoryElectionPackageFilePath = join(
-          tempDirectory,
-          electionPackageFileName
-        );
-        await fs.writeFile(
-          tempDirectoryElectionPackageFilePath,
-          assertDefined(
-            workspace.store.getElectionPackageFileContents(electionId)
-          )
-        );
+      const electionPackageFilePathOnDisk = assertDefined(
+        workspace.store.getElectionPackageFilePath(electionId)
+      );
+      const exportedElectionPackageFileName =
+        generateFilenameForElectionPackage(new Date());
 
-        const usbDriveElectionPackageDirectoryRelativePath = join(
-          generateElectionBasedSubfolderName(election, ballotHash),
-          ELECTION_PACKAGE_FOLDER
-        );
-        const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
-          usbDriveElectionPackageDirectoryRelativePath,
-          electionPackageFileName,
-          createReadStream(tempDirectoryElectionPackageFilePath)
-        );
-        if (exportElectionPackageResult.isErr()) {
-          return exportElectionPackageResult;
-        }
+      const usbDriveElectionPackageDirectoryRelativePath = join(
+        generateElectionBasedSubfolderName(election, ballotHash),
+        ELECTION_PACKAGE_FOLDER
+      );
+      const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
+        usbDriveElectionPackageDirectoryRelativePath,
+        exportedElectionPackageFileName,
+        createReadStream(electionPackageFilePathOnDisk)
+      );
+      if (exportElectionPackageResult.isErr()) {
+        return exportElectionPackageResult;
+      }
 
-        const signatureFile = await prepareSignatureFile({
-          type: 'election_package',
-          // For protection against compromised/faulty USBs, we sign data as it exists on the
-          // machine, not the USB, as a compromised/faulty USB could claim to have written the data
-          // that we asked it to but actually have written something else.
-          filePath: tempDirectoryElectionPackageFilePath,
-        });
-        const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
-          usbDriveElectionPackageDirectoryRelativePath,
-          signatureFile.fileName,
-          signatureFile.fileContents
-        );
-        /* istanbul ignore next: Tricky to make this second export err but the first export succeed
-          without significant mocking */
-        if (exportSignatureFileResult.isErr()) {
-          return exportSignatureFileResult;
-        }
-      } finally {
-        await fs.rm(tempDirectory, { recursive: true });
+      const signatureFile = await prepareSignatureFile({
+        type: 'election_package',
+        // For protection against compromised/faulty USBs, we sign data as it exists on the
+        // machine, not the USB, as a compromised/faulty USB could claim to have written the data
+        // that we asked it to but actually have written something else.
+        filePath: electionPackageFilePathOnDisk,
+        exportFileName: exportedElectionPackageFileName,
+      });
+      const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
+        usbDriveElectionPackageDirectoryRelativePath,
+        signatureFile.fileName,
+        signatureFile.fileContents
+      );
+      /* istanbul ignore next: Tricky to make this second export err but the first export succeed
+        without significant mocking @preserve */
+      if (exportSignatureFileResult.isErr()) {
+        return exportSignatureFileResult;
       }
 
       await logger.logAsCurrentRole(LogEventId.SaveElectionPackageComplete, {
@@ -597,7 +584,7 @@ function buildApi({
 
       const { electionDefinition, systemSettings, registeredVoterCounts } =
         electionPackage;
-      const electionId = store.addElection({
+      const electionId = await store.addElection({
         electionData: electionDefinition.electionData,
         systemSettingsData: JSON.stringify(systemSettings),
         electionPackageFileContents: fileContents,

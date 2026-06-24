@@ -45,14 +45,14 @@ export const BALLOT_HASH_ENCODING_LENGTH = 20;
 export const MAXIMUM_PAGE_NUMBERS = 30;
 
 /**
- * Maximum number of precincts in an election that we can encode in 12 bits.
+ * Maximum precinct index that we can encode in 13 bits.
  */
-export const MAXIMUM_PRECINCTS = 4096;
+export const MAXIMUM_PRECINCT_INDEX = 8191; // 2^13 - 1
 
 /**
- * Maximum number of ballot styles in an election that we can encode in 12 bits.
+ * Maximum ballot style index that we can encode in 16 bits.
  */
-export const MAXIMUM_BALLOT_STYLES = 4096;
+export const MAXIMUM_BALLOT_STYLE_INDEX = 65535; // 2^16 - 1
 
 /**
  * Slices a ballot hash down to the length used in ballot encoding. Useful
@@ -81,14 +81,14 @@ export const HexEncoding = new CustomEncoding('0123456789abcdef');
  * The bytes we expect a bubble ballot to start with.
  */
 export const BubbleBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* P = Paper */ 80, /* version = */ 2,
+  /* V = VotingWorks */ 86, /* B = bubble ballot */ 66, /* version = */ 1,
 ];
 
 /**
  * The bytes we expect a summary ballot to start with.
  */
 export const SummaryBallotPrelude: readonly Uint8[] = [
-  /* V */ 86, /* B = summary ballot */ 66, /* version = */ 1,
+  /* V = VotingWorks */ 86, /* S = summary ballot */ 83, /* version = */ 1,
 ];
 
 /**
@@ -148,8 +148,8 @@ export function encodeBallotConfigInto(
   }
 
   bits
-    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
-    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES })
+    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCT_INDEX })
+    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLE_INDEX })
     .writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
 
   bits.writeBoolean(isTestMode);
@@ -496,8 +496,8 @@ function encodeSummaryBallotConfigInto(
   );
 
   bits
-    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
-    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES })
+    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCT_INDEX })
+    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLE_INDEX })
     .writeUint(pageNumber, { max: MAXIMUM_SUMMARY_BALLOT_PAGES })
     .writeUint(totalPages, { max: MAXIMUM_SUMMARY_BALLOT_PAGES })
     .writeBoolean(isTestMode);
@@ -591,8 +591,8 @@ function decodeSummaryBallotConfigFromReader(
 ): Omit<SummaryBallotPageMetadata, 'ballotHash' | 'contestIds'> {
   const { precincts, ballotStyles } = election;
 
-  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
-  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
+  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCT_INDEX });
+  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLE_INDEX });
   const pageNumber = bits.readUint({
     max: MAXIMUM_SUMMARY_BALLOT_PAGES,
   });

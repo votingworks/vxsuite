@@ -7,6 +7,7 @@ import {
   FullScreenMessage,
   H2,
   Icons,
+  LoadingButton,
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
@@ -19,6 +20,10 @@ import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { NODE_ENV, TIME_FORMAT } from '../config/globals';
 
+const Heading = styled(H2)`
+  margin-bottom: 1rem;
+`;
+
 const ButtonRow = styled.tr`
   cursor: pointer;
 
@@ -29,7 +34,23 @@ const ButtonRow = styled.tr`
   &:hover {
     background-color: ${(p) => p.theme.colors.containerLow};
   }
+
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
 `;
+
+const LoadingIndicator = styled.td`
+  min-width: 10rem;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+type Source = { type: 'menu'; filePath: string } | { type: 'file-picker' };
 
 function SelectElectionPackage({
   potentialElectionPackageFiles,
@@ -37,6 +58,7 @@ function SelectElectionPackage({
   potentialElectionPackageFiles: FileSystemEntry[];
 }): JSX.Element {
   const configureMutation = configure.useMutation();
+  const [source, setSource] = React.useState<Source>();
 
   async function onSelectOtherFile() {
     const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
@@ -51,6 +73,7 @@ function SelectElectionPackage({
     if (dialogResult.canceled) return;
     const selectedPath = dialogResult.filePaths[0];
     if (selectedPath) {
+      setSource({ type: 'file-picker' });
       configureMutation.mutate({ electionFilePath: selectedPath });
     }
   }
@@ -59,7 +82,7 @@ function SelectElectionPackage({
 
   return (
     <React.Fragment>
-      <H2>Select an election package to configure VxAdmin</H2>
+      <Heading>Select an election package to configure VxAdmin</Heading>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {configureError && (
           <Card color="danger">
@@ -101,6 +124,7 @@ function SelectElectionPackage({
               <tr>
                 <th>File Name</th>
                 <th>Created At</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -110,6 +134,7 @@ function SelectElectionPackage({
                   aria-disabled={configureMutation.isLoading}
                   onClick={() => {
                     if (configureMutation.isLoading) return;
+                    setSource({ type: 'menu', filePath: file.path });
                     configureMutation.mutate({ electionFilePath: file.path });
                   }}
                 >
@@ -117,18 +142,32 @@ function SelectElectionPackage({
                   <td>
                     {DateTime.fromJSDate(file.ctime).toFormat(TIME_FORMAT)}
                   </td>
+                  <LoadingIndicator>
+                    {configureMutation.isLoading &&
+                      source?.type === 'menu' &&
+                      source.filePath === file.path && (
+                        <span>
+                          <Icons.Loading />
+                          Loading...
+                        </span>
+                      )}
+                  </LoadingIndicator>
                 </ButtonRow>
               ))}
             </tbody>
           </Table>
         )}
         <div>
-          <Button
-            disabled={configureMutation.isLoading}
-            onPress={onSelectOtherFile}
-          >
-            Select Other File...
-          </Button>
+          {configureMutation.isLoading && source?.type === 'file-picker' ? (
+            <LoadingButton>Loading...</LoadingButton>
+          ) : (
+            <Button
+              disabled={configureMutation.isLoading}
+              onPress={onSelectOtherFile}
+            >
+              Select Other File...
+            </Button>
+          )}
         </div>
       </div>
     </React.Fragment>

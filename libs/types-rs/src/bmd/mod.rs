@@ -11,4 +11,4 @@ pub const PARTIAL_BALLOT_HASH_BYTE_LENGTH: usize = 10;
 pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
 
 /// The first bytes of an encoded [`cvr::CastVoteRecord`].
-pub const BMD_PRELUDE: &[u8; 3] = b"VB\x01";
+pub const BMD_PRELUDE: &[u8; 3] = b"VS\x01";

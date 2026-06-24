@@ -14,18 +14,12 @@ export type ReadElectionError =
   | { type: 'ParseError'; error: ZodError | SyntaxError };
 
 /**
- * Maximum size of an election file (30 MB).
- */
-const MAX_ELECTION_SIZE = 30 * 1024 * 1024;
-
-/**
  * Reads an election from a file path.
  */
 export async function readElection(
   electionPath: string
 ): Promise<Result<ElectionDefinition, ReadElectionError>> {
   const readFileResult = await readFile(electionPath, {
-    maxSize: MAX_ELECTION_SIZE,
     encoding: 'utf-8',
   });
 

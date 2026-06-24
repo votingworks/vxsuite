@@ -118,7 +118,7 @@ test('tabulateCastVoteRecords', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -335,7 +335,7 @@ test('tabulateCastVoteRecords', async () => {
 test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -370,7 +370,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -782,7 +782,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData,
     systemSettingsData,
     electionPackageFileContents: Buffer.of(),
@@ -1083,7 +1083,7 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionId = store.addElection({
+  const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,

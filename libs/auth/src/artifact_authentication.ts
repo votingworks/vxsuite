@@ -53,20 +53,32 @@ interface CastVoteRecordsToImport {
 
 type CastVoteRecords = CastVoteRecordsToExport | CastVoteRecordsToImport;
 
-interface ElectionPackage {
+interface ElectionPackageToExport {
+  type: 'election_package';
+  filePath: string;
+  exportFileName: string;
+}
+
+interface ElectionPackageToImport {
   type: 'election_package';
   filePath: string;
 }
 
+type ElectionPackage = ElectionPackageToExport | ElectionPackageToImport;
+
 /**
  * An export-time representation of an {@link Artifact}
  */
-export type ArtifactToExport = CastVoteRecordsToExport | ElectionPackage;
+export type ArtifactToExport =
+  | CastVoteRecordsToExport
+  | ElectionPackageToExport;
 
 /**
  * An import-time representation of an {@link Artifact}
  */
-export type ArtifactToImport = CastVoteRecordsToImport | ElectionPackage;
+export type ArtifactToImport =
+  | CastVoteRecordsToImport
+  | ElectionPackageToImport;
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
@@ -224,7 +236,7 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
       return `${artifact.directoryName}${SIGNATURE_FILE_EXTENSION}`;
     }
     case 'election_package': {
-      return `${path.basename(artifact.filePath)}${SIGNATURE_FILE_EXTENSION}`;
+      return `${artifact.exportFileName}${SIGNATURE_FILE_EXTENSION}`;
     }
     default: {
       /* istanbul ignore next: Compile-time check for completeness */

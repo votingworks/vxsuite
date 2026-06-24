@@ -17,7 +17,8 @@ use types_rs::election::Election;
 
 use crate::ballot_card::{ballot_scan_bubble_image, BallotPage, PaperInfo};
 use crate::interpret::{
-    self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
+    self, ballot_card, InterpretedBallotCard, MetadataSource, Options, VerticalStreakDetection,
+    WriteInScoring,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
@@ -121,6 +122,7 @@ fn interpret(
             minimum_detected_scale,
             max_cumulative_streak_width: options.max_cumulative_streak_width,
             retry_streak_width_threshold: options.retry_streak_width_threshold,
+            metadata_source: MetadataSource::QrCode,
         },
     );
 

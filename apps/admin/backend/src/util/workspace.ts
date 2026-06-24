@@ -34,10 +34,17 @@ export interface ClientWorkspace extends BaseWorkspace {
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
+  const electionPackagesPath = join(resolvedRoot, 'election-packages');
   const dbPath = join(resolvedRoot, 'data.db');
 
   ensureDirSync(ballotImagesPath);
-  const store = Store.fileStore(dbPath, ballotImagesPath, logger);
+  ensureDirSync(electionPackagesPath);
+  const store = Store.fileStore(
+    dbPath,
+    ballotImagesPath,
+    electionPackagesPath,
+    logger
+  );
 
   return {
     path: resolvedRoot,
