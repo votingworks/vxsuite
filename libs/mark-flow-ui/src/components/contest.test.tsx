@@ -1,11 +1,17 @@
 import { expect, test, vi } from 'vitest';
 import {
   readElectionGeneral,
+  readElectionStraightParty,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { assert, find } from '@votingworks/basics';
-import { CandidateContest, VotesDict, YesNoContest } from '@votingworks/types';
+import {
+  CandidateContest,
+  StraightPartyContest,
+  VotesDict,
+  YesNoContest,
+} from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 
@@ -31,6 +37,12 @@ const msEitherNeitherContest = find(
   (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
 );
 
+const electionStraightParty = readElectionStraightParty();
+const straightPartyContest = find(
+  electionStraightParty.contests,
+  (c): c is StraightPartyContest => c.type === 'straight-party'
+);
+
 test.each([
   ['with votes', candidateContest.candidates.slice(0, 1)],
   ['without votes', undefined],
@@ -48,6 +60,22 @@ test.each([
   );
   screen.getByText(candidateContest.title);
   // Tested further in candidate_contest.test.tsx
+});
+
+test('straight party contest', () => {
+  render(
+    <Contest
+      ballotStyleId={electionStraightParty.ballotStyles[0].id}
+      election={electionStraightParty}
+      contest={straightPartyContest}
+      votes={{
+        [straightPartyContest.id]: straightPartyContest.optionIds.slice(0, 1),
+      }}
+      updateVote={vi.fn()}
+    />
+  );
+  screen.getByText(straightPartyContest.title);
+  // Tested further in straight_party_contest.test.tsx
 });
 
 test('write-in character limit across contests', () => {

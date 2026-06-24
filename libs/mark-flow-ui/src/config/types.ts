@@ -9,6 +9,8 @@ import {
   OptionalVote,
   OptionalYesNoVote,
   PrecinctId,
+  StraightPartyContest,
+  StraightPartyVote,
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
@@ -46,12 +48,18 @@ export interface CandidateContestResultInterface {
   ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
-  vote: CandidateVote;
+  vote?: CandidateVote;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;
   election: Election;
   vote: OptionalYesNoVote;
+  selectionsAreEditable?: boolean;
+}
+export interface StraightPartyContestResultInterface {
+  contest: StraightPartyContest;
+  election: Election;
+  vote?: StraightPartyVote;
   selectionsAreEditable?: boolean;
 }
 export interface MsEitherNeitherContestResultInterface {

@@ -9,7 +9,6 @@ import {
   OptionalVote,
   PrecinctId,
   VotesDict,
-  straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
   LinkButton,
@@ -105,17 +104,14 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         ballotContestCount: contests.length,
       };
 
-  /* istanbul ignore next */
-  if (contest.type === 'straight-party') {
-    straightPartyNotYetImplemented();
-  }
-
   const isVoteComplete = (() => {
     switch (contest.type) {
       case 'yesno':
         return !!vote;
       case 'candidate':
         return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;
+      case 'straight-party':
+        return vote?.length === 1;
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
