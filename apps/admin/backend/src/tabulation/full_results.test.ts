@@ -24,6 +24,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   getContests,
   InterpretedBmdPage,
+  SystemSettings,
   Tabulation,
   unsafeParse,
   VotesDict,
@@ -64,14 +65,17 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
 });
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
+
+const systemSettings: SystemSettings = {
+  ...DEFAULT_SYSTEM_SETTINGS,
+  enableEarlyVoting: true,
+};
+const systemSettingsData = JSON.stringify(systemSettings);
 
 /**
  * Adjudicates a single write-in through {@link adjudicateCvr}.
@@ -116,7 +120,7 @@ test('tabulateCastVoteRecords', async () => {
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -333,7 +337,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -368,7 +372,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { election } = electionDefinition;
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -780,7 +784,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData,
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -1084,6 +1088,7 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
       adminAdjudicationReasons: [AdjudicationReason.Overvote],
+      enableEarlyVoting: true,
     }),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',

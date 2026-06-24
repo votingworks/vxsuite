@@ -5,10 +5,6 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { mockKiosk } from '@votingworks/test-utils';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   mockUsbDriveStatus,
@@ -48,14 +44,6 @@ let apiMock: ApiMock;
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 vi.mock('@votingworks/ui', async (importActual) => ({
   ...(await importActual()),
   PollingPlacePicker: vi.fn(),
@@ -69,9 +57,6 @@ MockPollingPlacePicker.mockReturnValue(
 
 beforeEach(() => {
   window.kiosk = mockKiosk(vi.fn);
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -450,13 +435,14 @@ const ballotCastingPeriodButtonDisabledTestCases: BallotCastingPeriodTestConfig[
 test.each(ballotCastingPeriodButtonDisabledTestCases)(
   '"Ballot Casting Mode" toggle: when pollsState=$pollsState -> disabled=$buttonDisabled',
   async ({ pollsState, buttonDisabled }) => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.EARLY_VOTING
-    );
     apiMock.mockApiClient.getPollsInfo.reset();
     apiMock.expectGetPollsInfo(pollsState);
     apiMock.expectGetConfig({
       ballotCastingMode: 'early_voting',
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        enableEarlyVoting: true,
+      },
     });
     renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
     await screen.findByRole('heading', { name: 'Election Manager Menu' });

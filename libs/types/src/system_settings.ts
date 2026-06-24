@@ -244,6 +244,13 @@ export const SystemSettingsSchema = z
      * If omitted, a single copy is printed.
      */
     precinctScanNumberOfReportCopies: z.number().int().min(1).optional(),
+
+    /**
+     * Enables early voting features in VxScan and VxAdmin, e.g., setting a
+     * ballot casting mode of "Early Voting" on VxScan and tabulating early
+     * voting results separately in VxAdmin.
+     */
+    enableEarlyVoting: z.boolean().optional(),
   })
   .refine(
     (settings) =>

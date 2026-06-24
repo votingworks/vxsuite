@@ -99,10 +99,6 @@ export enum BooleanEnvironmentVariableName {
    */
   MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
   /**
-   * [In Development] Exposes early voting features in VxScan and VxAdmin
-   */
-  EARLY_VOTING = 'REACT_APP_VX_EARLY_VOTING',
-  /**
    * [In Development] Enables multi-station adjudication in VxAdmin
    */
   ENABLE_MULTI_STATION_ADMIN = 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
@@ -188,8 +184,6 @@ export function getEnvironmentVariable(
         .REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS;
     case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
       return process.env.REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE;
-    case BooleanEnvironmentVariableName.EARLY_VOTING:
-      return process.env.REACT_APP_VX_EARLY_VOTING;
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
       return process.env.REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN;
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
@@ -335,12 +329,6 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: false,
-        autoEnableInDevelopment: true,
-      };
-    case BooleanEnvironmentVariableName.EARLY_VOTING:
-      return {
-        name,
-        allowInProduction: true,
         autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:

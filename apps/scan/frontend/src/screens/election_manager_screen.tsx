@@ -21,10 +21,6 @@ import type {
 } from '@votingworks/scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import styled from 'styled-components';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import {
@@ -181,9 +177,7 @@ export function ElectionManagerScreen({
     />
   );
 
-  const ballotCastingModeButton = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  ) ? (
+  const ballotCastingModeButton = systemSettings.enableEarlyVoting ? (
     <SegmentedButton
       disabled={
         setBallotCastingModeMutation.isLoading ||
@@ -206,8 +200,7 @@ export function ElectionManagerScreen({
       ]}
       selectedOptionId={ballotCastingMode}
     />
-  ) : /* istanbul ignore next */
-  null;
+  ) : null;
 
   const dateTimeButton = (
     <SetClockButton logOut={() => logOutMutation.mutate()}>

@@ -12,7 +12,11 @@ import {
 } from '@votingworks/utils';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
-import { formatBallotHash, Tabulation } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  formatBallotHash,
+  Tabulation,
+} from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { MockMultiUsbDrive } from '@votingworks/usb-drive';
@@ -53,14 +57,20 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
 });
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
+
+function configureMachineWithEarlyVoting(
+  ...[apiClient, auth, electionDefinition]: Parameters<typeof configureMachine>
+): Promise<string> {
+  return configureMachine(apiClient, auth, electionDefinition, undefined, {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  });
+}
 
 async function getParsedExport({
   apiClient,
@@ -90,7 +100,7 @@ test('exports expected results for full election', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});
@@ -175,7 +185,7 @@ test('logs failure if export fails for some reason', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});
@@ -212,7 +222,7 @@ test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async
   const electionDefinition =
     electionOpenPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -306,7 +316,7 @@ test('rejects party filter or party grouping', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockUsbDrive.insertUsbDrive({});
 
@@ -337,7 +347,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   const { election } = electionDefinition;
 
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
-  const electionId = await configureMachine(
+  const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
@@ -647,7 +657,7 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockUsbDrive.insertUsbDrive({});

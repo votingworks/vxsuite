@@ -1,8 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockSystemAdministratorUser } from '@votingworks/test-utils';
 import {
@@ -73,14 +69,6 @@ const startNewSessionMock = vi.fn();
 const pauseSessionMock = vi.fn();
 const resumeSessionMock = vi.fn();
 
-const featureFlagMock = getFeatureFlagMock();
-
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
-
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),
   useScreenReaderActive: vi.fn(),
@@ -93,9 +81,6 @@ function renderApp(props: Partial<AppProps> = {}) {
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
@@ -1708,9 +1693,6 @@ test('keyboard nav enabled for voter settings', async () => {
 });
 
 test('shows early voting label in election info bar', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
   apiMock.expectGetConfig({
     ballotCastingMode: 'early_voting',
     pollingPlaceId: electionGeneralPollingPlace.id,

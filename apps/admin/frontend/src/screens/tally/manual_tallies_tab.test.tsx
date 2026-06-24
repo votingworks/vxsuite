@@ -9,11 +9,8 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-  getGroupedBallotStyles,
-} from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { screen, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
@@ -22,13 +19,6 @@ import {
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data';
-
-const featureFlagMock = getFeatureFlagMock();
-vi.mock('@votingworks/utils', async () => ({
-  ...(await vi.importActual('@votingworks/utils')),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
 
 let apiMock: ApiMock;
 
@@ -42,7 +32,6 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.assertComplete();
-  featureFlagMock.resetFeatureFlags();
 });
 
 const electionDefinition =
@@ -52,6 +41,7 @@ const { election } = electionDefinition;
 test('initial table without manual tallies & adding a manual tally - primary election', async () => {
   const history = createMemoryHistory();
   apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -115,6 +105,7 @@ test('adding a manual tally - general election', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   const history = createMemoryHistory();
   apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -166,6 +157,7 @@ test('adding a manual tally - general election', async () => {
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -195,6 +187,7 @@ test('table shows tally info and validation errors', async () => {
       validationError: 'invalid',
     },
   ]);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
@@ -226,6 +219,7 @@ test('table shows tally info and validation errors', async () => {
 
 test('delete an existing tally', async () => {
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
@@ -268,6 +262,7 @@ test('full table & clearing all data', async () => {
       )
     )
   );
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
@@ -300,6 +295,7 @@ test('full table & clearing all data', async () => {
 
 test('disable buttons when results are official', async () => {
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  apiMock.expectGetSystemSettings();
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     isOfficialResults: true,
@@ -314,12 +310,13 @@ test('disable buttons when results are official', async () => {
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 });
 
-test('voting method dropdown includes early voting when feature flag is enabled', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.EARLY_VOTING
-  );
+test('voting method dropdown includes early voting when enabled in system settings', async () => {
   const electionGeneralDefinition = readElectionGeneralDefinition();
   apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  });
   renderInAppContext(<ManualTalliesTab />, {
     route: '/tally/manual',
     electionDefinition: electionGeneralDefinition,

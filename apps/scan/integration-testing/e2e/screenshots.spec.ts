@@ -222,13 +222,21 @@ test('early voting', async ({ page }, testInfo) => {
   const electionDefinition = asElectionDefinition(election);
 
   // Configure the machine. The "Ballot Casting Mode" toggle (gated behind the
-  // EARLY_VOTING feature flag) defaults to Election Day.
+  // enableEarlyVoting system setting) defaults to Election Day.
   await logInAsElectionManager(page, election);
-  usbHandler.insert(await mockElectionPackageFileTree({ electionDefinition }));
+  usbHandler.insert(
+    await mockElectionPackageFileTree({
+      electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        enableEarlyVoting: true,
+      },
+    })
+  );
   await page.getByText('Election Manager Menu').waitFor();
 
   // Switch to early voting (the default is Election Day). This is gated behind
-  // the EARLY_VOTING feature flag. Capture the toggle highlighted first.
+  // the enableEarlyVoting system setting. Capture the toggle highlighted first.
   await screenshotWithButtonHighlight('Early Voting', 'em-early-voting-button');
   await page.getByText('Early Voting').click();
   await page
