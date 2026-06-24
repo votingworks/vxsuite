@@ -114,6 +114,7 @@ import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './fonts/font_awesome_class_n
 
 export const ICON_COLORS = [
   'neutral',
+  'neutralMuted',
   'primary',
   'success',
   'warning',
@@ -161,6 +162,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
   const { colors } = theme;
   return {
     neutral: colors.onBackground,
+    neutralMuted: colors.onBackgroundMuted,
     primary: colors.primary,
     success: colors.successAccent,
     warning: colors.warningAccent,

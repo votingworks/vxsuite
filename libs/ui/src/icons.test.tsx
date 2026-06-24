@@ -20,6 +20,7 @@ test(`Icon renders with color`, () => {
   const theme = makeTheme({ colorMode: 'desktop' });
   const expectedColors: Record<IconColor, string> = {
     neutral: theme.colors.onBackground,
+    neutralMuted: theme.colors.onBackgroundMuted,
     primary: theme.colors.primary,
     success: theme.colors.successAccent,
     warning: theme.colors.warningAccent,
