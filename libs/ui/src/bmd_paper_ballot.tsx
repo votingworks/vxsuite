@@ -19,6 +19,7 @@ import {
   getPartyForBallotStyle,
   OptionalYesNoVote,
   PrecinctId,
+  StraightPartyVote,
   VotesDict,
   YesNoContest,
   YesNoVote,
@@ -619,6 +620,36 @@ function YesNoContestResult({
   );
 }
 
+interface StraightPartyContestResultProps {
+  election: Election;
+  primaryBallotLanguage: string;
+  vote?: StraightPartyVote;
+}
+
+function StraightPartyContestResult({
+  election,
+  primaryBallotLanguage,
+  vote,
+}: StraightPartyContestResultProps): JSX.Element {
+  if (!vote || vote.length === 0) {
+    return <NoSelection primaryBallotLanguage={primaryBallotLanguage} />;
+  }
+  assert(vote.length === 1);
+  const party = find(election.parties, (p) => p.id === vote[0]);
+  return (
+    <VoteLine>
+      <Font weight="bold">
+        <DualLanguageText
+          primaryLanguage={primaryBallotLanguage}
+          englishTextWrapper={ParenthesizedText}
+        >
+          {electionStrings.partyFullName(party)}
+        </DualLanguageText>
+      </Font>
+    </VoteLine>
+  );
+}
+
 export interface BmdPaperBallotProps {
   ballotStyleId: BallotStyleId;
   binarize?: boolean;
@@ -891,6 +922,13 @@ export function BmdPaperBallot({
                       contest={contest}
                       primaryBallotLanguage={primaryBallotLanguage}
                       vote={votes[contest.id] as YesNoVote}
+                    />
+                  )}
+                  {contest.type === 'straight-party' && (
+                    <StraightPartyContestResult
+                      election={election}
+                      primaryBallotLanguage={primaryBallotLanguage}
+                      vote={votes[contest.id] as StraightPartyVote}
                     />
                   )}
                 </ContestContainer>

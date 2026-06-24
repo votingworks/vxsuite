@@ -17,6 +17,7 @@ import {
   electionOpenPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
 } from '@votingworks/fixtures';
 
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
@@ -50,6 +51,8 @@ const electionWithMsEitherNeitherDefinition =
   readElectionWithMsEitherNeitherDefinition();
 const electionFamousNamesDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
+const electionStraightPartyDefinition =
+  electionStraightPartyFixtures.readElectionDefinition();
 
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
   ...(await importActual()),
@@ -211,6 +214,30 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
       /Ballot Measure 1 - Part 2.?FOR Alternative Measure No. 12 A/
     )
   );
+});
+
+test('BmdPaperBallot renders the selected party for a straight-party contest', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionStraightPartyDefinition,
+    ballotStyleId: '5',
+    precinctId: '21',
+    votes: {
+      'straight-party-ticket': ['0'],
+    },
+  });
+
+  screen.getByText(hasTextAcrossElements(/Straight Party.?Federalist Party/));
+});
+
+test('BmdPaperBallot renders no selection for an unvoted straight-party contest', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionStraightPartyDefinition,
+    ballotStyleId: '5',
+    precinctId: '21',
+    votes: {},
+  });
+
+  screen.getByText(hasTextAcrossElements(/Straight Party.?\[no selection\]/i));
 });
 
 test('BmdPaperBallot renders when no votes', () => {
