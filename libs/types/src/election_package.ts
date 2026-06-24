@@ -10,7 +10,7 @@ import {
 } from './election';
 import { SystemSettings } from './system_settings';
 import { ElectionPackageMetadata } from './election_package_metadata';
-import { ElectionRegisteredVotersCounts } from './registered_voter_counts';
+import { ElectionRegisteredVoterCounts } from './registered_voter_counts';
 import { UiStringAudioClips } from './ui_string_audio_clips';
 import { UiStringAudioIdsPackage } from './ui_string_audio_ids';
 import { UiStringsPackage } from './ui_string_translations';
@@ -23,7 +23,7 @@ export enum ElectionPackageFileName {
   BALLOTS = 'ballots.jsonl',
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
-  REGISTERED_VOTERS_COUNTS = 'registeredVotersCounts.json',
+  REGISTERED_VOTER_COUNTS = 'registeredVoterCounts.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
 }
 
@@ -31,7 +31,7 @@ export interface ElectionPackage {
   ballots?: EncodedBallotEntry[];
   electionDefinition: ElectionDefinition;
   metadata: ElectionPackageMetadata;
-  registeredVoterCounts?: ElectionRegisteredVotersCounts;
+  registeredVoterCounts?: ElectionRegisteredVoterCounts;
   systemSettings: SystemSettings;
   uiStringAudioClips: UiStringAudioClips;
   uiStringAudioIds: UiStringAudioIdsPackage;
