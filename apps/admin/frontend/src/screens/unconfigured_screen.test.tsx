@@ -85,7 +85,7 @@ test('configures from election packages on USB drive', async () => {
     within(rows[0])
       .getAllByRole('columnheader')
       .map((th) => th.textContent)
-  ).toEqual(['File Name', 'Created At']);
+  ).toEqual(['File Name', 'Created At', '']);
   expect(
     within(rows[1])
       .getAllByRole('cell')
