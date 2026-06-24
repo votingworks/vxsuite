@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   readElectionGeneral,
   readElectionStraightParty,
@@ -8,6 +8,7 @@ import {
   CandidateContest,
   Election,
   StraightPartyContest,
+  VotesDict,
   YesNoContest,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
@@ -19,6 +20,10 @@ import { Review } from './review';
 import { WriteInCandidateName } from './write_in_candidate_name';
 
 vi.mock('./write_in_candidate_name');
+
+beforeEach(() => {
+  vi.mocked(WriteInCandidateName).mockReset();
+});
 
 const electionGeneral = readElectionGeneral();
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
@@ -746,5 +751,104 @@ describe('straight party contest', () => {
       .getByText('Straight Party')
       .closest('div[role="button"]') as HTMLElement;
     within(contestCard).getByText('You may still vote in this contest.');
+  });
+});
+
+describe('straight party derived candidate votes', () => {
+  const electionStraightParty = readElectionStraightParty();
+  const straightPartyContest = find(
+    electionStraightParty.contests,
+    (c): c is StraightPartyContest => c.type === 'straight-party'
+  );
+  const presidentContest = find(
+    electionStraightParty.contests,
+    (c): c is CandidateContest => c.id === 'president'
+  );
+  // A four-seat contest with write-ins where the Federalist party (id '0')
+  // fields three candidates.
+  const countyCommissionersContest = find(
+    electionStraightParty.contests,
+    (c): c is CandidateContest => c.id === 'county-commissioners'
+  );
+  const [federalistCandidate, libertyCandidate] = presidentContest.candidates;
+  const federalistVote: VotesDict = { [straightPartyContest.id]: ['0'] };
+
+  function renderReview(contest: CandidateContest, votes: VotesDict) {
+    render(
+      <Review
+        election={electionStraightParty}
+        contests={[contest]}
+        precinctId={electionStraightParty.precincts[0].id}
+        votes={votes}
+        returnToContest={vi.fn()}
+        ballotStyle={electionStraightParty.ballotStyles[0]}
+      />
+    );
+    return screen.getByTestId(`contest-wrapper-${contest.id}`);
+  }
+
+  test('lists the derived party candidate with a straight party label', () => {
+    const contestCard = renderReview(presidentContest, federalistVote);
+
+    within(contestCard).getByText(federalistCandidate.name);
+    within(contestCard).getByText(/straight party vote/i);
+    expect(
+      within(contestCard).queryByText('You may still vote in this contest.')
+    ).toBeNull();
+  });
+
+  test('shows an undervote warning when no straight party is selected', () => {
+    const contestCard = renderReview(presidentContest, {});
+
+    within(contestCard).getByText('You may still vote in this contest.');
+    expect(
+      within(contestCard).queryByText(federalistCandidate.name)
+    ).toBeNull();
+  });
+
+  test('a direct vote overrides the derived candidate', () => {
+    const contestCard = renderReview(presidentContest, {
+      ...federalistVote,
+      [presidentContest.id]: [libertyCandidate],
+    });
+
+    within(contestCard).getByText(libertyCandidate.name);
+    expect(
+      within(contestCard).queryByText(federalistCandidate.name)
+    ).toBeNull();
+  });
+
+  test('lists multiple derived candidates and warns about unused seats', () => {
+    // Party id '3' fields two candidates for this four-seat contest, so two
+    // are derived and two seats are left unused.
+    const contestCard = renderReview(countyCommissionersContest, {
+      [straightPartyContest.id]: ['3'],
+    });
+
+    within(contestCard).getByText('Valarie Altman');
+    within(contestCard).getByText('Helen Moore');
+    within(contestCard).getByText(
+      hasTextAcrossElements(/number of unused votes: 2/i)
+    );
+  });
+
+  test('shows a write-in vote alongside derived candidates', () => {
+    // The write-in occupies one of four seats, the three Federalist candidates
+    // fill the rest as derived votes.
+    const contestCard = renderReview(countyCommissionersContest, {
+      [straightPartyContest.id]: ['0'],
+      [countyCommissionersContest.id]: [
+        { id: 'write-in-0', name: 'Test Write-In', isWriteIn: true },
+      ],
+    });
+
+    within(contestCard).getByText('Test Write-In');
+    for (const name of [
+      'Camille Argent',
+      'Chloe Witherspoon-Smithson',
+      'Clayton Bainbridge',
+    ]) {
+      within(contestCard).getByText(name);
+    }
   });
 });

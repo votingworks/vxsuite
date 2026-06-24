@@ -11,6 +11,7 @@ import {
 import {
   readElectionGeneralDefinition,
   electionFamousNames2021Fixtures,
+  readElectionStraightParty,
 } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -1492,5 +1493,173 @@ describe('cross-endorsed candidates', () => {
     );
     // Should find at least one element showing the vote counter
     expect(voteCounterElements.length).toBeGreaterThan(0);
+  });
+});
+
+describe('straight party derived votes', () => {
+  const straightPartyElection = readElectionStraightParty();
+  const presidentContest = straightPartyElection.contests.find(
+    (c): c is CandidateContestInterface => c.id === 'president'
+  )!;
+  // A four-seat contest with write-ins. The Federalist party (id '0') fields
+  // three candidates and the Liberty party (id '1') fields four.
+  const countyCommissionersContest = straightPartyElection.contests.find(
+    (c): c is CandidateContestInterface => c.id === 'county-commissioners'
+  )!;
+  const [ballotStyle] = straightPartyElection.ballotStyles;
+  const federalistPartyId = '0';
+  const [federalistCandidate, libertyCandidate] = presidentContest.candidates;
+
+  function renderContest({
+    contest = presidentContest,
+    vote = [],
+    selectedStraightPartyId,
+    updateVote = vi.fn(),
+  }: {
+    contest?: CandidateContestInterface;
+    vote?: CandidateVote;
+    selectedStraightPartyId?: string;
+    updateVote?: UpdateVoteFunction;
+  }) {
+    render(
+      <CandidateContest
+        ballotStyleId={ballotStyle.id}
+        election={straightPartyElection}
+        contest={contest}
+        vote={vote}
+        updateVote={updateVote}
+        selectedStraightPartyId={selectedStraightPartyId}
+      />
+    );
+  }
+
+  test('shows the selected party candidate as a derived selection', () => {
+    renderContest({ selectedStraightPartyId: federalistPartyId });
+
+    const federalistButton = screen
+      .getByText(federalistCandidate.name)
+      .closest('button')!;
+    expect(federalistButton).toHaveAttribute('aria-selected', 'true');
+    within(federalistButton).getByText(/straight party vote/i);
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 0/i)
+    );
+    screen.getByText(/your straight party vote will apply to this contest/i);
+  });
+
+  test('does not derive anything when no straight party is selected', () => {
+    renderContest({});
+
+    const federalistButton = screen
+      .getByText(federalistCandidate.name)
+      .closest('button')!;
+    expect(federalistButton).toHaveAttribute('aria-selected', 'false');
+    expect(federalistButton).not.toHaveTextContent(/straight party vote/i);
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 1/i)
+    );
+    expect(
+      screen.queryByText(/your straight party vote will apply to this contest/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test('tapping a derived candidate makes it an explicit selection', () => {
+    const updateVote = vi.fn();
+    renderContest({
+      selectedStraightPartyId: federalistPartyId,
+      updateVote,
+    });
+
+    userEvent.click(
+      screen.getByText(federalistCandidate.name).closest('button')!
+    );
+    expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
+      federalistCandidate,
+    ]);
+  });
+
+  test('allows overriding the derived candidate with a different candidate', () => {
+    const updateVote = vi.fn();
+    renderContest({
+      selectedStraightPartyId: federalistPartyId,
+      updateVote,
+    });
+
+    // Even though the seat is filled by a derived vote, a different candidate
+    // remains selectable because the voter still has a direct selection to make.
+    userEvent.click(screen.getByText(libertyCandidate.name).closest('button')!);
+    expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
+      libertyCandidate,
+    ]);
+  });
+
+  test('derives all of a party’s candidates in a multi-seat contest, leaving remaining seats votable', () => {
+    const updateVote = vi.fn();
+    renderContest({
+      contest: countyCommissionersContest,
+      selectedStraightPartyId: federalistPartyId,
+      updateVote,
+    });
+
+    // All three Federalist candidates have derived votes
+    for (const name of [
+      'Camille Argent',
+      'Chloe Witherspoon-Smithson',
+      'Clayton Bainbridge',
+    ]) {
+      expect(screen.getByText(name).closest('button')).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+    }
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 1/i)
+    );
+
+    // A non-party candidate is still selectable
+    userEvent.click(screen.getByText('Charlene Hennessey').closest('button')!);
+    expect(updateVote).toHaveBeenCalledWith(countyCommissionersContest.id, [
+      expect.objectContaining({ id: 'hennessey' }),
+    ]);
+  });
+
+  test('keeps the write-in option available when derived votes fill every seat', () => {
+    // The Liberty party (id '1') has four candidates
+    renderContest({
+      contest: countyCommissionersContest,
+      selectedStraightPartyId: '1',
+    });
+
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 0/i)
+    );
+    // The write-in option stays enabled
+    userEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    );
+    screen.getByTestId('MockVirtualKeyboard');
+  });
+
+  test('does not derive when the party candidates do not fit the remaining seats', () => {
+    const rangel = countyCommissionersContest.candidates.find(
+      (c) => c.id === 'rangel-damian'
+    )!;
+    const schreiner = countyCommissionersContest.candidates.find(
+      (c) => c.id === 'schreiner'
+    )!;
+    // Two explicit votes leave two seats — too few for the three Federalist
+    // candidates — so the contest derives nothing
+    renderContest({
+      contest: countyCommissionersContest,
+      vote: [rangel, schreiner],
+      selectedStraightPartyId: federalistPartyId,
+    });
+
+    expect(
+      screen.getByText('Camille Argent').closest('button')
+    ).toHaveAttribute('aria-selected', 'false');
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 2/i)
+    );
   });
 });

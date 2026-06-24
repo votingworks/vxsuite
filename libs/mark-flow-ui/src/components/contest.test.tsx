@@ -78,6 +78,28 @@ test('straight party contest', () => {
   // Tested further in straight_party_contest.test.tsx
 });
 
+test('candidate contest reflects straight party derived votes', () => {
+  const presidentContest = find(
+    electionStraightParty.contests,
+    (c): c is CandidateContest => c.id === 'president'
+  );
+  render(
+    <Contest
+      ballotStyleId={electionStraightParty.ballotStyles[0].id}
+      election={electionStraightParty}
+      contest={presidentContest}
+      votes={{ [straightPartyContest.id]: ['0'] }}
+      updateVote={vi.fn()}
+    />
+  );
+
+  const button = screen
+    .getByText(presidentContest.candidates[0].name)
+    .closest('button')!;
+  expect(button).toHaveAttribute('aria-selected', 'true');
+  within(button).getByText(/straight party vote/i);
+});
+
 test('write-in character limit across contests', () => {
   const singleSeatCandidateContests = electionGeneral.contests.filter(
     (c) => c.type === 'candidate' && c.seats === 1
