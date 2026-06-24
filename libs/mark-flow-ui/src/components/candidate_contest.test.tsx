@@ -1662,4 +1662,50 @@ describe('straight party derived votes', () => {
       hasTextAcrossElements(/votes remaining in this contest: 2/i)
     );
   });
+
+  test('derives only the selected party’s slot of a cross-endorsed candidate', () => {
+    const [argent] = countyCommissionersContest.candidates;
+    const contest: CandidateContestInterface = {
+      ...countyCommissionersContest,
+      seats: 1,
+      candidates: [{ ...argent, partyIds: ['0', '2'] }],
+    };
+    // Rotate so the cross-endorsed candidate appears once under each endorsing
+    // party (Federalist and Liberty).
+    const [firstBallotStyle, ...restBallotStyles] =
+      straightPartyElection.ballotStyles;
+    const election: Election = {
+      ...straightPartyElection,
+      ballotStyles: [
+        {
+          ...firstBallotStyle,
+          orderedCandidatesByContest: {
+            [contest.id]: [
+              { id: argent.id, partyIds: ['0'] },
+              { id: argent.id, partyIds: ['2'] },
+            ],
+          },
+        },
+        ...restBallotStyles,
+      ],
+    };
+
+    render(
+      <CandidateContest
+        ballotStyleId={firstBallotStyle.id}
+        election={election}
+        contest={contest}
+        vote={[]}
+        updateVote={vi.fn()}
+        selectedStraightPartyId={federalistPartyId}
+      />
+    );
+
+    const [federalistSlot, libertySlot] = screen
+      .getAllByText('Camille Argent')
+      .map((el) => el.closest('button'));
+    // A Federalist straight-party vote derives only the Federalist slot.
+    expect(federalistSlot).toHaveAttribute('aria-selected', 'true');
+    expect(libertySlot).toHaveAttribute('aria-selected', 'false');
+  });
 });

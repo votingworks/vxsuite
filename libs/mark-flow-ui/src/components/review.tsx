@@ -31,11 +31,9 @@ import {
 } from '@votingworks/ui';
 
 import {
-  deriveStraightPartyVotesForContest,
   getSingleYesNoVote,
   selectedStraightPartyId,
 } from '@votingworks/utils';
-import { find } from '@votingworks/basics';
 import {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
@@ -45,7 +43,10 @@ import {
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemaining } from '../utils/vote';
+import {
+  deriveStraightPartyVotesFromOrderedCandidates,
+  numVotesRemaining,
+} from '../utils/vote';
 
 const Contest = styled.div`
   display: block;
@@ -74,19 +75,18 @@ function CandidateContestResult({
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
-  const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
-    contest,
-    vote.map((c) => c.id),
-    selectedStraightPartyId
-  );
+  const derivedStraightPartyVotes =
+    deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote,
+      ballotStyle,
+      selectedStraightPartyId,
+    });
   const remainingChoices =
     numVotesRemaining(contest, vote) - derivedStraightPartyVotes.length;
 
-  const derivedVoteCandidates = derivedStraightPartyVotes.map((id) =>
-    find(contest.candidates, (c) => c.id === id)
-  );
   const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
-    inputVote: [...vote, ...derivedVoteCandidates],
+    inputVote: [...vote, ...derivedStraightPartyVotes],
     contest,
     ballotStyle,
   });
@@ -114,7 +114,9 @@ function CandidateContestResult({
         ) : undefined
       }
       votes={orderedVotes.map((candidate): ContestVote => {
-        const isDerivedVote = derivedStraightPartyVotes.includes(candidate.id);
+        const isDerivedVote = derivedStraightPartyVotes.some(
+          (c) => c.id === candidate.id
+        );
         const matchesSelectedStraightParty =
           selectedStraightPartyId &&
           candidate.partyIds?.includes(selectedStraightPartyId);

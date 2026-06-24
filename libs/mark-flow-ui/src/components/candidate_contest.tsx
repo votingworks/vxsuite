@@ -42,14 +42,16 @@ import {
 } from '@votingworks/ui';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
-import { deriveStraightPartyVotesForContest } from '@votingworks/utils';
 import { UpdateVoteFunction } from '../config/types';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemaining } from '../utils/vote';
+import {
+  deriveStraightPartyVotesFromOrderedCandidates,
+  numVotesRemaining,
+} from '../utils/vote';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -158,11 +160,13 @@ export function CandidateContest({
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
 
-  const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
-    contest,
-    vote.map((c) => c.id),
-    selectedStraightPartyId
-  );
+  const derivedStraightPartyVotes =
+    deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote,
+      ballotStyle,
+      selectedStraightPartyId,
+    });
   const votesRemaining = numVotesRemaining(contest, vote);
   const votesRemainingIncludingDerivedVotes =
     votesRemaining - derivedStraightPartyVotes.length;
@@ -412,8 +416,8 @@ export function CandidateContest({
               );
               const isDisabled =
                 votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
-              const isDerivedVote = derivedStraightPartyVotes.includes(
-                candidate.id
+              const isDerivedVote = derivedStraightPartyVotes.some((c) =>
+                areCandidateChoicesEqual(c, candidate)
               );
               const matchesSelectedStraightParty =
                 selectedStraightPartyId &&

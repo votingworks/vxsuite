@@ -851,4 +851,54 @@ describe('straight party derived candidate votes', () => {
       within(contestCard).getByText(name);
     }
   });
+
+  const [argent, witherspoon, bainbridge] =
+    countyCommissionersContest.candidates;
+  const crossEndorsedContest: CandidateContest = {
+    ...countyCommissionersContest,
+    seats: 3,
+    candidates: [{ ...argent, partyIds: ['0', '2'] }, witherspoon, bainbridge],
+  };
+  const crossEndorsedNameRegex =
+    /^(Camille Argent|Chloe Witherspoon-Smithson|Clayton Bainbridge)$/;
+
+  test('sorts a cross-endorsed candidate with a derived vote into its ballot position', () => {
+    const contestCard = renderReview(crossEndorsedContest, {
+      [straightPartyContest.id]: ['0'],
+    });
+
+    const names = within(contestCard).getAllByText(crossEndorsedNameRegex);
+    expect(names[0]).toHaveTextContent('Camille Argent');
+    expect(names[1]).toHaveTextContent('Chloe Witherspoon-Smithson');
+    expect(names[2]).toHaveTextContent('Clayton Bainbridge');
+  });
+
+  test('sorts a cross-endorsed candidate with a derived vote into its rotated ballot position', () => {
+    render(
+      <Review
+        election={electionStraightParty}
+        contests={[crossEndorsedContest]}
+        precinctId={electionStraightParty.precincts[0].id}
+        votes={{ [straightPartyContest.id]: ['0'] }}
+        returnToContest={vi.fn()}
+        ballotStyle={{
+          ...electionStraightParty.ballotStyles[0],
+          // Rotate so the cross-endorsed candidate's Federalist option is first.
+          orderedCandidatesByContest: {
+            [crossEndorsedContest.id]: [
+              { id: argent.id, partyIds: ['0'] },
+              { id: witherspoon.id, partyIds: ['0'] },
+              { id: bainbridge.id, partyIds: ['0'] },
+            ],
+          },
+        }}
+      />
+    );
+    const contestCard = screen.getByTestId(
+      `contest-wrapper-${crossEndorsedContest.id}`
+    );
+
+    const names = within(contestCard).getAllByText(crossEndorsedNameRegex);
+    expect(names[0]).toHaveTextContent('Camille Argent');
+  });
 });
