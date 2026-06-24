@@ -20,6 +20,10 @@ import {
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
+import {
+  deriveStraightPartyVotesForContest,
+  selectedStraightPartyId,
+} from '@votingworks/utils';
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
@@ -108,8 +112,19 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     switch (contest.type) {
       case 'yesno':
         return !!vote;
-      case 'candidate':
-        return vote && numVotesRemaining(contest, vote as CandidateVote) === 0;
+      case 'candidate': {
+        if (!vote) return false;
+        const derivedStraightPartyVotes = deriveStraightPartyVotesForContest(
+          contest,
+          (vote as CandidateVote).map((c) => c.id),
+          selectedStraightPartyId(electionDefinition.election, votes)
+        );
+        return (
+          numVotesRemaining(contest, vote as CandidateVote) -
+            derivedStraightPartyVotes.length ===
+          0
+        );
+      }
       case 'straight-party':
         return vote?.length === 1;
       case 'ms-either-neither':

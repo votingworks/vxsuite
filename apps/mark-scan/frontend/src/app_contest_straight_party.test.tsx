@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { anyPollingPlace } from '@votingworks/types';
 import {
@@ -6,6 +6,7 @@ import {
   readElectionStraightParty,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 
@@ -66,10 +67,44 @@ test('voting and changing a straight party contest', async () => {
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Liberty Party/, selected: false });
 
+  // Advancing to the first candidate contest shows the party's candidate as a
+  // derived selection that fills the single seat.
+  userEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises();
+  screen.getByRole('heading', { name: /President/i });
+  const candidateButton = screen
+    .getByText('Joseph Barchi and Joseph Hallaren')
+    .closest('button')!;
+  expect(candidateButton).toHaveAttribute('aria-selected', 'true');
+  within(candidateButton).getByText(/straight party vote/i);
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 0/i)
+  );
+
+  // Going back to the straight party contest, the selection persists.
+  userEvent.click(screen.getByText('Back'));
+  await advanceTimersAndPromises();
+  screen.getByRole('heading', { name: 'Straight Party' });
+
   // Deselecting the party clears the selection
   userEvent.click(
     screen.getByRole('option', { name: /Federalist Party/, selected: true })
   );
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Federalist Party/, selected: false });
+
+  // Selecting a different party changes which candidate is derived
+  userEvent.click(screen.getByText('Liberty Party'));
+  await advanceTimersAndPromises();
+  screen.getByRole('option', { name: /Liberty Party/, selected: true });
+
+  userEvent.click(screen.getByText('Next'));
+  await advanceTimersAndPromises();
+  screen.getByRole('heading', { name: /President/i });
+  expect(
+    screen.getByText('Daniel Court and Amy Blumhardt').closest('button')
+  ).toHaveAttribute('aria-selected', 'true');
+  expect(
+    screen.getByText('Joseph Barchi and Joseph Hallaren').closest('button')
+  ).toHaveAttribute('aria-selected', 'false');
 });

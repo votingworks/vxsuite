@@ -9,7 +9,7 @@ import {
   Side,
   SystemSettings,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { format, selectedStraightPartyId } from '@votingworks/utils';
 import type {
   AdjudicatedCvrContest,
   AdjudicationError,
@@ -45,7 +45,6 @@ import {
   ContestListItem,
   deriveCrossoverVoteStatus,
   isContestTagOnlyUndervote,
-  selectedStraightPartyIdAfterAdjudication,
 } from '../utils/adjudication';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
 
@@ -538,7 +537,7 @@ export function BallotAdjudicationScreen(
     contestItems,
     adjudicatedContests
   );
-  const selectedStraightPartyId = selectedStraightPartyIdAfterAdjudication(
+  const selectedStraightPartyIdAfterAdjudication = selectedStraightPartyId(
     election,
     votesAfterAdjudication
   );
@@ -568,7 +567,7 @@ export function BallotAdjudicationScreen(
             new Map(prev).set(input.contestId, input)
           );
         }}
-        selectedStraightPartyId={selectedStraightPartyId}
+        selectedStraightPartyId={selectedStraightPartyIdAfterAdjudication}
       />
     );
   }

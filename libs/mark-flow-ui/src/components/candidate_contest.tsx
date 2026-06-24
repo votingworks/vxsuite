@@ -12,6 +12,7 @@ import {
   getBallotStyle,
   getContestDistrict,
   getOrderedCandidatesForContestInBallotStyle,
+  PartyId,
 } from '@votingworks/types';
 import {
   Button,
@@ -47,7 +48,10 @@ import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
-import { numVotesRemaining } from '../utils/vote';
+import {
+  deriveStraightPartyVotesFromOrderedCandidates,
+  numVotesRemaining,
+} from '../utils/vote';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -65,6 +69,7 @@ interface Props {
   onCloseWriteInKeyboard?: () => void;
   writeInCharacterLimitAcrossContests?: WriteInCharacterLimitAcrossContests;
   isReviewMode?: boolean;
+  selectedStraightPartyId?: PartyId;
 }
 
 const WriteInForm = styled.div`
@@ -119,6 +124,7 @@ export function CandidateContest({
   onCloseWriteInKeyboard,
   writeInCharacterLimitAcrossContests,
   isReviewMode,
+  selectedStraightPartyId,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -153,7 +159,17 @@ export function CandidateContest({
     writeInCharacterLimit < WRITE_IN_CANDIDATE_MAX_LENGTH;
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
+
+  const derivedStraightPartyVotes =
+    deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote,
+      ballotStyle,
+      selectedStraightPartyId,
+    });
   const votesRemaining = numVotesRemaining(contest, vote);
+  const votesRemainingIncludingDerivedVotes =
+    votesRemaining - derivedStraightPartyVotes.length;
 
   useEffect(() => {
     if (recentlyDeselectedCandidate) {
@@ -179,14 +195,18 @@ export function CandidateContest({
       pendingFocusWriteInId.current = null;
       // When the contest is fully voted, ContestPage auto-focuses the Next
       // button for PAT navigation. Don't override that.
-      if (votesRemaining > 0 || !isPatDeviceConnected) {
+      if (votesRemainingIncludingDerivedVotes > 0 || !isPatDeviceConnected) {
         const button = document.querySelector<HTMLElement>(
           `[data-write-in-id="${candidateId}"] button`
         );
         button?.focus();
       }
     }
-  }, [writeInCandidateModalIsOpen, votesRemaining, isPatDeviceConnected]);
+  }, [
+    writeInCandidateModalIsOpen,
+    votesRemainingIncludingDerivedVotes,
+    isPatDeviceConnected,
+  ]);
 
   function addCandidateToVote(candidate: Candidate) {
     // Store the candidate with the specific partyIds from the selected option
@@ -358,7 +378,10 @@ export function CandidateContest({
           )}
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={votesRemaining} weight="bold" />
+            <NumberString
+              value={votesRemainingIncludingDerivedVotes}
+              weight="bold"
+            />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={
@@ -374,6 +397,11 @@ export function CandidateContest({
               />
             </AudioOnly>
           </Caption>
+          {derivedStraightPartyVotes.length > 0 && (
+            <AudioOnly>
+              {appStrings.noteBmdStraightPartyAppliesToContest()}
+            </AudioOnly>
+          )}
         </ContestHeader>
         <WithScrollButtons>
           <ChoicesGrid>
@@ -388,6 +416,12 @@ export function CandidateContest({
               );
               const isDisabled =
                 votesRemaining <= 0 && !isChecked && !isEquivalentToSelected;
+              const isDerivedVote = derivedStraightPartyVotes.some((c) =>
+                areCandidateChoicesEqual(c, candidate)
+              );
+              const matchesSelectedStraightParty =
+                selectedStraightPartyId &&
+                candidate.partyIds?.includes(selectedStraightPartyId);
 
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
@@ -395,7 +429,7 @@ export function CandidateContest({
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              if (isChecked) {
+              if (isChecked || isDerivedVote) {
                 prefixAudioText = appStrings.labelSelected();
 
                 if (
@@ -403,10 +437,13 @@ export function CandidateContest({
                   areCandidateChoicesEqual(recentlySelectedCandidate, candidate)
                 ) {
                   suffixAudioText =
-                    votesRemaining > 0 ? (
+                    votesRemainingIncludingDerivedVotes > 0 ? (
                       <React.Fragment>
                         {appStrings.labelNumVotesRemaining()}{' '}
-                        <NumberString value={votesRemaining} weight="bold" />
+                        <NumberString
+                          value={votesRemainingIncludingDerivedVotes}
+                          weight="bold"
+                        />
                       </React.Fragment>
                     ) : (
                       appStrings.noteBmdContestCompleted()
@@ -421,7 +458,10 @@ export function CandidateContest({
                 suffixAudioText = (
                   <React.Fragment>
                     {appStrings.labelNumVotesRemaining()}{' '}
-                    <NumberString value={votesRemaining} weight="bold" />
+                    <NumberString
+                      value={votesRemainingIncludingDerivedVotes}
+                      weight="bold"
+                    />
                   </React.Fragment>
                 );
               }
@@ -430,6 +470,7 @@ export function CandidateContest({
                 <ContestChoiceButton
                   key={candidate.id + (candidate.partyIds ?? []).join('-')}
                   isSelected={isChecked}
+                  isDerivedVote={isDerivedVote}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
@@ -446,6 +487,12 @@ export function CandidateContest({
                         candidate={candidate}
                         electionParties={election.parties}
                       />
+                      {matchesSelectedStraightParty && (
+                        <span>
+                          {' - '}
+                          {appStrings.labelStraightPartyVote()}
+                        </span>
+                      )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }

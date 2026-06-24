@@ -989,6 +989,12 @@ export const appStrings = {
     <UiString uiStringKey="labelSelectedOption">Selected option:</UiString>
   ),
 
+  labelStraightPartyVote: () => (
+    <UiString uiStringKey="labelStraightPartyVote">
+      Straight party vote
+    </UiString>
+  ),
+
   labelThemesContrastHighDark: () => (
     <UiString uiStringKey="labelThemesContrastHighDark">
       White text, black background
@@ -1217,6 +1223,12 @@ export const appStrings = {
   noteBmdSessionRestart: () => (
     <UiString uiStringKey="noteBmdSessionRestart">
       Your voting session will restart shortly.
+    </UiString>
+  ),
+
+  noteBmdStraightPartyAppliesToContest: () => (
+    <UiString uiStringKey="noteBmdStraightPartyAppliesToContest">
+      Your straight party vote will apply to this contest.
     </UiString>
   ),
 

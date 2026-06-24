@@ -57,3 +57,15 @@ test('has accessible "selected" state', () => {
     screen.getByRole('option', { name: 'Cleopatra', selected: true })
   );
 });
+
+test('a derived vote is accessibly labeled as selected', () => {
+  render(
+    <ContestChoiceButton
+      isDerivedVote
+      label="Cleopatra"
+      choice="cleo"
+      onPress={vi.fn()}
+    />
+  );
+  screen.getByRole('option', { name: 'Cleopatra', selected: true });
+});
