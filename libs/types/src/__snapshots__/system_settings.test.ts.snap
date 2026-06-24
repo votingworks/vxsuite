@@ -58,7 +58,6 @@ exports[`disallows invalid adjudication reasons 1`] = `
   {
     "code": "invalid_value",
     "values": [
-      "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
       "Undervote",
@@ -70,12 +69,11 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "adminAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
+    "message": "Invalid option: expected one of \\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   },
   {
     "code": "invalid_value",
     "values": [
-      "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
       "Undervote",
@@ -87,12 +85,11 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "centralScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
+    "message": "Invalid option: expected one of \\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   },
   {
     "code": "invalid_value",
     "values": [
-      "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
       "Undervote",
@@ -104,7 +101,7 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "precinctScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
+    "message": "Invalid option: expected one of \\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\"|\\"CrossoverVoting\\""
   }
 ]]
 `;

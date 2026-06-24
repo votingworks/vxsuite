@@ -701,11 +701,6 @@ export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
 
 // Hand-marked paper & adjudication
 export enum AdjudicationReason {
-  /**
-   * @deprecated - this is no longer used, but is here to keep compatibility
-   * with existing elections
-   */
-  UninterpretableBallot = 'UninterpretableBallot',
   MarginalMark = 'MarginalMark',
   Overvote = 'Overvote',
   Undervote = 'Undervote',
