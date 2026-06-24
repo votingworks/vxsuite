@@ -204,1681 +204,2801 @@
       "groupId": "ballot-style-1-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-1"],
-      "partyId": "party-1"
+      "partyId": "party-1",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-1",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate--precinct-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     },
     {
       "id": "ballot-style-1-p2",
       "groupId": "ballot-style-1-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-1"],
-      "partyId": "party-2"
+      "partyId": "party-2",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-2",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-2-1"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     },
     {
       "id": "ballot-style-2-p1",
       "groupId": "ballot-style-2-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
-      "partyId": "party-1"
+      "partyId": "party-1",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-1",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate--precinct-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     },
     {
       "id": "ballot-style-2-p2",
       "groupId": "ballot-style-2-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
-      "partyId": "party-2"
+      "partyId": "party-2",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-2",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-2-1"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     },
     {
       "id": "ballot-style-3-p1",
       "groupId": "ballot-style-3-p1",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
-      "partyId": "party-1"
+      "partyId": "party-1",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-1",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate--precinct-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     },
     {
       "id": "ballot-style-3-p2",
       "groupId": "ballot-style-3-p2",
       "districts": ["district-1"],
       "precincts": ["precinct-2"],
-      "partyId": "party-2"
+      "partyId": "party-2",
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "contest-2",
+              "bounds": {
+                "column": 1,
+                "row": 9,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-1-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "candidate-precinct-2-1"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-3",
+              "bounds": {
+                "column": 1,
+                "row": 16,
+                "width": 10,
+                "height": 9
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 16,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 21,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "1candidate-6"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 24,
+                    "column": 2
+                  },
+                  "bounds": {
+                    "column": 1,
+                    "row": 22,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-4",
+              "bounds": {
+                "column": 11,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "2candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-5",
+              "bounds": {
+                "column": 11,
+                "row": 17,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "3candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 22,
+                    "column": 12
+                  },
+                  "bounds": {
+                    "column": 11,
+                    "row": 20,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-6",
+              "bounds": {
+                "column": 21,
+                "row": 9,
+                "width": 10,
+                "height": 6
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 9,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 10,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 11,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "4candidate-3"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 14,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 12,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "contest-7",
+              "bounds": {
+                "column": 21,
+                "row": 17,
+                "width": 10,
+                "height": 5
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 17,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 18,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "optionId": "5candidate-2"
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 21,
+                    "column": 22
+                  },
+                  "bounds": {
+                    "column": 21,
+                    "row": 19,
+                    "width": 10,
+                    "height": 3
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "column": 0,
+                    "row": 0,
+                    "width": 0,
+                    "height": 0
+                  }
+                }
+              ]
+            }
+          ],
+          []
+        ]
+      ]
     }
   ],
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
   },
-  "ballotStrings": {},
-  "gridLayouts": [
-    {
-      "ballotStyleId": "ballot-style-1-p1",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate--precinct-2"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "ballot-style-1-p2",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate-precinct-2-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "ballot-style-2-p1",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate--precinct-2"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "ballot-style-2-p2",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate-precinct-2-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "ballot-style-3-p1",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate--precinct-2"
-        },
-        {
-          "contestId": "contest-1",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "ballot-style-3-p2",
-      "optionBoundsFromTargetMark": {
-        "top": 2,
-        "bottom": 1,
-        "left": 1,
-        "right": 9
-      },
-      "gridPositions": [
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 11,
-          "type": "option",
-          "optionId": "candidate-precinct-1-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 12,
-          "type": "option",
-          "optionId": "candidate-precinct-2-1"
-        },
-        {
-          "contestId": "contest-2",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 13,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 18,
-          "type": "option",
-          "optionId": "1candidate-1"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 19,
-          "type": "option",
-          "optionId": "1candidate-2"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 20,
-          "type": "option",
-          "optionId": "1candidate-3"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 21,
-          "type": "option",
-          "optionId": "1candidate-4"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 22,
-          "type": "option",
-          "optionId": "1candidate-5"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 23,
-          "type": "option",
-          "optionId": "1candidate-6"
-        },
-        {
-          "contestId": "contest-3",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 2,
-          "row": 24,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 11,
-          "type": "option",
-          "optionId": "2candidate-1"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 12,
-          "type": "option",
-          "optionId": "2candidate-2"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 13,
-          "type": "option",
-          "optionId": "2candidate-3"
-        },
-        {
-          "contestId": "contest-4",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 19,
-          "type": "option",
-          "optionId": "3candidate-1"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 20,
-          "type": "option",
-          "optionId": "3candidate-2"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 21,
-          "type": "option",
-          "optionId": "3candidate-3"
-        },
-        {
-          "contestId": "contest-5",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12,
-          "row": 22,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 11,
-          "type": "option",
-          "optionId": "4candidate-1"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 12,
-          "type": "option",
-          "optionId": "4candidate-2"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 13,
-          "type": "option",
-          "optionId": "4candidate-3"
-        },
-        {
-          "contestId": "contest-6",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 14,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 19,
-          "type": "option",
-          "optionId": "5candidate-1"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 20,
-          "type": "option",
-          "optionId": "5candidate-2"
-        },
-        {
-          "contestId": "contest-7",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22,
-          "row": 21,
-          "type": "write-in",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0
-          }
-        }
-      ]
-    }
-  ]
+  "ballotStrings": {}
 }

@@ -17,6 +17,15 @@ import setWith from 'lodash.setwith';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
 import {
+  DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
+  flattenBallotPositions,
+  groupOptionPositionsIntoSheets,
+  optionBoundsFromTargetMarkOutset,
+  rectToGridRect,
+  gridRectToRect,
+  type FlatOptionPosition,
+} from '../../ballot_positions';
+import {
   ballotPaperDimensions,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
@@ -509,16 +518,42 @@ export function convertVxfElectionToCdfBallotDefinition(
   function orderedContentForBallotStyle(
     ballotStyle: Vxf.BallotStyle
   ): Cdf.OrderedContest[] | undefined {
-    if (!vxfElection.gridLayouts) return undefined;
+    if (!ballotStyle.ballotPositions) return undefined;
 
-    const gridLayout = find(
-      vxfElection.gridLayouts,
-      (layout) => layout.ballotStyleId === ballotStyle.id
-    );
+    // CDF represents positions as a flat list keyed by sheet/side/contest, so
+    // flatten the hierarchical ballotPositions back into the old flat shape.
+    // (CDF carries only bubble centers and write-in areas, not our per-option
+    // bounds, so the bounds are dropped here.)
+    const gridPositions = flattenBallotPositions(
+      ballotStyle.ballotPositions
+    ).map(({ sheetNumber, side, contestId, option }) => {
+      const base = {
+        contestId,
+        sheetNumber,
+        side,
+        column: option.bubbleCenter.column,
+        row: option.bubbleCenter.row,
+      } as const;
+      return option.type === 'write-in'
+        ? ({
+            ...base,
+            type: 'write-in',
+            writeInIndex: option.writeInIndex,
+            writeInArea: gridRectToRect(option.writeInArea),
+          } as const)
+        : ({
+            ...base,
+            type: 'option',
+            optionId: option.optionId,
+            partyIds: option.partyIds,
+          } as const);
+    });
+    const gridLayout = { gridPositions } as const;
+    type FlatGridPosition = (typeof gridPositions)[number];
 
     function optionIdForPosition(
       contest: Vxf.Contest,
-      gridPosition: Vxf.GridPosition
+      gridPosition: FlatGridPosition
     ): string {
       /* istanbul ignore next */
       if (contest.type === 'straight-party') {
@@ -1111,6 +1146,87 @@ export function convertCdfBallotDefinitionToVxfElection(
     return content;
   }
 
+  // CDF carries only bubble centers and write-in areas, not our per-option/
+  // contest bounds, so synthesize bounds from the default outset (matching the
+  // ballot interpreter's historical derivation) when building ballotPositions.
+  function ballotPositionsForCdfBallotStyle(
+    ballotStyle: Cdf.BallotStyle
+  ): Vxf.SheetPositions[] | undefined {
+    if (!ballotStyle.OrderedContent) return undefined;
+    const flat: FlatOptionPosition[] = ballotStyle.OrderedContent.flatMap(
+      (orderedContest) => {
+        const contest = find(
+          election.Contest,
+          (c) => c['@id'] === orderedContest.ContestId
+        );
+        return orderedContest.Physical[0].PhysicalContestOption.map(
+          (option): FlatOptionPosition => {
+            const optionPosition = option.OptionPosition[0];
+            const bubbleCenter: Vxf.GridPoint = {
+              row: optionPosition.Y,
+              column: optionPosition.X,
+            };
+            const bounds = optionBoundsFromTargetMarkOutset(
+              bubbleCenter,
+              DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET
+            );
+            const base = {
+              sheetNumber: optionPosition.Sheet,
+              side: optionPosition.Side,
+              contestId: orderedContest.ContestId,
+            } as const;
+            if (
+              contest['@type'] === 'BallotDefinition.CandidateContest' &&
+              option.WriteInPosition
+            ) {
+              return {
+                ...base,
+                option: {
+                  type: 'write-in',
+                  bubbleCenter,
+                  bounds,
+                  writeInIndex: parseWriteInIndexFromOptionId(
+                    orderedContest.ContestId,
+                    option.ContestOptionId
+                  ),
+                  writeInArea: rectToGridRect({
+                    x: option.WriteInPosition[0].X,
+                    y: option.WriteInPosition[0].Y,
+                    width: option.WriteInPosition[0].W,
+                    height: option.WriteInPosition[0].H,
+                  }),
+                },
+              };
+            }
+            const endorsementPartyIds =
+              contest['@type'] === 'BallotDefinition.CandidateContest'
+                ? find(
+                    contest.ContestOption,
+                    (o) => o['@id'] === option.ContestOptionId
+                  ).EndorsementPartyIds
+                : undefined;
+            return {
+              ...base,
+              option: {
+                type: 'option',
+                bubbleCenter,
+                bounds,
+                optionId: convertOptionId(
+                  orderedContest.ContestId,
+                  option.ContestOptionId
+                ),
+                ...(endorsementPartyIds && endorsementPartyIds.length > 0
+                  ? { partyIds: endorsementPartyIds }
+                  : {}),
+              },
+            };
+          }
+        );
+      }
+    );
+    return groupOptionPositionsIntoSheets(flat);
+  }
+
   return {
     id: assertDefined(election.ExternalIdentifier[0]).Value,
     type: cdfElectionTypeToVxfElectionType[election.Type],
@@ -1365,6 +1481,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         partyId: ballotStyle.PartyIds?.[0],
         languages: ballotStyle.Language ?? ['en'],
         orderedCandidatesByContest,
+        ballotPositions: ballotPositionsForCdfBallotStyle(ballotStyle),
       };
     }),
 
@@ -1379,112 +1496,6 @@ export function convertCdfBallotDefinitionToVxfElection(
     },
 
     ballotStrings: extractCdfUiStrings(cdfBallotDefinition),
-
-    gridLayouts: (() => {
-      const gridLayouts = election.BallotStyle.filter(
-        (ballotStyle) => ballotStyle.OrderedContent !== undefined
-      ).map((ballotStyle): Vxf.GridLayout => {
-        const orderedContests = assertDefined(ballotStyle.OrderedContent);
-        return {
-          ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
-          // Since there's no CDF field for this, we set a default based on what
-          // generally works well for our HMPBs.
-          optionBoundsFromTargetMark: {
-            top: 1,
-            left: 1,
-            right: 9,
-            bottom: 1,
-          },
-          gridPositions: orderedContests.flatMap(
-            (orderedContest): Vxf.GridPosition[] => {
-              const contest = find(
-                election.Contest,
-                (c) => c['@id'] === orderedContest.ContestId
-              );
-              return orderedContest.Physical[0].PhysicalContestOption.map(
-                (option): Vxf.GridPosition => {
-                  switch (contest['@type']) {
-                    case 'BallotDefinition.CandidateContest': {
-                      if (option.WriteInPosition) {
-                        return {
-                          type: 'write-in',
-                          contestId: orderedContest.ContestId,
-                          sheetNumber: option.OptionPosition[0].Sheet,
-                          side: option.OptionPosition[0].Side,
-                          column: option.OptionPosition[0].X,
-                          row: option.OptionPosition[0].Y,
-                          writeInIndex: parseWriteInIndexFromOptionId(
-                            orderedContest.ContestId,
-                            option.ContestOptionId
-                          ),
-                          writeInArea: {
-                            x: option.WriteInPosition[0].X,
-                            y: option.WriteInPosition[0].Y,
-                            width: option.WriteInPosition[0].W,
-                            height: option.WriteInPosition[0].H,
-                          },
-                        };
-                      }
-
-                      const candidateOption = find(
-                        contest.ContestOption,
-                        (o) => o['@id'] === option.ContestOptionId
-                      );
-                      const basePosition: Vxf.GridPositionOption = {
-                        type: 'option',
-                        contestId: orderedContest.ContestId,
-                        sheetNumber: option.OptionPosition[0].Sheet,
-                        side: option.OptionPosition[0].Side,
-                        column: option.OptionPosition[0].X,
-                        row: option.OptionPosition[0].Y,
-                        optionId: convertOptionId(
-                          orderedContest.ContestId,
-                          option.ContestOptionId
-                        ),
-                      };
-
-                      // Add partyIds if the candidate has endorsements
-                      if (
-                        candidateOption.EndorsementPartyIds &&
-                        candidateOption.EndorsementPartyIds.length > 0
-                      ) {
-                        return {
-                          ...basePosition,
-                          partyIds: candidateOption.EndorsementPartyIds,
-                        };
-                      }
-
-                      return basePosition;
-                    }
-
-                    case 'BallotDefinition.BallotMeasureContest': {
-                      return {
-                        type: 'option',
-                        contestId: orderedContest.ContestId,
-                        sheetNumber: option.OptionPosition[0].Sheet,
-                        side: option.OptionPosition[0].Side,
-                        column: option.OptionPosition[0].X,
-                        row: option.OptionPosition[0].Y,
-                        optionId: convertOptionId(
-                          orderedContest.ContestId,
-                          option.ContestOptionId
-                        ),
-                      };
-                    }
-
-                    default: {
-                      /* istanbul ignore next */
-                      return throwIllegalValue(contest, '@type');
-                    }
-                  }
-                }
-              );
-            }
-          ),
-        };
-      });
-      return gridLayouts.length > 0 ? gridLayouts : undefined;
-    })(),
   };
 }
 

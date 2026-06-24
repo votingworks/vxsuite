@@ -20,11 +20,11 @@ pub fn simple_election() -> Election {
             districts: vec![DistrictId::from("d-1".to_owned())],
             party_id: None,
             languages: vec![],
+            ballot_positions: None,
         }],
         precincts: vec![Precinct {
             id: PrecinctId::from("p-1".to_owned()),
         }],
-        grid_layouts: None,
         mark_thresholds: None,
         contests: vec![
             Contest::Candidate(CandidateContest {

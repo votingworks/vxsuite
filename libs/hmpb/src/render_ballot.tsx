@@ -21,11 +21,12 @@ import {
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
-  GridLayout,
   GridPosition,
   HmpbBallotPageMetadata,
   Outset,
+  SheetPositions,
   YesNoContest,
+  ballotPositionsFromGridPositions,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
@@ -300,11 +301,14 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
-async function extractGridLayout(
+async function extractBallotPositions(
   document: RenderDocument,
   ballotStyleId: BallotStyleId,
   isAllBubbleBallot = false
-): Promise<GridLayout> {
+): Promise<{
+  ballotStyleId: BallotStyleId;
+  ballotPositions: SheetPositions[];
+}> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
@@ -431,10 +435,16 @@ async function extractGridLayout(
     return bounds;
   })();
 
+  // MVP: derive each option's bounds from the single shared
+  // optionBoundsFromTargetMark outset, reproducing the bounds the interpreter
+  // historically computed. Per-option/per-contest bounds now live on the ballot
+  // style's ballotPositions instead of a flat election-level gridLayout.
   return {
     ballotStyleId,
-    gridPositions,
-    optionBoundsFromTargetMark,
+    ballotPositions: ballotPositionsFromGridPositions(
+      gridPositions,
+      optionBoundsFromTargetMark
+    ),
   };
 }
 
@@ -611,7 +621,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const document = (
         await renderBallotTemplate(renderer, template, props)
       ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
+      const ballotStylePositions = await extractBallotPositions(
         document,
         props.ballotStyleId,
         template.isAllBubbleBallot
@@ -619,7 +629,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const ballotContent = await document.getContent();
       return {
         props,
-        gridLayout,
+        ballotStylePositions,
         ballotContent,
       };
     }),
@@ -627,12 +637,12 @@ export async function layOutBallotsAndCreateElectionDefinition<
       ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
-  // All ballots of a given ballot style must have the same grid layout.
+  // All ballots of a given ballot style must have the same positions.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
   // We need to check sample ballots as well. Even though they don't have visible timing marks, we
-  // can still compute a grid layout for them, and it's important that their bubble positions match
+  // can still compute positions for them, and it's important that their bubble positions match
   // official ballots.
-  const layoutsByBallotStyle = iter(ballotLayouts)
+  const positionsByBallotStyle = iter(ballotLayouts)
     // NH state ballots have a "federal office only" variant that only includes
     // federal offices, which of course changes the layout of the bubbles. These
     // ballots aren't tabulated, so we can simply filter them out.
@@ -643,24 +653,27 @@ export async function layOutBallotsAndCreateElectionDefinition<
           ballot.props.isFederalOfficeOnly
         )
     )
-    .map((ballot) => ballot.gridLayout)
-    .toMap((gridLayout) => gridLayout.ballotStyleId);
-  for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {
-    const [firstLayout, ...restLayouts] = layouts;
-    const hasDifferingLayout = restLayouts.some(
-      (layout) => !deepEqual(layout, firstLayout)
+    .map((ballot) => ballot.ballotStylePositions)
+    .toMap((positions) => positions.ballotStyleId);
+  for (const [ballotStyleId, positions] of positionsByBallotStyle.entries()) {
+    const [firstPositions, ...restPositions] = positions;
+    const hasDifferingPositions = restPositions.some(
+      (p) => !deepEqual(p, firstPositions)
     );
-    if (hasDifferingLayout) {
+    if (hasDifferingPositions) {
       throw new Error(
-        `Found multiple distinct grid layouts for ballot style ${ballotStyleId}`
+        `Found multiple distinct ballot positions for ballot style ${ballotStyleId}`
       );
     }
   }
-  // Now that all layouts for a ballot style are guaranteed to be equal, we can
-  // just use one per ballot style
-  const gridLayouts = iter(layoutsByBallotStyle.values())
-    .map((layouts) => assertDefined(iter(layouts.values()).first()))
-    .toArray();
+  // Now that all positions for a ballot style are guaranteed to be equal, we
+  // can just use one per ballot style.
+  const ballotPositionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>(
+    iter(positionsByBallotStyle.entries()).map(([ballotStyleId, positions]) => [
+      ballotStyleId,
+      assertDefined(iter(positions.values()).first()).ballotPositions,
+    ])
+  );
 
   const contests = election.contests
     // Temporary workaround for candidate rotation to ensure that VxMark's voting
@@ -717,13 +730,18 @@ export async function layOutBallotsAndCreateElectionDefinition<
       );
     });
 
-  const electionWithGridLayouts: Election = {
+  const ballotStyles = election.ballotStyles.map((ballotStyle) => {
+    const ballotPositions = ballotPositionsByBallotStyle.get(ballotStyle.id);
+    return ballotPositions ? { ...ballotStyle, ballotPositions } : ballotStyle;
+  });
+
+  const electionWithBallotPositions: Election = {
     ...election,
+    ballotStyles,
     contests,
-    gridLayouts,
   };
   const serializedElection = serializeElection(
-    electionWithGridLayouts,
+    electionWithBallotPositions,
     electionSerializationOptions
   );
   const electionDefinition =

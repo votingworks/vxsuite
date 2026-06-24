@@ -12,6 +12,7 @@ import {
   YesNoContest,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
+  convertLatestElectionToV4p0,
 } from '@votingworks/types';
 import {
   assert,
@@ -136,6 +137,27 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
 });
 
+test('rendered ballot can convert to v4p0 election', async () => {
+  const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
+  const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
+  const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
+    rendererPool,
+    ballotTemplates.VxDefaultBallot,
+    allBallotProps,
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+  );
+
+  // Verify at least one ballot style has ballotPositions (i.e., the renderer
+  // is actually producing them — a missing field would make this test vacuous).
+  const stylesWithPositions = election.ballotStyles.filter(
+    (bs) => bs.ballotPositions && bs.ballotPositions.length > 0
+  );
+  expect(stylesWithPositions.length).toBeGreaterThan(0);
+
+  // This will throw if any ballot style has non-uniform option bounds.
+  expect(() => convertLatestElectionToV4p0(election)).not.toThrow();
+});
+
 test('reorder candidates based on rotation from template', async () => {
   const baseElection = vxFamousNamesFixtures.electionDefinition.election;
   const fixtureElection: Election = {
@@ -162,14 +184,23 @@ test('reorder candidates based on rotation from template', async () => {
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
   );
 
-  const {
-    contests: fixtureContests,
-    gridLayouts: _fixtureGridLayouts,
-    ...restFixtureElection
-  } = fixtureElection;
-  const { contests, gridLayouts: _gridLayouts, ...restElection } = election;
+  const { contests: fixtureContests, ...restFixtureElection } = fixtureElection;
+  const { contests, ...restElection } = election;
 
-  expect(restElection).toEqual(restFixtureElection);
+  // Ballot positions are generated during layout, so strip them from the
+  // ballot styles before comparing against the fixture election.
+  function withoutBallotPositions(e: typeof restElection) {
+    return {
+      ...e,
+      ballotStyles: e.ballotStyles.map(
+        ({ ballotPositions: _ballotPositions, ...ballotStyle }) => ballotStyle
+      ),
+    };
+  }
+
+  expect(withoutBallotPositions(restElection)).toEqual(
+    withoutBallotPositions(restFixtureElection)
+  );
   for (const [contest, fixtureContest] of iter(contests).zip(fixtureContests)) {
     assert(contest.id === fixtureContest.id);
     assert(contest.type === 'candidate');

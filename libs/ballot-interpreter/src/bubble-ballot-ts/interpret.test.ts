@@ -9,6 +9,7 @@ import {
   asSheet,
   Election,
   ElectionDefinition,
+  gridPositionsFromBallotPositions,
   mapSheet,
 } from '@votingworks/types';
 import { expect, test } from 'vitest';
@@ -47,8 +48,8 @@ test('interpret `ImageData` objects', async () => {
 
   const { front, back } = result.unsafeUnwrap();
 
-  const gridPositions = assertDefined(
-    electionDefinition.election.gridLayouts?.[0]?.gridPositions
+  const gridPositions = gridPositionsFromBallotPositions(
+    assertDefined(electionDefinition.election.ballotStyles[0]?.ballotPositions)
   );
 
   // Layout should contain all the contests in order
@@ -351,8 +352,8 @@ test('interpret images from paths', async () => {
 
   const { front, back } = result.unsafeUnwrap();
 
-  const gridPositions = assertDefined(
-    electionDefinition.election.gridLayouts?.[0]?.gridPositions
+  const gridPositions = gridPositionsFromBallotPositions(
+    assertDefined(electionDefinition.election.ballotStyles[0]?.ballotPositions)
   );
 
   // Layout should contain all the contests in order

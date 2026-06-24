@@ -29,6 +29,8 @@ import {
   ImageData,
   BaseBallotProps,
   ElectionDefinition,
+  getBallotStyle,
+  gridPositionsFromBallotPositions,
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
@@ -438,17 +440,22 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
         );
 
         const sheetNumber = sheetIndex + 1;
-        const gridLayout = electionDefinition.election.gridLayouts!.find(
-          (layout) => layout.ballotStyleId === ballotStyleId
-        )!;
-        const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+        const gridPositions = gridPositionsFromBallotPositions(
+          assertDefined(
+            getBallotStyle({
+              election: electionDefinition.election,
+              ballotStyleId,
+            })?.ballotPositions
+          )
+        );
+        const expectedVotes = votesForSheet(votes, sheetNumber, gridPositions);
         const expectedUnmarkedWriteIns = unmarkedWriteInsForSheet(
           unmarkedWriteIns.map(({ contestId, writeInIndex }) => ({
             contestId,
             optionId: `write-in-${writeInIndex}`,
           })),
           sheetNumber,
-          gridLayout
+          gridPositions
         );
 
         assert(frontResult.type === 'InterpretedHmpbPage');
@@ -526,12 +533,17 @@ describe('HMPB - VX primary election', () => {
         images
       );
 
-      const gridLayout = electionDefinition.election.gridLayouts!.find(
-        (layout) => layout.ballotStyleId === ballotStyleId
-      )!;
+      const gridPositions = gridPositionsFromBallotPositions(
+        assertDefined(
+          getBallotStyle({
+            election: electionDefinition.election,
+            ballotStyleId,
+          })?.ballotPositions
+        )
+      );
 
       assert(frontResult.type === 'InterpretedHmpbPage');
-      expect(frontResult.votes).toEqual(votesForSheet({}, 1, gridLayout));
+      expect(frontResult.votes).toEqual(votesForSheet({}, 1, gridPositions));
       assert(backResult.type === 'InterpretedHmpbPage');
       expect(backResult.votes).toEqual({});
 
@@ -671,17 +683,22 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
         );
 
         const sheetNumber = sheetIndex + 1;
-        const gridLayout = electionDefinition.election.gridLayouts!.find(
-          (layout) => layout.ballotStyleId === ballotStyleId
-        )!;
-        const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+        const gridPositions = gridPositionsFromBallotPositions(
+          assertDefined(
+            getBallotStyle({
+              election: electionDefinition.election,
+              ballotStyleId,
+            })?.ballotPositions
+          )
+        );
+        const expectedVotes = votesForSheet(votes, sheetNumber, gridPositions);
         const expectedUnmarkedWriteIns = unmarkedWriteInsForSheet(
           spec.unmarkedWriteIns.map(({ contestId, writeInIndex }) => ({
             contestId,
             optionId: `write-in-${writeInIndex}`,
           })),
           sheetNumber,
-          gridLayout
+          gridPositions
         );
 
         assert(frontResult.type === 'InterpretedHmpbPage');
@@ -754,10 +771,15 @@ describe('HMPB - MI general election (straight party contest)', () => {
       );
 
       const sheetNumber = sheetIndex + 1;
-      const gridLayout = electionDefinition.election.gridLayouts!.find(
-        (layout) => layout.ballotStyleId === ballotStyleId
-      )!;
-      const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+      const gridPositions = gridPositionsFromBallotPositions(
+        assertDefined(
+          getBallotStyle({
+            election: electionDefinition.election,
+            ballotStyleId,
+          })?.ballotPositions
+        )
+      );
+      const expectedVotes = votesForSheet(votes, sheetNumber, gridPositions);
 
       assert(frontResult.type === 'InterpretedHmpbPage');
       assert(backResult.type === 'InterpretedHmpbPage');

@@ -29,7 +29,6 @@ pub struct Election {
     pub title: String,
     pub ballot_styles: Vec<BallotStyle>,
     pub precincts: Vec<Precinct>,
-    pub grid_layouts: Option<Vec<GridLayout>>,
     pub mark_thresholds: Option<MarkThresholds>,
     pub contests: Vec<Contest>,
 }
@@ -70,6 +69,40 @@ impl Election {
             .cloned()
             .collect()
     }
+
+    /// Builds the flat grid layouts used during interpretation from each ballot
+    /// style's hierarchical `ballot_positions`. v4.1+ stores ballot geometry as
+    /// `ballotPositions` (sheets -> [front, back] contests -> options) with
+    /// per-option bounds; this flattens it into the per-bubble representation
+    /// the interpreter scores against.
+    #[must_use]
+    pub fn grid_layouts(&self) -> Vec<GridLayout> {
+        self.ballot_styles
+            .iter()
+            .filter_map(|ballot_style| {
+                let ballot_positions = ballot_style.ballot_positions.as_ref()?;
+                let mut grid_positions = Vec::new();
+                for (sheet_index, (front, back)) in ballot_positions.iter().enumerate() {
+                    let sheet_number = (sheet_index + 1) as u32;
+                    for (side, contests) in [(BallotSide::Front, front), (BallotSide::Back, back)] {
+                        for contest in contests {
+                            for option in &contest.options {
+                                grid_positions.push(option.to_grid_position(
+                                    sheet_number,
+                                    side,
+                                    contest.contest_id.clone(),
+                                ));
+                            }
+                        }
+                    }
+                }
+                Some(GridLayout {
+                    ballot_style_id: ballot_style.id.clone(),
+                    grid_positions,
+                })
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,6 +115,8 @@ pub struct BallotStyle {
     pub party_id: Option<PartyId>,
     #[serde(default)]
     pub languages: Vec<String>,
+    #[serde(default)]
+    pub ballot_positions: Option<Vec<SheetPositions>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,11 +125,114 @@ pub struct Precinct {
     pub id: PrecinctId,
 }
 
+/// A point in timing-mark grid coordinates.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct GridPoint {
+    pub row: SubGridUnit,
+    pub column: SubGridUnit,
+}
+
+/// A rectangle in timing-mark grid coordinates.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct GridRect {
+    pub row: SubGridUnit,
+    pub column: SubGridUnit,
+    pub width: SubGridUnit,
+    pub height: SubGridUnit,
+}
+
+/// An option's geometry on the ballot grid: the bubble center, the option's
+/// bounding box, and the contest/option it represents. Part of the v4.1+
+/// `ballotPositions` ballot-style geometry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", tag = "type")]
+pub enum ContestOptionPosition {
+    #[serde(rename_all = "camelCase", rename = "option")]
+    Option {
+        bubble_center: GridPoint,
+        bounds: GridRect,
+        option_id: OptionId,
+    },
+
+    #[serde(rename_all = "camelCase", rename = "write-in")]
+    WriteIn {
+        bubble_center: GridPoint,
+        bounds: GridRect,
+        write_in_index: u32,
+        write_in_area: GridRect,
+    },
+}
+
+impl ContestOptionPosition {
+    /// Converts this hierarchical option position into the flat
+    /// [`GridPosition`] the interpreter scores against, carrying the stored
+    /// per-option bounds.
+    fn to_grid_position(
+        &self,
+        sheet_number: u32,
+        side: BallotSide,
+        contest_id: ContestId,
+    ) -> GridPosition {
+        match self {
+            Self::Option {
+                bubble_center,
+                bounds,
+                option_id,
+            } => GridPosition::Option {
+                sheet_number,
+                side,
+                column: bubble_center.column,
+                row: bubble_center.row,
+                contest_id,
+                option_id: option_id.clone(),
+                bounds: *bounds,
+            },
+            Self::WriteIn {
+                bubble_center,
+                bounds,
+                write_in_index,
+                write_in_area,
+            } => GridPosition::WriteIn {
+                sheet_number,
+                side,
+                column: bubble_center.column,
+                row: bubble_center.row,
+                contest_id,
+                write_in_index: *write_in_index,
+                write_in_area: SubGridRect {
+                    x: write_in_area.column,
+                    y: write_in_area.row,
+                    width: write_in_area.width,
+                    height: write_in_area.height,
+                },
+                bounds: *bounds,
+            },
+        }
+    }
+}
+
+/// The geometry of a single contest on the ballot grid. Part of the v4.1+
+/// `ballotPositions` ballot-style geometry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContestPosition {
+    pub contest_id: ContestId,
+    pub bounds: GridRect,
+    pub options: Vec<ContestOptionPosition>,
+}
+
+/// The contest positions for a single sheet, as a `[front, back]` tuple.
+pub type SheetPositions = (Vec<ContestPosition>, Vec<ContestPosition>);
+
+/// The interpreter's flat per-bubble representation, built from a ballot
+/// style's [`ballot_positions`](BallotStyle::ballot_positions). Not part of the
+/// serialized election definition; only emitted as interpreter output.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
-    pub option_bounds_from_target_mark: Outset<SubGridUnit>,
     pub grid_positions: Vec<GridPosition>,
 }
 
@@ -104,14 +242,6 @@ impl GridLayout {
             .iter()
             .filter(|grid_position| matches!(grid_position, GridPosition::WriteIn { .. }))
     }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Outset<T> {
-    pub top: T,
-    pub right: T,
-    pub bottom: T,
-    pub left: T,
 }
 
 /// A position on the ballot grid defined by timing marks and the contest/option
@@ -128,6 +258,10 @@ pub enum GridPosition {
         row: SubGridUnit,
         contest_id: ContestId,
         option_id: OptionId,
+        /// The option's bounding box (grid coordinates). Used to build the
+        /// interpreted layout; not serialized as part of the mark output.
+        #[serde(skip)]
+        bounds: GridRect,
     },
 
     /// A write-in option on the ballot.
@@ -140,6 +274,10 @@ pub enum GridPosition {
         contest_id: ContestId,
         write_in_index: u32,
         write_in_area: SubGridRect,
+        /// The option's bounding box (grid coordinates). Used to build the
+        /// interpreted layout; not serialized as part of the mark output.
+        #[serde(skip)]
+        bounds: GridRect,
     },
 }
 
@@ -188,6 +326,15 @@ impl GridPosition {
             | Self::WriteIn {
                 side, column, row, ..
             } => GridLocation::new(*side, *column, *row),
+        }
+    }
+
+    /// The option's bounding box in grid coordinates, used to build the
+    /// interpreted option layout.
+    #[must_use]
+    pub const fn bounds(&self) -> GridRect {
+        match self {
+            Self::Option { bounds, .. } | Self::WriteIn { bounds, .. } => *bounds,
         }
     }
 }
@@ -475,11 +622,222 @@ mod tests {
             row: 2.0,
             contest_id: ContestId::from("contest-1".to_string()),
             option_id: OptionId::from("option-1".to_string()),
+            bounds: GridRect::default(),
         };
         assert_eq!(position.location().side, BallotSide::Front);
         assert!((position.location().column - 1.0).abs() < f32::EPSILON);
         assert!((position.location().row - 2.0).abs() < f32::EPSILON);
         assert_eq!(position.sheet_number(), 1);
+    }
+
+    #[test]
+    #[allow(clippy::too_many_lines)]
+    fn test_grid_layouts_from_ballot_positions() {
+        let option_bounds = GridRect {
+            row: 1.5,
+            column: 2.0,
+            width: 9.0,
+            height: 2.0,
+        };
+        let write_in_bounds = GridRect {
+            row: 4.5,
+            column: 2.0,
+            width: 9.0,
+            height: 2.0,
+        };
+        let write_in_area = GridRect {
+            row: 4.0,
+            column: 5.0,
+            width: 4.0,
+            height: 1.0,
+        };
+        let contest = ContestPosition {
+            contest_id: ContestId::from("contest-1".to_string()),
+            bounds: GridRect::default(),
+            options: vec![
+                ContestOptionPosition::Option {
+                    bubble_center: GridPoint {
+                        row: 2.0,
+                        column: 3.0,
+                    },
+                    bounds: option_bounds,
+                    option_id: OptionId::from("option-1".to_string()),
+                },
+                ContestOptionPosition::WriteIn {
+                    bubble_center: GridPoint {
+                        row: 5.0,
+                        column: 3.0,
+                    },
+                    bounds: write_in_bounds,
+                    write_in_index: 0,
+                    write_in_area,
+                },
+            ],
+        };
+        let election = Election {
+            title: "Test".to_string(),
+            ballot_styles: vec![BallotStyle {
+                id: BallotStyleId::from("bs-1".to_string()),
+                group_id: BallotStyleGroupId::from("bs-1".to_string()),
+                precincts: vec![],
+                districts: vec![],
+                party_id: None,
+                languages: vec![],
+                ballot_positions: Some(vec![(vec![contest], vec![])]),
+            }],
+            precincts: vec![],
+            mark_thresholds: None,
+            contests: vec![],
+        };
+
+        let grid_layouts = election.grid_layouts();
+        assert_eq!(grid_layouts.len(), 1);
+        let grid_layout = &grid_layouts[0];
+        assert_eq!(
+            grid_layout.ballot_style_id,
+            BallotStyleId::from("bs-1".to_string())
+        );
+        assert_eq!(grid_layout.grid_positions.len(), 2);
+
+        match &grid_layout.grid_positions[0] {
+            GridPosition::Option {
+                sheet_number,
+                side,
+                column,
+                row,
+                contest_id,
+                option_id,
+                bounds,
+            } => {
+                assert_eq!(*sheet_number, 1);
+                assert_eq!(*side, BallotSide::Front);
+                assert!((*column - 3.0).abs() < f32::EPSILON);
+                assert!((*row - 2.0).abs() < f32::EPSILON);
+                assert_eq!(*contest_id, ContestId::from("contest-1".to_string()));
+                assert_eq!(*option_id, OptionId::from("option-1".to_string()));
+                assert_eq!(*bounds, option_bounds);
+            }
+            GridPosition::WriteIn { .. } => panic!("expected Option"),
+        }
+
+        match &grid_layout.grid_positions[1] {
+            GridPosition::WriteIn {
+                sheet_number,
+                side,
+                column,
+                row,
+                contest_id,
+                write_in_index,
+                write_in_area: area,
+                bounds,
+            } => {
+                assert_eq!(*sheet_number, 1);
+                assert_eq!(*side, BallotSide::Front);
+                assert!((*column - 3.0).abs() < f32::EPSILON);
+                assert!((*row - 5.0).abs() < f32::EPSILON);
+                assert_eq!(*contest_id, ContestId::from("contest-1".to_string()));
+                assert_eq!(*write_in_index, 0);
+                assert_eq!(
+                    *area,
+                    SubGridRect {
+                        x: 5.0,
+                        y: 4.0,
+                        width: 4.0,
+                        height: 1.0
+                    }
+                );
+                assert_eq!(*bounds, write_in_bounds);
+            }
+            GridPosition::Option { .. } => panic!("expected WriteIn"),
+        }
+    }
+
+    #[test]
+    fn test_grid_layouts_without_ballot_positions_is_empty() {
+        let election = Election {
+            title: "Test".to_string(),
+            ballot_styles: vec![BallotStyle {
+                id: BallotStyleId::from("bs-1".to_string()),
+                group_id: BallotStyleGroupId::from("bs-1".to_string()),
+                precincts: vec![],
+                districts: vec![],
+                party_id: None,
+                languages: vec![],
+                ballot_positions: None,
+            }],
+            precincts: vec![],
+            mark_thresholds: None,
+            contests: vec![],
+        };
+        assert!(election.grid_layouts().is_empty());
+    }
+
+    #[test]
+    fn test_ballot_positions_deserialization_is_camel_case() {
+        // The TypeScript renderer emits ballotPositions with camelCase fields
+        // (bubbleCenter, optionId, writeInIndex, writeInArea). Deserialize a
+        // ballot style's positions and confirm grid_layouts() flattens them.
+        let json = r#"{
+            "id": "bs-1",
+            "groupId": "bs-1",
+            "precincts": [],
+            "districts": [],
+            "languages": ["en"],
+            "ballotPositions": [
+                [
+                    [
+                        {
+                            "contestId": "contest-1",
+                            "bounds": { "row": 1, "column": 1, "width": 10, "height": 4 },
+                            "options": [
+                                {
+                                    "type": "option",
+                                    "bubbleCenter": { "row": 2, "column": 3 },
+                                    "bounds": { "row": 1, "column": 1, "width": 10, "height": 2 },
+                                    "optionId": "option-1"
+                                },
+                                {
+                                    "type": "write-in",
+                                    "bubbleCenter": { "row": 5, "column": 3 },
+                                    "bounds": { "row": 4, "column": 1, "width": 10, "height": 2 },
+                                    "writeInIndex": 0,
+                                    "writeInArea": { "row": 4, "column": 5, "width": 4, "height": 1 }
+                                }
+                            ]
+                        }
+                    ],
+                    []
+                ]
+            ]
+        }"#;
+        let ballot_style: BallotStyle = serde_json::from_str(json).unwrap();
+        let election = Election {
+            title: "Test".to_string(),
+            ballot_styles: vec![ballot_style],
+            precincts: vec![],
+            mark_thresholds: None,
+            contests: vec![],
+        };
+        let grid_layouts = election.grid_layouts();
+        assert_eq!(grid_layouts.len(), 1);
+        assert_eq!(grid_layouts[0].grid_positions.len(), 2);
+        match &grid_layouts[0].grid_positions[0] {
+            GridPosition::Option {
+                option_id, bounds, ..
+            } => {
+                assert_eq!(*option_id, OptionId::from("option-1".to_string()));
+                assert_eq!(
+                    *bounds,
+                    GridRect {
+                        row: 1.0,
+                        column: 1.0,
+                        width: 10.0,
+                        height: 2.0
+                    }
+                );
+            }
+            GridPosition::WriteIn { .. } => panic!("expected Option"),
+        }
     }
 
     #[test]
@@ -501,6 +859,7 @@ mod tests {
                 row,
                 contest_id,
                 option_id,
+                ..
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
@@ -539,6 +898,7 @@ mod tests {
                 contest_id,
                 write_in_index,
                 write_in_area,
+                ..
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);

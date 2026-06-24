@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import {
+  ContestPosition,
   ElectionDefinition,
-  GridLayout,
   safeParseElectionDefinition,
+  SheetPositions,
   Tabulation,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -352,46 +353,38 @@ const multiSheetPrecinctCardCountsList: Tabulation.GroupList<Tabulation.CardCoun
     })
   );
 
-const partialGridPosition = {
-  type: 'option',
-  side: 'front',
-  column: 0,
-  row: 0,
+const mockContestPosition: ContestPosition = {
   contestId: 'any',
-  optionId: 'any',
-} as const;
-
-const mockMultiSheetGridLayouts: GridLayout[] = [
-  {
-    ballotStyleId: 'any',
-    optionBoundsFromTargetMark: {
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
+  bounds: { row: 0, column: 0, width: 0, height: 0 },
+  options: [
+    {
+      type: 'option',
+      bubbleCenter: { row: 0, column: 0 },
+      bounds: { row: 0, column: 0, width: 0, height: 0 },
+      optionId: 'any',
     },
-    gridPositions: [
-      {
-        ...partialGridPosition,
-        sheetNumber: 1,
-      },
-      {
-        ...partialGridPosition,
-        sheetNumber: 2,
-      },
-      {
-        ...partialGridPosition,
-        sheetNumber: 3,
-      },
-    ],
-  },
+  ],
+};
+
+// Three sheets, each with the mock contest on the front, to exercise
+// multi-sheet ballot count reporting.
+const mockMultiSheetBallotPositions: SheetPositions[] = [
+  [[mockContestPosition], []],
+  [[mockContestPosition], []],
+  [[mockContestPosition], []],
 ];
 
 const multiSheetElectionDefinition: ElectionDefinition = {
   ...electionWithMsEitherNeitherDefinition,
   election: {
     ...electionWithMsEitherNeitherDefinition.election,
-    gridLayouts: mockMultiSheetGridLayouts,
+    ballotStyles:
+      electionWithMsEitherNeitherDefinition.election.ballotStyles.map(
+        (ballotStyle) => ({
+          ...ballotStyle,
+          ballotPositions: mockMultiSheetBallotPositions,
+        })
+      ),
   },
 };
 

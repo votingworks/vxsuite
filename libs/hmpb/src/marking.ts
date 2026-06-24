@@ -17,6 +17,7 @@ import {
   CandidateContest,
   Election,
   GridPosition,
+  gridPositionsFromBallotPositions,
   Rect,
   straightPartyNotYetImplemented,
   Vote,
@@ -77,15 +78,16 @@ export async function generateMarkOverlay(
   calibration: PrintCalibration,
   baseBallotPdf?: Uint8Array
 ): Promise<Uint8Array> {
+  const ballotStyle = election.ballotStyles.find(
+    (bs) => bs.id === ballotStyleId
+  );
   assert(
-    election.gridLayouts,
-    'cannot generate mark overlay for election with no grid layouts'
+    ballotStyle?.ballotPositions,
+    `no ballot positions found for ballot style ${ballotStyleId}`
   );
-
-  const layout = election.gridLayouts.find(
-    (l) => l.ballotStyleId === ballotStyleId
+  const gridPositions = gridPositionsFromBallotPositions(
+    ballotStyle.ballotPositions
   );
-  assert(layout, `no grid layout found for ballot style ${ballotStyleId}`);
 
   /**
    * Center of the top-left timing mark, potentially adjusted per
@@ -125,7 +127,7 @@ export async function generateMarkOverlay(
   doc.registerFontkit(fontKit);
   const fontRobotoBold = await doc.embedFont(robotoBoldTtf);
 
-  for (const pos of layout.gridPositions) {
+  for (const pos of gridPositions) {
     let pageNumber = pos.sheetNumber * 2;
     if (pos.side === 'front') pageNumber -= 1;
 
@@ -147,7 +149,7 @@ export async function generateMarkOverlay(
       straightPartyNotYetImplemented();
     }
 
-    const mark = markInfo(contestVotes, pos, contest, layout);
+    const mark = markInfo(contestVotes, pos, contest, { gridPositions });
     if (!mark) continue;
 
     const page = doc.getPage(pageNumber - 1);

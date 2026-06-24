@@ -16,7 +16,7 @@ import {
   VotesDict,
   BallotStyleId,
   ContestId,
-  GridLayout,
+  gridPositionsFromBallotPositions,
   Tabulation,
   getGroupIdFromBallotStyleId,
   straightPartyNotYetImplemented,
@@ -210,20 +210,21 @@ interface BallotContestLayout {
   contestIdsBySheet: Array<ContestId[]>;
 }
 
-function getBallotContestLayouts(
-  gridLayouts: readonly GridLayout[]
-): BallotContestLayout[] {
-  return gridLayouts.map((gridLayout) => {
-    const { ballotStyleId } = gridLayout;
-    const numSheets = Math.max(
-      ...gridLayout.gridPositions.map((gp) => gp.sheetNumber)
+function getBallotContestLayouts(election: Election): BallotContestLayout[] {
+  return election.ballotStyles.map((ballotStyle) => {
+    const gridPositions = gridPositionsFromBallotPositions(
+      assertDefined(
+        ballotStyle.ballotPositions,
+        `ballotStyle '${ballotStyle.id}' is missing ballotPositions`
+      )
     );
+    const numSheets = Math.max(...gridPositions.map((gp) => gp.sheetNumber));
     const contestIdsBySheet: BallotContestLayout['contestIdsBySheet'] =
       Array.from({
         length: numSheets,
       }).map(() => []);
     const oneContestOptionPerContest = uniqueBy(
-      gridLayout.gridPositions,
+      gridPositions,
       ({ contestId }) => contestId
     );
     for (const contestOption of oneContestOptionPerContest) {
@@ -231,7 +232,7 @@ function getBallotContestLayouts(
       assertDefined(contestIdsBySheet[sheetNumber - 1]).push(contestId);
     }
     return {
-      ballotStyleId,
+      ballotStyleId: ballotStyle.id,
       contestIdsBySheet,
     };
   });
@@ -267,9 +268,8 @@ export function generateTestDeckCastVoteRecords(
       })
     : [];
 
-  const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
-    assertDefined(election.gridLayouts)
-  );
+  const ballotContestLayouts: BallotContestLayout[] =
+    getBallotContestLayouts(election);
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 

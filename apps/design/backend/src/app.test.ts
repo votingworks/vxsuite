@@ -3754,9 +3754,13 @@ test('Election package and ballots export', async () => {
 
   expect(electionDefinition.election).toEqual({
     ...expectedElection,
-    // The base election definition should have been extended with grid layouts. The correctness of
-    // the grid layouts is tested by libs/ballot-interpreter tests.
-    gridLayouts: expect.any(Array),
+    // The base election's ballot styles should have been extended with ballot
+    // positions. The correctness of the positions is tested by
+    // libs/ballot-interpreter tests.
+    ballotStyles: expectedElection.ballotStyles.map((ballotStyle) => ({
+      ...ballotStyle,
+      ballotPositions: expect.any(Array),
+    })),
   });
 
   //
@@ -3978,7 +3982,7 @@ test('Election package and ballots export', async () => {
       ballotStyle.precincts.flatMap((precinctId) =>
         ballotCombos.map(
           ([ballotType, ballotMode]): BaseBallotProps => ({
-            election: { ...expectedElection, gridLayouts: undefined },
+            election: expectedElection,
             ballotStyleId: ballotStyle.id,
             precinctId,
             ballotType,
@@ -4164,7 +4168,12 @@ test('export omits optional ballots if not enabled', async () => {
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotCombos.map(
         ([ballotType, ballotMode]): BaseBallotProps => ({
-          election: { ...election, gridLayouts: undefined },
+          election: {
+            ...election,
+            ballotStyles: election.ballotStyles.map(
+              ({ ballotPositions: _ballotPositions, ...rest }) => rest
+            ),
+          },
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType,

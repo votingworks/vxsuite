@@ -636,6 +636,1817 @@
       ],
       "languages": [
         "en"
+      ],
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "president",
+              "bounds": {
+                "row": 12.8177163093415,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 16.990955206738136
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.8125,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 12.8177163093415,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "barchi-hallaren",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.622032924961715,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 15.627249234303216,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "cramer-vuocolo",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.43156584992343,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 18.436782159264933,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "court-blumhardt",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.241098774885145,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 21.246315084226648,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "boone-lian",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.05063169984686,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 24.055848009188363,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hildebrand-garritty",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.624138591117916,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 27.62935490045942,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "patterson-lariviere",
+                  "partyIds": [
+                    "5"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "senator",
+              "bounds": {
+                "row": 11.977220520673812,
+                "column": 11.520902700702923,
+                "width": 9.958194598594158,
+                "height": 15.216644333843801
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.972004211332312,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 11.977220520673812,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "weiford",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.017563169984685,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 14.022779479326186,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "garriss",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.06312212863706,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 16.06833843797856,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "wentworthfarthington",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.872655053598773,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 18.877871362940276,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hewetson",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.91821401225115,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 20.92343032159265,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "martinez",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.96377297090352,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 22.968989280245022,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "brown",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.009331929555895,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 25.014548238897397,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "pound",
+                  "partyIds": [
+                    "6"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "representative-district-6",
+              "bounds": {
+                "row": 29.898880168453292,
+                "column": 11.520902700702923,
+                "width": 9.958194598594158,
+                "height": 10.361552450229706
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 30.89366385911179,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 29.898880168453292,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "plunkard",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 32.93922281776416,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 31.944439127105664,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "reeder",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 34.98478177641654,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 33.98999808575804,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "schott",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 37.03034073506891,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 36.03555704441041,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "tawney",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 39.07589969372128,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 38.08111600306278,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "forrest",
+                  "partyIds": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "governor",
+              "bounds": {
+                "row": 11.977220520673812,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 32.86270099540582
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.972004211332312,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 11.977220520673812,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "franz",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.017563169984685,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 14.022779479326186,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "harris",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.06312212863706,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 16.06833843797856,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "bargmann",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.108681087289433,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 18.113897396630936,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "abcock",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.154240045941805,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 20.159456355283307,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "steelloy",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.19979900459418,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 22.205015313935682,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "sharp",
+                  "partyIds": [
+                    "5"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.24535796324655,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 24.250574272588054,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "wallace",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.290916921898926,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 26.29613323124043,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "williams",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.3364758805513,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 28.341692189892804,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "sharp-althea",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 31.382034839203673,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 30.387251148545175,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "alpern",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 33.42759379785605,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 32.43281010719755,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "windbeck",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 35.47315275650842,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 34.47836906584992,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "greher",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 37.51871171516079,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 36.52392802450229,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "alexander",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 39.56427067381317,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 38.56948698315467,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "mitchell",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 41.60982963246554,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 40.61504594180704,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "lee",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 43.65538859111791,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 42.66060490045941,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "ash",
+                  "partyIds": [
+                    "6"
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "contestId": "lieutenant-governor",
+              "bounds": {
+                "row": 2.584322358346095,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 18.543788284839206
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.579106049004594,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 2.584322358346095,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "norberg",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 5.624665007656968,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 4.6298813169984685,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "parks",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 7.670223966309341,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 6.675440275650842,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "garcia",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 9.715782924961715,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 8.720999234303216,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "qualey",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11.761341883614088,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 10.76655819295559,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hovis",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.806900842266462,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 12.812117151607962,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "zirkle",
+                  "partyIds": [
+                    "5"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.852459800918835,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 14.857676110260336,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "davis-brenda",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.898018759571208,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 16.90323506891271,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "freeman",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.943577718223583,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 18.948794027565086,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "swan",
+                  "partyIds": [
+                    "6"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "secretary-of-state",
+              "bounds": {
+                "row": 23.83312595712098,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 4.224875574272591
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.827909647779478,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 23.83312595712098,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "shamsi",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.873468606431853,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 25.878684915773356,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "talarico",
+                  "partyIds": [
+                    "1"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "state-senator-district-31",
+              "bounds": {
+                "row": 30.76301684532925,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 2.1793166156202126
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 31.757800535987748,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 30.76301684532925,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "shiplett",
+                  "partyIds": [
+                    "3"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "state-assembly-district-54",
+              "bounds": {
+                "row": 36.48784456355283,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 6.270434532924966
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 37.48262825421133,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 36.48784456355283,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "solis",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 39.528187212863706,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 38.533403522205205,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "keller",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 41.57374617151608,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 40.57896248085758,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "rangel",
+                  "partyIds": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "county-commissioners",
+              "bounds": {
+                "row": 2.584322358346095,
+                "column": 11.520902700702923,
+                "width": 9.958194598594158,
+                "height": 32.31647205206738
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.579106049004594,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 2.584322358346095,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "argent",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 5.624665007656968,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 4.6298813169984685,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "witherspoonsmithson",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 8.434197932618682,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 7.439414241960183,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "bainbridge",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 10.479756891271055,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 9.484973200612556,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hennessey",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.52531584992343,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 11.530532159264931,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "savoy",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.570874808575804,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 13.576091117917304,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "tawa",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.616433767228177,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 15.621650076569678,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "tawa-mary",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18.661992725880552,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 17.667209035222054,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "rangel-damian",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.707551684532923,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 19.712767993874426,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "altman",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.7531106431853,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 21.7583269525268,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "moore",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.79866960183767,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 23.803885911179172,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "schreiner",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 27.178311638591115,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 26.183527947932618,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "row": 26.378311638591114,
+                    "column": 13.180552472561352,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 29.35762825421133,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 28.362844563552834,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 1,
+                  "writeInArea": {
+                    "row": 28.55762825421133,
+                    "column": 13.180552472561352,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 31.536944869831544,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 30.542161179173046,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 2,
+                  "writeInArea": {
+                    "row": 30.736944869831543,
+                    "column": 13.180552472561352,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 33.71626148545176,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 32.72147779479326,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 3,
+                  "writeInArea": {
+                    "row": 32.91626148545176,
+                    "column": 13.180552472561352,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "county-registrar-of-wills",
+              "bounds": {
+                "row": 2.584322358346095,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 4.55895865237366
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.579106049004594,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 2.584322358346095,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "ramachandrani",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 5.95874808575804,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 4.9639643950995405,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "row": 5.15874808575804,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "city-mayor",
+              "bounds": {
+                "row": 9.647970903522205,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 6.604517611026035
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 10.642754594180705,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 9.647970903522205,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "white",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.688313552833078,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 11.693529862174579,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "seldon",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 15.067955589586523,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 14.073171898928024,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "row": 14.267955589586522,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                }
+              ]
+            },
+            {
+              "contestId": "city-council",
+              "bounds": {
+                "row": 18.75717840735069,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 19.145386676875955
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.751962098009187,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 18.75717840735069,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "eagle",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.797521056661562,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 20.802737366003065,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "rupp",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.843080015313934,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 22.848296324655436,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "shry",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.88863897396631,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 24.89385528330781,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "barker",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.93419793261868,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 26.939414241960183,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "davis",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.979756891271055,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 28.984973200612558,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "smith",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 32.359398928024504,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 31.364615237366007,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "row": 31.559398928024503,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 34.53871554364471,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 33.54393185298621,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 1,
+                  "writeInArea": {
+                    "row": 33.738715543644716,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 36.71803215926493,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 35.72324846860643,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 2,
+                  "writeInArea": {
+                    "row": 35.91803215926493,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                }
+              ]
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "contestId": "judicial-robert-demergue",
+              "bounds": {
+                "row": 4.184437212863705,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632466
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 5.1792209035222045,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 4.184437212863705,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-robert-demergue-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 6.460805895865237,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 5.4660222052067375,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-robert-demergue-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "judicial-elmer-hull",
+              "bounds": {
+                "row": 11.186495022970902,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632475
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.181278713629402,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 11.186495022970902,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-elmer-hull-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.462863705972435,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 12.468080015313936,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-elmer-hull-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "question-a",
+              "bounds": {
+                "row": 23.612892419601838,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632475
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.607676110260336,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 23.612892419601838,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-a-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.889261102603367,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 24.89447741194487,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-a-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "question-b",
+              "bounds": {
+                "row": 38.254689892802446,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.460901607963251
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 39.24947358346095,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 38.254689892802446,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-b-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 40.53105857580398,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 39.53627488514548,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-b-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "question-c",
+              "bounds": {
+                "row": 8.080828866768758,
+                "column": 16.803859908743373,
+                "width": 9.958194598594158,
+                "height": 3.4609016079632475
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 9.075612557427258,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 8.080828866768758,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-c-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 10.35719754977029,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 9.362413859111792,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-c-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "proposition-1",
+              "bounds": {
+                "row": 25.474301301684534,
+                "column": 16.803859908743373,
+                "width": 9.958194598594158,
+                "height": 3.460901607963244
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.46908499234303,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 25.474301301684534,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "proposition-1-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.750669984686063,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 26.755886294027565,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "proposition-1-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "measure-101",
+              "bounds": {
+                "row": 42.37069295558958,
+                "column": 16.803859908743373,
+                "width": 9.958194598594158,
+                "height": 3.460901607963251
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 43.365476646248084,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 42.37069295558958,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-101-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 44.64706163859112,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 43.65227794793262,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-101-option-no"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "contestId": "102",
+              "bounds": {
+                "row": 9.608776799387442,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632458
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 10.603560490045941,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 9.608776799387442,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-102-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11.885145482388973,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 10.890361791730474,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-102-option-no"
+                }
+              ]
+            }
+          ]
+        ]
       ]
     },
     {
@@ -649,6 +2460,720 @@
       ],
       "languages": [
         "en"
+      ],
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "president",
+              "bounds": {
+                "row": 12.8177163093415,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 16.990955206738136
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.8125,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 12.8177163093415,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "barchi-hallaren",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.622032924961715,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 15.627249234303216,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "cramer-vuocolo",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.43156584992343,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 18.436782159264933,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "court-blumhardt",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.241098774885145,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 21.246315084226648,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "boone-lian",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.05063169984686,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 24.055848009188363,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hildebrand-garritty",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.624138591117916,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 27.62935490045942,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "patterson-lariviere",
+                  "partyIds": [
+                    "5"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "representative-district-6",
+              "bounds": {
+                "row": 11.977220520673812,
+                "column": 11.520902700702923,
+                "width": 9.958194598594158,
+                "height": 10.361552450229707
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.972004211332312,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 11.977220520673812,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "plunkard",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.017563169984685,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 14.022779479326186,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "reeder",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.06312212863706,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 16.06833843797856,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "schott",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.108681087289433,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 18.113897396630936,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "tawney",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.154240045941805,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 20.159456355283307,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "forrest",
+                  "partyIds": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "lieutenant-governor",
+              "bounds": {
+                "row": 25.043788284839206,
+                "column": 11.520902700702923,
+                "width": 9.958194598594158,
+                "height": 18.5437882848392
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.038571975497703,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 25.043788284839206,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "norberg",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.084130934150075,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 27.089347243491577,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "parks",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 30.12968989280245,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 29.134906202143952,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "garcia",
+                  "partyIds": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 32.175248851454825,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 31.180465160796327,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "qualey",
+                  "partyIds": [
+                    "3"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 34.220807810107196,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 33.226024119448695,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "hovis",
+                  "partyIds": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 36.26636676875957,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 35.27158307810107,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "zirkle",
+                  "partyIds": [
+                    "5"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 38.311925727411946,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 37.317142036753445,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "davis-brenda",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 40.35748468606432,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 39.36270099540582,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "freeman",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 42.40304364471669,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "row": 41.40825995405819,
+                    "column": 11.520902700702923,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "swan",
+                  "partyIds": [
+                    "6"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "state-senator-district-31",
+              "bounds": {
+                "row": 11.977220520673812,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 2.1793166156202144
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.972004211332312,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 11.977220520673812,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "shiplett",
+                  "partyIds": [
+                    "3"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "state-assembly-district-54",
+              "bounds": {
+                "row": 17.702048238897397,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 6.270434532924959
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18.696831929555895,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 17.702048238897397,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "solis",
+                  "partyIds": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.74239088820827,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 19.747607197549772,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "keller",
+                  "partyIds": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.78794984686064,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 21.793166156202144,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "rangel",
+                  "partyIds": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "contestId": "county-registrar-of-wills",
+              "bounds": {
+                "row": 26.67749808575804,
+                "column": 22.086817116783823,
+                "width": 9.958194598594158,
+                "height": 4.558958652373661
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.672281776416536,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 26.67749808575804,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "ramachandrani",
+                  "partyIds": [
+                    "6"
+                  ]
+                },
+                {
+                  "type": "write-in",
+                  "bubbleCenter": {
+                    "row": 30.05192381316998,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "row": 29.057140122511484,
+                    "column": 22.086817116783823,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "writeInIndex": 0,
+                  "writeInArea": {
+                    "row": 29.25192381316998,
+                    "column": 23.74646688864225,
+                    "width": 7.799999999999999,
+                    "height": 1
+                  }
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "contestId": "judicial-robert-demergue",
+              "bounds": {
+                "row": 4.184437212863705,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632466
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 5.1792209035222045,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 4.184437212863705,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-robert-demergue-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 6.460805895865237,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 5.4660222052067375,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "judicial-robert-demergue-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "question-a",
+              "bounds": {
+                "row": 16.610834609494642,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632475
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.60561830015314,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 16.610834609494642,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-a-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18.88720329249617,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 17.892419601837673,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-a-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "question-b",
+              "bounds": {
+                "row": 31.252632082695254,
+                "column": 0.954988284622025,
+                "width": 9.958194598594156,
+                "height": 3.4609016079632404
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 32.24741577335375,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 31.252632082695254,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-b-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 33.52900076569678,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "row": 32.53421707503828,
+                    "column": 0.954988284622025,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "question-b-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "proposition-1",
+              "bounds": {
+                "row": 14.57585183767228,
+                "column": 16.803859908743373,
+                "width": 9.958194598594158,
+                "height": 3.4609016079632458
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.57063552833078,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 14.57585183767228,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "proposition-1-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.85222052067381,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 15.857436830015311,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "proposition-1-option-no"
+                }
+              ]
+            },
+            {
+              "contestId": "102",
+              "bounds": {
+                "row": 27.002249234303218,
+                "column": 16.803859908743373,
+                "width": 9.958194598594158,
+                "height": 3.4609016079632475
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.997032924961715,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 27.002249234303218,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-102-option-yes"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.278617917304746,
+                    "column": 17.5635096806018
+                  },
+                  "bounds": {
+                    "row": 28.28383422664625,
+                    "column": 16.803859908743373,
+                    "width": 9.958194598594156,
+                    "height": 2.1793166156202144
+                  },
+                  "optionId": "measure-102-option-no"
+                }
+              ]
+            }
+          ]
+        ]
       ]
     }
   ],
@@ -1375,1542 +3900,6 @@
         "id": "measure-102-option-no",
         "label": "No"
       }
-    }
-  ],
-  "gridLayouts": [
-    {
-      "ballotStyleId": "12",
-      "optionBoundsFromTargetMark": {
-        "top": 0.9947836906584991,
-        "right": 9.198544826735727,
-        "bottom": 1.1845329249617151,
-        "left": 0.759649771858429
-      },
-      "gridPositions": [
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 13.8125,
-          "contestId": "president",
-          "optionId": "barchi-hallaren",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 16.622032924961715,
-          "contestId": "president",
-          "optionId": "cramer-vuocolo",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 19.43156584992343,
-          "contestId": "president",
-          "optionId": "court-blumhardt",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 22.241098774885145,
-          "contestId": "president",
-          "optionId": "boone-lian",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 25.05063169984686,
-          "contestId": "president",
-          "optionId": "hildebrand-garritty",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 28.624138591117916,
-          "contestId": "president",
-          "optionId": "patterson-lariviere",
-          "partyIds": [
-            "5"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 12.972004211332312,
-          "contestId": "senator",
-          "optionId": "weiford",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 15.017563169984685,
-          "contestId": "senator",
-          "optionId": "garriss",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 17.06312212863706,
-          "contestId": "senator",
-          "optionId": "wentworthfarthington",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 19.872655053598773,
-          "contestId": "senator",
-          "optionId": "hewetson",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 21.91821401225115,
-          "contestId": "senator",
-          "optionId": "martinez",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 23.96377297090352,
-          "contestId": "senator",
-          "optionId": "brown",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 26.009331929555895,
-          "contestId": "senator",
-          "optionId": "pound",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 30.89366385911179,
-          "contestId": "representative-district-6",
-          "optionId": "plunkard",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 32.93922281776416,
-          "contestId": "representative-district-6",
-          "optionId": "reeder",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 34.98478177641654,
-          "contestId": "representative-district-6",
-          "optionId": "schott",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 37.03034073506891,
-          "contestId": "representative-district-6",
-          "optionId": "tawney",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 39.07589969372128,
-          "contestId": "representative-district-6",
-          "optionId": "forrest",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 12.972004211332312,
-          "contestId": "governor",
-          "optionId": "franz",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 15.017563169984685,
-          "contestId": "governor",
-          "optionId": "harris",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 17.06312212863706,
-          "contestId": "governor",
-          "optionId": "bargmann",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 19.108681087289433,
-          "contestId": "governor",
-          "optionId": "abcock",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 21.154240045941805,
-          "contestId": "governor",
-          "optionId": "steelloy",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 23.19979900459418,
-          "contestId": "governor",
-          "optionId": "sharp",
-          "partyIds": [
-            "5"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 25.24535796324655,
-          "contestId": "governor",
-          "optionId": "wallace",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 27.290916921898926,
-          "contestId": "governor",
-          "optionId": "williams",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 29.3364758805513,
-          "contestId": "governor",
-          "optionId": "sharp-althea",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 31.382034839203673,
-          "contestId": "governor",
-          "optionId": "alpern",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 33.42759379785605,
-          "contestId": "governor",
-          "optionId": "windbeck",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 35.47315275650842,
-          "contestId": "governor",
-          "optionId": "greher",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 37.51871171516079,
-          "contestId": "governor",
-          "optionId": "alexander",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 39.56427067381317,
-          "contestId": "governor",
-          "optionId": "mitchell",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 41.60982963246554,
-          "contestId": "governor",
-          "optionId": "lee",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 43.65538859111791,
-          "contestId": "governor",
-          "optionId": "ash",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 3.579106049004594,
-          "contestId": "lieutenant-governor",
-          "optionId": "norberg",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 5.624665007656968,
-          "contestId": "lieutenant-governor",
-          "optionId": "parks",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 7.670223966309341,
-          "contestId": "lieutenant-governor",
-          "optionId": "garcia",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 9.715782924961715,
-          "contestId": "lieutenant-governor",
-          "optionId": "qualey",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 11.761341883614088,
-          "contestId": "lieutenant-governor",
-          "optionId": "hovis",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 13.806900842266462,
-          "contestId": "lieutenant-governor",
-          "optionId": "zirkle",
-          "partyIds": [
-            "5"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 15.852459800918835,
-          "contestId": "lieutenant-governor",
-          "optionId": "davis-brenda",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 17.898018759571208,
-          "contestId": "lieutenant-governor",
-          "optionId": "freeman",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 19.943577718223583,
-          "contestId": "lieutenant-governor",
-          "optionId": "swan",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 24.827909647779478,
-          "contestId": "secretary-of-state",
-          "optionId": "shamsi",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 26.873468606431853,
-          "contestId": "secretary-of-state",
-          "optionId": "talarico",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 31.757800535987748,
-          "contestId": "state-senator-district-31",
-          "optionId": "shiplett",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 37.48262825421133,
-          "contestId": "state-assembly-district-54",
-          "optionId": "solis",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 39.528187212863706,
-          "contestId": "state-assembly-district-54",
-          "optionId": "keller",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 41.57374617151608,
-          "contestId": "state-assembly-district-54",
-          "optionId": "rangel",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 3.579106049004594,
-          "contestId": "county-commissioners",
-          "optionId": "argent",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 5.624665007656968,
-          "contestId": "county-commissioners",
-          "optionId": "witherspoonsmithson",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 8.434197932618682,
-          "contestId": "county-commissioners",
-          "optionId": "bainbridge",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 10.479756891271055,
-          "contestId": "county-commissioners",
-          "optionId": "hennessey",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 12.52531584992343,
-          "contestId": "county-commissioners",
-          "optionId": "savoy",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 14.570874808575804,
-          "contestId": "county-commissioners",
-          "optionId": "tawa",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 16.616433767228177,
-          "contestId": "county-commissioners",
-          "optionId": "tawa-mary",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 18.661992725880552,
-          "contestId": "county-commissioners",
-          "optionId": "rangel-damian",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 20.707551684532923,
-          "contestId": "county-commissioners",
-          "optionId": "altman",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 22.7531106431853,
-          "contestId": "county-commissioners",
-          "optionId": "moore",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 24.79866960183767,
-          "contestId": "county-commissioners",
-          "optionId": "schreiner",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 27.178311638591115,
-          "contestId": "county-commissioners",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 13.180552472561352,
-            "y": 26.378311638591114,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 29.35762825421133,
-          "contestId": "county-commissioners",
-          "writeInIndex": 1,
-          "writeInArea": {
-            "x": 13.180552472561352,
-            "y": 28.55762825421133,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 31.536944869831544,
-          "contestId": "county-commissioners",
-          "writeInIndex": 2,
-          "writeInArea": {
-            "x": 13.180552472561352,
-            "y": 30.736944869831543,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 33.71626148545176,
-          "contestId": "county-commissioners",
-          "writeInIndex": 3,
-          "writeInArea": {
-            "x": 13.180552472561352,
-            "y": 32.91626148545176,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 3.579106049004594,
-          "contestId": "county-registrar-of-wills",
-          "optionId": "ramachandrani",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 5.95874808575804,
-          "contestId": "county-registrar-of-wills",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 5.15874808575804,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 10.642754594180705,
-          "contestId": "city-mayor",
-          "optionId": "white",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 12.688313552833078,
-          "contestId": "city-mayor",
-          "optionId": "seldon",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 15.067955589586523,
-          "contestId": "city-mayor",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 14.267955589586522,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 19.751962098009187,
-          "contestId": "city-council",
-          "optionId": "eagle",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 21.797521056661562,
-          "contestId": "city-council",
-          "optionId": "rupp",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 23.843080015313934,
-          "contestId": "city-council",
-          "optionId": "shry",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 25.88863897396631,
-          "contestId": "city-council",
-          "optionId": "barker",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 27.93419793261868,
-          "contestId": "city-council",
-          "optionId": "davis",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 29.979756891271055,
-          "contestId": "city-council",
-          "optionId": "smith",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 32.359398928024504,
-          "contestId": "city-council",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 31.559398928024503,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 34.53871554364471,
-          "contestId": "city-council",
-          "writeInIndex": 1,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 33.738715543644716,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 36.71803215926493,
-          "contestId": "city-council",
-          "writeInIndex": 2,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 35.91803215926493,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 5.1792209035222045,
-          "contestId": "judicial-robert-demergue",
-          "optionId": "judicial-robert-demergue-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 6.460805895865237,
-          "contestId": "judicial-robert-demergue",
-          "optionId": "judicial-robert-demergue-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 12.181278713629402,
-          "contestId": "judicial-elmer-hull",
-          "optionId": "judicial-elmer-hull-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 13.462863705972435,
-          "contestId": "judicial-elmer-hull",
-          "optionId": "judicial-elmer-hull-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 24.607676110260336,
-          "contestId": "question-a",
-          "optionId": "question-a-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 25.889261102603367,
-          "contestId": "question-a",
-          "optionId": "question-a-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 39.24947358346095,
-          "contestId": "question-b",
-          "optionId": "question-b-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 40.53105857580398,
-          "contestId": "question-b",
-          "optionId": "question-b-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 9.075612557427258,
-          "contestId": "question-c",
-          "optionId": "question-c-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 10.35719754977029,
-          "contestId": "question-c",
-          "optionId": "question-c-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 26.46908499234303,
-          "contestId": "proposition-1",
-          "optionId": "proposition-1-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 27.750669984686063,
-          "contestId": "proposition-1",
-          "optionId": "proposition-1-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 43.365476646248084,
-          "contestId": "measure-101",
-          "optionId": "measure-101-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "front",
-          "column": 17.5635096806018,
-          "row": 44.64706163859112,
-          "contestId": "measure-101",
-          "optionId": "measure-101-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 10.603560490045941,
-          "contestId": "102",
-          "optionId": "measure-102-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 2,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 11.885145482388973,
-          "contestId": "102",
-          "optionId": "measure-102-option-no"
-        }
-      ]
-    },
-    {
-      "ballotStyleId": "5",
-      "optionBoundsFromTargetMark": {
-        "top": 0.9947836906584991,
-        "right": 9.198544826735727,
-        "bottom": 1.1845329249617151,
-        "left": 0.759649771858429
-      },
-      "gridPositions": [
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 13.8125,
-          "contestId": "president",
-          "optionId": "barchi-hallaren",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 16.622032924961715,
-          "contestId": "president",
-          "optionId": "cramer-vuocolo",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 19.43156584992343,
-          "contestId": "president",
-          "optionId": "court-blumhardt",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 22.241098774885145,
-          "contestId": "president",
-          "optionId": "boone-lian",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 25.05063169984686,
-          "contestId": "president",
-          "optionId": "hildebrand-garritty",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 28.624138591117916,
-          "contestId": "president",
-          "optionId": "patterson-lariviere",
-          "partyIds": [
-            "5"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 12.972004211332312,
-          "contestId": "representative-district-6",
-          "optionId": "plunkard",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 15.017563169984685,
-          "contestId": "representative-district-6",
-          "optionId": "reeder",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 17.06312212863706,
-          "contestId": "representative-district-6",
-          "optionId": "schott",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 19.108681087289433,
-          "contestId": "representative-district-6",
-          "optionId": "tawney",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 21.154240045941805,
-          "contestId": "representative-district-6",
-          "optionId": "forrest",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 26.038571975497703,
-          "contestId": "lieutenant-governor",
-          "optionId": "norberg",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 28.084130934150075,
-          "contestId": "lieutenant-governor",
-          "optionId": "parks",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 30.12968989280245,
-          "contestId": "lieutenant-governor",
-          "optionId": "garcia",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 32.175248851454825,
-          "contestId": "lieutenant-governor",
-          "optionId": "qualey",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 34.220807810107196,
-          "contestId": "lieutenant-governor",
-          "optionId": "hovis",
-          "partyIds": [
-            "4"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 36.26636676875957,
-          "contestId": "lieutenant-governor",
-          "optionId": "zirkle",
-          "partyIds": [
-            "5"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 38.311925727411946,
-          "contestId": "lieutenant-governor",
-          "optionId": "davis-brenda",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 40.35748468606432,
-          "contestId": "lieutenant-governor",
-          "optionId": "freeman",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 42.40304364471669,
-          "contestId": "lieutenant-governor",
-          "optionId": "swan",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 12.972004211332312,
-          "contestId": "state-senator-district-31",
-          "optionId": "shiplett",
-          "partyIds": [
-            "3"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 18.696831929555895,
-          "contestId": "state-assembly-district-54",
-          "optionId": "solis",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 20.74239088820827,
-          "contestId": "state-assembly-district-54",
-          "optionId": "keller",
-          "partyIds": [
-            "1"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 22.78794984686064,
-          "contestId": "state-assembly-district-54",
-          "optionId": "rangel",
-          "partyIds": [
-            "2"
-          ]
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 27.672281776416536,
-          "contestId": "county-registrar-of-wills",
-          "optionId": "ramachandrani",
-          "partyIds": [
-            "6"
-          ]
-        },
-        {
-          "type": "write-in",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 30.05192381316998,
-          "contestId": "county-registrar-of-wills",
-          "writeInIndex": 0,
-          "writeInArea": {
-            "x": 23.74646688864225,
-            "y": 29.25192381316998,
-            "width": 7.799999999999999,
-            "height": 1
-          }
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 5.1792209035222045,
-          "contestId": "judicial-robert-demergue",
-          "optionId": "judicial-robert-demergue-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 6.460805895865237,
-          "contestId": "judicial-robert-demergue",
-          "optionId": "judicial-robert-demergue-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 17.60561830015314,
-          "contestId": "question-a",
-          "optionId": "question-a-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 18.88720329249617,
-          "contestId": "question-a",
-          "optionId": "question-a-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 32.24741577335375,
-          "contestId": "question-b",
-          "optionId": "question-b-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 33.52900076569678,
-          "contestId": "question-b",
-          "optionId": "question-b-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.5635096806018,
-          "row": 15.57063552833078,
-          "contestId": "proposition-1",
-          "optionId": "proposition-1-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.5635096806018,
-          "row": 16.85222052067381,
-          "contestId": "proposition-1",
-          "optionId": "proposition-1-option-no"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.5635096806018,
-          "row": 27.997032924961715,
-          "contestId": "102",
-          "optionId": "measure-102-option-yes"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 17.5635096806018,
-          "row": 29.278617917304746,
-          "contestId": "102",
-          "optionId": "measure-102-option-no"
-        }
-      ]
     }
   ],
   "jurisdiction": {

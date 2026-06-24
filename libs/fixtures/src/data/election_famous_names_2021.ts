@@ -1,4 +1,9 @@
-import { Election, ElectionDefinition, GridLayout } from '@votingworks/types';
+import {
+  ContestPosition,
+  Election,
+  ElectionDefinition,
+  SheetPositions,
+} from '@votingworks/types';
 import * as builders from '../builders';
 import { asElectionDefinition } from '../util';
 
@@ -16,48 +21,41 @@ export const baseElection_DEPRECATED = builders.election(
   'data/electionFamousNames2021/electionBase.json'
 );
 
-const partialMockGridPosition = {
-  type: 'option',
-  side: 'front',
-  column: 0,
-  row: 0,
+const mockContestPosition: ContestPosition = {
   contestId: 'mayor',
-  optionId: 'sherlock-holmes',
-} as const;
-
-const mockMultiSheetGridLayouts: GridLayout[] = [
-  {
-    ballotStyleId: '1',
-    optionBoundsFromTargetMark: {
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
+  bounds: { row: 0, column: 0, width: 0, height: 0 },
+  options: [
+    {
+      type: 'option',
+      bubbleCenter: { row: 0, column: 0 },
+      bounds: { row: 0, column: 0, width: 0, height: 0 },
+      optionId: 'sherlock-holmes',
     },
-    gridPositions: [
-      {
-        ...partialMockGridPosition,
-        sheetNumber: 1,
-      },
-      {
-        ...partialMockGridPosition,
-        sheetNumber: 2,
-      },
-      {
-        ...partialMockGridPosition,
-        sheetNumber: 3,
-      },
-    ],
-  },
+  ],
+};
+
+// Three sheets, each with the mock contest on the front. Invalid for scanning,
+// but the data structure is useful for testing multi-sheet handling.
+const mockMultiSheetBallotPositions: SheetPositions[] = [
+  [[mockContestPosition], []],
+  [[mockContestPosition], []],
+  [[mockContestPosition], []],
 ];
 
 /**
- * Election with mock multi-sheet grid layouts. The layouts are invalid and
- * cannot be used for scanning, but the data structure is useful for testing.
+ * Election with mock multi-sheet ballot positions. The positions are invalid
+ * and cannot be used for scanning, but the data structure is useful for
+ * testing.
  */
 export function makeMultiSheetElection(): Election {
   const election = readElection();
-  return { ...election, gridLayouts: mockMultiSheetGridLayouts };
+  return {
+    ...election,
+    ballotStyles: election.ballotStyles.map((ballotStyle) => ({
+      ...ballotStyle,
+      ballotPositions: mockMultiSheetBallotPositions,
+    })),
+  };
 }
 
 /**

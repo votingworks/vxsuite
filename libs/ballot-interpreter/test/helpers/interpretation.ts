@@ -8,7 +8,7 @@ import { voteToOptionId } from '@votingworks/hmpb';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   ContestId,
-  GridLayout,
+  GridPosition,
   UnmarkedWriteIn,
   Vote,
   VotesDict,
@@ -26,22 +26,22 @@ export function pdfToPageImages(
 }
 
 function isContestOnSheet(
-  gridLayout: GridLayout,
+  gridPositions: readonly GridPosition[],
   contestId: string,
   sheetNumber: number
 ): boolean {
-  return gridLayout.gridPositions.some(
+  return gridPositions.some(
     (position) =>
       position.contestId === contestId && position.sheetNumber === sheetNumber
   );
 }
 
 function getContestIdsForSheet(
-  gridLayout: GridLayout,
+  gridPositions: readonly GridPosition[],
   sheetNumber: number
 ): ContestId[] {
   return unique(
-    gridLayout.gridPositions
+    gridPositions
       .filter((position) => position.sheetNumber === sheetNumber)
       .map((position) => position.contestId)
   );
@@ -55,10 +55,10 @@ function getContestIdsForSheet(
 export function votesForSheet(
   votes: VotesDict,
   sheetNumber: number,
-  gridLayout: GridLayout
+  gridPositions: readonly GridPosition[]
 ): VotesDict {
   const sheetVotes: VotesDict = {};
-  for (const contestId of getContestIdsForSheet(gridLayout, sheetNumber)) {
+  for (const contestId of getContestIdsForSheet(gridPositions, sheetNumber)) {
     sheetVotes[contestId] = votes[contestId] ?? [];
   }
   return sheetVotes;
@@ -67,10 +67,10 @@ export function votesForSheet(
 export function unmarkedWriteInsForSheet(
   unmarkedWriteIns: UnmarkedWriteIn[],
   sheetNumber: number,
-  gridLayout: GridLayout
+  gridPositions: readonly GridPosition[]
 ): UnmarkedWriteIn[] {
   return unmarkedWriteIns.filter(({ contestId }) =>
-    isContestOnSheet(gridLayout, contestId, sheetNumber)
+    isContestOnSheet(gridPositions, contestId, sheetNumber)
   );
 }
 

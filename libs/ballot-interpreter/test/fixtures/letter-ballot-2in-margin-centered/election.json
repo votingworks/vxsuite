@@ -490,7 +490,1465 @@
             "id": "1lzt3gxwpfn3"
           }
         ]
-      }
+      },
+      "ballotPositions": [
+        [
+          [
+            {
+              "contestId": "xwd6fmrggacg",
+              "bounds": {
+                "column": 0.954988284622025,
+                "row": 12.1887278978389,
+                "width": 9.958194598594156,
+                "height": 8.813850687622791
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.801448919449902,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 12.1887278978389,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "uirueqk4agsi"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.0661836935167,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 13.453462671905699,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "gb8cwqgcggsp"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.330918467583498,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 14.718197445972496,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "5fcitj3i9uo4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.595653241650297,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 15.982932220039295,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "g2vlkuq1s89b"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.860388015717092,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 17.24766699410609,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "fnku87byrhnn"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.12512278978389,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 18.51240176817289,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "lxe9713wz5si"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.38985756385069,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 19.77713654223969,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "xle0zxdaxs4l"
+                }
+              ]
+            },
+            {
+              "contestId": "a1k99jdn18vd",
+              "bounds": {
+                "column": 0.954988284622025,
+                "row": 23.843320235756387,
+                "width": 9.958194598594156,
+                "height": 8.81385068762279
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.45604125736739,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 23.843320235756387,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "1ynbvoobrc79"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.720776031434184,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 25.108055009823183,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "jk9mkxrco36d"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.985510805500983,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 26.37278978388998,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "7a0imhyo4qv4"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.250245579567782,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 27.63752455795678,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "r4kgedgevve7"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.514980353634577,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 28.902259332023576,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "13lq3zsokksf"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 30.779715127701376,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 30.166994106090375,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "4n406q84vw0b"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 32.044449901768175,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 31.431728880157173,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "evru8l63gn25"
+                }
+              ]
+            },
+            {
+              "contestId": "07dxeplm0z75",
+              "bounds": {
+                "column": 11.520902700702923,
+                "row": 12.1887278978389,
+                "width": 9.958194598594158,
+                "height": 7.549115913555992
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.801448919449902,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 12.1887278978389,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "vbwuptiv9k2q"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.0661836935167,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 13.453462671905699,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "ie4pawv31ehe"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.330918467583498,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 14.718197445972496,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "z4c7kllwjuqi"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.595653241650297,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 15.982932220039295,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "kv7bl54t62wq"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.860388015717092,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 17.24766699410609,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "q7wyje6f556r"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 19.12512278978389,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 18.51240176817289,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "91uctv8qyyjg"
+                }
+              ]
+            },
+            {
+              "contestId": "r5kzcqenucsl",
+              "bounds": {
+                "column": 11.520902700702923,
+                "row": 22.57858546168959,
+                "width": 9.958194598594158,
+                "height": 6.284381139489195
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.19130648330059,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 22.57858546168959,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "n43855kfbkcp"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.45604125736739,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 23.843320235756387,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "qj1asg18rxp3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.720776031434184,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 25.108055009823183,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "eophel61dayl"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.985510805500983,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 26.37278978388998,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "gual9vzuoh52"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.250245579567782,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 27.63752455795678,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "rhapw6mxzv46"
+                }
+              ]
+            },
+            {
+              "contestId": "y1bljk5c3ddr",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 12.1887278978389,
+                "width": 9.958194598594158,
+                "height": 6.284381139489193
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.801448919449902,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 12.1887278978389,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "epuqi1xzn8k2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.0661836935167,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 13.453462671905699,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "1i5c36j1vmk1"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.330918467583498,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 14.718197445972496,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "dgfm0k5l557t"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.595653241650297,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 15.982932220039295,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "iqemwezunu51"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.860388015717092,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 17.24766699410609,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "45mnssdwm0ih"
+                }
+              ]
+            },
+            {
+              "contestId": "of7vcwbwwdm5",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 21.31385068762279,
+                "width": 9.958194598594158,
+                "height": 3.754911591355601
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.92657170923379,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 21.31385068762279,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "ebtqz4uwnqi6"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 23.19130648330059,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 22.57858546168959,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "o7fzt1eeydl5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.45604125736739,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 23.843320235756387,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "xu24w5axnfcm"
+                }
+              ]
+            },
+            {
+              "contestId": "w72talwpq4a7",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 27.909503929273086,
+                "width": 9.958194598594158,
+                "height": 3.7549115913555973
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.522224950884087,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 27.909503929273086,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "2rxq1hnrrdq3"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.786959724950886,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 29.174238703339885,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "tqc2jfo5v529"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 31.05169449901768,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 30.43897347740668,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "094s453fo2h6"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "contestId": "3z8raaps511a",
+              "bounds": {
+                "column": 0.954988284622025,
+                "row": 2.919327111984283,
+                "width": 9.958194598594156,
+                "height": 12.608055009823183
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.532048133595285,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 2.919327111984283,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "57801ghez756"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 4.796782907662083,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 4.184061886051081,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "2ohlj7m112fb"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 6.061517681728881,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 5.448796660117878,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "jtx1zs8quwc7"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 7.326252455795678,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 6.7135314341846755,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "dptpmll9wsbo"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 8.590987229862476,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 7.978266208251474,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "7ff21c23mlwy"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 9.855722003929273,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 9.243000982318271,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "yuohm026sbbq"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11.120456777996072,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 10.50773575638507,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "fsheyhy6ra2d"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.385191552062869,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 11.772470530451868,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "a8tlljb3f3bm"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.649926326129666,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 13.037205304518665,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "tlsmzc9ywggj"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 14.914661100196463,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 14.301940078585462,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "cvqhwdz3n7gl"
+                }
+              ]
+            },
+            {
+              "contestId": "8yvz7taeaxg2",
+              "bounds": {
+                "column": 0.954988284622025,
+                "row": 18.368123772102162,
+                "width": 9.958194598594156,
+                "height": 12.608055009823183
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18.980844793713164,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 18.368123772102162,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "8qgpzo8d82l6"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.245579567779963,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 19.63285854616896,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "o7r1br7viugf"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.510314341846758,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 20.897593320235757,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "8ub9i5z9ztnl"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.775049115913557,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 22.162328094302556,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "ve8w720yzvfm"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.039783889980356,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 23.427062868369354,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "5d9l2unlt05m"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.30451866404715,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 24.69179764243615,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "d96zuou1w4xr"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.56925343811395,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 25.95653241650295,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "4fz3v53a8y70"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.833988212180746,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 27.221267190569744,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "oote5rypzbyn"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 29.098722986247544,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 28.486001964636543,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "6mlsmydypamf"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 30.363457760314343,
+                    "column": 1.714638056480454
+                  },
+                  "bounds": {
+                    "column": 0.954988284622025,
+                    "row": 29.750736738703342,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "b6zlty0ilev4"
+                }
+              ]
+            },
+            {
+              "contestId": "bz83xrjw10kg",
+              "bounds": {
+                "column": 11.520902700702923,
+                "row": 2.919327111984283,
+                "width": 9.958194598594158,
+                "height": 11.343320235756384
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.532048133595285,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 2.919327111984283,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "h9b83pdkmhn2"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 4.796782907662083,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 4.184061886051081,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "09oish4fp48g"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 6.061517681728881,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 5.448796660117878,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "6da8ppxur03m"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 7.326252455795678,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 6.7135314341846755,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "naqbxefuszvq"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 8.590987229862476,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 7.978266208251474,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "7ts5h3536e0e"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 9.855722003929273,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 9.243000982318271,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "71doamgxsuwd"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11.120456777996072,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 10.50773575638507,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "13z471g76cqb"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.385191552062869,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 11.772470530451868,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "8onvgkobcxvs"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.649926326129666,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 13.037205304518665,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "chwop48hzski"
+                }
+              ]
+            },
+            {
+              "contestId": "4yowx76wlnrc",
+              "bounds": {
+                "column": 11.520902700702923,
+                "row": 17.103388998035363,
+                "width": 9.958194598594158,
+                "height": 11.343320235756384
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 17.716110019646365,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 17.103388998035363,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "ew423vfhxb8q"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 18.980844793713164,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 18.368123772102162,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "1hud16p07f6p"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.245579567779963,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 19.63285854616896,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "icbla1wv7p50"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.510314341846758,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 20.897593320235757,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "ydlc1jxbc4wp"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 22.775049115913557,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 22.162328094302556,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "h9nm2ll55y6r"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 24.039783889980356,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 23.427062868369354,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "990p5pwn50az"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.30451866404715,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 24.69179764243615,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "rvzgzzfi3kz8"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 26.56925343811395,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 25.95653241650295,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "eciyp4fkbixk"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.833988212180746,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 27.221267190569744,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "myowthrikwaj"
+                }
+              ]
+            },
+            {
+              "contestId": "gzc6dpn5upnt",
+              "bounds": {
+                "column": 11.520902700702923,
+                "row": 31.287450884086446,
+                "width": 9.958194598594158,
+                "height": 3.7549115913555937
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 31.900171905697448,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 31.287450884086446,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "vgp4haeztkvx"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 33.16490667976424,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 32.55218565815324,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "hhuciybrxv5d"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 34.42964145383104,
+                    "column": 12.280552472561352
+                  },
+                  "bounds": {
+                    "column": 11.520902700702923,
+                    "row": 33.81692043222004,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "t156go6qj1xg"
+                }
+              ]
+            },
+            {
+              "contestId": "n78h2iraspvv",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 2.919327111984283,
+                "width": 9.958194598594158,
+                "height": 2.490176817288802
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 3.532048133595285,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 2.919327111984283,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "0fz3evv5gdb9"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 4.796782907662083,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 4.184061886051081,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "lr653awi9a1d"
+                }
+              ]
+            },
+            {
+              "contestId": "mx71xqjumquk",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 8.25024557956778,
+                "width": 9.958194598594158,
+                "height": 8.813850687622791
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 8.862966601178782,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 8.25024557956778,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "rysabitjwz4v"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 10.12770137524558,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 9.514980353634579,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "5fzs67fnw9nc"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 11.392436149312378,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 10.779715127701376,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "tbjimtl1pel5"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 12.657170923379175,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 12.044449901768173,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "85n27teexkbg"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 13.921905697445974,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 13.309184675834972,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "i3m5619afukc"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 15.18664047151277,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 14.57391944990177,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "0yoctozwlfw0"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.45137524557957,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 15.838654223968568,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "4ljaoov5qo3z"
+                }
+              ]
+            },
+            {
+              "contestId": "x0bp6nzqwcgh",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 19.904837917485267,
+                "width": 9.958194598594158,
+                "height": 2.4901768172887984
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 20.51755893909627,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 19.904837917485267,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "fiffqxh0d35v"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 21.782293713163064,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 21.169572691552062,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "sa19gzzg8c9w"
+                }
+              ]
+            },
+            {
+              "contestId": "k36cvbzev5e3",
+              "bounds": {
+                "column": 22.086817116783823,
+                "row": 25.235756385068765,
+                "width": 9.958194598594158,
+                "height": 3.7549115913555973
+              },
+              "options": [
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 25.848477406679766,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 25.235756385068765,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "i0toe5jjo352"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 27.11321218074656,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 26.50049115913556,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "7ja3ktmm7kqc"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 28.37794695481336,
+                    "column": 22.84646688864225
+                  },
+                  "bounds": {
+                    "column": 22.086817116783823,
+                    "row": 27.76522593320236,
+                    "width": 9.958194598594156,
+                    "height": 1.225442043222004
+                  },
+                  "optionId": "1lzt3gxwpfn3"
+                }
+              ]
+            }
+          ]
+        ]
+      ]
     }
   ],
   "contests": [
@@ -1199,838 +2657,6 @@
         }
       ],
       "allowWriteIns": false
-    }
-  ],
-  "gridLayouts": [
-    {
-      "ballotStyleId": "1_en",
-      "optionBoundsFromTargetMark": {
-        "top": 0.612721021611002,
-        "right": 9.198544826735727,
-        "bottom": 0.612721021611002,
-        "left": 0.759649771858429
-      },
-      "gridPositions": [
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 12.801448919449902,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "uirueqk4agsi"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 14.0661836935167,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "gb8cwqgcggsp"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 15.330918467583498,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "5fcitj3i9uo4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 16.595653241650297,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "g2vlkuq1s89b"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 17.860388015717092,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "fnku87byrhnn"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 19.12512278978389,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "lxe9713wz5si"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 20.38985756385069,
-          "contestId": "xwd6fmrggacg",
-          "optionId": "xle0zxdaxs4l"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 24.45604125736739,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "1ynbvoobrc79"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 25.720776031434184,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "jk9mkxrco36d"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 26.985510805500983,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "7a0imhyo4qv4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 28.250245579567782,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "r4kgedgevve7"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 29.514980353634577,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "13lq3zsokksf"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 30.779715127701376,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "4n406q84vw0b"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 1.714638056480454,
-          "row": 32.044449901768175,
-          "contestId": "a1k99jdn18vd",
-          "optionId": "evru8l63gn25"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 12.801448919449902,
-          "contestId": "07dxeplm0z75",
-          "optionId": "vbwuptiv9k2q"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 14.0661836935167,
-          "contestId": "07dxeplm0z75",
-          "optionId": "ie4pawv31ehe"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 15.330918467583498,
-          "contestId": "07dxeplm0z75",
-          "optionId": "z4c7kllwjuqi"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 16.595653241650297,
-          "contestId": "07dxeplm0z75",
-          "optionId": "kv7bl54t62wq"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 17.860388015717092,
-          "contestId": "07dxeplm0z75",
-          "optionId": "q7wyje6f556r"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 19.12512278978389,
-          "contestId": "07dxeplm0z75",
-          "optionId": "91uctv8qyyjg"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 23.19130648330059,
-          "contestId": "r5kzcqenucsl",
-          "optionId": "n43855kfbkcp"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 24.45604125736739,
-          "contestId": "r5kzcqenucsl",
-          "optionId": "qj1asg18rxp3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 25.720776031434184,
-          "contestId": "r5kzcqenucsl",
-          "optionId": "eophel61dayl"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 26.985510805500983,
-          "contestId": "r5kzcqenucsl",
-          "optionId": "gual9vzuoh52"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 12.280552472561352,
-          "row": 28.250245579567782,
-          "contestId": "r5kzcqenucsl",
-          "optionId": "rhapw6mxzv46"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 12.801448919449902,
-          "contestId": "y1bljk5c3ddr",
-          "optionId": "epuqi1xzn8k2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 14.0661836935167,
-          "contestId": "y1bljk5c3ddr",
-          "optionId": "1i5c36j1vmk1"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 15.330918467583498,
-          "contestId": "y1bljk5c3ddr",
-          "optionId": "dgfm0k5l557t"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 16.595653241650297,
-          "contestId": "y1bljk5c3ddr",
-          "optionId": "iqemwezunu51"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 17.860388015717092,
-          "contestId": "y1bljk5c3ddr",
-          "optionId": "45mnssdwm0ih"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 21.92657170923379,
-          "contestId": "of7vcwbwwdm5",
-          "optionId": "ebtqz4uwnqi6"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 23.19130648330059,
-          "contestId": "of7vcwbwwdm5",
-          "optionId": "o7fzt1eeydl5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 24.45604125736739,
-          "contestId": "of7vcwbwwdm5",
-          "optionId": "xu24w5axnfcm"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 28.522224950884087,
-          "contestId": "w72talwpq4a7",
-          "optionId": "2rxq1hnrrdq3"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 29.786959724950886,
-          "contestId": "w72talwpq4a7",
-          "optionId": "tqc2jfo5v529"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "front",
-          "column": 22.84646688864225,
-          "row": 31.05169449901768,
-          "contestId": "w72talwpq4a7",
-          "optionId": "094s453fo2h6"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 3.532048133595285,
-          "contestId": "3z8raaps511a",
-          "optionId": "57801ghez756"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 4.796782907662083,
-          "contestId": "3z8raaps511a",
-          "optionId": "2ohlj7m112fb"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 6.061517681728881,
-          "contestId": "3z8raaps511a",
-          "optionId": "jtx1zs8quwc7"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 7.326252455795678,
-          "contestId": "3z8raaps511a",
-          "optionId": "dptpmll9wsbo"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 8.590987229862476,
-          "contestId": "3z8raaps511a",
-          "optionId": "7ff21c23mlwy"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 9.855722003929273,
-          "contestId": "3z8raaps511a",
-          "optionId": "yuohm026sbbq"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 11.120456777996072,
-          "contestId": "3z8raaps511a",
-          "optionId": "fsheyhy6ra2d"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 12.385191552062869,
-          "contestId": "3z8raaps511a",
-          "optionId": "a8tlljb3f3bm"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 13.649926326129666,
-          "contestId": "3z8raaps511a",
-          "optionId": "tlsmzc9ywggj"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 14.914661100196463,
-          "contestId": "3z8raaps511a",
-          "optionId": "cvqhwdz3n7gl"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 18.980844793713164,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "8qgpzo8d82l6"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 20.245579567779963,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "o7r1br7viugf"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 21.510314341846758,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "8ub9i5z9ztnl"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 22.775049115913557,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "ve8w720yzvfm"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 24.039783889980356,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "5d9l2unlt05m"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 25.30451866404715,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "d96zuou1w4xr"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 26.56925343811395,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "4fz3v53a8y70"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 27.833988212180746,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "oote5rypzbyn"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 29.098722986247544,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "6mlsmydypamf"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 1.714638056480454,
-          "row": 30.363457760314343,
-          "contestId": "8yvz7taeaxg2",
-          "optionId": "b6zlty0ilev4"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 3.532048133595285,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "h9b83pdkmhn2"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 4.796782907662083,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "09oish4fp48g"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 6.061517681728881,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "6da8ppxur03m"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 7.326252455795678,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "naqbxefuszvq"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 8.590987229862476,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "7ts5h3536e0e"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 9.855722003929273,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "71doamgxsuwd"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 11.120456777996072,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "13z471g76cqb"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 12.385191552062869,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "8onvgkobcxvs"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 13.649926326129666,
-          "contestId": "bz83xrjw10kg",
-          "optionId": "chwop48hzski"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 17.716110019646365,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "ew423vfhxb8q"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 18.980844793713164,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "1hud16p07f6p"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 20.245579567779963,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "icbla1wv7p50"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 21.510314341846758,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "ydlc1jxbc4wp"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 22.775049115913557,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "h9nm2ll55y6r"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 24.039783889980356,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "990p5pwn50az"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 25.30451866404715,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "rvzgzzfi3kz8"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 26.56925343811395,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "eciyp4fkbixk"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 27.833988212180746,
-          "contestId": "4yowx76wlnrc",
-          "optionId": "myowthrikwaj"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 31.900171905697448,
-          "contestId": "gzc6dpn5upnt",
-          "optionId": "vgp4haeztkvx"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 33.16490667976424,
-          "contestId": "gzc6dpn5upnt",
-          "optionId": "hhuciybrxv5d"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 12.280552472561352,
-          "row": 34.42964145383104,
-          "contestId": "gzc6dpn5upnt",
-          "optionId": "t156go6qj1xg"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 3.532048133595285,
-          "contestId": "n78h2iraspvv",
-          "optionId": "0fz3evv5gdb9"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 4.796782907662083,
-          "contestId": "n78h2iraspvv",
-          "optionId": "lr653awi9a1d"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 8.862966601178782,
-          "contestId": "mx71xqjumquk",
-          "optionId": "rysabitjwz4v"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 10.12770137524558,
-          "contestId": "mx71xqjumquk",
-          "optionId": "5fzs67fnw9nc"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 11.392436149312378,
-          "contestId": "mx71xqjumquk",
-          "optionId": "tbjimtl1pel5"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 12.657170923379175,
-          "contestId": "mx71xqjumquk",
-          "optionId": "85n27teexkbg"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 13.921905697445974,
-          "contestId": "mx71xqjumquk",
-          "optionId": "i3m5619afukc"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 15.18664047151277,
-          "contestId": "mx71xqjumquk",
-          "optionId": "0yoctozwlfw0"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 16.45137524557957,
-          "contestId": "mx71xqjumquk",
-          "optionId": "4ljaoov5qo3z"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 20.51755893909627,
-          "contestId": "x0bp6nzqwcgh",
-          "optionId": "fiffqxh0d35v"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 21.782293713163064,
-          "contestId": "x0bp6nzqwcgh",
-          "optionId": "sa19gzzg8c9w"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 25.848477406679766,
-          "contestId": "k36cvbzev5e3",
-          "optionId": "i0toe5jjo352"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 27.11321218074656,
-          "contestId": "k36cvbzev5e3",
-          "optionId": "7ja3ktmm7kqc"
-        },
-        {
-          "type": "option",
-          "sheetNumber": 1,
-          "side": "back",
-          "column": 22.84646688864225,
-          "row": 28.37794695481336,
-          "contestId": "k36cvbzev5e3",
-          "optionId": "1lzt3gxwpfn3"
-        }
-      ]
     }
   ],
   "jurisdiction": {

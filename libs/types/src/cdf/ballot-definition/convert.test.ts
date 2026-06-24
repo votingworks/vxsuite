@@ -17,6 +17,11 @@ import { testCdfBallotDefinition, testVxfElection } from './fixtures';
 import { ElectionStringKey, UiStringsPackage, mergeUiStrings } from '../..';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
+import { Outset } from '../../geometry';
+import {
+  ballotPositionsFromGridPositions,
+  type FlatGridPosition,
+} from '../../ballot_positions';
 import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
 
 function languageString(content: string, language: string): Cdf.LanguageString {
@@ -363,49 +368,11 @@ test('safeParseCdfBallotDefinition', () => {
 test('ballot styles with same districts but different rotations in different precincts', () => {
   // Create an election with two precincts and two ballot styles
   // Both ballot styles have the same districts, but different candidate orderings
-  const vxfElection: Vxf.Election = {
-    ...testVxfElection,
-    precincts: [
-      {
-        id: 'precinct-1',
-        name: 'Precinct 1',
-        districtIds: ['district-1'],
-      },
-      {
-        id: 'precinct-2',
-        name: 'Precinct 2',
-        districtIds: ['district-1'],
-      },
-    ],
-    ballotStyles: [
-      {
-        id: 'ballot-style-1',
-        groupId: 'ballot-style-1',
-        districts: ['district-1'],
-        precincts: ['precinct-1'],
-        languages: ['en'],
-        orderedCandidatesByContest: {
-          'contest-1': [
-            { id: 'candidate-1', partyIds: ['party-1'] },
-            { id: 'candidate-2', partyIds: ['party-2'] },
-          ],
-        },
-      },
-      {
-        id: 'ballot-style-2',
-        groupId: 'ballot-style-2',
-        districts: ['district-1'],
-        precincts: ['precinct-2'],
-        languages: ['en'],
-        orderedCandidatesByContest: {
-          'contest-1': [
-            { id: 'candidate-2', partyIds: ['party-2'] },
-            { id: 'candidate-1', partyIds: ['party-1'] },
-          ],
-        },
-      },
-    ],
-    gridLayouts: [
+  const vxfGridLayouts: ReadonlyArray<{
+    ballotStyleId: string;
+    optionBoundsFromTargetMark: Outset;
+    gridPositions: FlatGridPosition[];
+  }> = [
       {
         ballotStyleId: 'ballot-style-1',
         optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
@@ -457,6 +424,60 @@ test('ballot styles with same districts but different rotations in different pre
             partyIds: ['party-1'],
           },
         ],
+      },
+  ];
+  const ballotPositionsByStyleId: Record<string, Vxf.SheetPositions[]> =
+    Object.fromEntries(
+      vxfGridLayouts.map((gridLayout) => [
+        gridLayout.ballotStyleId,
+        ballotPositionsFromGridPositions(
+          gridLayout.gridPositions,
+          gridLayout.optionBoundsFromTargetMark
+        ),
+      ])
+    );
+  const vxfElection: Vxf.Election = {
+    ...testVxfElection,
+    precincts: [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: ['district-1'],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: ['district-1'],
+      },
+    ],
+    ballotStyles: [
+      {
+        id: 'ballot-style-1',
+        ballotPositions: ballotPositionsByStyleId['ballot-style-1'],
+        groupId: 'ballot-style-1',
+        districts: ['district-1'],
+        precincts: ['precinct-1'],
+        languages: ['en'],
+        orderedCandidatesByContest: {
+          'contest-1': [
+            { id: 'candidate-1', partyIds: ['party-1'] },
+            { id: 'candidate-2', partyIds: ['party-2'] },
+          ],
+        },
+      },
+      {
+        id: 'ballot-style-2',
+        ballotPositions: ballotPositionsByStyleId['ballot-style-2'],
+        groupId: 'ballot-style-2',
+        districts: ['district-1'],
+        precincts: ['precinct-2'],
+        languages: ['en'],
+        orderedCandidatesByContest: {
+          'contest-1': [
+            { id: 'candidate-2', partyIds: ['party-2'] },
+            { id: 'candidate-1', partyIds: ['party-1'] },
+          ],
+        },
       },
     ],
   };
