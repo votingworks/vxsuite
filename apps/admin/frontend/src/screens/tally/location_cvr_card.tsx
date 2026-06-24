@@ -162,7 +162,6 @@ export function LocationCvrCard(props: LocationCvrCardProps): React.ReactNode {
       disabled={disabled}
       onClick={() => onClick(id)}
       ref={ref}
-      // selected={selected}
     >
       <IconSection>
         {icon}
