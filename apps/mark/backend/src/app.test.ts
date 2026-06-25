@@ -75,6 +75,11 @@ vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
 
 vi.mock('./audio/player');
 
+vi.mock(import('@votingworks/test-decks'), async (importActual) => ({
+  ...(await importActual()),
+  createPrecinctSummaryBallotTestDeck: () => Promise.resolve(undefined),
+}));
+
 // Ballots embed a `ballotAuditId` (a random UUID) in their QR code. Pin it so
 // printed-ballot PDF snapshots are deterministic.
 vi.mock('node:crypto', async (importActual) => ({
@@ -623,4 +628,28 @@ test('playSound() uses configured audio player', async () => {
 test('playSound does nothing when audio player is not present', async () => {
   // The default createApp() does not include an audio player
   await expect(apiClient.playSound({ name: 'alarm' })).resolves.toBeUndefined();
+});
+
+test('printTestDeck throws when no test deck PDF is generated', async () => {
+  // `createPrecinctSummaryBallotTestDeck` is mocked to resolve undefined.
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await configureMachine(mockUsbDrive, electionDefinition);
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  mockElectionManagerAuth(electionDefinition);
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.printTestDeck({})).rejects.toThrow();
+  });
+
+  // Nothing should have been printed.
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(0);
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    expect.objectContaining({
+      message: 'No test deck PDF was generated',
+      disposition: 'failure',
+    })
+  );
 });
