@@ -554,4 +554,24 @@ describe('generateTestDeckCastVoteRecords', () => {
 
     expect(cvrs).toEqual([]);
   });
+
+  test('generates summary CVRs for an election without ballotPositions', () => {
+    // Summary-only elections have no HMPB geometry (`ballotPositions`).
+    // Generating summary CVRs must not require it.
+    const baseElection = electionFamousNames2021Fixtures.readElection();
+    const summaryOnlyElection: Election = {
+      ...baseElection,
+      ballotStyles: baseElection.ballotStyles.map(
+        ({ ballotPositions: _ballotPositions, ...ballotStyle }) => ballotStyle
+      ),
+    };
+
+    const cvrs = generateTestDeckCastVoteRecords(summaryOnlyElection, {
+      includeSummaryBallots: true,
+      includeBubbleBallots: false,
+    });
+
+    expect(cvrs.length).toBeGreaterThan(0);
+    expect(cvrs.every((cvr) => cvr.card.type === 'bmd')).toEqual(true);
+  });
 });
