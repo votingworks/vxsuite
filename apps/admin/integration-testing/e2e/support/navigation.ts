@@ -16,12 +16,13 @@ export async function openDropdown(
 
 export async function selectOpenDropdownOption(
   page: Page,
-  optionLabel: string
+  optionLabel: string,
+  options: { exact?: boolean } = {}
 ): Promise<void> {
   await page
     .locator('.search-select')
     .filter({ has: page.getByRole('combobox', { expanded: true }) })
-    .getByText(optionLabel, { exact: true })
+    .getByText(optionLabel, { exact: options.exact ?? true })
     .click();
 }
 
