@@ -4,8 +4,8 @@ import {
   UsbDriveStatus,
   UsbPartitionMountpoint,
 } from '../types';
-import { getMockUsbDirPath } from './file_usb_drive';
 import { MockFileTree } from './helpers';
+import { getMockUsbDirPath } from './mock_usb_dir';
 import { SimulatedUsbPlatform } from './simulated_usb_platform';
 
 const DEFAULT_DISK_NAME = 'sdb';

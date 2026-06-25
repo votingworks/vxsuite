@@ -45,9 +45,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import {
-  getMockFileUsbDriveHandler,
-  listMockDrives,
-  removeMockDriveDir,
+  getMockUsbDriveHandler,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
@@ -108,9 +106,6 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
 
-  for (const diskName of listMockDrives()) {
-    removeMockDriveDir(diskName);
-  }
   getMockFilePrinterHandler().cleanup();
 });
 
@@ -231,7 +226,7 @@ test('election fixture references', async () => {
 
 test('detects election packages on mock USB drive', async () => {
   const { apiClient } = setup();
-  const usbDrive = getMockFileUsbDriveHandler();
+  const usbDrive = getMockUsbDriveHandler();
   const fileTree = await mockElectionPackageFileTree(
     electionFamousNames2021Fixtures.toElectionPackage()
   );
@@ -253,12 +248,12 @@ test('skips unmounted USB drives and drives without election packages', async ()
   const { apiClient } = setup();
 
   // Insert and then remove a drive — should be skipped (not mounted)
-  const usbDrive = getMockFileUsbDriveHandler();
+  const usbDrive = getMockUsbDriveHandler();
   usbDrive.insert();
   usbDrive.remove();
 
   // Insert a second drive with no election packages — should be skipped
-  const secondDrive = getMockFileUsbDriveHandler('sdc');
+  const secondDrive = getMockUsbDriveHandler('sdc');
   secondDrive.insert();
 
   const result = await apiClient.getAvailableElections();
@@ -378,7 +373,7 @@ test('poll worker card has a PIN when the election package enables them', async 
   });
   const { apiClient } = setup();
 
-  const usbDrive = getMockFileUsbDriveHandler();
+  const usbDrive = getMockUsbDriveHandler();
   usbDrive.insert(await mockElectionPackageFileTree(electionPackage));
 
   const available = await apiClient.getAvailableElections();

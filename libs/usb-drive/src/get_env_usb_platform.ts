@@ -2,7 +2,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { getMockUsbDirPath } from './mocks/file_usb_drive';
+import { getMockUsbDirPath } from './mocks/mock_usb_dir';
 import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
 import { RealUsbPlatform } from './usb_platform';
 import { UsbPlatform } from './usb_platform_types';

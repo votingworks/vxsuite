@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test';
 import {
   getMockUsbDriveHandler,
-  MockFileUsbDriveHandler,
+  MockUsbDriveHandler,
 } from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -355,7 +355,7 @@ async function configureMachine({
   registeredVoterCounts,
 }: {
   page: Page;
-  usbHandler: MockFileUsbDriveHandler;
+  usbHandler: MockUsbDriveHandler;
   electionDefinition: ElectionDefinition;
   systemSettings?: SystemSettings;
   registeredVoterCounts?: ElectionRegisteredVoterCounts;
@@ -393,7 +393,7 @@ async function insertUsbDriveWithCvrs({
 }: {
   cvrPath: string;
   convertToOfficial: boolean;
-  usbHandler: MockFileUsbDriveHandler;
+  usbHandler: MockUsbDriveHandler;
   electionDefinition: ElectionDefinition;
 }): Promise<void> {
   const cvrPath = !convertToOfficial

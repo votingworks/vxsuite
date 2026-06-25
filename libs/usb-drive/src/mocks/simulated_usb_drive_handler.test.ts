@@ -11,7 +11,7 @@ import {
   getMockUsbDirPath,
   resetMockUsbDriveDir,
   setMockUsbDriveDir,
-} from './file_usb_drive';
+} from './mock_usb_dir';
 import { SimulatedUsbPlatform } from './simulated_usb_platform';
 import { getMockUsbDriveHandler } from './simulated_usb_drive_handler';
 
