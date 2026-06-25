@@ -268,8 +268,9 @@ export function generateTestDeckCastVoteRecords(
       })
     : [];
 
-  const ballotContestLayouts: BallotContestLayout[] =
-    getBallotContestLayouts(election);
+  const ballotContestLayouts: BallotContestLayout[] = includeBubbleBallots
+    ? getBallotContestLayouts(election)
+    : [];
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
