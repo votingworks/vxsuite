@@ -100,6 +100,7 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     adminAdjudicationReasons: [],
 
     bmdPrintMode: 'summary',
+    enableEarlyVoting: true,
     enableTestDeckPrinting: true,
     precinctScanNumberOfReportCopies: 2,
     quickResultsReportingUrl: resultsReportingUrl(),

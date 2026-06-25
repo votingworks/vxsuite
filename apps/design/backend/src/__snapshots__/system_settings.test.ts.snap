@@ -98,6 +98,7 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
   "disableSystemLimitChecks": true,
   "disableVoterHelpButtons": true,
   "disallowCastingOvervotes": false,
+  "enableEarlyVoting": true,
   "enableTestDeckPrinting": true,
   "markThresholds": {
     "definite": 0.07,
