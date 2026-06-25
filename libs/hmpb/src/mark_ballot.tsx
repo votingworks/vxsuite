@@ -19,7 +19,6 @@ import {
   PAGE_CLASS,
 } from './ballot_components';
 import {
-  convertBallotMeasureWithAdditionalOptionsToCandidateContest,
   gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
@@ -227,18 +226,10 @@ export function createTestVotes(contests: readonly Contest[]): {
         }
         return [contest.id, candidates];
       }
-      if (contest.additionalOptions && contest.additionalOptions.length > 0) {
-        return [
-          contest.id,
-          [
-            convertBallotMeasureWithAdditionalOptionsToCandidateContest(contest)
-              .candidates[0],
-          ],
-        ];
-      }
+      // Vote for one of the options, cycling through all of them.
       return [
         contest.id,
-        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+        [assertDefined(contest.options[i % contest.options.length]).id],
       ];
     })
   );
