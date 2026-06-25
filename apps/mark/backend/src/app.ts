@@ -78,6 +78,10 @@ interface Context {
   printer: Printer;
 }
 
+interface TestDeckError {
+  type: 'no_test_deck_generated';
+}
+
 // Track last barcode scan for diagnostics
 let lastBarcodeScanData: string | undefined;
 let lastBarcodeScanTimestamp: Date | undefined;
@@ -314,10 +318,11 @@ export function buildApi(ctx: Context) {
 
         if (!deckPdf) {
           await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-            message: "Couldn't generate test deck pdf",
+            message: 'No test deck PDF was generated',
             disposition: 'failure',
           });
-          return;
+          const err: TestDeckError = { type: 'no_test_deck_generated' };
+          throw err;
         }
 
         await printer.print({ data: deckPdf, sides: PrintSides.OneSided });
@@ -368,6 +373,8 @@ export function buildApi(ctx: Context) {
           disposition: 'failure',
           errorDetails: error instanceof Error ? error.message : String(error),
         });
+
+        throw error;
       }
     },
 
