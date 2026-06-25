@@ -2427,6 +2427,23 @@ test('CRUD contests', async () => {
     })
   ).toEqual(err('duplicate-option'));
 
+  // Duplicate labels among additional options (beyond the first two) are also
+  // rejected for 3+ option ballot measures
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...contest2,
+        id: 'duplicate-additional-option-contest',
+        options: [
+          { id: 'opt-yes', label: 'Yes' },
+          { id: 'opt-no', label: 'No' },
+          { id: 'opt-maybe', label: 'Yes' },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-option'));
+
   await suppressingConsoleOutput(async () => {
     // Try to create an invalid contest
     await expect(

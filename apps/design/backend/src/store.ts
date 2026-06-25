@@ -382,6 +382,11 @@ async function insertParty(
   );
 }
 
+function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
+  const labels = contest.options.map((option) => option.label);
+  return new Set(labels).size !== labels.length;
+}
+
 async function insertContest(
   client: Client,
   electionId: ElectionId,
@@ -2081,10 +2086,7 @@ export class Store {
     electionId: ElectionId,
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
-    if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
-    ) {
+    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
     }
     try {
@@ -2104,10 +2106,7 @@ export class Store {
     electionId: ElectionId,
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
-    if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
-    ) {
+    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
     }
     try {
