@@ -51,6 +51,7 @@ import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
+import { M404N_CASSETTE_RAW_OPTIONS } from './util/print_options';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
@@ -325,7 +326,11 @@ export function buildApi(ctx: Context) {
           throw err;
         }
 
-        await printer.print({ data: deckPdf, sides: PrintSides.OneSided });
+        await printer.print({
+          data: deckPdf,
+          sides: PrintSides.OneSided,
+          raw: M404N_CASSETTE_RAW_OPTIONS,
+        });
 
         const allCvrs = generateTestDeckCastVoteRecords(election, {
           includeSummaryBallots: true,
@@ -359,6 +364,7 @@ export function buildApi(ctx: Context) {
         await printer.print({
           data: tallyReportPdf,
           sides: PrintSides.OneSided,
+          raw: M404N_CASSETTE_RAW_OPTIONS,
         });
 
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {

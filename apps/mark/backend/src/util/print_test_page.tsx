@@ -4,6 +4,7 @@ import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { getCurrentTime } from './get_current_time';
+import { M404N_CASSETTE_RAW_OPTIONS } from './print_options';
 
 function getMockElectionDefinition(): ElectionDefinition {
   const today = getCurrentTime();
@@ -110,7 +111,7 @@ export async function printTestPage({
   );
 
   const data = (await renderToPdf({ document: ballot })).unsafeUnwrap();
-  await printer.print({ data });
+  await printer.print({ data, raw: M404N_CASSETTE_RAW_OPTIONS });
   await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
     message: `User started a print diagnostic by printing a test page.`,
     disposition: 'success',

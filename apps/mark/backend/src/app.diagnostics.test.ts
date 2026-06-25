@@ -32,6 +32,7 @@ import { assertDefined } from '@votingworks/basics';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { MockBarcodeClient } from './barcodes/mock_client';
+import { M404N_CASSETTE_RAW_OPTIONS } from './util/print_options';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -236,6 +237,11 @@ test('printTestPage prints and logs', async () => {
     failureThreshold: 0.0001,
   });
 
+  // Pull from the cassette (Tray 2) so the M404n doesn't prompt the operator.
+  expect(mockPrinterHandler.getPrintJobHistory().at(-1)?.options.raw).toEqual(
+    M404N_CASSETTE_RAW_OPTIONS
+  );
+
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.DiagnosticInit,
     {
@@ -263,6 +269,7 @@ test('saveReadinessReport - machine not configured', async () => {
   const exportPath = result.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'mark-readiness-report-not-configured',
+    failureThreshold: 0.0001,
   });
 });
 
@@ -307,6 +314,7 @@ test('saveReadinessReport - machine configured', async () => {
   const exportPath = result[0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'mark-readiness-report-configured',
+    failureThreshold: 0.0001,
   });
 
   mockUsbDrive.removeUsbDrive();

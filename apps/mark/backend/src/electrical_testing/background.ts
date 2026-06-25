@@ -15,6 +15,7 @@ import { renderToPdf } from '@votingworks/printing';
 import { ServerContext } from './context';
 import { getMachineConfig } from '../machine_config';
 import { TestPrintPage } from './test_print_page';
+import { M404N_CASSETTE_RAW_OPTIONS } from '../util/print_options';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PRINTER_TEST_INTERVAL_SECONDS = 5 * 60; // 5 minutes
@@ -123,7 +124,10 @@ export async function sendTestPrint(
       };
     }
 
-    await printer.print({ data: pdfResult.ok() });
+    await printer.print({
+      data: pdfResult.ok(),
+      raw: M404N_CASSETTE_RAW_OPTIONS,
+    });
 
     return { success: true, message: 'Test print sent successfully' };
   } catch (error) {

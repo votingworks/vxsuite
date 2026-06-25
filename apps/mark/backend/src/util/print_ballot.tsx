@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ui';
 import { Store } from '../store';
 import { PrintBallotProps as ClientParams } from '../types';
+import { M404N_CASSETTE_RAW_OPTIONS } from './print_options';
 
 /**
  * Shared renderer instance for measuring ballot layouts.
@@ -105,6 +106,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     return printer.print({
       data: pdfData,
       sides: PrintSides.OneSided,
+      raw: M404N_CASSETTE_RAW_OPTIONS,
     });
   }
 
@@ -168,6 +170,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   return printer.print({
     data: multiPagePdfData,
     sides: PrintSides.OneSided,
+    raw: M404N_CASSETTE_RAW_OPTIONS,
   });
 }
 

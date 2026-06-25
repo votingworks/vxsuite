@@ -32,6 +32,7 @@ import { ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { type Store } from '../store';
 import { closeLayoutRenderer, printBallot } from './print_ballot';
+import { M404N_CASSETTE_RAW_OPTIONS } from './print_options';
 
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
@@ -184,7 +185,65 @@ describe(`printMode === "summary"`, () => {
     expect(getPdfPageCount).toHaveBeenCalledWith(mockPdf);
     expect(renderToPdf).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
-      [{ data: mockPdf, sides: PrintSides.OneSided }],
+      [
+        {
+          data: mockPdf,
+          sides: PrintSides.OneSided,
+          raw: M404N_CASSETTE_RAW_OPTIONS,
+        },
+      ],
+    ]);
+  });
+
+  test('pins the cassette (Tray 2 InputSlot) for a test-mode summary ballot', async () => {
+    // The official-ballot case is covered by 'prints summary ballot' above
+    // (getTestMode → false); this asserts the same cassette option is sent when
+    // printing in test mode (getTestMode → true).
+    const electionDefinition = electionDefBase;
+    const ballotStyle = electionDefinition.election.ballotStyles[0];
+
+    vi.mocked(BackendLanguageContextProvider).mockImplementation((p) => (
+      <div>{p.children}</div>
+    ));
+    vi.mocked(BmdPaperBallot).mockImplementation(() => (
+      <div>ballot content</div>
+    ));
+    const mockPdf = Uint8Array.of(0xca, 0xfe);
+    vi.mocked(renderToPdf).mockResolvedValue(ok(mockPdf));
+    vi.mocked(getPdfPageCount).mockResolvedValue(1);
+
+    const mockPrint = vi.fn<PrintFunction>();
+    await printBallot({
+      ballotStyleId: ballotStyle.id,
+      languageCode: 'en',
+      precinctId: 'precinct-one',
+      printer: mockPrinter({ print: mockPrint }),
+      store: mockStore({
+        getElectionRecord: () => ({
+          electionDefinition,
+          electionPackageHash: 'unused',
+        }),
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = {
+            bmdPrintMode: 'summary',
+          };
+          return settings as SystemSettings;
+        },
+        getTestMode: () => true,
+        getUiStringsStore: () =>
+          mockUiStringsStore({ getAllUiStrings: () => ({}) }),
+      }),
+      votes: { foo: ['yes'] },
+    });
+
+    expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
+      [
+        {
+          data: mockPdf,
+          sides: PrintSides.OneSided,
+          raw: M404N_CASSETTE_RAW_OPTIONS,
+        },
+      ],
     ]);
   });
 
@@ -295,7 +354,11 @@ describe(`printMode === "summary"`, () => {
     // Printed PDF should be from the second (multi-page) render
     expect(mockPrint).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls[0]).toEqual([
-      { data: mockMultiPagePdf, sides: PrintSides.OneSided },
+      {
+        data: mockMultiPagePdf,
+        sides: PrintSides.OneSided,
+        raw: M404N_CASSETTE_RAW_OPTIONS,
+      },
     ]);
 
     // renderToPdf called twice: optimistic then multi-page

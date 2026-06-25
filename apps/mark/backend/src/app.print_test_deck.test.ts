@@ -34,6 +34,7 @@ import {
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
+import { M404N_CASSETTE_RAW_OPTIONS } from './util/print_options';
 
 vi.setConfig({ testTimeout: 90_000 });
 
@@ -116,6 +117,11 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   const jobs = mockPrinterHandler.getPrintJobHistory();
   expect(jobs).toHaveLength(2);
 
+  // Both jobs (deck + tally report) pull from the cassette (Tray 2) so the
+  // M404n doesn't prompt the operator.
+  expect(jobs[0].options.raw).toEqual(M404N_CASSETTE_RAW_OPTIONS);
+  expect(jobs[1].options.raw).toEqual(M404N_CASSETTE_RAW_OPTIONS);
+
   await expect(jobs[0].filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-precinct-summary-ballots',
     failureThreshold: 0.0001,
@@ -146,6 +152,11 @@ test('printTestDeck for all precincts prints ballots and a tally report', async 
   // One combined summary-ballot deck PDF + one tally report.
   const jobs = mockPrinterHandler.getPrintJobHistory();
   expect(jobs).toHaveLength(2);
+
+  // Both jobs (deck + tally report) pull from the cassette (Tray 2) so the
+  // M404n doesn't prompt the operator.
+  expect(jobs[0].options.raw).toEqual(M404N_CASSETTE_RAW_OPTIONS);
+  expect(jobs[1].options.raw).toEqual(M404N_CASSETTE_RAW_OPTIONS);
 
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.PrinterPrintRequest,
