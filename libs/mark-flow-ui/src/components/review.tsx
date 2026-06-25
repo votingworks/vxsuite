@@ -164,12 +164,7 @@ function YesNoContestResult({
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
-  const selectedOption =
-    yesNo === contest.yesOption.id
-      ? contest.yesOption
-      : yesNo === contest.noOption.id
-      ? contest.noOption
-      : null;
+  const selectedOption = contest.options.find((o) => o.id === yesNo) ?? null;
 
   const votes: ContestVote[] = selectedOption
     ? [

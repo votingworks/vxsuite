@@ -49,23 +49,23 @@ export function mergeMsEitherNeitherContests(
   const eitherNeitherContest = contests.find(
     (contest) =>
       contest.type === 'yesno' &&
-      contest.yesOption.label.startsWith('FOR APPROVAL OF EITHER') &&
+      contest.options[0].label.startsWith('FOR APPROVAL OF EITHER') &&
       /* istanbul ignore next */
-      contest.noOption.label.startsWith('AGAINST BOTH')
+      contest.options[1].label.startsWith('AGAINST BOTH')
   );
   if (!eitherNeitherContest) {
     return contests;
   }
   assert(eitherNeitherContest.type === 'yesno');
-  assertDefined(eitherNeitherContest.yesOption);
-  assertDefined(eitherNeitherContest.noOption);
+  assertDefined(eitherNeitherContest.options[0]);
+  assertDefined(eitherNeitherContest.options[1]);
   const pickOneContest = contests.find(
     (contest) =>
       contest.type === 'yesno' &&
       /* istanbul ignore next */
-      contest.yesOption.label.startsWith('FOR') &&
+      contest.options[0].label.startsWith('FOR') &&
       /* istanbul ignore next */
-      contest.noOption.label.startsWith('FOR') &&
+      contest.options[1].label.startsWith('FOR') &&
       contest.description === eitherNeitherContest.description
   );
   assert(pickOneContest);
@@ -81,10 +81,10 @@ export function mergeMsEitherNeitherContests(
     pickOneContestId: pickOneContest.id,
     pickOneContest,
     description: eitherNeitherContest.description,
-    eitherOption: assertDefined(eitherNeitherContest.yesOption),
-    neitherOption: assertDefined(eitherNeitherContest.noOption),
-    firstOption: assertDefined(pickOneContest.yesOption),
-    secondOption: assertDefined(pickOneContest.noOption),
+    eitherOption: assertDefined(eitherNeitherContest.options[0]),
+    neitherOption: assertDefined(eitherNeitherContest.options[1]),
+    firstOption: assertDefined(pickOneContest.options[0]),
+    secondOption: assertDefined(pickOneContest.options[1]),
   };
 
   const contestsWithoutEitherNeither = contests.filter(
