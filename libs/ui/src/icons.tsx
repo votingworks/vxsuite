@@ -84,7 +84,7 @@ import {
   faStrikethrough,
   faTable,
   faTextHeight,
-  faTrash,
+  faTrashCan,
   faUnderline,
   faVolumeHigh,
   faVolumeMute,
@@ -668,7 +668,7 @@ export const Icons = {
   },
 
   Trash(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faTrash} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTrashCan} />;
   },
 
   Underline(props) {

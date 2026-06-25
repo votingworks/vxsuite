@@ -61,7 +61,7 @@ export function RemoveAllCvrsModal({
         actions={
           <React.Fragment>
             <Button
-              icon="Delete"
+              icon="Trash"
               variant="danger"
               onPress={() => removeCvrs()}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
@@ -93,7 +93,7 @@ export function RemoveAllCvrsModal({
       actions={
         <React.Fragment>
           <Button
-            icon="Delete"
+            icon="Trash"
             variant="danger"
             onPress={removeManualResults}
             disabled={deleteAllManualResultsMutation.isLoading}
