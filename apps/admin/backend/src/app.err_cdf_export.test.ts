@@ -21,11 +21,10 @@ import {
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from '.';
@@ -62,12 +61,9 @@ test('logs failure if export fails', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
-
-  mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.removeAll();
 
   const filename = mockFileName('json');
   const failedExportResult = await apiClient.exportCdfElectionResultsReport({
@@ -90,12 +86,12 @@ test('logs success if export succeeds', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockUsbDrive);
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const filename = mockFileName('json');
   const exportResult = await apiClient.exportCdfElectionResultsReport({
@@ -115,12 +111,10 @@ test('logs success if export succeeds', async () => {
 });
 
 async function getCurrentReport(
-  apiClient: Client<Api>,
-  mockUsbDrive: MockMultiUsbDrive
+  apiClient: Client<Api>
 ): Promise<ResultsReporting.ElectionReport> {
   const filename = mockFileName('json');
 
-  expectUsbDriveSync(mockUsbDrive);
   const exportResult = await apiClient.exportCdfElectionResultsReport({
     filename,
   });
@@ -142,11 +136,12 @@ test('exports results and metadata accurately', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   // add CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -265,10 +260,8 @@ test('exports results and metadata accurately', async () => {
     }),
   });
 
-  const { Party, Election, GpUnit, ...reportMetadata } = await getCurrentReport(
-    apiClient,
-    mockUsbDrive
-  );
+  const { Party, Election, GpUnit, ...reportMetadata } =
+    await getCurrentReport(apiClient);
 
   expect(reportMetadata).toMatchObject({
     '@type': 'ElectionResults.ElectionReport',
@@ -460,11 +453,12 @@ test('marks report as certified when official, as primary when primary, and as n
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   // add CVR data, as non-test file
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -485,10 +479,7 @@ test('marks report as certified when official, as primary when primary, and as n
 
   await apiClient.markResultsOfficial();
 
-  const { IsTest, Election, Status } = await getCurrentReport(
-    apiClient,
-    mockUsbDrive
-  );
+  const { IsTest, Election, Status } = await getCurrentReport(apiClient);
 
   expect(IsTest).toEqual(false);
   expect(Election?.[0]?.Type).toEqual(ResultsReporting.ElectionType.Primary);

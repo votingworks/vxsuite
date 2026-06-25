@@ -2,7 +2,7 @@ import express from 'express';
 import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -50,7 +50,7 @@ export async function start({
     baseLogger,
     /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
   );
-  const usbDrive = detectUsbDrive(logger);
+  const usbDrive = detectUsbDriveFromEnv({ logger });
   const printer = detectPrinter(logger);
 
   // Skip creating real barcode client when mock barcode is enabled

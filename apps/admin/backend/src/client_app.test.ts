@@ -8,9 +8,17 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { err, ok, typedAs } from '@votingworks/basics';
-import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
+import {
+  detectMultiUsbDrive,
+  SimulatedUsbPlatform,
+  UsbDriveInfo,
+  UsbPartitionInfo,
+} from '@votingworks/usb-drive';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { buildClientApp, ClientApi } from './client_app';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config';
@@ -22,7 +30,7 @@ import {
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
-  getMountedUsbDrive,
+  devsdb,
 } from '../test/app';
 
 vi.mock('./multi_station_config', () => ({
@@ -34,12 +42,16 @@ function buildClientTestEnvironment() {
   const workspaceRoot = tmp.dirSync().name;
   const workspace = createClientWorkspace(workspaceRoot);
   const logger = buildMockLogger(auth, workspace.clientStore);
-  const mockMultiUsbDrive = createMockMultiUsbDrive();
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({
+    logger,
+    platform: usbPlatform,
+  });
   const app = buildClientApp({
     auth,
     workspace,
     logger,
-    multiUsbDrive: mockMultiUsbDrive.multiUsbDrive,
+    multiUsbDrive,
   });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -54,7 +66,7 @@ function buildClientTestEnvironment() {
     workspace,
     apiClient,
     server,
-    mockUsbDrive: mockMultiUsbDrive,
+    usbPlatform,
   };
 }
 
@@ -230,16 +242,26 @@ test('getCurrentElectionMetadata returns cached election record', async () => {
 });
 
 test('getUsbDriveStatus returns usb drive status', async () => {
-  env.mockUsbDrive.insertUsbDrive({});
+  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  env.usbPlatform.insertDrive(devsdb);
   const status = await env.apiClient.getUsbDriveStatus();
   expect(status.status).toEqual('mounted');
 });
 
 test('ejectUsbDrive ejects the usb drive', async () => {
-  env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
-  env.mockUsbDrive.multiUsbDrive.ejectDrive.expectCallWith(devPath).resolves();
+  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  env.usbPlatform.insertDrive(devsdb);
+
+  await vi.waitFor(() => {
+    expect(
+      env.usbPlatform.getSimulatedDrives()[0]?.partition?.mountpoint
+    ).not.toBeUndefined();
+  });
+
   await env.apiClient.ejectUsbDrive();
+  expect(
+    env.usbPlatform.getSimulatedDrives()[0]?.partition?.mountpoint
+  ).toBeUndefined();
 });
 
 test('formatUsbDrive returns error when not system administrator', async () => {
@@ -250,21 +272,24 @@ test('formatUsbDrive returns error when not system administrator', async () => {
 
 test('formatUsbDrive formats drive when system administrator', async () => {
   mockSystemAdministratorAuth(env.auth);
-  env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
-  env.mockUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith(devPath, 'fat32')
-    .resolves();
+  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  env.usbPlatform.insertDrive(devsdb);
   (await env.apiClient.formatUsbDrive()).assertOk('format failed');
+  expect(env.usbPlatform.getSimulatedDrives()[0]).toEqual(
+    expect.objectContaining<Partial<UsbDriveInfo>>({
+      diskPath: devsdb,
+      partition: expect.objectContaining<Partial<UsbPartitionInfo>>({
+        fstype: 'fat32',
+      }),
+    })
+  );
 });
 
 test('formatUsbDrive returns error when format fails', async () => {
   mockSystemAdministratorAuth(env.auth);
-  env.mockUsbDrive.insertUsbDrive({});
-  const devPath = getMountedUsbDrive(env.mockUsbDrive).diskPath;
-  env.mockUsbDrive.multiUsbDrive.formatDrive
-    .expectCallWith(devPath, 'fat32')
-    .throws(new Error('format failed'));
+  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  env.usbPlatform.insertDrive(devsdb);
+  env.usbPlatform.faults.failNext('formatDrive', new Error('format failed'));
   expect(await env.apiClient.formatUsbDrive()).toEqual(
     err(new Error('format failed'))
   );

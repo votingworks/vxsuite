@@ -11,7 +11,7 @@ import {
   loadEnvVarsFromDotenvFiles,
   TaskController,
 } from '@votingworks/backend';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectPrinter } from '@votingworks/printing';
 import {
   BooleanEnvironmentVariableName,
@@ -65,7 +65,7 @@ async function main(): Promise<number> {
   ) {
     const { auth, card } = getDefaultAuth(baseLogger);
     const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
-    const usbDrive = detectUsbDrive(logger);
+    const usbDrive = detectUsbDriveFromEnv({ logger });
     const printer = detectPrinter(logger);
     const useMockBarcode = isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER

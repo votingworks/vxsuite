@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import { LogSource, Logger } from '@votingworks/logging';
-import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive';
+import { detectMultiUsbDriveFromEnv, MultiUsbDrive } from './multi_usb_drive';
 import { UsbDiskDevPathSchema, UsbDriveFilesystemType } from './types';
 
 function printDrives(multiUsbDrive: MultiUsbDrive, stdout: NodeJS.WriteStream) {
@@ -32,13 +32,17 @@ export async function main(args: string[]): Promise<number> {
   const logger = new Logger(LogSource.System, () => Promise.resolve('unknown'));
 
   if (command === 'watch') {
-    const multiUsbDrive = detectMultiUsbDrive(logger);
+    const multiUsbDrive = detectMultiUsbDriveFromEnv({
+      logger,
+    });
     multiUsbDrive.addListener(() => printDrives(multiUsbDrive, stdout));
     // Wait until process is terminated (e.g. Ctrl+C)
     await new Promise<never>(() => {});
   }
 
-  const multiUsbDrive = detectMultiUsbDrive(logger);
+  const multiUsbDrive = detectMultiUsbDriveFromEnv({
+    logger,
+  });
   await multiUsbDrive.refresh();
 
   try {

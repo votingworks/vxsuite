@@ -10,12 +10,7 @@ import {
   sleep,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import makeDebug from 'debug';
-import { createMockFileMultiUsbDrive } from './mocks/file_usb_drive';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
@@ -23,12 +18,12 @@ import {
   UsbPartitionDevPath,
   UsbPartitionMount,
 } from './types';
-import { RealUsbPlatform } from './usb_platform';
 import {
   UsbPlatform,
   UsbPlatformDrive,
   UsbPlatformPartition,
 } from './usb_platform_types';
+import { getEnvUsbPlatform } from './get_env_usb_platform';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
@@ -134,20 +129,21 @@ class KeyedTaskRunner<Key, Task> {
   }
 }
 
-export function detectMultiUsbDrive(
-  logger: Logger,
-  options?: { platform?: UsbPlatform }
-): MultiUsbDrive {
-  // An explicitly injected platform takes precedence over the ambient
-  // USE_MOCK_USB_DRIVE flag.
-  if (
-    !options?.platform &&
-    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
-  ) {
-    return createMockFileMultiUsbDrive();
-  }
+/* istanbul ignore next */
+export function detectMultiUsbDriveFromEnv(options: {
+  logger: Logger;
+}): MultiUsbDrive {
+  return detectMultiUsbDrive({
+    logger: options.logger,
+    platform: getEnvUsbPlatform(),
+  });
+}
 
-  const platform = options?.platform ?? new RealUsbPlatform();
+export function detectMultiUsbDrive(options: {
+  logger: Logger;
+  platform: UsbPlatform;
+}): MultiUsbDrive {
+  const { logger, platform } = options;
   const listeners = new Set<() => void>();
 
   let stopped = false;
@@ -248,6 +244,7 @@ export function detectMultiUsbDrive(
     partPath: UsbPartitionDevPath
   ): Promise<void> {
     try {
+      notifyIfChanged();
       await logger.logAsCurrentRole(LogEventId.UsbDriveMountInit);
       await platform.mountPartition(partPath);
 

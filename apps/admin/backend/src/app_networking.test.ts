@@ -18,7 +18,10 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { assertDefined, err } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { createMockMultiUsbDrive } from '@votingworks/usb-drive';
+import {
+  detectMultiUsbDrive,
+  SimulatedUsbPlatform,
+} from '@votingworks/usb-drive';
 import {
   startHostNetworking,
   startClientNetworking,
@@ -125,11 +128,15 @@ async function setupHostAndClient(
   const clientWorkspace = createClientWorkspace(makeTemporaryDirectory());
   const { clientStore } = clientWorkspace;
   const auth = buildMockDippedSmartCardAuth(vi.fn);
+  const mockLogger = buildMockLogger(auth, clientStore);
   const clientApp = buildClientApp({
     auth,
     workspace: clientWorkspace,
-    logger: buildMockLogger(auth, clientStore),
-    multiUsbDrive: createMockMultiUsbDrive().multiUsbDrive,
+    logger: mockLogger,
+    multiUsbDrive: detectMultiUsbDrive({
+      logger: mockLogger,
+      platform: new SimulatedUsbPlatform(makeTemporaryDirectory()),
+    }),
   });
   clientServer = clientApp.listen();
   const { port: clientPort } = clientServer.address() as AddressInfo;

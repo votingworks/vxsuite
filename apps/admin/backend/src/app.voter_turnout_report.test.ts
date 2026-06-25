@@ -20,7 +20,7 @@ import { zipFile } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
@@ -119,7 +119,7 @@ test('voter turnout report preview, print, and export', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, mockPrinterHandler, mockMultiUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
     'precinct-1': 500,
@@ -128,8 +128,8 @@ test('voter turnout report preview, print, and export', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockMultiUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockMultiUsbDrive);
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const preview = await apiClient.getVoterTurnoutReportPreview();
   expect(preview.warning).toBeUndefined();
@@ -161,7 +161,7 @@ test('voter turnout report logging', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
     'precinct-1': 500,
@@ -169,8 +169,8 @@ test('voter turnout report logging', async () => {
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockUsbDrive);
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   // successful file export
   const validFileName = mockFileName('pdf');
@@ -189,7 +189,7 @@ test('voter turnout report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportVoterTurnoutReportPdf({
     filename: invalidFilename,

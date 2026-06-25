@@ -15,7 +15,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
@@ -77,7 +77,7 @@ test('write-in adjudication report', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler, mockMultiUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
@@ -91,7 +91,8 @@ test('write-in adjudication report', async () => {
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockMultiUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   async function expectIdenticalSnapshotsAcrossExportMethods(
     customSnapshotIdentifier: string
@@ -111,7 +112,6 @@ test('write-in adjudication report', async () => {
       customSnapshotIdentifier,
     });
 
-    expectUsbDriveSync(mockMultiUsbDrive);
     const filename = mockFileName('pdf');
     const exportResult = await apiClient.exportWriteInAdjudicationReportPdf({
       filename,
@@ -242,13 +242,13 @@ test('write-in adjudication report logging', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockUsbDrive);
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   // successful file export
   const validFileName = mockFileName('pdf');
@@ -267,7 +267,7 @@ test('write-in adjudication report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult =
     await apiClient.exportWriteInAdjudicationReportPdf({

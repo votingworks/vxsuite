@@ -19,13 +19,12 @@ import {
 } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -74,17 +73,14 @@ function configureMachineWithEarlyVoting(
 
 async function getParsedExport({
   apiClient,
-  mockUsbDrive,
   groupBy,
   filter,
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockMultiUsbDrive;
   groupBy: Tabulation.GroupBy;
   filter: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const filename = mockFileName();
-  expectUsbDriveSync(mockUsbDrive);
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,
     groupBy,
@@ -99,18 +95,18 @@ test('exports expected results for full election', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},
@@ -185,18 +181,19 @@ test('logs failure if export fails for some reason', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const filename = mockFileName();
   const failedExportResult = await apiClient.exportTallyReportCsv({
     filter: {},
@@ -222,14 +219,15 @@ test('logs failure if export fails for some reason', async () => {
 test('combined ballot primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
-  const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, workspace, usbPlatform } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
     electionDefinition
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
@@ -239,7 +237,6 @@ test('combined ballot primary: crossover, nonpartisan-only, and adjudicated ball
 
   const { headers, rows } = await getParsedExport({
     apiClient,
-    mockUsbDrive,
     filter: {},
     groupBy: {},
   });
@@ -316,10 +313,11 @@ test('combined ballot primary: crossover, nonpartisan-only, and adjudicated ball
 test('rejects party filter or party grouping', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   await suppressingConsoleOutput(async () => {
     await expect(
@@ -347,7 +345,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
@@ -355,7 +353,8 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -434,7 +433,6 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   // check initial export, without wia and manual data
   const { headers: headersInitial, rows: rowsInitial } = await getParsedExport({
     apiClient,
-    mockUsbDrive,
     filter: {},
     groupBy,
   });
@@ -561,7 +559,6 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   // check final export, with wia and manual data
   const { headers: headersFinal, rows: rowsFinal } = await getParsedExport({
     apiClient,
-    mockUsbDrive,
     filter: {},
     groupBy,
   });
@@ -657,18 +654,18 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},

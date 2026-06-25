@@ -7,7 +7,6 @@ export default defineConfig({
       exclude: [
         'src/cli.ts',
         'src/mocks/file_usb_drive.ts',
-        'src/mocks/mock_multi_usb_drive.ts',
         'src/**/*.test.ts',
       ],
       thresholds: {

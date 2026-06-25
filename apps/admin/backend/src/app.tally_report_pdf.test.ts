@@ -18,11 +18,10 @@ import { assert, err } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -84,13 +83,11 @@ afterEach(() => {
 async function expectIdenticalSnapshotsAcrossExportMethods({
   apiClient,
   mockPrinterHandler,
-  mockUsbDrive,
   reportSpec,
   customSnapshotIdentifier,
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
-  mockUsbDrive: MockMultiUsbDrive;
   reportSpec: TallyReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -108,7 +105,6 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     customSnapshotIdentifier,
   });
 
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportTallyReportPdf({
     ...reportSpec,
@@ -126,13 +122,15 @@ test('general election tally report PDF - Part 1', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   function snapshotReport({
     spec,
@@ -144,7 +142,6 @@ test('general election tally report PDF - Part 1', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
-      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -178,13 +175,14 @@ test('general election tally report PDF - Part 2', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   function snapshotReport({
     spec,
@@ -196,7 +194,6 @@ test('general election tally report PDF - Part 2', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
-      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -288,13 +285,14 @@ test('tally report PDF - primary', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   function snapshotReport({
     spec,
@@ -306,7 +304,6 @@ test('tally report PDF - primary', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
-      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -388,13 +385,14 @@ test('tally report logging', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   const MOCK_REPORT_SPEC: TallyReportSpec = {
     filter: {},
@@ -403,7 +401,6 @@ test('tally report logging', async () => {
   };
 
   // successful file export
-  expectUsbDriveSync(mockUsbDrive);
   const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportTallyReportPdf({
     ...MOCK_REPORT_SPEC,
@@ -421,7 +418,7 @@ test('tally report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportTallyReportPdf({
     ...MOCK_REPORT_SPEC,
@@ -477,7 +474,7 @@ test('tally report PDF - combined ballot primary', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, workspace, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, workspace, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   const electionId = await configureMachine(
     apiClient,
@@ -487,7 +484,8 @@ test('tally report PDF - combined ballot primary', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  usbPlatform.insertDrive(devsdb);
 
   function snapshotReport({
     spec,
@@ -499,7 +497,6 @@ test('tally report PDF - combined ballot primary', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
-      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });

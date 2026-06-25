@@ -17,7 +17,10 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { detectMultiUsbDrive, MultiUsbDrive } from '@votingworks/usb-drive';
+import {
+  detectMultiUsbDriveFromEnv,
+  MultiUsbDrive,
+} from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
   Printer,
@@ -127,7 +130,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         () => getUserRole(auth, workspace.store)
       );
       const multiUsbDrive =
-        options.multiUsbDrive ?? detectMultiUsbDrive(logger);
+        options.multiUsbDrive ?? detectMultiUsbDriveFromEnv({ logger });
       const printer = options.printer ?? detectPrinter(logger);
 
       // Release any stale ballot claims from this host machine left over
@@ -211,7 +214,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       );
 
       const multiUsbDrive =
-        options.multiUsbDrive ?? detectMultiUsbDrive(logger);
+        options.multiUsbDrive ?? detectMultiUsbDriveFromEnv({ logger });
 
       startClientNetworking({
         machineId: getMachineConfig().machineId,
