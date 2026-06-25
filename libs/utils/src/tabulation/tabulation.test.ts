@@ -139,14 +139,34 @@ test('getEmptyElectionResult', () => {
   expect(emptyElectionResult.contestResults[fishingContest.id]).toEqual({
     contestId: fishingContest.id,
     contestType: 'yesno',
-    yesOptionId: fishingContest.yesOption.id,
-    noOptionId: fishingContest.noOption.id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
-    yesTally: 0,
-    noTally: 0,
+    tallies: Object.fromEntries(fishingContest.options.map((o) => [o.id, 0])),
   });
+
+  // fishing has 3 options: ban-fishing, allow-fishing, regulate-fishing
+  expect(Object.keys(emptyElectionResult.contestResults['fishing']!)).toEqual([
+    'contestId',
+    'contestType',
+    'overvotes',
+    'undervotes',
+    'ballots',
+    'tallies',
+  ]);
+  const fishingTallies = (
+    emptyElectionResult.contestResults[
+      'fishing'
+    ] as Tabulation.YesNoContestResults
+  ).tallies;
+  expect(Object.keys(fishingTallies)).toEqual([
+    'ban-fishing',
+    'allow-fishing',
+    'regulate-fishing',
+  ]);
+  expect(fishingTallies['ban-fishing']).toEqual(0);
+  expect(fishingTallies['allow-fishing']).toEqual(0);
+  expect(fishingTallies['regulate-fishing']).toEqual(0);
 
   // check an empty candidate contests
   const zooCouncilMammalContest = find(
@@ -191,6 +211,42 @@ test('getEmptyElectionResult', () => {
       },
     },
   });
+});
+
+test('tabulating regulate-fishing increments only the regulate-fishing tally', async () => {
+  const election = electionTwoPartyPrimaryFixtures.readElection();
+
+  const someMetadata = {
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    precinctId: 'precinct-1',
+    votingMethod: BallotType.Precinct,
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+  } as const;
+
+  const results = (
+    await tabulateCastVoteRecords({
+      cvrs: [
+        {
+          card: { type: 'bmd' },
+          votes: { fishing: ['regulate-fishing'] },
+          ...someMetadata,
+        },
+      ],
+      election,
+    })
+  )[GROUP_KEY];
+
+  assert(results);
+  const fishingResults = results.contestResults[
+    'fishing'
+  ] as Tabulation.YesNoContestResults;
+  expect(fishingResults.ballots).toEqual(1);
+  expect(fishingResults.undervotes).toEqual(0);
+  expect(fishingResults.overvotes).toEqual(0);
+  expect(fishingResults.tallies['regulate-fishing']).toEqual(1);
+  expect(fishingResults.tallies['ban-fishing']).toEqual(0);
+  expect(fishingResults.tallies['allow-fishing']).toEqual(0);
 });
 
 test('getEmptyElectionResults without generic write-in', () => {
@@ -392,34 +448,35 @@ test('buildElectionResultsFixture', () => {
         ballots: 10,
         contestId: 'fishing',
         contestType: 'yesno',
-        yesOptionId: 'ban-fishing',
-        noOptionId: 'allow-fishing',
-        noTally: 6,
+        tallies: {
+          'ban-fishing': 4,
+          'allow-fishing': 6,
+          'regulate-fishing': 0,
+        },
         overvotes: 0,
         undervotes: 0,
-        yesTally: 4,
       },
       'new-zoo-either': {
         ballots: 0,
         contestId: 'new-zoo-either',
         contestType: 'yesno',
-        yesOptionId: 'new-zoo-either-approved',
-        noOptionId: 'new-zoo-neither-approved',
-        noTally: 0,
+        tallies: {
+          'new-zoo-either-approved': 0,
+          'new-zoo-neither-approved': 0,
+        },
         overvotes: 0,
         undervotes: 0,
-        yesTally: 0,
       },
       'new-zoo-pick': {
         ballots: 0,
         contestId: 'new-zoo-pick',
         contestType: 'yesno',
-        yesOptionId: 'new-zoo-safari',
-        noOptionId: 'new-zoo-traditional',
-        noTally: 0,
+        tallies: {
+          'new-zoo-safari': 0,
+          'new-zoo-traditional': 0,
+        },
         overvotes: 10,
         undervotes: 0,
-        yesTally: 0,
       },
       'zoo-council-mammal': {
         ballots: 10,
@@ -1260,10 +1317,13 @@ describe('tabulateCastVoteRecords', () => {
           fishing: {
             type: 'yesno',
             ballots: 28,
-            undervotes: 22,
+            undervotes: 20,
             overvotes: 2,
             yesTally: 2,
             noTally: 2,
+            optionTallies: {
+              'regulate-fishing': 2,
+            },
           },
         },
       })
@@ -1414,8 +1474,10 @@ describe('open primaries', () => {
     });
     expect(results.contestResults['ballot-measure-1']).toMatchObject({
       ballots: 1,
-      yesTally: 1,
-      noTally: 0,
+      tallies: expect.objectContaining({
+        'ballot-measure-1-yes': 1,
+        'ballot-measure-1-no': 0,
+      }),
     });
   });
 
@@ -1483,7 +1545,10 @@ describe('open primaries', () => {
     expect(getBallotCount(groupedResults[GROUP_KEY]!.cardCounts)).toEqual(2);
     expect(
       groupedResults[GROUP_KEY]?.contestResults['ballot-measure-1']
-    ).toMatchObject({ ballots: 2, yesTally: 2 });
+    ).toMatchObject({
+      ballots: 2,
+      tallies: expect.objectContaining({ 'ballot-measure-1-yes': 2 }),
+    });
   });
 
   test('crossover voting — partisan contests skipped, nonpartisan tallied', async () => {
@@ -1518,8 +1583,10 @@ describe('open primaries', () => {
     });
     expect(results.contestResults['ballot-measure-1']).toMatchObject({
       ballots: 1,
-      yesTally: 1,
-      noTally: 0,
+      tallies: expect.objectContaining({
+        'ballot-measure-1-yes': 1,
+        'ballot-measure-1-no': 0,
+      }),
     });
     expect(getBallotCount(results.cardCounts)).toEqual(1);
 
@@ -1596,7 +1663,7 @@ describe('open primaries', () => {
     // The nonpartisan contest counts all ballots
     expect(results.contestResults['ballot-measure-1']).toMatchObject({
       ballots: 3,
-      yesTally: 3,
+      tallies: expect.objectContaining({ 'ballot-measure-1-yes': 3 }),
     });
   });
 });
@@ -2266,10 +2333,12 @@ test('combineCompressedElectionResults - can combine results from different prec
 
   expect(combinedResults['750000015']).toMatchObject({
     ballots: 15,
-    noTally: 7,
     overvotes: 1,
     undervotes: 1,
-    yesTally: 6,
+    tallies: expect.objectContaining({
+      '750000088': 6,
+      '750000089': 7,
+    }),
   });
 
   expect(combinedResults['775020903']).toMatchObject({
@@ -2321,10 +2390,10 @@ test('areContestResultsValid', () => {
     contestType: 'yesno',
     overvotes: 10,
     undervotes: 5,
-    yesOptionId: 'yes',
-    noOptionId: 'no',
-    yesTally: 25,
-    noTally: 10,
+    tallies: {
+      yes: 25,
+      no: 10,
+    },
   };
 
   const validStraightPartyContestResults: Tabulation.StraightPartyContestResults =
@@ -2388,13 +2457,19 @@ test('areContestResultsValid', () => {
   expect(
     areContestResultsValid({
       ...validYesNoContestResults,
-      yesTally: validYesNoContestResults.yesTally + 1,
+      tallies: {
+        ...validYesNoContestResults.tallies,
+        yes: validYesNoContestResults.tallies['yes']! + 1,
+      },
     })
   ).toEqual(false);
   expect(
     areContestResultsValid({
       ...validYesNoContestResults,
-      noTally: validYesNoContestResults.noTally + 1,
+      tallies: {
+        ...validYesNoContestResults.tallies,
+        no: validYesNoContestResults.tallies['no']! + 1,
+      },
     })
   ).toEqual(false);
 
