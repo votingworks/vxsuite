@@ -28,7 +28,7 @@ import {
   UsbPlatformDrive,
   UsbPlatformDriveSchema,
   UsbPlatformPartition,
-} from '../usb_platform';
+} from '../usb_platform_types';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
 const debug = makeDebug('SimulatedUsbPlatform');

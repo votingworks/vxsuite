@@ -23,12 +23,12 @@ import {
   UsbPartitionDevPath,
   UsbPartitionMount,
 } from './types';
+import { RealUsbPlatform } from './usb_platform';
 import {
-  RealUsbPlatform,
   UsbPlatform,
   UsbPlatformDrive,
   UsbPlatformPartition,
-} from './usb_platform';
+} from './usb_platform_types';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 

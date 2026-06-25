@@ -28,6 +28,24 @@ const debug = makeDebug('usb-drive');
 // - /proc/mounts: a standard procfs file (world-readable) containing the
 //   kernel's current mount table, used to determine mount state.
 
+export function isFat32Partition(partition?: {
+  fstype?: string;
+  fsver?: string;
+}): boolean {
+  return partition?.fstype === 'vfat' && partition.fsver === 'FAT32';
+}
+
+export function isExt4Partition(partition?: { fstype?: string }): boolean {
+  return partition?.fstype === 'ext4';
+}
+
+export function isSupportedPartition(partition?: {
+  fstype?: string;
+  fsver?: string;
+}): boolean {
+  return isFat32Partition(partition) || isExt4Partition(partition);
+}
+
 function parseMountpoints(mountsContent: string): Map<string, string> {
   return new Map(
     mountsContent.split('\n').flatMap((line) => {

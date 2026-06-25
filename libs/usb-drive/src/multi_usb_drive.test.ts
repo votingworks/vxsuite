@@ -8,7 +8,7 @@ import {
 } from '@votingworks/utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { detectMultiUsbDrive } from './multi_usb_drive';
-import { UsbPlatform } from './usb_platform';
+import { UsbPlatform } from './usb_platform_types';
 import { exec } from './exec';
 import { getAllDiskDevices, UsbDiskDeviceInfo } from './block_devices';
 import {

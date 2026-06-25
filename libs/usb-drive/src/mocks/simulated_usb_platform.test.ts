@@ -12,7 +12,7 @@ import {
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from '../types';
-import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform';
+import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform_types';
 import {
   SimulatedUsbDrive,
   SimulatedUsbPlatform,
