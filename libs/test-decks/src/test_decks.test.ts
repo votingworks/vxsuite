@@ -3,6 +3,7 @@ import {
   readElectionGeneral,
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotStyle,
@@ -14,7 +15,13 @@ import {
   getContests,
   YesNoVote,
 } from '@votingworks/types';
-import { deepEqual, unique, assert, find } from '@votingworks/basics';
+import {
+  assertDefined,
+  deepEqual,
+  unique,
+  assert,
+  find,
+} from '@votingworks/basics';
 import { buildContestResultsFixture } from '@votingworks/utils';
 import {
   generateTestDeckWriteIn,
@@ -28,9 +35,18 @@ import {
 const electionGeneral = readElectionGeneral();
 
 describe('numBallotPositions', () => {
-  test('returns 2 for yes-no contests', () => {
+  test('returns options.length for yes-no contests', () => {
     const yesNoContest = electionGeneral.contests[13];
     expect(numBallotPositions(yesNoContest)).toEqual(2);
+  });
+
+  test('returns 3 for a yesno contest with 3 options', () => {
+    const election = electionTwoPartyPrimaryFixtures.readElection();
+    const fishingContest = find(
+      election.contests,
+      (c) => c.id === 'fishing' && c.type === 'yesno'
+    );
+    expect(numBallotPositions(fishingContest)).toEqual(3);
   });
 
   test('returns correct count for candidate contest without write-in', () => {
@@ -217,6 +233,35 @@ describe('generateTestDeckBallots', () => {
       Object.values(ballot.votes).some((vote) => vote && vote.length > 1)
     );
     expect(overvotedBallots.length).toEqual(1);
+  });
+
+  test('generates a ballot voting for the third option of a 3-option yesno contest', () => {
+    const election = electionTwoPartyPrimaryFixtures.readElection();
+    const fishingContest = find(
+      election.contests,
+      (c) => c.id === 'fishing' && c.type === 'yesno'
+    );
+    assert(fishingContest.type === 'yesno');
+    expect(fishingContest.options).toHaveLength(3);
+
+    const ballots = generateTestDeckBallots({
+      election,
+      precinctId: assertDefined(election.precincts[0]).id,
+      ballotFormat: 'bubble',
+      includeOvervotedBallots: false,
+      includeBlankBallots: false,
+    });
+
+    // Collect all votes cast for the fishing contest across all test deck ballots
+    const fishingVotes = ballots
+      .map((b) => b.votes['fishing'])
+      .filter(Boolean) as YesNoVote[];
+
+    // All three options should each appear in at least one ballot
+    const votedOptionIds = unique(fishingVotes.flat());
+    expect(votedOptionIds).toContain('regulate-fishing');
+    expect(votedOptionIds).toContain('ban-fishing');
+    expect(votedOptionIds).toContain('allow-fishing');
   });
 
   test('generates ballots for all precincts if no precinctId is provided', () => {
