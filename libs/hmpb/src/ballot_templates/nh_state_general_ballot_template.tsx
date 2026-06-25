@@ -644,7 +644,7 @@ function BallotMeasureContest({
           gap: '3rem',
         }}
       >
-        {[contest.yesOption, contest.noOption].map((option) => (
+        {contest.options.map((option) => (
           <li key={option.id} className={BALLOT_MEASURE_OPTION_CLASS}>
             <div
               style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}

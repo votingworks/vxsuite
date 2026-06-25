@@ -727,11 +727,7 @@ function BallotMeasureContest({
               justifyContent: 'end',
             }}
           >
-            {[
-              contest.yesOption,
-              contest.noOption,
-              ...(contest.additionalOptions ?? []),
-            ].map((option) => (
+            {contest.options.map((option) => (
               <li
                 key={option.id}
                 className={BALLOT_MEASURE_OPTION_CLASS}
