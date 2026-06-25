@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-param-reassign */
 import { isNonExistentFileOrDirectoryError, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
@@ -112,8 +113,64 @@ function findPresentPartitionByMountpoint(
   return { drive, partition: drive.partition };
 }
 
+/**
+ * Actions that can artificially fail with injected faults.
+ */
+export type FaultType =
+  | 'mountPartition'
+  | 'unmountPartition'
+  | 'formatDrive'
+  | 'sync';
+
+class SimulatedUsbPlatformFaults {
+  private readonly faults = new Map<
+    FaultType,
+    {
+      repeated: boolean;
+      reason: Error;
+    }
+  >();
+
+  /**
+   * Fails the next call of `faultType` with `reason`, then clears. Replaces
+   * any previous fault of `faultType`.
+   */
+  failNext(faultType: FaultType, reason: Error): void {
+    this.faults.set(faultType, { repeated: false, reason });
+  }
+
+  /**
+   * Fails every call of `faultType` with `reason`. Replaces any previous fault
+   * of `faultType`.
+   */
+  failRepeatedly(faultType: FaultType, reason: Error): void {
+    this.faults.set(faultType, { repeated: true, reason });
+  }
+
+  /**
+   * Clears any fault of `faultType` that are currently in effect.
+   */
+  clear(faultType: FaultType): void {
+    this.faults.delete(faultType);
+  }
+
+  /**
+   * Returns the next fault of `faultType` to be raised, if any, and clears it
+   * if it is not repeated.
+   */
+  take(faultType: FaultType): Error | undefined {
+    const fault = this.faults.get(faultType);
+    if (fault) {
+      if (!fault.repeated) this.faults.delete(faultType);
+      return fault.reason;
+    }
+    return undefined;
+  }
+}
+
 export class SimulatedUsbPlatform implements UsbPlatform {
   private watchController?: AbortController;
+  private readonly internalFaults = new SimulatedUsbPlatformFaults();
 
   /**
    * The working set of drives during an in-progress {@link mutateState}
@@ -142,6 +199,10 @@ export class SimulatedUsbPlatform implements UsbPlatform {
       }
       debug('Using existing devices file');
     }
+  }
+
+  get faults(): SimulatedUsbPlatformFaults {
+    return this.internalFaults;
   }
 
   async getDrives(): Promise<UsbPlatformDrive[]> {
@@ -349,7 +410,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   async mountPartition(partPath: UsbPartitionDevPath): Promise<void> {
     await Promise.resolve();
-    this.mutateState((drives) => {
+    this.mutateStateWithPotentialFault('mountPartition', (drives) => {
       const { drive, partition } = findPresentPartition(drives, partPath);
       partition.mountpoint = this.storagePath(drive.diskPath);
       mkdirSync(partition.mountpoint, { recursive: true });
@@ -362,7 +423,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   async unmountPartition(mountpoint: UsbPartitionMountpoint): Promise<void> {
     await Promise.resolve();
-    this.mutateState((drives) => {
+    this.mutateStateWithPotentialFault('unmountPartition', (drives) => {
       const { partition } = findPresentPartitionByMountpoint(
         drives,
         mountpoint
@@ -398,7 +459,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
   ): Promise<void> {
     await Promise.resolve();
     debug('Format drive: %s', diskPath);
-    this.mutateState((drives) => {
+    this.mutateStateWithPotentialFault('formatDrive', (drives) => {
       const drive = findPresentDrive(drives, diskPath);
       if (drive.partition) {
         this.unmountPartitionInternal(drive.partition);
@@ -424,10 +485,13 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     await Promise.resolve();
     debug('Sync: %s', mountpoint);
 
-    const drive = this.getSimulatedDrives().find(
-      (d) => d.present && d.partition?.mountpoint === mountpoint
+    const fault = this.internalFaults.take('sync');
+    if (fault) throw fault;
+    const drives = await this.getDrives();
+    assert(
+      drives.some((d) => d.partition?.mountpoint === mountpoint),
+      `Drive not mounted: ${mountpoint}`
     );
-    assert(!!drive, `Drive not mounted: ${mountpoint}`);
   }
 
   /**
@@ -466,6 +530,15 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
   private partPathFromDiskPath(diskPath: UsbDiskDevPath): UsbPartitionDevPath {
     return UsbPartitionDevPathSchema.decode(`${diskPath}1`);
+  }
+
+  private mutateStateWithPotentialFault(
+    fault: FaultType,
+    mutate: (drives: SimulatedUsbDrive[]) => SimulatedUsbDrive[] | void
+  ): void {
+    const parsedFault = this.internalFaults.take(fault);
+    if (parsedFault) throw parsedFault;
+    this.mutateState(mutate);
   }
 
   /**
