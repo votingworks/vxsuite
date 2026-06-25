@@ -77,7 +77,11 @@ export async function generateTestDecks(
     hmpbStringsCatalog,
     ballotLanguageConfigs
   );
-  const formattedElection = formatElectionForExport(election, ballotStrings);
+  const formattedElection = formatElectionForExport(
+    election,
+    ballotStrings,
+    jurisdiction.softwareVersion
+  );
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,

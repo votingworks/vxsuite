@@ -7,6 +7,7 @@ import {
   hasSplits,
   PollingPlace,
   pollingPlacesGenerateFromPrecincts,
+  SoftwareVersion,
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
@@ -81,7 +82,8 @@ export function addPollingPlacesForExport(
 
 export function formatElectionForExport(
   election: Election,
-  ballotStrings: UiStringsPackage
+  ballotStrings: UiStringsPackage,
+  softwareVersion: SoftwareVersion
 ): Election {
   const splitPrecincts = election.precincts.filter((p) => hasSplits(p));
 
@@ -100,20 +102,20 @@ export function formatElectionForExport(
     )
   );
 
-  // If a ballot measure contest has additional options, we transform it into a
-  // candidate contest before export, which omits the description field. So we
-  // add the description field to additionalHashInput.
+  // v4.0 converts multi-option yesno contests to candidate contests (dropping
+  // the description), so we preserve it in additionalHashInput. v4.1+ exports
+  // them natively with all options, so no workaround is needed.
   const contestDescriptionsForContestsWithAdditionalOptions =
-    Object.fromEntries(
-      election.contests
-        .filter(
-          (contest): contest is YesNoContest =>
-            contest.type === 'yesno' &&
-            contest.additionalOptions !== undefined &&
-            contest.additionalOptions.length > 0
+    softwareVersion === 'v4.0'
+      ? Object.fromEntries(
+          election.contests
+            .filter(
+              (contest): contest is YesNoContest =>
+                contest.type === 'yesno' && contest.options.length > 2
+            )
+            .map((contest) => [contest.id, contest.description])
         )
-        .map((contest) => [contest.id, contest.description])
-    );
+      : {};
 
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),

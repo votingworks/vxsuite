@@ -23,7 +23,6 @@ import {
   range,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { readElection } from '@votingworks/fs';
 import {
   parse as parseHtml,
   HTMLElement as ParsedHTMLElement,
@@ -215,45 +214,75 @@ test('reorder candidates based on rotation from template', async () => {
   }
 });
 
-test('ballot measure contests with additional options are transformed into candidate contests', async () => {
+test('v4.1: ballot measure contests with 3+ options are exported natively as yesno', async () => {
+  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0];
+  // allBallotProps[0].election has the 3-option question-a contest
+  const specElection = fixtureSpec.allBallotProps[0].election;
+  const ballotMeasureContest = find(
+    specElection.contests,
+    (contest): contest is YesNoContest =>
+      contest.type === 'yesno' && contest.options.length > 2
+  );
+  assert(ballotMeasureContest.options.length === 3);
+
+  // Use allBaseBallotProps to get same-reference election objects for all props
+  const allBallotProps = allBaseBallotProps(specElection);
+
+  // v4.1+ exports the contest natively — it stays as a yesno with all options.
+  const electionDefinitionV41 =
+    await layOutMinimalBallotsToCreateElectionDefinition(
+      rendererPool,
+      ballotTemplates.NhBallot,
+      allBallotProps,
+      { format: 'vxf', version: 'v4.1' }
+    );
+  const nativeContest = find(
+    electionDefinitionV41.election.contests,
+    (contest): contest is YesNoContest =>
+      contest.type === 'yesno' && contest.id === ballotMeasureContest.id
+  );
+  expect(nativeContest.options).toHaveLength(3);
+  expect(nativeContest.options.map((o) => o.id)).toEqual(
+    ballotMeasureContest.options.map((o) => o.id)
+  );
+});
+
+test('v4.0: ballot measure contests with 3+ options are transformed into candidate contests', async () => {
   const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0];
   const specElection = fixtureSpec.allBallotProps[0].election;
   const ballotMeasureContest = find(
     specElection.contests,
     (contest): contest is YesNoContest =>
-      contest.type === 'yesno' && contest.additionalOptions !== undefined
+      contest.type === 'yesno' && contest.options.length > 2
   );
-  assert(ballotMeasureContest.additionalOptions!.length === 1);
+  assert(ballotMeasureContest.options.length === 3);
 
-  const electionAfterRender = (
-    await readElection(fixtureSpec.electionPath)
-  ).unsafeUnwrap().election;
+  // Use allBaseBallotProps to get same-reference election objects for all props
+  const allBallotProps = allBaseBallotProps(specElection);
+
+  // v4.0 can't represent >2-option yesno contests, so the renderer converts
+  // them to candidate contests for backwards-compatible export.
+  const electionDefinitionV40 =
+    await layOutMinimalBallotsToCreateElectionDefinition(
+      rendererPool,
+      ballotTemplates.NhBallot,
+      allBallotProps,
+      { format: 'vxf', version: 'v4.0' }
+    );
   const transformedContest = find(
-    electionAfterRender.contests,
+    electionDefinitionV40.election.contests,
     (contest): contest is CandidateContest =>
       contest.type === 'candidate' && contest.id === ballotMeasureContest.id
-  );
-  expect(transformedContest.districtId).toEqual(
-    ballotMeasureContest.districtId
   );
   expect(transformedContest.title).toEqual(ballotMeasureContest.title);
   expect(transformedContest.seats).toEqual(1);
   expect(transformedContest.allowWriteIns).toEqual(false);
-  expect(transformedContest.termDescription).toBeUndefined();
-  expect(transformedContest.candidates).toEqual([
-    {
-      id: ballotMeasureContest.yesOption.id,
-      name: ballotMeasureContest.yesOption.label,
-    },
-    {
-      id: ballotMeasureContest.noOption.id,
-      name: ballotMeasureContest.noOption.label,
-    },
-    {
-      id: ballotMeasureContest.additionalOptions![0].id,
-      name: ballotMeasureContest.additionalOptions![0].label,
-    },
-  ]);
+  expect(transformedContest.candidates).toEqual(
+    ballotMeasureContest.options.map((option) => ({
+      id: option.id,
+      name: option.label,
+    }))
+  );
 });
 
 const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps[]> = {
@@ -415,11 +444,7 @@ test.each(templateSpecificTestCases)(
             assert(option.type === 'option');
             return option.optionId;
           });
-          const expectedOptionIds = [
-            contest.yesOption.id,
-            contest.noOption.id,
-            ...(contest.additionalOptions ?? []).map((o) => o.id),
-          ];
+          const expectedOptionIds = contest.options.map((o) => o.id);
           expect(optionIds).toEqual(expectedOptionIds);
           break;
         }

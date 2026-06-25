@@ -714,14 +714,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
       }
       return contest;
     })
-    // Temporary workaround to transform ballot measures with additional options
-    // into candidate contests, since VxSuite doesn't support the
-    // contest.additionalOptions field.
+    // v4.0 doesn't support yesno contests with more than 2 options, so we
+    // convert them to candidate contests for backwards-compatible export.
+    // v4.1+ exports the yesno contest natively with all options.
     .map((contest): Contest => {
       if (
         contest.type !== 'yesno' ||
-        !contest.additionalOptions ||
-        contest.additionalOptions.length === 0
+        contest.options.length <= 2 ||
+        electionSerializationOptions.version !== 'v4.0'
       ) {
         return contest;
       }
@@ -848,26 +848,16 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
 export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
   contest: YesNoContest
 ): CandidateContest {
-  assert(contest.additionalOptions && contest.additionalOptions.length > 0);
+  assert(contest.options.length > 2);
   return {
     type: 'candidate',
     id: contest.id,
     districtId: contest.districtId,
     title: contest.title,
-    candidates: [
-      {
-        id: contest.yesOption.id,
-        name: contest.yesOption.label,
-      },
-      {
-        id: contest.noOption.id,
-        name: contest.noOption.label,
-      },
-      ...contest.additionalOptions.map((option) => ({
-        id: option.id,
-        name: option.label,
-      })),
-    ],
+    candidates: contest.options.map((option) => ({
+      id: option.id,
+      name: option.label,
+    })),
     allowWriteIns: false,
     seats: 1,
   };

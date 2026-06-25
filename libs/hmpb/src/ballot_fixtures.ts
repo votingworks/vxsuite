@@ -611,17 +611,19 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             ...contest,
             description: contest.description.repeat(5),
           }
-        : // Give one ballot measure additional options to test that it gets rendered correctly
-        // and transformed into a candidate contest
+        : // Give one ballot measure a third option to test that it gets rendered
+        // correctly. v4.0 exports transform it to a candidate contest;
+        // v4.1+ exports it natively with all options.
         contest.id === 'question-a' && contest.type === 'yesno'
         ? {
             ...contest,
-            additionalOptions: [
+            options: [
+              ...contest.options,
               {
                 id: 'third-option',
                 label: 'Third Option',
               },
-            ],
+            ] as typeof contest.options,
           }
         : contest
     );
