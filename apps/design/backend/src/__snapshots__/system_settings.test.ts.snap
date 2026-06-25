@@ -22,6 +22,7 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
   "disableVoterHelpButtons": true,
   "disallowCastingOvervotes": false,
   "enableEarlyVoting": true,
+  "enableTestDeckPrinting": true,
   "markThresholds": {
     "definite": 0.1,
     "marginal": 0.05,
@@ -97,6 +98,8 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
   "disableSystemLimitChecks": true,
   "disableVoterHelpButtons": true,
   "disallowCastingOvervotes": false,
+  "enableEarlyVoting": true,
+  "enableTestDeckPrinting": true,
   "markThresholds": {
     "definite": 0.07,
     "marginal": 0.05,

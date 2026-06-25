@@ -832,6 +832,19 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.TEST_DECK_PRINTING_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Enable Test Deck Printing"
+                isChecked={Boolean(systemSettings.enableTestDeckPrinting)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    enableTestDeckPrinting: isChecked ? true : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
             <CheckboxButton
               label="Qualified Write-In Candidate Mode"
               isChecked={Boolean(systemSettings.areWriteInCandidatesQualified)}

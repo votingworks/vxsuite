@@ -246,6 +246,11 @@ export const SystemSettingsSchema = z
      * voting results separately in VxAdmin.
      */
     enableEarlyVoting: z.boolean().optional(),
+
+    /**
+     * Enables test deck printing functionality on VxPrint and VxMark.
+     */
+    enableTestDeckPrinting: z.boolean().optional(),
   })
   .refine(
     (settings) =>

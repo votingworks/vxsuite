@@ -81,6 +81,12 @@ export interface UserFeaturesConfig {
    * Requires the system settings screen to be enabled.
    */
   VOTER_HELP_BUTTONS_SYSTEM_SETTING?: boolean;
+  /**
+   * Allow the user to toggle the test deck printing functionality on VxPrint
+   * and VxMark.
+   * Requires the system settings screen to be enabled.
+   */
+  TEST_DECK_PRINTING_SYSTEM_SETTING?: boolean;
 }
 
 /**
@@ -200,6 +206,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   BMD_OVERVOTE_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
+  TEST_DECK_PRINTING_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
