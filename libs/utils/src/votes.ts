@@ -43,7 +43,7 @@ export function normalizeWriteInId(candidateId: CandidateId): string {
 export function getContestVoteOptionsForYesNoContest(
   contest: YesNoContest
 ): readonly YesNoContestOptionId[] {
-  return [contest.yesOption.id, contest.noOption.id];
+  return contest.options.map((o) => o.id);
 }
 
 /**

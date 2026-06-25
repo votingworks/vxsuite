@@ -1,4 +1,4 @@
-import { iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
@@ -17,11 +17,7 @@ function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
 }
 
 function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
-  if (seed % 2 === 0) {
-    return [c.yesOption.id];
-  }
-
-  return [c.noOption.id];
+  return [assertDefined(c.options[seed % c.options.length]).id];
 }
 
 export function generateMockVotes(election: Election): VotesDict {

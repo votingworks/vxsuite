@@ -117,7 +117,7 @@ function makeContestAdjudicationData(
   }
   return {
     contestId,
-    options: [contest.yesOption, contest.noOption].map((option) => ({
+    options: contest.options.map((option) => ({
       definition: {
         id: option.id,
         contestId,

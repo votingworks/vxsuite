@@ -217,7 +217,7 @@ test('yesno contest overvotes', () => {
     {
       type: AdjudicationReason.Overvote,
       contestId: ballotMeasure3.id,
-      optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
+      optionIds: [ballotMeasure3.options[0].id, ballotMeasure3.options[1].id],
       expected: 1,
     },
   ]);

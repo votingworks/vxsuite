@@ -139,7 +139,7 @@ test('write-in character limit across contests', () => {
       createWriteIn('ABC', 1),
     ],
     [manySeatCandidateContests[1].id]: [createWriteIn('A', 0)],
-    [yesNoContests[0].id]: [yesNoContests[0].yesOption.id],
+    [yesNoContests[0].id]: [yesNoContests[0].options[0].id],
   };
 
   render(
@@ -172,7 +172,7 @@ test('yesno contest', () => {
       election={electionGeneral}
       contest={yesnoContest}
       votes={{
-        [yesnoContest.id]: [yesnoContest.yesOption.id],
+        [yesnoContest.id]: [yesnoContest.options[0].id],
       }}
       updateVote={vi.fn()}
     />

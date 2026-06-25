@@ -702,10 +702,10 @@ describe('ERR file import', () => {
           'question-a': {
             contestId: 'question-a',
             contestType: 'yesno',
-            yesOptionId: 'fishing-yes',
-            noOptionId: 'fishing-no',
-            yesTally: 30,
-            noTally: 29,
+            tallies: {
+              'fishing-yes': 30,
+              'fishing-no': 29,
+            },
             overvotes: 1,
             undervotes: 5,
             ballots: 65,

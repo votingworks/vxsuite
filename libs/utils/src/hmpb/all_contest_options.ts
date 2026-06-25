@@ -93,16 +93,13 @@ export function* allContestOptionsWithMultiEndorsements(
     }
 
     case 'yesno': {
-      yield {
-        type: 'yesno',
-        id: contest.yesOption.id,
-        contestId: contest.id,
-      };
-      yield {
-        type: 'yesno',
-        id: contest.noOption.id,
-        contestId: contest.id,
-      };
+      for (const option of contest.options) {
+        yield {
+          type: 'yesno',
+          id: option.id,
+          contestId: contest.id,
+        };
+      }
       break;
     }
 
@@ -193,10 +190,7 @@ export function contestOptionName(
     }
     case 'yesno': {
       assert(contest.type === 'yesno');
-      return find(
-        [contest.yesOption, contest.noOption],
-        (o) => o.id === option.id
-      ).label;
+      return find(contest.options, (o) => o.id === option.id).label;
     }
     case 'straight-party': {
       assert(contest.type === 'straight-party');

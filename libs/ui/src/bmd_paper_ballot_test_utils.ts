@@ -35,5 +35,5 @@ export function generateYesNoVote(c: YesNoContest): Vote {
     return [] as Vote;
   }
 
-  return [assertDefined(sample([c.yesOption.id, c.noOption.id]))] as Vote;
+  return [assertDefined(sample(c.options.map((option) => option.id)))] as Vote;
 }

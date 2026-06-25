@@ -448,7 +448,7 @@ test('adjudication', () => {
                   {
                     type: 'yesno',
                     contestId: yesnoContests[i].id,
-                    optionId: yesnoContests[i].yesOption.id,
+                    optionId: yesnoContests[i].options[0].id,
                     score: 1, // definite
                     scoredOffset: { x: 0, y: 0 },
                     bounds: zeroRect,

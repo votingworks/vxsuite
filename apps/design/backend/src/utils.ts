@@ -119,14 +119,10 @@ export function regenerateElectionIds(
           };
         case 'yesno':
           return {
-            yesOption: {
-              ...contest.yesOption,
-              id: replaceId(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: replaceId(contest.noOption.id),
-            },
+            options: contest.options.map((option) => ({
+              ...option,
+              id: replaceId(option.id),
+            })) as unknown as typeof contest.options,
           };
         default: {
           /* istanbul ignore next */

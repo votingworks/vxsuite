@@ -33,10 +33,9 @@ test('getContestVoteOptionsForYesNoContest', () => {
     electionWithMsEitherNeither.contests,
     (c): c is YesNoContest => c.type === 'yesno'
   );
-  expect(getContestVoteOptionsForYesNoContest(contest)).toEqual([
-    contest.yesOption.id,
-    contest.noOption.id,
-  ]);
+  expect(getContestVoteOptionsForYesNoContest(contest)).toEqual(
+    contest.options.map((o) => o.id)
+  );
 });
 
 test('getContestVoteOptionsForCandidateContest', () => {
@@ -197,7 +196,7 @@ test('markInfoToVotesDict yesno', () => {
   const yesMark: BallotTargetMark = {
     type: 'yesno',
     contestId: yesnoContest.id,
-    optionId: yesnoContest.yesOption.id,
+    optionId: yesnoContest.options[0].id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },
@@ -209,7 +208,7 @@ test('markInfoToVotesDict yesno', () => {
   const noMark: BallotTargetMark = {
     type: 'yesno',
     contestId: yesnoContest.id,
-    optionId: yesnoContest.noOption.id,
+    optionId: yesnoContest.options[1].id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },
@@ -224,7 +223,7 @@ test('markInfoToVotesDict yesno', () => {
       { marginal: 0.04, definite: 0.1 },
       [yesMark]
     )
-  ).toEqual({ [yesnoContest.id]: [yesnoContest.yesOption.id] });
+  ).toEqual({ [yesnoContest.id]: [yesnoContest.options[0].id] });
   expect(
     convertMarksToVotesDict(
       election.contests,
@@ -242,7 +241,7 @@ test('markInfoToVotesDict yesno', () => {
       [yesMark, noMark]
     )
   ).toEqual({
-    [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
+    [yesnoContest.id]: [yesnoContest.options[0].id, yesnoContest.options[1].id],
   });
 });
 

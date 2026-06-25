@@ -184,11 +184,11 @@ test('getScannerResults groups by inferred party for an open primary', async () 
   recordHmpbBallot({
     [democraticContest.id]: [democraticContest.candidates[0].id],
     [republicanContest.id]: [republicanContest.candidates[0].id],
-    [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+    [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
   });
   // One ballot with only nonpartisan votes
   recordHmpbBallot({
-    [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+    [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
   });
 
   const results = await getScannerResultsMemoized({ store });
@@ -205,7 +205,9 @@ test('getScannerResults groups by inferred party for an open primary', async () 
   expect(noPartyGroup?.cardCounts.hmpb[0]).toEqual(2);
   expect(noPartyGroup?.contestResults[nonpartisanContest.id]).toMatchObject({
     ballots: 2,
-    yesTally: 2,
-    noTally: 0,
+    tallies: expect.objectContaining({
+      [nonpartisanContest.options[0].id]: 2,
+      [nonpartisanContest.options[1].id]: 0,
+    }),
   });
 });

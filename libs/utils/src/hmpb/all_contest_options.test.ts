@@ -81,23 +81,18 @@ test('yesno contest', () => {
     fc.property(arbitraryYesNoContest(), (contest) => {
       const options = Array.from(allContestOptions(contest));
       expectTypeOf(options).toEqualTypeOf<YesNoContestOption[]>();
-      expect(options).toEqual<ContestOption[]>([
-        {
+      expect(options).toEqual<ContestOption[]>(
+        contest.options.map((option) => ({
           type: 'yesno',
-          id: contest.yesOption.id,
+          id: option.id,
           contestId: contest.id,
-        },
-        {
-          type: 'yesno',
-          id: contest.noOption.id,
-          contestId: contest.id,
-        },
-      ]);
+        }))
+      );
       expect(contestOptionName({ parties }, contest, options[0]!)).toEqual(
-        contest.yesOption.label
+        contest.options[0].label
       );
       expect(contestOptionName({ parties }, contest, options[1]!)).toEqual(
-        contest.noOption.label
+        contest.options[1].label
       );
     })
   );

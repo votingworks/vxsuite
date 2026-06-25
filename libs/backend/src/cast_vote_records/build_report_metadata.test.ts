@@ -197,20 +197,49 @@ test('builds well-formed cast vote record report', () => {
         expect.objectContaining({
           '@id': ballotMeasureContest.id,
           Name: ballotMeasureContest.title,
-          ContestSelection: [
+          ContestSelection: ballotMeasureContest.options.map((option) =>
             expect.objectContaining({
-              '@id': ballotMeasureContest.yesOption.id,
-              Selection: ballotMeasureContest.yesOption.label,
-            }),
-            expect.objectContaining({
-              '@id': ballotMeasureContest.noOption.id,
-              Selection: ballotMeasureContest.noOption.label,
-            }),
-          ],
+              '@id': option.id,
+              Selection: option.label,
+            })
+          ),
         }),
       ])
     );
   }
+});
+
+test('fishing ballot measure includes regulate-fishing as a third BallotMeasureSelection', () => {
+  const report = buildCastVoteRecordReportMetadata({
+    election,
+    electionId,
+    generatingDeviceId: scannerId,
+    scannerIds: [scannerId],
+    reportTypes: [CVR.ReportType.OriginatingDeviceExport],
+    isTestMode: false,
+    batchInfo: [],
+  });
+
+  const ReportElection = report.Election[0];
+  assert(ReportElection);
+
+  const fishingContest = find(
+    ReportElection.Contest,
+    (c): c is CVR.BallotMeasureContest =>
+      c['@type'] === 'CVR.BallotMeasureContest' && c['@id'] === 'fishing'
+  );
+
+  expect(fishingContest.ContestSelection).toHaveLength(3);
+  expect(fishingContest.ContestSelection).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ '@id': 'ban-fishing', Selection: 'YES' }),
+      expect.objectContaining({ '@id': 'allow-fishing', Selection: 'NO' }),
+      expect.objectContaining({
+        '@id': 'regulate-fishing',
+        Selection: 'REGULATE',
+      }),
+    ])
+  );
 });
 
 test('builds straight party contests as CVR.PartyContest', () => {

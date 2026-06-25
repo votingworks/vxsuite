@@ -517,11 +517,11 @@ async function insertContest(
         contest.type,
         contest.districtId,
         contest.description,
-        contest.yesOption.id,
-        contest.yesOption.label,
-        contest.noOption.id,
-        contest.noOption.label,
-        JSON.stringify(contest.additionalOptions),
+        contest.options[0].id,
+        contest.options[0].label,
+        contest.options[1].id,
+        contest.options[1].label,
+        JSON.stringify(contest.options.slice(2)),
         ...(ballotOrder ? [ballotOrder] : [])
       );
       break;
@@ -1143,15 +1143,17 @@ export class Store {
               type: row.type,
               districtId: row.districtId,
               description: assertDefined(row.description),
-              yesOption: {
-                id: assertDefined(row.yesOptionId),
-                label: assertDefined(row.yesOptionLabel),
-              },
-              noOption: {
-                id: assertDefined(row.noOptionId),
-                label: assertDefined(row.noOptionLabel),
-              },
-              additionalOptions: row.additionalOptions ?? undefined,
+              options: [
+                {
+                  id: assertDefined(row.yesOptionId),
+                  label: assertDefined(row.yesOptionLabel),
+                },
+                {
+                  id: assertDefined(row.noOptionId),
+                  label: assertDefined(row.noOptionLabel),
+                },
+                ...(row.additionalOptions ?? []),
+              ],
             });
           }
           default: {

@@ -69,18 +69,11 @@ function buildBallotMeasureContest(
     '@id': contest.id,
     '@type': 'CVR.BallotMeasureContest',
     Name: contest.title,
-    ContestSelection: [
-      {
-        '@type': 'CVR.BallotMeasureSelection',
-        '@id': contest.yesOption.id,
-        Selection: contest.yesOption.label,
-      },
-      {
-        '@type': 'CVR.BallotMeasureSelection',
-        '@id': contest.noOption.id,
-        Selection: contest.noOption.label,
-      },
-    ],
+    ContestSelection: contest.options.map((option) => ({
+      '@type': 'CVR.BallotMeasureSelection',
+      '@id': option.id,
+      Selection: option.label,
+    })),
   };
 }
 

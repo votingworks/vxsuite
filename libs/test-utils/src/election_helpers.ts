@@ -104,18 +104,20 @@ export function createTestElection(
       description: `This is a description for proposition ${
         i + 1
       }. It explains what the proposition does.`,
-      yesOption: {
-        id: `yesno-${i}-yes`,
-        label: longYesNoLabels
-          ? `Yes, I approve of this proposition and all of its amendments and changes to the existing law`
-          : `Yes`,
-      },
-      noOption: {
-        id: `yesno-${i}-no`,
-        label: longYesNoLabels
-          ? `No, I do not approve of this proposition and prefer the current law to remain unchanged`
-          : `No`,
-      },
+      options: [
+        {
+          id: `yesno-${i}-yes`,
+          label: longYesNoLabels
+            ? `Yes, I approve of this proposition and all of its amendments and changes to the existing law`
+            : `Yes`,
+        },
+        {
+          id: `yesno-${i}-no`,
+          label: longYesNoLabels
+            ? `No, I do not approve of this proposition and prefer the current law to remain unchanged`
+            : `No`,
+        },
+      ],
     };
     contests.push(yesNoContest);
   }
@@ -196,7 +198,7 @@ export function createMockVotes(
     if (contest.type === 'candidate') {
       votes[contest.id] = contest.candidates.slice(0, contest.seats);
     } else {
-      votes[contest.id] = [contest.yesOption.id];
+      votes[contest.id] = [contest.options[0].id];
     }
   }
   return votes;

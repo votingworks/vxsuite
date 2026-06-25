@@ -149,17 +149,13 @@ export function apiMethods(ctx: TtsApiContext) {
               text: convertHtmlToAudioCues(contest.description),
             });
 
-            strings.push({
-              key: ElectionStringKey.CONTEST_OPTION_LABEL,
-              subkey: contest.yesOption.id,
-              text: contest.yesOption.label,
-            });
-
-            strings.push({
-              key: ElectionStringKey.CONTEST_OPTION_LABEL,
-              subkey: contest.noOption.id,
-              text: contest.noOption.label,
-            });
+            for (const option of contest.options) {
+              strings.push({
+                key: ElectionStringKey.CONTEST_OPTION_LABEL,
+                subkey: option.id,
+                text: option.label,
+              });
+            }
 
             break;
 

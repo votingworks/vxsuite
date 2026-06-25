@@ -146,8 +146,10 @@ const nonpartisanElection = buildElection([
     districtId,
     title: 'Measure',
     description: 'A ballot measure',
-    yesOption: { id: 'measure-yes', label: 'Yes' },
-    noOption: { id: 'measure-no', label: 'No' },
+    options: [
+      { id: 'measure-yes', label: 'Yes' },
+      { id: 'measure-no', label: 'No' },
+    ],
   },
 ]);
 

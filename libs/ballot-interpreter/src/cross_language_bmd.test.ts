@@ -64,7 +64,7 @@ function generateVotesForContests(
         break;
       }
       case 'yesno': {
-        votes[contest.id] = [contest.yesOption.id];
+        votes[contest.id] = [contest.options[0].id];
         break;
       }
       case 'straight-party': {

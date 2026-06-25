@@ -37,8 +37,10 @@ const yesNoContest: YesNoContest = {
   title: 'Contest',
   type: 'yesno',
   description: 'Question',
-  yesOption: { id: 'yes', label: 'Yes' },
-  noOption: { id: 'no', label: 'No' },
+  options: [
+    { id: 'yes', label: 'Yes' },
+    { id: 'no', label: 'No' },
+  ],
 };
 
 const election: Pick<Election, 'parties'> = {

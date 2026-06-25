@@ -467,24 +467,15 @@ export function generateAllPrecinctsTallyReportRows(
         }
         case 'yesno': {
           return [
-            {
+            ...contest.options.map((option, optionIndex) => ({
               precinct: precinct.name,
               precinctId: precinct.id,
               contest: contest.title,
               contestId: contest.id,
-              selection: contest.yesOption.label,
-              selectionId: contest.yesOption.id,
-              totalVotes: `${contestIndex}`,
-            },
-            {
-              precinct: precinct.name,
-              precinctId: precinct.id,
-              contest: contest.title,
-              contestId: contest.id,
-              selection: contest.noOption.label,
-              selectionId: contest.noOption.id,
-              totalVotes: `${contestIndex + 1}`,
-            },
+              selection: option.label,
+              selectionId: option.id,
+              totalVotes: `${contestIndex + optionIndex}`,
+            })),
             ...overvotesUndervotesAndBallotsCastRows,
           ];
         }

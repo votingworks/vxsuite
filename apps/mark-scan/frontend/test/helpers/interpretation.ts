@@ -24,7 +24,7 @@ export function getMockInterpretation(
     };
   } else if (contest.type === 'yesno') {
     votes = {
-      [contest.title]: [contest.yesOption.id],
+      [contest.title]: [contest.options[0].id],
     };
   }
 

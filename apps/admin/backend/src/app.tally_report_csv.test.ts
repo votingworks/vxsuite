@@ -168,12 +168,13 @@ test('exports expected results for full election', async () => {
   const fishingExpectedValues: Record<string, string> = {
     'ban-fishing': '8',
     'allow-fishing': '8',
+    'regulate-fishing': '8',
     overvotes: '8',
-    undervotes: '88',
+    undervotes: '80',
     'ballots-cast': '112',
   };
   const fishingRows = rows.filter((row) => row['Contest ID'] === 'fishing');
-  expect(fishingRows).toHaveLength(5);
+  expect(fishingRows).toHaveLength(6);
   for (const [selectionId, votes] of Object.entries(fishingExpectedValues)) {
     expect(votes).toEqual(fishingExpectedValues[selectionId]);
   }
