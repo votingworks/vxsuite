@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { capturePdfScreenshots } from './pdf';
 import type { ScreenshotNamer } from './screenshots';
 
@@ -23,7 +23,7 @@ export async function captureUsbReport(
   namer: ScreenshotNamer,
   options: { filenameIncludes: string }
 ): Promise<void> {
-  const usbPath = getMockFileUsbDriveHandler().getDataPath();
+  const usbPath = getMockUsbDriveHandler().getDataPath();
   if (!usbPath) throw new Error('Mock USB drive is not mounted');
 
   const reportPath = listFilesRecursive(usbPath)

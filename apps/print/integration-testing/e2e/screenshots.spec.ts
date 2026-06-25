@@ -19,7 +19,7 @@ import {
   ElectionDefinition,
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   getMockFilePrinterHandler,
   HP_LASER_PRINTER_CONFIG,
@@ -43,7 +43,7 @@ test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
-  getMockFileUsbDriveHandler().cleanup();
+  getMockUsbDriveHandler().cleanup();
   getMockFilePrinterHandler().connectPrinter(HP_LASER_PRINTER_CONFIG);
   await forceLogOutAndResetElectionDefinition(page);
 });
@@ -100,7 +100,7 @@ test('election manager: configuration and settings', async ({
   const namer = createScreenshotNamer(testInfo);
   const electionDefinition = getElectionDefinition();
   const { election } = electionDefinition;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,

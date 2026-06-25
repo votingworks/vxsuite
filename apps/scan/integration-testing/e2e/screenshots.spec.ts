@@ -26,7 +26,7 @@ import {
   SystemSettings,
   VotesDict,
 } from '@votingworks/types';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
@@ -41,13 +41,13 @@ test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
-  getMockFileUsbDriveHandler().cleanup();
+  getMockUsbDriveHandler().cleanup();
 });
 
 test('configuration', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -197,7 +197,7 @@ test('configuration', async ({ page }, testInfo) => {
 test('early voting', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const { screenshot, screenshotWithButtonHighlight } =
     buildIntegrationTestHelper(page, namer);
 
@@ -298,7 +298,7 @@ test('voting', async ({ page }, testInfo) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,
@@ -617,7 +617,7 @@ test('voting', async ({ page }, testInfo) => {
 test('accessibility', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const fixtureSet = electionFamousNames2021Fixtures;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const { screenshot } = buildIntegrationTestHelper(page, namer);
 
   const systemSettings: SystemSettings = {
@@ -708,7 +708,7 @@ test('write-in-report', async ({ page }, testInfo) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const { screenshot, screenshotWithButtonHighlight } =
     buildIntegrationTestHelper(page, namer);
 

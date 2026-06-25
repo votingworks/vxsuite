@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { Election, getContests, hasSplits } from '@votingworks/types';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { getBallotStyleGroupsForPrecinctOrSplit } from '@votingworks/utils';
 import { logInAsElectionManager, logInAsPollWorker } from './auth';
 
@@ -25,7 +25,7 @@ export async function configureMachine(
   }
 ): Promise<void> {
   const { election, electionPackage, pollingPlaceName } = options;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
 
   await logInAsElectionManager(page, election);
   await page.getByText(/USB drive/).waitFor();
