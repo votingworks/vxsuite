@@ -46,7 +46,7 @@ test('renders summary cards', async () => {
   screen.getByText(hasTextAcrossElements(['CVRs', '40'].join('')));
 });
 
-test('renders location name search box', async () => {
+test('location name search box filters location list', async () => {
   const api = createApiMock();
 
   api.expectGetCastVoteRecordFileMode('unlocked');
@@ -58,22 +58,31 @@ test('renders location name search box', async () => {
   });
 
   await waitFor(() => api.assertComplete());
+  for (const place of election.pollingPlaces) {
+    screen.getButton(new RegExp(place.name));
+  }
 
   const emptyInput = screen.getByPlaceholderText('Search Locations');
-  userEvent.type(emptyInput, place2.name);
+  userEvent.type(emptyInput, place2.name.toLowerCase());
 
-  screen.getByDisplayValue(place2.name);
-  // [TODO] Assert that displayed locations are filtered.
+  screen.getByDisplayValue(place2.name.toLowerCase());
+  screen.getButton(new RegExp(place2.name));
+
+  for (const place of election.pollingPlaces) {
+    if (place.name === place2.name) continue;
+    expect(screen.queryButton(new RegExp(place.name))).not.toBeInTheDocument();
+  }
 });
 
-test('renders location filter buttons', async () => {
+test('location filter buttons filter location list', async () => {
   const api = createApiMock();
+  const loadedPlace = place1;
 
   api.expectGetCastVoteRecordFileMode('unlocked');
   api.expectGetCastVoteRecordFiles([
     mockCvrFile({
       numCvrsImported: 15,
-      pollingPlaceIds: [place1.id],
+      pollingPlaceIds: [loadedPlace.id],
       scannerIds: ['001'],
     }),
   ]);
@@ -84,6 +93,9 @@ test('renders location filter buttons', async () => {
   });
 
   await waitFor(() => api.assertComplete());
+  for (const place of election.pollingPlaces) {
+    screen.getButton(new RegExp(place.name));
+  }
 
   const nPending = nLocations - 1;
   screen.getByRole('option', { name: `All ${nLocations}`, selected: true });
@@ -96,7 +108,45 @@ test('renders location filter buttons', async () => {
   screen.getByRole('option', { name: /All/, selected: false });
   screen.getByRole('option', { name: /Pending/, selected: false });
 
-  // [TODO] Assert that displayed locations are filtered.
+  screen.getButton(new RegExp(loadedPlace.name));
+
+  for (const place of election.pollingPlaces) {
+    if (place.name === loadedPlace.name) continue;
+    expect(screen.queryButton(new RegExp(place.name))).not.toBeInTheDocument();
+  }
+});
+
+test('search input and filter buttons are both used for filtering', async () => {
+  const api = createApiMock();
+  const loadedPlace = place1;
+
+  api.expectGetCastVoteRecordFileMode('unlocked');
+  api.expectGetCastVoteRecordFiles([
+    mockCvrFile({
+      numCvrsImported: 15,
+      pollingPlaceIds: [loadedPlace.id],
+      scannerIds: ['001'],
+    }),
+  ]);
+
+  renderInAppContext(<CvrsScreen />, {
+    apiMock: api,
+    electionDefinition,
+  });
+
+  await waitFor(() => api.assertComplete());
+  for (const place of election.pollingPlaces) {
+    screen.getButton(new RegExp(place.name));
+  }
+
+  const emptyInput = screen.getByPlaceholderText('Search Locations');
+  userEvent.type(emptyInput, loadedPlace.name);
+  screen.getButton(new RegExp(loadedPlace.name));
+
+  userEvent.click(screen.getByRole('option', { name: /Pending/ }));
+  expect(
+    screen.queryButton(new RegExp(loadedPlace.name))
+  ).not.toBeInTheDocument();
 });
 
 test('load button opens import panel', async () => {

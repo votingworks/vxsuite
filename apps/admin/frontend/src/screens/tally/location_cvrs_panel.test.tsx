@@ -4,27 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { LocationCvrsPanel } from './location_cvrs_panel';
 
-test('renders nothing when not open', () => {
-  const { container } = render(
-    <LocationCvrsPanel
-      closePanel={vi.fn()}
-      imports={[]}
-      name="Vx City"
-      open={false}
-      type="absentee"
-    />
-  );
-
-  expect(container).toHaveTextContent('');
-});
-
 test('renders empty state note when open with no imports available', () => {
   render(
     <LocationCvrsPanel
       closePanel={vi.fn()}
       imports={[]}
       name="Vx City"
-      open
       type="absentee"
     />
   );
@@ -56,7 +41,6 @@ test('renders import details when non-empty', () => {
         },
       ]}
       name="Vx City"
-      open
       type="absentee"
     />
   );
@@ -65,18 +49,12 @@ test('renders import details when non-empty', () => {
   screen.getByText(pollingPlaceTypeName('absentee'));
   screen.getByText('Vx City');
 
-  screen.queryByRole('listitem', {
-    name: ['2020/11/07, 8:00AM', 'Scanner SCAN-01-0001', '412'].join(' '),
-  });
-  screen.queryByRole('listitem', {
-    name: [
-      '2020/11/07, 9:00AM',
-      'Scanners:',
-      'SCAN-01-0001',
-      'SCAN-01-0002',
-      '412',
-    ].join(' '),
-  });
+  expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+    ['11/7/2020, 8:00 AM', 'Scanner SCAN-01-0001', '412'].join(''),
+    ['11/7/2020, 9:00 AM', 'Scanners: SCAN-01-0001, SCAN-01-0002', '943'].join(
+      ''
+    ),
+  ]);
 
   expect(screen.queryByText('No CVRs')).not.toBeInTheDocument();
 });
@@ -89,7 +67,6 @@ test('emits close event when on close button press', () => {
       closePanel={close}
       imports={[]}
       name="Vx City"
-      open
       type="absentee"
     />
   );

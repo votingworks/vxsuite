@@ -15,7 +15,6 @@ import { GAP, INSET_FOCUS_OUTLINE } from './styles';
 
 export interface LocationCvrsPanelProps {
   closePanel: () => void;
-  open: boolean;
   imports: LocationCvrImport[];
   name: string;
   type: PollingPlaceType;
@@ -56,6 +55,7 @@ const Content = styled.div`
   display: grid;
   gap: ${GAP};
   grid-template-rows: min-content 1fr;
+  max-height: 100%;
   min-width: min-content;
   opacity: 1;
   transition: opacity 250ms ease-in;
@@ -64,10 +64,10 @@ const Content = styled.div`
 `;
 
 const DetailsBody = styled.ul`
-  align-items: center;
   display: grid;
   gap: ${GAP};
   margin: 0;
+  overflow-y: auto;
   padding: 0;
 `;
 
@@ -110,9 +110,7 @@ const Title = styled.div`
 `;
 
 export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
-  const { closePanel, imports, name, open, type } = props;
-
-  if (!open) return <Container />;
+  const { closePanel, imports, name, type } = props;
 
   function scannerDetails(i: LocationCvrImport) {
     return i.scannerIds.length === 1

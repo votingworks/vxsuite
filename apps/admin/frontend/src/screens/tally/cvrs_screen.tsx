@@ -3,12 +3,14 @@ import styled from 'styled-components';
 
 import { Button, DesktopPalette } from '@votingworks/ui';
 
+import { assertDefined } from '@votingworks/basics';
 import { CvrSummaries } from './cvr_summaries';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles';
 import { LocationFilter, LocationFilterBar } from './location_filter_bar';
 import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { CvrsState, useCvrsState } from './cvrs_state';
+import { LocationList } from './location_list';
 
 const Container = styled.div`
   display: grid;
@@ -146,7 +148,30 @@ export function ViewPanel(props: {
         )}
       </ActionBar>
 
-      {/* [TODO] Render location list. */}
+      <LocationList
+        locations={filterLocations(state, filter, query)}
+        locationCvrs={state.locationCvrs}
+      />
     </ViewPanelContainer>
   );
+}
+
+function filterLocations(
+  state: CvrsState,
+  filter: LocationFilter,
+  query: string
+) {
+  const queryNormalized = query.trim().toLowerCase();
+
+  if (filter === 'all' && !queryNormalized) return state.locations;
+
+  return state.locations.filter((l) => {
+    const cvrs = assertDefined(state.locationCvrs.get(l.id));
+    if (filter === 'loaded' && cvrs.files.length === 0) return false;
+    if (filter === 'pending' && cvrs.files.length > 0) return false;
+
+    if (!queryNormalized) return true;
+
+    return l.name.toLocaleLowerCase().includes(queryNormalized);
+  });
 }
