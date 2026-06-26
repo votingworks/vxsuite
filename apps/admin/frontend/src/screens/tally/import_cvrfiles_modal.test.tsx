@@ -40,7 +40,7 @@ test('when USB is not present or valid', async () => {
     const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
-    apiMock.expectListCastVoteRecordFilesOnUsb([]);
+
     const { unmount } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
@@ -143,7 +143,6 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFiles([]);
 
     userEvent.click(domGetByText(tableRows[0], 'Load'));
-    await screen.findByText('Loading CVRs');
     await screen.findByText('1,000 New CVRs Loaded');
   });
 

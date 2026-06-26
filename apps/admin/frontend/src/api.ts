@@ -14,7 +14,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type {
+  UsbDriveStatus,
+  UsbPartitionMountpoint,
+} from '@votingworks/usb-drive';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
@@ -257,13 +260,17 @@ export const getCurrentElectionMetadata = {
 } as const;
 
 export const listCastVoteRecordFilesOnUsb = {
-  queryKey(): QueryKey {
-    return ['listCastVoteRecordFilesOnUsb'];
+  queryKey(usbPath?: UsbPartitionMountpoint): QueryKey {
+    return ['listCastVoteRecordFilesOnUsb', usbPath];
   },
-  useQuery() {
+  useQuery(usb: UsbDriveStatus) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.listCastVoteRecordFilesOnUsb()
+    const path = usb.status === 'mounted' ? usb.mountpoint : undefined;
+
+    return useQuery(
+      this.queryKey(path),
+      () => apiClient.listCastVoteRecordFilesOnUsb(),
+      { enabled: usb.status === 'mounted' }
     );
   },
 } as const;

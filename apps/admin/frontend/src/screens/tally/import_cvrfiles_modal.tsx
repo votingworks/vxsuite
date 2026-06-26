@@ -1,6 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { basename } from 'node:path';
 import { DateTime } from 'luxon';
 
 import {
@@ -9,32 +8,16 @@ import {
   Table,
   TD,
   Button,
-  useExternalStateChangeListener,
   P,
   Font,
   Icons,
+  H3,
 } from '@votingworks/ui';
-import {
-  format,
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
 
-import type {
-  CvrFileImportInfo,
-  ImportCastVoteRecordsError,
-} from '@votingworks/admin-backend';
-import { AppContext } from '../../contexts/app_context';
 import { Loading } from '../../components/loading';
-import { CastVoteRecordFilePreprocessedData } from '../../config/types';
 import { NODE_ENV, TIME_FORMAT } from '../../config/globals';
-import {
-  addCastVoteRecordFile,
-  getCastVoteRecordFileMode,
-  getCastVoteRecordFiles,
-  listCastVoteRecordFilesOnUsb,
-} from '../../api';
+import { useCvrImporter } from './cvr_importer';
 
 const CvrFileTableWrapper = styled.div`
   background: ${(p) => p.theme.colors.containerLow};
@@ -66,203 +49,37 @@ const Content = styled.div`
   overflow: hidden;
 `;
 
-function userReadableMessageFromImportError(
-  error: ImportCastVoteRecordsError
-): string {
-  switch (error.type) {
-    case 'authentication-error': {
-      return 'Unable to authenticate cast vote records. Try exporting them from the scanner again.';
-    }
-    case 'ballot-id-already-exists-with-different-data': {
-      return `Found a cast vote record at index ${error.index} that has the same ballot ID as a previously imported cast vote record, but with different data.`;
-    }
-    case 'invalid-mode': {
-      return {
-        official:
-          'You are currently tabulating official results but the selected cast vote record export contains test results.',
-        test: 'You are currently tabulating test results but the selected cast vote record export contains official results.',
-      }[error.currentMode];
-    }
-    case 'invalid-cast-vote-record': {
-      const messageBase = `Found an invalid cast vote record at index ${error.index}. `;
-      const messageDetail = (() => {
-        switch (error.subType) {
-          case 'ballot-style-not-found': {
-            return 'The record references a ballot style that does not exist.';
-          }
-          case 'batch-id-not-found': {
-            return 'The record references a batch ID that does not exist.';
-          }
-          case 'contest-not-found': {
-            return 'The record references a contest that does not exist.';
-          }
-          case 'contest-option-not-found': {
-            return 'The record references a contest option that does not exist.';
-          }
-          case 'election-mismatch': {
-            return 'The record references the wrong election.';
-          }
-          case 'image-not-found': {
-            return 'The record references an image that does not exist.';
-          }
-          case 'image-read-error': {
-            return 'The record references an image that could not be read.';
-          }
-          case 'incorrect-image-hash': {
-            return 'The record references an image with an incorrect hash.';
-          }
-          case 'incorrect-layout-file-hash': {
-            return 'The record references a layout file with an incorrect hash.';
-          }
-          case 'invalid-ballot-image-field': {
-            return 'The record contains an incorrectly formatted ballot image field.';
-          }
-          case 'invalid-ballot-sheet-id': {
-            return 'The record contains an incorrectly formatted ballot sheet ID.';
-          }
-          case 'invalid-write-in-field': {
-            return 'The record contains an incorrectly formatted write-in field.';
-          }
-          case 'layout-file-not-found': {
-            return 'The record references a layout file that does not exist.';
-          }
-          case 'layout-file-parse-error': {
-            return 'The record references a layout file that could not be parsed.';
-          }
-          case 'layout-file-read-error': {
-            return 'The record references a layout file that could not be read.';
-          }
-          case 'no-current-snapshot': {
-            return 'The record does not contain a current snapshot of the interpreted results.';
-          }
-          case 'no-original-snapshot': {
-            return 'The record does not contain the original snapshot of the results.';
-          }
-          case 'parse-error': {
-            return 'The record could not be parsed.';
-          }
-          case 'precinct-not-found': {
-            return 'The record references a precinct that does not exist.';
-          }
-          default: {
-            /* istanbul ignore next: Compile-time check for completeness */
-            throwIllegalValue(error, 'subType');
-          }
-        }
-      })();
-      return [messageBase, messageDetail].join(' ');
-    }
-    case 'metadata-file-not-found': {
-      return 'Unable to find metadata file.';
-    }
-    case 'metadata-file-parse-error': {
-      return 'Unable to parse metadata file.';
-    }
-    default: {
-      /* istanbul ignore next: Compile-time check for completeness */
-      throwIllegalValue(error, 'type');
-    }
-  }
-}
-
-type ModalState =
-  | { state: 'error'; errorMessage?: string; filename: string }
-  | { state: 'loading' }
-  | { state: 'duplicate'; result: CvrFileImportInfo }
-  | { state: 'init' }
-  | { state: 'success'; result: CvrFileImportInfo };
-
 export interface Props {
   onClose: () => void;
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
-  const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
-  const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
-  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-  const cvrFilesOnUsbQuery = listCastVoteRecordFilesOnUsb.useQuery();
-  const addCastVoteRecordFileMutation = addCastVoteRecordFile.useMutation();
+  const importer = useCvrImporter();
 
-  assert(electionDefinition);
-  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
-  const [currentState, setCurrentState] = useState<ModalState>({
-    state: 'init',
-  });
-
-  function importCastVoteRecordFile(path: string) {
-    const filename = basename(path);
-    setCurrentState({ state: 'loading' });
-
-    addCastVoteRecordFileMutation.mutate(
-      { path },
-      {
-        onSuccess: (addCastVoteRecordFileResult) => {
-          if (addCastVoteRecordFileResult.isErr()) {
-            const error = addCastVoteRecordFileResult.err();
-            setCurrentState({
-              state: 'error',
-              errorMessage: userReadableMessageFromImportError(error),
-              filename,
-            });
-          } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
-            setCurrentState({
-              state: 'duplicate',
-              result: addCastVoteRecordFileResult.ok(),
-            });
-          } else {
-            setCurrentState({
-              state: 'success',
-              result: addCastVoteRecordFileResult.ok(),
-            });
-          }
-        },
-      }
+  if (importer.state === 'loading') {
+    return (
+      <Modal
+        centerContent={false}
+        content={
+          <H3 align="center">
+            <Icons.Loading /> Loading
+          </H3>
+        }
+        onOverlayClick={onClose}
+        actions={<Button onPress={onClose}>Cancel</Button>}
+      />
     );
   }
 
-  function importSelectedFile(fileData: CastVoteRecordFilePreprocessedData) {
-    importCastVoteRecordFile(fileData.path);
-  }
-
-  async function onSelectFileManually(): Promise<void> {
-    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
-      properties: ['openFile'],
-      filters: [
-        {
-          name: '',
-          extensions: ['json'],
-        },
-      ],
-    });
-    if (dialogResult.canceled) {
-      onClose();
-      return;
-    }
-    const selectedPath = dialogResult.filePaths[0];
-    if (selectedPath) {
-      importCastVoteRecordFile(selectedPath);
-    }
-  }
-
-  // TODO: Rather than explicitly refetching, which is outside of the standard
-  // React Query pattern, we should invalidate the query on USB drive status
-  // change. Currently React Query is not managing USB drive status and polling
-  // is being performed elsewhere.
-  useExternalStateChangeListener(usbDriveStatus.status, () => {
-    if (usbDriveStatus.status === 'mounted') {
-      void cvrFilesOnUsbQuery.refetch();
-    }
-  });
-
-  if (currentState.state === 'error') {
+  if (importer.state === 'error') {
     return (
       <Modal
         title="Error"
         content={
           <P>
             There was an error reading the contents of{' '}
-            <Font weight="bold">{currentState.filename}</Font>:{' '}
-            {currentState.errorMessage}
+            <Font weight="bold">{importer.filename}</Font>:{' '}
+            {importer.errorMessage}
           </P>
         }
         onOverlayClick={onClose}
@@ -271,7 +88,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
-  if (currentState.state === 'duplicate') {
+  if (importer.state === 'duplicate') {
     return (
       <Modal
         title="Duplicate Export"
@@ -287,8 +104,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
-  if (currentState.state === 'success') {
-    const { alreadyPresent, newlyAdded } = currentState.result;
+  if (importer.state === 'success') {
+    const { alreadyPresent, newlyAdded } = importer.result;
     const total = alreadyPresent + newlyAdded;
     const content = (() => {
       if (alreadyPresent > 0) {
@@ -319,33 +136,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
-  if (
-    !castVoteRecordFilesQuery.isSuccess ||
-    !castVoteRecordFileModeQuery.isSuccess ||
-    !cvrFilesOnUsbQuery.isSuccess
-  ) {
-    return (
-      <Modal
-        content={<Loading />}
-        onOverlayClick={onClose}
-        actions={
-          <Button disabled onPress={onClose}>
-            Cancel
-          </Button>
-        }
-      />
-    );
-  }
-
-  if (currentState.state === 'loading') {
+  if (importer.state === 'importing') {
     return <Modal content={<Loading>Loading CVRs</Loading>} />;
   }
 
-  if (
-    usbDriveStatus.status === 'no_drive' ||
-    usbDriveStatus.status === 'ejected' ||
-    usbDriveStatus.status === 'error'
-  ) {
+  if (importer.state === 'noUsb') {
     return (
       <Modal
         title="No USB Drive Detected"
@@ -355,11 +150,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {window.kiosk && NODE_ENV === 'development' && (
-              <Button onPress={onSelectFileManually}>
-                Select CVR Export Manually…
-              </Button>
-            )}
+            {NODE_ENV === 'development' && importer.manualImportButton}
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
@@ -367,141 +158,135 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
-  const fileMode = castVoteRecordFileModeQuery.data;
+  const fileMode = importer.existingImports.mode;
 
-  if (usbDriveStatus.status === 'mounted') {
-    // Determine if we are already locked to a filemode based on previously loaded CVRs
-    const fileModeLocked = fileMode !== 'unlocked';
+  // Determine if we are already locked to a filemode based on previously loaded CVRs
+  const fileModeLocked = fileMode !== 'unlocked';
 
-    // Parse the file options on the USB drive and build table rows for each valid file.
-    const fileTableRows: JSX.Element[] = [];
-    let numberOfNewFiles = 0;
-    const importedCvrFiles = castVoteRecordFilesQuery.data;
-    for (const file of cvrFilesOnUsbQuery.data) {
-      const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =
-        file;
-      // To tell if a CVR export was already imported, we need to check its name
-      // and export timestamp, since a VxScan continuous CVR export will reuse
-      // the same export directory as CVRs are added, updating the export
-      // timestamp each time. So if you want to re-import a continuous export
-      // later after more CVRs have been added, you should be able to.
-      const isFileAlreadyImported = importedCvrFiles.some(
-        (importedCvrFile) =>
-          importedCvrFile.filename === name &&
-          importedCvrFile.exportTimestamp === exportTimestamp.toISOString()
-      );
-      const inProperFileMode =
-        !fileModeLocked ||
-        (isTestModeResults && fileMode === 'test') ||
-        (!isTestModeResults && fileMode === 'official');
-      const canImport = !isFileAlreadyImported && inProperFileMode;
-      const row = (
-        <tr key={name} data-testid="table-row">
-          <td>{DateTime.fromJSDate(exportTimestamp).toFormat(TIME_FORMAT)}</td>
-          <td>{scannerIds.join(', ')}</td>
-          <td data-testid="cvr-count">{format.count(cvrCount)}</td>
-          {!fileModeLocked && (
-            <td>
-              {isTestModeResults ? (
-                <LabelText>
-                  <Icons.Warning color="warning" /> Test
-                </LabelText>
-              ) : (
-                <LabelText>Official</LabelText>
-              )}
-            </td>
-          )}
-          <TD textAlign="right">
-            <Button
-              onPress={importSelectedFile}
-              value={file}
-              disabled={!canImport}
-              variant="primary"
-            >
-              {canImport ? 'Load' : 'Loaded'}
-            </Button>
-          </TD>
-        </tr>
-      );
-      if (inProperFileMode) {
-        fileTableRows.push(row);
-        if (canImport) {
-          numberOfNewFiles += 1;
-        }
+  // Parse the file options on the USB drive and build table rows for each valid file.
+  const fileTableRows: JSX.Element[] = [];
+  let numberOfNewFiles = 0;
+  const importedCvrFiles = importer.existingImports.imports;
+  for (const file of importer.usbExports) {
+    const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =
+      file;
+    // To tell if a CVR export was already imported, we need to check its name
+    // and export timestamp, since a VxScan continuous CVR export will reuse
+    // the same export directory as CVRs are added, updating the export
+    // timestamp each time. So if you want to re-import a continuous export
+    // later after more CVRs have been added, you should be able to.
+    const isFileAlreadyImported = importedCvrFiles.some(
+      (importedCvrFile) =>
+        importedCvrFile.filename === name &&
+        importedCvrFile.exportTimestamp === exportTimestamp.toISOString()
+    );
+    const inProperFileMode =
+      !fileModeLocked ||
+      (isTestModeResults && fileMode === 'test') ||
+      (!isTestModeResults && fileMode === 'official');
+    const canImport = !isFileAlreadyImported && inProperFileMode;
+    const row = (
+      <tr key={name} data-testid="table-row">
+        <td>{DateTime.fromJSDate(exportTimestamp).toFormat(TIME_FORMAT)}</td>
+        <td>{scannerIds.join(', ')}</td>
+        <td data-testid="cvr-count">{format.count(cvrCount)}</td>
+        {!fileModeLocked && (
+          <td>
+            {isTestModeResults ? (
+              <LabelText>
+                <Icons.Warning color="warning" /> Test
+              </LabelText>
+            ) : (
+              <LabelText>Official</LabelText>
+            )}
+          </td>
+        )}
+        <TD textAlign="right">
+          <Button
+            onPress={importer.import}
+            value={{ path: file.path }}
+            disabled={!canImport}
+            variant="primary"
+          >
+            {canImport ? 'Load' : 'Loaded'}
+          </Button>
+        </TD>
+      </tr>
+    );
+    if (inProperFileMode) {
+      fileTableRows.push(row);
+      if (canImport) {
+        numberOfNewFiles += 1;
       }
     }
-    // Set the header and instructional text for the modal
-    const headerModeText =
-      fileMode === 'test'
-        ? 'Test Ballot'
-        : fileMode === 'official'
-        ? 'Official Ballot'
-        : '';
+  }
+  // Set the header and instructional text for the modal
+  const headerModeText =
+    fileMode === 'test'
+      ? 'Test Ballot'
+      : fileMode === 'official'
+      ? 'Official Ballot'
+      : '';
 
-    let instructionalText: JSX.Element | string;
-    if (numberOfNewFiles === 0) {
-      instructionalText = fileModeLocked ? (
-        <React.Fragment>
-          No new {headerModeText.toLowerCase()} CVR exports were automatically
-          found on the USB drive.
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          No new CVR exports were automatically found on the USB drive.
-        </React.Fragment>
-      );
-    } else if (fileModeLocked) {
-      instructionalText = (
-        <React.Fragment>
-          The following {headerModeText.toLowerCase()} CVR exports were
-          automatically found on the USB drive:
-        </React.Fragment>
-      );
-    } else {
-      instructionalText = (
-        <React.Fragment>
-          The following CVR exports were automatically found on the USB drive:
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <Modal
-        modalWidth={ModalWidth.Wide}
-        title={`Load ${headerModeText} CVRs`}
-        content={
-          <Content>
-            <P>{instructionalText}</P>
-            {fileTableRows.length > 0 && (
-              <CvrFileTableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Saved At</th>
-                      <th>Scanner ID</th>
-                      <th>CVR Count</th>
-                      {!fileModeLocked && <th>Ballot Type</th>}
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>{fileTableRows}</tbody>
-                </Table>
-              </CvrFileTableWrapper>
-            )}
-          </Content>
-        }
-        onOverlayClick={onClose}
-        actions={
-          <React.Fragment>
-            <Button onPress={onSelectFileManually}>
-              Select CVR Export Manually…
-            </Button>
-            <Button onPress={onClose}>Cancel</Button>
-          </React.Fragment>
-        }
-      />
+  let instructionalText: JSX.Element | string;
+  if (numberOfNewFiles === 0) {
+    instructionalText = fileModeLocked ? (
+      <React.Fragment>
+        No new {headerModeText.toLowerCase()} CVR exports were automatically
+        found on the USB drive.
+      </React.Fragment>
+    ) : (
+      <React.Fragment>
+        No new CVR exports were automatically found on the USB drive.
+      </React.Fragment>
+    );
+  } else if (fileModeLocked) {
+    instructionalText = (
+      <React.Fragment>
+        The following {headerModeText.toLowerCase()} CVR exports were
+        automatically found on the USB drive:
+      </React.Fragment>
+    );
+  } else {
+    instructionalText = (
+      <React.Fragment>
+        The following CVR exports were automatically found on the USB drive:
+      </React.Fragment>
     );
   }
-  // istanbul ignore next
-  throwIllegalValue(usbDriveStatus, 'status');
+
+  return (
+    <Modal
+      modalWidth={ModalWidth.Wide}
+      title={`Load ${headerModeText} CVRs`}
+      content={
+        <Content>
+          <P>{instructionalText}</P>
+          {fileTableRows.length > 0 && (
+            <CvrFileTableWrapper>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Saved At</th>
+                    <th>Scanner ID</th>
+                    <th>CVR Count</th>
+                    {!fileModeLocked && <th>Ballot Type</th>}
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>{fileTableRows}</tbody>
+              </Table>
+            </CvrFileTableWrapper>
+          )}
+        </Content>
+      }
+      onOverlayClick={onClose}
+      actions={
+        <React.Fragment>
+          {importer.manualImportButton}
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+    />
+  );
 }
