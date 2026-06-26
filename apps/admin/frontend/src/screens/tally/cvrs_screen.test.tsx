@@ -1,6 +1,9 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
+import type {
+  CastVoteRecordFileRecord,
+  CvrFileMode,
+} from '@votingworks/admin-backend';
 
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -203,6 +206,37 @@ test('delete button opens confirmation modal', async () => {
 
   userEvent.click(screen.getButton('Cancel'));
   expect(screen.queryButton(/Remove All CVRs/)).not.toBeInTheDocument();
+});
+
+describe('cvr modes', () => {
+  async function renderWithMode(mode: CvrFileMode) {
+    const api = createApiMock();
+    api.expectGetCastVoteRecordFileMode(mode);
+    api.expectGetCastVoteRecordFiles([]);
+
+    renderInAppContext(<CvrsScreen />, {
+      apiMock: api,
+      electionDefinition,
+    });
+
+    await waitFor(() => api.assertComplete());
+  }
+
+  test('unlocked', async () => {
+    await renderWithMode('unlocked');
+    expect(screen.queryByText(/test ballot mode/i)).not.toBeInTheDocument();
+  });
+
+  test('official', async () => {
+    await renderWithMode('official');
+    expect(screen.queryByText(/test ballot mode/i)).not.toBeInTheDocument();
+  });
+
+  // eslint-disable-next-line vitest/valid-title
+  test('test', async () => {
+    await renderWithMode('test');
+    screen.getByText(/test ballot mode/i);
+  });
 });
 
 function mockCvrFile(

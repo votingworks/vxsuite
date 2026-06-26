@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { Button, DesktopPalette } from '@votingworks/ui';
-
+import {
+  Button,
+  Caption,
+  Card,
+  DesktopPalette,
+  Font,
+  Icons,
+} from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
+
 import { CvrSummaries } from './cvr_summaries';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles';
 import { LocationFilter, LocationFilterBar } from './location_filter_bar';
@@ -12,7 +19,11 @@ import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { CvrsState, useCvrsState } from './cvrs_state';
 import { LocationList } from './location_list';
 
-const Container = styled.div`
+const TEST_MODE_CONTAINER_CSS = css`
+  grid-template-rows: min-content min-content 1fr;
+`;
+
+const Container = styled.div<{ testMode: boolean }>`
   display: grid;
   gap: ${GAP};
   grid-template-rows: min-content 1fr;
@@ -23,6 +34,8 @@ const Container = styled.div`
   > * {
     margin: 0 ${GAP};
   }
+
+  ${(p) => p.testMode && TEST_MODE_CONTAINER_CSS}
 `;
 
 export function CvrsScreen(): React.ReactNode {
@@ -32,8 +45,8 @@ export function CvrsScreen(): React.ReactNode {
   if (!state) return null;
 
   return (
-    <Container>
-      {/* [TODO] Render test mode card. */}
+    <Container testMode={state.testMode}>
+      {state.testMode && <TestModeCard />}
 
       <CvrSummaries
         cvrs={state.totalCvrs}
@@ -53,6 +66,36 @@ export function CvrsScreen(): React.ReactNode {
         <ImportCvrFilesModal onClose={() => setUiMode('view')} />
       )}
     </Container>
+  );
+}
+
+const TestModeCardContainer = styled(Card)`
+  > * {
+    gap: ${GAP};
+    padding: ${GAP} calc(1.5 * ${GAP});
+  }
+`;
+
+const TestModeCardContent = styled.div`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  gap: 0.25rem;
+`;
+
+function TestModeCard() {
+  return (
+    <TestModeCardContainer color="warning">
+      <TestModeCardContent>
+        <Font weight="bold">
+          <Icons.Warning color="warning" /> Test Ballot Mode
+        </Font>
+
+        <Caption>
+          Remove all test CVRs once you have completed testing and are ready to
+          tally official ballots.
+        </Caption>
+      </TestModeCardContent>
+    </TestModeCardContainer>
   );
 }
 
