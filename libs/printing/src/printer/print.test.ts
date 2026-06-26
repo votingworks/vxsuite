@@ -128,3 +128,27 @@ test('supports legal-sized paper option', async () => {
     Uint8Array.of(0xca, 0xfe)
   );
 });
+
+test('M404n support', async () => {
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+
+  await print({
+    data: Uint8Array.of(0xca, 0xfe),
+    isM404nSupportRequired: true,
+  });
+
+  expect(exec).toHaveBeenCalledWith(
+    'lpr',
+    [
+      '-P',
+      DEFAULT_MANAGED_PRINTER_NAME,
+      '-o',
+      'sides=one-sided',
+      '-o',
+      'media=letter',
+      '-o',
+      'InputSlot=Tray2',
+    ],
+    Uint8Array.of(0xca, 0xfe)
+  );
+});
