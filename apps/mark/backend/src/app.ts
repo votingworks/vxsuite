@@ -41,7 +41,7 @@ import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
 import {
-  createPrecinctSummaryBallotTestDeck,
+  createSummaryBallotTestDeck,
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
@@ -309,7 +309,7 @@ export function buildApi(ctx: Context) {
           precinctId,
           ballotFormat: 'summary',
         });
-        const deckPdf = await createPrecinctSummaryBallotTestDeck({
+        const deckPdf = await createSummaryBallotTestDeck({
           electionDefinition,
           ballotSpecs,
           isLiveMode: false,

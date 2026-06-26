@@ -77,7 +77,7 @@ vi.mock('./audio/player');
 
 vi.mock(import('@votingworks/test-decks'), async (importActual) => ({
   ...(await importActual()),
-  createPrecinctSummaryBallotTestDeck: () => Promise.resolve(undefined),
+  createSummaryBallotTestDeck: () => Promise.resolve(undefined),
 }));
 
 // Ballots embed a `ballotAuditId` (a random UUID) in their QR code. Pin it so
@@ -631,7 +631,7 @@ test('playSound does nothing when audio player is not present', async () => {
 });
 
 test('printTestDeck throws when no test deck PDF is generated', async () => {
-  // `createPrecinctSummaryBallotTestDeck` is mocked to resolve undefined.
+  // `createSummaryBallotTestDeck` is mocked to resolve undefined.
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(mockUsbDrive, electionDefinition);

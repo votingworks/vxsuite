@@ -12,10 +12,10 @@ import { concatenatePdfs } from '@votingworks/hmpb';
 import { TestDeckBallot } from './test_decks';
 
 /**
- * Creates a test deck of summary BMD ballots for a precinct and the given ballot specs.
+ * Creates a test deck of summary BMD ballots for the given ballot specs.
  * Uses render-based measurement to accurately compute page breaks based on actual votes.
  */
-export async function createPrecinctSummaryBallotTestDeck({
+export async function createSummaryBallotTestDeck({
   electionDefinition,
   ballotSpecs,
   isLiveMode,
