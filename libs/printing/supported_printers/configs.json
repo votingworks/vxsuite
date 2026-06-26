@@ -4,7 +4,7 @@
     "vendorId": 1008,
     "productId": 49450,
     "baseDeviceUri": "usb://HP/LaserJet%20Pro%20M404-M405",
-    "ppd": "generic-postscript-driver.ppd",
+    "ppd": "hp-laserjet-pro-m404n.ppd",
     "supportsIpp": true
   },
   {
@@ -28,7 +28,7 @@
     "vendorId": 7568,
     "productId": 8432,
     "baseDeviceUri": "usb://CITIZEN/CT-E351?serial=00000000",
-    "ppd": "citizen_ct_e351_thermal_printer.ppd",
+    "ppd": "citizen-ct-e351-thermal-printer.ppd",
     "supportsIpp": false
   }
 ]

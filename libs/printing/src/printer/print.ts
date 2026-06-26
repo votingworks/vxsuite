@@ -3,6 +3,7 @@ import { rootDebug } from '../utils/debug';
 import { PrintProps, PrintSides } from './types';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
 import { exec } from '../utils/exec';
+import { M404N_INPUT_SLOT_OPTION } from './supported';
 
 const debug = rootDebug.extend('status');
 
@@ -11,6 +12,7 @@ export async function print({
   copies,
   sides = PrintSides.OneSided,
   size = 'letter',
+  isM404nSupportRequired = false,
   raw = {},
 }: PrintProps): Promise<void> {
   const lprOptions: string[] = [];
@@ -21,7 +23,10 @@ export async function print({
   lprOptions.push('-o', `media=${size}`);
 
   // -o already pushed, can add options from raw
-  for (const [key, value] of Object.entries(raw)) {
+  const rawOptions = isM404nSupportRequired
+    ? { ...M404N_INPUT_SLOT_OPTION, ...raw }
+    : raw;
+  for (const [key, value] of Object.entries(rawOptions)) {
     assert(
       key.match(/^[a-zA-Z0-9][-a-zA-Z0-9]*$/),
       'key must be dashed alphanumeric'
