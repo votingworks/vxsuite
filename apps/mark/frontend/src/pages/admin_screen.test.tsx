@@ -186,6 +186,34 @@ test('does not show bubble mark calibration when print mode is summary', async (
   ).toBeNull();
 });
 
+const TEST_DECKS_BUTTON = 'Test Decks';
+
+test('can access test deck functionality when relevant system setting is enabled', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableTestDeckPrinting: true,
+  });
+  apiMock.expectGetUsbPortStatus();
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  screen.getByRole('button', { name: TEST_DECKS_BUTTON });
+});
+
+test('cannot access test deck functionality when relevant system setting is disabled', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableTestDeckPrinting: false,
+  });
+  apiMock.expectGetUsbPortStatus();
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(
+    screen.queryByRole('button', { name: TEST_DECKS_BUTTON })
+  ).not.toBeInTheDocument();
+});
+
 test('switching to official ballot mode with ballots printed', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
