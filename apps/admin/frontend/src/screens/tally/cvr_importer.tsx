@@ -77,6 +77,9 @@ export function useCvrImporter(): CvrImporter {
   const usbExports = api.listCastVoteRecordFilesOnUsb.useQuery(usbDriveStatus);
 
   const importMutation = api.addCastVoteRecordFile.useMutation();
+  const manualImportButton = (
+    <ManualImportButton importFn={importMutation.mutate} />
+  );
 
   if (
     usbDriveStatus.status === 'no_drive' ||
@@ -85,7 +88,7 @@ export function useCvrImporter(): CvrImporter {
   ) {
     return {
       state: 'noUsb',
-      manualImportButton: manualImportButton(importMutation.mutate),
+      manualImportButton,
     };
   }
 
@@ -132,7 +135,7 @@ export function useCvrImporter(): CvrImporter {
       state: 'success',
       existingImports,
       import: importMutation.mutate,
-      manualImportButton: manualImportButton(importMutation.mutate),
+      manualImportButton,
       result,
       usbExports: usbExports.data,
     };
@@ -142,12 +145,14 @@ export function useCvrImporter(): CvrImporter {
     state: 'init',
     existingImports,
     import: importMutation.mutate,
-    manualImportButton: manualImportButton(importMutation.mutate),
+    manualImportButton,
     usbExports: usbExports.data,
   };
 }
 
-function manualImportButton(importFn: ImportFn) {
+function ManualImportButton(props: { importFn: ImportFn }) {
+  const { importFn } = props;
+
   return (
     window.kiosk && (
       <Button
