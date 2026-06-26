@@ -68,7 +68,6 @@ test('loading CVRs', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
   userEvent.click(screen.getButton('Load CVRs'));
   importModal = await screen.findByRole('alertdialog');
 
