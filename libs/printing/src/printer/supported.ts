@@ -56,37 +56,41 @@ export const M404N_PRINTER_CONFIG = find(
 /**
  * See {@link deriveM404nPpd} for more details.
  */
+export const M404N_INPUT_SLOT = 'M404n_Tray2';
+
+/**
+ * See {@link deriveM404nPpd} for more details.
+ */
 export const M404N_INPUT_SLOT_OPTION = {
-  InputSlot: 'M404n_Tray2',
+  InputSlot: M404N_INPUT_SLOT,
 } as const;
 
 /**
- * Derives the HP LaserJet Pro M404n PPD from the generic PPD.
- * The code prints Letter-size sheets but the M404n has no
- * Letter-size paper inputs by default. The printer can't
- * automatically match the Letter job to any one input, all
- * of which are configured for "Any" size, so it prompts the
- * operator to load Letter paper and confirm the tray.
+ * Derives the HP LaserJet Pro M404n PPD from the generic PPD. The code prints
+ * letter-size sheets, but the M404n has no letter-size paper inputs by
+ * default. The printer can't automatically match the letter job to any one
+ * input, all of which are configured for "Any" size, so it prompts the
+ * operator to load letter paper and confirm the tray.
  *
  * The workaround is 2 part:
- * 1. Register the M404n cassette as M404n_Tray2
- * 2. Explicitly select InputSlot=M404n_Tray2 when printing from the code
- *    (see {@link M404N_INPUT_SLOT_OPTION})
+ * 1. Register the M404n cassette as a custom input slot.
+ *    See {@link M404N_INPUT_SLOT}.
+ * 2. Explicitly select that input slot in print commands.
+ *    See {@link M404N_INPUT_SLOT_OPTION} and its usage.
  *
+ * Selecting the cassette by position in print commands
+ * (InputSlot=M404N_INPUT_SLOT -> MediaPosition 0) makes the printer commit to
+ * the cassette and skip the confirmation.
  *
- * Selecting the cassette by position in the print command
- * (InputSlot=M404n_Tray2 -> MediaPosition 0) makes the printer commit to the
- * cassette and skip that confirmation.
- *
- * nb. the cassette is namespaced to illustrate the point that passing the InputSlot
- * arg to printers that haven't registered the InputSlot will be a no-op.
- * This is necessary because in codepaths shared by m404n and 4001dn, we don't
- * check the printer model and InputSlot=M404n_Tray2 will be passed.
+ * Passing the InputSlot option to printers that haven't registered the
+ * InputSlot is a no-op. We take advantage of this in code paths shared by the
+ * M404n and other printers to avoid having to check the printer model and
+ * conditionally pass the option. We just pass the option and know that other
+ * printers will ignore it.
  */
 export function deriveM404nPpd(genericPpd: string): string {
   const inputSlotBlockClosingLine = '*CloseUI: *InputSlot';
-  const customInputSlotLine =
-    '*InputSlot M404n_Tray2/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"';
+  const customInputSlotLine = `*InputSlot ${M404N_INPUT_SLOT}/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"`;
   return genericPpd.replace(
     inputSlotBlockClosingLine,
     [customInputSlotLine, inputSlotBlockClosingLine].join('\n')
