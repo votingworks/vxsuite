@@ -130,7 +130,11 @@ export function buildApi(ctx: Context) {
         }),
       })
     ).unsafeUnwrap();
-    await printer.print({ data: tallyReportPdf, sides: PrintSides.OneSided });
+    await printer.print({
+      data: tallyReportPdf,
+      sides: PrintSides.OneSided,
+      isM404nSupportRequired: true,
+    });
   }
 
   return grout.createApi({
@@ -362,7 +366,11 @@ export function buildApi(ctx: Context) {
           throw err;
         }
 
-        await printer.print({ data: deckPdf, sides: PrintSides.OneSided });
+        await printer.print({
+          data: deckPdf,
+          sides: PrintSides.OneSided,
+          isM404nSupportRequired: true,
+        });
 
         const allCvrs = generateTestDeckCastVoteRecords(election, {
           includeSummaryBallots: true,

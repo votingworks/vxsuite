@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({ type: 'transform' });
+require('./generate_m404n_ppd.ts').main();

@@ -184,7 +184,13 @@ describe(`printMode === "summary"`, () => {
     expect(getPdfPageCount).toHaveBeenCalledWith(mockPdf);
     expect(renderToPdf).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls).toEqual<Array<Parameters<PrintFunction>>>([
-      [{ data: mockPdf, sides: PrintSides.OneSided }],
+      [
+        {
+          data: mockPdf,
+          sides: PrintSides.OneSided,
+          isM404nSupportRequired: true,
+        },
+      ],
     ]);
   });
 
@@ -295,7 +301,11 @@ describe(`printMode === "summary"`, () => {
     // Printed PDF should be from the second (multi-page) render
     expect(mockPrint).toHaveBeenCalledTimes(1);
     expect(mockPrint.mock.calls[0]).toEqual([
-      { data: mockMultiPagePdf, sides: PrintSides.OneSided },
+      {
+        data: mockMultiPagePdf,
+        sides: PrintSides.OneSided,
+        isM404nSupportRequired: true,
+      },
     ]);
 
     // renderToPdf called twice: optimistic then multi-page
