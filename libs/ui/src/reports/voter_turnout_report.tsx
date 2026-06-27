@@ -1,7 +1,7 @@
 import {
   ElectionDefinition,
-  ElectionRegisteredVotersCounts,
-  PrecinctRegisteredVotersCountEntry,
+  ElectionRegisteredVoterCounts,
+  PrecinctRegisteredVoterCountEntry,
   Tabulation,
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
@@ -72,9 +72,7 @@ const TurnoutGrid = styled.div`
   }
 `;
 
-function sumRegisteredVoters(
-  entry: PrecinctRegisteredVotersCountEntry
-): number {
+function sumRegisteredVoters(entry: PrecinctRegisteredVoterCountEntry): number {
   if (typeof entry === 'number') return entry;
   return Object.values(entry.splits).reduce((acc, n) => acc + n, 0);
 }
@@ -93,7 +91,7 @@ export interface VoterTurnoutReportProps {
   isOfficial: boolean;
   isTest: boolean;
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
-  registeredVoterCounts: ElectionRegisteredVotersCounts;
+  registeredVoterCounts: ElectionRegisteredVoterCounts;
   generatedAtTime: Date;
 }
 

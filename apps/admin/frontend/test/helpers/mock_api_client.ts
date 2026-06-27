@@ -779,7 +779,7 @@ export function createApiMock(
     ),
 
     expectGetRegisteredVoterCounts(
-      counts: import('@votingworks/types').ElectionRegisteredVotersCounts | null
+      counts: import('@votingworks/types').ElectionRegisteredVoterCounts | null
     ) {
       apiClient.getRegisteredVoterCounts.expectCallWith().resolves(counts);
     },

@@ -5,44 +5,44 @@ import { hasSplits, Precinct, PrecinctId, PrecinctSplitId } from './election';
  * Registered voter counts for a precinct with splits, keyed by split ID.
  * Only splits with a count set are included.
  */
-export interface PrecinctWithSplitsRegisteredVotersCounts {
+export interface PrecinctWithSplitsRegisteredVoterCounts {
   splits: Record<PrecinctSplitId, number>;
 }
 
 /**
- * Registered voters counts for a single precinct
+ * Registered voter counts for a single precinct
  *
  * For precincts without splits, the value is the total count as a number.
  * For precincts with splits, the value is a record mapping split IDs to counts.
  */
-export type PrecinctRegisteredVotersCountEntry =
+export type PrecinctRegisteredVoterCountEntry =
   | number
-  | PrecinctWithSplitsRegisteredVotersCounts;
+  | PrecinctWithSplitsRegisteredVoterCounts;
 
 /**
- * Registered voters counts for all precincts in an election, keyed by
+ * Registered voter counts for all precincts in an election, keyed by
  * PrecinctId. Only precincts or splits with a count set are included.
  */
-export type ElectionRegisteredVotersCounts = Record<
+export type ElectionRegisteredVoterCounts = Record<
   PrecinctId,
-  PrecinctRegisteredVotersCountEntry
+  PrecinctRegisteredVoterCountEntry
 >;
 
 export function isPrecinctCount(
-  entry: PrecinctRegisteredVotersCountEntry
+  entry: PrecinctRegisteredVoterCountEntry
 ): entry is number {
   return typeof entry === 'number';
 }
 
 export function isSplitCounts(
-  entry: PrecinctRegisteredVotersCountEntry
-): entry is PrecinctWithSplitsRegisteredVotersCounts {
+  entry: PrecinctRegisteredVoterCountEntry
+): entry is PrecinctWithSplitsRegisteredVoterCounts {
   return typeof entry === 'object';
 }
 
 export function hasPartialRegisteredVoterCounts(
   precincts: readonly Precinct[],
-  counts: ElectionRegisteredVotersCounts
+  counts: ElectionRegisteredVoterCounts
 ): boolean {
   let someHaveCount = false;
   let someMissingCount = false;
@@ -74,16 +74,16 @@ export function hasPartialRegisteredVoterCounts(
   return someHaveCount && someMissingCount;
 }
 
-export const PrecinctWithSplitsRegisteredVotersCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVotersCounts> =
+export const PrecinctWithSplitsRegisteredVoterCountsSchema: z.ZodType<PrecinctWithSplitsRegisteredVoterCounts> =
   z.object({
     splits: z.record(z.string(), z.number().int().nonnegative()),
   });
 
-export const PrecinctRegisteredVotersCountEntrySchema: z.ZodType<PrecinctRegisteredVotersCountEntry> =
+export const PrecinctRegisteredVoterCountEntrySchema: z.ZodType<PrecinctRegisteredVoterCountEntry> =
   z.union([
     z.number().int().nonnegative(),
-    PrecinctWithSplitsRegisteredVotersCountsSchema,
+    PrecinctWithSplitsRegisteredVoterCountsSchema,
   ]);
 
-export const ElectionRegisteredVotersCountsSchema: z.ZodType<ElectionRegisteredVotersCounts> =
-  z.record(z.string(), PrecinctRegisteredVotersCountEntrySchema);
+export const ElectionRegisteredVoterCountsSchema: z.ZodType<ElectionRegisteredVoterCounts> =
+  z.record(z.string(), PrecinctRegisteredVoterCountEntrySchema);

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   BallotStyle,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   PollingPlace,
   Precinct,
 } from '@votingworks/types';
@@ -351,9 +351,9 @@ function mockPrecincts(api: MockApiClient, precincts: Precinct[]) {
 
 function mockRegisteredVoterCounts(
   api: MockApiClient,
-  counts: ElectionRegisteredVotersCounts
+  counts: ElectionRegisteredVoterCounts
 ) {
-  api.getRegisteredVotersCounts.expectCallWith({ electionId }).resolves(counts);
+  api.getRegisteredVoterCounts.expectCallWith({ electionId }).resolves(counts);
 }
 
 function mockPollingPlaces(api: MockApiClient, pollingPlaces: PollingPlace[]) {

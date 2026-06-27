@@ -15,7 +15,7 @@ import {
   BallotStyleGroupId,
   Id,
   Election,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   SystemSettings,
 } from '@votingworks/types';
 import { assertDefined, find, typedAs } from '@votingworks/basics';
@@ -124,7 +124,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only c
 
   expect(store.getRegisteredVoterCounts(electionId)).toBeUndefined();
 
-  const counts: ElectionRegisteredVotersCounts = {
+  const counts: ElectionRegisteredVoterCounts = {
     'precinct-1': 500,
     'precinct-2': 300,
   };
@@ -143,7 +143,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct 
   });
 
   // precinct-c2 has splits; precinct-c1-w1-1 does not
-  const counts: ElectionRegisteredVotersCounts = {
+  const counts: ElectionRegisteredVoterCounts = {
     'precinct-c1-w1-1': 400,
     'precinct-c2': {
       splits: {

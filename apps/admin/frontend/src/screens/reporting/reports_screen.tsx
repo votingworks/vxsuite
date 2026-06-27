@@ -8,7 +8,7 @@ import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
   Election,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
@@ -35,7 +35,7 @@ const CalloutIconWrapper = styled.span`
 
 export function isVoterTurnoutReportEnabled(
   election: Election,
-  registeredVoterCounts?: ElectionRegisteredVotersCounts | null
+  registeredVoterCounts?: ElectionRegisteredVoterCounts | null
 ): boolean {
   if (
     registeredVoterCounts === null ||

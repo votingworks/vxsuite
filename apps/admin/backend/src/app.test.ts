@@ -13,7 +13,7 @@ import {
   DEV_MACHINE_ID,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   PrinterStatus,
   safeParseElectionDefinition,
   testElectionReport,
@@ -459,7 +459,7 @@ test('getSystemSettings happy path', async () => {
 test('getRegisteredVoterCounts', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const registeredVoterCounts: ElectionRegisteredVotersCounts = {
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
     'precinct-1': 500,
     'precinct-2': 400,
   };

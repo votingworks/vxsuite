@@ -17,7 +17,7 @@ import {
   constructElectionKey,
   ElectionDefinition,
   ElectionPackageFileName,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   LATEST_METADATA,
   SystemSettings,
 } from '@votingworks/types';
@@ -123,7 +123,7 @@ export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
   electionDefinition: ElectionDefinition,
-  registeredVoterCounts?: ElectionRegisteredVotersCounts,
+  registeredVoterCounts?: ElectionRegisteredVoterCounts,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
@@ -134,7 +134,7 @@ export async function configureMachine(
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
     ...(registeredVoterCounts
       ? {
-          [ElectionPackageFileName.REGISTERED_VOTERS_COUNTS]: JSON.stringify(
+          [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
             registeredVoterCounts
           ),
         }

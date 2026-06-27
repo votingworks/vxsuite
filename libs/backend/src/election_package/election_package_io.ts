@@ -46,8 +46,8 @@ import {
   EncodedBallotEntrySchema,
   SystemLimitViolation,
   SystemLimits,
-  ElectionRegisteredVotersCounts,
-  ElectionRegisteredVotersCountsSchema,
+  ElectionRegisteredVoterCounts,
+  ElectionRegisteredVoterCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { sha256 } from 'js-sha256';
@@ -196,15 +196,15 @@ export async function readElectionPackageFromBuffer(
     }
 
     // Registered Voter Counts:
-    let registeredVoterCounts: ElectionRegisteredVotersCounts | undefined;
+    let registeredVoterCounts: ElectionRegisteredVoterCounts | undefined;
     const registeredVoterCountsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.REGISTERED_VOTERS_COUNTS
+      ElectionPackageFileName.REGISTERED_VOTER_COUNTS
     );
     if (registeredVoterCountsEntry) {
       registeredVoterCounts = safeParseJson(
         await readTextEntry(registeredVoterCountsEntry),
-        ElectionRegisteredVotersCountsSchema
+        ElectionRegisteredVoterCountsSchema
       ).unsafeUnwrap();
     }
 

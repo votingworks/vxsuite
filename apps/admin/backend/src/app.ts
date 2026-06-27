@@ -5,7 +5,7 @@ import {
   Admin,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVotersCounts,
+  ElectionRegisteredVoterCounts,
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -620,7 +620,7 @@ function buildApi({
       return null;
     },
 
-    getRegisteredVoterCounts(): ElectionRegisteredVotersCounts | null {
+    getRegisteredVoterCounts(): ElectionRegisteredVoterCounts | null {
       const currentElectionId = store.getCurrentElectionId();
       if (!currentElectionId) {
         return null;

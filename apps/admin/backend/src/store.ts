@@ -47,8 +47,8 @@ import {
   BallotStyleGroup,
   getContests,
   SheetOf,
-  ElectionRegisteredVotersCounts,
-  ElectionRegisteredVotersCountsSchema,
+  ElectionRegisteredVoterCounts,
+  ElectionRegisteredVoterCountsSchema,
   UserRole,
   PartyId,
 } from '@votingworks/types';
@@ -400,7 +400,7 @@ export class Store implements BaseStore {
 
   setRegisteredVoterCounts(
     electionId: Id,
-    counts: ElectionRegisteredVotersCounts
+    counts: ElectionRegisteredVoterCounts
   ): void {
     this.withTransaction(() => {
       for (const [precinctId, entry] of Object.entries(counts)) {
@@ -434,7 +434,7 @@ export class Store implements BaseStore {
 
   getRegisteredVoterCounts(
     electionId: Id
-  ): ElectionRegisteredVotersCounts | undefined {
+  ): ElectionRegisteredVoterCounts | undefined {
     const precinctRows = this.client.all(
       `
       select precinct_id as precinctId, count
@@ -457,7 +457,7 @@ export class Store implements BaseStore {
       return undefined;
     }
 
-    const counts: ElectionRegisteredVotersCounts = {};
+    const counts: ElectionRegisteredVoterCounts = {};
     for (const { precinctId, count } of precinctRows) {
       counts[precinctId] = count;
     }
@@ -473,7 +473,7 @@ export class Store implements BaseStore {
         existing.splits[splitId] = count;
       }
     }
-    return ElectionRegisteredVotersCountsSchema.parse(counts);
+    return ElectionRegisteredVoterCountsSchema.parse(counts);
   }
 
   /**
