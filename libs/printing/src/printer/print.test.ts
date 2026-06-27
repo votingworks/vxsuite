@@ -147,7 +147,7 @@ test('M404n support', async () => {
       '-o',
       'media=letter',
       '-o',
-      'InputSlot=Tray2',
+      'InputSlot=M404n_Tray2',
     ],
     Uint8Array.of(0xca, 0xfe)
   );

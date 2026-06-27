@@ -57,7 +57,7 @@ export const M404N_PRINTER_CONFIG = find(
  * See {@link deriveM404nPpd} for more details.
  */
 export const M404N_INPUT_SLOT_OPTION = {
-  InputSlot: 'Tray2',
+  InputSlot: 'M404n_Tray2',
 } as const;
 
 /**
@@ -75,7 +75,7 @@ export const M404N_INPUT_SLOT_OPTION = {
 export function deriveM404nPpd(genericPpd: string): string {
   const inputSlotBlockClosingLine = '*CloseUI: *InputSlot';
   const customInputSlotLine =
-    '*InputSlot Tray2/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"';
+    '*InputSlot M404n_Tray2/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"';
   return genericPpd.replace(
     inputSlotBlockClosingLine,
     [customInputSlotLine, inputSlotBlockClosingLine].join('\n')
