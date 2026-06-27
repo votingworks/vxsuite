@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
-import { Page, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
@@ -53,7 +53,10 @@ test.afterEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
 });
 
-async function buildElectionPackage(electionDefinition: ElectionDefinition) {
+async function buildElectionPackage(
+  electionDefinition: ElectionDefinition,
+  { enableTestDeckPrinting = false } = {}
+) {
   const ballots = await buildBallotsForElection({
     electionDefinition,
     ballotModes: ['official', 'test'],
@@ -61,7 +64,10 @@ async function buildElectionPackage(electionDefinition: ElectionDefinition) {
   return mockElectionPackageFileTree({
     electionDefinition,
     ballots,
-    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      enableTestDeckPrinting,
+    },
   });
 }
 
@@ -343,6 +349,35 @@ test('election manager: print screen options', async ({ page }, testInfo) => {
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Cancel' })
     .click();
+});
+
+test('election manager: test decks', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const electionDefinition = getElectionDefinition();
+  const { election } = electionDefinition;
+  const { screenshot } = buildIntegrationTestHelper(page, namer);
+  const electionPackage = await buildElectionPackage(electionDefinition, {
+    enableTestDeckPrinting: true,
+  });
+
+  await configureMachine(page, {
+    election,
+    electionPackage,
+    pollingPlaceName: SPLIT_POLLING_PLACE,
+  });
+
+  await navigateTo(page, 'Test Decks');
+  await page.getByRole('button', { name: 'Print All Test Decks' }).waitFor();
+  await screenshot('em-test-decks-screen');
+
+  // Select a precinct so the precinct-specific print button becomes active.
+  await page
+    .getByRole('option', { name: SPLIT_POLLING_PLACE, exact: true })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Print Precinct Test Deck' })
+  ).toBeEnabled();
+  await screenshot('em-test-decks-precinct-selected');
 });
 
 test('poll worker: split precinct and reports', async ({ page }, testInfo) => {

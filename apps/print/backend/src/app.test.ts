@@ -1090,7 +1090,11 @@ test('printTestDeck sends one print job per spec and calls generateMarkOverlay o
   vi.mocked(generateMarkOverlay).mockClear();
   await apiClient.printTestDeck({});
   const jobs = mockPrinterHandler.getPrintJobHistory();
-  expect(jobs.length).toEqual(allSpecs.length + EXPECTED_TALLY_REPORT_PAGES);
+  expect(jobs.length).toEqual(
+    // Ballots + an overall tally report + one tally report per precinct
+    allSpecs.length +
+      EXPECTED_TALLY_REPORT_PAGES * (1 + election.precincts.length)
+  );
   expect(vi.mocked(generateMarkOverlay)).toHaveBeenCalledTimes(
     nonBlankSpecCount
   );
@@ -1149,9 +1153,10 @@ test('count and print exclude specs with no matching stored ballot', async () =>
   expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);
 
   await apiClient.printTestDeck({});
-  // Only the tally report prints; every ballot spec is filtered out.
+  // Only tally reports print; every ballot spec is filtered out. An overall
+  // tally report plus one per precinct.
   expect(mockPrinterHandler.getPrintJobHistory().length).toEqual(
-    EXPECTED_TALLY_REPORT_PAGES
+    EXPECTED_TALLY_REPORT_PAGES * (1 + msElectionDef.election.precincts.length)
   );
 });
 
@@ -1178,7 +1183,41 @@ test('printTestDeck prints test ballots when machine is in official ballot mode'
 
   await apiClient.printTestDeck({});
   const jobsAfter = mockPrinterHandler.getPrintJobHistory().length;
-  expect(jobsAfter).toEqual(allSpecs.length + EXPECTED_TALLY_REPORT_PAGES);
+  expect(jobsAfter).toEqual(
+    allSpecs.length +
+      EXPECTED_TALLY_REPORT_PAGES * (1 + election.precincts.length)
+  );
+});
+
+test('printTestDeck with overallTallyReportOnly prints only the overall tally report', async () => {
+  const msElectionDef = await makeMsElectionDefinition();
+  const msBallots = await buildTestBallotsForElection(msElectionDef);
+  await configureMachine({
+    electionDefinition: msElectionDef,
+    ballots: msBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  vi.mocked(renderToPdf).mockClear();
+  await apiClient.printTestDeck({ overallTallyReportOnly: true });
+
+  // No ballots and no per-precinct reports, just the overall tally report
+  expect(vi.mocked(renderToPdf)).toHaveBeenCalledOnce();
+  expect(mockPrinterHandler.getPrintJobHistory().length).toEqual(
+    EXPECTED_TALLY_REPORT_PAGES
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    expect.objectContaining({
+      message: 'Printed test deck',
+      disposition: 'success',
+      ballotCount: 0,
+    })
+  );
 });
 
 test.each([
@@ -1214,9 +1253,14 @@ test.each([
     vi.mocked(renderToPdf).mockClear();
     await apiClient.printTestDeck({});
 
-    expect(vi.mocked(renderToPdf)).toHaveBeenCalledOnce();
-    expect(vi.mocked(renderToPdf).mock.calls[0][0]).toMatchObject({
-      paperDimensions: ballotPaperDimensions(paperSize),
-    });
+    expect(vi.mocked(renderToPdf)).toHaveBeenCalledTimes(
+      // An overall tally report plus one per precinct
+      1 + electionDef.election.precincts.length
+    );
+    for (const call of vi.mocked(renderToPdf).mock.calls) {
+      expect(call[0]).toMatchObject({
+        paperDimensions: ballotPaperDimensions(paperSize),
+      });
+    }
   }
 );

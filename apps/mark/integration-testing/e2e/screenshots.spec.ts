@@ -53,13 +53,17 @@ test.afterEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
 });
 
-async function buildElectionPackage(electionDefinition: ElectionDefinition) {
+async function buildElectionPackage(
+  electionDefinition: ElectionDefinition,
+  { enableTestDeckPrinting = false } = {}
+) {
   return mockElectionPackageFileTree({
     electionDefinition,
     systemSettings: {
       ...DEFAULT_SYSTEM_SETTINGS,
       // Hide the voter help button to keep voter screens uncluttered.
       disableVoterHelpButtons: true,
+      enableTestDeckPrinting,
     },
     // Registers the supported languages and their native display names so the
     // voter language selector renders (see MULTI_LANGUAGE_UI_STRINGS).
@@ -610,4 +614,43 @@ test('voter settings', async ({ page }, testInfo) => {
     })
     .not.toBe(previousPrintPath);
   await capturePrintedBallot('printed-ballot-multilingual', namer);
+});
+
+test('test decks', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const electionDefinition = getFamousNamesElectionDefinition();
+  const { election } = electionDefinition;
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+  const electionPackage = await buildElectionPackage(electionDefinition, {
+    enableTestDeckPrinting: true,
+  });
+
+  await page
+    .getByText('Insert an election manager card to configure VxMark')
+    .waitFor();
+  await configureMachine(page, {
+    election,
+    electionPackage,
+    pollingPlaceName: POLLING_PLACE_NAME,
+  });
+
+  // Highlight the Test Decks button in the election manager menu.
+  await screenshotWithButtonHighlight(
+    'Test Decks',
+    'em-menu-test-decks-highlighted'
+  );
+
+  // Open the Test Decks screen.
+  await page.getByRole('button', { name: 'Test Decks' }).click();
+  await page.getByRole('heading', { name: 'Test Decks' }).waitFor();
+  await screenshot('em-test-decks-screen');
+
+  // Select a precinct so the precinct-specific print button becomes active.
+  await page.getByLabel(/select a precinct/i).click({ force: true });
+  await page.getByText(PRECINCT_NAME, { exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Print Precinct Test Deck' })
+  ).toBeEnabled();
+  await screenshot('em-test-decks-precinct-selected');
 });

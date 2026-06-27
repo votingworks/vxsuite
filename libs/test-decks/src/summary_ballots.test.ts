@@ -12,7 +12,7 @@ import {
   createTestElection,
   mockConstructor,
 } from '@votingworks/test-utils';
-import { createPrecinctSummaryBallotTestDeck } from './summary_ballots';
+import { createSummaryBallotTestDeck } from './summary_ballots';
 import { generateTestDeckBallots } from './test_decks';
 
 vi.setConfig({
@@ -58,7 +58,7 @@ vi.mock('node:crypto', async (importActual) => ({
   randomUUID: () => '00000000-0000-0000-0000-000000000000',
 }));
 
-describe('createPrecinctSummaryBallotTestDeck', () => {
+describe('createSummaryBallotTestDeck', () => {
   test('generates summary BMD ballots for a precinct', async () => {
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
@@ -70,7 +70,7 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
       ballotFormat: 'summary',
     });
 
-    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+    const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
       ballotSpecs,
       isLiveMode: false,
@@ -85,7 +85,7 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
   test('returns undefined for empty ballot specs', async () => {
     const { electionDefinition } = vxFamousNamesFixtures;
 
-    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+    const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
       ballotSpecs: [],
       isLiveMode: false,
@@ -95,7 +95,7 @@ describe('createPrecinctSummaryBallotTestDeck', () => {
   });
 });
 
-describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
+describe('createSummaryBallotTestDeck - multi-page flow', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -147,7 +147,7 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     const mockCombinedPdf = Uint8Array.of(0x01, 0x02);
     vi.mocked(concatenatePdfs).mockResolvedValue(mockCombinedPdf);
 
-    const result = await createPrecinctSummaryBallotTestDeck({
+    const result = await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
       ballotSpecs,
       isLiveMode: false,
@@ -264,7 +264,7 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     vi.mocked(renderToPdf).mockResolvedValue(ok(mockPdfs) as any);
     vi.mocked(concatenatePdfs).mockResolvedValue(Uint8Array.of(0xff));
 
-    const result = await createPrecinctSummaryBallotTestDeck({
+    const result = await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
       ballotSpecs,
       isLiveMode: true,
@@ -346,7 +346,7 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
 
     const emitProgress = vi.fn();
 
-    await createPrecinctSummaryBallotTestDeck({
+    await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
       ballotSpecs,
       isLiveMode: false,
@@ -388,7 +388,7 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     );
 
     await expect(
-      createPrecinctSummaryBallotTestDeck({
+      createSummaryBallotTestDeck({
         electionDefinition: electionDef,
         ballotSpecs,
         isLiveMode: false,
@@ -445,7 +445,7 @@ describe('createPrecinctSummaryBallotTestDeck - multi-page flow', () => {
     );
     vi.mocked(concatenatePdfs).mockResolvedValue(Uint8Array.of(0xff));
 
-    await createPrecinctSummaryBallotTestDeck({
+    await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
       ballotSpecs,
       isLiveMode: false,

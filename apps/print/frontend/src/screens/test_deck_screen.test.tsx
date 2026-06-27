@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
+import { act, render, screen } from '../../test/react_testing_library';
 import {
   ApiMock,
   ApiMockProvider,
@@ -84,12 +84,20 @@ test('prints a test deck for all precincts', async () => {
     .resolves(20);
   userEvent.click(getButton('Print All Test Decks'));
 
-  await screen.findByText('Print 20 test deck ballots and tally report?');
+  await screen.findByText(
+    'Print 20 test deck ballots, the overall tally report, and all precinct tally reports?'
+  );
 
   apiMock.printTestDeck.expectCallWith({ precinctId: undefined }).resolves();
   userEvent.click(getButton('Print 20 Ballots'));
 
   await screen.findByText('Printing');
+
+  // The progress modal closes itself after the print delay.
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });
 
 test('prints a test deck for the selected precinct', async () => {
@@ -106,7 +114,9 @@ test('prints a test deck for the selected precinct', async () => {
     .resolves(5);
   userEvent.click(getButton('Print Precinct Test Deck'));
 
-  await screen.findByText('Print 5 test deck ballots and tally report?');
+  await screen.findByText(
+    `Print 5 test deck ballots and the precinct tally report for ${precinct.name}?`
+  );
 
   apiMock.printTestDeck.expectCallWith({ precinctId }).resolves();
   userEvent.click(getButton('Print 5 Ballots'));
@@ -127,7 +137,9 @@ test('Print All Test Decks prints all precincts even when one is selected', asyn
     .resolves(20);
   userEvent.click(getButton('Print All Test Decks'));
 
-  await screen.findByText('Print 20 test deck ballots and tally report?');
+  await screen.findByText(
+    'Print 20 test deck ballots, the overall tally report, and all precinct tally reports?'
+  );
 
   apiMock.printTestDeck.expectCallWith({ precinctId: undefined }).resolves();
   userEvent.click(getButton('Print 20 Ballots'));
@@ -145,19 +157,64 @@ test('Cancel closes the confirm modal without printing', async () => {
     .resolves(20);
   userEvent.click(getButton('Print All Test Decks'));
 
-  await screen.findByText('Print 20 test deck ballots and tally report?');
+  const confirmPrompt =
+    'Print 20 test deck ballots, the overall tally report, and all precinct tally reports?';
+  await screen.findByText(confirmPrompt);
+  userEvent.click(getButton('Cancel'));
+
+  expect(screen.queryByText(confirmPrompt)).not.toBeInTheDocument();
+});
+
+test('prints the overall tally report', async () => {
+  mockBaseQueries();
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+
+  apiMock.getTestDeckBallotCount
+    .expectRepeatedCallsWith({ precinctId: undefined })
+    .resolves(20);
+  userEvent.click(getButton('Print Overall Tally Report'));
+
+  await screen.findByText('Print the overall tally report?');
+
+  apiMock.printTestDeck
+    .expectCallWith({ overallTallyReportOnly: true })
+    .resolves();
+  userEvent.click(getButton('Print'));
+
+  await screen.findByText('Printing');
+
+  // The progress modal closes itself after the print delay.
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+});
+
+test('Cancel closes the overall tally report modal without printing', async () => {
+  mockBaseQueries();
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+
+  apiMock.getTestDeckBallotCount
+    .expectRepeatedCallsWith({ precinctId: undefined })
+    .resolves(20);
+  userEvent.click(getButton('Print Overall Tally Report'));
+
+  await screen.findByText('Print the overall tally report?');
   userEvent.click(getButton('Cancel'));
 
   expect(
-    screen.queryByText('Print 20 test deck ballots and tally report?')
+    screen.queryByText('Print the overall tally report?')
   ).not.toBeInTheDocument();
 });
 
-test('disables both buttons when the printer is not connected', async () => {
+test('disables all print buttons when the printer is not connected', async () => {
   mockBaseQueries({ printerConnected: false });
   renderScreen();
 
   await screen.findByRole('heading', { name: 'Test Decks' });
+  expect(getButton('Print Overall Tally Report')).toBeDisabled();
   expect(getButton('Print All Test Decks')).toBeDisabled();
   expect(getButton('Print Precinct Test Deck')).toBeDisabled();
 });

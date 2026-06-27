@@ -17,6 +17,7 @@ import {
   pollingPlaceFromElection,
   PrecinctId,
   Election,
+  Tabulation,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -102,6 +103,45 @@ export function buildApi(ctx: AppContext) {
         }),
       }))
       .filter((entry): entry is TestDeckBallotToPrint => entry.ballot !== null);
+  }
+
+  async function printTestDeckTallyReport(
+    electionDefinition: ElectionDefinition,
+    allCvrs: Tabulation.CastVoteRecord[],
+    /** Print for the specified precinct or overall if undefined */
+    precinctId?: PrecinctId
+  ): Promise<void> {
+    const { election } = electionDefinition;
+    const cvrs = precinctId
+      ? allCvrs.filter((cvr) => cvr.precinctId === precinctId)
+      : allCvrs;
+    const tallyReportResults = await getTallyReportResults(
+      election,
+      cvrs,
+      precinctId
+    );
+    const precinctName = precinctId
+      ? election.precincts.find((p) => p.id === precinctId)?.name
+      : undefined;
+    const tallyReportPdf = (
+      await renderToPdf({
+        document: AdminTallyReportByParty({
+          electionDefinition,
+          title: precinctName,
+          isOfficial: false,
+          isTest: true,
+          isForLogicAndAccuracyTesting: true,
+          testId: 'vxprint-test-deck-tally-report',
+          tallyReportResults,
+          generatedAtTime: new Date(getCurrentTime()),
+        }),
+        paperDimensions: ballotPaperDimensions(election.ballotLayout.paperSize),
+      })
+    ).unsafeUnwrap();
+    await printBallots(electionDefinition, {
+      data: Buffer.from(tallyReportPdf),
+      copies: 1,
+    });
   }
 
   const methods = {
@@ -545,14 +585,23 @@ export function buildApi(ctx: AppContext) {
       return getTestDeckBallotsToPrint(election, precinctIds).length;
     },
 
-    async printTestDeck(input: { precinctId?: PrecinctId }): Promise<void> {
+    async printTestDeck(input: {
+      /** Print for the specified precinct or overall if undefined */
+      precinctId?: PrecinctId;
+      /**
+       * When set, print only the overall tally report, no ballots and no
+       * per-precinct reports
+       */
+      overallTallyReportOnly?: boolean;
+    }): Promise<void> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const { election } = electionDefinition;
-      const { precinctId } = input;
+      const { precinctId, overallTallyReportOnly } = input;
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
         message: 'Attempting to print test deck',
         testDeckProps: JSON.stringify({
           precinctId: precinctId || 'all',
+          overallTallyReportOnly: overallTallyReportOnly ?? false,
         }),
       });
 
@@ -560,7 +609,9 @@ export function buildApi(ctx: AppContext) {
         ? [precinctId]
         : election.precincts.map((precinct) => precinct.id);
 
-      const ballotsToPrint = getTestDeckBallotsToPrint(election, precinctIds);
+      const ballotsToPrint = overallTallyReportOnly
+        ? []
+        : getTestDeckBallotsToPrint(election, precinctIds);
       for (const { spec, ballot } of ballotsToPrint) {
         const basePdf = Uint8Array.from(
           Buffer.from(ballot.encodedBallot, 'base64')
@@ -585,39 +636,24 @@ export function buildApi(ctx: AppContext) {
         includeSummaryBallots: false,
         includeBubbleBallots: true,
       });
-      const cvrs = precinctId
-        ? allCvrs.filter((cvr) => cvr.precinctId === precinctId)
-        : allCvrs;
-      const tallyReportResults = await getTallyReportResults(
-        election,
-        cvrs,
-        precinctId
-      );
-      const precinctName = precinctId
-        ? election.precincts.find((p) => p.id === precinctId)?.name
-        : undefined;
+
+      const reportPrecinctIds: Array<PrecinctId | undefined> = (() => {
+        if (overallTallyReportOnly) {
+          return [undefined];
+        }
+        if (precinctId) {
+          return [precinctId];
+        }
+        return [undefined, ...election.precincts.map((p) => p.id)];
+      })();
       try {
-        const tallyReportPdf = (
-          await renderToPdf({
-            document: AdminTallyReportByParty({
-              electionDefinition,
-              title: precinctName,
-              isOfficial: false,
-              isTest: true,
-              isForLogicAndAccuracyTesting: true,
-              testId: 'vxprint-test-deck-tally-report',
-              tallyReportResults,
-              generatedAtTime: new Date(getCurrentTime()),
-            }),
-            paperDimensions: ballotPaperDimensions(
-              election.ballotLayout.paperSize
-            ),
-          })
-        ).unsafeUnwrap();
-        await printBallots(electionDefinition, {
-          data: Buffer.from(tallyReportPdf),
-          copies: 1,
-        });
+        for (const reportPrecinctId of reportPrecinctIds) {
+          await printTestDeckTallyReport(
+            electionDefinition,
+            allCvrs,
+            reportPrecinctId
+          );
+        }
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
           message: 'Printed test deck',
           disposition: 'success',

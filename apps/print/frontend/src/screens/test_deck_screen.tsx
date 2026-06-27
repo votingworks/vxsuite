@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Id } from '@votingworks/types';
+import { Election, Id } from '@votingworks/types';
 import { Button, Modal, Loading, P } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -23,10 +23,6 @@ import {
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
-const TitleBarButton = styled(Button)`
-  width: 16rem;
-`;
-
 const FormSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -40,10 +36,14 @@ const FormSection = styled.div`
 `;
 
 function PrintTestDeckModal({
+  election,
   precinctId,
+  overallTallyReportOnly,
   onClose,
 }: {
+  election: Election;
   precinctId?: Id;
+  overallTallyReportOnly?: boolean;
   onClose: () => void;
 }): JSX.Element | null {
   const printTestDeckMutation = printTestDeck.useMutation();
@@ -63,7 +63,9 @@ function PrintTestDeckModal({
     setTimeout(() => {
       onClose();
     }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
-    printTestDeckMutation.mutate({ precinctId });
+    printTestDeckMutation.mutate(
+      overallTallyReportOnly ? { overallTallyReportOnly: true } : { precinctId }
+    );
   }
 
   if (isShowingPrintMessage) {
@@ -79,10 +81,35 @@ function PrintTestDeckModal({
     );
   }
 
+  const [title, content, buttonText] = (() => {
+    if (overallTallyReportOnly) {
+      return [
+        'Print Overall Tally Report',
+        'Print the overall tally report?',
+        'Print',
+      ];
+    }
+    if (precinctId) {
+      const precinctName = assertDefined(
+        election.precincts.find((p) => p.id === precinctId)
+      ).name;
+      return [
+        'Print Precinct Test Deck',
+        `Print ${ballotCount} test deck ballots and the precinct tally report for ${precinctName}?`,
+        `Print ${ballotCount} Ballots`,
+      ];
+    }
+    return [
+      'Print All Test Decks',
+      `Print ${ballotCount} test deck ballots, the overall tally report, and all precinct tally reports?`,
+      `Print ${ballotCount} Ballots`,
+    ];
+  })();
+
   return (
     <Modal
-      title="Print Test Deck"
-      content={<P>Print {ballotCount} test deck ballots and tally report?</P>}
+      title={title}
+      content={<P>{content}</P>}
       onOverlayClick={onClose}
       actions={
         <React.Fragment>
@@ -92,7 +119,7 @@ function PrintTestDeckModal({
             onPress={handlePrint}
             disabled={ballotCount === 0}
           >
-            Print {ballotCount} Ballots
+            {buttonText}
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
@@ -106,6 +133,7 @@ export function TestDeckScreen(): JSX.Element | null {
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
   const [printTestDeckTarget, setPrintTestDeckTarget] = useState<{
     precinctId?: Id;
+    overallTallyReportOnly?: boolean;
   }>();
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
@@ -126,16 +154,28 @@ export function TestDeckScreen(): JSX.Element | null {
         <TitleBar
           title="Test Decks"
           actions={
-            <TitleBarButton
-              disabled={!printer.connected}
-              color="neutral"
-              fill="outlined"
-              onPress={() => {
-                setPrintTestDeckTarget({ precinctId: undefined });
-              }}
-            >
-              Print All Test Decks
-            </TitleBarButton>
+            <React.Fragment>
+              <Button
+                disabled={!printer.connected}
+                color="neutral"
+                fill="outlined"
+                onPress={() =>
+                  setPrintTestDeckTarget({ overallTallyReportOnly: true })
+                }
+              >
+                Print Overall Tally Report
+              </Button>
+              <Button
+                disabled={!printer.connected}
+                color="neutral"
+                fill="outlined"
+                onPress={() => {
+                  setPrintTestDeckTarget({ precinctId: undefined });
+                }}
+              >
+                Print All Test Decks
+              </Button>
+            </React.Fragment>
           }
         />
         <Form>
@@ -166,7 +206,9 @@ export function TestDeckScreen(): JSX.Element | null {
         </Footer>
         {printTestDeckTarget && (
           <PrintTestDeckModal
+            election={election}
             precinctId={printTestDeckTarget.precinctId}
+            overallTallyReportOnly={printTestDeckTarget.overallTallyReportOnly}
             onClose={() => setPrintTestDeckTarget(undefined)}
           />
         )}

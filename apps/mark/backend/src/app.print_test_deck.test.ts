@@ -135,7 +135,7 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   );
 });
 
-test('printTestDeck for all precincts prints ballots and a tally report', async () => {
+test('printTestDeck for all precincts prints ballots, an overall tally report, and a tally report per precinct', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(electionDefinition);
@@ -143,9 +143,10 @@ test('printTestDeck for all precincts prints ballots and a tally report', async 
 
   await apiClient.printTestDeck({});
 
-  // One combined summary-ballot deck PDF + one tally report.
+  // One combined summary-ballot deck PDF + the overall tally report + one tally
+  // report for each of the 4 precincts.
   const jobs = mockPrinterHandler.getPrintJobHistory();
-  expect(jobs).toHaveLength(2);
+  expect(jobs).toHaveLength(6);
 
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.PrinterPrintRequest,

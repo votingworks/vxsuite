@@ -22,7 +22,7 @@ import z from 'zod/v4';
 import {
   generateTestDeckBallots,
   TestDeckBallot,
-  createPrecinctSummaryBallotTestDeck,
+  createSummaryBallotTestDeck,
 } from '@votingworks/test-decks';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
@@ -171,7 +171,7 @@ export async function generateTestDecks(
 
   // Generate summary BMD ballot test decks if configured
   for (const [precinct, ballotSpecs] of precinctSummaryBallotSpecs) {
-    const summaryBallotPdf = await createPrecinctSummaryBallotTestDeck({
+    const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
       ballotSpecs,
       isLiveMode: false, // Test decks are always in test mode

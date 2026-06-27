@@ -99,7 +99,7 @@ import {
 import path, { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
-import { createPrecinctSummaryBallotTestDeck } from '@votingworks/test-decks';
+import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
   ApiClient,
   ELECTION_PACKAGE_FILE_NAME_REGEX,
@@ -245,9 +245,7 @@ vi.mock(import('@votingworks/test-decks'), async (importActual) => {
   const original = await importActual();
   return {
     ...original,
-    createPrecinctSummaryBallotTestDeck: vi.fn(
-      original.createPrecinctSummaryBallotTestDeck
-    ),
+    createSummaryBallotTestDeck: vi.fn(original.createSummaryBallotTestDeck),
   };
 });
 
@@ -312,7 +310,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
   vi.mocked(createPrecinctTestDeck).mockRestore();
-  vi.mocked(createPrecinctSummaryBallotTestDeck).mockRestore();
+  vi.mocked(createSummaryBallotTestDeck).mockRestore();
   vi.mocked(createTestDeckTallyReports).mockRestore();
 });
 
@@ -4385,7 +4383,7 @@ test.each([
     vi.mocked(createPrecinctTestDeck).mockImplementation(({ ballotSpecs }) =>
       Promise.resolve(ballotSpecs.length > 0 ? mockPdfContent : undefined)
     );
-    vi.mocked(createPrecinctSummaryBallotTestDeck).mockImplementation(
+    vi.mocked(createSummaryBallotTestDeck).mockImplementation(
       ({ ballotSpecs }) =>
         Promise.resolve(ballotSpecs.length > 0 ? mockPdfContent : undefined)
     );

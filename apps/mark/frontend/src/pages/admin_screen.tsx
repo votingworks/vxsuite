@@ -172,9 +172,11 @@ export function AdminScreen({
           <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
             Diagnostics
           </Button>
-          <Button onPress={() => setIsTestDeckScreenOpen(true)}>
-            Test Decks
-          </Button>
+          {systemSettingsQuery.data?.enableTestDeckPrinting && (
+            <Button onPress={() => setIsTestDeckScreenOpen(true)}>
+              Test Decks
+            </Button>
+          )}
           <SignedHashValidationButton apiClient={apiClient} />
           <ToggleUsbPortsButton onlyShowWhenDisabled />
           <PowerDownButton icon="PowerOff" />

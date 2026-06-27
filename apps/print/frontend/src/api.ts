@@ -105,6 +105,7 @@ export const configureElectionPackageFromUsb = {
     return useMutation(() => apiClient.configureElectionPackageFromUsb(), {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionRecord.queryKey());
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
       },
     });
   },
