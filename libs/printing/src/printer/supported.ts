@@ -61,16 +61,27 @@ export const M404N_INPUT_SLOT_OPTION = {
 } as const;
 
 /**
- * Derives the HP LaserJet Pro M404n PPD from the generic PPD. Using our
- * generic PPD with the M404n results in the M404n asking the user to confirm
- * the paper size before it prints. The edit below, paired with specifying
- * InputSlot=Tray2 in the print options (see {@link M404N_INPUT_SLOT_OPTION}),
- * allows the M404n to print without this confirmation.
+ * Derives the HP LaserJet Pro M404n PPD from the generic PPD.
+ * The code prints Letter-size sheets but the M404n has no
+ * Letter-size paper inputs by default. The printer can't
+ * automatically match the Letter job to any one input, all
+ * of which are configured for "Any" size, so it prompts the
+ * operator to load Letter paper and confirm the tray.
  *
- * While early data suggests that the modification below can be made to the
- * generic PPD without any negative consequences for other printers, we're
- * playing it safe until we can test more fully on all our supported printer
- * configurations.
+ * The workaround is 2 part:
+ * 1. Register the M404n cassette as M404n_Tray2
+ * 2. Explicitly select InputSlot=M404n_Tray2 when printing from the code
+ *    (see {@link M404N_INPUT_SLOT_OPTION})
+ *
+ *
+ * Selecting the cassette by position in the print command
+ * (InputSlot=M404n_Tray2 -> MediaPosition 0) makes the printer commit to the
+ * cassette and skip that confirmation.
+ *
+ * nb. the cassette is namespaced to illustrate the point that passing the InputSlot
+ * arg to printers that haven't registered the InputSlot will be a no-op.
+ * This is necessary because in codepaths shared by m404n and 4001dn, we don't
+ * check the printer model and InputSlot=M404n_Tray2 will be passed.
  */
 export function deriveM404nPpd(genericPpd: string): string {
   const inputSlotBlockClosingLine = '*CloseUI: *InputSlot';
