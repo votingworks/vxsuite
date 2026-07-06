@@ -3,12 +3,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import {
   CardlessVoterUser,
   Election,
   getBallotStyle,
   getPartyForBallotStyle,
+  isOpenPrimary,
 } from '@votingworks/types';
 import { electionStrings, P, Font } from '@votingworks/ui';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
@@ -33,38 +34,34 @@ export function BallotStyleLabel(props: BallotStyleLabelProps): JSX.Element {
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
 
-  switch (election.type) {
-    case 'general':
-    case 'open-primary':
-      return (
-        <P>
-          <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
-        </P>
-      );
-
-    case 'closed-primary':
-      return (
-        <React.Fragment>
-          <P>
-            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
-          </P>
-          <P>
-            <Font weight="semiBold">Ballot Style:</Font>{' '}
-            {
-              assertDefined(
-                getPartyForBallotStyle({
-                  election,
-                  ballotStyleId: ballotStyle.id,
-                })
-              ).name
-            }
-          </P>
-        </React.Fragment>
-      );
-    default:
-      /* istanbul ignore next */
-      throwIllegalValue(election.type);
+  // Open primary ballot styles have no party, so show just the precinct name
+  // like in a general election.
+  if (election.type === 'general' || isOpenPrimary(election)) {
+    return (
+      <P>
+        <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
+      </P>
+    );
   }
+
+  return (
+    <React.Fragment>
+      <P>
+        <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
+      </P>
+      <P>
+        <Font weight="semiBold">Ballot Style:</Font>{' '}
+        {
+          assertDefined(
+            getPartyForBallotStyle({
+              election,
+              ballotStyleId: ballotStyle.id,
+            })
+          ).name
+        }
+      </P>
+    </React.Fragment>
+  );
 }
 
 export const ButtonGrid = styled.div`
