@@ -31,6 +31,7 @@ const TabBar = styled.div.attrs({ role: 'tablist' })`
 `;
 
 export interface RouterTabBarProps {
+  className?: string;
   tabs: Array<{ title: string; path: string }>;
 }
 
@@ -41,11 +42,12 @@ export interface RouterTabBarProps {
  *
  * To render the tab content, use the {@link TabPanel} component inside a `Switch`.
  */
-export function RouterTabBar({ tabs }: RouterTabBarProps): JSX.Element {
+export function RouterTabBar(props: RouterTabBarProps): JSX.Element {
+  const { className, tabs } = props;
   const location = useLocation();
   const history = useHistory();
   return (
-    <TabBar>
+    <TabBar className={className}>
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         return (

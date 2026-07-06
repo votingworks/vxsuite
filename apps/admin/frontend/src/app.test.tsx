@@ -14,7 +14,11 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
-import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
+import {
+  anyPollingPlace,
+  constructElectionKey,
+  formatElectionHashes,
+} from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -381,7 +385,11 @@ test('clearing results', async () => {
     isOfficialResults: true,
   });
   apiMock.expectGetCastVoteRecordFiles([
-    { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
+    {
+      ...mockCastVoteRecordFileRecord,
+      numCvrsImported: 3000,
+      pollingPlaceIds: [anyPollingPlace(electionDefinition.election).id],
+    },
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
 
@@ -390,8 +398,8 @@ test('clearing results', async () => {
 
   userEvent.click(screen.getByText('Tally'));
   await screen.findByText('Election Results are Official');
-  expect(await screen.findButton('Load CVRs')).toBeDisabled();
-  expect(await screen.findButton('Remove All CVRs')).toBeDisabled();
+  expect(screen.queryButton('Load')).not.toBeInTheDocument();
+  expect(screen.queryButton('Remove All CVRs')).not.toBeInTheDocument();
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectClearCastVoteRecordFiles();
@@ -407,9 +415,9 @@ test('clearing results', async () => {
     expect(
       screen.queryByText('Election Results Marked as Official')
     ).not.toBeInTheDocument();
-    expect(screen.getButton('Load CVRs')).toBeEnabled();
+    expect(screen.getButton('Load')).toBeEnabled();
   });
-  screen.getByText('No CVRs loaded.');
+  screen.getByText(hasTextAcrossElements(['CVRs', '0'].join('')));
 });
 
 test('can not view or print ballots', async () => {
@@ -447,7 +455,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election' });
 
   userEvent.click(screen.getButton('Tally'));
-  await screen.findByRole('heading', { name: 'Tally' });
+  await screen.findByRole('tab', { name: 'Cast Vote Records' });
 
   apiMock.expectGetRegisteredVoterCounts(null);
   userEvent.click(screen.getByText('Reports'));
