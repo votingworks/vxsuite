@@ -44,11 +44,10 @@ test('convertLatestElectionToV4p0', () => {
     },
   });
 
-  // closed-primary -> primary, same county/countyName conversion
+  // Primaries carry the same `primary` type across versions.
   expect(convertLatestElectionToV4p0(primaryElection)).toEqual({
     ...primaryElection,
     contests: toV4p0Contests(primaryElection.contests),
-    type: 'primary',
     jurisdiction: undefined,
     county: primaryElection.jurisdiction,
     ballotStrings: {
@@ -61,17 +60,30 @@ test('convertLatestElectionToV4p0', () => {
     },
   });
 
+  // Open primaries convert like any other primary: the open-vs-closed
+  // distinction is carried by ballot styles' partyId, not the election type.
   const openPrimaryElection: Election = {
     ...primaryElection,
-    type: 'open-primary',
     ballotStyles: primaryElection.ballotStyles.map((bs) => ({
       ...bs,
       partyId: undefined,
     })),
   };
-  expect(() => convertLatestElectionToV4p0(openPrimaryElection)).toThrow(
-    'v4.0 does not support open primaries'
-  );
+  expect(convertLatestElectionToV4p0(openPrimaryElection)).toEqual({
+    ...openPrimaryElection,
+    contests: toV4p0Contests(openPrimaryElection.contests),
+    jurisdiction: undefined,
+    county: openPrimaryElection.jurisdiction,
+    ballotStrings: {
+      ...openPrimaryElection.ballotStrings,
+      en: {
+        ...openPrimaryElection.ballotStrings['en'],
+        jurisdictionName: undefined,
+        countyName:
+          openPrimaryElection.ballotStrings['en']?.['jurisdictionName'],
+      },
+    },
+  });
 });
 
 test('convertLatestElectionToV4p0 converts yesno contests with more than two options to candidate contests', () => {

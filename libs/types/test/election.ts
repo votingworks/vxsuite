@@ -145,7 +145,7 @@ const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
 const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {
   ...election,
-  type: 'closed-primary',
+  type: 'primary',
   title: 'Primary Election',
   ballotStyles: [
     ...election.ballotStyles.map((bs) => ({
@@ -220,7 +220,7 @@ export const primaryElection: Election = {
 const electionTwoPartyPrimaryData = `
 {
   "id": "election-2",
-  "type": "closed-primary",
+  "type": "primary",
   "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
   "jurisdiction": {
