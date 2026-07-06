@@ -54,9 +54,7 @@ export function generateVoterHistoryCsvContent(
             ? voter.checkIn.identificationMethod.state
             : '',
         'Party Choice':
-          election.type === 'closed-primary'
-            ? voter.checkIn?.ballotParty || ''
-            : '',
+          election.type === 'primary' ? voter.checkIn?.ballotParty || '' : '',
         'Check-In Time': voter.checkIn
           ? `${DateTime.fromISO(voter.checkIn.timestamp).toFormat(
               "yyyy-MM-dd'T'T"

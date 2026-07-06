@@ -38,6 +38,7 @@ import {
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
   safeParseElectionDefinitionForAnySoftwareVersion,
+  isOpenPrimary,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -337,7 +338,10 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const election = ((): Election => {
+        const { election, isMiCombinedBallotPrimary } = ((): {
+          election: Election;
+          isMiCombinedBallotPrimary: boolean;
+        } => {
           switch (input.upload.format) {
             case 'vxf': {
               const { election: sourceElection } =
@@ -373,33 +377,40 @@ export function buildApi(ctx: AppContext) {
               );
 
               return {
-                ...sourceElection,
-                id: input.newId,
-                jurisdiction: {
-                  ...sourceElection.jurisdiction,
-                  // County ID needs to be deterministic
-                  id: `${input.newId}-county`,
+                isMiCombinedBallotPrimary: isOpenPrimary(sourceElection),
+                election: {
+                  ...sourceElection,
+                  id: input.newId,
+                  jurisdiction: {
+                    ...sourceElection.jurisdiction,
+                    // County ID needs to be deterministic
+                    id: `${input.newId}-county`,
+                  },
+                  districts,
+                  pollingPlaces,
+                  precincts,
+                  parties,
+                  contests: contestsWithSplitCandidateNames,
+                  // Remove any existing ballot styles (and their ballot
+                  // positions) so we can generate our own
+                  ballotStyles: [],
+                  // Fill in a blank seal if none is provided
+                  seal: sourceElection.seal ?? '',
+                  signature: sourceElection.signature,
                 },
-                districts,
-                pollingPlaces,
-                precincts,
-                parties,
-                contests: contestsWithSplitCandidateNames,
-                // Remove any existing ballot styles (and their ballot
-                // positions) so we can generate our own
-                ballotStyles: [],
-                // Fill in a blank seal if none is provided
-                seal: sourceElection.seal ?? '',
-                signature: sourceElection.signature,
               };
             }
 
             case 'ms-sems': {
-              return convertMsElection(
+              const msElection = convertMsElection(
                 input.newId,
                 input.upload.electionFileContents,
                 input.upload.candidateFileContents
               );
+              return {
+                election: msElection,
+                isMiCombinedBallotPrimary: false,
+              };
             }
 
             default: {
@@ -412,6 +423,7 @@ export function buildApi(ctx: AppContext) {
         await store.createElection({
           jurisdiction,
           election,
+          isMiCombinedBallotPrimary,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
@@ -433,6 +445,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction,
         election,
+        isMiCombinedBallotPrimary: false,
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
         systemSettings: defaultSystemSettings(jurisdiction),
       });
@@ -447,8 +460,11 @@ export function buildApi(ctx: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
-      const { election: sourceElection, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const {
+        election: sourceElection,
+        isMiCombinedBallotPrimary,
+        ballotTemplateId,
+      } = await store.getElection(input.electionId);
 
       const destJurisdiction = await store.getJurisdiction(
         input.destJurisdictionId
@@ -471,6 +487,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction: destJurisdiction,
         election,
+        isMiCombinedBallotPrimary,
         ballotTemplateId,
         systemSettings: defaultSystemSettings(destJurisdiction),
       });
@@ -482,6 +499,7 @@ export function buildApi(ctx: AppContext) {
     }): Promise<ElectionInfo> {
       const {
         election,
+        isMiCombinedBallotPrimary,
         ballotLanguageConfigs,
         jurisdictionId,
         externalSource,
@@ -492,6 +510,7 @@ export function buildApi(ctx: AppContext) {
         title: election.title,
         date: election.date,
         type: election.type,
+        isMiCombinedBallotPrimary,
         state: election.state,
         jurisdictionName: election.jurisdiction.name,
         seal: election.seal,
@@ -743,10 +762,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       // Test decks have not yet been updated to support open primaries
-      if (
-        stateFeatures.EXPORT_TEST_BALLOTS &&
-        election.type !== 'open-primary'
-      ) {
+      if (stateFeatures.EXPORT_TEST_BALLOTS && !isOpenPrimary(election)) {
         await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
       }
 

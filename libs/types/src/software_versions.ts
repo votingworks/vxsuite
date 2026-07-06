@@ -48,14 +48,6 @@ export type SoftwareVersion = (typeof SoftwareVersions)[number];
 export const SoftwareVersionSchema: z.ZodType<SoftwareVersion> =
   z.enum(SoftwareVersions);
 
-// Deprecated election types from v4.0. Retained so that VxDesign can export
-// compatible elections for jurisdictions that are still using v4.0 software.
-// Can be deleted once all jurisdictions have migrated to v4.1 or later.
-const ELECTION_TYPES_V4_0 = ['general', 'primary'] as const;
-type ElectionTypeV4p0 = (typeof ELECTION_TYPES_V4_0)[number];
-const ElectionTypeSchemaV4p0: z.ZodSchema<ElectionTypeV4p0> =
-  z.enum(ELECTION_TYPES_V4_0);
-
 // v4.0 used `county` (and the `countyName` ballot-string key) where v4.1+ uses
 // `jurisdiction` (and `jurisdictionName`). Drop `jurisdiction` from the v4.0
 // shape and use `county` instead, so VxDesign can export elections compatible
@@ -162,9 +154,8 @@ const ContestV4p0Schema: z.ZodSchema<ContestV4p0> = z.union([
 
 type ElectionV4p0 = Omit<
   Election,
-  'type' | 'jurisdiction' | 'ballotStyles' | 'pollingPlaces' | 'contests'
+  'jurisdiction' | 'ballotStyles' | 'pollingPlaces' | 'contests'
 > & {
-  type: ElectionTypeV4p0;
   county: Election['jurisdiction'];
   ballotStyles: readonly BallotStyleV4p0[];
   pollingPlaces?: readonly PollingPlace[];
@@ -178,7 +169,6 @@ export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
   gridLayouts: z.array(GridLayoutV4p0Schema).optional(),
   contests: z.array(ContestV4p0Schema),
   county: JurisdictionSchema,
-  type: ElectionTypeSchemaV4p0,
 });
 
 // v4.0 <-> v4.1 geometry conversion helpers.
@@ -304,10 +294,6 @@ export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
 }
 
 export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
-  assert(
-    election.type !== 'open-primary',
-    'v4.0 does not support open primaries'
-  );
   const { jurisdiction, ballotStrings, ballotStyles, ...rest } = election;
   // v4.0 represents yesno contests with `yesOption`/`noOption` and doesn't
   // support more than two options, so 2-option measures map to that shape and
@@ -371,7 +357,6 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
       ElectionStringKey.JURISDICTION_NAME,
       'countyName'
     ),
-    type: election.type === 'general' ? 'general' : 'primary',
   };
 }
 
@@ -431,7 +416,6 @@ function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
       'countyName',
       ElectionStringKey.JURISDICTION_NAME
     ),
-    type: election.type === 'general' ? 'general' : 'closed-primary',
   };
 }
 

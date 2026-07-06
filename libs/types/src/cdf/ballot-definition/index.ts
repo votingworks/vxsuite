@@ -132,14 +132,9 @@ export enum ElectionType {
   General = 'general',
 
   /**
-   * Primary election in which the voter receives a ballot containing only those party-specific contests pertaining to the political party with which the voter is affiliated, along with non-party-specific contests presented at the same election. Unaffiliated voters may be permitted to vote only on non-party-specific contests.
+   * Election held to determine which candidates qualify to appear as contest options in subsequent elections.
    */
-  PartisanPrimaryClosed = 'partisan-primary-closed',
-
-  /**
-   * Primary election in which the voter may choose a political party at the time of voting and vote in party-specific contests associated with that party, along with non-party-specific contests presented at the same election. Some states require voters to publicly declare their choice of party at the polling place, after which the election worker provides or activates the appropriate ballot. Other states allow the voters to make their choice of party within the privacy of the voting booth.
-   */
-  PartisanPrimaryOpen = 'partisan-primary-open',
+  Primary = 'primary',
 }
 
 /**

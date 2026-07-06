@@ -85,6 +85,7 @@ export interface ElectionInfo {
   jurisdictionId: string;
   electionId: ElectionId;
   type: ElectionType;
+  isMiCombinedBallotPrimary: boolean;
   date: DateWithoutTime;
   title: string;
   state: string;
@@ -110,6 +111,7 @@ export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> = z.object(
   {
     electionId: ElectionIdSchema,
     type: ElectionTypeSchema,
+    isMiCombinedBallotPrimary: z.boolean(),
     date: DateWithoutTimeSchema,
     title: TextInput,
     state: TextInput,

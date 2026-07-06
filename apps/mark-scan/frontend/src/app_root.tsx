@@ -5,6 +5,7 @@ import {
   getBallotStyle,
   getContests,
   ContestId,
+  isOpenPrimary,
   PartyId,
   PrecinctId,
   BallotStyleId,
@@ -243,7 +244,7 @@ export function AppRoot(): JSX.Element | null {
           // For open primaries, show only partisan contests for the party
           // selected by the user + nonpartisan contests.
           .filter((contest) => {
-            if (electionDefinition.election.type === 'open-primary') {
+            if (isOpenPrimary(electionDefinition.election)) {
               // If the voter hasn't selected a party yet (e.g. on the start
               // screen), default to a random party so the contest count
               // matches.

@@ -373,7 +373,7 @@ export function convertMsElection(
   const type = contests.some(
     (contest) => contest.type === 'candidate' && contest.partyId
   )
-    ? 'closed-primary'
+    ? 'primary'
     : 'general';
 
   const election: Election = {
@@ -412,7 +412,7 @@ export function convertMsElection(
         groupId: 'dummy',
         precincts: [],
         districts: [],
-        partyId: type === 'closed-primary' ? parties[0].id : undefined,
+        partyId: type === 'primary' ? parties[0].id : undefined,
         languages: ['en'],
       },
     ],

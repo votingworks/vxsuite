@@ -218,7 +218,8 @@ test('edit and save election', async () => {
     electionId,
     title: 'New Title',
     date: new DateWithoutTime('2023-09-06'),
-    type: 'closed-primary',
+    type: 'primary',
+    isMiCombinedBallotPrimary: false,
     state: 'New State',
     jurisdictionName: 'New County',
     seal: '<svg>updated seal</svg>',
@@ -286,6 +287,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     title: election.title,
     date: election.date,
     type: election.type,
+    isMiCombinedBallotPrimary: false,
     state: election.state,
     jurisdictionName: election.jurisdiction.name,
     seal: election.seal,
@@ -517,7 +519,8 @@ test('election type selector with features.OPEN_PRIMARIES enabled', async () => 
   );
   const openPrimaryInfo: ElectionInfo = {
     ...electionInfoFromRecord(electionRecord),
-    type: 'open-primary',
+    type: 'primary',
+    isMiCombinedBallotPrimary: true,
   };
   apiMock.updateElectionInfo.expectCallWith(openPrimaryInfo).resolves(ok());
   apiMock.getElectionInfo
@@ -533,7 +536,8 @@ test('election type selector with features.OPEN_PRIMARIES enabled', async () => 
   );
   const closedPrimaryInfo: ElectionInfo = {
     ...openPrimaryInfo,
-    type: 'closed-primary',
+    type: 'primary',
+    isMiCombinedBallotPrimary: false,
   };
   apiMock.updateElectionInfo.expectCallWith(closedPrimaryInfo).resolves(ok());
   apiMock.getElectionInfo

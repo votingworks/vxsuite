@@ -7,7 +7,7 @@ import {
   PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
-  isPrimary,
+  isOpenPrimary,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
@@ -94,10 +94,9 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       scannerId: VX_MACHINE_ID,
       precinctId: metadata.precinctId,
       ballotStyleGroupId,
-      partyId:
-        election.type === 'open-primary'
-          ? inferPartyFromVotes(election, votes)
-          : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
+      partyId: isOpenPrimary(election)
+        ? inferPartyFromVotes(election, votes)
+        : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
       votingMethod: BALLOT_TYPE_TO_VOTING_METHOD[metadata.ballotType],
     };
   }
@@ -164,7 +163,7 @@ export async function getScannerResults({
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
       election,
-      groupBy: isPrimary(election) ? { groupByParty: true } : undefined,
+      groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
       cvrs,
     })
   );

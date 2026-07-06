@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import { ContestId, Contest, isPrimary } from '@votingworks/types';
+import { ContestId, Contest } from '@votingworks/types';
 import styled from 'styled-components';
 import { FixedViewport, ListActionsRow, Row } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
@@ -193,7 +193,7 @@ function Content(): JSX.Element | null {
               style={{ minWidth: '8rem' }}
               disabled={isReordering}
             />
-            {isPrimary(electionInfo) && (
+            {electionInfo.type === 'primary' && (
               <SearchSelect
                 options={[
                   { value: FILTER_ALL, label: 'All Parties' },
@@ -252,7 +252,7 @@ function Content(): JSX.Element | null {
             <NoContests>
               <Callout color="neutral" icon="Info">
                 There are no contests for the district
-                {isPrimary(electionInfo) ? '/party' : ''} you selected.
+                {electionInfo.type === 'primary' ? '/party' : ''} you selected.
               </Callout>
               <div>
                 <Button

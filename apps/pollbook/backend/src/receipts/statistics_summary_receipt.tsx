@@ -4,7 +4,7 @@ import {
   PartyAbbreviation,
   getUndeclaredPrimaryPartyChoice,
   getUndeclaredPrimaryPartyChoiceRaw,
-  ClosedPrimarySummaryStatistics,
+  PrimarySummaryStatistics,
   SummaryStatistics,
   getImportedVotersCount,
   getTotalPrecinctCheckIns,
@@ -166,7 +166,11 @@ function TotalVoters({
   );
 }
 
-function CheckIns({ stats }: { stats: SummaryStatistics }): React.ReactNode {
+function GeneralCheckIns({
+  stats,
+}: {
+  stats: SummaryStatistics;
+}): React.ReactNode {
   return (
     <div
       style={{
@@ -234,7 +238,7 @@ function PartyCheckIns({
 function UndeclaredVoterPartyChoice({
   undeclaredVoterStats,
 }: {
-  undeclaredVoterStats: ClosedPrimarySummaryStatistics;
+  undeclaredVoterStats: PrimarySummaryStatistics;
 }): React.ReactNode {
   return (
     <div
@@ -357,7 +361,11 @@ export function StatisticsSummaryReceipt({
         undeclaredStats={stats.undeclaredStats}
       />
 
-      {election.type === 'closed-primary' ? (
+      {election.type === 'general' && (
+        <GeneralCheckIns stats={stats.allStats} />
+      )}
+
+      {election.type === 'primary' && (
         <React.Fragment>
           <PartyCheckIns
             partyAbbreviation={'DEM'}
@@ -369,12 +377,10 @@ export function StatisticsSummaryReceipt({
           />
           <UndeclaredVoterPartyChoice
             undeclaredVoterStats={
-              stats.undeclaredStats as ClosedPrimarySummaryStatistics
+              stats.undeclaredStats as PrimarySummaryStatistics
             }
           />
         </React.Fragment>
-      ) : (
-        <CheckIns stats={stats.allStats} />
       )}
 
       <BiographicalDataChangeCounts eventCounts={eventCounts} />

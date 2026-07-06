@@ -15,6 +15,7 @@ import {
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
+  isOpenPrimary,
   getPartyIdsWithContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
@@ -55,7 +56,6 @@ import {
   Election,
   PollingPlace,
   PollingPlacesSchema,
-  isPrimary,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -262,23 +262,22 @@ test('getPartyIdsInBallotStyles', () => {
   );
 });
 
-test('isPrimary', () => {
+test('isOpenPrimary', () => {
   // general election
-  expect(isPrimary(election)).toEqual(false);
+  expect(isOpenPrimary(election)).toEqual(false);
 
   // closed primary (ballot styles have partyId)
-  expect(isPrimary(primaryElection)).toEqual(true);
+  expect(isOpenPrimary(primaryElection)).toEqual(false);
 
   // open primary (ballot styles have no partyId)
   const openPrimaryElection: Election = {
     ...primaryElection,
-    type: 'open-primary',
     ballotStyles: primaryElection.ballotStyles.map((bs) => ({
       ...bs,
       partyId: undefined,
     })),
   };
-  expect(isPrimary(openPrimaryElection)).toEqual(true);
+  expect(isOpenPrimary(openPrimaryElection)).toEqual(true);
 });
 
 test('getGroupIdFromBallotStyleId', () => {
@@ -549,7 +548,7 @@ test('election schema', () => {
   }
 });
 
-test('election schema rejects closed primaries with ballot styles with no partyId', () => {
+test('election schema rejects primary with mixed partyId ballot styles', () => {
   const mixedPrimary: Election = {
     ...primaryElection,
     ballotStyles: [
@@ -559,22 +558,7 @@ test('election schema rejects closed primaries with ballot styles with no partyI
   };
   const result = safeParseElection(mixedPrimary);
   expect(result.err()?.message).toContain(
-    'Closed primary election ballot styles must all have a partyId'
-  );
-});
-
-test('election schema rejects open primaries with ballot styles with partyId', () => {
-  const mixedPrimary: Election = {
-    ...primaryElection,
-    type: 'open-primary',
-    ballotStyles: [
-      primaryElection.ballotStyles[0],
-      { ...primaryElection.ballotStyles[1], partyId: undefined },
-    ],
-  };
-  const result = safeParseElection(mixedPrimary);
-  expect(result.err()?.message).toContain(
-    'Open primary election ballot styles must not have a partyId'
+    'must either all have a partyId (closed primary) or all omit partyId (open primary)'
   );
 });
 

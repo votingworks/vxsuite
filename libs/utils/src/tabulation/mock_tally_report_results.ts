@@ -1,7 +1,6 @@
 import {
   Admin,
   Election,
-  isPrimary,
   straightPartyNotYetImplemented,
   Tabulation,
 } from '@votingworks/types';
@@ -79,7 +78,7 @@ export function buildSimpleMockTallyReportResults({
       : undefined;
   const contestIds = specifiedContestIds ?? election.contests.map((c) => c.id);
 
-  if (isPrimary(election)) {
+  if (election.type === 'primary') {
     return {
       scannedResults,
       manualResults,

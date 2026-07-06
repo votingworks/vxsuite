@@ -99,7 +99,7 @@ describe('straight party contest is missing', () => {
     mockFinalizedAt(api, null);
     mockApprovedAt(api, null);
     mockStateFeatures(api, { STRAIGHT_PARTY_VOTING: true });
-    mockElectionInfo(api, 'closed-primary');
+    mockElectionInfo(api, 'primary');
     mockContests(api, [otherContest]);
     mockPrecincts(api, []);
     mockRegisteredVoterCounts(api, {});
@@ -441,6 +441,7 @@ function mockElectionInfo(api: MockApiClient, type: ElectionType) {
     electionId,
     jurisdictionId: 'jurisdiction-1',
     type,
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2024-11-05'),
     title: 'Test Election',
     state: 'MI',

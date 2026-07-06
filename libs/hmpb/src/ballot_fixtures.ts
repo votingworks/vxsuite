@@ -638,6 +638,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
       ballotStyles: generateBallotStyles({
         ballotTemplateId: 'NhBallot',
         electionType: 'general',
+        isMiCombinedBallotPrimary: false,
         ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
         precincts: [...baseElection.precincts],
         parties: baseElection.parties,
@@ -851,6 +852,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     ballotStyles: generateBallotStyles({
       ballotTemplateId: 'NhStateBallot',
       electionType: 'general',
+      isMiCombinedBallotPrimary: false,
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       precincts: [...baseElection.precincts],
       parties: baseElection.parties,

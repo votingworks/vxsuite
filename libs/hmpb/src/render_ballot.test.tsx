@@ -165,6 +165,7 @@ test('reorder candidates based on rotation from template', async () => {
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       electionId: baseElection.id,
       electionType: baseElection.type,
+      isMiCombinedBallotPrimary: false,
       parties: baseElection.parties,
       precincts: [...baseElection.precincts],
       ballotTemplateId: 'NhBallot',

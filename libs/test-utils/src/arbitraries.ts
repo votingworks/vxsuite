@@ -533,7 +533,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
                   .shuffledSubarray(precincts, { minLength: 1 })
                   .map((values) => values.map(({ id }) => id)),
                 partyId:
-                  type === 'closed-primary'
+                  type === 'primary'
                     ? fc.constantFrom(...parties.map(({ id }) => id))
                     : fc.constant(undefined),
               }),

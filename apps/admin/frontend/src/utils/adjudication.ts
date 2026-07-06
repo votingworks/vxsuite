@@ -12,6 +12,7 @@ import {
   ContestId,
   ContestOptionId,
   Election,
+  isOpenPrimary,
   Rect,
   Side,
   Vote,
@@ -201,7 +202,7 @@ export function contestPartyLabel(
   election: Election,
   contest: Contest
 ): string | undefined {
-  return election.type === 'open-primary' &&
+  return isOpenPrimary(election) &&
     contest.type === 'candidate' &&
     contest.partyId
     ? find(election.parties, (p) => p.id === contest.partyId).fullName

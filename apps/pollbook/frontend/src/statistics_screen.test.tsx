@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import type { ThroughputStat } from '@votingworks/pollbook-backend';
 import {
-  ClosedPrimarySummaryStatistics,
+  PrimarySummaryStatistics,
   SummaryStatistics,
 } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
@@ -14,8 +14,8 @@ import { renderInAppContext } from '../test/render_in_app_context';
 import { act, screen, waitFor } from '../test/react_testing_library';
 import {
   StatisticsScreen,
-  ElectionStatistics,
-  ClosedPrimaryElectionStatistics,
+  GeneralElectionStatistics,
+  PrimaryElectionStatistics,
   ThroughputChart,
 } from './statistics_screen';
 import { getMockElectionManagerAuth } from '../test/auth';
@@ -65,7 +65,7 @@ const mockGeneralSummaryStatistics: SummaryStatistics = {
   totalAbsenteeCheckIns: 100,
 };
 
-const mockClosedPrimarySummaryStatistics: ClosedPrimarySummaryStatistics = {
+const mockPrimarySummaryStatistics: PrimarySummaryStatistics = {
   totalVoters: 800,
   totalCheckIns: 320,
   totalNewRegistrations: 30,
@@ -119,7 +119,7 @@ describe('StatisticsScreen', () => {
     apiMock.expectGetDeviceStatuses();
 
     // Mock the statistics APIs
-    apiMock.mockApiClient.getSummaryStatistics
+    apiMock.mockApiClient.getGeneralSummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
       .resolves(mockGeneralSummaryStatistics);
 
@@ -139,7 +139,7 @@ describe('StatisticsScreen', () => {
     });
   });
 
-  test('renders ClosedPrimaryElectionStatistics for closed primary election', async () => {
+  test('renders PrimaryElectionStatistics for primary election', async () => {
     const electionDefinition =
       electionMultiPartyPrimaryFixtures.readElectionDefinition();
 
@@ -147,9 +147,9 @@ describe('StatisticsScreen', () => {
     apiMock.expectGetDeviceStatuses();
 
     // Mock the statistics APIs
-    apiMock.mockApiClient.getClosedPrimarySummaryStatistics
+    apiMock.mockApiClient.getPrimarySummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
-      .resolves(mockClosedPrimarySummaryStatistics);
+      .resolves(mockPrimarySummaryStatistics);
 
     apiMock.mockApiClient.getThroughputStatistics
       .expectRepeatedCallsWith({ throughputInterval: 60, partyFilter: 'ALL' })
@@ -176,7 +176,7 @@ describe('GeneralElectionStatistics', () => {
 
     apiMock.expectGetDeviceStatuses();
 
-    apiMock.mockApiClient.getSummaryStatistics
+    apiMock.mockApiClient.getGeneralSummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
       .resolves({
         totalVoters: 1000,
@@ -189,7 +189,7 @@ describe('GeneralElectionStatistics', () => {
       .expectRepeatedCallsWith({ throughputInterval: 60, partyFilter: 'ALL' })
       .resolves(mockThroughputData);
 
-    ({ unmount } = renderInAppContext(<ElectionStatistics />, {
+    ({ unmount } = renderInAppContext(<GeneralElectionStatistics />, {
       apiMock,
     }));
 
@@ -217,7 +217,7 @@ describe('GeneralElectionStatistics', () => {
     apiMock.expectGetDeviceStatuses();
 
     // Initial load with ALL filter
-    apiMock.mockApiClient.getSummaryStatistics
+    apiMock.mockApiClient.getGeneralSummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
       .resolves(mockGeneralSummaryStatistics);
 
@@ -225,7 +225,7 @@ describe('GeneralElectionStatistics', () => {
       .expectRepeatedCallsWith({ throughputInterval: 60, partyFilter: 'ALL' })
       .resolves(mockThroughputData);
 
-    ({ unmount } = renderInAppContext(<ElectionStatistics />, {
+    ({ unmount } = renderInAppContext(<GeneralElectionStatistics />, {
       apiMock,
     }));
 
@@ -238,7 +238,7 @@ describe('GeneralElectionStatistics', () => {
     const demButton = screen.getByRole('option', { name: 'Dem' });
 
     // After clicking DEM filter
-    apiMock.mockApiClient.getSummaryStatistics
+    apiMock.mockApiClient.getGeneralSummaryStatistics
       .expectCallWith({ partyFilter: 'DEM' })
       .resolves({
         totalVoters: 400,
@@ -262,7 +262,7 @@ describe('GeneralElectionStatistics', () => {
     apiMock.setElection(electionDefinition);
     apiMock.expectGetDeviceStatuses();
 
-    apiMock.mockApiClient.getSummaryStatistics
+    apiMock.mockApiClient.getGeneralSummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
       .resolves(mockGeneralSummaryStatistics);
 
@@ -270,7 +270,7 @@ describe('GeneralElectionStatistics', () => {
       .expectRepeatedCallsWith({ throughputInterval: 60, partyFilter: 'ALL' })
       .resolves(mockThroughputData);
 
-    ({ unmount } = renderInAppContext(<ElectionStatistics />, {
+    ({ unmount } = renderInAppContext(<GeneralElectionStatistics />, {
       apiMock,
     }));
 
@@ -283,15 +283,15 @@ describe('GeneralElectionStatistics', () => {
   });
 });
 
-describe('ClosedPrimaryElectionStatistics', () => {
-  test('displays closed primary election statistics correctly', async () => {
+describe('PrimaryElectionStatistics', () => {
+  test('displays primary election statistics correctly', async () => {
     const electionDefinition =
       electionMultiPartyPrimaryFixtures.readElectionDefinition();
 
     apiMock.setElection(electionDefinition);
     apiMock.expectGetDeviceStatuses();
 
-    apiMock.mockApiClient.getClosedPrimarySummaryStatistics
+    apiMock.mockApiClient.getPrimarySummaryStatistics
       .expectRepeatedCallsWith({ partyFilter: 'ALL' })
       .resolves({
         totalVoters: 800,
@@ -306,7 +306,7 @@ describe('ClosedPrimaryElectionStatistics', () => {
       .expectRepeatedCallsWith({ throughputInterval: 60, partyFilter: 'ALL' })
       .resolves(mockThroughputData);
 
-    ({ unmount } = renderInAppContext(<ClosedPrimaryElectionStatistics />, {
+    ({ unmount } = renderInAppContext(<PrimaryElectionStatistics />, {
       apiMock,
     }));
 
@@ -334,16 +334,16 @@ describe('ClosedPrimaryElectionStatistics', () => {
     apiMock.expectGetDeviceStatuses();
 
     // Initial load with ALL filter
-    apiMock.mockApiClient.getClosedPrimarySummaryStatistics
+    apiMock.mockApiClient.getPrimarySummaryStatistics
       .expectCallWith({ partyFilter: 'ALL' })
-      .resolves(mockClosedPrimarySummaryStatistics);
+      .resolves(mockPrimarySummaryStatistics);
 
     apiMock.mockApiClient.getThroughputStatistics
       .expectCallWith({ throughputInterval: 60, partyFilter: 'ALL' })
       .resolves(mockThroughputData);
 
     // After clicking UND filter
-    apiMock.mockApiClient.getClosedPrimarySummaryStatistics
+    apiMock.mockApiClient.getPrimarySummaryStatistics
       .expectCallWith({ partyFilter: 'UND' })
       .resolves({
         totalVoters: 200,
@@ -354,7 +354,7 @@ describe('ClosedPrimaryElectionStatistics', () => {
         totalUndeclaredRepCheckIns: 35,
       });
 
-    ({ unmount } = renderInAppContext(<ClosedPrimaryElectionStatistics />, {
+    ({ unmount } = renderInAppContext(<PrimaryElectionStatistics />, {
       apiMock,
     }));
 

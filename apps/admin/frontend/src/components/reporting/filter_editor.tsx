@@ -4,7 +4,7 @@ import {
   typedAs,
   unique,
 } from '@votingworks/basics';
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, isOpenPrimary, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -122,7 +122,7 @@ function generateOptionsForFilter({
           label: party.name,
         })
       );
-      if (election.type === 'open-primary') {
+      if (isOpenPrimary(election)) {
         partyOptions.push({
           value: NO_PARTY_FILTER_VALUE,
           label: 'No Party',
@@ -164,8 +164,7 @@ function generateOptionsForFilter({
     case 'adjudication-status':
       return Object.entries(Admin.ADJUDICATION_FLAG_LABELS)
         .filter(
-          ([flag]) =>
-            election.type === 'open-primary' || flag !== 'hasCrossoverVote'
+          ([flag]) => isOpenPrimary(election) || flag !== 'hasCrossoverVote'
         )
         .map(([value, label]) => ({
           value,

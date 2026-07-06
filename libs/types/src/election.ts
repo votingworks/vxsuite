@@ -777,18 +777,10 @@ export const PollingPlacesSchema = z
     }
   });
 
-export const ELECTION_TYPES = [
-  'general',
-  'closed-primary',
-  'open-primary',
-] as const;
+export const ELECTION_TYPES = ['general', 'primary'] as const;
 export type ElectionType = (typeof ELECTION_TYPES)[number];
 export const ElectionTypeSchema: z.ZodSchema<ElectionType> =
   z.enum(ELECTION_TYPES);
-
-export function isPrimary(election: Pick<Election, 'type'>): boolean {
-  return election.type === 'closed-primary' || election.type === 'open-primary';
-}
 
 export interface Election {
   readonly ballotLayout: BallotLayout;
@@ -1000,30 +992,19 @@ export const ElectionSchema = z
       }
     }
 
-    if (election.type === 'closed-primary') {
-      const hasBallotStyleWithoutPartyId = election.ballotStyles.some(
-        (bs) => !bs.partyId
-      );
-      if (hasBallotStyleWithoutPartyId) {
-        ctx.issues.push({
-          code: 'custom',
-          path: ['ballotStyles'],
-          message:
-            'Closed primary election ballot styles must all have a partyId.',
-          input: election,
-        });
-      }
-    }
-    if (election.type === 'open-primary') {
+    if (election.type === 'primary') {
       const hasBallotStyleWithPartyId = election.ballotStyles.some(
         (bs) => bs.partyId
       );
-      if (hasBallotStyleWithPartyId) {
+      const hasBallotStyleWithoutPartyId = election.ballotStyles.some(
+        (bs) => !bs.partyId
+      );
+      if (hasBallotStyleWithPartyId && hasBallotStyleWithoutPartyId) {
         ctx.issues.push({
           code: 'custom',
           path: ['ballotStyles'],
           message:
-            'Open primary election ballot styles must not have a partyId.',
+            'Primary election ballot styles must either all have a partyId (closed primary) or all omit partyId (open primary).',
           input: election,
         });
       }

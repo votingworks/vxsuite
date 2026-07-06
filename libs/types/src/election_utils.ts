@@ -399,6 +399,21 @@ export function getPartyIdsInBallotStyles(
   return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 }
 
+/**
+ * An open primary is a primary election where ballot styles don't have a
+ * partyId, meaning voters choose which party's contests to vote in at the
+ * polls rather than being assigned a party ballot.
+ */
+export function isOpenPrimary(election: Election): boolean {
+  return (
+    election.type === 'primary' &&
+    // We only need to check the first ballot style, since election validation
+    // guarantees that either all ballot styles have a partyId or none do.
+    election.ballotStyles.length > 0 &&
+    !election.ballotStyles[0].partyId
+  );
+}
+
 export function getContestDistrict(
   election: Election,
   contest: Pick<Contest, 'districtId'>

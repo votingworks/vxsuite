@@ -2355,7 +2355,7 @@ exports[`convert election with precinct splits 1`] = `
 </svg>",
   "state": "State of Mississippi",
   "title": "Statewide Primary Election",
-  "type": "closed-primary",
+  "type": "primary",
 }
 `;
 
@@ -4379,6 +4379,6 @@ exports[`convert primary election 1`] = `
 </svg>",
   "state": "State of Mississippi",
   "title": "Statewide Primary Election",
-  "type": "closed-primary",
+  "type": "primary",
 }
 `;

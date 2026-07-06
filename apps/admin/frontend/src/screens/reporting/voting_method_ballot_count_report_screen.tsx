@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { isPrimary } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
@@ -24,7 +23,7 @@ export function VotingMethodBallotCountReport(): JSX.Element {
           filter={{}}
           groupBy={{
             groupByVotingMethod: true,
-            groupByParty: isPrimary(electionDefinition.election),
+            groupByParty: electionDefinition.election.type === 'primary',
           }}
           includeSheetCounts={false}
           disabled={false}

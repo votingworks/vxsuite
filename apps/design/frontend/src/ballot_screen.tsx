@@ -429,12 +429,13 @@ export function BallotScreen(): JSX.Element | null {
             {precinct.name}
           </div>
 
-          {electionInfo.type === 'closed-primary' && (
-            <div>
-              <FieldName>Party</FieldName>
-              {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
-            </div>
-          )}
+          {electionInfo.type === 'primary' &&
+            !electionInfo.isMiCombinedBallotPrimary && (
+              <div>
+                <FieldName>Party</FieldName>
+                {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
+              </div>
+            )}
 
           <div>
             <FieldName>Page Size</FieldName>

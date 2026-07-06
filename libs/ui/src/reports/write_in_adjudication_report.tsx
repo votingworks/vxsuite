@@ -2,7 +2,6 @@ import {
   Contest,
   CandidateContest,
   ElectionDefinition,
-  isPrimary,
   Tabulation,
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
@@ -69,12 +68,13 @@ export function WriteInAdjudicationReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <div data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
-          const partyLabel = !isPrimary(election)
-            ? undefined
-            : partyId
-            ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
-                .fullName
-            : 'Nonpartisan Contests';
+          const partyLabel =
+            election.type !== 'primary'
+              ? undefined
+              : partyId
+              ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
+                  .fullName
+              : 'Nonpartisan Contests';
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );

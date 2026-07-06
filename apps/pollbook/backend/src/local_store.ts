@@ -2,7 +2,7 @@ import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
-  ClosedPrimarySummaryStatistics,
+  PrimarySummaryStatistics,
   safeParseJson,
   SummaryStatistics,
   Voter,
@@ -854,8 +854,8 @@ export class LocalStore extends Store {
   }
 
   /**
-   * Calculates summary statistics for the current general or open primary election to populate the statistics screen.
-   * Throws an error if called when the current election is a closed primary election.
+   * Calculates summary statistics for the current general election to populate the statistics screen.
+   * Throws an error if called when the current election is a primary election.
    *
    * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
    *   When a specific party is provided, only voters registered with that party are included
@@ -864,13 +864,13 @@ export class LocalStore extends Store {
    *   in the context of a general election.
    * @returns Summary statistics for the filtered set of voters.
    */
-  getSummaryStatistics(
+  getGeneralSummaryStatistics(
     partyFilter: PartyFilterAbbreviation
   ): SummaryStatistics {
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
     const election = this.getElection();
     assert(election !== undefined);
-    assert(election.type !== 'closed-primary');
+    assert(election.type !== 'primary');
     const voters =
       configuredPrecinctId === undefined
         ? this.getAllVoters()
@@ -907,8 +907,8 @@ export class LocalStore extends Store {
   }
 
   /**
-   * Calculates summary statistics for the current closed primary election to populate the statistics screen.
-   * Throws an error if called when the current election is not a closed primary election.
+   * Calculates summary statistics for the current primary election to populate the statistics screen.
+   * Throws an error if called when the current election is a general election.
    *
    * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
    *   When a specific party is provided, only voters registered with that party are included
@@ -919,13 +919,13 @@ export class LocalStore extends Store {
    *   party is returned in totalUndeclaredDemCheckIns and totalUndeclaredRepCheckIns respectively.
    * @returns Summary statistics for the filtered set of voters.
    */
-  getClosedPrimarySummaryStatistics(
+  getPrimarySummaryStatistics(
     partyFilter: PartyFilterAbbreviation
-  ): ClosedPrimarySummaryStatistics {
+  ): PrimarySummaryStatistics {
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
     const election = this.getElection();
     assert(election !== undefined);
-    assert(election.type === 'closed-primary');
+    assert(election.type === 'primary');
     const voters =
       configuredPrecinctId === undefined
         ? this.getAllVoters()
