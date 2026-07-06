@@ -700,6 +700,101 @@ export const testElectionReportYesNoContest: ElectionReport = {
   ],
 };
 
+// A ballot measure with more than the standard two (yes/no) options.
+export const testElectionReportYesNoContestThreeOptions: ElectionReport = {
+  '@type': 'ElectionResults.ElectionReport',
+  Issuer: 'VotingWorks',
+  GeneratedDate: '2021-06-06T00:00:00Z',
+  SequenceStart: 1,
+  SequenceEnd: 1,
+  Format: ReportDetailLevel.SummaryContest,
+  Status: ResultsStatus.UnofficialComplete,
+  IssuerAbbreviation: 'VX',
+  VendorApplicationId: 'VX',
+  Election: [
+    {
+      '@type': 'ElectionResults.Election',
+      ElectionScopeId: 'state-of-hamilton',
+      StartDate: '2021-06-06',
+      EndDate: '2021-06-06',
+      Name: asInternationalizedText('Lincoln Municipal General Election'),
+      Type: ElectionType.General,
+      BallotCounts: [
+        {
+          '@type': 'ElectionResults.BallotCounts',
+          GpUnitId: 'state-of-hamilton',
+          Type: CountItemType.Total,
+          BallotsCast: 100,
+        },
+      ],
+      CountStatus: [
+        {
+          '@type': 'ElectionResults.CountStatus',
+          Type: CountItemType.Total,
+          Status: CountItemStatus.Completed,
+        },
+      ],
+      Contest: [
+        {
+          '@type': 'ElectionResults.BallotMeasureContest',
+          '@id': 'fishing',
+          Name: 'Fishing Proposition',
+          ElectionDistrictId: 'state-of-hamilton',
+          OtherCounts: [
+            {
+              '@type': 'ElectionResults.OtherCounts',
+              GpUnitId: 'state-of-hamilton',
+              Overvotes: 3,
+              Undervotes: 2,
+            },
+          ],
+          ContestSelection: [
+            {
+              '@type': 'ElectionResults.BallotMeasureSelection',
+              '@id': 'fishing-yes',
+              Selection: asInternationalizedText('Yes'),
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 50,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.BallotMeasureSelection',
+              '@id': 'fishing-no',
+              Selection: asInternationalizedText('No'),
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 30,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.BallotMeasureSelection',
+              '@id': 'fishing-maybe',
+              Selection: asInternationalizedText('Maybe'),
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 15,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 export const testElectionReportNoOtherCounts: ElectionReport = {
   '@type': 'ElectionResults.ElectionReport',
   Issuer: 'VotingWorks',

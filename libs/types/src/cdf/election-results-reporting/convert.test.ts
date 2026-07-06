@@ -15,6 +15,7 @@ import {
   testElectionReportUnsupportedContestType,
   testElectionReportWriteIns,
   testElectionReportYesNoContest,
+  testElectionReportYesNoContestThreeOptions,
   testElectionReportYesNoContestWithoutTextMatch,
 } from './fixtures';
 import { ManualElectionResults } from '../../tabulation';
@@ -319,6 +320,32 @@ describe('getManualResultsFromErrElectionResults', () => {
 
     const results = convertElectionResultsReportingReportToVxManualResults(
       testElectionReportYesNoContest,
+      getValidCandidateIds(testElectionReportNoOtherCounts)
+    );
+    expect(results.ok()).toEqual(expected);
+  });
+
+  test('ballot measure with more than two options includes a tally for every option', () => {
+    const expected: ManualElectionResults = {
+      contestResults: {
+        fishing: {
+          contestId: 'fishing',
+          contestType: 'yesno',
+          tallies: {
+            'fishing-yes': 50,
+            'fishing-no': 30,
+            'fishing-maybe': 15,
+          },
+          overvotes: 3,
+          undervotes: 2,
+          ballots: 100,
+        },
+      },
+      ballotCount: 100,
+    };
+
+    const results = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportYesNoContestThreeOptions,
       getValidCandidateIds(testElectionReportNoOtherCounts)
     );
     expect(results.ok()).toEqual(expected);
