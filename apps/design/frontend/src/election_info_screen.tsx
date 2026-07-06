@@ -228,8 +228,20 @@ function ElectionInfoForm({
                 ]
               : [{ label: 'Primary', id: 'closed-primary' as const }]),
           ]}
-          selectedOptionId={electionInfo.type}
-          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
+          selectedOptionId={
+            electionInfo.type === 'general'
+              ? 'general'
+              : electionInfo.hasMiCombinedPrimaryBallot
+              ? 'open-primary'
+              : 'closed-primary'
+          }
+          onChange={(option) =>
+            setElectionInfo({
+              ...electionInfo,
+              type: option === 'general' ? 'general' : 'primary',
+              hasMiCombinedPrimaryBallot: option === 'open-primary',
+            })
+          }
           disabled={disabled || hasExternalSource}
         />
         <InputGroup label="State">

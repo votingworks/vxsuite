@@ -96,6 +96,7 @@ import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
 export interface ElectionRecord {
   jurisdictionId: string;
   election: Election;
+  hasMiCombinedPrimaryBallot: boolean;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
@@ -903,6 +904,7 @@ export class Store {
             select
               jurisdiction_id as "jurisdictionId",
               type,
+              has_mi_combined_primary_ballot as "hasMiCombinedPrimaryBallot",
               title,
               date,
               jurisdiction_name as "jurisdictionName",
@@ -928,6 +930,7 @@ export class Store {
       ).rows[0] as {
         jurisdictionId: string;
         type: ElectionType;
+        hasMiCombinedPrimaryBallot: boolean;
         title: string;
         date: Date;
         jurisdictionName: string;
@@ -1176,6 +1179,7 @@ export class Store {
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
+        hasMiCombinedPrimaryBallot: electionRow.hasMiCombinedPrimaryBallot,
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
@@ -1245,6 +1249,7 @@ export class Store {
 
       return {
         election,
+        hasMiCombinedPrimaryBallot: electionRow.hasMiCombinedPrimaryBallot,
         systemSettings,
         ballotTemplateId: electionRow.ballotTemplateId,
         createdAt: electionRow.createdAt.toISOString(),
@@ -1369,17 +1374,19 @@ export class Store {
   async createElection({
     jurisdiction,
     election,
+    hasMiCombinedPrimaryBallot,
     ballotTemplateId,
     systemSettings,
     externalSource,
   }: {
     jurisdiction: Jurisdiction;
     election: Election;
+    hasMiCombinedPrimaryBallot: boolean;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
   }): Promise<void> {
-    if (election.type === 'open-primary') {
+    if (hasMiCombinedPrimaryBallot) {
       const features = getStateFeaturesConfig(jurisdiction);
       if (!features.OPEN_PRIMARIES) {
         throw new Error(
@@ -1403,6 +1410,7 @@ export class Store {
             id,
             jurisdiction_id,
             type,
+            has_mi_combined_primary_ballot,
             title,
             date,
             jurisdiction_name,
@@ -1431,12 +1439,14 @@ export class Store {
             $12,
             $13,
             $14,
-            $15
+            $15,
+            $16
           )
         `,
           election.id,
           jurisdictionId,
           election.type,
+          hasMiCombinedPrimaryBallot,
           electionTitle,
           election.date.toISOString(),
           election.jurisdiction.name,
@@ -1514,16 +1524,18 @@ export class Store {
           update elections
           set
             type = $1,
-            title = $2,
-            date = $3,
-            jurisdiction_name = $4,
-            state = $5,
-            seal = $6,
-            signature = $7,
-            ballot_language_codes = $8
-          where id = $9
+            has_mi_combined_primary_ballot = $2,
+            title = $3,
+            date = $4,
+            jurisdiction_name = $5,
+            state = $6,
+            seal = $7,
+            signature = $8,
+            ballot_language_codes = $9
+          where id = $10
         `,
           electionInfoUpdate.type,
+          electionInfoUpdate.hasMiCombinedPrimaryBallot,
           electionInfoUpdate.title,
           electionInfoUpdate.date.toISOString(),
           electionInfoUpdate.jurisdictionName,

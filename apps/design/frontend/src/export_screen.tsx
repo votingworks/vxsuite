@@ -131,7 +131,7 @@ export function ExportScreen(): JSX.Element | null {
     features.EXPORT_TEST_DECKS &&
     stateFeatures.EXPORT_TEST_BALLOTS &&
     // Test decks have not yet been updated to support open primaries
-    electionInfo.type !== 'open-primary';
+    !electionInfo.hasMiCombinedPrimaryBallot;
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
