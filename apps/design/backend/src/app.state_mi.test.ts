@@ -2,7 +2,7 @@ import { afterAll, expect, test, vi } from 'vitest';
 import { find } from '@votingworks/basics';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
-import { BallotType } from '@votingworks/types';
+import { BallotType, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   exportElectionPackage,
   getExportedFile,
@@ -29,6 +29,25 @@ const miUser: JurisdictionUser = {
   organization: miJurisdiction.organization,
   jurisdictions: [miJurisdiction],
 };
+
+test('blank general election omits straight party contest', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users: [...users, miUser],
+  });
+  auth0.setLoggedInUser(miUser);
+
+  const electionId = (
+    await apiClient.createElection({
+      id: unsafeParse(ElectionIdSchema, 'mi-blank-election-id'),
+      jurisdictionId: miJurisdiction.id,
+    })
+  ).unsafeUnwrap();
+
+  const contests = await apiClient.listContests({ electionId });
+  expect(contests).toEqual([]);
+});
 
 test('general elections include generated straight party contest', async () => {
   const election = electionGeneralFixtures.readElection();
