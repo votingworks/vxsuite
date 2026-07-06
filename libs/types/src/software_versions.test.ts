@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
+import { assertDefined } from '@votingworks/basics';
 import { Election, SheetPositions } from './election';
 import { safeParseElectionDefinition } from './election_parsing';
 import {
@@ -58,6 +59,72 @@ test('convertLatestElectionToV4p0', () => {
   };
   expect(() => convertLatestElectionToV4p0(openPrimaryElection)).toThrow(
     'v4.0 does not support open primaries'
+  );
+});
+
+test('convertLatestElectionToV4p0 converts yesno contests with more than two options to candidate contests', () => {
+  const districtId = assertDefined(election.districts[0]).id;
+  const threeOptionMeasure: Election['contests'][number] = {
+    id: 'measure-1',
+    type: 'yesno',
+    districtId,
+    title: 'Measure 1',
+    description: 'A three-option ballot measure',
+    options: [
+      { id: 'measure-1-yes', label: 'Yes' },
+      { id: 'measure-1-no', label: 'No' },
+      { id: 'measure-1-maybe', label: 'Maybe' },
+    ],
+  };
+  const twoOptionMeasure: Election['contests'][number] = {
+    id: 'measure-2',
+    type: 'yesno',
+    districtId,
+    title: 'Measure 2',
+    description: 'A standard yes/no ballot measure',
+    options: [
+      { id: 'measure-2-yes', label: 'Yes' },
+      { id: 'measure-2-no', label: 'No' },
+    ],
+  };
+  const electionWithMeasures: Election = {
+    ...election,
+    contests: [...election.contests, threeOptionMeasure, twoOptionMeasure],
+  };
+
+  const v4p0 = convertLatestElectionToV4p0(electionWithMeasures);
+
+  // The 3-option measure becomes a candidate contest (one candidate per
+  // option); the description is dropped since candidate contests have none.
+  expect(v4p0.contests).toContainEqual({
+    id: 'measure-1',
+    type: 'candidate',
+    districtId,
+    title: 'Measure 1',
+    candidates: [
+      { id: 'measure-1-yes', name: 'Yes' },
+      { id: 'measure-1-no', name: 'No' },
+      { id: 'measure-1-maybe', name: 'Maybe' },
+    ],
+    allowWriteIns: false,
+    seats: 1,
+  });
+  // The standard 2-option measure is left as a yesno contest.
+  expect(v4p0.contests).toContainEqual(twoOptionMeasure);
+
+  // The dropped description of the 3-option measure is preserved in
+  // additionalHashInput so it still affects the ballot hash. The 2-option
+  // measure keeps its description on the contest, so it isn't included.
+  expect(
+    assertDefined(v4p0.additionalHashInput)[
+      'contestDescriptionsForContestsWithAdditionalOptions'
+    ]
+  ).toEqual({ 'measure-1': 'A three-option ballot measure' });
+});
+
+test('convertLatestElectionToV4p0 leaves additionalHashInput untouched when there are no multi-option yesno contests', () => {
+  expect(convertLatestElectionToV4p0(election).additionalHashInput).toEqual(
+    election.additionalHashInput
   );
 });
 

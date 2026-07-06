@@ -17,7 +17,6 @@ import {
   BallotStyleId,
   BallotType,
   BaseBallotProps,
-  CandidateContest,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
@@ -25,7 +24,6 @@ import {
   HmpbBallotPageMetadata,
   Outset,
   SheetPositions,
-  YesNoContest,
   ballotPositionsFromGridPositions,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
@@ -713,21 +711,6 @@ export async function layOutBallotsAndCreateElectionDefinition<
         };
       }
       return contest;
-    })
-    // v4.0 doesn't support yesno contests with more than 2 options, so we
-    // convert them to candidate contests for backwards-compatible export.
-    // v4.1+ exports the yesno contest natively with all options.
-    .map((contest): Contest => {
-      if (
-        contest.type !== 'yesno' ||
-        contest.options.length <= 2 ||
-        electionSerializationOptions.version !== 'v4.0'
-      ) {
-        return contest;
-      }
-      return convertBallotMeasureWithAdditionalOptionsToCandidateContest(
-        contest
-      );
     });
 
   const ballotStyles = election.ballotStyles.map((ballotStyle) => {
@@ -843,22 +826,4 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     electionSerializationOptions
   );
   return electionDefinition;
-}
-
-export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
-  contest: YesNoContest
-): CandidateContest {
-  assert(contest.options.length > 2);
-  return {
-    type: 'candidate',
-    id: contest.id,
-    districtId: contest.districtId,
-    title: contest.title,
-    candidates: contest.options.map((option) => ({
-      id: option.id,
-      name: option.label,
-    })),
-    allowWriteIns: false,
-    seats: 1,
-  };
 }

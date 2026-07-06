@@ -6,6 +6,8 @@ import {
   BallotStyleId,
   BallotStyleIdSchema,
   BallotStyleSchema,
+  CandidateContest,
+  Contest,
   ContestId,
   ContestIdSchema,
   Election,
@@ -17,6 +19,7 @@ import {
   PollingPlace,
   PollingPlacesSchema,
   SheetPositions,
+  YesNoContest,
 } from './election';
 import {
   ballotPositionsFromGridPositions,
@@ -242,12 +245,63 @@ function renameBallotStringKey(
   );
 }
 
+/**
+ * v4.0 doesn't support yesno contests with more than two options, so convert
+ * them to candidate contests (one candidate per option) for backwards-compatible
+ * export. The description is dropped, since candidate contests don't have one.
+ */
+export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
+  contest: YesNoContest
+): CandidateContest {
+  assert(contest.options.length > 2);
+  return {
+    type: 'candidate',
+    id: contest.id,
+    districtId: contest.districtId,
+    title: contest.title,
+    candidates: contest.options.map((option) => ({
+      id: option.id,
+      name: option.label,
+    })),
+    allowWriteIns: false,
+    seats: 1,
+  };
+}
+
 export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
   assert(
     election.type !== 'open-primary',
     'v4.0 does not support open primaries'
   );
   const { jurisdiction, ballotStrings, ballotStyles, ...rest } = election;
+  // v4.0 doesn't support yesno contests with more than two options, so convert
+  // them to candidate contests. v4.1+ exports them natively with all options.
+  const contestsWithAdditionalOptions = election.contests.filter(
+    (contest): contest is YesNoContest =>
+      contest.type === 'yesno' && contest.options.length > 2
+  );
+  const contestsForV4p0 = election.contests.map(
+    (contest): Contest =>
+      contest.type === 'yesno' && contest.options.length > 2
+        ? convertBallotMeasureWithAdditionalOptionsToCandidateContest(contest)
+        : contest
+  );
+  // Converting to a candidate contest drops the yesno description, so preserve
+  // it in additionalHashInput. Otherwise two elections differing only in a
+  // ballot-measure description would produce identical v4.0 JSON and collide.
+  const additionalHashInput =
+    contestsWithAdditionalOptions.length > 0
+      ? {
+          ...(election.additionalHashInput ?? {}),
+          contestDescriptionsForContestsWithAdditionalOptions:
+            Object.fromEntries(
+              contestsWithAdditionalOptions.map((contest) => [
+                contest.id,
+                contest.description,
+              ])
+            ),
+        }
+      : election.additionalHashInput;
   // v4.1+ stores ballot geometry as `ballotPositions` on each ballot style;
   // v4.0 stores it as a flat `gridLayouts` array on the election.
   const gridLayouts = ballotStyles
@@ -261,6 +315,8 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
     );
   return {
     ...rest,
+    contests: contestsForV4p0,
+    additionalHashInput,
     county: jurisdiction,
     ballotStyles: ballotStyles.map(
       ({ ballotPositions: _ballotPositions, ...ballotStyle }) => ballotStyle

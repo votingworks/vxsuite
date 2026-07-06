@@ -284,11 +284,7 @@ export async function generateElectionPackageAndBallots(
   );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 
-  const formattedElection = formatElectionForExport(
-    election,
-    ballotStrings,
-    jurisdiction.softwareVersion
-  );
+  const formattedElection = formatElectionForExport(election, ballotStrings);
 
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,

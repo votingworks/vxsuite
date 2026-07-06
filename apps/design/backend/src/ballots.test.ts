@@ -110,28 +110,9 @@ test('formatElectionForExport', () => {
       ],
     },
   ];
-  const ballotMeasureContest = find(
-    election.contests,
-    (contest) => contest.type === 'yesno'
-  );
-  const contests: Election['contests'] = election.contests.map((c) =>
-    c.id === ballotMeasureContest.id && c.type === 'yesno'
-      ? {
-          ...c,
-          options: [
-            ...c.options,
-            {
-              id: 'additional-option-1',
-              label: 'Additional Option 1',
-            } as const,
-          ],
-        }
-      : c
-  );
   const formattedElection = formatElectionForExport(
-    { ...election, contests, precincts: testPrecincts },
-    testTranslations,
-    'v4.0'
+    { ...election, precincts: testPrecincts },
+    testTranslations
   );
   expect(formattedElection).toHaveProperty('additionalHashInput');
   const hashInput = assertDefined(formattedElection.additionalHashInput);
@@ -141,85 +122,6 @@ test('formatElectionForExport', () => {
   expect(hashInput['precinctSplitSignatureImages']).toMatchObject({
     'precinct-1-split-1': expect.any(String),
   });
-  expect(
-    hashInput['contestDescriptionsForContestsWithAdditionalOptions']
-  ).toEqual({
-    [ballotMeasureContest.id]: ballotMeasureContest.description,
-  });
-});
-
-test('formatElectionForExport v4.0 includes contest description in additionalHashInput for 3-option yesno', () => {
-  const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
-  const testTranslations: UiStringsPackage = {
-    [CHINESE_SIMPLIFIED]: { [ElectionStringKey.BALLOT_LANGUAGE]: '简体中文' },
-    [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
-    [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
-  };
-  const ballotMeasureContest = find(
-    election.contests,
-    (contest) => contest.type === 'yesno'
-  );
-  const contests: Election['contests'] = election.contests.map((c) =>
-    c.id === ballotMeasureContest.id && c.type === 'yesno'
-      ? {
-          ...c,
-          options: [
-            ...c.options,
-            {
-              id: 'additional-option-1',
-              label: 'Additional Option 1',
-            } as const,
-          ],
-        }
-      : c
-  );
-  const formattedElection = formatElectionForExport(
-    { ...election, contests },
-    testTranslations,
-    'v4.0'
-  );
-  const hashInput = assertDefined(formattedElection.additionalHashInput);
-  expect(
-    hashInput['contestDescriptionsForContestsWithAdditionalOptions']
-  ).toEqual({
-    [ballotMeasureContest.id]: ballotMeasureContest.description,
-  });
-});
-
-test('formatElectionForExport v4.1 does not include contestDescriptionsForContestsWithAdditionalOptions for 3-option yesno', () => {
-  const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
-  const testTranslations: UiStringsPackage = {
-    [CHINESE_SIMPLIFIED]: { [ElectionStringKey.BALLOT_LANGUAGE]: '简体中文' },
-    [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
-    [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
-  };
-  const ballotMeasureContest = find(
-    election.contests,
-    (contest) => contest.type === 'yesno'
-  );
-  const contests: Election['contests'] = election.contests.map((c) =>
-    c.id === ballotMeasureContest.id && c.type === 'yesno'
-      ? {
-          ...c,
-          options: [
-            ...c.options,
-            {
-              id: 'additional-option-1',
-              label: 'Additional Option 1',
-            } as const,
-          ],
-        }
-      : c
-  );
-  const formattedElection = formatElectionForExport(
-    { ...election, contests },
-    testTranslations,
-    'v4.1'
-  );
-  const hashInput = assertDefined(formattedElection.additionalHashInput);
-  expect(
-    hashInput['contestDescriptionsForContestsWithAdditionalOptions']
-  ).toEqual({});
 });
 
 test('addPollingPlacesForExport - non-editing state generates election_day places plus a Central Scanning absentee place', () => {

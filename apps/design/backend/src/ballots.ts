@@ -7,9 +7,7 @@ import {
   hasSplits,
   PollingPlace,
   pollingPlacesGenerateFromPrecincts,
-  SoftwareVersion,
   UiStringsPackage,
-  YesNoContest,
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
@@ -82,8 +80,7 @@ export function addPollingPlacesForExport(
 
 export function formatElectionForExport(
   election: Election,
-  ballotStrings: UiStringsPackage,
-  softwareVersion: SoftwareVersion
+  ballotStrings: UiStringsPackage
 ): Election {
   const splitPrecincts = election.precincts.filter((p) => hasSplits(p));
 
@@ -102,25 +99,12 @@ export function formatElectionForExport(
     )
   );
 
-  // v4.0 converts multi-option yesno contests to candidate contests (dropping
-  // the description), so we preserve it in additionalHashInput. v4.1+ exports
-  // them natively with all options, so no workaround is needed.
-  const contestDescriptionsForContestsWithAdditionalOptions =
-    softwareVersion === 'v4.0'
-      ? Object.fromEntries(
-          election.contests
-            .filter(
-              (contest): contest is YesNoContest =>
-                contest.type === 'yesno' && contest.options.length > 2
-            )
-            .map((contest) => [contest.id, contest.description])
-        )
-      : {};
-
+  // The v4.0 conversion of multi-option yesno contests to candidate contests
+  // (which drops the description) is handled in `convertLatestElectionToV4p0`,
+  // including preserving the dropped descriptions in additionalHashInput.
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
-    contestDescriptionsForContestsWithAdditionalOptions,
   } as const;
 
   return {
