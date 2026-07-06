@@ -28,7 +28,7 @@ impl CandidateVote {
         }
     }
 }
-pub type YesNoVote = OptionId;
+pub type YesNoVote = Vec<OptionId>;
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
@@ -84,10 +84,10 @@ impl ToBitStreamWith<'_> for ContestVote {
                 }
             }
 
-            (Contest::YesNo(yesno_contest), Self::YesNo(vote)) => {
+            (Contest::YesNo(yesno_contest), Self::YesNo(votes)) => {
                 // yesno votes use one bit per option (matching candidate encoding)
                 for option in &yesno_contest.options {
-                    w.write_bit(vote == &option.id)?;
+                    w.write_bit(votes.contains(&option.id))?;
                 }
             }
 
@@ -159,13 +159,13 @@ impl FromBitStreamWith<'_> for ContestVote {
             }
             Contest::YesNo(yesno_contest) => {
                 // yesno votes use one bit per option
-                let mut selected_id = OptionId::from(String::new());
+                let mut votes = Vec::with_capacity(yesno_contest.options.len());
                 for option in &yesno_contest.options {
                     if r.read_bit()? {
-                        selected_id = option.id.clone();
+                        votes.push(option.id.clone());
                     }
                 }
-                Ok(Self::YesNo(selected_id))
+                Ok(Self::YesNo(votes))
             }
             Contest::StraightParty(straight_party_contest) => {
                 // straight-party votes get one bit per party
@@ -186,7 +186,7 @@ impl ContestVote {
     pub fn has_votes(&self) -> bool {
         match self {
             Self::Candidate(votes) => !votes.is_empty(),
-            Self::YesNo(_) => true,
+            Self::YesNo(votes) => !votes.is_empty(),
             Self::StraightParty(votes) => !votes.is_empty(),
         }
     }
