@@ -165,13 +165,13 @@ export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
 export type ContestId = Id;
 export const ContestIdSchema: z.ZodSchema<ContestId> = IdSchema;
 
-interface ContestBase {
+export interface ContestBase {
   readonly id: ContestId;
   readonly districtId: DistrictId;
   readonly title: string;
 }
 
-const ContestBaseSchema = z.object({
+export const ContestBaseSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),

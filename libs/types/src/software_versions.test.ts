@@ -16,11 +16,22 @@ const v4p0PrimaryElectionData = JSON.stringify(
   convertLatestElectionToV4p0(primaryElection)
 );
 
+// Mirrors the yesno -> yesOption/noOption conversion in
+// convertLatestElectionToV4p0 for the 2-option ballot measures in the fixtures.
+function toV4p0Contests(contests: Election['contests']) {
+  return contests.map((contest) => {
+    if (contest.type !== 'yesno') return contest;
+    const { options, ...rest } = contest;
+    return { ...rest, yesOption: options[0], noOption: options[1] };
+  });
+}
+
 test('convertLatestElectionToV4p0', () => {
   // v4.0 uses `county`/`countyName` where v4.1 uses
   // `jurisdiction`/`jurisdictionName`; everything else is unchanged.
   expect(convertLatestElectionToV4p0(election)).toEqual({
     ...election,
+    contests: toV4p0Contests(election.contests),
     jurisdiction: undefined,
     county: election.jurisdiction,
     ballotStrings: {
@@ -36,6 +47,7 @@ test('convertLatestElectionToV4p0', () => {
   // closed-primary -> primary, same county/countyName conversion
   expect(convertLatestElectionToV4p0(primaryElection)).toEqual({
     ...primaryElection,
+    contests: toV4p0Contests(primaryElection.contests),
     type: 'primary',
     jurisdiction: undefined,
     county: primaryElection.jurisdiction,
@@ -109,8 +121,17 @@ test('convertLatestElectionToV4p0 converts yesno contests with more than two opt
     allowWriteIns: false,
     seats: 1,
   });
-  // The standard 2-option measure is left as a yesno contest.
-  expect(v4p0.contests).toContainEqual(twoOptionMeasure);
+  // The standard 2-option measure stays a yesno contest but uses the v4.0
+  // yesOption/noOption shape.
+  expect(v4p0.contests).toContainEqual({
+    id: 'measure-2',
+    type: 'yesno',
+    districtId,
+    title: 'Measure 2',
+    description: 'A standard yes/no ballot measure',
+    yesOption: { id: 'measure-2-yes', label: 'Yes' },
+    noOption: { id: 'measure-2-no', label: 'No' },
+  });
 
   // The dropped description of the 3-option measure is preserved in
   // additionalHashInput so it still affects the ballot hash. The 2-option
@@ -137,7 +158,7 @@ test('safeParseElectionDefinitionV4p0', () => {
   );
   expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
   expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"26dbb17e3f300fe117589b510c2eb770e1cd75182c261a555328e71ef10e9339"`
+    `"2eed58532057418228ff007d96c26a6d43529a5cf7d4e04ec925c3ae27861f30"`
   );
 
   expect(
