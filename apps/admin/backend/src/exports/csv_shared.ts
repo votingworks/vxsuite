@@ -3,7 +3,6 @@ import {
   ElectionDefinition,
   formatBallotHash,
   Id,
-  isPrimary,
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
@@ -145,7 +144,7 @@ export function generateCsvMetadataHeaders({
   }
 
   if (
-    isPrimary(election) &&
+    election.type === 'primary' &&
     (metadataStructure.party === 'single' ||
       metadataStructure.ballotStyle === 'single')
   ) {
@@ -220,7 +219,7 @@ export function getCsvMetadataRowValues({
   }
 
   if (
-    isPrimary(election) &&
+    election.type === 'primary' &&
     (metadataStructure.party === 'single' ||
       metadataStructure.ballotStyle === 'single')
   ) {

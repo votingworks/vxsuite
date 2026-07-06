@@ -9,12 +9,11 @@ import {
   Optional,
   Result,
   sleep,
-  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   CheckInBallotParty,
   Election,
-  ClosedPrimarySummaryStatistics,
+  PrimarySummaryStatistics,
   PrinterStatus,
   SummaryStatistics,
   ValidStreetInfo,
@@ -104,8 +103,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           'getScannedIdDocument',
           'getIsAbsenteeMode',
           'getThroughputStatistics',
-          'getSummaryStatistics',
-          'getClosedPrimarySummaryStatistics',
+          'getGeneralSummaryStatistics',
+          'getPrimarySummaryStatistics',
           'getUsbDriveStatus',
           'getVoter',
           'searchVoters',
@@ -313,39 +312,30 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         return err('already_checked_in');
       }
 
-      switch (election.type) {
-        case 'closed-primary': {
-          // Primary ballot party choice can't be undeclared
-          switch (voterParty) {
-            case 'UND':
-              if (!['REP', 'DEM'].includes(input.ballotParty)) {
-                return err('undeclared_voter_missing_ballot_party');
-              }
-              break;
-            case 'REP':
-            case 'DEM':
-              assert(
-                input.ballotParty === voterParty,
-                `Expected check-in party ${input.ballotParty} to match voter party ${voterParty}`
-              );
-              break;
-            default:
-              /* istanbul ignore next */
-              return err('unknown_voter_party');
-          }
-          break;
+      if (election.type === 'primary') {
+        // Primary ballot party choice can't be undeclared
+        switch (voterParty) {
+          case 'UND':
+            if (!['REP', 'DEM'].includes(input.ballotParty)) {
+              return err('undeclared_voter_missing_ballot_party');
+            }
+            break;
+          case 'REP':
+          case 'DEM':
+            assert(
+              input.ballotParty === voterParty,
+              `Expected check-in party ${input.ballotParty} to match voter party ${voterParty}`
+            );
+            break;
+          default:
+            /* istanbul ignore next */
+            return err('unknown_voter_party');
         }
-        case 'open-primary':
-        case 'general': {
-          assert(
-            input.ballotParty === 'NOT_APPLICABLE',
-            'Check-in ballot party is only provided during a closed primary election'
-          );
-          break;
-        }
-        default:
-          /* istanbul ignore next */
-          throwIllegalValue(election.type);
+      } else if (election.type === 'general') {
+        assert(
+          input.ballotParty === 'NOT_APPLICABLE',
+          'Check-in ballot party cannot be provided during a general election'
+        );
       }
 
       const { voter, receiptNumber } = store.recordVoterCheckIn({
@@ -645,16 +635,16 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return store.getAllVotersInPrecinctSorted();
     },
 
-    getSummaryStatistics(input: {
+    getGeneralSummaryStatistics(input: {
       partyFilter: PartyFilterAbbreviation;
     }): SummaryStatistics {
-      return store.getSummaryStatistics(input.partyFilter);
+      return store.getGeneralSummaryStatistics(input.partyFilter);
     },
 
-    getClosedPrimarySummaryStatistics(input: {
+    getPrimarySummaryStatistics(input: {
       partyFilter: PartyFilterAbbreviation;
-    }): ClosedPrimarySummaryStatistics {
-      return store.getClosedPrimarySummaryStatistics(input.partyFilter);
+    }): PrimarySummaryStatistics {
+      return store.getPrimarySummaryStatistics(input.partyFilter);
     },
 
     getThroughputStatistics(input: {
@@ -667,14 +657,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       );
     },
 
-    async printClosedPrimaryStatisticsSummaryReceipt(): Promise<
-      Result<void, Error>
-    > {
+    async printPrimaryStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
       const election = assertDefined(store.getElection());
-      const allStats = store.getClosedPrimarySummaryStatistics('ALL');
-      const demStats = store.getClosedPrimarySummaryStatistics('DEM');
-      const repStats = store.getClosedPrimarySummaryStatistics('REP');
-      const undeclaredStats = store.getClosedPrimarySummaryStatistics('UND');
+      const allStats = store.getPrimarySummaryStatistics('ALL');
+      const demStats = store.getPrimarySummaryStatistics('DEM');
+      const repStats = store.getPrimarySummaryStatistics('REP');
+      const undeclaredStats = store.getPrimarySummaryStatistics('UND');
       const eventCounts: { addressChange: number; nameChange: number } = {
         addressChange: store.getEventCountUniqueByVoter(
           EventType.VoterAddressChange
@@ -692,12 +680,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return ok();
     },
 
-    async printStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
+    async printGeneralStatisticsSummaryReceipt(): Promise<Result<void, Error>> {
       const election = assertDefined(store.getElection());
-      const allStats = store.getSummaryStatistics('ALL');
-      const demStats = store.getSummaryStatistics('DEM');
-      const repStats = store.getSummaryStatistics('REP');
-      const undeclaredStats = store.getSummaryStatistics('UND');
+      const allStats = store.getGeneralSummaryStatistics('ALL');
+      const demStats = store.getGeneralSummaryStatistics('DEM');
+      const repStats = store.getGeneralSummaryStatistics('REP');
+      const undeclaredStats = store.getGeneralSummaryStatistics('UND');
       const eventCounts: { addressChange: number; nameChange: number } = {
         addressChange: store.getEventCountUniqueByVoter(
           EventType.VoterAddressChange

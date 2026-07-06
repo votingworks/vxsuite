@@ -33,11 +33,11 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import styled from 'styled-components';
 import {
   getThroughputStatistics,
-  getSummaryStatistics,
+  getGeneralSummaryStatistics,
   getElection,
-  getClosedPrimarySummaryStatistics,
-  printStatisticsSummaryReceipt,
-  printClosedPrimaryStatisticsSummaryReceipt,
+  getPrimarySummaryStatistics,
+  printGeneralStatisticsSummaryReceipt,
+  printPrimaryStatisticsSummaryReceipt,
   getDeviceStatuses,
 } from './api';
 import { Row, Column } from './layout';
@@ -184,14 +184,14 @@ function Metric({
   );
 }
 
-export function ElectionStatistics(): JSX.Element {
+export function GeneralElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
-  const getSummaryStatisticsQuery = getSummaryStatistics.useQuery({
+  const getSummaryStatisticsQuery = getGeneralSummaryStatistics.useQuery({
     partyFilter,
   });
-  const printStatisticsSummaryReceiptMutation =
-    printStatisticsSummaryReceipt.useMutation();
+  const printGeneralStatisticsSummaryReceiptMutation =
+    printGeneralStatisticsSummaryReceipt.useMutation();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
@@ -231,10 +231,10 @@ export function ElectionStatistics(): JSX.Element {
         >
           <H1>Statistics</H1>
           <Button
-            onPress={printStatisticsSummaryReceiptMutation.mutate}
+            onPress={printGeneralStatisticsSummaryReceiptMutation.mutate}
             disabled={
               !isPrinterAttached ||
-              printStatisticsSummaryReceiptMutation.isLoading
+              printGeneralStatisticsSummaryReceiptMutation.isLoading
             }
             icon="Print"
             style={{
@@ -330,14 +330,14 @@ export function ElectionStatistics(): JSX.Element {
   );
 }
 
-export function ClosedPrimaryElectionStatistics(): JSX.Element {
+export function PrimaryElectionStatistics(): JSX.Element {
   const [partyFilter, setPartyFilter] =
     useState<PartyFilterAbbreviation>('ALL');
-  const getSummaryStatisticsQuery = getClosedPrimarySummaryStatistics.useQuery({
+  const getSummaryStatisticsQuery = getPrimarySummaryStatistics.useQuery({
     partyFilter,
   });
-  const printClosedPrimaryStatisticsSummaryReceiptMutation =
-    printClosedPrimaryStatisticsSummaryReceipt.useMutation();
+  const printPrimaryStatisticsSummaryReceiptMutation =
+    printPrimaryStatisticsSummaryReceipt.useMutation();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const isPrinterAttached = getDeviceStatusesQuery.data?.printer.connected;
 
@@ -366,10 +366,10 @@ export function ClosedPrimaryElectionStatistics(): JSX.Element {
           }
         />
         <Button
-          onPress={printClosedPrimaryStatisticsSummaryReceiptMutation.mutate}
+          onPress={printPrimaryStatisticsSummaryReceiptMutation.mutate}
           disabled={
             !isPrinterAttached ||
-            printClosedPrimaryStatisticsSummaryReceiptMutation.isLoading
+            printPrimaryStatisticsSummaryReceiptMutation.isLoading
           }
           icon="Print"
           style={{
@@ -521,8 +521,8 @@ export function StatisticsScreen(): JSX.Element {
 
   const election = getElectionQuery.data.ok();
   assert(election !== undefined);
-  if (election.type === 'closed-primary') {
-    return <ClosedPrimaryElectionStatistics />;
+  if (election.type === 'primary') {
+    return <PrimaryElectionStatistics />;
   }
-  return <ElectionStatistics />;
+  return <GeneralElectionStatistics />;
 }

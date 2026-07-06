@@ -50,6 +50,7 @@ import {
   ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
   UserRole,
+  isOpenPrimary,
   PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -807,7 +808,7 @@ export class Store implements BaseStore {
       params.push(...filter.ballotStyleGroupIds);
     }
     // Open primaries handled below
-    if (filter.partyIds && election.type !== 'open-primary') {
+    if (filter.partyIds && !isOpenPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -890,7 +891,7 @@ export class Store implements BaseStore {
     // In open primary elections, ballot styles in the db don't have party IDs.
     // Instead, each CVR's party is inferred from its votes. So we need to
     // manually create group specifiers for each party.
-    if (election.type === 'open-primary' && groupBy.groupByParty) {
+    if (isOpenPrimary(election) && groupBy.groupByParty) {
       const partyIds = [
         ...unique(partisanContests(election).map((contest) => contest.partyId)),
         Tabulation.NO_PARTY_ID,
@@ -930,7 +931,7 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
-      assert(election.type !== 'open-primary');
+      assert(!isOpenPrimary(election));
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -1552,7 +1553,7 @@ export class Store implements BaseStore {
     }
 
     if (filter.partyIds) {
-      assert(election.type !== 'open-primary');
+      assert(!isOpenPrimary(election));
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -1706,10 +1707,9 @@ export class Store implements BaseStore {
         votesString: row.votes,
         adjudicatedVotesString: row.adjudicatedVotes,
       });
-      const partyId =
-        election.type === 'open-primary'
-          ? inferPartyFromVotes(election, votes)
-          : row.partyId ?? undefined;
+      const partyId = isOpenPrimary(election)
+        ? inferPartyFromVotes(election, votes)
+        : row.partyId ?? undefined;
       yield {
         ballotStyleGroupId: row.ballotStyleGroupId,
         partyId,
@@ -1742,10 +1742,7 @@ export class Store implements BaseStore {
   }): Generator<Tabulation.GroupOf<CardTally>> {
     // In open primaries, we have to infer a CVR's party from its votes,
     // which we can't do via the db, so we divert and do the counting in JS.
-    if (
-      election.type === 'open-primary' &&
-      (groupBy.groupByParty || filter.partyIds)
-    ) {
+    if (isOpenPrimary(election) && (groupBy.groupByParty || filter.partyIds)) {
       yield* this.getOpenPrimaryCardTallies({
         electionId,
         election,
@@ -2506,7 +2503,7 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByParty) {
-      if (election.type === 'open-primary') {
+      if (isOpenPrimary(election)) {
         selectParts.push('cvrs.votes as votes');
         selectParts.push('cvrs.adjudicated_votes as adjudicatedVotes');
       } else {
@@ -2571,7 +2568,7 @@ export class Store implements BaseStore {
           ? row.ballotStyleGroupId
           : undefined,
         partyId: groupBy.groupByParty
-          ? election.type === 'open-primary'
+          ? isOpenPrimary(election)
             ? inferPartyFromVotes(
                 election,
                 this.applyAdjudicatedVotes({
@@ -2939,7 +2936,7 @@ export class Store implements BaseStore {
     const {
       electionDefinition: { election },
     } = assertDefined(this.getElection(electionId));
-    assert(election.type !== 'open-primary');
+    assert(!isOpenPrimary(election));
 
     const { ballotCount } = manualResults;
     const serializedContestResults = JSON.stringify(
@@ -3031,7 +3028,7 @@ export class Store implements BaseStore {
       params.push(...precinctIds);
     }
 
-    if (partyIds && election.type !== 'open-primary') {
+    if (partyIds && !isOpenPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`
