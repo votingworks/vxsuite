@@ -176,8 +176,6 @@ function writeYesNoVote(
     );
   }
 
-  // yesno votes get one bit per option (like candidate contests), supporting
-  // any number of options. At most one bit may be set (no overvote in encoding).
   for (const option of contest.options) {
     bits.writeBoolean(ynVote.includes(option.id));
   }

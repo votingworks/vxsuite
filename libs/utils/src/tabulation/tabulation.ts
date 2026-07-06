@@ -247,10 +247,8 @@ function addCastVoteRecordToElectionResult(
 
       case 'yesno': {
         for (const optionId of optionIds) {
-          if (optionId in contestResult.tallies) {
-            contestResult.tallies[optionId] =
-              assertDefined(contestResult.tallies[optionId]) + 1;
-          }
+          contestResult.tallies[optionId] =
+            assertDefined(contestResult.tallies[optionId]) + 1;
         }
         break;
       }
@@ -545,7 +543,7 @@ export function combineYesNoContestResults({
     combinedContestResults.ballots += contestResults.ballots;
     for (const [optionId, tally] of Object.entries(contestResults.tallies)) {
       combinedContestResults.tallies[optionId] =
-        (combinedContestResults.tallies[optionId] ?? 0) + tally;
+        assertDefined(combinedContestResults.tallies[optionId]) + tally;
     }
   }
   return combinedContestResults;
