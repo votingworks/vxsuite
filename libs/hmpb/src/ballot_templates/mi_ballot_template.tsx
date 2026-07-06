@@ -25,6 +25,7 @@ import {
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
+  isOpenPrimary,
   StraightPartyContest as StraightPartyContestStruct,
   Party,
 } from '@votingworks/types';
@@ -624,9 +625,9 @@ function buildContestSections(
   numColumns: number
 ): ContestSection[] {
   function isPartisanCandidateContest(contest: CandidateContestStruct) {
-    assert(election.type !== 'open-primary');
+    assert(!isOpenPrimary(election));
     switch (election.type) {
-      case 'closed-primary':
+      case 'primary':
         return contest.partyId;
       case 'general':
         return (contest.candidates[0]?.partyIds ?? []).length > 0;
@@ -1014,22 +1015,21 @@ async function BallotPageContent(
     throw new Error('No contests assigned to this precinct.');
   }
 
-  const { leftoverContests, sectionsElement } =
-    election.type === 'open-primary'
-      ? await OpenPrimaryContestColumns({
-          contests,
-          election,
-          ballotStyle,
-          dimensions,
-          scratchpad,
-        })
-      : await ContestColumns({
-          contests,
-          election,
-          ballotStyle,
-          dimensions,
-          scratchpad,
-        });
+  const { leftoverContests, sectionsElement } = isOpenPrimary(election)
+    ? await OpenPrimaryContestColumns({
+        contests,
+        election,
+        ballotStyle,
+        dimensions,
+        scratchpad,
+      })
+    : await ContestColumns({
+        contests,
+        election,
+        ballotStyle,
+        dimensions,
+        scratchpad,
+      });
 
   if (leftoverContests.length === contests.length) {
     return err({

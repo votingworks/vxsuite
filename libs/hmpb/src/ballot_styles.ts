@@ -1,4 +1,4 @@
-import { groupBy, throwIllegalValue, unique } from '@votingworks/basics';
+import { groupBy, unique } from '@votingworks/basics';
 import {
   BallotLanguageConfigs,
   CandidateContest,
@@ -43,6 +43,7 @@ export function generateBallotStyles(params: {
   contests: readonly Contest[];
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
+  hasMiCombinedPrimaryBallot: boolean;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;
@@ -52,6 +53,7 @@ export function generateBallotStyles(params: {
     ballotLanguageConfigs,
     contests,
     electionType,
+    hasMiCombinedPrimaryBallot,
     parties,
     precincts,
     ballotTemplateId,
@@ -90,131 +92,113 @@ export function generateBallotStyles(params: {
     group.map(({ precinctId, splitId }) => ({ precinctId, splitId })),
   ]);
 
-  switch (electionType) {
-    case 'general':
-    case 'open-primary':
-      return precinctsOrSplitsByDistricts.flatMap(
-        ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
-          // Filter contests by district before generating orderings
-          const ballotStyleContests = contests.filter((contest) =>
-            districtIds.includes(contest.districtId)
-          );
-          // Get all ordered contest sets for this district group
-          const orderedContestSets = getAllPossibleCandidateOrderings(
-            ballotTemplateId,
+  if (electionType === 'general' || hasMiCombinedPrimaryBallot) {
+    return precinctsOrSplitsByDistricts.flatMap(
+      ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
+        // Filter contests by district before generating orderings
+        const ballotStyleContests = contests.filter((contest) =>
+          districtIds.includes(contest.districtId)
+        );
+        // Get all ordered contest sets for this district group
+        const orderedContestSets = getAllPossibleCandidateOrderings(
+          ballotTemplateId,
+          {
+            contests: ballotStyleContests,
+            precincts,
+            districtIds,
+            precinctsOrSplitIds,
+            electionId,
+          }
+        );
+        // Create ballot styles for each ordered contest set and language config
+        return orderedContestSets.flatMap(
+          (
             {
-              contests: ballotStyleContests,
-              precincts,
-              districtIds,
-              precinctsOrSplitIds,
-              electionId,
-            }
-          );
-          // Create ballot styles for each ordered contest set and language config
-          return orderedContestSets.flatMap(
-            (
-              {
-                orderedCandidatesByContest: orderedContests,
-                precinctsOrSplits: precinctsForSet,
-              },
-              rotationIndex
-            ) =>
-              ballotLanguageConfigs.map(({ languages }) => ({
-                id: generateBallotStyleId({
-                  ballotStyleIndex: ballotStyleIndex + 1,
-                  rotationIndex:
-                    orderedContestSets.length > 1
-                      ? rotationIndex + 1
-                      : undefined,
-                  languages,
-                }),
-                groupId: generateBallotStyleGroupId({
-                  ballotStyleIndex: ballotStyleIndex + 1,
-                  rotationIndex:
-                    orderedContestSets.length > 1
-                      ? rotationIndex + 1
-                      : undefined,
-                }),
-                precincts: precinctsForSet.map(({ precinctId }) => precinctId),
-                districts: districtIds,
+              orderedCandidatesByContest: orderedContests,
+              precinctsOrSplits: precinctsForSet,
+            },
+            rotationIndex
+          ) =>
+            ballotLanguageConfigs.map(({ languages }) => ({
+              id: generateBallotStyleId({
+                ballotStyleIndex: ballotStyleIndex + 1,
+                rotationIndex:
+                  orderedContestSets.length > 1 ? rotationIndex + 1 : undefined,
                 languages,
-                orderedCandidatesByContest: orderedContests,
-              }))
-          );
-        }
-      );
-
-    case 'closed-primary':
-      return precinctsOrSplitsByDistricts.flatMap(
-        ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
-          // Filter contests by district before generating orderings
-          const ballotStyleContests = contests.filter((contest) =>
-            districtIds.includes(contest.districtId)
-          );
-          const partyIds = unique(
-            ballotStyleContests
-              .filter(
-                (contest): contest is CandidateContest =>
-                  contest.type === 'candidate' && contest.partyId !== undefined
-              )
-              .map((contest) => contest.partyId)
-          );
-          const orderedContestSets = getAllPossibleCandidateOrderings(
-            ballotTemplateId,
-            {
-              contests: ballotStyleContests,
-              precincts,
-              districtIds,
-              precinctsOrSplitIds,
-              electionId,
-            }
-          );
-          const partiesWithContests = parties.filter((party) =>
-            partyIds.includes(party.id)
-          );
-          return orderedContestSets.flatMap(
-            (
-              {
-                orderedCandidatesByContest: orderedContests,
-                precinctsOrSplits: precinctsForSet,
-              },
-              rotationIndex
-            ) =>
-              partiesWithContests.flatMap((party) =>
-                ballotLanguageConfigs.map(({ languages }) => ({
-                  id: generateBallotStyleId({
-                    ballotStyleIndex: ballotStyleIndex + 1,
-                    rotationIndex:
-                      orderedContestSets.length > 1
-                        ? rotationIndex + 1
-                        : undefined,
-                    languages,
-                    party,
-                  }),
-                  groupId: generateBallotStyleGroupId({
-                    ballotStyleIndex: ballotStyleIndex + 1,
-                    rotationIndex:
-                      orderedContestSets.length > 1
-                        ? rotationIndex + 1
-                        : undefined,
-                    party,
-                  }),
-                  precincts: precinctsForSet.map(
-                    ({ precinctId }) => precinctId
-                  ),
-                  districts: districtIds,
-                  partyId: party.id,
-                  languages,
-                  orderedCandidatesByContest: orderedContests,
-                }))
-              )
-          );
-        }
-      );
-
-    default: {
-      /* istanbul ignore next */
-      return throwIllegalValue(electionType);
-    }
+              }),
+              groupId: generateBallotStyleGroupId({
+                ballotStyleIndex: ballotStyleIndex + 1,
+                rotationIndex:
+                  orderedContestSets.length > 1 ? rotationIndex + 1 : undefined,
+              }),
+              precincts: precinctsForSet.map(({ precinctId }) => precinctId),
+              districts: districtIds,
+              languages,
+              orderedCandidatesByContest: orderedContests,
+            }))
+        );
+      }
+    );
   }
+
+  return precinctsOrSplitsByDistricts.flatMap(
+    ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
+      // Filter contests by district before generating orderings
+      const ballotStyleContests = contests.filter((contest) =>
+        districtIds.includes(contest.districtId)
+      );
+      const partyIds = unique(
+        ballotStyleContests
+          .filter(
+            (contest): contest is CandidateContest =>
+              contest.type === 'candidate' && contest.partyId !== undefined
+          )
+          .map((contest) => contest.partyId)
+      );
+      const orderedContestSets = getAllPossibleCandidateOrderings(
+        ballotTemplateId,
+        {
+          contests: ballotStyleContests,
+          precincts,
+          districtIds,
+          precinctsOrSplitIds,
+          electionId,
+        }
+      );
+      const partiesWithContests = parties.filter((party) =>
+        partyIds.includes(party.id)
+      );
+      return orderedContestSets.flatMap(
+        (
+          {
+            orderedCandidatesByContest: orderedContests,
+            precinctsOrSplits: precinctsForSet,
+          },
+          rotationIndex
+        ) =>
+          partiesWithContests.flatMap((party) =>
+            ballotLanguageConfigs.map(({ languages }) => ({
+              id: generateBallotStyleId({
+                ballotStyleIndex: ballotStyleIndex + 1,
+                rotationIndex:
+                  orderedContestSets.length > 1 ? rotationIndex + 1 : undefined,
+                languages,
+                party,
+              }),
+              groupId: generateBallotStyleGroupId({
+                ballotStyleIndex: ballotStyleIndex + 1,
+                rotationIndex:
+                  orderedContestSets.length > 1 ? rotationIndex + 1 : undefined,
+                party,
+              }),
+              precincts: precinctsForSet.map(({ precinctId }) => precinctId),
+              districts: districtIds,
+              partyId: party.id,
+              languages,
+              orderedCandidatesByContest: orderedContests,
+            }))
+          )
+      );
+    }
+  );
 }
