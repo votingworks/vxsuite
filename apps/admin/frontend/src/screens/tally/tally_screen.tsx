@@ -1,88 +1,137 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
-import { Button, Icons, H3, RouterTabBar } from '@votingworks/ui';
+import { assert, assertDefined } from '@votingworks/basics';
+import {
+  Button,
+  Icons,
+  RouterTabBar,
+  MainContent,
+  DesktopPalette,
+  Font,
+  Card,
+} from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { OfficialResultsCard } from '../../components/official_results_card';
-import { CastVoteRecordsTab } from './cast_vote_records_tab';
+import { NavScreenLite } from '../../components/navigation_screen';
 import { ManualTalliesTab } from './manual_tallies_tab';
 import { routerPaths } from '../../router_paths';
 import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal';
+import { BORDER_LIGHT, GAP } from './styles';
+import { CvrsScreen } from './cvrs_screen';
+
+const Container = styled.div`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  overflow-y: hidden;
+  height: 100%;
+`;
+
+const BODY_WITH_BANNER_CSS = css`
+  grid-template-rows: min-content 1fr;
+`;
+
+const Body = styled.div<{ withBanner: boolean }>`
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow-y: hidden;
+  position: relative;
+  height: 100%;
+
+  ${(p) => p.withBanner && BODY_WITH_BANNER_CSS}
+`;
+
+const Content = styled.div`
+  height: 100%;
+  overflow-y: hidden;
+  position: relative;
+`;
+
+const OfficialCard = styled(Card)`
+  ${BORDER_LIGHT}
+  margin: ${GAP} ${GAP} 0;
+
+  > * {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: ${GAP};
+    padding-left: calc(1.5 * ${GAP}); /* Balance out with icon/text gap. */
+  }
+`;
+
+const TabBar = styled(RouterTabBar)`
+  border-color: ${DesktopPalette.Gray30};
+  gap: ${GAP};
+  padding: ${GAP} ${GAP} 0;
+`;
 
 export function TallyScreen(): JSX.Element | null {
-  const { electionDefinition, isOfficialResults, auth } =
-    useContext(AppContext);
-  assert(electionDefinition);
+  const ctx = useContext(AppContext);
+  const { electionDefinition, isOfficialResults, auth } = ctx;
+  const { election } = assertDefined(electionDefinition);
   assert(isElectionManagerAuth(auth));
 
-  const [
-    isConfirmRemoveAllResultsModalOpen,
-    setIsConfirmRemoveAllResultsModalOpen,
-  ] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const manualTalliesEnabled =
-    electionDefinition.election.type !== 'open-primary';
+  const tabs: Array<{ title: string; path: string }> = [
+    { title: 'Cast Vote Records', path: routerPaths.tallyCvrs },
+  ];
+
+  const manualTalliesEnabled = election.type !== 'open-primary';
+  if (manualTalliesEnabled) {
+    tabs.push({ title: 'Manual Tallies', path: routerPaths.tallyManual });
+  }
 
   return (
-    <React.Fragment>
-      <NavigationScreen title="Tally">
-        {isOfficialResults && (
-          <OfficialResultsCard>
-            <H3>
-              <Icons.Done color="success" />
-              Election Results are Official
-            </H3>
-            <Button
-              onPress={() => setIsConfirmRemoveAllResultsModalOpen(true)}
-              icon="Delete"
-              color="danger"
-            >
-              Remove All Tallies
-            </Button>
-          </OfficialResultsCard>
-        )}
+    <NavScreenLite>
+      <Container>
+        <TabBar tabs={tabs} />
 
-        <RouterTabBar
-          tabs={[
-            {
-              title: 'Cast Vote Records (CVRs)',
-              path: routerPaths.tallyCvrs,
-            },
-            ...(manualTalliesEnabled
-              ? [
-                  {
-                    title: 'Manual Tallies',
-                    path: routerPaths.tallyManual,
-                  },
-                ]
-              : []),
-          ]}
-        />
-
-        <Switch>
-          <Route
-            exact
-            path={routerPaths.tallyCvrs}
-            component={CastVoteRecordsTab}
-          />
-          {manualTalliesEnabled && (
-            <Route
-              exact
-              path={routerPaths.tallyManual}
-              component={ManualTalliesTab}
-            />
+        <Body withBanner={isOfficialResults}>
+          {isOfficialResults && (
+            <OfficialCard>
+              <Font style={{ fontSize: '1.125rem' }} weight="bold">
+                <Icons.Done color="success" style={{ marginRight: GAP }} />
+                Election Results are Official
+              </Font>
+              <Button
+                onPress={() => setConfirmingDelete(true)}
+                icon="Trash"
+                color="danger"
+              >
+                Remove All Tallies
+              </Button>
+            </OfficialCard>
           )}
-          <Redirect from={routerPaths.tally} to={routerPaths.tallyCvrs} />
-        </Switch>
-      </NavigationScreen>
 
-      {isConfirmRemoveAllResultsModalOpen && (
+          <Content>
+            <Switch>
+              <Route
+                exact
+                path={routerPaths.tallyCvrs}
+                component={CvrsScreen}
+              />
+
+              {manualTalliesEnabled && (
+                <Route exact path={routerPaths.tallyManual}>
+                  <MainContent style={{ height: '100%', padding: `0 ${GAP}` }}>
+                    <ManualTalliesTab />
+                  </MainContent>
+                </Route>
+              )}
+
+              <Redirect from={routerPaths.tally} to={routerPaths.tallyCvrs} />
+            </Switch>
+          </Content>
+        </Body>
+      </Container>
+
+      {confirmingDelete && (
         <ConfirmRemoveAllResultsModal
-          onClose={() => setIsConfirmRemoveAllResultsModalOpen(false)}
+          onClose={() => setConfirmingDelete(false)}
         />
       )}
-    </React.Fragment>
+    </NavScreenLite>
   );
 }

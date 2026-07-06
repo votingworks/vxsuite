@@ -570,7 +570,7 @@ test('results', async ({ page }, testInfo) => {
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
 
   await page.getByText('Tally').click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await page.getByText('Cast Vote Records').waitFor();
   await screenshot('tally-screen-empty');
 
   await insertUsbDriveWithCvrs({
@@ -579,7 +579,7 @@ test('results', async ({ page }, testInfo) => {
     usbHandler,
     electionDefinition,
   });
-  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByText('17').first().waitFor();
   await screenshot('load-cvrs');
 
@@ -588,7 +588,7 @@ test('results', async ({ page }, testInfo) => {
   await screenshot('cvrs-loaded');
 
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 17').waitFor();
+  await page.getByText('Cvrs17').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
   // Full election tally report
@@ -807,7 +807,7 @@ test('results', async ({ page }, testInfo) => {
 
   // Tally screen now reflects official results.
   await page.getByRole('button', { name: 'Tally', exact: true }).click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await page.getByText('Cast Vote Records').waitFor();
   await screenshot('tally-screen-official');
 
   // A system administrator can revert results to unofficial.
@@ -881,7 +881,7 @@ test('adjudication', async ({ page }, testInfo) => {
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
   await page.getByText('Tally').click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await page.getByText('Cast Vote Records').waitFor();
 
   await insertUsbDriveWithCvrs({
     cvrPath: cvrExportPath,
@@ -889,11 +889,11 @@ test('adjudication', async ({ page }, testInfo) => {
     usbHandler,
     electionDefinition,
   });
-  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
   await page.getByText('3 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 3').waitFor();
+  await page.getByText('Cvrs3').waitFor();
 
   // Adjudication start screen
   await page.getByText('Adjudication').click();
@@ -1051,14 +1051,14 @@ test('qualified write-in candidates', async ({ page }, testInfo) => {
 
   // Load the CVR with the mayor write-in.
   await page.getByText('Tally').click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await page.getByText('Cast Vote Records').waitFor();
   await insertUsbDriveWithCvrs({
     cvrPath: cvrExportPath,
     convertToOfficial: false,
     usbHandler,
     electionDefinition,
   });
-  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
   await page.getByText('1 New CVR Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
@@ -1098,7 +1098,7 @@ test('manual results', async ({ page }, testInfo) => {
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
   await page.getByText('Tally').click();
-  await page.getByText('Cast Vote Records (CVRs)').waitFor();
+  await page.getByText('Cast Vote Records').waitFor();
 
   await insertUsbDriveWithCvrs({
     cvrPath: castVoteRecordExport.asDirectoryPath(),
@@ -1106,11 +1106,11 @@ test('manual results', async ({ page }, testInfo) => {
     usbHandler,
     electionDefinition,
   });
-  await page.getByText('Load CVRs').click();
+  await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
   await page.getByText('184 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 184').waitFor();
+  await page.getByText('Cvrs184').waitFor();
 
   await page.getByText('Manual Tallies').click();
   await screenshot('manual-tallies-tab-empty');

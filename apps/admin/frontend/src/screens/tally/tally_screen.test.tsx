@@ -5,7 +5,8 @@ import {
 } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
-import { screen } from '../../../test/react_testing_library';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { screen, waitFor } from '../../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -28,25 +29,34 @@ afterEach(() => {
 });
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
+const nLocations = electionDefinition.election.pollingPlaces.length;
 
 test('has tabs for CVRs and Manual Tallies', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetManualResultsMetadata([]);
-  apiMock.expectGetSystemSettings();
   renderInAppContext(<TallyScreen />, {
     electionDefinition,
     apiMock,
     route: '/tally',
   });
-  await screen.findByRole('heading', { name: 'Tally' });
 
-  screen.getByRole('tab', { name: 'Cast Vote Records (CVRs)' });
-  await screen.findByText('No CVRs loaded.');
-  expect(screen.getButton('Load CVRs')).toBeEnabled();
+  await waitFor(() => apiMock.assertComplete());
+  screen.getByRole('tab', { name: 'Cast Vote Records', selected: true });
+
+  const locationsCardText = ['Locations', `0 / ${nLocations}`].join('');
+  screen.getByText(hasTextAcrossElements(locationsCardText));
+
+  expect(screen.getButton('Load')).toBeEnabled();
   expect(
-    screen.queryByRole('button', { name: 'Remove CVRs' })
+    screen.queryByRole('button', { name: /remove/i })
   ).not.toBeInTheDocument();
+
+  for (const location of electionDefinition.election.pollingPlaces) {
+    screen.getButton(new RegExp(location.name));
+  }
+
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetManualResultsMetadata([]);
 
   userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
   await screen.findByText('No manual tallies entered.');
@@ -60,9 +70,8 @@ test('hides Manual Tallies tab for open primary elections', async () => {
     apiMock,
     route: '/tally',
   });
-  await screen.findByRole('heading', { name: 'Tally' });
 
-  screen.getByRole('tab', { name: 'Cast Vote Records (CVRs)' });
+  await screen.findByRole('tab', { name: 'Cast Vote Records' });
   expect(
     screen.queryByRole('tab', { name: 'Manual Tallies' })
   ).not.toBeInTheDocument();
@@ -76,6 +85,8 @@ test('redirects /tally/manual to CVRs tab for open primary elections', async () 
     apiMock,
     route: '/tally/manual',
   });
-  await screen.findByRole('heading', { name: 'Tally' });
-  await screen.findByText('No CVRs loaded.');
+  await screen.findByRole('tab', { name: 'Cast Vote Records', selected: true });
+
+  const locationsCardText = ['Locations', `0 / ${nLocations}`].join('');
+  screen.getByText(hasTextAcrossElements(locationsCardText));
 });

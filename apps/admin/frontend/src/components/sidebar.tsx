@@ -64,7 +64,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     );
 
   return (
-    <LeftNav>
+    <LeftNav style={{ width: '11rem' }}>
       <Link to="/">
         <AppLogo appName={appName} />
       </Link>

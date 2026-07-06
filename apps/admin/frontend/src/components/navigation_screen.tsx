@@ -214,13 +214,11 @@ export const Header = styled(MainHeader)`
   padding-left: 0.75rem;
 `;
 
-export function NavigationScreen({
-  children,
-  title,
-  parentRoutes,
-  noPadding,
-  style,
-}: Props): JSX.Element {
+export interface NavScreenLiteProps {
+  children: React.ReactNode;
+}
+
+export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
   const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
   const logOutMutation = sharedLogOut.useMutation();
   const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
@@ -246,30 +244,41 @@ export function NavigationScreen({
           </Toolbar>
         )}
         <SessionTimeLimitTimer authStatus={auth} />
-        <Header>
-          <div>
-            {title && (
-              <React.Fragment>
-                {parentRoutes && (
-                  <Breadcrumbs
-                    currentTitle={title}
-                    parentRoutes={parentRoutes}
-                  />
-                )}
-                <H1>{title}</H1>
-              </React.Fragment>
-            )}
-          </div>
-        </Header>
-        <MainContent
-          style={{
-            ...(style ?? {}),
-            padding: noPadding ? 0 : undefined,
-          }}
-        >
-          {children}
-        </MainContent>
+        {children}
       </Main>
     </Screen>
+  );
+}
+
+export function NavigationScreen({
+  children,
+  title,
+  parentRoutes,
+  noPadding,
+  style,
+}: Props): JSX.Element {
+  return (
+    <NavScreenLite>
+      <Header>
+        <div>
+          {title && (
+            <React.Fragment>
+              {parentRoutes && (
+                <Breadcrumbs currentTitle={title} parentRoutes={parentRoutes} />
+              )}
+              <H1>{title}</H1>
+            </React.Fragment>
+          )}
+        </div>
+      </Header>
+      <MainContent
+        style={{
+          ...(style ?? {}),
+          padding: noPadding ? 0 : undefined,
+        }}
+      >
+        {children}
+      </MainContent>
+    </NavScreenLite>
   );
 }

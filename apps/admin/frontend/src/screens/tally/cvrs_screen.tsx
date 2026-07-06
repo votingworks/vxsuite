@@ -110,6 +110,12 @@ const ActionBar = styled.div<{ layered?: boolean }>`
   position: sticky;
   top: 0;
 
+  /*
+   * Maintain roughly the same height when buttons are omitted after results
+   * are official:
+   */
+  min-height: 2.4rem;
+
   > button:focus:focus-visible {
     ${INSET_FOCUS_OUTLINE}
   }
