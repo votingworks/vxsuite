@@ -1193,22 +1193,21 @@ export class Store {
       ) {
         // The straight party contest's district must be on every ballot style
         // so the contest appears on every ballot.
-        const district = assertDefined(
-          districts.find((d) =>
-            ballotStyles.every((ballotStyle) =>
-              ballotStyle.districts.includes(d.id)
-            )
-          ),
-          'Straight party contest requires a district shared by all ballot styles'
+        const district = districts.find((d) =>
+          ballotStyles.every((ballotStyle) =>
+            ballotStyle.districts.includes(d.id)
+          )
         );
-        const straightPartyContest: StraightPartyContest = {
-          id: straightPartyContestId(electionId),
-          type: 'straight-party',
-          title: 'Straight Party Ticket',
-          districtId: district.id,
-          optionIds: parties.map((party) => party.id),
-        };
-        contests.unshift(straightPartyContest);
+        if (district) {
+          const straightPartyContest: StraightPartyContest = {
+            id: straightPartyContestId(electionId),
+            type: 'straight-party',
+            title: 'Straight Party Ticket',
+            districtId: district.id,
+            optionIds: parties.map((party) => party.id),
+          };
+          contests.unshift(straightPartyContest);
+        }
       }
 
       const election: Election = {
