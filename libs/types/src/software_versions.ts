@@ -7,7 +7,10 @@ import {
   BallotStyleIdSchema,
   BallotStyleSchema,
   CandidateContest,
+  CandidateContestSchema,
   Contest,
+  ContestBase,
+  ContestBaseSchema,
   ContestId,
   ContestIdSchema,
   Election,
@@ -19,7 +22,11 @@ import {
   PollingPlace,
   PollingPlacesSchema,
   SheetPositions,
+  StraightPartyContest,
+  StraightPartyContestSchema,
   YesNoContest,
+  YesNoOption,
+  YesNoOptionSchema,
 } from './election';
 import {
   ballotPositionsFromGridPositions,
@@ -127,21 +134,49 @@ const BallotStyleV4p0Schema = BallotStyleSchema.omit({
   languages: z.array(z.string()).optional(),
 });
 
+// v4.0 represented yesno contests with `yesOption`/`noOption` (plus optional
+// `additionalOptions`) rather than the v4.1+ ordered `options` array. Deployed
+// v4.0 software still expects this shape, so we convert to/from it on export and
+// import.
+interface YesNoContestV4p0 extends ContestBase {
+  readonly type: 'yesno';
+  readonly description: string;
+  readonly yesOption: YesNoOption;
+  readonly noOption: YesNoOption;
+  readonly additionalOptions?: readonly YesNoOption[];
+}
+const YesNoContestV4p0Schema: z.ZodSchema<YesNoContestV4p0> =
+  ContestBaseSchema.extend({
+    type: z.literal('yesno'),
+    description: z.string().nonempty(),
+    yesOption: YesNoOptionSchema,
+    noOption: YesNoOptionSchema,
+    additionalOptions: z.array(YesNoOptionSchema).optional(),
+  });
+type ContestV4p0 = CandidateContest | YesNoContestV4p0 | StraightPartyContest;
+const ContestV4p0Schema: z.ZodSchema<ContestV4p0> = z.union([
+  CandidateContestSchema,
+  YesNoContestV4p0Schema,
+  StraightPartyContestSchema,
+]);
+
 type ElectionV4p0 = Omit<
   Election,
-  'type' | 'jurisdiction' | 'ballotStyles' | 'pollingPlaces'
+  'type' | 'jurisdiction' | 'ballotStyles' | 'pollingPlaces' | 'contests'
 > & {
   type: ElectionTypeV4p0;
   county: Election['jurisdiction'];
   ballotStyles: readonly BallotStyleV4p0[];
   pollingPlaces?: readonly PollingPlace[];
   gridLayouts?: readonly GridLayoutV4p0[];
+  contests: readonly ContestV4p0[];
 };
 export const ElectionV4p0Schema: z.ZodSchema<ElectionV4p0> = z.object({
   ...electionShapeForV4p0,
   ballotStyles: z.array(BallotStyleV4p0Schema),
   pollingPlaces: PollingPlacesSchema.optional(),
   gridLayouts: z.array(GridLayoutV4p0Schema).optional(),
+  contests: z.array(ContestV4p0Schema),
   county: JurisdictionSchema,
   type: ElectionTypeSchemaV4p0,
 });
@@ -274,18 +309,27 @@ export function convertLatestElectionToV4p0(election: Election): ElectionV4p0 {
     'v4.0 does not support open primaries'
   );
   const { jurisdiction, ballotStrings, ballotStyles, ...rest } = election;
-  // v4.0 doesn't support yesno contests with more than two options, so convert
-  // them to candidate contests. v4.1+ exports them natively with all options.
+  // v4.0 represents yesno contests with `yesOption`/`noOption` and doesn't
+  // support more than two options, so 2-option measures map to that shape and
+  // measures with additional options convert to candidate contests. v4.1+
+  // exports them natively as an `options` array.
   const contestsWithAdditionalOptions = election.contests.filter(
     (contest): contest is YesNoContest =>
       contest.type === 'yesno' && contest.options.length > 2
   );
-  const contestsForV4p0 = election.contests.map(
-    (contest): Contest =>
-      contest.type === 'yesno' && contest.options.length > 2
-        ? convertBallotMeasureWithAdditionalOptionsToCandidateContest(contest)
-        : contest
-  );
+  const contestsForV4p0 = election.contests.map((contest): ContestV4p0 => {
+    if (contest.type !== 'yesno') {
+      return contest;
+    }
+    if (contest.options.length > 2) {
+      return convertBallotMeasureWithAdditionalOptionsToCandidateContest(
+        contest
+      );
+    }
+    const [yesOption, noOption] = contest.options;
+    const { options: _options, ...contestRest } = contest;
+    return { ...contestRest, yesOption, noOption };
+  });
   // Converting to a candidate contest drops the yesno description, so preserve
   // it in additionalHashInput. Otherwise two elections differing only in a
   // ballot-measure description would produce identical v4.0 JSON and collide.
@@ -348,8 +392,21 @@ function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
       gridLayoutV4p0ToBallotPositions(gridLayout),
     ])
   );
+  // v4.0 represents yesno contests with `yesOption`/`noOption` (plus optional
+  // `additionalOptions`); v4.1+ uses a single ordered `options` array.
+  const contests = rest.contests.map((contest): Contest => {
+    if (contest.type !== 'yesno') {
+      return contest;
+    }
+    const { yesOption, noOption, additionalOptions, ...contestRest } = contest;
+    return {
+      ...contestRest,
+      options: [yesOption, noOption, ...(additionalOptions ?? [])],
+    };
+  });
   return {
     ...rest,
+    contests,
     // v4.0 may omit ballot-style languages; v4.1+ requires them. Default to
     // English when absent.
     ballotStyles: ballotStyles.map((ballotStyle) => ({
