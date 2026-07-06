@@ -407,7 +407,10 @@ export function getPartyIdsInBallotStyles(
 export function isOpenPrimary(election: Election): boolean {
   return (
     election.type === 'primary' &&
-    election.ballotStyles.every((bs) => !bs.partyId)
+    // We only need to check the first ballot style, since election validation
+    // guarantees that either all ballot styles have a partyId or none do.
+    election.ballotStyles.length > 0 &&
+    !election.ballotStyles[0].partyId
   );
 }
 
