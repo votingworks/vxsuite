@@ -443,7 +443,7 @@ test('editing a candidate contest (primary election)', async () => {
     {
       id: electionWithNoContestsRecord.election.id,
       title: 'Test Primary Election',
-      type: 'closed-primary',
+      type: 'primary',
       date: DateWithoutTime.today(),
       state: 'CA',
       jurisdiction: { id: 'test-county', name: 'Test County' },

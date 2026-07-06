@@ -38,6 +38,7 @@ async function expectValidElection(election: Election) {
   await store.createElection({
     jurisdiction,
     election,
+    hasMiCombinedPrimaryBallot: false,
     ballotTemplateId: 'VxDefaultBallot',
     systemSettings: defaultSystemSettings(jurisdiction),
   });
