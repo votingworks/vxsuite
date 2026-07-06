@@ -1,12 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import {
   BallotStyle,
+  Contest,
   ElectionRegisteredVoterCounts,
+  ElectionType,
+  LanguageCode,
   PollingPlace,
   Precinct,
 } from '@votingworks/types';
+import type { ElectionInfo } from '@votingworks/design-backend';
 import userEvent from '@testing-library/user-event';
-import { sleep } from '@votingworks/basics';
+import { DateWithoutTime, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
 import { routes } from './routes';
 import { withRoute } from '../test/routing_helpers';
@@ -26,6 +30,8 @@ test('ballots incomplete', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -39,12 +45,81 @@ test('ballots incomplete', async () => {
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
+describe('straight party contest is missing', () => {
+  const ballotStyles = [{} as unknown as BallotStyle]; // Content irrelevant.
+  const straightPartyContest = {
+    type: 'straight-party',
+  } as unknown as Contest;
+  const otherContest = { type: 'candidate' } as unknown as Contest;
+
+  test('blocks a general election missing its straight party contest', async () => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, ballotStyles);
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, { STRAIGHT_PARTY_VOTING: true });
+    mockElectionInfo(api, 'general');
+    mockContests(api, [otherContest]);
+    mockPrecincts(api, []);
+    mockRegisteredVoterCounts(api, {});
+    mockPollingPlaces(api, []);
+
+    renderUi(api);
+
+    const soleHeading = await screen.findByRole('heading');
+    api.assertComplete();
+
+    expect(soleHeading).toHaveTextContent(
+      'Cannot generate straight party contest'
+    );
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  test('does not block when the straight party contest is present', async () => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, ballotStyles);
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, { STRAIGHT_PARTY_VOTING: true });
+    mockElectionInfo(api, 'general');
+    mockContests(api, [straightPartyContest, otherContest]);
+    mockPrecincts(api, []);
+    mockRegisteredVoterCounts(api, {});
+    mockPollingPlaces(api, []);
+
+    renderUi(api);
+
+    await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
+    api.assertComplete();
+  });
+
+  test('does not block a non-general election', async () => {
+    const api = createMockApiClient();
+    mockBallotStyles(api, ballotStyles);
+    mockFinalizedAt(api, null);
+    mockApprovedAt(api, null);
+    mockStateFeatures(api, { STRAIGHT_PARTY_VOTING: true });
+    mockElectionInfo(api, 'closed-primary');
+    mockContests(api, [otherContest]);
+    mockPrecincts(api, []);
+    mockRegisteredVoterCounts(api, {});
+    mockPollingPlaces(api, []);
+
+    renderUi(api);
+
+    await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
+    api.assertComplete();
+  });
+});
+
 test('ballots ready to finalize', async () => {
   const api = createMockApiClient();
   mockBallotStyles(api, [{} as unknown as BallotStyle]); // Content irrelevant.
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -74,6 +149,8 @@ test('start finalize and cancel', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -98,6 +175,8 @@ test('start finalize and confirm', async () => {
   mockFinalizedAt(api, null);
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -130,6 +209,8 @@ test.each([false, true])(
     mockStateFeatures(api, {
       POST_FINALIZE_CHANGE_FEE_WARNING: isPostFinalizeChangeFeeWarningEnabled,
     });
+    mockElectionInfo(api, 'general');
+    mockContests(api, []);
     mockPrecincts(api, []);
     mockRegisteredVoterCounts(api, {});
     mockPollingPlaces(api, []);
@@ -158,6 +239,8 @@ test('ballots finalized', async () => {
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -177,6 +260,8 @@ test('ballots approved', async () => {
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, new Date());
   mockStateFeatures(api, {});
+  mockElectionInfo(api, 'general');
+  mockContests(api, []);
   mockPrecincts(api, []);
   mockRegisteredVoterCounts(api, {});
   mockPollingPlaces(api, []);
@@ -202,6 +287,8 @@ describe('registered voter counts', () => {
     mockFinalizedAt(api, null);
     mockApprovedAt(api, null);
     mockStateFeatures(api, {});
+    mockElectionInfo(api, 'general');
+    mockContests(api, []);
     mockPrecincts(api, [
       { id: 'p1', name: 'Precinct 1', districtIds: [] },
       { id: 'p2', name: 'Precinct 2', districtIds: [] },
@@ -227,6 +314,8 @@ describe('registered voter counts', () => {
     mockFinalizedAt(api, null);
     mockApprovedAt(api, null);
     mockStateFeatures(api, {});
+    mockElectionInfo(api, 'general');
+    mockContests(api, []);
     mockPrecincts(api, [
       {
         id: 'p1',
@@ -264,6 +353,8 @@ describe('absentee polling place coverage', () => {
     mockFinalizedAt(api, null);
     mockApprovedAt(api, null);
     mockStateFeatures(api, features);
+    mockElectionInfo(api, 'general');
+    mockContests(api, []);
     mockPrecincts(api, precincts);
     mockRegisteredVoterCounts(api, {});
   }
@@ -343,6 +434,25 @@ function mockStateFeatures(
   features: Record<string, boolean>
 ) {
   api.getStateFeatures.expectCallWith({ electionId }).resolves(features);
+}
+
+function mockElectionInfo(api: MockApiClient, type: ElectionType) {
+  const electionInfo: ElectionInfo = {
+    electionId,
+    jurisdictionId: 'jurisdiction-1',
+    type,
+    date: new DateWithoutTime('2024-11-05'),
+    title: 'Test Election',
+    state: 'MI',
+    jurisdictionName: 'Test County',
+    seal: '',
+    languageCodes: [LanguageCode.ENGLISH],
+  };
+  api.getElectionInfo.expectCallWith({ electionId }).resolves(electionInfo);
+}
+
+function mockContests(api: MockApiClient, contests: Contest[]) {
+  api.listContests.expectCallWith({ electionId }).resolves(contests);
 }
 
 function mockPrecincts(api: MockApiClient, precincts: Precinct[]) {

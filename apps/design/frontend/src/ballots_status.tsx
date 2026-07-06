@@ -30,6 +30,8 @@ export function BallotsStatus(): React.ReactNode {
   const approvedAtQuery = api.getBallotsApprovedAt.useQuery(electionId);
   const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
   const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const listContestsQuery = api.listContests.useQuery(electionId);
   const listPrecinctsQuery = api.listPrecincts.useQuery(electionId);
   const getRegisteredVoterCountsQuery =
     api.getRegisteredVoterCounts.useQuery(electionId);
@@ -42,6 +44,8 @@ export function BallotsStatus(): React.ReactNode {
     !finalizedAtQuery.isSuccess ||
     !approvedAtQuery.isSuccess ||
     !getStateFeaturesQuery.isSuccess ||
+    !getElectionInfoQuery.isSuccess ||
+    !listContestsQuery.isSuccess ||
     !listPrecinctsQuery.isSuccess ||
     !getRegisteredVoterCountsQuery.isSuccess ||
     !listPollingPlacesQuery.isSuccess
@@ -59,6 +63,23 @@ export function BallotsStatus(): React.ReactNode {
       <Callout color="neutral" icon={<Icons.Info />} title="Ballots Incomplete">
         VxDesign will create ballot styles for your election once you have
         created districts, precincts, and contests.
+      </Callout>
+    );
+  }
+
+  if (
+    features.STRAIGHT_PARTY_VOTING &&
+    getElectionInfoQuery.data.type === 'general' &&
+    !listContestsQuery.data.some((contest) => contest.type === 'straight-party')
+  ) {
+    return (
+      <Callout
+        color="neutral"
+        icon={<Icons.Info />}
+        title="Cannot generate straight party contest"
+      >
+        To generate the straight party contest, the election must include a
+        district that covers every precinct.
       </Callout>
     );
   }
