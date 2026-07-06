@@ -54,7 +54,7 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,
-    hasMiCombinedPrimaryBallot: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',
@@ -67,7 +67,7 @@ export function makeElectionRecord(
   };
   return {
     election,
-    hasMiCombinedPrimaryBallot: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -84,7 +84,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     title: election.title,
     date: election.date,
     type: election.type,
-    hasMiCombinedPrimaryBallot: isOpenPrimary(election),
+    isMiCombinedBallotPrimary: isOpenPrimary(election),
     state: election.state,
     jurisdictionName: election.jurisdiction.name,
     seal: election.seal,

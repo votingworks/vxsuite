@@ -167,7 +167,7 @@ describe('generateBallotStyles()', () => {
     {
       name: 'general',
       electionType: 'general' as const,
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       contests: {
         [district1.id]: [generalContest1],
         [district2.id]: [generalContest2],
@@ -177,7 +177,7 @@ describe('generateBallotStyles()', () => {
     {
       name: 'open primary',
       electionType: 'primary' as const,
-      hasMiCombinedPrimaryBallot: true,
+      isMiCombinedBallotPrimary: true,
       contests: {
         [district1.id]: [partyAContest1, partyBContest1],
         [district2.id]: [partyAContest2, partyBContest2],
@@ -188,7 +188,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndOpenPrimaryCases)(
     '$name election, no splits, default rotation',
-    ({ electionType, hasMiCombinedPrimaryBallot, contests, parties }) => {
+    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -197,7 +197,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         parties,
         precincts: [
           precinct1District1,
@@ -250,7 +250,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndOpenPrimaryCases)(
     '$name election, split precincts, default rotation',
-    ({ electionType, hasMiCombinedPrimaryBallot, contests, parties }) => {
+    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -259,7 +259,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         parties,
         precincts: [
           precinct1District1,
@@ -314,7 +314,7 @@ describe('generateBallotStyles()', () => {
 
   test.each(generalAndOpenPrimaryCases)(
     '$name election, split precincts, rotation by precinct',
-    ({ electionType, hasMiCombinedPrimaryBallot, contests, parties }) => {
+    ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
         { languages: [ENGLISH] },
         { languages: [ENGLISH, SPANISH] },
@@ -327,7 +327,7 @@ describe('generateBallotStyles()', () => {
         ballotLanguageConfigs,
         contests: Object.values(contests).flat(),
         electionType,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         parties,
         precincts: [
           precinct1District1,
@@ -425,7 +425,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -563,7 +563,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -724,7 +724,7 @@ describe('generateBallotStyles()', () => {
         partyBContest2,
       ],
       electionType: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       parties: [partyA, partyB, partyC],
       precincts: [
         precinct1District1,
@@ -968,7 +968,7 @@ describe('generateBallotStyles()', () => {
       ballotLanguageConfigs,
       contests: [generalContest1, generalContest2],
       electionType: 'general',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       parties: [],
       precincts: [precinct1, precinct2, precinct3, precinct4],
       ballotTemplateId: 'VxDefaultBallot',

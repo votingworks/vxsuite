@@ -200,7 +200,7 @@ function BallotStylesTab(): JSX.Element | null {
   const parties = listPartiesQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
   const showPartyColumn =
-    electionInfo.type === 'primary' && !electionInfo.hasMiCombinedPrimaryBallot;
+    electionInfo.type === 'primary' && !electionInfo.isMiCombinedBallotPrimary;
 
   return (
     <TabPanel>

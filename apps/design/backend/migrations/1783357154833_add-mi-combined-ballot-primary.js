@@ -9,18 +9,18 @@ exports.shorthands =
  */
 exports.up = (pgm) => {
   pgm.addColumns('elections', {
-    has_mi_combined_primary_ballot: {
+    is_mi_combined_ballot_primary: {
       type: 'boolean',
       notNull: true,
       default: false,
     },
   });
-  // Open primaries (all parties on one "combined" ballot) were previously
-  // modeled as a distinct 'open-primary' election type. They are now modeled as
-  // an ordinary 'primary' election with this flag set; open-vs-closed is
-  // otherwise derived from whether ballot styles have a partyId.
+  // Combined-ballot primaries (all parties' contests on one ballot) were
+  // previously modeled as a distinct 'open-primary' election type. They are now
+  // modeled as an ordinary 'primary' election with this flag set; whether ballot
+  // styles have a partyId is otherwise derived from the ballot styles themselves.
   pgm.sql(
-    "UPDATE elections SET has_mi_combined_primary_ballot = TRUE WHERE type = 'open-primary'"
+    "UPDATE elections SET is_mi_combined_ballot_primary = TRUE WHERE type = 'open-primary'"
   );
   // Collapse the 'open-primary'/'closed-primary' election types back to
   // 'primary'.

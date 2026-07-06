@@ -441,7 +441,7 @@ function mockElectionInfo(api: MockApiClient, type: ElectionType) {
     electionId,
     jurisdictionId: 'jurisdiction-1',
     type,
-    hasMiCombinedPrimaryBallot: false,
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2024-11-05'),
     title: 'Test Election',
     state: 'MI',

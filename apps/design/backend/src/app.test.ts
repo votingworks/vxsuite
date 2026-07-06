@@ -496,7 +496,7 @@ test('create/list/delete elections', async () => {
     state: sliElection.state,
     seal: sliElection.seal,
     type: sliElection.type,
-    hasMiCombinedPrimaryBallot: false,
+    isMiCombinedBallotPrimary: false,
   });
   const election2Districts = await apiClient.listDistricts({
     electionId: sliElectionId,
@@ -577,7 +577,7 @@ test('create/list/delete elections', async () => {
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
       electionType: sliElection.type,
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       parties: election2Parties,
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
@@ -712,7 +712,7 @@ test('update election info', async () => {
       state: nonVxJurisdiction.stateCode,
       seal: '',
       type: 'general',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: DateWithoutTime.today(),
       languageCodes: [LanguageCode.ENGLISH],
     }
@@ -727,7 +727,7 @@ test('update election info', async () => {
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'primary',
-    hasMiCombinedPrimaryBallot: false,
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
@@ -741,7 +741,7 @@ test('update election info', async () => {
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -763,7 +763,7 @@ test('update election info', async () => {
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -776,7 +776,7 @@ test('update election info', async () => {
     state: '   NH   ',
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'primary',
-    hasMiCombinedPrimaryBallot: false,
+    isMiCombinedBallotPrimary: false,
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     signatureCaption: 'New Caption',
@@ -796,7 +796,7 @@ test('update election info', async () => {
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
       signatureCaption: 'New Caption',
@@ -818,7 +818,7 @@ test('update election info', async () => {
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
       signatureCaption: 'New Caption',
@@ -842,7 +842,7 @@ test('update election info', async () => {
       state: 'NH',
       seal: '\r\n<svg>updated seal</svg>\r\n',
       type: 'primary',
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
@@ -869,7 +869,7 @@ test('update election info', async () => {
       apiClient.updateElectionInfo({
         electionId,
         type: 'primary',
-        hasMiCombinedPrimaryBallot: false,
+        isMiCombinedBallotPrimary: false,
         title: '',
         jurisdictionName: '  ',
         state: '',
@@ -3279,7 +3279,7 @@ test('open primary elections', async () => {
   ).unsafeUnwrap();
   const openPrimaryInfo = await apiClient.getElectionInfo({ electionId });
   expect(openPrimaryInfo.type).toEqual('primary');
-  expect(openPrimaryInfo.hasMiCombinedPrimaryBallot).toEqual(true);
+  expect(openPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
 
   // Open primary elections generate one ballot style per precinct with no
   // partyId — voters see all parties' contests on a single ballot.
@@ -3319,7 +3319,7 @@ test('open primary elections', async () => {
     electionId: clonedElectionId,
   });
   expect(clonedInfo.type).toEqual('primary');
-  expect(clonedInfo.hasMiCombinedPrimaryBallot).toEqual(true);
+  expect(clonedInfo.isMiCombinedBallotPrimary).toEqual(true);
 
   // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
   await suppressingConsoleOutput(() =>
@@ -4250,7 +4250,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
       state: baseElectionDefinition.election.state,
       seal: baseElectionDefinition.election.seal,
       type: baseElectionDefinition.election.type,
-      hasMiCombinedPrimaryBallot: false,
+      isMiCombinedBallotPrimary: false,
       date: baseElectionDefinition.election.date,
       languageCodes: [LanguageCode.ENGLISH],
       signatureImage: 'test-signature-image',

@@ -96,7 +96,7 @@ import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
 export interface ElectionRecord {
   jurisdictionId: string;
   election: Election;
-  hasMiCombinedPrimaryBallot: boolean;
+  isMiCombinedBallotPrimary: boolean;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
@@ -904,7 +904,7 @@ export class Store {
             select
               jurisdiction_id as "jurisdictionId",
               type,
-              has_mi_combined_primary_ballot as "hasMiCombinedPrimaryBallot",
+              is_mi_combined_ballot_primary as "isMiCombinedBallotPrimary",
               title,
               date,
               jurisdiction_name as "jurisdictionName",
@@ -930,7 +930,7 @@ export class Store {
       ).rows[0] as {
         jurisdictionId: string;
         type: ElectionType;
-        hasMiCombinedPrimaryBallot: boolean;
+        isMiCombinedBallotPrimary: boolean;
         title: string;
         date: Date;
         jurisdictionName: string;
@@ -1179,7 +1179,7 @@ export class Store {
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
-        hasMiCombinedPrimaryBallot: electionRow.hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
         parties,
         precincts,
         ballotTemplateId: electionRow.ballotTemplateId,
@@ -1249,7 +1249,7 @@ export class Store {
 
       return {
         election,
-        hasMiCombinedPrimaryBallot: electionRow.hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
         systemSettings,
         ballotTemplateId: electionRow.ballotTemplateId,
         createdAt: electionRow.createdAt.toISOString(),
@@ -1374,19 +1374,19 @@ export class Store {
   async createElection({
     jurisdiction,
     election,
-    hasMiCombinedPrimaryBallot,
+    isMiCombinedBallotPrimary,
     ballotTemplateId,
     systemSettings,
     externalSource,
   }: {
     jurisdiction: Jurisdiction;
     election: Election;
-    hasMiCombinedPrimaryBallot: boolean;
+    isMiCombinedBallotPrimary: boolean;
     ballotTemplateId: BallotTemplateId;
     systemSettings: SystemSettings;
     externalSource?: ExternalElectionSource;
   }): Promise<void> {
-    if (hasMiCombinedPrimaryBallot) {
+    if (isMiCombinedBallotPrimary) {
       const features = getStateFeaturesConfig(jurisdiction);
       if (!features.OPEN_PRIMARIES) {
         throw new Error(
@@ -1410,7 +1410,7 @@ export class Store {
             id,
             jurisdiction_id,
             type,
-            has_mi_combined_primary_ballot,
+            is_mi_combined_ballot_primary,
             title,
             date,
             jurisdiction_name,
@@ -1446,7 +1446,7 @@ export class Store {
           election.id,
           jurisdictionId,
           election.type,
-          hasMiCombinedPrimaryBallot,
+          isMiCombinedBallotPrimary,
           electionTitle,
           election.date.toISOString(),
           election.jurisdiction.name,
@@ -1524,7 +1524,7 @@ export class Store {
           update elections
           set
             type = $1,
-            has_mi_combined_primary_ballot = $2,
+            is_mi_combined_ballot_primary = $2,
             title = $3,
             date = $4,
             jurisdiction_name = $5,
@@ -1535,7 +1535,7 @@ export class Store {
           where id = $10
         `,
           electionInfoUpdate.type,
-          electionInfoUpdate.hasMiCombinedPrimaryBallot,
+          electionInfoUpdate.isMiCombinedBallotPrimary,
           electionInfoUpdate.title,
           electionInfoUpdate.date.toISOString(),
           electionInfoUpdate.jurisdictionName,

@@ -430,7 +430,7 @@ export function BallotScreen(): JSX.Element | null {
           </div>
 
           {electionInfo.type === 'primary' &&
-            !electionInfo.hasMiCombinedPrimaryBallot && (
+            !electionInfo.isMiCombinedBallotPrimary && (
               <div>
                 <FieldName>Party</FieldName>
                 {find(parties, (p) => p.id === ballotStyle.partyId).fullName}

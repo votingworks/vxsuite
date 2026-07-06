@@ -43,7 +43,7 @@ export function generateBallotStyles(params: {
   contests: readonly Contest[];
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
-  hasMiCombinedPrimaryBallot: boolean;
+  isMiCombinedBallotPrimary: boolean;
   parties: Parties;
   precincts: Precinct[];
   ballotTemplateId: BallotTemplateId;
@@ -53,7 +53,7 @@ export function generateBallotStyles(params: {
     ballotLanguageConfigs,
     contests,
     electionType,
-    hasMiCombinedPrimaryBallot,
+    isMiCombinedBallotPrimary,
     parties,
     precincts,
     ballotTemplateId,
@@ -92,7 +92,7 @@ export function generateBallotStyles(params: {
     group.map(({ precinctId, splitId }) => ({ precinctId, splitId })),
   ]);
 
-  if (electionType === 'general' || hasMiCombinedPrimaryBallot) {
+  if (electionType === 'general' || isMiCombinedBallotPrimary) {
     return precinctsOrSplitsByDistricts.flatMap(
       ([districtIds, precinctsOrSplitIds], ballotStyleIndex) => {
         // Filter contests by district before generating orderings

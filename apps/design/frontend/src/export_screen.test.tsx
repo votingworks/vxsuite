@@ -176,7 +176,7 @@ test('omits test deck exports for open primary elections', async () => {
   apiMock.getElectionInfo.expectCallWith({ electionId }).resolves({
     ...electionInfoFromRecord(electionRecord),
     type: 'primary',
-    hasMiCombinedPrimaryBallot: true,
+    isMiCombinedBallotPrimary: true,
   });
 
   renderScreen();

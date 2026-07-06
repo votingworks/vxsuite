@@ -338,9 +338,9 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const { election, hasMiCombinedPrimaryBallot } = ((): {
+        const { election, isMiCombinedBallotPrimary } = ((): {
           election: Election;
-          hasMiCombinedPrimaryBallot: boolean;
+          isMiCombinedBallotPrimary: boolean;
         } => {
           switch (input.upload.format) {
             case 'vxf': {
@@ -377,7 +377,7 @@ export function buildApi(ctx: AppContext) {
               );
 
               return {
-                hasMiCombinedPrimaryBallot: isOpenPrimary(sourceElection),
+                isMiCombinedBallotPrimary: isOpenPrimary(sourceElection),
                 election: {
                   ...sourceElection,
                   id: input.newId,
@@ -409,7 +409,7 @@ export function buildApi(ctx: AppContext) {
               );
               return {
                 election: msElection,
-                hasMiCombinedPrimaryBallot: false,
+                isMiCombinedBallotPrimary: false,
               };
             }
 
@@ -423,7 +423,7 @@ export function buildApi(ctx: AppContext) {
         await store.createElection({
           jurisdiction,
           election,
-          hasMiCombinedPrimaryBallot,
+          isMiCombinedBallotPrimary,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
           externalSource:
             input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
@@ -445,7 +445,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction,
         election,
-        hasMiCombinedPrimaryBallot: false,
+        isMiCombinedBallotPrimary: false,
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
         systemSettings: defaultSystemSettings(jurisdiction),
       });
@@ -462,7 +462,7 @@ export function buildApi(ctx: AppContext) {
     ): Promise<ElectionId> {
       const {
         election: sourceElection,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         ballotTemplateId,
       } = await store.getElection(input.electionId);
 
@@ -487,7 +487,7 @@ export function buildApi(ctx: AppContext) {
       await store.createElection({
         jurisdiction: destJurisdiction,
         election,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         ballotTemplateId,
         systemSettings: defaultSystemSettings(destJurisdiction),
       });
@@ -499,7 +499,7 @@ export function buildApi(ctx: AppContext) {
     }): Promise<ElectionInfo> {
       const {
         election,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         ballotLanguageConfigs,
         jurisdictionId,
         externalSource,
@@ -510,7 +510,7 @@ export function buildApi(ctx: AppContext) {
         title: election.title,
         date: election.date,
         type: election.type,
-        hasMiCombinedPrimaryBallot,
+        isMiCombinedBallotPrimary,
         state: election.state,
         jurisdictionName: election.jurisdiction.name,
         seal: election.seal,
