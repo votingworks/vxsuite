@@ -64,7 +64,7 @@ function generateVotesForContests(
         break;
       }
       case 'yesno': {
-        votes[contest.id] = [contest.yesOption.id];
+        votes[contest.id] = [contest.options[0].id];
         break;
       }
       case 'straight-party': {
@@ -88,14 +88,15 @@ function rustBallotHashToHex(bytes: number[]): string {
 
 /**
  * Simplified vote representation for cross-language comparison: candidate
- * contests map to arrays of candidate IDs, yes/no to option ID strings.
+ * contests map to arrays of candidate IDs, yes/no and straight-party to arrays
+ * of option/party IDs.
  */
 type NormalizedVotes = Record<string, string | string[]>;
 
 /**
  * Normalizes Rust vote format for comparison. Rust uses discriminated
  * unions: `{ type: "candidate", value: [...] }` and
- * `{ type: "yesNo", value: "option-id" }`.
+ * `{ type: "yesNo", value: ["option-id"] }`.
  */
 function normalizeRustVotes(
   rustVotes: Record<string, RustContestVote>,
@@ -122,26 +123,21 @@ function normalizeRustVotes(
 
 /**
  * Normalizes TypeScript VotesDict for comparison: candidate votes become
- * arrays of candidate IDs, yes/no votes become the selected option ID string,
- * and straight-party votes become arrays of party IDs (matching the Rust side).
+ * arrays of candidate IDs, and yes/no and straight-party votes become arrays of
+ * option/party IDs (matching the Rust side).
  */
-function normalizeTsVotes(
-  votes: Record<string, unknown>,
-  contests: readonly Contest[]
-): NormalizedVotes {
+function normalizeTsVotes(votes: Record<string, unknown>): NormalizedVotes {
   const normalized: NormalizedVotes = {};
   for (const [contestId, vote] of Object.entries(votes)) {
     if (!vote) continue;
     const voteArr = vote as unknown[];
     if (voteArr.length === 0) continue;
 
-    const contest = contests.find((c) => c.id === contestId);
     const first = voteArr[0];
     if (typeof first === 'string') {
-      // straight-party votes are string[] and should stay as an array;
-      // yesno/measure votes are [optionId] and collapse to a bare string.
-      normalized[contestId] =
-        contest?.type === 'straight-party' ? (voteArr as string[]) : first;
+      // Both straight-party and yesno/measure votes are string[] and stay as
+      // arrays (matching the Rust side, which encodes one bit per option).
+      normalized[contestId] = voteArr as string[];
     } else if (typeof first === 'object' && first !== null && 'id' in first) {
       normalized[contestId] = voteArr.map((c) => (c as { id: string }).id);
     }
@@ -234,7 +230,7 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
             election,
             ballotStyle.id
           );
-          const tsVotes = normalizeTsVotes(votes, pageContests);
+          const tsVotes = normalizeTsVotes(votes);
           expect(rustVotes).toEqual(tsVotes);
         }
       }
@@ -284,8 +280,8 @@ function tsVotesToRustVotes(
         break;
       }
       case 'yesno': {
-        const optionId = (voteArr as YesNoVote)[0]!;
-        rustVotes[contest.id] = { type: 'yesNo', value: optionId };
+        const optionIds = voteArr as YesNoVote;
+        rustVotes[contest.id] = { type: 'yesNo', value: [...optionIds] };
         break;
       }
       case 'straight-party': {
@@ -373,8 +369,8 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
             pageContests.map((c) => c.id)
           );
 
-          const tsVotes = normalizeTsVotes(votes, pageContests);
-          const decodedVotes = normalizeTsVotes(decoded.votes, pageContests);
+          const tsVotes = normalizeTsVotes(votes);
+          const decodedVotes = normalizeTsVotes(decoded.votes);
           expect(decodedVotes).toEqual(tsVotes);
         }
       }

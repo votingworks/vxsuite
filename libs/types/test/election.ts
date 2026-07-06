@@ -48,14 +48,16 @@ export const electionData = `
       "districtId": "D",
       "title": "TITLE",
       "description": "DESCRIPTION",
-      "yesOption": {
-        "id": "YNC-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "YNC-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "YNC-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "YNC-option-no",
+          "label": "No"
+        }
+      ]
     }
   ],
   "jurisdiction": {
@@ -366,14 +368,16 @@ const electionTwoPartyPrimaryData = `
       "type": "yesno",
       "title": "Ballot Measure 3",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
-      "yesOption": {
-        "id": "ban-fishing",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "allow-fishing",
-        "label": "NO"
-      }
+      "options": [
+        {
+          "id": "ban-fishing",
+          "label": "YES"
+        },
+        {
+          "id": "allow-fishing",
+          "label": "NO"
+        }
+      ]
     }
   ],
   "precincts": [

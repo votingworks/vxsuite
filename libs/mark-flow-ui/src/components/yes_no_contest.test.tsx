@@ -75,7 +75,7 @@ test('changing votes', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={updateVote}
     />
   );
@@ -108,7 +108,7 @@ test('audio cue for vote', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={updateVote}
     />
   );
@@ -146,7 +146,7 @@ test('can focus and click scroll buttons with PAT device', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={vi.fn()}
     />
   );
@@ -166,7 +166,7 @@ test('scroll button focus is disabled when no PAT device is connected', () => {
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
-      vote={[contest.yesOption.id]}
+      vote={[contest.options[0].id]}
       updateVote={vi.fn()}
     />
   );
@@ -190,6 +190,57 @@ test('shows review mode navigation instructions when isReviewMode is true', () =
   );
 
   screen.getByText(/return to the review screen, use the right button/i);
+});
+
+test('shows all 3 option buttons when contest has 3 options', () => {
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      updateVote={vi.fn()}
+    />
+  );
+
+  const contestChoices = screen.getByTestId('contest-choices');
+  within(contestChoices).getByText('YES');
+  within(contestChoices).getByText('NO');
+  within(contestChoices).getByText('REGULATE');
+});
+
+test('clicking REGULATE selects the regulate-fishing option', () => {
+  const updateVote = vi.fn();
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      updateVote={updateVote}
+    />
+  );
+
+  const contestChoices = screen.getByTestId('contest-choices');
+  userEvent.click(
+    within(contestChoices).getByText('REGULATE').closest('button')!
+  );
+  expect(updateVote).toHaveBeenCalledWith(contest.id, ['regulate-fishing']);
+});
+
+test('switching from YES to REGULATE shows overvote alert', () => {
+  const updateVote = vi.fn();
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={[contest.options[0].id]}
+      updateVote={updateVote}
+    />
+  );
+
+  const contestChoices = screen.getByTestId('contest-choices');
+  userEvent.click(
+    within(contestChoices).getByText('REGULATE').closest('button')!
+  );
+  within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
+  userEvent.click(screen.getByText('Continue'));
 });
 
 test('renders rich text', () => {

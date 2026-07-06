@@ -996,6 +996,13 @@ function draftContestFromContest(contest: Contest): DraftContest {
         candidates: contest.candidates.map(draftCandidateFromCandidate),
       };
     case 'yesno':
+      return {
+        ...contest,
+        yesOption: contest.options[0],
+        noOption: contest.options[1],
+        additionalOptions:
+          contest.options.length > 2 ? contest.options.slice(2) : undefined,
+      };
     case 'straight-party':
       return { ...contest };
     default: {
@@ -1023,7 +1030,14 @@ function tryContestFromDraftContest(
       });
 
     case 'yesno':
-      return safeParse(YesNoContestSchema, draftContest);
+      return safeParse(YesNoContestSchema, {
+        ...draftContest,
+        options: [
+          draftContest.yesOption,
+          draftContest.noOption,
+          ...(draftContest.additionalOptions ?? []),
+        ],
+      });
 
     default: {
       /* istanbul ignore next */

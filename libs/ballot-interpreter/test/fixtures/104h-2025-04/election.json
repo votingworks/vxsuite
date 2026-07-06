@@ -402,14 +402,16 @@
       "title": "Proposition One (1)",
       "type": "yesno",
       "description": "<p>This is the description of Proposition 1. The quick brown fox jumps over the lazy dog.</p>",
-      "yesOption": {
-        "id": "11a0rk2efv1l",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "ardy4snjybl0",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "11a0rk2efv1l",
+          "label": "Yes"
+        },
+        {
+          "id": "ardy4snjybl0",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "klhpdgrdszt0",
@@ -417,14 +419,16 @@
       "title": "Proposition Two (2)",
       "type": "yesno",
       "description": "<p>This is Proposition 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>",
-      "yesOption": {
-        "id": "wkogyhxjb778",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "altkrzty6a94",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "wkogyhxjb778",
+          "label": "Yes"
+        },
+        {
+          "id": "altkrzty6a94",
+          "label": "No"
+        }
+      ]
     }
   ],
   "jurisdiction": {

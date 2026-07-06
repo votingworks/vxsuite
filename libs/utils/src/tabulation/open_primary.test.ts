@@ -99,7 +99,7 @@ describe('votedPartyIds', () => {
     expect(votedPartyIds(openPrimary, {})).toEqual([]);
     expect(
       votedPartyIds(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual([]);
     expect(
@@ -175,7 +175,7 @@ describe('hasCrossoverVote', () => {
   test('false for open primary nonpartisan-only votes', () => {
     expect(
       hasCrossoverVote(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual(false);
   });
@@ -197,7 +197,7 @@ describe('inferPartyFromVotes', () => {
     );
     expect(
       inferPartyFromVotes(openPrimary, {
-        [nonpartisanContest.id]: [nonpartisanContest.yesOption.id],
+        [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual(Tabulation.NO_PARTY_ID);
   });

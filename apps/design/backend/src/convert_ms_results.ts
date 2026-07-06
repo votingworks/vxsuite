@@ -266,11 +266,7 @@ export function convertMsResults(
           }
           case 'yesno': {
             const option = assertDefined(
-              row.selectionId === contest.yesOption.id
-                ? contest.yesOption
-                : row.selectionId === contest.noOption.id
-                ? contest.noOption
-                : undefined
+              contest.options.find((o) => o.id === row.selectionId)
             );
             return {
               candidateId: extractSemsId(option.id),

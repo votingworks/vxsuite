@@ -153,9 +153,9 @@ function prettyPrintInterpretation({
             : `Write-In #${gridPosition.writeInIndex + 1}`
           : contest.type === 'yesno'
           ? gridPosition.type === 'option' &&
-            gridPosition.optionId === contest.yesOption.id
-            ? contest.yesOption.label
-            : contest.noOption.label
+            gridPosition.optionId === contest.options[0].id
+            ? contest.options[0].label
+            : contest.options[1].label
           : 'Unknown';
 
       stdout.write(

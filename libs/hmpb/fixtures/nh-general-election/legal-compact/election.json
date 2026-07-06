@@ -4419,14 +4419,16 @@
       "title": "Retain Robert Demergue as Chief Justice?",
       "type": "yesno",
       "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
-      "yesOption": {
-        "id": "judicial-robert-demergue-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "judicial-robert-demergue-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "judicial-robert-demergue-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "judicial-robert-demergue-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "judicial-elmer-hull",
@@ -4434,36 +4436,37 @@
       "title": "Retain Elmer Hull as Associate Justice?",
       "type": "yesno",
       "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
-      "yesOption": {
-        "id": "judicial-elmer-hull-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "judicial-elmer-hull-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "judicial-elmer-hull-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "judicial-elmer-hull-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "question-a",
       "districtId": "district-1",
       "title": "Question A: Recovery of Property Damages",
-      "type": "candidate",
-      "seats": 1,
-      "candidates": [
+      "type": "yesno",
+      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
+      "options": [
         {
           "id": "question-a-option-yes",
-          "name": "Yes"
+          "label": "Yes"
         },
         {
           "id": "question-a-option-no",
-          "name": "No"
+          "label": "No"
         },
         {
           "id": "third-option",
-          "name": "Third Option"
+          "label": "Third Option"
         }
-      ],
-      "allowWriteIns": false
+      ]
     },
     {
       "id": "question-b",
@@ -4471,14 +4474,16 @@
       "title": "Question B: Separation of Powers",
       "type": "yesno",
       "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.",
-      "yesOption": {
-        "id": "question-b-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "question-b-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "question-b-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "question-b-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "question-c",
@@ -4486,14 +4491,16 @@
       "title": "Question C: Limits to Damages for Non-Economic Loss",
       "type": "yesno",
       "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?",
-      "yesOption": {
-        "id": "question-c-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "question-c-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "question-c-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "question-c-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "proposition-1",
@@ -4501,14 +4508,16 @@
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
       "type": "yesno",
       "description": "<p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul>",
-      "yesOption": {
-        "id": "proposition-1-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "proposition-1-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "proposition-1-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "proposition-1-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "measure-101",
@@ -4516,14 +4525,16 @@
       "title": "Measure 101: College District",
       "type": "yesno",
       "description": "<p>To upgrade educational facilities at Diablo Valley, and Franklin, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?</p><table style=\"min-width: 0px\"><colgroup><col><col></colgroup><tbody><tr><th colspan=\"1\" rowspan=\"1\"><p>Diablo Valley</p></th><th colspan=\"1\" rowspan=\"1\"><p>Franklin</p></th></tr><tr><td colspan=\"1\" rowspan=\"1\"><p>health</p></td><td colspan=\"1\" rowspan=\"1\"><p><strong>science</strong></p></td></tr><tr><td colspan=\"1\" rowspan=\"1\"><p><u>medical</u></p></td><td colspan=\"1\" rowspan=\"1\"><p>technology</p></td></tr></tbody></table><img src=\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCA1MCA1MCIgaGVpZ2h0PSI1MCIgd2lkdGg9IjUwIj4KPHBhdGggZmlsbD0iYmxhY2siIGQ9Ik0zMS4yNSA5LjM3NUgxOC43NUwxNC4xMjExIDIuNDMxNjRDMTMuNDI3NyAxLjM4NjcyIDE0LjE2OTkgMCAxNS40MTk5IDBIMzQuNTgwMUMzNS44MzAxIDAgMzYuNTcyMyAxLjM4NjcyIDM1Ljg3ODkgMi40MzE2NEwzMS4yNSA5LjM3NVpNMTguNzUgMTIuNUgzMS4yNUMzMS42MjExIDEyLjc0NDEgMzIuMDQxIDEzLjAxNzYgMzIuNTE5NSAxMy4zMjAzQzM4LjA1NjYgMTYuODY1MiA1MCAyNC41MDIgNTAgNDAuNjI1QzUwIDQ1LjgwMDggNDUuODAwOCA1MCA0MC42MjUgNTBIOS4zNzVDNC4xOTkyMiA1MCAwIDQ1LjgwMDggMCA0MC42MjVDMCAyNC41MDIgMTEuOTQzNCAxNi44NjUyIDE3LjQ4MDUgMTMuMzIwM0MxNy45NDkyIDEzLjAxNzYgMTguMzc4OSAxMi43NDQxIDE4Ljc1IDEyLjVaTTI2Ljk1MzEgMjEuMDkzOEMyNi45NTMxIDIwLjAxOTUgMjYuMDc0MiAxOS4xNDA2IDI1IDE5LjE0MDZDMjMuOTI1OCAxOS4xNDA2IDIzLjA0NjkgMjAuMDE5NSAyMy4wNDY5IDIxLjA5MzhWMjIuNDYwOUMyMi4zMDQ3IDIyLjYyNyAyMS41NjI1IDIyLjg5MDYgMjAuODc4OSAyMy4yOTFDMTkuNTIxNSAyNC4xMDE2IDE4LjM0OTYgMjUuNTE3NiAxOC4zNTk0IDI3LjU3ODFDMTguMzY5MSAyOS41NjA1IDE5LjUzMTIgMzAuODEwNSAyMC43NzE1IDMxLjU1MjdDMjEuODQ1NyAzMi4xOTczIDIzLjE4MzYgMzIuNjA3NCAyNC4yNDggMzIuOTE5OUwyNC40MTQxIDMyLjk2ODhDMjUuNjQ0NSAzMy4zMzk4IDI2LjU0MyAzMy42MzI4IDI3LjE0ODQgMzQuMDEzN0MyNy42NDY1IDM0LjMyNjIgMjcuNzE0OCAzNC41NDEgMjcuNzI0NiAzNC44MTQ1QzI3LjczNDQgMzUuMzAyNyAyNy41NDg4IDM1LjU5NTcgMjcuMTQ4NCAzNS44Mzk4QzI2LjY2MDIgMzYuMTQyNiAyNS44ODg3IDM2LjMyODEgMjUuMDU4NiAzNi4yOTg4QzIzLjk3NDYgMzYuMjU5OCAyMi45NTkgMzUuOTE4IDIxLjYzMDkgMzUuNDY4OEMyMS40MDYzIDM1LjM5MDYgMjEuMTcxOSAzNS4zMTI1IDIwLjkyNzcgMzUuMjM0NEMxOS45MDIzIDM0Ljg5MjYgMTguNzk4OCAzNS40NDkyIDE4LjQ1NyAzNi40NjQ4QzE4LjExNTIgMzcuNDgwNSAxOC42NzE5IDM4LjU5MzggMTkuNjg3NSAzOC45MzU1QzE5Ljg3MyAzOC45OTQxIDIwLjA3ODEgMzkuMDYyNSAyMC4yODMyIDM5LjE0MDZDMjEuMDkzNyAzOS40MjM4IDIyLjAzMTIgMzkuNzQ2MSAyMy4wMzcxIDM5Ljk2MDlWNDEuMzg2N0MyMy4wMzcxIDQyLjQ2MDkgMjMuOTE2IDQzLjMzOTggMjQuOTkwMiA0My4zMzk4QzI2LjA2NDUgNDMuMzM5OCAyNi45NDM0IDQyLjQ2MDkgMjYuOTQzNCA0MS4zODY3VjQwLjAzOTFDMjcuNzI0NiAzOS44NzMgMjguNTA1OSAzOS41OTk2IDI5LjIwOSAzOS4xNjAyQzMwLjYwNTUgMzguMjkxIDMxLjY2MDIgMzYuODA2NiAzMS42MzA5IDM0Ljc2NTZDMzEuNjAxNiAzMi43ODMyIDMwLjQ4ODMgMzEuNTAzOSAyOS4yMjg1IDMwLjcwMzFDMjguMTA1NSAzMCAyNi42OTkyIDI5LjU3MDMgMjUuNjA1NSAyOS4yMzgzTDI1LjUzNzEgMjkuMjE4OEMyNC4yODcxIDI4LjgzNzkgMjMuMzk4NCAyOC41NjQ1IDIyLjc3MzQgMjguMTkzNEMyMi4yNjU2IDI3Ljg5MDYgMjIuMjU1OSAyNy43MTQ4IDIyLjI1NTkgMjcuNTM5MUMyMi4yNTU5IDI3LjE3NzcgMjIuMzkyNiAyNi45MDQzIDIyLjg2MTMgMjYuNjMwOUMyMy4zODg3IDI2LjMxODQgMjQuMTg5NSAyNi4xMzI4IDI0Ljk2MDkgMjYuMTQyNkMyNS44OTg0IDI2LjE1MjMgMjYuOTMzNiAyNi4zNTc0IDI4LjAwNzggMjYuNjUwNEMyOS4wNTI3IDI2LjkyMzggMzAuMTE3MiAyNi4zMDg2IDMwLjQwMDQgMjUuMjYzN0MzMC42ODM2IDI0LjIxODggMzAuMDU4NiAyMy4xNTQzIDI5LjAxMzcgMjIuODcxMUMyOC4zNzg5IDIyLjcwNTEgMjcuNjc1OCAyMi41MzkxIDI2Ljk1MzEgMjIuNDEyMVYyMS4wNTQ3VjIxLjA5MzhaIj48L3BhdGg+Cjwvc3ZnPgo=\">",
-      "yesOption": {
-        "id": "measure-101-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "measure-101-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "measure-101-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "measure-101-option-no",
+          "label": "No"
+        }
+      ]
     },
     {
       "id": "102",
@@ -4531,14 +4542,16 @@
       "title": "Measure 102: Vehicle Abatement Program",
       "type": "yesno",
       "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
-      "yesOption": {
-        "id": "measure-102-option-yes",
-        "label": "Yes"
-      },
-      "noOption": {
-        "id": "measure-102-option-no",
-        "label": "No"
-      }
+      "options": [
+        {
+          "id": "measure-102-option-yes",
+          "label": "Yes"
+        },
+        {
+          "id": "measure-102-option-no",
+          "label": "No"
+        }
+      ]
     }
   ],
   "jurisdiction": {

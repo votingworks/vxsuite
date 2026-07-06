@@ -249,28 +249,19 @@ export function ContestResultsTable({
     case 'yesno': {
       assert(scannedContestResults.contestType === 'yesno');
       assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
-      const yesKey = `${contest.id}-yes`;
-      contestTableRows.push(
-        <ContestOptionRow
-          key={yesKey}
-          testId={yesKey}
-          optionLabel={contest.yesOption.label}
-          scannedTally={scannedContestResults.yesTally}
-          manualTally={manualContestResults?.yesTally ?? 0}
-          showManualTally={hasManualResults}
-        />
-      );
-      const noKey = `${contest.id}-no`;
-      contestTableRows.push(
-        <ContestOptionRow
-          key={noKey}
-          testId={noKey}
-          optionLabel={contest.noOption.label}
-          scannedTally={scannedContestResults.noTally}
-          manualTally={manualContestResults?.noTally ?? 0}
-          showManualTally={hasManualResults}
-        />
-      );
+      for (const option of contest.options) {
+        const key = `${contest.id}-${option.id}`;
+        contestTableRows.push(
+          <ContestOptionRow
+            key={key}
+            testId={key}
+            optionLabel={option.label}
+            scannedTally={scannedContestResults.tallies[option.id] ?? 0}
+            manualTally={manualContestResults?.tallies[option.id] ?? 0}
+            showManualTally={hasManualResults}
+          />
+        );
+      }
       break;
     }
     case 'straight-party': {

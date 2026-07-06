@@ -163,6 +163,7 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "new-zoo-neither-approved": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A",
     "new-zoo-safari": "FOR Initiative No. 12",
     "new-zoo-traditional": "FOR Alternative Measure No. 12 A",
+    "regulate-fishing": "REGULATE",
   },
   "contestTerm": {
     "aquarium-council-fish": "For three years",

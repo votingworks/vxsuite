@@ -28,16 +28,17 @@ import { deriveStraightPartyVotes } from './straight_party';
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
 ): Tabulation.YesNoContestResults {
+  const tallies: Record<ContestOptionId, number> = {};
+  for (const option of contest.options) {
+    tallies[option.id] = 0;
+  }
   return {
     contestId: contest.id,
     contestType: 'yesno',
-    yesOptionId: contest.yesOption.id,
-    noOptionId: contest.noOption.id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
-    yesTally: 0,
-    noTally: 0,
+    tallies,
   };
 }
 
@@ -246,11 +247,8 @@ function addCastVoteRecordToElectionResult(
 
       case 'yesno': {
         for (const optionId of optionIds) {
-          if (optionId === contestResult.yesOptionId) {
-            contestResult.yesTally += 1;
-          } else if (optionId === contestResult.noOptionId) {
-            contestResult.noTally += 1;
-          }
+          contestResult.tallies[optionId] =
+            assertDefined(contestResult.tallies[optionId]) + 1;
         }
         break;
       }
@@ -543,8 +541,10 @@ export function combineYesNoContestResults({
     combinedContestResults.overvotes += contestResults.overvotes;
     combinedContestResults.undervotes += contestResults.undervotes;
     combinedContestResults.ballots += contestResults.ballots;
-    combinedContestResults.yesTally += contestResults.yesTally;
-    combinedContestResults.noTally += contestResults.noTally;
+    for (const [optionId, tally] of Object.entries(contestResults.tallies)) {
+      combinedContestResults.tallies[optionId] =
+        assertDefined(combinedContestResults.tallies[optionId]) + tally;
+    }
   }
   return combinedContestResults;
 }
@@ -828,6 +828,7 @@ export type ContestResultsSummary = {
       type: 'yesno';
       yesTally?: number;
       noTally?: number;
+      optionTallies?: Record<ContestOptionId, number>;
     }
   | {
       type: 'straight-party';
@@ -854,8 +855,16 @@ export function buildContestResultsFixture({
     case 'yesno': {
       assert(contestResultsSummary.type === 'yesno');
       assert(contestResults.contestType === 'yesno');
-      contestResults.yesTally = contestResultsSummary.yesTally ?? 0;
-      contestResults.noTally = contestResultsSummary.noTally ?? 0;
+      const yesOption = assertDefined(contest.options[0]);
+      const noOption = assertDefined(contest.options[1]);
+      contestResults.tallies[yesOption.id] =
+        contestResultsSummary.yesTally ?? 0;
+      contestResults.tallies[noOption.id] = contestResultsSummary.noTally ?? 0;
+      for (const [optionId, tally] of Object.entries(
+        contestResultsSummary.optionTallies ?? {}
+      )) {
+        contestResults.tallies[optionId] = tally;
+      }
       break;
     }
     case 'candidate': {
@@ -1032,7 +1041,7 @@ function sumTallies(contestResults: Tabulation.ContestResults): number {
         ({ tally }) => tally
       );
     case 'yesno':
-      return contestResults.yesTally + contestResults.noTally;
+      return iter(Object.values(contestResults.tallies)).sum();
     case 'straight-party':
       return iter(Object.values(contestResults.tallies)).sum();
     default:

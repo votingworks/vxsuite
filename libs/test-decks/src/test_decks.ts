@@ -57,7 +57,7 @@ export function numBallotPositions(contest: Contest): number {
       contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)
     );
   }
-  return 2;
+  return contest.options.length;
 }
 
 export function generateTestDeckWriteIn(index: number): WriteInCandidate {
@@ -121,10 +121,11 @@ export function generateTestDeckBallots({
         const votes: VotesDict = {};
         for (const contest of contests) {
           if (contest.type === 'yesno') {
-            votes[contest.id] =
-              ballotNum % 2 === 0
-                ? [contest.yesOption.id]
-                : [contest.noOption.id];
+            // Cycle through all options so every option gets a ballot
+            const optionIndex = ballotNum % contest.options.length;
+            votes[contest.id] = [
+              assertDefined(contest.options[optionIndex]).id,
+            ];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
@@ -173,8 +174,8 @@ export function generateTestDeckBallots({
                 [overvoteContest.id]:
                   overvoteContest.type === 'yesno'
                     ? [
-                        overvoteContest.yesOption.id,
-                        overvoteContest.noOption.id,
+                        overvoteContest.options[0].id,
+                        overvoteContest.options[1].id,
                       ]
                     : iter(overvoteContest.candidates)
                         .take(overvoteContest.seats + 1)

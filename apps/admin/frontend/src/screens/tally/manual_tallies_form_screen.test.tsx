@@ -218,12 +218,14 @@ test('entering initial ballot count and contest tallies', async () => {
       }
     } else {
       assert(contestResults.contestType === 'yesno');
-      const yesInput = screen.getByLabelText(contest.yesOption.label);
-      expect(yesInput).toHaveValue('');
-      userEvent.type(yesInput, contestResults.yesTally.toString());
-      const noInput = screen.getByLabelText(contest.noOption.label);
-      expect(noInput).toHaveValue('');
-      userEvent.type(noInput, contestResults.noTally.toString());
+      for (const option of contest.options) {
+        const optionInput = screen.getByLabelText(option.label);
+        expect(optionInput).toHaveValue('');
+        userEvent.type(
+          optionInput,
+          (contestResults.tallies[option.id] ?? 0).toString()
+        );
+      }
     }
     screen.getByText('Entered tallies are valid');
 

@@ -261,7 +261,7 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
           .toArray(),
       ];
     case 'yesno':
-      return [contest.yesOption.id, contest.noOption.id];
+      return contest.options.map((o) => o.id);
     case 'straight-party':
       return [...contest.optionIds];
     default:

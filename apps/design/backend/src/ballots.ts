@@ -8,7 +8,6 @@ import {
   PollingPlace,
   pollingPlacesGenerateFromPrecincts,
   UiStringsPackage,
-  YesNoContest,
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
@@ -100,25 +99,12 @@ export function formatElectionForExport(
     )
   );
 
-  // If a ballot measure contest has additional options, we transform it into a
-  // candidate contest before export, which omits the description field. So we
-  // add the description field to additionalHashInput.
-  const contestDescriptionsForContestsWithAdditionalOptions =
-    Object.fromEntries(
-      election.contests
-        .filter(
-          (contest): contest is YesNoContest =>
-            contest.type === 'yesno' &&
-            contest.additionalOptions !== undefined &&
-            contest.additionalOptions.length > 0
-        )
-        .map((contest) => [contest.id, contest.description])
-    );
-
+  // The v4.0 conversion of multi-option yesno contests to candidate contests
+  // (which drops the description) is handled in `convertLatestElectionToV4p0`,
+  // including preserving the dropped descriptions in additionalHashInput.
   const additionalHashInput = {
     precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
     precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
-    contestDescriptionsForContestsWithAdditionalOptions,
   } as const;
 
   return {

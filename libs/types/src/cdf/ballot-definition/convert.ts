@@ -867,24 +867,14 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ElectionStringKey.CONTEST_DESCRIPTION,
                   contest.id,
                 ]),
-                ContestOption: [
-                  {
-                    '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.yesOption.id,
-                    Selection: text(contest.yesOption.label, [
-                      ElectionStringKey.CONTEST_OPTION_LABEL,
-                      contest.yesOption.id,
-                    ]),
-                  },
-                  {
-                    '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.noOption.id,
-                    Selection: text(contest.noOption.label, [
-                      ElectionStringKey.CONTEST_OPTION_LABEL,
-                      contest.noOption.id,
-                    ]),
-                  },
-                ],
+                ContestOption: contest.options.map((option) => ({
+                  '@type': 'BallotDefinition.BallotMeasureOption',
+                  '@id': option.id,
+                  Selection: text(option.label, [
+                    ElectionStringKey.CONTEST_OPTION_LABEL,
+                    option.id,
+                  ]),
+                })),
               };
 
             default: {
@@ -1296,22 +1286,17 @@ export function convertCdfBallotDefinitionToVxfElection(
           };
         }
         case 'BallotDefinition.BallotMeasureContest': {
-          // We use option order to determine the "yes" and "no" options.
-          // There's no real semantic difference in the eyes of the voting
-          // system.
-          const [yesOption, noOption] = contest.ContestOption;
+          // CDF option order is the display order; the first two options
+          // are conventionally "yes" and "no".
+          const options = contest.ContestOption.map((option) => ({
+            id: option['@id'],
+            label: englishText(option.Selection),
+          })) as [Vxf.YesNoOption, Vxf.YesNoOption, ...Vxf.YesNoOption[]];
           return {
             ...contestBase,
             type: 'yesno',
             description: englishText(contest.FullText),
-            yesOption: {
-              id: yesOption['@id'],
-              label: englishText(yesOption.Selection),
-            },
-            noOption: {
-              id: noOption['@id'],
-              label: englishText(noOption.Selection),
-            },
+            options,
           };
         }
 

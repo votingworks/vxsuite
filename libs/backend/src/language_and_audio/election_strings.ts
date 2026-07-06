@@ -152,22 +152,12 @@ const electionStringExtractorFns: Record<
   [ElectionStringKey.CONTEST_OPTION_LABEL](election) {
     return election.contests
       .filter((contest): contest is YesNoContest => contest.type === 'yesno')
-      .flatMap((contest): ElectionString[] => [
-        {
-          stringKey: [
-            ElectionStringKey.CONTEST_OPTION_LABEL,
-            contest.yesOption.id,
-          ],
-          stringInEnglish: contest.yesOption.label,
-        },
-        {
-          stringKey: [
-            ElectionStringKey.CONTEST_OPTION_LABEL,
-            contest.noOption.id,
-          ],
-          stringInEnglish: contest.noOption.label,
-        },
-      ]);
+      .flatMap((contest): ElectionString[] =>
+        contest.options.map((option) => ({
+          stringKey: [ElectionStringKey.CONTEST_OPTION_LABEL, option.id],
+          stringInEnglish: option.label,
+        }))
+      );
   },
   [ElectionStringKey.CONTEST_TERM](election) {
     return election.contests

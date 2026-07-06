@@ -265,14 +265,20 @@ export function* generateCvrs({
                   getCandidateOptionsForContest(contest)
                 );
                 break;
-              case 'yesno':
+              case 'yesno': {
+                // One vote per option, one overvote (first two options), one undervote
+                const singleOptionVotes = contest.options.map((o) => [o.id]);
+                const overvote = [
+                  assertDefined(contest.options[0]).id,
+                  assertDefined(contest.options[1]).id,
+                ];
                 optionsForEachContest.set(contest.id, [
-                  [contest.yesOption.id],
-                  [contest.noOption.id],
-                  [contest.yesOption.id, contest.noOption.id],
+                  ...singleOptionVotes,
+                  overvote,
                   [],
                 ]);
                 break;
+              }
               // istanbul ignore next
               default:
                 throwIllegalValue(contest);

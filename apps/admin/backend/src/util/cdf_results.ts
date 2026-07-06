@@ -8,7 +8,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { MachineConfig, WriteInCandidateRecord } from '../types';
 
 const {
@@ -19,11 +19,9 @@ const {
   getCountyId,
   getDistrictId,
   getDistrictIdFromContest,
-  getNoOptionId,
   getPartyId,
   getPartyIdForCandidate,
   getStateId,
-  getYesOptionId,
 } = NcName;
 
 function getVendorApplicationId(machineConfig: MachineConfig): string {
@@ -105,34 +103,19 @@ function buildBallotMeasureContest(
     '@id': getContestId(contest),
     Name: contest.title,
     ElectionDistrictId: getDistrictIdFromContest(contest),
-    ContestSelection: [
-      {
-        '@type': 'ElectionResults.BallotMeasureSelection',
-        '@id': getYesOptionId(contest),
-        Selection: asInternationalizedText(contest.yesOption.label),
-        VoteCounts: [
-          {
-            '@type': 'ElectionResults.VoteCounts',
-            Count: results.yesTally,
-            GpUnitId: getDistrictIdFromContest(contest),
-            Type: ResultsReporting.CountItemType.Total,
-          },
-        ],
-      },
-      {
-        '@type': 'ElectionResults.BallotMeasureSelection',
-        '@id': getNoOptionId(contest),
-        Selection: asInternationalizedText(contest.noOption.label),
-        VoteCounts: [
-          {
-            '@type': 'ElectionResults.VoteCounts',
-            Count: results.noTally,
-            GpUnitId: getDistrictIdFromContest(contest),
-            Type: ResultsReporting.CountItemType.Total,
-          },
-        ],
-      },
-    ],
+    ContestSelection: contest.options.map((option) => ({
+      '@type': 'ElectionResults.BallotMeasureSelection' as const,
+      '@id': asNcName(option.id),
+      Selection: asInternationalizedText(option.label),
+      VoteCounts: [
+        {
+          '@type': 'ElectionResults.VoteCounts' as const,
+          Count: assertDefined(results.tallies[option.id]),
+          GpUnitId: getDistrictIdFromContest(contest),
+          Type: ResultsReporting.CountItemType.Total,
+        },
+      ],
+    })),
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',

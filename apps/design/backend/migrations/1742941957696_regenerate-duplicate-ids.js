@@ -65,17 +65,21 @@ function regenerateElectionIds(election, precincts) {
               partyIds: candidate.partyIds?.map(replaceId),
             })),
           };
-        case 'yesno':
+        case 'yesno': {
+          // Historical backfill: this migration ran when yesno contests used
+          // `yesOption`/`noOption` rather than the current `options` array.
+          const yesNoContest = /** @type {any} */ (contest);
           return {
             yesOption: {
-              ...contest.yesOption,
-              id: replaceId(contest.yesOption.id),
+              ...yesNoContest.yesOption,
+              id: replaceId(yesNoContest.yesOption.id),
             },
             noOption: {
-              ...contest.noOption,
-              id: replaceId(contest.noOption.id),
+              ...yesNoContest.noOption,
+              id: replaceId(yesNoContest.noOption.id),
             },
           };
+        }
         default: {
           throw new Error(`Unknown contest type: ${contest}`);
         }
@@ -133,7 +137,13 @@ exports.up = async (pgm) => {
                 cand.id,
                 ...(cand.partyIds ?? []),
               ])
-            : [c.yesOption.id, c.noOption.id]),
+            : // Historical backfill: this migration ran when yesno contests
+              // used `yesOption`/`noOption` rather than the current `options`
+              // array.
+              [
+                /** @type {any} */ (c).yesOption.id,
+                /** @type {any} */ (c).noOption.id,
+              ]),
         ];
       }),
     ];

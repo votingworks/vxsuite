@@ -84,20 +84,12 @@ exports[`parsing gives specific errors for nested objects 1`] = `
           "message": "Invalid input: expected string, received undefined"
         },
         {
-          "expected": "object",
+          "expected": "array",
           "code": "invalid_type",
           "path": [
-            "yesOption"
+            "options"
           ],
-          "message": "Invalid input: expected object, received undefined"
-        },
-        {
-          "expected": "object",
-          "code": "invalid_type",
-          "path": [
-            "noOption"
-          ],
-          "message": "Invalid input: expected object, received undefined"
+          "message": "Invalid input: expected array, received undefined"
         }
       ],
       [
@@ -286,7 +278,7 @@ exports[`validates uniqueness of contest ids 1`] = `
     "path": [
       "contests",
       2,
-      "yes/noOption",
+      "options",
       "id"
     ],
     "message": "Duplicate yes/no contest option 'YNC-option-yes' found."
@@ -296,7 +288,7 @@ exports[`validates uniqueness of contest ids 1`] = `
     "path": [
       "contests",
       3,
-      "yes/noOption",
+      "options",
       "id"
     ],
     "message": "Duplicate yes/no contest option 'YNC-option-no' found."

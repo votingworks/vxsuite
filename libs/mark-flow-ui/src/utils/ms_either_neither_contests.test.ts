@@ -39,10 +39,10 @@ test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges t
     eitherNeitherContestId: eitherNeitherContest.id,
     pickOneContestId: pickOneContest.id,
     description: eitherNeitherContest.description,
-    eitherOption: eitherNeitherContest.yesOption,
-    neitherOption: eitherNeitherContest.noOption,
-    firstOption: pickOneContest.yesOption,
-    secondOption: pickOneContest.noOption,
+    eitherOption: eitherNeitherContest.options[0],
+    neitherOption: eitherNeitherContest.options[1],
+    firstOption: pickOneContest.options[0],
+    secondOption: pickOneContest.options[1],
   });
 });
 

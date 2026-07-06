@@ -101,45 +101,33 @@ function convertToYesNoContest(
   const contestSelections = assertDefined(
     contest.ContestSelection
   ) as ResultsReporting.BallotMeasureSelection[];
-  let yesOption = findBallotMeasureSelectionWithContent(
-    /yes/i,
-    contestSelections
-  );
-  let noOption = findBallotMeasureSelectionWithContent(
-    /no/i,
-    contestSelections
-  );
 
-  if (!(yesOption && noOption)) {
-    [yesOption, noOption] = contestSelections;
+  // A ballot measure may have any number of options (not just yes/no), so build
+  // a tally for every selection, keyed by its option id.
+  const tallies: VxTabulation.YesNoContestResults['tallies'] = {};
+  let totalOptionVotes = 0;
+  for (const selection of contestSelections) {
+    const tally = findTotalVoteCounts(
+      assertDefined(
+        selection.VoteCounts,
+        `Could not find VoteCounts for option '${selection['@id']}'`
+      )
+    );
+    tallies[trimVxIdPrefix(selection['@id'])] = tally;
+    totalOptionVotes += tally;
   }
 
   const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
-  const yesTally = findTotalVoteCounts(
-    assertDefined(
-      yesOption.VoteCounts,
-      'Could not find VoteCounts for "Yes" option'
-    )
-  );
-  const noTally = findTotalVoteCounts(
-    assertDefined(
-      noOption.VoteCounts,
-      'Could not find VoteCounts for "No" option'
-    )
-  );
   const overvotes = otherCounts?.Overvotes || 0;
   const undervotes = otherCounts?.Undervotes || 0;
 
   return {
     contestId: trimVxIdPrefix(contest['@id']),
     contestType: 'yesno',
-    yesOptionId: trimVxIdPrefix(yesOption['@id']),
-    noOptionId: trimVxIdPrefix(noOption['@id']),
-    yesTally,
-    noTally,
+    tallies,
     overvotes,
     undervotes,
-    ballots: yesTally + noTally + overvotes + undervotes,
+    ballots: totalOptionVotes + overvotes + undervotes,
   };
 }
 

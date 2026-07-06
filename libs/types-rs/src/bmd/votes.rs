@@ -28,7 +28,7 @@ impl CandidateVote {
         }
     }
 }
-pub type YesNoVote = OptionId;
+pub type YesNoVote = Vec<OptionId>;
 
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
@@ -84,19 +84,10 @@ impl ToBitStreamWith<'_> for ContestVote {
                 }
             }
 
-            (Contest::YesNo(yesno_contest), Self::YesNo(vote)) => {
-                if vote == &yesno_contest.yes_option.id {
-                    w.write_bit(true)?;
-                } else if vote == &yesno_contest.no_option.id {
-                    w.write_bit(false)?;
-                } else {
-                    return Err(Error::InvalidVotes {
-                        message: format!("Contest '{}' has a vote for option '{vote}', but that is not one of the options for that contest (yes={}, no={})",
-                            yesno_contest.id,
-                            yesno_contest.yes_option.id,
-                            yesno_contest.no_option.id,
-                        )
-                    });
+            (Contest::YesNo(yesno_contest), Self::YesNo(votes)) => {
+                // yesno votes use one bit per option (matching candidate encoding)
+                for option in &yesno_contest.options {
+                    w.write_bit(votes.contains(&option.id))?;
                 }
             }
 
@@ -167,12 +158,14 @@ impl FromBitStreamWith<'_> for ContestVote {
                 Ok(Self::Candidate(votes))
             }
             Contest::YesNo(yesno_contest) => {
-                // yesno votes get a single bit
-                Ok(Self::YesNo(if r.read_bit()? {
-                    yesno_contest.yes_option.id.clone()
-                } else {
-                    yesno_contest.no_option.id.clone()
-                }))
+                // yesno votes use one bit per option
+                let mut votes = Vec::with_capacity(yesno_contest.options.len());
+                for option in &yesno_contest.options {
+                    if r.read_bit()? {
+                        votes.push(option.id.clone());
+                    }
+                }
+                Ok(Self::YesNo(votes))
             }
             Contest::StraightParty(straight_party_contest) => {
                 // straight-party votes get one bit per party
@@ -193,7 +186,7 @@ impl ContestVote {
     pub fn has_votes(&self) -> bool {
         match self {
             Self::Candidate(votes) => !votes.is_empty(),
-            Self::YesNo(_) => true,
+            Self::YesNo(votes) => !votes.is_empty(),
             Self::StraightParty(votes) => !votes.is_empty(),
         }
     }

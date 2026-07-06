@@ -473,9 +473,121 @@ test('incorporates manual data', async () => {
   ).toEqual([
     ['ban-fishing', '1', '1', '2'],
     ['allow-fishing', '9', '0', '9'],
+    ['regulate-fishing', '0', '0', '0'],
     ['overvotes', '4', '0', '4'],
     ['undervotes', '6', '0', '6'],
     ['ballots-cast', '20', '1', '21'],
+  ]);
+});
+
+test('includes regulate-fishing row when votes include the third yesno option', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+  const electionId = await store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['regulate-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 3,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  const iterable = generateTallyReportCsv({
+    store,
+    filename: mockFileName(),
+  });
+  const fileContents = await iterableToString(iterable);
+  const { rows } = parseCsv(fileContents);
+  expect(
+    rows
+      .filter((r) => r['Contest ID'] === 'fishing')
+      .map((row) => [row['Selection ID'], row['Total Votes']])
+  ).toEqual([
+    ['ban-fishing', '0'],
+    ['allow-fishing', '0'],
+    ['regulate-fishing', '3'],
+    ['overvotes', '0'],
+    ['undervotes', '0'],
+    ['ballots-cast', '3'],
+  ]);
+});
+
+test('includes regulate-fishing in manual results when manual tallies set for the third yesno option', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election, electionData } = electionDefinition;
+  const electionId = await store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  store.setManualResults({
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleGroupId: '1M',
+    votingMethod: 'absentee',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 7,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 7,
+          undervotes: 0,
+          overvotes: 0,
+          optionTallies: {
+            'regulate-fishing': 7,
+          },
+        },
+      },
+    }),
+  });
+
+  const iterable = generateTallyReportCsv({
+    store,
+    filename: mockFileName(),
+  });
+  const fileContents = await iterableToString(iterable);
+  const { rows } = parseCsv(fileContents);
+  expect(
+    rows
+      .filter((r) => r['Contest ID'] === 'fishing')
+      .map((row) => [
+        row['Selection ID'],
+        row['Manual Votes'],
+        row['Total Votes'],
+      ])
+  ).toEqual([
+    ['ban-fishing', '0', '0'],
+    ['allow-fishing', '0', '0'],
+    ['regulate-fishing', '7', '7'],
+    ['overvotes', '0', '0'],
+    ['undervotes', '0', '0'],
+    ['ballots-cast', '7', '7'],
   ]);
 });
 
@@ -563,6 +675,15 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     ).toEqual([
       ['Batch batch-1', 'batch-1', 'scanner-1', 'ban-fishing', '0', '1', '1'],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'allow-fishing', '0', '0', '0'],
+      [
+        'Batch batch-1',
+        'batch-1',
+        'scanner-1',
+        'regulate-fishing',
+        '0',
+        '0',
+        '0',
+      ],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'overvotes', '0', '0', '0'],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'undervotes', '0', '0', '0'],
       ['Batch batch-1', 'batch-1', 'scanner-1', 'ballots-cast', '0', '1', '1'],
@@ -580,6 +701,15 @@ test('separate rows for manual data when grouping by an incompatible dimension',
         'NO_BATCH__MANUAL',
         'NO_SCANNER__MANUAL',
         'allow-fishing',
+        '0',
+        '0',
+        '0',
+      ],
+      [
+        'Manual Tallies',
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'regulate-fishing',
         '0',
         '0',
         '0',
@@ -635,11 +765,13 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   ).toEqual([
     ['scanner-1', 'ban-fishing', '0', '1', '1'],
     ['scanner-1', 'allow-fishing', '0', '0', '0'],
+    ['scanner-1', 'regulate-fishing', '0', '0', '0'],
     ['scanner-1', 'overvotes', '0', '0', '0'],
     ['scanner-1', 'undervotes', '0', '0', '0'],
     ['scanner-1', 'ballots-cast', '0', '1', '1'],
     ['NO_SCANNER__MANUAL', 'ban-fishing', '1', '0', '1'],
     ['NO_SCANNER__MANUAL', 'allow-fishing', '0', '0', '0'],
+    ['NO_SCANNER__MANUAL', 'regulate-fishing', '0', '0', '0'],
     ['NO_SCANNER__MANUAL', 'overvotes', '0', '0', '0'],
     ['NO_SCANNER__MANUAL', 'undervotes', '0', '0', '0'],
     ['NO_SCANNER__MANUAL', 'ballots-cast', '1', '0', '1'],

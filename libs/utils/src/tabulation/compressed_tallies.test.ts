@@ -7,6 +7,7 @@ import {
   Election,
   PrecinctSelection,
   Tabulation,
+  YesNoContest,
 } from '@votingworks/types';
 import {
   electionWithMsEitherNeitherFixtures,
@@ -274,8 +275,9 @@ describe('readCompressTally', () => {
       expect(contestTally.overvotes).toEqual(0);
 
       if (contestTally.contestType === 'yesno') {
-        expect(contestTally.yesTally).toEqual(0);
-        expect(contestTally.noTally).toEqual(0);
+        for (const optionCount of Object.values(contestTally.tallies)) {
+          expect(optionCount).toEqual(0);
+        }
       } else {
         for (const optionTally of Object.values(contestTally.tallies)) {
           expect(optionTally.tally).toEqual(0);
@@ -430,8 +432,8 @@ describe('readCompressTally', () => {
     expect(yesNoTally.ballots).toEqual(20);
     expect(yesNoTally.undervotes).toEqual(6);
     expect(yesNoTally.overvotes).toEqual(4);
-    expect(yesNoTally.yesTally).toEqual(3);
-    expect(yesNoTally.noTally).toEqual(7);
+    expect(yesNoTally.tallies[yesNoContest.options[0].id]).toEqual(3);
+    expect(yesNoTally.tallies[yesNoContest.options[1].id]).toEqual(7);
   });
 });
 
@@ -473,6 +475,44 @@ test('primary tally can compress and be read back and end with the original tall
 
   // using toMatchObject because decompressed contains extra attributes
   expect(decompressedTally).toMatchObject(expectedTally.contestResults);
+});
+
+test('compress+decompress round-trips a 3-option yesno contest with all three tallies', () => {
+  const election = readElectionTwoPartyPrimary();
+  const fishingContest = find(
+    election.contests,
+    (c): c is YesNoContest => c.id === 'fishing'
+  );
+  // Verify the fixture has exactly 3 options
+  expect(fishingContest.options.map((o) => o.id)).toEqual([
+    'ban-fishing',
+    'allow-fishing',
+    'regulate-fishing',
+  ]);
+
+  const fishingContestIdx = election.contests.findIndex(
+    (c) => c.id === 'fishing'
+  );
+  const zeroTally = getZeroCompressedTally(election);
+
+  // [undervotes, overvotes, ballots, ban-fishing, allow-fishing, regulate-fishing]
+  zeroTally[fishingContestIdx] = [2, 1, 30, 10, 11, 6];
+
+  const encodedTallies = encodeV0CompressedTally(zeroTally, 1);
+  const decodedTally = readV0CompressedTallyAsContestResults({
+    election,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    encodedTally: assertDefined(encodedTallies[0]),
+  });
+
+  const fishingTally = decodedTally['fishing'];
+  assert(fishingTally?.contestType === 'yesno');
+  expect(fishingTally.ballots).toEqual(30);
+  expect(fishingTally.undervotes).toEqual(2);
+  expect(fishingTally.overvotes).toEqual(1);
+  expect(fishingTally.tallies['ban-fishing']).toEqual(10);
+  expect(fishingTally.tallies['allow-fishing']).toEqual(11);
+  expect(fishingTally.tallies['regulate-fishing']).toEqual(6);
 });
 
 test('compresses and decompresses tally for a single precinct', () => {
@@ -786,9 +826,13 @@ describe('per-precinct tally encoding (V1)', () => {
       precinctSelection: singlePrecinctSelectionFor(precinct1Id),
       encodedTally: assertDefined(splits[0]).encodedTally,
     });
+    const yesNoContest750 = find(
+      electionEitherNeither.contests,
+      (c): c is YesNoContest => c.id === '750000017'
+    );
     const yesNoResult = decoded1['750000017'];
     assert(yesNoResult?.contestType === 'yesno');
-    expect(yesNoResult.yesTally).toEqual(7);
-    expect(yesNoResult.noTally).toEqual(3);
+    expect(yesNoResult.tallies[yesNoContest750.options[0].id]).toEqual(7);
+    expect(yesNoResult.tallies[yesNoContest750.options[1].id]).toEqual(3);
   });
 });

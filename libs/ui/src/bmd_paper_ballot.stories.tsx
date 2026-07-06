@@ -51,8 +51,10 @@ function getDuplicatedContests(idSuffix: string) {
     const contest: YesNoContest = {
       ...c,
       id: `${c.id}${idSuffix}`,
-      noOption: { ...c.noOption, id: `${c.noOption.id}${idSuffix}` },
-      yesOption: { ...c.yesOption, id: `${c.yesOption.id}${idSuffix}` },
+      options: c.options.map((o) => ({
+        ...o,
+        id: `${o.id}${idSuffix}`,
+      })) as unknown as YesNoContest['options'],
     };
     return contest;
   });
@@ -119,7 +121,7 @@ const TEST_UI_STRINGS: UiStringsPackage = {
     [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
       election.contests
         .filter((contest): contest is YesNoContest => contest.type === 'yesno')
-        .flatMap((contest) => [contest.yesOption, contest.noOption])
+        .flatMap((contest) => contest.options)
         .map((option) => [option.id, option.id.endsWith('no') ? '不' : '是'])
     ),
     [ElectionStringKey.CONTEST_TITLE]: {

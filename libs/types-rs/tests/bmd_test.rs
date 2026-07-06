@@ -157,7 +157,7 @@ fn test_round_trip_yesno_contest() {
         contest_ids: vec![yesno_contest.id.clone()],
         votes: HashMap::from([(
             yesno_contest.id.clone(),
-            ContestVote::YesNo(yesno_contest.yes_option.id.clone()),
+            ContestVote::YesNo(vec![yesno_contest.options[0].id.clone()]),
         )]),
     };
 
@@ -227,7 +227,10 @@ fn max_votes_for(contest: &Contest) -> (ContestId, ContestVote) {
                     .collect(),
             ),
         ),
-        Contest::YesNo(yn) => (yn.id.clone(), ContestVote::YesNo(yn.yes_option.id.clone())),
+        Contest::YesNo(yn) => (
+            yn.id.clone(),
+            ContestVote::YesNo(vec![yn.options[0].id.clone()]),
+        ),
         Contest::StraightParty(_) => {
             unimplemented!("STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented")
         }

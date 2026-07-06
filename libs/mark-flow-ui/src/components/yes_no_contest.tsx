@@ -104,7 +104,7 @@ export function YesNoContest({
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
-            {[contest.yesOption, contest.noOption].map((option) => {
+            {contest.options.map((option) => {
               const isChecked = getSingleYesNoVote(vote) === option.id;
               const isDisabled = !isChecked && !!vote;
               function handleDisabledClick() {

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { expect, test } from 'vitest';
 
 import { safeParseElection } from '@votingworks/types';
-import { find, iter } from '@votingworks/basics';
+import { assertDefined, find, iter } from '@votingworks/basics';
 import {
   overlayImages,
   pdfToImages,
@@ -12,6 +12,7 @@ import {
 import { generateMarkOverlay } from './marking';
 import {
   miGeneralElectionFixtures,
+  nhGeneralElectionFixtures,
   vxGeneralElectionFixtures,
 } from './ballot_fixtures';
 
@@ -76,6 +77,48 @@ test('composites marks onto base ballot PDF', async () => {
   const compositePages = pdfToImages(compositePdf, { scale });
 
   for await (const page of compositePages) {
+    expect(toImageBuffer(page.page)).toMatchImageSnapshot();
+  }
+});
+
+test('marks a ballot with a vote for the third yesno option', async () => {
+  // Uses the NH general election fixture which has question-a as a 3-option
+  // yesno contest (Yes / No / Third Option). This verifies that a bubble mark
+  // is correctly rendered for a third option beyond the standard Yes/No pair.
+  const spec = nhGeneralElectionFixtures.fixtureSpecs[0];
+  const { electionPath, ballotStyleId, blankBallotPath } = spec;
+
+  const election = safeParseElection(
+    JSON.parse(fs.readFileSync(electionPath, 'utf8'))
+  ).unsafeUnwrap();
+
+  const questionA = election.contests.find(
+    (c) => c.id === 'question-a' && c.type === 'yesno'
+  );
+  // Confirm the fixture has the third option
+  expect(questionA?.type).toEqual('yesno');
+  if (questionA?.type !== 'yesno') return;
+  expect(questionA.options).toHaveLength(3);
+
+  const thirdOption = assertDefined(questionA.options[2]);
+  const votes: typeof spec.votes = {
+    ...spec.votes,
+    'question-a': [thirdOption.id], // vote for 'third-option'
+  };
+
+  const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
+  const markedBallotPdf = await generateMarkOverlay(
+    election,
+    ballotStyleId,
+    votes,
+    { offsetMmX: 0, offsetMmY: 0 },
+    baseBallotPdf
+  );
+
+  const scale = 1;
+  const markedPages = pdfToImages(markedBallotPdf, { scale });
+
+  for await (const page of markedPages) {
     expect(toImageBuffer(page.page)).toMatchImageSnapshot();
   }
 });

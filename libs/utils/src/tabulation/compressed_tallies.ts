@@ -94,12 +94,14 @@ export function compressTally(
         assert(contestResults !== undefined);
         assert(contestResults.contestType === 'yesno');
         return typedAs<YesNoContestCompressedTally>([
-          contestResults.undervotes, // undervotes
-          contestResults.overvotes, // overvotes
-          contestResults.ballots, // ballots cast
-          contestResults.yesTally, // yes
-          contestResults.noTally, // no
-        ]);
+          contestResults.undervotes,
+          contestResults.overvotes,
+          contestResults.ballots,
+          // One tally per option, in options[] order
+          ...contest.options.map(
+            (option) => contestResults.tallies[option.id] ?? 0
+          ),
+        ] as YesNoContestCompressedTally);
       }
 
       case 'candidate': {
@@ -240,20 +242,21 @@ function getContestTalliesForCompressedContest(
   }
   switch (contest.type) {
     case 'yesno': {
-      const [undervotes, overvotes, ballots, yesTally, noTally] = unsafeParse(
+      const [undervotes, overvotes, ballots, ...optionTallies] = unsafeParse(
         YesNoContestCompressedTallySchema,
         compressedContest
       );
+      const tallies: Record<string, number> = {};
+      for (const [i, option] of contest.options.entries()) {
+        tallies[option.id] = optionTallies[i] ?? 0;
+      }
       return {
         contestId: contest.id,
         contestType: 'yesno',
-        yesOptionId: contest.yesOption.id,
-        noOptionId: contest.noOption.id,
         ballots,
         undervotes,
         overvotes,
-        yesTally,
-        noTally,
+        tallies,
       };
     }
     case 'candidate': {
@@ -304,9 +307,6 @@ function getContestTalliesForCompressedContest(
   }
 }
 
-// The length of a yes/no contest compressed tally is always 5: undervotes, overvotes, ballots, yes, no
-const yesNoContestCompressedTallyLength: YesNoContestCompressedTally['length'] = 5;
-
 function getNumberOfEntriesInContest(contest: Contest): number {
   /* istanbul ignore next */
   if (contest.type === 'straight-party') {
@@ -314,7 +314,8 @@ function getNumberOfEntriesInContest(contest: Contest): number {
   }
   switch (contest.type) {
     case 'yesno':
-      return yesNoContestCompressedTallyLength;
+      // 3 metadata (undervotes, overvotes, ballots) + one slot per option
+      return 3 + contest.options.length;
     case 'candidate':
       return (
         1 /* number of ballots */ +

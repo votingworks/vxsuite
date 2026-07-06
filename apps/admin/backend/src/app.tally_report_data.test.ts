@@ -413,12 +413,13 @@ test('primary, full election', async () => {
     ballots: 112,
     contestId: 'fishing',
     contestType: 'yesno',
-    yesOptionId: 'ban-fishing',
-    noOptionId: 'allow-fishing',
-    noTally: 8,
+    tallies: {
+      'ban-fishing': 8,
+      'allow-fishing': 8,
+      'regulate-fishing': 8,
+    },
     overvotes: 8,
-    undervotes: 88,
-    yesTally: 8,
+    undervotes: 80,
   });
 
   // no manual results

@@ -423,8 +423,10 @@ describe('Ballot rendering error handling', () => {
         title: 'Very Long Ballot Measure',
         districtId: electionRecord.election.districts[0].id,
         description: '',
-        yesOption: { id: 'yes', label: 'Yes' },
-        noOption: { id: 'no', label: 'No' },
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'no', label: 'No' },
+        ],
       },
       expectedMessage:
         'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size or higher density.',
@@ -438,8 +440,10 @@ describe('Ballot rendering error handling', () => {
         title: 'Very Long Ballot Measure',
         districtId: electionRecord.election.districts[0].id,
         description: '',
-        yesOption: { id: 'yes', label: 'Yes' },
-        noOption: { id: 'no', label: 'No' },
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'no', label: 'No' },
+        ],
       },
       expectedMessage:
         'Contest "Very Long Ballot Measure" was too long to fit on the page. Try a longer paper size, higher density, or adding a line break to the contest description.',

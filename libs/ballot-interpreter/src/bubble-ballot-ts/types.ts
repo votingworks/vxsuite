@@ -408,7 +408,7 @@ export type RustCandidateVote =
 
 export type RustContestVote =
   | { type: 'candidate'; value: RustCandidateVote[] }
-  | { type: 'yesNo'; value: string }
+  | { type: 'yesNo'; value: string[] }
   | { type: 'straightParty'; value: string[] };
 
 /**

@@ -561,14 +561,10 @@ test('create/list/delete elections', async () => {
               ),
             }
           : {
-              yesOption: {
-                ...contest.yesOption,
-                id: expectNotEqualTo(contest.yesOption.id),
-              },
-              noOption: {
-                ...contest.noOption,
-                id: expectNotEqualTo(contest.noOption.id),
-              },
+              options: contest.options.map((option) => ({
+                ...option,
+                id: expectNotEqualTo(option.id),
+              })),
             }),
       };
     })
@@ -2059,14 +2055,16 @@ test('CRUD contests', async () => {
     type: 'yesno',
     districtId: district1.id,
     description: 'Contest 2 Description',
-    yesOption: {
-      id: 'yes-option',
-      label: 'Yes',
-    },
-    noOption: {
-      id: 'no-option',
-      label: 'No',
-    },
+    options: [
+      {
+        id: 'yes-option',
+        label: 'Yes',
+      },
+      {
+        id: 'no-option',
+        label: 'No',
+      },
+    ],
   };
   (
     await apiClient.createContest({ electionId, newContest: contest2 })
@@ -2395,14 +2393,16 @@ test('CRUD contests', async () => {
       newContest: {
         ...contest2,
         id: 'duplicate-contest',
-        yesOption: {
-          id: 'dup-yes-option',
-          label: 'Yes',
-        },
-        noOption: {
-          id: 'dup-no-option',
-          label: 'Yes',
-        },
+        options: [
+          {
+            id: 'dup-yes-option',
+            label: 'Yes',
+          },
+          {
+            id: 'dup-no-option',
+            label: 'Yes',
+          },
+        ],
       },
     })
   ).toEqual(err('duplicate-option'));
@@ -2413,14 +2413,33 @@ test('CRUD contests', async () => {
       electionId,
       updatedContest: {
         ...contest2,
-        yesOption: {
-          id: 'dup-yes-option',
-          label: 'Yes',
-        },
-        noOption: {
-          id: 'dup-no-option',
-          label: 'Yes',
-        },
+        options: [
+          {
+            id: 'dup-yes-option',
+            label: 'Yes',
+          },
+          {
+            id: 'dup-no-option',
+            label: 'Yes',
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-option'));
+
+  // Duplicate labels among additional options (beyond the first two) are also
+  // rejected for 3+ option ballot measures
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...contest2,
+        id: 'duplicate-additional-option-contest',
+        options: [
+          { id: 'opt-yes', label: 'Yes' },
+          { id: 'opt-no', label: 'No' },
+          { id: 'opt-maybe', label: 'Yes' },
+        ],
       },
     })
   ).toEqual(err('duplicate-option'));
@@ -3147,14 +3166,10 @@ test('cloneElection', async () => {
             ...contest,
             id: expectNotEqualTo(contest.id),
             districtId: updatedDistrictId(contest.districtId),
-            yesOption: {
-              ...contest.yesOption,
-              id: expectNotEqualTo(contest.yesOption.id),
-            },
-            noOption: {
-              ...contest.noOption,
-              id: expectNotEqualTo(contest.noOption.id),
-            },
+            options: contest.options.map((option) => ({
+              ...option,
+              id: expectNotEqualTo(option.id),
+            })),
           };
         default:
           throw throwIllegalValue(contest, 'type');
@@ -3737,7 +3752,6 @@ test('Election package and ballots export', async () => {
     additionalHashInput: {
       precinctSplitSeals: expect.any(Object),
       precinctSplitSignatureImages: expect.any(Object),
-      contestDescriptionsForContestsWithAdditionalOptions: {},
     },
   };
   const expectedElection: Election = {

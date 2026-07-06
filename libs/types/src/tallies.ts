@@ -2,21 +2,21 @@ import { z } from 'zod/v4';
 
 const nonnegativeInteger = z.number().nonnegative().int();
 
+// [undervotes, overvotes, ballotsCast, ...optionTallies]
+// optionTallies has one entry per contest option, in options[] order.
+// Minimum length 5 = 3 metadata + 2 options (required minimum for yesno).
 export type YesNoContestCompressedTally = [
   undervotes: number,
   overvotes: number,
   ballotsCast: number,
-  yes: number,
-  no: number,
+  firstOption: number,
+  secondOption: number,
+  ...additionalOptions: number[],
 ];
 export const YesNoContestCompressedTallySchema: z.ZodSchema<YesNoContestCompressedTally> =
-  z.tuple([
-    nonnegativeInteger,
-    nonnegativeInteger,
-    nonnegativeInteger,
-    nonnegativeInteger,
-    nonnegativeInteger,
-  ]);
+  z
+    .array(nonnegativeInteger)
+    .min(5) as unknown as z.ZodSchema<YesNoContestCompressedTally>;
 export type CandidateContestWithWriteInsCompressedTally = [
   undervotes: number,
   overvotes: number,

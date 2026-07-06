@@ -176,14 +176,9 @@ function writeYesNoVote(
     );
   }
 
-  if (ynVote.length > 1) {
-    throw new Error(
-      `cannot encode a yes/no overvote: ${JSON.stringify(ynVote)}`
-    );
+  for (const option of contest.options) {
+    bits.writeBoolean(ynVote.includes(option.id));
   }
-
-  // yesno votes get a single bit
-  bits.writeBoolean(ynVote[0] === contest.yesOption.id);
 }
 
 function encodeBallotVotesInto(
@@ -304,10 +299,14 @@ function decodeBallotVotes(
   for (const contest of contestsWithAnswers) {
     switch (contest.type) {
       case 'yesno': {
-        // yesno votes get a single bit
-        votes[contest.id] = bits.readBoolean()
-          ? [contest.yesOption.id]
-          : [contest.noOption.id];
+        // yesno votes use one bit per option
+        const ynVote: string[] = [];
+        for (const option of contest.options) {
+          if (bits.readBoolean()) {
+            ynVote.push(option.id);
+          }
+        }
+        votes[contest.id] = ynVote;
         break;
       }
       case 'candidate': {

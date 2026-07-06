@@ -198,8 +198,10 @@ test.each<{
           type: 'yesno',
           title: 'Long Ballot Measure',
           description: ballotMeasureDescription,
-          yesOption: { id: 'yes-option', label: 'Yes' },
-          noOption: { id: 'no-option', label: 'No' },
+          options: [
+            { id: 'yes-option', label: 'Yes' },
+            { id: 'no-option', label: 'No' },
+          ],
           districtId: baseElectionDefinition.election.districts[0].id,
         },
       ],
@@ -295,20 +297,21 @@ test('ballot measure contest editing with additional contest options', async () 
     contests,
     (contest) => contest.type === 'yesno'
   );
-  expect(ballotMeasureContest.additionalOptions).toBeUndefined();
+  expect(ballotMeasureContest.options.slice(2)).toEqual([]);
 
+  const additionalOptions = [
+    {
+      id: 'additional-option-1',
+      label: 'Additional Option 1',
+    },
+    {
+      id: 'additional-option-2',
+      label: 'Additional Option 2',
+    },
+  ];
   const expectedContest: YesNoContest = {
     ...ballotMeasureContest,
-    additionalOptions: [
-      {
-        id: 'additional-option-1',
-        label: 'Additional Option 1',
-      },
-      {
-        id: 'additional-option-2',
-        label: 'Additional Option 2',
-      },
-    ],
+    options: [...ballotMeasureContest.options, ...additionalOptions],
   };
   (
     await apiClient.updateContest({
@@ -321,9 +324,7 @@ test('ballot measure contest editing with additional contest options', async () 
     updatedContests,
     (contest): contest is YesNoContest => contest.id === ballotMeasureContest.id
   );
-  expect(updatedContest.additionalOptions).toEqual(
-    expectedContest.additionalOptions
-  );
+  expect(updatedContest.options.slice(2)).toEqual(additionalOptions);
 });
 
 test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOfficeOnly is true', async () => {

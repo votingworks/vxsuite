@@ -55,8 +55,10 @@ function yesNoContest(districtId: string, index: number): YesNoContest {
     title: `Yes/No Contest ${districtId} ${index}`,
     districtId,
     description: 'A ballot measure',
-    yesOption: { id: `yesno-contest-${districtId}-${index}-yes`, label: 'Yes' },
-    noOption: { id: `yesno-contest-${districtId}-${index}-no`, label: 'No' },
+    options: [
+      { id: `yesno-contest-${districtId}-${index}-yes`, label: 'Yes' },
+      { id: `yesno-contest-${districtId}-${index}-no`, label: 'No' },
+    ],
   };
 }
 

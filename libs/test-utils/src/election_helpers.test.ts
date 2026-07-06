@@ -99,10 +99,10 @@ describe('createTestElection', () => {
     const yesNoContest = election.contests.find((c) => c.type === 'yesno');
     expect(yesNoContest?.type).toEqual('yesno');
     if (yesNoContest?.type === 'yesno') {
-      expect(yesNoContest.yesOption.label).toContain(
+      expect(yesNoContest.options[0].label).toContain(
         'Yes, I approve of this proposition'
       );
-      expect(yesNoContest.noOption.label).toContain(
+      expect(yesNoContest.options[1].label).toContain(
         'No, I do not approve of this proposition'
       );
     }
@@ -252,7 +252,7 @@ describe('createMockVotes', () => {
 
     for (const contest of election.contests) {
       if (contest.type === 'yesno') {
-        expect(votes[contest.id]).toEqual([contest.yesOption.id]);
+        expect(votes[contest.id]).toEqual([contest.options[0].id]);
       }
     }
   });

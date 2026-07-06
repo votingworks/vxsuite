@@ -17,7 +17,6 @@ import {
   BallotStyleId,
   BallotType,
   BaseBallotProps,
-  CandidateContest,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
@@ -25,7 +24,6 @@ import {
   HmpbBallotPageMetadata,
   Outset,
   SheetPositions,
-  YesNoContest,
   ballotPositionsFromGridPositions,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
@@ -713,21 +711,6 @@ export async function layOutBallotsAndCreateElectionDefinition<
         };
       }
       return contest;
-    })
-    // Temporary workaround to transform ballot measures with additional options
-    // into candidate contests, since VxSuite doesn't support the
-    // contest.additionalOptions field.
-    .map((contest): Contest => {
-      if (
-        contest.type !== 'yesno' ||
-        !contest.additionalOptions ||
-        contest.additionalOptions.length === 0
-      ) {
-        return contest;
-      }
-      return convertBallotMeasureWithAdditionalOptionsToCandidateContest(
-        contest
-      );
     });
 
   const ballotStyles = election.ballotStyles.map((ballotStyle) => {
@@ -843,32 +826,4 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     electionSerializationOptions
   );
   return electionDefinition;
-}
-
-export function convertBallotMeasureWithAdditionalOptionsToCandidateContest(
-  contest: YesNoContest
-): CandidateContest {
-  assert(contest.additionalOptions && contest.additionalOptions.length > 0);
-  return {
-    type: 'candidate',
-    id: contest.id,
-    districtId: contest.districtId,
-    title: contest.title,
-    candidates: [
-      {
-        id: contest.yesOption.id,
-        name: contest.yesOption.label,
-      },
-      {
-        id: contest.noOption.id,
-        name: contest.noOption.label,
-      },
-      ...contest.additionalOptions.map((option) => ({
-        id: option.id,
-        name: option.label,
-      })),
-    ],
-    allowWriteIns: false,
-    seats: 1,
-  };
 }

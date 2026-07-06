@@ -403,6 +403,9 @@ exports.up = async (pgm) => {
         }
 
         case 'yesno': {
+          // Historical backfill: this migration ran when yesno contests used
+          // `yesOption`/`noOption` rather than the current `options` array.
+          const yesNoContest = /** @type {any} */ (contest);
           pgm.sql(`
             INSERT INTO contests (
               id,
@@ -423,10 +426,10 @@ exports.up = async (pgm) => {
               '${contest.type}',
               '${contest.districtId}',
               '${quote(contest.description)}',
-              '${contest.yesOption.id}',
-              '${quote(contest.yesOption.label)}',
-              '${contest.noOption.id}',
-              '${quote(contest.noOption.label)}'
+              '${yesNoContest.yesOption.id}',
+              '${quote(yesNoContest.yesOption.label)}',
+              '${yesNoContest.noOption.id}',
+              '${quote(yesNoContest.noOption.label)}'
             )
           `);
           break;

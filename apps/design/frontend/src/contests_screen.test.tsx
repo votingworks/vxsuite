@@ -868,14 +868,16 @@ test('adding a ballot measure', async () => {
     id,
     districtId: election.districts[0].id,
     description: 'New Ballot Measure Description',
-    yesOption: {
-      id: idFactory.next(),
-      label: 'Yes',
-    },
-    noOption: {
-      id: idFactory.next(),
-      label: 'No',
-    },
+    options: [
+      {
+        id: idFactory.next(),
+        label: 'Yes',
+      },
+      {
+        id: idFactory.next(),
+        label: 'No',
+      },
+    ],
   };
 
   apiMock.listContests
@@ -917,9 +919,9 @@ test('adding a ballot measure', async () => {
   const [yesInput, noInput] = inputs;
   expect(screen.queryButton('Add Option')).not.toBeInTheDocument();
   userEvent.clear(yesInput);
-  userEvent.type(yesInput, newContest.yesOption.label);
+  userEvent.type(yesInput, newContest.options[0].label);
   userEvent.clear(noInput);
-  userEvent.type(noInput, newContest.noOption.label);
+  userEvent.type(noInput, newContest.options[1].label);
 
   await within(descriptionEditor).findByText(newContest.description);
   const descriptionHtml = `<p>${newContest.description}</p>`;
@@ -964,14 +966,17 @@ test('editing a ballot measure', async () => {
     title: 'Updated Ballot Measure Title',
     districtId: updatedDistrict.id,
     description: 'Updated Ballot Measure Description',
-    yesOption: {
-      ...savedContest.yesOption,
-      label: 'Yea',
-    },
-    noOption: {
-      ...savedContest.noOption,
-      label: 'Nay',
-    },
+    options: [
+      {
+        ...savedContest.options[0],
+        label: 'Yea',
+      },
+      {
+        ...savedContest.options[1],
+        label: 'Nay',
+      },
+      ...savedContest.options.slice(2),
+    ],
   };
 
   apiMock.listContests
@@ -1012,13 +1017,13 @@ test('editing a ballot measure', async () => {
 
   // Change yes and no labels
   const [yesInput, noInput] = getOptionInputs();
-  expect(yesInput).toHaveValue(savedContest.yesOption.label);
+  expect(yesInput).toHaveValue(savedContest.options[0].label);
   userEvent.clear(yesInput);
-  userEvent.type(yesInput, updatedContest.yesOption.label);
+  userEvent.type(yesInput, updatedContest.options[0].label);
 
-  expect(noInput).toHaveValue(savedContest.noOption.label);
+  expect(noInput).toHaveValue(savedContest.options[1].label);
   userEvent.clear(noInput);
-  userEvent.type(noInput, updatedContest.noOption.label);
+  userEvent.type(noInput, updatedContest.options[1].label);
 
   // Save contest
   const updatedContestWithDescriptionHtml: YesNoContest = {
@@ -1070,8 +1075,8 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   expect(optionInputs).toHaveLength(3);
 
   const [yesInput, noInput, additionalInput] = optionInputs;
-  expect(yesInput).toHaveValue(savedContest.yesOption.label);
-  expect(noInput).toHaveValue(savedContest.noOption.label);
+  expect(yesInput).toHaveValue(savedContest.options[0].label);
+  expect(noInput).toHaveValue(savedContest.options[1].label);
   expect(additionalInput).toHaveValue('');
 
   userEvent.type(additionalInput, 'Third Option');
@@ -1085,7 +1090,8 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
 
   const updatedContest: YesNoContest = {
     ...savedContest,
-    additionalOptions: [
+    options: [
+      ...savedContest.options,
       { id: idFactory.next(), label: 'Third Option' },
       { id: idFactory.next(), label: 'Fourth Option' },
     ],
@@ -1111,8 +1117,8 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   for (const input of optionInputs) {
     expect(input).toBeDisabled();
   }
-  expect(optionInputs[0]).toHaveValue(savedContest.yesOption.label);
-  expect(optionInputs[1]).toHaveValue(savedContest.noOption.label);
+  expect(optionInputs[0]).toHaveValue(savedContest.options[0].label);
+  expect(optionInputs[1]).toHaveValue(savedContest.options[1].label);
   expect(optionInputs[2]).toHaveValue('Third Option');
   expect(optionInputs[3]).toHaveValue('Fourth Option');
   expect(screen.getButton('Add Option')).toBeDisabled();
@@ -1123,7 +1129,11 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   userEvent.click(within(thirdInput.parentElement!).getButton('Remove Option'));
   const updatedContest2: YesNoContest = {
     ...updatedContest,
-    additionalOptions: updatedContest.additionalOptions!.slice(1),
+    options: [
+      updatedContest.options[0],
+      updatedContest.options[1],
+      ...updatedContest.options.slice(3),
+    ],
   };
   apiMock.updateContest
     .expectCallWith({
@@ -1770,7 +1780,7 @@ describe('audio editing', () => {
       routes.election(electionId).contests.audio({
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-        subkey: yesNoContest.yesOption.id,
+        subkey: yesNoContest.options[0].id,
       })
     );
     await navigateToContestView(history, electionId, yesNoContest.id);
@@ -1785,7 +1795,7 @@ describe('audio editing', () => {
       routes.election(electionId).contests.audio({
         contestId: yesNoContest.id,
         stringKey: ElectionStringKey.CONTEST_OPTION_LABEL,
-        subkey: yesNoContest.noOption.id,
+        subkey: yesNoContest.options[1].id,
       })
     );
   });

@@ -404,7 +404,7 @@ test('validates votes by checking that contests are present in a given ballot st
   expect(() =>
     validateVotes({
       votes: {
-        [yesno.id]: [yesno.yesOption.id],
+        [yesno.id]: [yesno.options[0].id],
       },
       ballotStyle,
       election,

@@ -382,6 +382,11 @@ async function insertParty(
   );
 }
 
+function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
+  const labels = contest.options.map((option) => option.label);
+  return new Set(labels).size !== labels.length;
+}
+
 async function insertContest(
   client: Client,
   electionId: ElectionId,
@@ -517,11 +522,11 @@ async function insertContest(
         contest.type,
         contest.districtId,
         contest.description,
-        contest.yesOption.id,
-        contest.yesOption.label,
-        contest.noOption.id,
-        contest.noOption.label,
-        JSON.stringify(contest.additionalOptions),
+        contest.options[0].id,
+        contest.options[0].label,
+        contest.options[1].id,
+        contest.options[1].label,
+        JSON.stringify(contest.options.slice(2)),
         ...(ballotOrder ? [ballotOrder] : [])
       );
       break;
@@ -1143,15 +1148,17 @@ export class Store {
               type: row.type,
               districtId: row.districtId,
               description: assertDefined(row.description),
-              yesOption: {
-                id: assertDefined(row.yesOptionId),
-                label: assertDefined(row.yesOptionLabel),
-              },
-              noOption: {
-                id: assertDefined(row.noOptionId),
-                label: assertDefined(row.noOptionLabel),
-              },
-              additionalOptions: row.additionalOptions ?? undefined,
+              options: [
+                {
+                  id: assertDefined(row.yesOptionId),
+                  label: assertDefined(row.yesOptionLabel),
+                },
+                {
+                  id: assertDefined(row.noOptionId),
+                  label: assertDefined(row.noOptionLabel),
+                },
+                ...(row.additionalOptions ?? []),
+              ],
             });
           }
           default: {
@@ -2079,10 +2086,7 @@ export class Store {
     electionId: ElectionId,
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
-    if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
-    ) {
+    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
     }
     try {
@@ -2102,10 +2106,7 @@ export class Store {
     electionId: ElectionId,
     contest: Contest
   ): Promise<Result<void, DuplicateContestError>> {
-    if (
-      contest.type === 'yesno' &&
-      contest.yesOption.label === contest.noOption.label
-    ) {
+    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
     }
     try {

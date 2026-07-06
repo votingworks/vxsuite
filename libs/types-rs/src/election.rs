@@ -578,8 +578,7 @@ pub struct YesNoContest {
     pub district_id: DistrictId,
     pub title: String,
     pub description: String,
-    pub yes_option: YesNoOption,
-    pub no_option: YesNoOption,
+    pub options: Vec<YesNoOption>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

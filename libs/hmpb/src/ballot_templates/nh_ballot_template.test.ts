@@ -337,8 +337,10 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       districtId: 'district-1',
       title: 'Ballot Measure',
       description: 'Test measure',
-      yesOption: { id: 'yes', label: 'Yes' },
-      noOption: { id: 'no', label: 'No' },
+      options: [
+        { id: 'yes', label: 'Yes' },
+        { id: 'no', label: 'No' },
+      ],
     };
 
     const [precinct1] = electionFamousNames.precincts;

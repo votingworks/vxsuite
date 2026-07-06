@@ -47,7 +47,7 @@ describe('buildCVRContestsFromVotes', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
       ballotStyleId: '1M',
-      votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
+      votes: { [fishingContest.id]: [fishingContest.options[0].id] },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -85,7 +85,7 @@ describe('buildCVRContestsFromVotes', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
       ballotStyleId: '1M',
-      votes: { [fishingContest.id]: [fishingContest.noOption.id] },
+      votes: { [fishingContest.id]: [fishingContest.options[1].id] },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -96,7 +96,7 @@ describe('buildCVRContestsFromVotes', () => {
       Undervotes: 0,
       CVRContestSelection: [
         expect.objectContaining({
-          ContestSelectionId: fishingContest.noOption.id,
+          ContestSelectionId: fishingContest.options[1].id,
           OptionPosition: 1,
           SelectionPosition: [expect.anything()],
         }),
@@ -729,7 +729,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     expect(fishingContestSnapshot.CVRContestSelection).toMatchObject(
       expect.arrayContaining([
         expect.objectContaining({
-          ContestSelectionId: fishingContest.yesOption.id,
+          ContestSelectionId: fishingContest.options[0].id,
           SelectionPosition: [
             expect.objectContaining({
               HasIndication: CVR.IndicationStatus.Unknown,

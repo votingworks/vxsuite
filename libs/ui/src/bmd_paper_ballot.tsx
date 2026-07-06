@@ -604,8 +604,9 @@ function YesNoContestResult({
   if (!singleVote) {
     return <NoSelection primaryBallotLanguage={primaryBallotLanguage} />;
   }
-  const option =
-    singleVote === contest.yesOption.id ? contest.yesOption : contest.noOption;
+  const option = assertDefined(
+    contest.options.find((o) => o.id === singleVote)
+  );
   return (
     <VoteLine>
       <Font weight="bold">

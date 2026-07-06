@@ -400,7 +400,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             justifyContent: 'end',
           }}
         >
-          {[contest.yesOption, contest.noOption].map((option) => (
+          {contest.options.map((option) => (
             <li
               key={option.id}
               className={BALLOT_MEASURE_OPTION_CLASS}

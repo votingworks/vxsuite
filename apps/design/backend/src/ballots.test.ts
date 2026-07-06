@@ -110,25 +110,8 @@ test('formatElectionForExport', () => {
       ],
     },
   ];
-  const ballotMeasureContest = find(
-    election.contests,
-    (contest) => contest.type === 'yesno'
-  );
-  const contests = election.contests.map((c) =>
-    c.id === ballotMeasureContest.id
-      ? {
-          ...c,
-          additionalOptions: [
-            {
-              id: 'additional-option-1',
-              label: 'Additional Option 1',
-            },
-          ],
-        }
-      : c
-  );
   const formattedElection = formatElectionForExport(
-    { ...election, contests, precincts: testPrecincts },
+    { ...election, precincts: testPrecincts },
     testTranslations
   );
   expect(formattedElection).toHaveProperty('additionalHashInput');
@@ -138,11 +121,6 @@ test('formatElectionForExport', () => {
   });
   expect(hashInput['precinctSplitSignatureImages']).toMatchObject({
     'precinct-1-split-1': expect.any(String),
-  });
-  expect(
-    hashInput['contestDescriptionsForContestsWithAdditionalOptions']
-  ).toEqual({
-    [ballotMeasureContest.id]: ballotMeasureContest.description,
   });
 });
 

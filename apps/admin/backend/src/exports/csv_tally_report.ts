@@ -177,24 +177,21 @@ function* generateDataRows({
       } else if (contest.type === 'yesno') {
         assert(scannedContestResults.contestType === 'yesno');
         assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
-        yield buildRow({
-          metadataValues,
-          contest,
-          selection: contest.yesOption.label,
-          selectionId: contest.yesOption.id,
-          scannedVotes: scannedContestResults.yesTally,
-          hasManualResults,
-          manualVotes: manualContestResults?.yesTally ?? 0,
-        });
-        yield buildRow({
-          metadataValues,
-          contest,
-          selection: contest.noOption.label,
-          selectionId: contest.noOption.id,
-          scannedVotes: scannedContestResults.noTally,
-          hasManualResults,
-          manualVotes: manualContestResults?.noTally ?? 0,
-        });
+        for (const option of contest.options) {
+          yield buildRow({
+            metadataValues,
+            contest,
+            selection: option.label,
+            selectionId: option.id,
+            scannedVotes: assertDefined(
+              scannedContestResults.tallies[option.id]
+            ),
+            hasManualResults,
+            manualVotes: manualContestResults
+              ? assertDefined(manualContestResults.tallies[option.id])
+              : 0,
+          });
+        }
       }
 
       yield buildRow({

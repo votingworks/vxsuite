@@ -82,14 +82,14 @@ export function getCandidateSelectionId(
  * Gets the ID for the "Yes" option in a YesNoContest, formatted as an NCName.
  */
 export function getYesOptionId(contest: YesNoContest): string {
-  return asNcName(contest.yesOption.id);
+  return asNcName(contest.options[0].id);
 }
 
 /**
  * Gets the ID for the "No" option in a YesNoContest, formatted as an NCName.
  */
 export function getNoOptionId(contest: YesNoContest): string {
-  return asNcName(contest.noOption.id);
+  return asNcName(contest.options[1].id);
 }
 
 /**

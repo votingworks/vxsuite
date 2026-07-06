@@ -256,7 +256,7 @@ describe('non-English ballot style', () => {
         }}
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
-        votes={{ [contest.id]: [contest.yesOption.id] }}
+        votes={{ [contest.id]: [contest.options[0].id] }}
         onRendered={() => {}}
         machineType="markScan"
         pageNumber={1}
@@ -275,7 +275,7 @@ describe('non-English ballot style', () => {
 
     expectDualLanguageString({
       key: ElectionStringKey.CONTEST_OPTION_LABEL,
-      subKey: contest.yesOption.id,
+      subKey: contest.options[0].id,
     });
   });
 

@@ -36,7 +36,8 @@
         "new-zoo-safari": "FOR Initiative No. 12",
         "new-zoo-traditional": "FOR Alternative Measure No. 12 A",
         "ban-fishing": "YES",
-        "allow-fishing": "NO"
+        "allow-fishing": "NO",
+        "regulate-fishing": "REGULATE"
       },
       "contestTerm": {
         "best-animal-mammal": "For three years",
@@ -440,7 +441,7 @@
                 "row": 13.900417485265226,
                 "column": 16.500000000000004,
                 "width": 15.50160315698606,
-                "height": 2.12549115913556
+                "height": 3.1231581532416506
               },
               "options": [
                 {
@@ -470,6 +471,20 @@
                     "height": 1.1278241650294696
                   },
                   "optionId": "allow-fishing"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.479002946954814,
+                    "column": 17.201319521519302
+                  },
+                  "bounds": {
+                    "row": 15.895751473477407,
+                    "column": 16.500000000000004,
+                    "width": 15.501603156986064,
+                    "height": 1.1278241650294696
+                  },
+                  "optionId": "regulate-fishing"
                 }
               ]
             }
@@ -802,7 +817,7 @@
                 "row": 13.900417485265226,
                 "column": 16.500000000000004,
                 "width": 15.50160315698606,
-                "height": 2.12549115913556
+                "height": 3.1231581532416506
               },
               "options": [
                 {
@@ -832,6 +847,20 @@
                     "height": 1.1278241650294696
                   },
                   "optionId": "allow-fishing"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 16.479002946954814,
+                    "column": 17.201319521519302
+                  },
+                  "bounds": {
+                    "row": 15.895751473477407,
+                    "column": 16.500000000000004,
+                    "width": 15.501603156986064,
+                    "height": 1.1278241650294696
+                  },
+                  "optionId": "regulate-fishing"
                 }
               ]
             }
@@ -987,14 +1016,16 @@
       "title": "Ballot Measure 1 - Part 1",
       "type": "yesno",
       "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
-      "yesOption": {
-        "id": "new-zoo-either-approved",
-        "label": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A"
-      },
-      "noOption": {
-        "id": "new-zoo-neither-approved",
-        "label": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A"
-      }
+      "options": [
+        {
+          "id": "new-zoo-either-approved",
+          "label": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A"
+        },
+        {
+          "id": "new-zoo-neither-approved",
+          "label": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A"
+        }
+      ]
     },
     {
       "id": "new-zoo-pick",
@@ -1002,14 +1033,16 @@
       "title": "Ballot Measure 1 - Part 2",
       "type": "yesno",
       "description": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
-      "yesOption": {
-        "id": "new-zoo-safari",
-        "label": "FOR Initiative No. 12"
-      },
-      "noOption": {
-        "id": "new-zoo-traditional",
-        "label": "FOR Alternative Measure No. 12 A"
-      }
+      "options": [
+        {
+          "id": "new-zoo-safari",
+          "label": "FOR Initiative No. 12"
+        },
+        {
+          "id": "new-zoo-traditional",
+          "label": "FOR Alternative Measure No. 12 A"
+        }
+      ]
     },
     {
       "id": "fishing",
@@ -1017,14 +1050,20 @@
       "title": "Ballot Measure 3",
       "type": "yesno",
       "description": "Should fishing be banned in all city owned lakes and rivers?",
-      "yesOption": {
-        "id": "ban-fishing",
-        "label": "YES"
-      },
-      "noOption": {
-        "id": "allow-fishing",
-        "label": "NO"
-      }
+      "options": [
+        {
+          "id": "ban-fishing",
+          "label": "YES"
+        },
+        {
+          "id": "allow-fishing",
+          "label": "NO"
+        },
+        {
+          "id": "regulate-fishing",
+          "label": "REGULATE"
+        }
+      ]
     },
     {
       "id": "zoo-director",

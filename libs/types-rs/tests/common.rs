@@ -46,14 +46,16 @@ pub fn simple_election() -> Election {
                 district_id: DistrictId::from("d-1".to_owned()),
                 title: "To be or not to be?".to_owned(),
                 description: "That is the question.".to_owned(),
-                yes_option: YesNoOption {
-                    id: OptionId::from("yn-1-yes".to_owned()),
-                    label: "Yes".to_owned(),
-                },
-                no_option: YesNoOption {
-                    id: OptionId::from("yn-1-no".to_owned()),
-                    label: "No".to_owned(),
-                },
+                options: vec![
+                    YesNoOption {
+                        id: OptionId::from("yn-1-yes".to_owned()),
+                        label: "Yes".to_owned(),
+                    },
+                    YesNoOption {
+                        id: OptionId::from("yn-1-no".to_owned()),
+                        label: "No".to_owned(),
+                    },
+                ],
             }),
         ],
     }
@@ -121,14 +123,16 @@ pub fn arbitrary_contests(district_id: DistrictId) -> impl Strategy<Value = Vec<
                 }),
                 ContestConfig::YesNo { district_id } => Contest::YesNo(YesNoContest {
                     id: ContestId::from(format!("yn-{index}")),
-                    yes_option: YesNoOption {
-                        id: OptionId::from(format!("yn-{index}-yes")),
-                        label: "Yes".to_owned(),
-                    },
-                    no_option: YesNoOption {
-                        id: OptionId::from(format!("yn-{index}-no")),
-                        label: "No".to_owned(),
-                    },
+                    options: vec![
+                        YesNoOption {
+                            id: OptionId::from(format!("yn-{index}-yes")),
+                            label: "Yes".to_owned(),
+                        },
+                        YesNoOption {
+                            id: OptionId::from(format!("yn-{index}-no")),
+                            label: "No".to_owned(),
+                        },
+                    ],
                     district_id: district_id.clone(),
                     title: format!("Yes/No Contest {index}"),
                     description: format!("Description for Yes/No Contest {index}"),

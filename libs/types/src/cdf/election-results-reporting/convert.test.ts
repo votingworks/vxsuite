@@ -15,6 +15,7 @@ import {
   testElectionReportUnsupportedContestType,
   testElectionReportWriteIns,
   testElectionReportYesNoContest,
+  testElectionReportYesNoContestThreeOptions,
   testElectionReportYesNoContestWithoutTextMatch,
 } from './fixtures';
 import { ManualElectionResults } from '../../tabulation';
@@ -157,10 +158,7 @@ describe('getManualResultsFromErrElectionResults', () => {
         'question-a': {
           contestId: 'question-a',
           contestType: 'yesno',
-          yesOptionId: 'fishing-yes',
-          noOptionId: 'fishing-no',
-          yesTally: 30,
-          noTally: 29,
+          tallies: { 'fishing-yes': 30, 'fishing-no': 29 },
           overvotes: 1,
           undervotes: 5,
           ballots: 65,
@@ -168,10 +166,7 @@ describe('getManualResultsFromErrElectionResults', () => {
         judge: {
           contestId: 'judge',
           contestType: 'yesno',
-          yesOptionId: 'retain-yes',
-          noOptionId: 'retain-no',
-          yesTally: 55,
-          noTally: 10,
+          tallies: { 'retain-yes': 55, 'retain-no': 10 },
           overvotes: 0,
           undervotes: 0,
           ballots: 65,
@@ -292,10 +287,7 @@ describe('getManualResultsFromErrElectionResults', () => {
         fishing: {
           contestId: 'fishing',
           contestType: 'yesno',
-          yesOptionId: 'fishing-for',
-          noOptionId: 'fishing-against',
-          yesTally: 45,
-          noTally: 55,
+          tallies: { 'fishing-for': 45, 'fishing-against': 55 },
           overvotes: 0,
           undervotes: 0,
           ballots: 100,
@@ -317,10 +309,7 @@ describe('getManualResultsFromErrElectionResults', () => {
         fishing: {
           contestId: 'fishing',
           contestType: 'yesno',
-          yesOptionId: 'fishing-yes',
-          noOptionId: 'fishing-no',
-          yesTally: 60,
-          noTally: 40,
+          tallies: { 'fishing-yes': 60, 'fishing-no': 40 },
           overvotes: 0,
           undervotes: 0,
           ballots: 100,
@@ -336,16 +325,39 @@ describe('getManualResultsFromErrElectionResults', () => {
     expect(results.ok()).toEqual(expected);
   });
 
+  test('ballot measure with more than two options includes a tally for every option', () => {
+    const expected: ManualElectionResults = {
+      contestResults: {
+        fishing: {
+          contestId: 'fishing',
+          contestType: 'yesno',
+          tallies: {
+            'fishing-yes': 50,
+            'fishing-no': 30,
+            'fishing-maybe': 15,
+          },
+          overvotes: 3,
+          undervotes: 2,
+          ballots: 100,
+        },
+      },
+      ballotCount: 100,
+    };
+
+    const results = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportYesNoContestThreeOptions,
+      getValidCandidateIds(testElectionReportNoOtherCounts)
+    );
+    expect(results.ok()).toEqual(expected);
+  });
+
   test('when no overvotes or undervotes are reported', () => {
     const expected: ManualElectionResults = {
       contestResults: {
         fishing: {
           contestId: 'fishing',
           contestType: 'yesno',
-          yesOptionId: 'fishing-yes',
-          noOptionId: 'fishing-no',
-          yesTally: 60,
-          noTally: 40,
+          tallies: { 'fishing-yes': 60, 'fishing-no': 40 },
           overvotes: 0,
           undervotes: 0,
           ballots: 100,

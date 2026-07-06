@@ -334,31 +334,22 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
         Contest::YesNo(yesno_contest) => {
             println!("{}", yesno_contest.title.as_str().bold());
 
-            let selected_option_id = if let ContestVote::YesNo(option_id) = vote {
-                Some(option_id)
+            let selected_option_ids = if let ContestVote::YesNo(option_ids) = vote {
+                option_ids.as_slice()
             } else {
-                None
+                &[]
             };
 
-            // Show YES option
-            println!(
-                "   {}",
-                stringify_vote!(
-                    yesno_contest.yes_option.label.as_str(),
-                    selected_option_id == Some(&yesno_contest.yes_option.id),
-                    green
-                )
-            );
-
-            // Show NO option
-            println!(
-                "   {}",
-                stringify_vote!(
-                    yesno_contest.no_option.label.as_str(),
-                    selected_option_id == Some(&yesno_contest.no_option.id),
-                    red
-                )
-            );
+            for option in &yesno_contest.options {
+                println!(
+                    "   {}",
+                    stringify_vote!(
+                        option.label.as_str(),
+                        selected_option_ids.contains(&option.id),
+                        green
+                    )
+                );
+            }
         }
         Contest::StraightParty(_) => {
             unimplemented!("STRAIGHT_PARTY_TODO: straight-party contests are not yet implemented")

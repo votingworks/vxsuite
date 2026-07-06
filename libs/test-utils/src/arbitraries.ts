@@ -258,8 +258,10 @@ export function arbitraryYesNoContest({
         description: fc.string({ minLength: 1 }),
         id,
         districtId,
-        yesOption: fc.constant(yesOption),
-        noOption: fc.constant(noOption),
+        options: fc.constant([yesOption, noOption] as [
+          typeof yesOption,
+          typeof noOption,
+        ]),
       })
     )
     .chain((x) => x);
@@ -370,7 +372,7 @@ export function arbitraryContests({
     .filter((contests) =>
       hasUniqueIds(
         contests.flatMap((contest) =>
-          contest.type === 'yesno' ? [contest.yesOption, contest.noOption] : []
+          contest.type === 'yesno' ? [...contest.options] : []
         )
       )
     );

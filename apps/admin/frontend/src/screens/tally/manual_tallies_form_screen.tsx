@@ -10,6 +10,7 @@ import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   ContestId,
+  ContestOptionId,
   getContestDistrictName,
   getContests,
   Tabulation,
@@ -272,11 +273,10 @@ interface FormContestResultsMetadata {
 
 type FormYesNoContestResults = Omit<
   Tabulation.YesNoContestResults,
-  'ballots' | 'overvotes' | 'undervotes' | 'yesTally' | 'noTally'
+  'ballots' | 'overvotes' | 'undervotes' | 'tallies'
 > &
   FormContestResultsMetadata & {
-    yesTally: InputValue;
-    noTally: InputValue;
+    tallies: Record<ContestOptionId, InputValue>;
   };
 
 type FormCandidateContestResults = Omit<
@@ -312,13 +312,12 @@ function emptyFormContestResults(
       return {
         contestId: contest.id,
         contestType: 'yesno',
-        yesOptionId: contest.yesOption.id,
-        noOptionId: contest.noOption.id,
         ballots: ballotCount ?? '',
         overvotes: '',
         undervotes: '',
-        yesTally: '',
-        noTally: '',
+        tallies: Object.fromEntries(
+          contest.options.map((option) => [option.id, ''])
+        ),
       };
 
     case 'candidate':
@@ -360,7 +359,7 @@ function validateTallies(
     formContestResults.undervotes,
     ...(formContestResults.contestType === 'candidate'
       ? Object.values(formContestResults.tallies).map(({ tally }) => tally)
-      : [formContestResults.yesTally, formContestResults.noTally]),
+      : Object.values(formContestResults.tallies)),
   ];
   if (formValues.every((v) => v === '')) {
     return 'empty';
@@ -622,13 +621,10 @@ function ContestForm({
         return contestResults.overvotes;
       case 'undervotes':
         return contestResults.undervotes;
-      case 'yesTally':
-      case 'noTally':
-        assert(contestResults.contestType === 'yesno');
-        return dataKey === 'yesTally'
-          ? contestResults.yesTally
-          : contestResults.noTally;
       default:
+        if (contestResults.contestType === 'yesno') {
+          return contestResults.tallies[dataKey] ?? '';
+        }
         assert(contestResults.contestType === 'candidate');
         return contestResults.tallies[dataKey]?.tally ?? '';
     }
@@ -660,23 +656,18 @@ function ContestForm({
           ballots: value,
         };
         break;
-      case 'noTally':
-      case 'yesTally':
-        assert(contestResults.contestType === 'yesno');
-        assert(newContestResults.contestType === 'yesno');
-        if (dataKey === 'yesTally') {
-          newContestResults = {
-            ...contestResults,
-            yesTally: value,
-          };
-        } else {
-          newContestResults = {
-            ...contestResults,
-            noTally: value,
-          };
-        }
-        break;
       default: {
+        if (contestResults.contestType === 'yesno') {
+          assert(newContestResults.contestType === 'yesno');
+          newContestResults = {
+            ...contestResults,
+            tallies: {
+              ...contestResults.tallies,
+              [dataKey]: value,
+            },
+          };
+          break;
+        }
         assert(contestResults.contestType === 'candidate');
         assert(newContestResults.contestType === 'candidate');
         const candidateTally = contestResults.tallies[dataKey];
@@ -890,22 +881,16 @@ function ContestForm({
             )}
             {contest.type === 'yesno' && (
               <React.Fragment>
-                <ContestDataRow>
-                  <NumberInput
-                    id="yes"
-                    value={getValueForInput('yesTally')}
-                    onChange={(value) => updateContestData('yesTally', value)}
-                  />
-                  <label htmlFor="yes">{contest.yesOption.label}</label>
-                </ContestDataRow>
-                <ContestDataRow>
-                  <NumberInput
-                    id="no"
-                    value={getValueForInput('noTally')}
-                    onChange={(value) => updateContestData('noTally', value)}
-                  />
-                  <label htmlFor="no">{contest.noOption.label}</label>
-                </ContestDataRow>
+                {contest.options.map((option) => (
+                  <ContestDataRow key={option.id}>
+                    <NumberInput
+                      id={option.id}
+                      value={getValueForInput(option.id)}
+                      onChange={(value) => updateContestData(option.id, value)}
+                    />
+                    <label htmlFor={option.id}>{option.label}</label>
+                  </ContestDataRow>
+                ))}
               </React.Fragment>
             )}
             {contest.type === 'candidate' && contest.allowWriteIns && (
