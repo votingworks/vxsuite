@@ -644,7 +644,7 @@ test('register a voter, change name and address, and check in', async () => {
       expect(eventsResult.events).toHaveLength(6);
 
       const statisticsResult =
-        await localApiClient.printClosedPrimaryStatisticsSummaryReceipt();
+        await localApiClient.printPrimaryStatisticsSummaryReceipt();
       expect(statisticsResult.ok()).toEqual(undefined);
       const statisticsReceipt = mockPrinterHandler.getLastPrintPath();
       expect(statisticsReceipt).toBeDefined();

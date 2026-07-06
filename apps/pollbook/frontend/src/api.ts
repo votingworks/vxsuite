@@ -215,31 +215,33 @@ export const getCheckInCounts = {
   },
 } as const;
 
-export const getSummaryStatistics = {
+export const getGeneralSummaryStatistics = {
   queryKey(input?: { partyFilter: PartyFilterAbbreviation }): QueryKey {
-    return input ? ['getSummaryStatistics', input] : ['getSummaryStatistics'];
+    return input
+      ? ['getGeneralSummaryStatistics', input]
+      : ['getGeneralSummaryStatistics'];
   },
   useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getSummaryStatistics(input),
+      () => apiClient.getGeneralSummaryStatistics(input),
       { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
 
-export const getClosedPrimarySummaryStatistics = {
+export const getPrimarySummaryStatistics = {
   queryKey(input?: { partyFilter: PartyFilterAbbreviation }): QueryKey {
     return input
-      ? ['getClosedPrimarySummaryStatistics', input]
-      : ['getClosedPrimarySummaryStatistics'];
+      ? ['getPrimarySummaryStatistics', input]
+      : ['getPrimarySummaryStatistics'];
   },
   useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getClosedPrimarySummaryStatistics(input),
+      () => apiClient.getPrimarySummaryStatistics(input),
       { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
@@ -285,10 +287,8 @@ export const getHaveElectionEventsOccurred = {
 
 async function invalidateCheckInQueries(queryClient: QueryClient) {
   await queryClient.invalidateQueries(getCheckInCounts.queryKey());
-  await queryClient.invalidateQueries(getSummaryStatistics.queryKey());
-  await queryClient.invalidateQueries(
-    getClosedPrimarySummaryStatistics.queryKey()
-  );
+  await queryClient.invalidateQueries(getGeneralSummaryStatistics.queryKey());
+  await queryClient.invalidateQueries(getPrimarySummaryStatistics.queryKey());
   await queryClient.invalidateQueries(getThroughputStatistics.queryKey());
 }
 
@@ -361,17 +361,17 @@ export const reprintVoterReceipt = {
   },
 } as const;
 
-export const printClosedPrimaryStatisticsSummaryReceipt = {
+export const printPrimaryStatisticsSummaryReceipt = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printClosedPrimaryStatisticsSummaryReceipt);
+    return useMutation(apiClient.printPrimaryStatisticsSummaryReceipt);
   },
 } as const;
 
-export const printStatisticsSummaryReceipt = {
+export const printGeneralStatisticsSummaryReceipt = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printStatisticsSummaryReceipt);
+    return useMutation(apiClient.printGeneralStatisticsSummaryReceipt);
   },
 } as const;
 
