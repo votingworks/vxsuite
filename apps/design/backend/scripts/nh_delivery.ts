@@ -27,8 +27,15 @@ export interface TownGroup {
 const BALLOT_STYLE_FILENAME = /^(\d{5}) (DEM|REP) (.*)\.json$/;
 
 function variantFromPath(path: string): Variant | undefined {
-  if (path.includes('VotingWorks Eric Forcier')) return 'VotingWorks';
-  if (path.includes('Hand Count Eric Forcier')) return 'HandCount';
+  if (
+    path.includes('VotingWorks Eric Forcier') ||
+    path.includes('voting-works')
+  ) {
+    return 'VotingWorks';
+  }
+  if (path.includes('Hand Count Eric Forcier') || path.includes('hand-count')) {
+    return 'HandCount';
+  }
   return undefined;
 }
 
