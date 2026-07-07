@@ -6,8 +6,9 @@ import {
 } from '@votingworks/types';
 import {
   ballotTemplates,
-  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
   RenderDocument,
+  Renderer,
   renderBallotTemplate,
   renderNhRovForm,
 } from '@votingworks/hmpb';
@@ -135,7 +136,7 @@ function largestBallotStyleId(election: Election): string {
 }
 
 async function overflowsToBack(
-  renderer: Awaited<ReturnType<typeof createPlaywrightRenderer>>,
+  renderer: Renderer,
   election: Election,
   ballotStyleId: string,
   isHandCount: boolean
@@ -158,7 +159,7 @@ interface FitResult {
 // Pick the smallest paper size on which the town's largest ballot style keeps
 // all contests off the back page.
 async function autoFitPaperSize(
-  renderer: Awaited<ReturnType<typeof createPlaywrightRenderer>>,
+  renderer: Renderer,
   election: Election,
   isHandCount: boolean
 ): Promise<FitResult> {
@@ -191,7 +192,7 @@ interface TownResult {
 }
 
 async function renderTown(
-  renderer: Awaited<ReturnType<typeof createPlaywrightRenderer>>,
+  renderer: Renderer,
   town: TownGroup,
   outDir: string
 ): Promise<TownResult> {
@@ -281,24 +282,35 @@ export async function main(args: readonly string[]): Promise<number> {
   }
   console.log(`Rendering ${towns.length} town(s) -> ${outDir}\n`);
 
-  const renderer = await createPlaywrightRenderer();
-  const results: TownResult[] = [];
+  // Render towns concurrently via a renderer pool (one reused page per task,
+  // capped at the pool size), which is both fast and leak-free.
+  const pool = await createPlaywrightRendererPool();
+  let results: TownResult[];
   try {
-    for (const town of towns) {
-      const result = await renderTown(renderer, town, outDir);
-      results.push(result);
-      const flag =
-        result.paperSize === HmpbBallotPaperSize.Letter
-          ? ''
-          : result.overflowedAtMax
-          ? `  ⚠ STILL OVERFLOWS at ${result.paperSize}`
-          : `  ← ${result.paperSize}`;
-      console.log(
-        `${result.townName} (${result.variant}): ${result.ballotCount} ballot styles x ${BALLOT_VARIANTS.length} variants${flag}`
-      );
-    }
+    results = await pool.runTasks(
+      towns.map(
+        (town) => (renderer: Renderer) => renderTown(renderer, town, outDir)
+      ),
+      (done, total) => {
+        if (done === total || done % 10 === 0) {
+          console.log(`  rendered ${done}/${total} towns`);
+        }
+      }
+    );
   } finally {
-    await renderer.close();
+    await pool.close();
+  }
+
+  for (const result of results) {
+    const flag =
+      result.paperSize === HmpbBallotPaperSize.Letter
+        ? ''
+        : result.overflowedAtMax
+        ? `  ⚠ STILL OVERFLOWS at ${result.paperSize}`
+        : `  ← ${result.paperSize}`;
+    console.log(
+      `${result.townName} (${result.variant}): ${result.ballotCount} ballot styles x ${BALLOT_VARIANTS.length} variants${flag}`
+    );
   }
 
   const nonLetter = results.filter(
