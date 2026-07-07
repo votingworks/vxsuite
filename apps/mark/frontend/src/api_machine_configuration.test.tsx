@@ -82,11 +82,16 @@ test('printBlankBallot', async () => {
     wrapper: QueryWrapper,
   });
 
-  result.current.mutate({ ballotStyleId: '1', precinctId: '23' });
+  result.current.mutate({
+    ballotStyleId: '1',
+    precinctId: '23',
+    languageCode: 'en',
+  });
   await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockBackendApi.printBlankBallot).toHaveBeenCalledWith({
     ballotStyleId: '1',
     precinctId: '23',
+    languageCode: 'en',
   });
 });
