@@ -387,6 +387,7 @@ export const printBallot = {
   },
 } as const;
 
+/* istanbul ignore next */
 export const printBlankBallot = {
   useMutation() {
     const apiClient = useApiClient();

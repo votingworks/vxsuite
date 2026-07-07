@@ -327,21 +327,21 @@ export function buildApi(ctx: Context) {
     }),
 
     async printBallot(input: PrintBallotProps) {
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
       await printBallot({
         store,
         printer,
         ...input,
       });
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
     },
 
     async printBlankBallot(input: PrintBlankBallotProps) {
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
       await printBlankBallot({
         store,
         printer,
         ...input,
       });
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
     },
 
     async printTestDeck({
