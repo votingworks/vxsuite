@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({ type: 'transform' });
+require('../scripts/nh_empty_contests').reportEmptyContests(process.argv[2]);
