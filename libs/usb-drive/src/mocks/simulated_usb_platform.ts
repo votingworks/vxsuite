@@ -196,6 +196,10 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
   async getDrives(): Promise<UsbPlatformDrive[]> {
     await Promise.resolve();
+    // Rebuild each partition field-by-field rather than returning the stored
+    // object directly: a round-trip through the JSON state file drops an
+    // `undefined` mountpoint key, and this keeps the shape identical to
+    // RealUsbPlatform.getDrives (which always includes an explicit mountpoint).
     return this.getSimulatedDrives()
       .filter((drive) => drive.present)
       .map(
