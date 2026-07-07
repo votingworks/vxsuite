@@ -49,7 +49,7 @@ import {
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
 } from './tabulation';
-import { partisanContests } from './open_primary';
+import { partisanContests } from './combined_ballot_primary';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,

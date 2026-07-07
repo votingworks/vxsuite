@@ -23,7 +23,10 @@ import {
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
-import { inferPartyFromVotes, partisanContests } from './open_primary';
+import {
+  inferPartyFromVotes,
+  partisanContests,
+} from './combined_ballot_primary';
 import { deriveStraightPartyVotes } from './straight_party';
 
 export function getEmptyYesNoContestResults(
