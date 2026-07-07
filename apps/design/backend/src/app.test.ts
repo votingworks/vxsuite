@@ -3265,7 +3265,7 @@ test('open primary elections', async () => {
   });
   auth0.setLoggedInUser(supportUser);
 
-  // Loading an open primary into a jurisdiction with OPEN_PRIMARIES stores the
+  // Loading an open primary into a jurisdiction with COMBINED_BALLOT_PRIMARIES stores the
   // combined-ballot flag
   const electionId = (
     await apiClient.loadElection({
@@ -3291,7 +3291,7 @@ test('open primary elections', async () => {
     expect(ballotStyle.partyId).toBeUndefined();
   }
 
-  // Loading an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  // Loading an open primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   expect(
     await apiClient.loadElection({
       upload: {
@@ -3321,7 +3321,7 @@ test('open primary elections', async () => {
   expect(clonedInfo.type).toEqual('primary');
   expect(clonedInfo.isMiCombinedBallotPrimary).toEqual(true);
 
-  // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  // Cloning an open primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   await suppressingConsoleOutput(() =>
     expect(
       apiClient.cloneElection({

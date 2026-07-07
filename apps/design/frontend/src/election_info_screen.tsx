@@ -218,7 +218,7 @@ function ElectionInfoForm({
           label="Type"
           options={[
             { label: 'General', id: 'general' as const },
-            ...(features.OPEN_PRIMARIES
+            ...(features.COMBINED_BALLOT_PRIMARIES
               ? [
                   {
                     label: 'Closed Primary',

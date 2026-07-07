@@ -488,11 +488,11 @@ test('handles duplicate title+date error', async () => {
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
 });
 
-test('election type selector with features.OPEN_PRIMARIES enabled', async () => {
+test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const electionId = election.id;
-  mockStateFeatures(apiMock, electionId, { OPEN_PRIMARIES: true });
+  mockStateFeatures(apiMock, electionId, { COMBINED_BALLOT_PRIMARIES: true });
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
