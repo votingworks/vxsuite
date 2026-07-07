@@ -351,10 +351,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   replaceDriveData(diskPath: UsbDiskDevPath, contents: MockFileTree): void {
     debug('Replace drive data: %s', diskPath);
-    assert(
-      this.getSimulatedDrives().some((d) => d.diskPath === diskPath),
-      `Drive not found: ${diskPath}`
-    );
+    findDrive(this.getSimulatedDrives(), diskPath); // asserts the drive exists
     const storagePath = this.reinitStorage(diskPath);
     writeMockFileTree(storagePath, contents);
   }
