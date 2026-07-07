@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -231,7 +231,7 @@ test('ballot count report PDF', async () => {
 
 test('open primary ballot count report PDF', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, mockPrinterHandler, mockUsbDrive, workspace } =
     buildTestEnvironment();

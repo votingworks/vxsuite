@@ -4,7 +4,7 @@ import { randomUUID as uuid } from 'node:crypto';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
@@ -122,7 +122,7 @@ test('isBmdPage', () => {
 });
 
 test('getScannerResults groups by inferred party for an open primary', async () => {
-  const electionDefinition = readElectionOpenPrimaryDefinition();
+  const electionDefinition = readElectionCombinedBallotPrimaryDefinition();
   const { election } = electionDefinition;
   const democraticPartyId = election.parties.find(
     (p) => p.name === 'Democratic'

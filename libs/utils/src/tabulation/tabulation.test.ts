@@ -4,7 +4,7 @@ import {
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   electionWithMsEitherNeitherFixtures,
-  readElectionOpenPrimary,
+  readElectionCombinedBallotPrimary,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
@@ -1438,7 +1438,7 @@ test('tabulateCastVoteRecords with a straight-party contest', async () => {
 });
 
 describe('open primaries', () => {
-  const openPrimaryElection = readElectionOpenPrimary();
+  const openPrimaryElection = readElectionCombinedBallotPrimary();
 
   const baseCvrMetadata = {
     card: { type: 'bmd' },

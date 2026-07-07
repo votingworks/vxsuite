@@ -8,7 +8,7 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   readElectionGeneral,
@@ -1422,7 +1422,7 @@ export const miOpenPrimaryElectionFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'mi-open-primary-election');
   const electionPath = join(dir, 'election.json');
 
-  const election = electionOpenPrimaryFixtures.readElection();
+  const election = electionCombinedBallotPrimaryFixtures.readElection();
   const ballotStyle = assertDefined(
     getBallotStyle({
       election,

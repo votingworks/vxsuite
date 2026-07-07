@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
@@ -12,7 +12,8 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
-const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
+const electionOpenPrimaryDefinition =
+  readElectionCombinedBallotPrimaryDefinition();
 
 let apiMock: ApiMock;
 
@@ -271,7 +272,7 @@ test('adjudication status selection', () => {
 });
 
 test('adjudication status selection includes "Crossover Vote" in open primary', () => {
-  const { election } = readElectionOpenPrimaryDefinition();
+  const { election } = readElectionCombinedBallotPrimaryDefinition();
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);

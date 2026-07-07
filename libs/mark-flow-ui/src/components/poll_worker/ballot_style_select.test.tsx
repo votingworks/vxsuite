@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
@@ -182,7 +182,7 @@ describe('primary election', () => {
 
 describe('open primary election', () => {
   const electionDefinitionOpenPrimary =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinitionOpenPrimary;
 
   test('single precinct configuration', () => {

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -112,7 +112,7 @@ test('primary', () => {
 
 test('open primary: partisan contests get party labels; nonpartisan contests get a "Nonpartisan Contests" label', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   render(
     <WriteInAdjudicationReport
       electionDefinition={electionDefinition}

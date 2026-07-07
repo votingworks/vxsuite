@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 
@@ -496,7 +496,7 @@ test('removes write-in candidates not referenced anymore', async () => {
 
 test('manual results APIs reject reads/writes for open primary elections', async () => {
   const openPrimaryElectionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, openPrimaryElectionDefinition);
   mockElectionManagerAuth(auth, openPrimaryElectionDefinition.election);

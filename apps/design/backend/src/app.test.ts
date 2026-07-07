@@ -17,7 +17,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -3271,7 +3271,8 @@ test('open primary elections', async () => {
     await apiClient.loadElection({
       upload: {
         format: 'vxf',
-        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+        electionFileContents:
+          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
       newId: 'open-primary-election',
       jurisdictionId: miJurisdiction.id,
@@ -3296,7 +3297,8 @@ test('open primary elections', async () => {
     await apiClient.loadElection({
       upload: {
         format: 'vxf',
-        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+        electionFileContents:
+          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
       newId: 'not-open-primary-election',
       jurisdictionId: nonVxJurisdiction.id,

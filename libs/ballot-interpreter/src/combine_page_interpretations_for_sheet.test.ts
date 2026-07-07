@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -16,7 +16,8 @@ import {
 import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet';
 
 const { election, electionDefinition } = vxFamousNamesFixtures;
-const openPrimaryElection = electionOpenPrimaryFixtures.readElection();
+const openPrimaryElection =
+  electionCombinedBallotPrimaryFixtures.readElection();
 
 const firstBallotStyle = assertDefined(election.ballotStyles[0]);
 const invalidPageMetadata: HmpbBallotPageMetadata = {

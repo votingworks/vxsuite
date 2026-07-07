@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -105,7 +105,7 @@ test('Start navigates to first contest for non-open-primary elections', () => {
 
 test('Start navigates to party selection for open primary elections', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
   render(<Route path="/" component={StartScreen} />, {

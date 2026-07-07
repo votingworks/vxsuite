@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -16,7 +16,7 @@ import { ReviewScreen } from './review_screen';
 
 const electionGeneral = readElectionGeneral();
 const electionOpenPrimaryDefinition =
-  electionOpenPrimaryFixtures.readElectionDefinition();
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
 vi.setConfig({
   testTimeout: 20_000,

@@ -15,7 +15,7 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
@@ -139,7 +139,7 @@ export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
 }
 export function openPrimaryElectionRecord(jurisdictionId: Id): ElectionRecord {
   return makeElectionRecord(
-    electionOpenPrimaryFixtures.readElection(),
+    electionCombinedBallotPrimaryFixtures.readElection(),
     jurisdictionId
   );
 }

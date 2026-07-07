@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
@@ -21,7 +21,7 @@ const electionDefinitionPrimary =
 const electionDefinitionSimple =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const electionDefinitionOpenPrimary =
-  electionOpenPrimaryFixtures.readElectionDefinition();
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
 test('renders report with test mode banner', () => {
   render(

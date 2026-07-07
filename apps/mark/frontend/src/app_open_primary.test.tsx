@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   anyPollingPlace,
@@ -16,7 +16,8 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
+const electionDefinition =
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 const pollingPlace = anyPollingPlace(election);
 const [precinctOrSplit] = pollingPlaceMembers(election, pollingPlace);

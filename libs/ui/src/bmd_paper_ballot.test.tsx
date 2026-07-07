@@ -14,7 +14,7 @@ import {
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
   readElectionWithMsEitherNeitherDefinition,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
   electionStraightPartyFixtures,
@@ -151,7 +151,7 @@ test('BmdPaperBallot includes ballot style and language metadata - primary elect
 
 test('BmdPaperBallot labels each partisan contest with its party in open primaries', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   renderBmdPaperBallot({
     electionDefinition,
     ballotStyleId: 'ballot-style-1',

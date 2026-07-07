@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
@@ -742,7 +742,7 @@ test('tabulateFullCardCounts - blankBallots', async () => {
 test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,

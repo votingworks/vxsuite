@@ -200,7 +200,7 @@ test('election fixture references', async () => {
       title: 'electionMultiPartyPrimary',
     },
     {
-      path: 'fixtures/data/electionOpenPrimary/election.json',
+      path: 'fixtures/data/electionCombinedBallotPrimary/election.json',
       title: 'electionOpenPrimary',
     },
     {

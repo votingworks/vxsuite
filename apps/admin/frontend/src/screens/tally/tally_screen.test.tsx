@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 
@@ -66,7 +66,7 @@ test('hides Manual Tallies tab for open primary elections', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<TallyScreen />, {
-    electionDefinition: readElectionOpenPrimaryDefinition(),
+    electionDefinition: readElectionCombinedBallotPrimaryDefinition(),
     apiMock,
     route: '/tally',
   });
@@ -81,7 +81,7 @@ test('redirects /tally/manual to CVRs tab for open primary elections', async () 
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<TallyScreen />, {
-    electionDefinition: readElectionOpenPrimaryDefinition(),
+    electionDefinition: readElectionCombinedBallotPrimaryDefinition(),
     apiMock,
     route: '/tally/manual',
   });

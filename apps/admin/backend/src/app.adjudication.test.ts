@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
@@ -2048,7 +2048,7 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
 
 test('open primary crossover votes', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();

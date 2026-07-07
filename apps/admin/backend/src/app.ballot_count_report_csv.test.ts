@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -315,7 +315,7 @@ test('creates accurate ballot count reports', async () => {
 
 test('open primary: groups by inferred party with a No Party row', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
@@ -410,7 +410,7 @@ test('open primary: groups by inferred party with a No Party row', async () => {
 
 test('open primary: groupByParty with No Party filter', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,

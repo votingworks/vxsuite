@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -290,7 +290,7 @@ test('no marginal mark when scores are above definite', () => {
 
 test('open primary - crossover vote', () => {
   const openPrimaryElectionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   expect(
     getCastVoteRecordAdjudicationFlags(
       openPrimaryElectionDefinition,

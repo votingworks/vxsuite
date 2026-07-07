@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId, CandidateContest } from '@votingworks/types';
 import { find } from '@votingworks/basics';
@@ -15,7 +15,8 @@ const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
 const PRECINCT_ID = 'precinct-1';
 const PRECINCT_NAME = 'Precinct 1';
 const POLLING_PLACE_ID = `${PRECINCT_ID}-polling-place`;
-const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
+const electionDefinition =
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
 let apiMock: ApiMock;

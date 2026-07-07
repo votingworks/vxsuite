@@ -23,7 +23,7 @@ import {
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -646,7 +646,7 @@ test('end-to-end printing flow handles open primary (consolidated ballots)', asy
   // ballot) and ballot styles have no partyId. VxPrint should print without a
   // party selection, just like a general election.
   const electionDefinition = getMockMultiLanguageElectionDefinition(
-    electionOpenPrimaryFixtures.readElectionDefinition(),
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition(),
     [LanguageCode.ENGLISH]
   );
 
@@ -693,7 +693,7 @@ test('end-to-end printing flow handles open primary (consolidated ballots)', asy
 
 test('printAllBallotStyles works for open primary (consolidated ballots)', async () => {
   const electionDefinition = getMockMultiLanguageElectionDefinition(
-    electionOpenPrimaryFixtures.readElectionDefinition(),
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition(),
     [LanguageCode.ENGLISH]
   );
 

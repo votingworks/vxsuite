@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionStraightPartyFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -44,7 +44,7 @@ import { routerPaths } from '../router_paths';
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election: primaryElection } = electionDefinition;
 const openPrimaryDefinition =
-  electionOpenPrimaryFixtures.readElectionDefinition();
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 const openPrimaryElection = openPrimaryDefinition.election;
 const straightPartyElectionDefinition =
   electionStraightPartyFixtures.readElectionDefinition();

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -1024,7 +1024,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
 
 test('open primary, full election with crossover and adjudications', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -1107,7 +1107,7 @@ test('open primary, full election with crossover and adjudications', async () =>
 
 test('open primary, grouped by precinct', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -1272,7 +1272,7 @@ test('open primary, grouped by precinct', async () => {
 
 test('open primary, crossover ballots write-ins excluded from partisan tallies', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,

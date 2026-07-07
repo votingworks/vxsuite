@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -145,7 +145,7 @@ test('Back from first contest goes to start screen when no party selected', () =
 
 test('Back from first contest goes to party selection when a party is selected', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(

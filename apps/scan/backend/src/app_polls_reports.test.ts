@@ -6,7 +6,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionStraightPartyFixtures,
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { randomUUID as uuid } from 'node:crypto';
@@ -551,7 +551,8 @@ test('can tabulate results and print polls closed report for closed primary', as
 });
 
 test('can tabulate results and print polls closed report for open primary', async () => {
-  const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
+  const electionOpenPrimaryDefinition =
+    readElectionCombinedBallotPrimaryDefinition();
   await withApp(
     async ({
       apiClient,

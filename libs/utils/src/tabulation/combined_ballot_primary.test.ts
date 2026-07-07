@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import {
   readElectionGeneral,
-  readElectionOpenPrimary,
+  readElectionCombinedBallotPrimary,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
@@ -17,7 +17,7 @@ import {
   votedPartyIds,
 } from './combined_ballot_primary';
 
-const openPrimary = readElectionOpenPrimary();
+const openPrimary = readElectionCombinedBallotPrimary();
 const closedPrimary = readElectionTwoPartyPrimary();
 const generalElection = readElectionGeneral();
 

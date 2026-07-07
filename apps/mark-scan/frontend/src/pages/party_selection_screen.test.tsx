@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
@@ -9,7 +9,8 @@ import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { PartySelectionScreen } from './party_selection_screen';
 
-const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
+const electionDefinition =
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 const democraticGovernor = electionDefinition.election.contests.find(
   (c): c is CandidateContest => c.id === 'governor-democratic'
 )!;

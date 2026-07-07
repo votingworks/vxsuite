@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -221,7 +221,7 @@ test('logs failure if export fails for some reason', async () => {
 
 test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,

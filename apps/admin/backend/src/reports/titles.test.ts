@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
@@ -218,7 +218,7 @@ test('generateTitleForReport', () => {
   }
 
   const openPrimaryElectionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   expect(
     generateTitleForReport({
       filter: { partyIds: [Tabulation.NO_PARTY_ID] },
