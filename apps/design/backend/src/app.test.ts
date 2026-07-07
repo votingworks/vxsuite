@@ -17,7 +17,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -3257,7 +3257,7 @@ test('cloneElection', async () => {
   );
 });
 
-test('open primary elections', async () => {
+test('combined ballot primary elections', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -3265,46 +3265,50 @@ test('open primary elections', async () => {
   });
   auth0.setLoggedInUser(supportUser);
 
-  // Loading an open primary into a jurisdiction with OPEN_PRIMARIES stores the
+  // Loading a combined ballot primary into a jurisdiction with COMBINED_BALLOT_PRIMARIES stores the
   // combined-ballot flag
   const electionId = (
     await apiClient.loadElection({
       upload: {
         format: 'vxf',
-        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+        electionFileContents:
+          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
-      newId: 'open-primary-election',
+      newId: 'combined-ballot-primary-election',
       jurisdictionId: miJurisdiction.id,
     })
   ).unsafeUnwrap();
-  const openPrimaryInfo = await apiClient.getElectionInfo({ electionId });
-  expect(openPrimaryInfo.type).toEqual('primary');
-  expect(openPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
-
-  // Open primary elections generate one ballot style per precinct with no
-  // partyId — voters see all parties' contests on a single ballot.
-  const openPrimaryBallotStyles = await apiClient.listBallotStyles({
+  const combinedBallotPrimaryInfo = await apiClient.getElectionInfo({
     electionId,
   });
-  expect(openPrimaryBallotStyles.length).toBeGreaterThan(0);
-  for (const ballotStyle of openPrimaryBallotStyles) {
+  expect(combinedBallotPrimaryInfo.type).toEqual('primary');
+  expect(combinedBallotPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
+
+  // Combined ballot primary elections generate one ballot style per precinct with no
+  // partyId — voters see all parties' contests on a single ballot.
+  const combinedBallotPrimaryBallotStyles = await apiClient.listBallotStyles({
+    electionId,
+  });
+  expect(combinedBallotPrimaryBallotStyles.length).toBeGreaterThan(0);
+  for (const ballotStyle of combinedBallotPrimaryBallotStyles) {
     expect(ballotStyle.partyId).toBeUndefined();
   }
 
-  // Loading an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  // Loading a combined ballot primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   expect(
     await apiClient.loadElection({
       upload: {
         format: 'vxf',
-        electionFileContents: electionOpenPrimaryFixtures.electionJson.asText(),
+        electionFileContents:
+          electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
-      newId: 'not-open-primary-election',
+      newId: 'not-combined-ballot-primary-election',
       jurisdictionId: nonVxJurisdiction.id,
     })
   ).toEqual(
     err(
       expect.objectContaining({
-        message: expect.stringContaining('Open primary'),
+        message: expect.stringContaining('Combined ballot primary'),
       })
     )
   );
@@ -3312,7 +3316,7 @@ test('open primary elections', async () => {
   // Cloning preserves the combined-ballot flag
   const clonedElectionId = await apiClient.cloneElection({
     electionId,
-    destElectionId: 'cloned-open-primary',
+    destElectionId: 'cloned-combined-ballot-primary',
     destJurisdictionId: miJurisdiction.id,
   });
   const clonedInfo = await apiClient.getElectionInfo({
@@ -3321,7 +3325,7 @@ test('open primary elections', async () => {
   expect(clonedInfo.type).toEqual('primary');
   expect(clonedInfo.isMiCombinedBallotPrimary).toEqual(true);
 
-  // Cloning an open primary into a jurisdiction without OPEN_PRIMARIES is rejected
+  // Cloning a combined ballot primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   await suppressingConsoleOutput(() =>
     expect(
       apiClient.cloneElection({
@@ -3329,11 +3333,11 @@ test('open primary elections', async () => {
         destElectionId: 'should-fail',
         destJurisdictionId: nonVxJurisdiction.id,
       })
-    ).rejects.toThrow('Open primary')
+    ).rejects.toThrow('Combined ballot primary')
   );
 
-  // Finalizing an open primary generates the election package but skips test
-  // decks, which don't yet support open primaries.
+  // Finalizing a combined ballot primary generates the election package but skips test
+  // decks, which don't yet support combined ballot primaries.
   await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
   const originalMiConfig = stateFeatureConfigs.MI;
   stateFeatureConfigs.MI = { ...originalMiConfig, EXPORT_TEST_BALLOTS: true };

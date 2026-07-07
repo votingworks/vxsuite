@@ -60,27 +60,29 @@ test('convertLatestElectionToV4p0', () => {
     },
   });
 
-  // Open primaries convert like any other primary: the open-vs-closed
+  // Combined ballot primaries convert like any other primary: the open-vs-closed
   // distinction is carried by ballot styles' partyId, not the election type.
-  const openPrimaryElection: Election = {
+  const combinedBallotPrimaryElection: Election = {
     ...primaryElection,
     ballotStyles: primaryElection.ballotStyles.map((bs) => ({
       ...bs,
       partyId: undefined,
     })),
   };
-  expect(convertLatestElectionToV4p0(openPrimaryElection)).toEqual({
-    ...openPrimaryElection,
-    contests: toV4p0Contests(openPrimaryElection.contests),
+  expect(convertLatestElectionToV4p0(combinedBallotPrimaryElection)).toEqual({
+    ...combinedBallotPrimaryElection,
+    contests: toV4p0Contests(combinedBallotPrimaryElection.contests),
     jurisdiction: undefined,
-    county: openPrimaryElection.jurisdiction,
+    county: combinedBallotPrimaryElection.jurisdiction,
     ballotStrings: {
-      ...openPrimaryElection.ballotStrings,
+      ...combinedBallotPrimaryElection.ballotStrings,
       en: {
-        ...openPrimaryElection.ballotStrings['en'],
+        ...combinedBallotPrimaryElection.ballotStrings['en'],
         jurisdictionName: undefined,
         countyName:
-          openPrimaryElection.ballotStrings['en']?.['jurisdictionName'],
+          combinedBallotPrimaryElection.ballotStrings['en']?.[
+            'jurisdictionName'
+          ],
       },
     },
   });

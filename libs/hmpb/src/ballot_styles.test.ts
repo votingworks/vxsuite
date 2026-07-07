@@ -160,10 +160,10 @@ describe('generateBallotStyles()', () => {
   const partyBContest2 = makeContest('contest-2B', district2.id, partyB.id);
   /* eslint-enable vx/gts-identifiers */
 
-  // General and open-primary elections share the same ballot style generation
+  // General and combined ballot primary elections share the same ballot style generation
   // logic: one ballot style per precinct/district group, no partyId. Partisan
-  // contests in open primaries don't affect ballot style partitioning.
-  const generalAndOpenPrimaryCases = [
+  // contests in combined ballot primaries don't affect ballot style partitioning.
+  const generalAndCombinedBallotPrimaryCases = [
     {
       name: 'general',
       electionType: 'general' as const,
@@ -175,7 +175,7 @@ describe('generateBallotStyles()', () => {
       parties: [],
     },
     {
-      name: 'open primary',
+      name: 'combined ballot primary',
       electionType: 'primary' as const,
       isMiCombinedBallotPrimary: true,
       contests: {
@@ -186,7 +186,7 @@ describe('generateBallotStyles()', () => {
     },
   ];
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, no splits, default rotation',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
@@ -248,7 +248,7 @@ describe('generateBallotStyles()', () => {
     }
   );
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, default rotation',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
@@ -312,7 +312,7 @@ describe('generateBallotStyles()', () => {
     }
   );
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, rotation by precinct',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [

@@ -6,7 +6,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionStraightPartyFixtures,
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { randomUUID as uuid } from 'node:crypto';
@@ -550,8 +550,9 @@ test('can tabulate results and print polls closed report for closed primary', as
   );
 });
 
-test('can tabulate results and print polls closed report for open primary', async () => {
-  const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
+test('can tabulate results and print polls closed report for combined ballot primary', async () => {
+  const electionCombinedBallotPrimaryDefinition =
+    readElectionCombinedBallotPrimaryDefinition();
   await withApp(
     async ({
       apiClient,
@@ -563,14 +564,14 @@ test('can tabulate results and print polls closed report for open primary', asyn
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
         electionPackage: {
-          electionDefinition: electionOpenPrimaryDefinition,
+          electionDefinition: electionCombinedBallotPrimaryDefinition,
         },
       });
 
       function record(votes: VotesDict): void {
         recordHmpbBallotInStore({
           store: workspace.store,
-          electionDefinition: electionOpenPrimaryDefinition,
+          electionDefinition: electionCombinedBallotPrimaryDefinition,
           ballotStyleId: 'ballot-style-1',
           precinctId: 'precinct-1',
           votes,
@@ -617,7 +618,7 @@ test('can tabulate results and print polls closed report for open primary', asyn
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier:
-          'polls-closed-open-primary-section-democratic',
+          'polls-closed-combined-ballot-primary-section-democratic',
         failureThreshold: 0.0001,
       });
 
@@ -630,7 +631,7 @@ test('can tabulate results and print polls closed report for open primary', asyn
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier:
-          'polls-closed-open-primary-section-republican',
+          'polls-closed-combined-ballot-primary-section-republican',
         failureThreshold: 0.0001,
       });
 
@@ -643,7 +644,7 @@ test('can tabulate results and print polls closed report for open primary', asyn
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier:
-          'polls-closed-open-primary-section-libertarian',
+          'polls-closed-combined-ballot-primary-section-libertarian',
         failureThreshold: 0.0001,
       });
 
@@ -656,7 +657,7 @@ test('can tabulate results and print polls closed report for open primary', asyn
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier:
-          'polls-closed-open-primary-section-nonpartisan',
+          'polls-closed-combined-ballot-primary-section-nonpartisan',
         failureThreshold: 0.0001,
       });
 

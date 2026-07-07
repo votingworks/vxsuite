@@ -5,7 +5,7 @@ import {
   getBallotStyle,
   getContests,
   ContestId,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   PartyId,
   PrecinctId,
   BallotStyleId,
@@ -79,7 +79,7 @@ import { InternalConnectionProblemScreen } from './pages/internal_connection_pro
 
 export interface VotingState {
   votes?: VotesDict;
-  // Only set for open primary elections; see BallotContextInterface.
+  // Only set for combined ballot primary elections; see BallotContextInterface.
   selectedPartyId?: PartyId;
   showPostVotingInstructions?: boolean;
   showingPatCalibration?: boolean;
@@ -257,10 +257,10 @@ export function AppRoot(): JSX.Element | null {
             ballotStyle,
           })
         )
-          // For open primaries, show only partisan contests for the party
+          // For combined ballot primaries, show only partisan contests for the party
           // selected by the user + nonpartisan contests.
           .filter((contest) => {
-            if (isOpenPrimary(electionDefinition.election)) {
+            if (isCombinedBallotPrimary(electionDefinition.election)) {
               // If the voter hasn't selected a party yet (e.g. on the start
               // screen), default to a random party so the contest count
               // matches.

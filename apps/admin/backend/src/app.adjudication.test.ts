@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
@@ -35,7 +35,7 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -2046,9 +2046,9 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   ).toEqual(true);
 });
 
-test('open primary crossover votes', async () => {
+test('combined ballot primary crossover votes', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -2056,7 +2056,7 @@ test('open primary crossover votes', async () => {
   mockElectionManagerAuth(auth, election);
 
   const { cvrIds, resolvedCrossoverCvrId } =
-    await seedOpenPrimaryCvrsAndAdjudications({
+    await seedCombinedBallotPrimaryCvrsAndAdjudications({
       apiClient,
       electionId: workspace.store.getCurrentElectionId()!,
       store: workspace.store,

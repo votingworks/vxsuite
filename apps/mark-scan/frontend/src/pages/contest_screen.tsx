@@ -44,7 +44,7 @@ export function ContestScreen(): JSX.Element {
     api.getIsPatDeviceConnected.useQuery().data
   );
 
-  // In open primaries, Back from the first contest returns to party selection so the
+  // In combined ballot primaries, Back from the first contest returns to party selection so the
   // voter can change their party. `selectedPartyId` being set implies the
   // voter came from the party selection screen.
   function getStartPageUrl() {

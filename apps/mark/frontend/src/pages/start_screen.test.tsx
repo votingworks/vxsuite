@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -87,7 +87,7 @@ test('renders repeated audio-only intro prompt', () => {
   );
 });
 
-test('Start navigates to first contest for non-open-primary elections', () => {
+test('Start navigates to first contest for elections that are not combined ballot primaries', () => {
   const electionDefinition = readElectionGeneralDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
@@ -103,9 +103,9 @@ test('Start navigates to first contest for non-open-primary elections', () => {
   expect(history.location.pathname).toEqual('/contests/0');
 });
 
-test('Start navigates to party selection for open primary elections', () => {
+test('Start navigates to party selection for combined ballot primary elections', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
   render(<Route path="/" component={StartScreen} />, {

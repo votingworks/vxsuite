@@ -10,7 +10,7 @@ import {
   PartyId,
   Tabulation,
   VotesDict,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 
 type PartisanContest = CandidateContest & { partyId: PartyId };
@@ -39,23 +39,23 @@ export function votedPartyIds(election: Election, votes: VotesDict): PartyId[] {
 }
 
 /**
- * In open primary elections only, returns true if the voter voted in partisan
+ * In combined ballot primary elections only, returns true if the voter voted in partisan
  * contests for more than one party.
  */
 export function hasCrossoverVote(
   election: Election,
   votes: VotesDict
 ): boolean {
-  // Short circuit to avoid doing extra work if it's not an open primary, even
+  // Short circuit to avoid doing extra work if it's not a combined ballot primary, even
   // though crossover votes aren't possible in general elections/closed primaries.
-  if (!isOpenPrimary(election)) {
+  if (!isCombinedBallotPrimary(election)) {
     return false;
   }
   return votedPartyIds(election, votes).length > 1;
 }
 
 /**
- * In open primary elections only, infers the voter's party from their partisan
+ * In combined ballot primary elections only, infers the voter's party from their partisan
  * contest selections. Returns NO_PARTY_ID when the ballot has no partisan votes
  * or has crossover votes.
  */
@@ -63,7 +63,7 @@ export function inferPartyFromVotes(
   election: Election,
   votes: Tabulation.Votes
 ): PartyId | Tabulation.NoPartyId {
-  assert(isOpenPrimary(election));
+  assert(isCombinedBallotPrimary(election));
   const parties = votedPartyIds(election, votes);
   return parties.length === 1
     ? assertDefined(parties[0])

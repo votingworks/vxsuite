@@ -15,7 +15,7 @@ import {
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyIdsInBallotStyles,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   getPartyIdsWithContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
@@ -262,22 +262,22 @@ test('getPartyIdsInBallotStyles', () => {
   );
 });
 
-test('isOpenPrimary', () => {
+test('isCombinedBallotPrimary', () => {
   // general election
-  expect(isOpenPrimary(election)).toEqual(false);
+  expect(isCombinedBallotPrimary(election)).toEqual(false);
 
   // closed primary (ballot styles have partyId)
-  expect(isOpenPrimary(primaryElection)).toEqual(false);
+  expect(isCombinedBallotPrimary(primaryElection)).toEqual(false);
 
-  // open primary (ballot styles have no partyId)
-  const openPrimaryElection: Election = {
+  // combined ballot primary (ballot styles have no partyId)
+  const combinedBallotPrimaryElection: Election = {
     ...primaryElection,
     ballotStyles: primaryElection.ballotStyles.map((bs) => ({
       ...bs,
       partyId: undefined,
     })),
   };
-  expect(isOpenPrimary(openPrimaryElection)).toEqual(true);
+  expect(isCombinedBallotPrimary(combinedBallotPrimaryElection)).toEqual(true);
 });
 
 test('getGroupIdFromBallotStyleId', () => {
@@ -322,8 +322,8 @@ test('getContests', () => {
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
 
-  // open primary (ballot styles have no partyId) — returns all contests
-  const openPrimaryElection: Election = {
+  // combined ballot primary (ballot styles have no partyId) — returns all contests
+  const combinedBallotPrimaryElection: Election = {
     ...electionTwoPartyPrimary,
     ballotStyles: electionTwoPartyPrimary.ballotStyles.map((bs) => ({
       ...bs,
@@ -334,9 +334,9 @@ test('getContests', () => {
     getContests({
       ballotStyle: getBallotStyle({
         ballotStyleId: '1M',
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
       })!,
-      election: openPrimaryElection,
+      election: combinedBallotPrimaryElection,
     }).map((c) => c.id)
   ).toEqual([
     'best-animal-mammal',
@@ -558,7 +558,7 @@ test('election schema rejects primary with mixed partyId ballot styles', () => {
   };
   const result = safeParseElection(mixedPrimary);
   expect(result.err()?.message).toContain(
-    'must either all have a partyId (closed primary) or all omit partyId (open primary)'
+    'must either all have a partyId (closed primary) or all omit partyId (combined ballot primary)'
   );
 });
 

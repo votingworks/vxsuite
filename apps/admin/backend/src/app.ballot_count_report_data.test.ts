@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -14,7 +14,7 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -122,9 +122,9 @@ test('card counts', async () => {
   ]);
 });
 
-test('open primary: card counts with party inferred from votes', async () => {
+test('combined ballot primary: card counts with party inferred from votes', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachine(
     apiClient,
@@ -143,7 +143,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   //   3 No Party:
   //     1 nonpartisan-only — HMPB sheet 2 (exercises sheet-number axis)
   //     1 unresolved crossover + 1 flipped Dem — HMPB sheet 1
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -345,7 +345,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   ]);
 
   // Ballot style + party — exercises the groupByBallotStyle branch of the
-  // open-primary reroute (the Custom Ballot Count Report builder allows this
+  // combined ballot primary reroute (the Custom Ballot Count Report builder allows this
   // combination). All CVRs are on ballot-style-1; ballot-style-2 gets
   // zero-count rows for each party.
   expect(
@@ -412,8 +412,8 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
   ]);
 
-  // Exercise the batch / batch date / scanner branches of the open-primary
-  // reroute. All ballots are in batch-1 / scanner-1, so each party row
+  // Exercise the batch / batch date / scanner branches of the combined ballot
+  // primary reroute. All ballots are in batch-1 / scanner-1, so each party row
   // collapses to a single (party, batch, scanner) bucket.
   expect(
     await apiClient.getCardCounts({
@@ -465,9 +465,9 @@ test('open primary: card counts with party inferred from votes', async () => {
   ]);
 });
 
-test('open primary: card counts with partyIds filter', async () => {
+test('combined ballot primary: card counts with partyIds filter', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachine(
     apiClient,
@@ -476,7 +476,7 @@ test('open primary: card counts with partyIds filter', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,

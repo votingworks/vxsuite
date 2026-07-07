@@ -5,7 +5,7 @@ import {
   getBallotStyle,
   getContests,
   ContestId,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   PartyId,
   PrecinctId,
   BallotStyleId,
@@ -100,7 +100,7 @@ export const POLL_WORKER_AUTH_REQUIRED_STATES: Readonly<
 
 interface VotingState {
   votes?: VotesDict;
-  // Only set for open primary elections; see BallotContextInterface.
+  // Only set for combined ballot primary elections; see BallotContextInterface.
   selectedPartyId?: PartyId;
 }
 
@@ -241,10 +241,10 @@ export function AppRoot(): JSX.Element | null {
             ballotStyle,
           })
         )
-          // For open primaries, show only partisan contests for the party
+          // For combined ballot primaries, show only partisan contests for the party
           // selected by the user + nonpartisan contests.
           .filter((contest) => {
-            if (isOpenPrimary(electionDefinition.election)) {
+            if (isCombinedBallotPrimary(electionDefinition.election)) {
               // If the voter hasn't selected a party yet (e.g. on the start
               // screen), default to a random party so the contest count
               // matches.

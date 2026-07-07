@@ -11,11 +11,11 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   Id,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   LanguageCode,
 } from '@votingworks/types';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
@@ -54,7 +54,7 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,
-    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',
@@ -67,7 +67,7 @@ export function makeElectionRecord(
   };
   return {
     election,
-    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -84,7 +84,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     title: election.title,
     date: election.date,
     type: election.type,
-    isMiCombinedBallotPrimary: isOpenPrimary(election),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(election),
     state: election.state,
     jurisdictionName: election.jurisdiction.name,
     seal: election.seal,
@@ -137,9 +137,11 @@ export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
     jurisdictionId
   );
 }
-export function openPrimaryElectionRecord(jurisdictionId: Id): ElectionRecord {
+export function combinedBallotPrimaryElectionRecord(
+  jurisdictionId: Id
+): ElectionRecord {
   return makeElectionRecord(
-    electionOpenPrimaryFixtures.readElection(),
+    electionCombinedBallotPrimaryFixtures.readElection(),
     jurisdictionId
   );
 }

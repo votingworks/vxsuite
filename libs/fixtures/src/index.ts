@@ -9,7 +9,7 @@ export * as electionTwoPartyPrimaryFixtures from './data/election_two_party_prim
 export * as electionPrimaryPrecinctSplitsFixtures from './data/election_primary_precinct_splits';
 export * as electionWithMsEitherNeitherFixtures from './data/election_with_ms_either_neither';
 export * as electionSimpleSinglePrecinctFixtures from './data/election_simple_single_precinct';
-export * as electionOpenPrimaryFixtures from './data/election_open_primary';
+export * as electionCombinedBallotPrimaryFixtures from './data/election_combined_ballot_primary';
 export * as sampleBallotImages from './data/sample_ballot_images';
 export {
   readElectionDefinition as readElectionGeneralDefinition,
@@ -29,9 +29,9 @@ export {
   readElection as readElectionWithMsEitherNeither,
 } from './data/election_with_ms_either_neither';
 export {
-  readElectionDefinition as readElectionOpenPrimaryDefinition,
-  readElection as readElectionOpenPrimary,
-} from './data/election_open_primary';
+  readElectionDefinition as readElectionCombinedBallotPrimaryDefinition,
+  readElection as readElectionCombinedBallotPrimary,
+} from './data/election_combined_ballot_primary';
 export {
   readElectionDefinition as readElectionStraightPartyDefinition,
   readElection as readElectionStraightParty,

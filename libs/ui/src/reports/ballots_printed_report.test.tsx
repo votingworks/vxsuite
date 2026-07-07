@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
@@ -20,8 +20,8 @@ const electionDefinitionPrimary =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const electionDefinitionSimple =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-const electionDefinitionOpenPrimary =
-  electionOpenPrimaryFixtures.readElectionDefinition();
+const electionDefinitionCombinedBallotPrimary =
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
 test('renders report with test mode banner', () => {
   render(
@@ -213,13 +213,13 @@ test('renders report for General Election with no parties, precincts, single lan
   expect(screen.queryByText('Party')).not.toBeInTheDocument();
 });
 
-test('renders report for Open Primary Election without a party column', () => {
-  const { election } = electionDefinitionOpenPrimary;
+test('renders report for Combined Ballot Primary Election without a party column', () => {
+  const { election } = electionDefinitionCombinedBallotPrimary;
 
   const precinct = election.precincts[0];
   const ballotStyleId = election.ballotStyles[0].id;
 
-  // In an open primary, consolidated ballot styles have no party, so rows have
+  // In a combined ballot primary, consolidated ballot styles have no party, so rows have
   // no partyName, just like a general election.
   const ballotPrintCounts: BallotPrintCount[] = [
     {
@@ -235,7 +235,7 @@ test('renders report for Open Primary Election without a party column', () => {
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinitionOpenPrimary}
+      electionDefinition={electionDefinitionCombinedBallotPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}
@@ -247,7 +247,7 @@ test('renders report for Open Primary Election without a party column', () => {
   // 25 appears in Precinct Count, Total Count, and in sum totals for both columns
   expect(screen.getAllByText('25').length).toEqual(4);
   screen.getByText('Sum Totals');
-  // The party column is not rendered for an open primary
+  // The party column is not rendered for a combined ballot primary
   expect(screen.queryByText('Party')).not.toBeInTheDocument();
 });
 

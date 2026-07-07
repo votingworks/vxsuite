@@ -1,7 +1,7 @@
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   getPartyForBallotStyle,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   type BallotStyleId,
   type Election,
   type PrecinctId,
@@ -45,7 +45,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     return ballotStyleGroups[0].defaultLanguageBallotStyle;
   }
 
-  if (election.type === 'general' || isOpenPrimary(election)) {
+  if (election.type === 'general' || isCombinedBallotPrimary(election)) {
     if (configuredPrecinctsAndSplits.length === 1) {
       const [precinctOrSplit] = configuredPrecinctsAndSplits;
       const { precinct } = precinctOrSplit;

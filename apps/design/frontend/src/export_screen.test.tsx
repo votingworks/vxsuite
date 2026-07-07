@@ -170,7 +170,7 @@ test('omits test deck exports for states without test ballots enabled', async ()
   expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
 });
 
-test('omits test deck exports for open primary elections', async () => {
+test('omits test deck exports for combined ballot primary elections', async () => {
   mockStateFeatures(apiMock, electionId, { EXPORT_TEST_BALLOTS: true });
   apiMock.getElectionInfo.reset();
   apiMock.getElectionInfo.expectCallWith({ electionId }).resolves({

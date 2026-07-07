@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -288,12 +288,12 @@ test('no marginal mark when scores are above definite', () => {
   });
 });
 
-test('open primary - crossover vote', () => {
-  const openPrimaryElectionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+test('combined ballot primary - crossover vote', () => {
+  const combinedBallotPrimaryElectionDefinition =
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   expect(
     getCastVoteRecordAdjudicationFlags(
-      openPrimaryElectionDefinition,
+      combinedBallotPrimaryElectionDefinition,
       {
         'governor-democratic': ['alice-jones'],
         'governor-republican': ['dave-wilson'],
@@ -305,7 +305,7 @@ test('open primary - crossover vote', () => {
 
   expect(
     getCastVoteRecordAdjudicationFlags(
-      openPrimaryElectionDefinition,
+      combinedBallotPrimaryElectionDefinition,
       {
         'governor-democratic': ['alice-jones'],
         'circuit-court-judge': ['margaret-chen'],

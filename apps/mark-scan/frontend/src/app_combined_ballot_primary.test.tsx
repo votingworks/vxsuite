@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import {
-  anyPollingPlace,
-  BallotStyleId,
-  CandidateContest,
-  pollingPlaceMembers,
-} from '@votingworks/types';
+import { BallotStyleId, CandidateContest } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
@@ -16,14 +11,13 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 vi.setConfig({ testTimeout: 30_000 });
 
-const electionDefinition = electionOpenPrimaryFixtures.readElectionDefinition();
-const { election } = electionDefinition;
-const pollingPlace = anyPollingPlace(election);
-const [precinctOrSplit] = pollingPlaceMembers(election, pollingPlace);
-
 const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
-const PRECINCT_ID = precinctOrSplit.precinct.id;
-const PRECINCT_NAME = precinctOrSplit.precinct.name;
+const PRECINCT_ID = 'precinct-1';
+const PRECINCT_NAME = 'Precinct 1';
+const POLLING_PLACE_ID = `${PRECINCT_ID}-polling-place`;
+const electionDefinition =
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition();
+const { election } = electionDefinition;
 
 let apiMock: ApiMock;
 
@@ -34,19 +28,17 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
-    pollingPlaceId: pollingPlace.id,
+    pollingPlaceId: POLLING_PLACE_ID,
     pollsState: 'polls_open',
   });
+  apiMock.setPaperHandlerState('not_accepting_paper');
 });
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('poll worker activates session, voter picks party and walks through ballot', async () => {
-  render(<App apiClient={apiMock.mockApiClient} />);
-  await screen.findByText('Insert Card');
-
+async function activateCardlessVoterSession() {
   // Poll worker logs in to activate a cardless voter session.
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
@@ -57,22 +49,18 @@ test('poll worker activates session, voter picks party and walks through ballot'
       precinctId: PRECINCT_ID,
     })
     .resolves();
+  apiMock.expectSetAcceptingPaperState();
   userEvent.click(screen.getButton(PRECINCT_NAME));
+
+  apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: BALLOT_STYLE_ID,
       precinctId: PRECINCT_ID,
     },
   });
-
-  // After activation the poll worker sees the BallotStyleLabel. For open
-  // primaries it shows just the precinct — no party since the ballot style
-  // has none.
-  await screen.findByText('Remove Card to Begin Voting Session');
-  await screen.findByText(
-    hasTextAcrossElements(`Ballot Style: ${PRECINCT_NAME}`)
-  );
-  expect(screen.queryByText(/Precinct:/)).toBeNull();
+  await screen.findByText('Load Ballot Sheet');
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
   // Poll worker removes card; voter takes over.
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -80,6 +68,13 @@ test('poll worker activates session, voter picks party and walks through ballot'
     precinctId: PRECINCT_ID,
   });
   await screen.findByText('Start Voting');
+}
+
+test('poll worker activates session, voter picks party and walks through ballot', async () => {
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('Insert Card');
+
+  await activateCardlessVoterSession();
 
   // Start screen -> party selection
   screen.getByText(
@@ -125,7 +120,7 @@ test('poll worker activates session, voter picks party and walks through ballot'
   await screen.findByRole('heading', { name: /review your votes/i });
 
   // From the review screen, "Change Party" lands on party selection in
-  // review mode with a Review button to return
+  // review mode with a Review button to return.
   userEvent.click(screen.getButton(/change party/i));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
   userEvent.click(screen.getButton(/review/i));
@@ -136,11 +131,7 @@ test('switching party clears votes from the previous party', async () => {
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('Insert Card');
 
-  apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: BALLOT_STYLE_ID,
-    precinctId: PRECINCT_ID,
-  });
-  await screen.findByText('Start Voting');
+  await activateCardlessVoterSession();
 
   // Pick Democratic and vote for a Democratic Governor candidate
   userEvent.click(screen.getByText('Start Voting'));

@@ -3,14 +3,14 @@ import {
   Party,
   PartyId,
   District,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 import { find, unique } from '@votingworks/basics';
 
 export function getPartiesWithPrimaryElections(
   election: Election
 ): readonly Party[] {
-  if (isOpenPrimary(election)) {
+  if (isCombinedBallotPrimary(election)) {
     return election.parties;
   }
   const partyIds = election.ballotStyles

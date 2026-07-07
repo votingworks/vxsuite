@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -27,9 +27,9 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import {
-  seedOpenPrimaryCvrsAndAdjudications,
-  seedOpenPrimaryWriteIns,
-} from '../test/open_primary_fixture';
+  seedCombinedBallotPrimaryCvrsAndAdjudications,
+  seedCombinedBallotPrimaryWriteIns,
+} from '../test/combined_ballot_primary_fixture';
 import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
@@ -1022,9 +1022,9 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   expect(writeInTally?.name).toEqual(Tabulation.PENDING_WRITE_IN_NAME);
 });
 
-test('open primary, full election with crossover and adjudications', async () => {
+test('combined ballot primary, full election with crossover and adjudications', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -1035,7 +1035,7 @@ test('open primary, full election with crossover and adjudications', async () =>
   );
   mockElectionManagerAuth(auth, election);
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -1105,9 +1105,9 @@ test('open primary, full election with crossover and adjudications', async () =>
   });
 });
 
-test('open primary, grouped by precinct', async () => {
+test('combined ballot primary, grouped by precinct', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -1270,9 +1270,9 @@ test('open primary, grouped by precinct', async () => {
   });
 });
 
-test('open primary, crossover ballots write-ins excluded from partisan tallies', async () => {
+test('combined ballot primary, crossover ballots write-ins excluded from partisan tallies', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
@@ -1281,11 +1281,12 @@ test('open primary, crossover ballots write-ins excluded from partisan tallies',
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  const { demCandidate, repCandidate } = await seedOpenPrimaryWriteIns({
-    apiClient,
-    electionId,
-    store: workspace.store,
-  });
+  const { demCandidate, repCandidate } =
+    await seedCombinedBallotPrimaryWriteIns({
+      apiClient,
+      electionId,
+      store: workspace.store,
+    });
 
   const tallyReports = await apiClient.getResultsForTallyReports();
   const [report] = tallyReports;

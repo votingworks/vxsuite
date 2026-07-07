@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -28,7 +28,7 @@ import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
 import { mockFileName } from '../test/csv';
 import { generateReportPath } from './util/filenames';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -229,9 +229,9 @@ test('ballot count report PDF', async () => {
   });
 });
 
-test('open primary ballot count report PDF', async () => {
+test('combined ballot primary ballot count report PDF', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, mockPrinterHandler, mockUsbDrive, workspace } =
     buildTestEnvironment();
@@ -247,14 +247,14 @@ test('open primary ballot count report PDF', async () => {
 
   // 10 CVRs in precinct-1 after adjudication:
   //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
   });
 
   // Matches the canned Precinct Ballot Count Report screen's groupBy on a
-  // primary election; for an open primary, the report should split each
+  // primary election; for a combined ballot primary, the report should split each
   // precinct into per-party rows plus a single "No Party" row.
   await expectIdenticalSnapshotsAcrossExportMethods({
     apiClient,
@@ -265,7 +265,7 @@ test('open primary ballot count report PDF', async () => {
       groupBy: { groupByPrecinct: true, groupByParty: true },
       includeSheetCounts: false,
     },
-    customSnapshotIdentifier: 'ballot-count-report-open-primary',
+    customSnapshotIdentifier: 'ballot-count-report-combined-ballot-primary',
   });
 });
 

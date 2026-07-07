@@ -13,7 +13,7 @@ import {
   ContestOptionId,
   Election,
   Id,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   PartyId,
   PrecinctSelection,
   Tabulation,
@@ -23,7 +23,10 @@ import {
 import { isGroupByEmpty } from './arguments';
 import { getGroupedBallotStyles } from '../ballot_styles';
 import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
-import { inferPartyFromVotes, partisanContests } from './open_primary';
+import {
+  inferPartyFromVotes,
+  partisanContests,
+} from './combined_ballot_primary';
 import { deriveStraightPartyVotes } from './straight_party';
 
 export function getEmptyYesNoContestResults(
@@ -184,18 +187,18 @@ function addCastVoteRecordToElectionResult(
   }
 
   let voidedContestIds: Set<ContestId> | undefined;
-  if (isOpenPrimary(election)) {
+  if (isCombinedBallotPrimary(election)) {
     const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
 
     if (Tabulation.isNoPartyId(inferredPartyId)) {
-      // If an open primary voter has either voted in no partisan contests or
+      // If a combined ballot primary voter has either voted in no partisan contests or
       // crossover voted, omit all partisan contests so that they don't count,
       // even as undervotes.
       voidedContestIds = new Set(
         partisanContests(election).map((contest) => contest.id)
       );
     } else {
-      // If an open primary voter has voted validly, omit all partisan contests
+      // If a combined ballot primary voter has voted validly, omit all partisan contests
       // for the other party so that they don't count, even as undervotes.
       voidedContestIds = new Set(
         partisanContests(election)

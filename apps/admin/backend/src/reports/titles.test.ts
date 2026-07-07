@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
@@ -217,12 +217,12 @@ test('generateTitleForReport', () => {
     ).toEqual(ok(title));
   }
 
-  const openPrimaryElectionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+  const combinedBallotPrimaryElectionDefinition =
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   expect(
     generateTitleForReport({
       filter: { partyIds: [Tabulation.NO_PARTY_ID] },
-      electionDefinition: openPrimaryElectionDefinition,
+      electionDefinition: combinedBallotPrimaryElectionDefinition,
       scannerBatches: MOCK_SCANNER_BATCHES,
       reportType: 'Ballot Count',
     })
@@ -230,7 +230,7 @@ test('generateTitleForReport', () => {
   expect(
     generateTitleForReport({
       filter: { partyIds: ['democratic-party'] },
-      electionDefinition: openPrimaryElectionDefinition,
+      electionDefinition: combinedBallotPrimaryElectionDefinition,
       scannerBatches: MOCK_SCANNER_BATCHES,
       reportType: 'Ballot Count',
     })

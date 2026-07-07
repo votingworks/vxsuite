@@ -7,7 +7,7 @@ import {
   PrecinctId,
   Tabulation,
   getGroupIdFromBallotStyleId,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
@@ -94,7 +94,7 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       scannerId: VX_MACHINE_ID,
       precinctId: metadata.precinctId,
       ballotStyleGroupId,
-      partyId: isOpenPrimary(election)
+      partyId: isCombinedBallotPrimary(election)
         ? inferPartyFromVotes(election, votes)
         : ballotStyleIdPartyIdLookup[ballotStyleGroupId],
       votingMethod: BALLOT_TYPE_TO_VOTING_METHOD[metadata.ballotType],

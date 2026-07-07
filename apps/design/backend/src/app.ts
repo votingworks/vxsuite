@@ -38,7 +38,7 @@ import {
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
   safeParseElectionDefinitionForAnySoftwareVersion,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -377,7 +377,8 @@ export function buildApi(ctx: AppContext) {
               );
 
               return {
-                isMiCombinedBallotPrimary: isOpenPrimary(sourceElection),
+                isMiCombinedBallotPrimary:
+                  isCombinedBallotPrimary(sourceElection),
                 election: {
                   ...sourceElection,
                   id: input.newId,
@@ -761,8 +762,11 @@ export function buildApi(ctx: AppContext) {
         shouldExportTestBallots: !!stateFeatures.EXPORT_TEST_BALLOTS,
       });
 
-      // Test decks have not yet been updated to support open primaries
-      if (stateFeatures.EXPORT_TEST_BALLOTS && !isOpenPrimary(election)) {
+      // Test decks have not yet been updated to support combined ballot primaries
+      if (
+        stateFeatures.EXPORT_TEST_BALLOTS &&
+        !isCombinedBallotPrimary(election)
+      ) {
         await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
       }
 

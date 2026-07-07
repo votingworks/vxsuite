@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   hasSplits,
   BallotPrintCount,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 import { format, getLanguageOptions } from '@votingworks/utils';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -284,10 +284,10 @@ function BallotsPrintedTable({
     id: hasPrecinctSplits ? 'precinctSplitName' : 'precinctName',
   });
 
-  // In an open primary, ballots are consolidated (all parties' contests on one
+  // In a combined ballot primary, ballots are consolidated (all parties' contests on one
   // ballot) with no party selection, so there is no party breakdown to show and
   // the report behaves like a general election report.
-  if (election.type === 'primary' && !isOpenPrimary(election)) {
+  if (election.type === 'primary' && !isCombinedBallotPrimary(election)) {
     columns.push({ type: 'attribute', id: 'party' });
   }
 

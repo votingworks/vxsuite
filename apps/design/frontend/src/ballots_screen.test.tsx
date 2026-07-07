@@ -18,7 +18,7 @@ import {
 import {
   electionInfoFromRecord,
   generalElectionRecord,
-  openPrimaryElectionRecord,
+  combinedBallotPrimaryElectionRecord,
   primaryElectionRecord,
 } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
@@ -157,8 +157,8 @@ describe('Ballot styles tab', () => {
     ]);
   });
 
-  test('Open primary election hides party column', async () => {
-    const electionRecord = openPrimaryElectionRecord(jurisdiction.id);
+  test('Combined ballot primary election hides party column', async () => {
+    const electionRecord = combinedBallotPrimaryElectionRecord(jurisdiction.id);
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);

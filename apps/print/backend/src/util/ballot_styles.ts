@@ -13,7 +13,10 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { getAllPrecinctsAndSplits, isOpenPrimary } from '@votingworks/types';
+import {
+  getAllPrecinctsAndSplits,
+  isCombinedBallotPrimary,
+} from '@votingworks/types';
 import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,
@@ -83,10 +86,10 @@ export function findBallotStyleId(
       return findBallotStyleInSingleGroup();
     }
     case 'primary': {
-      // In an open primary, ballots are consolidated (all parties' contests on
+      // In a combined ballot primary, ballots are consolidated (all parties' contests on
       // one ballot), so there is no party selection and a single ballot style
       // group per precinct or split, just like a general election.
-      if (isOpenPrimary(election)) {
+      if (isCombinedBallotPrimary(election)) {
         return findBallotStyleInSingleGroup();
       }
       assert(
@@ -149,9 +152,9 @@ export function addBallotsPropsToPrintCountRow(
   const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
 
   let partyName: string | undefined;
-  // In an open primary, consolidated ballot styles have no partyId, so there is
+  // In a combined ballot primary, consolidated ballot styles have no partyId, so there is
   // no party name to display. Closed primaries are still expected to have one.
-  if (election.type === 'primary' && !isOpenPrimary(election)) {
+  if (election.type === 'primary' && !isCombinedBallotPrimary(election)) {
     assert(ballotStyle.partyId !== undefined);
     const party = election.parties.find((p) => p.id === ballotStyle.partyId);
     assert(party, `No party found with id ${ballotStyle.partyId}`);

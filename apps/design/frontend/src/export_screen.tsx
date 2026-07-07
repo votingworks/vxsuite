@@ -130,7 +130,7 @@ export function ExportScreen(): JSX.Element | null {
   const canExportTestDecks =
     features.EXPORT_TEST_DECKS &&
     stateFeatures.EXPORT_TEST_BALLOTS &&
-    // Test decks have not yet been updated to support open primaries
+    // Test decks have not yet been updated to support combined ballot primaries
     !electionInfo.isMiCombinedBallotPrimary;
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {

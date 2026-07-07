@@ -14,7 +14,7 @@ const baseCvr: Omit<MockCastVoteRecordFile[number], 'card' | 'votes'> = {
 };
 const hmpbSheet1: Tabulation.Card = { type: 'hmpb', sheetNumber: 1 };
 
-export interface OpenPrimaryFixtureResult {
+export interface CombinedBallotPrimaryFixtureResult {
   cvrIds: string[];
   // Crossover ballot whose Republican vote was adjudicated away → now Dem-only.
   resolvedCrossoverCvrId: string;
@@ -23,12 +23,12 @@ export interface OpenPrimaryFixtureResult {
 }
 
 /**
- * Seeds the store with 10 open-primary CVRs covering every party-inference
+ * Seeds the store with 10 combined ballot primary CVRs covering every party-inference
  * path (single-party, nonpartisan-only, crossover) and applies two
  * adjudications: resolving one crossover and flipping a single-party ballot
  * to nonpartisan.
  */
-export async function seedOpenPrimaryCvrsAndAdjudications({
+export async function seedCombinedBallotPrimaryCvrsAndAdjudications({
   apiClient,
   electionId,
   store,
@@ -36,7 +36,7 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   apiClient: grout.Client<Api>;
   electionId: Id;
   store: Store;
-}): Promise<OpenPrimaryFixtureResult> {
+}): Promise<CombinedBallotPrimaryFixtureResult> {
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
       ...baseCvr,
@@ -170,14 +170,14 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   return { cvrIds, resolvedCrossoverCvrId, flippedToNoPartyCvrId };
 }
 
-export interface OpenPrimaryWriteInsFixtureResult {
+export interface CombinedBallotPrimaryWriteInsFixtureResult {
   demCandidate: { id: string; name: string };
   repCandidate: { id: string; name: string };
   nonpartisanCandidate: { id: string; name: string };
 }
 
 /**
- * Seeds 4 open-primary ballots, each with one write-in mark, and adjudicates
+ * Seeds 4 combined ballot primary ballots, each with one write-in mark, and adjudicates
  * each write-in to a write-in candidate.
  *
  *   cvrIds[0] = Dem-only voter, write-in on governor-democratic       → counts
@@ -186,7 +186,7 @@ export interface OpenPrimaryWriteInsFixtureResult {
  *   cvrIds[3] = Crossover voter, write-in on circuit-court-judge      → counts
  *                (nonpartisan write-ins count regardless of crossover)
  */
-export async function seedOpenPrimaryWriteIns({
+export async function seedCombinedBallotPrimaryWriteIns({
   apiClient,
   electionId,
   store,
@@ -194,7 +194,7 @@ export async function seedOpenPrimaryWriteIns({
   apiClient: grout.Client<Api>;
   electionId: Id;
   store: Store;
-}): Promise<OpenPrimaryWriteInsFixtureResult> {
+}): Promise<CombinedBallotPrimaryWriteInsFixtureResult> {
   const file: MockCastVoteRecordFile = [
     {
       ...baseCvr,

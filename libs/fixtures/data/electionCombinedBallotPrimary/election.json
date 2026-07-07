@@ -1,7 +1,7 @@
 {
-  "id": "election-open-primary",
+  "id": "election-combined-ballot-primary",
   "type": "primary",
-  "title": "Example Open Primary Election",
+  "title": "Example Combined Ballot Primary Election",
   "state": "State of Sample",
   "jurisdiction": {
     "id": "sample-county",
@@ -998,7 +998,7 @@
         "district-judicial": "Judicial District"
       },
       "electionDate": "August 12, 2025",
-      "electionTitle": "Example Open Primary Election",
+      "electionTitle": "Example Combined Ballot Primary Election",
       "partyFullName": {
         "democratic-party": "Democratic Party",
         "republican-party": "Republican Party",

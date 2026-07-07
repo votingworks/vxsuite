@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -473,9 +473,9 @@ test('tally report logging', async () => {
   );
 });
 
-test('tally report PDF - open primary', async () => {
+test('tally report PDF - combined ballot primary', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, workspace, mockPrinterHandler, mockUsbDrive } =
     buildTestEnvironment();
@@ -512,7 +512,7 @@ test('tally report PDF - open primary', async () => {
       groupBy: {},
       includeSignatureLines: false,
     },
-    identifier: 'open-primary-tally-report-zero',
+    identifier: 'combined-ballot-primary-tally-report-zero',
   });
 
   const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
@@ -576,6 +576,6 @@ test('tally report PDF - open primary', async () => {
       groupBy: {},
       includeSignatureLines: false,
     },
-    identifier: 'open-primary-tally-report',
+    identifier: 'combined-ballot-primary-tally-report',
   });
 });

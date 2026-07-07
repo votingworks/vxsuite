@@ -25,7 +25,7 @@ import { getAllPossibleCandidateOrderings } from './ballot_rotation';
  * template.
  * - For closed primary elections, uses the same factors but also generates
  * distinct ballot styles for each party.
- * - For open primaries (where voters see contests from all parties on one
+ * - For combined ballot primaries (where voters see contests from all parties on one
  * ballot), does the same as general elections.
  *
  * The ballot template defines what rotation rules are applied. Rotation by

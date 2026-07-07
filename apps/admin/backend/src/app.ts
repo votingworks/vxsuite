@@ -17,7 +17,7 @@ import {
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
   getContests,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 import {
   assert,
@@ -962,7 +962,7 @@ function buildApi({
       const {
         electionDefinition: { election },
       } = assertDefined(store.getElection(electionId));
-      assert(!isOpenPrimary(election));
+      assert(!isCombinedBallotPrimary(election));
       const [manualResultsRecord] = store.getManualResults({
         election,
         electionId,

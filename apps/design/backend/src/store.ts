@@ -1388,9 +1388,9 @@ export class Store {
   }): Promise<void> {
     if (isMiCombinedBallotPrimary) {
       const features = getStateFeaturesConfig(jurisdiction);
-      if (!features.OPEN_PRIMARIES) {
+      if (!features.COMBINED_BALLOT_PRIMARIES) {
         throw new Error(
-          'Open primary elections are not supported for this jurisdiction'
+          'Combined ballot primary elections are not supported for this jurisdiction'
         );
       }
     }

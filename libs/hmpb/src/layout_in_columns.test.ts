@@ -748,7 +748,7 @@ describe('layOutSectionsInParallelColumns', () => {
     expect(result.leftoverSections).toEqual([]);
   });
 
-  test('three sections (typical MI open primary)', () => {
+  test('three sections (typical MI combined ballot primary)', () => {
     const hC1: TestElement = { id: 'header-c', height: 1 };
     const shE1: TestElement = { id: 'sub-header-e', height: 1 };
     const eE2: TestElement = { id: 'elem-e', height: 2 };

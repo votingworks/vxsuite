@@ -174,10 +174,10 @@ export interface StateFeaturesConfig {
    */
   OMIT_ABSENTEE_POLLING_PLACES?: boolean;
   /**
-   * Allow creating open primary elections, where all parties' contests are on
+   * Allow creating combined ballot primary elections, where all parties' contests are on
    * the same ballot rather than having a separate ballot for each party.
    */
-  OPEN_PRIMARIES?: boolean;
+  COMBINED_BALLOT_PRIMARIES?: boolean;
   /**
    * Allow deleting live reports data. Only enabled for demo jurisdictions so
    * that demo data can be cleared between runs; live/production data should
@@ -237,7 +237,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     EDIT_POLLING_PLACES: true,
     EXPORT_SAMPLE_BALLOTS: true,
     EXPORT_TEST_BALLOTS: true,
-    OPEN_PRIMARIES: true,
+    COMBINED_BALLOT_PRIMARIES: true,
     STRAIGHT_PARTY_VOTING: true,
   },
 

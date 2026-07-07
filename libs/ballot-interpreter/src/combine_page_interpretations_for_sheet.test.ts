@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { electionOpenPrimaryFixtures } from '@votingworks/fixtures';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -16,7 +16,8 @@ import {
 import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet';
 
 const { election, electionDefinition } = vxFamousNamesFixtures;
-const openPrimaryElection = electionOpenPrimaryFixtures.readElection();
+const combinedBallotPrimaryElection =
+  electionCombinedBallotPrimaryFixtures.readElection();
 
 const firstBallotStyle = assertDefined(election.ballotStyles[0]);
 const invalidPageMetadata: HmpbBallotPageMetadata = {
@@ -344,7 +345,7 @@ test('treats unmatched page combinations as unknown invalid sheet', () => {
   });
 });
 
-test('flags crossover voting in open primaries', () => {
+test('flags crossover voting in combined ballot primaries', () => {
   const front = mockHmpbPage({
     votes: {
       'governor-democratic': [
@@ -360,7 +361,10 @@ test('flags crossover voting in open primaries', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.CrossoverVoting }],
@@ -392,14 +396,17 @@ test('combines crossover voting with other adjudication reasons', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [overvoteReason, { type: AdjudicationReason.CrossoverVoting }],
   });
 });
 
-test('treats single-party open primary voting as valid', () => {
+test('treats single-party combined ballot primary voting as valid', () => {
   const front = mockHmpbPage({
     votes: {
       'governor-democratic': [
@@ -415,7 +422,10 @@ test('treats single-party open primary voting as valid', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });

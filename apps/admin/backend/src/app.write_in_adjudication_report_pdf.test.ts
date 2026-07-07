@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -19,7 +19,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
-import { seedOpenPrimaryWriteIns } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryWriteIns } from '../test/combined_ballot_primary_fixture';
 import { generateReportPath } from './util/filenames';
 import { AdjudicatedContestOption } from './types';
 
@@ -333,9 +333,9 @@ test('write-in adjudication report warning', async () => {
   });
 });
 
-test('open primary: crossover ballots write-ins on partisan contests are excluded', async () => {
+test('combined ballot primary: crossover ballots write-ins on partisan contests are excluded', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachine(
     apiClient,
@@ -345,7 +345,7 @@ test('open primary: crossover ballots write-ins on partisan contests are exclude
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const { demCandidate, repCandidate, nonpartisanCandidate } =
-    await seedOpenPrimaryWriteIns({
+    await seedCombinedBallotPrimaryWriteIns({
       apiClient,
       electionId,
       store: workspace.store,

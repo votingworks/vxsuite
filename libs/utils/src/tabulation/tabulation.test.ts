@@ -4,7 +4,7 @@ import {
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   electionWithMsEitherNeitherFixtures,
-  readElectionOpenPrimary,
+  readElectionCombinedBallotPrimary,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
@@ -49,7 +49,7 @@ import {
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
 } from './tabulation';
-import { partisanContests } from './open_primary';
+import { partisanContests } from './combined_ballot_primary';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -1437,8 +1437,8 @@ test('tabulateCastVoteRecords with a straight-party contest', async () => {
   expect(president.tallies['cramer-vuocolo']?.tally).toEqual(1);
 });
 
-describe('open primaries', () => {
-  const openPrimaryElection = readElectionOpenPrimary();
+describe('combined ballot primaries', () => {
+  const combinedBallotPrimaryElection = readElectionCombinedBallotPrimary();
 
   const baseCvrMetadata = {
     card: { type: 'bmd' },
@@ -1452,7 +1452,7 @@ describe('open primaries', () => {
   test('single-party ballot tallies partisan + nonpartisan contests normally', async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           {
             ...baseCvrMetadata,
@@ -1481,16 +1481,16 @@ describe('open primaries', () => {
     });
   });
 
-  test('groupByParty groups CVRs with undefined partyId together (open primaries)', async () => {
-    const democraticPartyId = openPrimaryElection.parties.find(
+  test('groupByParty groups CVRs with undefined partyId together (combined ballot primaries)', async () => {
+    const democraticPartyId = combinedBallotPrimaryElection.parties.find(
       (p) => p.name === 'Democratic'
     )!.id;
-    const republicanPartyId = openPrimaryElection.parties.find(
+    const republicanPartyId = combinedBallotPrimaryElection.parties.find(
       (p) => p.name === 'Republican'
     )!.id;
 
     const groupedResults = await tabulateCastVoteRecords({
-      election: openPrimaryElection,
+      election: combinedBallotPrimaryElection,
       groupBy: { groupByParty: true },
       cvrs: [
         {
@@ -1554,7 +1554,7 @@ describe('open primaries', () => {
   test('crossover voting — partisan contests skipped, nonpartisan tallied', async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           {
             ...baseCvrMetadata,
@@ -1592,15 +1592,15 @@ describe('open primaries', () => {
 
     // No partisan contest in the election should be counted on a
     // crossover ballot.
-    for (const contest of partisanContests(openPrimaryElection)) {
+    for (const contest of partisanContests(combinedBallotPrimaryElection)) {
       expect(results.contestResults[contest.id]?.ballots).toEqual(0);
     }
   });
 
-  test("open primary ballots omit other parties' contests rather than counting undervotes", async () => {
+  test("combined ballot primary ballots omit other parties' contests rather than counting undervotes", async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           // Dem ballot
           {

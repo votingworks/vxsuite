@@ -488,11 +488,11 @@ test('handles duplicate title+date error', async () => {
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
 });
 
-test('election type selector with features.OPEN_PRIMARIES enabled', async () => {
+test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const electionId = election.id;
-  mockStateFeatures(apiMock, electionId, { OPEN_PRIMARIES: true });
+  mockStateFeatures(apiMock, electionId, { COMBINED_BALLOT_PRIMARIES: true });
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
@@ -517,15 +517,17 @@ test('election type selector with features.OPEN_PRIMARIES enabled', async () => 
   userEvent.click(
     within(typeInput).getByRole('option', { name: 'Open Primary' })
   );
-  const openPrimaryInfo: ElectionInfo = {
+  const combinedBallotPrimaryInfo: ElectionInfo = {
     ...electionInfoFromRecord(electionRecord),
     type: 'primary',
     isMiCombinedBallotPrimary: true,
   };
-  apiMock.updateElectionInfo.expectCallWith(openPrimaryInfo).resolves(ok());
+  apiMock.updateElectionInfo
+    .expectCallWith(combinedBallotPrimaryInfo)
+    .resolves(ok());
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves(openPrimaryInfo);
+    .resolves(combinedBallotPrimaryInfo);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('option', { name: 'Open Primary', selected: true });
 
@@ -535,7 +537,7 @@ test('election type selector with features.OPEN_PRIMARIES enabled', async () => 
     within(typeInput).getByRole('option', { name: 'Closed Primary' })
   );
   const closedPrimaryInfo: ElectionInfo = {
-    ...openPrimaryInfo,
+    ...combinedBallotPrimaryInfo,
     type: 'primary',
     isMiCombinedBallotPrimary: false,
   };

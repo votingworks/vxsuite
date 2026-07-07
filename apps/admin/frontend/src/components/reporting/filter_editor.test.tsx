@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  readElectionOpenPrimaryDefinition,
+  readElectionCombinedBallotPrimaryDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
@@ -12,7 +12,8 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
-const electionOpenPrimaryDefinition = readElectionOpenPrimaryDefinition();
+const electionCombinedBallotPrimaryDefinition =
+  readElectionCombinedBallotPrimaryDefinition();
 
 let apiMock: ApiMock;
 
@@ -205,8 +206,8 @@ test('party selection', () => {
   expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
 });
 
-test('open primary party selection includes "No Party"', () => {
-  const { election } = electionOpenPrimaryDefinition;
+test('combined ballot primary party selection includes "No Party"', () => {
+  const { election } = electionCombinedBallotPrimaryDefinition;
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
@@ -270,8 +271,8 @@ test('adjudication status selection', () => {
   });
 });
 
-test('adjudication status selection includes "Crossover Vote" in open primary', () => {
-  const { election } = readElectionOpenPrimaryDefinition();
+test('adjudication status selection includes "Crossover Vote" in combined ballot primary', () => {
+  const { election } = readElectionCombinedBallotPrimaryDefinition();
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);

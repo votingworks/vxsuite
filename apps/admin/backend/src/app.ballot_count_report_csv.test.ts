@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -32,7 +32,7 @@ import {
 } from '../test/mock_cvr_file';
 import { Api } from './app';
 import { generateReportPath } from './util/filenames';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -313,9 +313,9 @@ test('creates accurate ballot count reports', async () => {
   });
 });
 
-test('open primary: groups by inferred party with a No Party row', async () => {
+test('combined ballot primary: groups by inferred party with a No Party row', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
@@ -326,7 +326,7 @@ test('open primary: groups by inferred party with a No Party row', async () => {
 
   // 10 CVRs in precinct-1 after adjudication:
   //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -408,9 +408,9 @@ test('open primary: groups by inferred party with a No Party row', async () => {
   });
 });
 
-test('open primary: groupByParty with No Party filter', async () => {
+test('combined ballot primary: groupByParty with No Party filter', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
@@ -419,7 +419,7 @@ test('open primary: groupByParty with No Party filter', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,

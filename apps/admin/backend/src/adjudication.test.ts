@@ -8,7 +8,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import {
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
@@ -957,9 +957,10 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
   expect(store.isCvrAdjudicated({ cvrId })).toEqual(true);
 });
 
-test('open primary crossover vote', async () => {
+test('combined ballot primary crossover vote', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { electionData } = electionOpenPrimaryFixtures.readElectionDefinition();
+  const { electionData } =
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),

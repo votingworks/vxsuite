@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -32,7 +32,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 import { Api } from './app';
 import { AdjudicatedCvrContest } from './types';
 import { generateReportPath } from './util/filenames';
@@ -219,9 +219,9 @@ test('logs failure if export fails for some reason', async () => {
   );
 });
 
-test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
+test('combined ballot primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
@@ -231,7 +231,7 @@ test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockUsbDrive.insertUsbDrive({});
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,

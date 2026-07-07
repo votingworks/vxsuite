@@ -14,7 +14,7 @@ import {
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
   readElectionWithMsEitherNeitherDefinition,
-  electionOpenPrimaryFixtures,
+  electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
   electionStraightPartyFixtures,
@@ -145,13 +145,13 @@ test('BmdPaperBallot includes ballot style and language metadata - primary elect
     'Spanish (US)'
   );
   // The party short name 'Mammal' is shown only in the ballot-style line,
-  // not as a per-contest label (like in open primaries).
+  // not as a per-contest label (like in combined ballot primaries).
   expect(screen.getAllByText('Mammal')).toHaveLength(1);
 });
 
-test('BmdPaperBallot labels each partisan contest with its party in open primaries', () => {
+test('BmdPaperBallot labels each partisan contest with its party in combined ballot primaries', () => {
   const electionDefinition =
-    electionOpenPrimaryFixtures.readElectionDefinition();
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   renderBmdPaperBallot({
     electionDefinition,
     ballotStyleId: 'ballot-style-1',
