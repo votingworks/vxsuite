@@ -10,7 +10,12 @@ import {
 } from '@votingworks/printing';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
-import { getBallotStyle, getContests } from '@votingworks/types';
+import {
+  BallotStyleId,
+  Election,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -173,30 +178,41 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   });
 }
 
-async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
-  const { electionDefinition } = assertDefined(p.store.getElectionRecord());
+function getBaseBallotPdf(
+  store: Store,
+  ballotStyleId: BallotStyleId,
+  precinctId: string
+): { election: Election; baseBallotPdf: Uint8Array } {
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
 
-  const isLiveMode = !p.store.getTestMode();
+  const isLiveMode = !store.getTestMode();
 
-  // Get the base ballot PDF from the election package
-  const ballotEntry = p.store.getBallot({
-    ballotStyleId: p.ballotStyleId,
-    precinctId: p.precinctId,
+  const ballotEntry = store.getBallot({
+    ballotStyleId,
+    precinctId,
     isLiveMode,
   });
 
   assert(
     ballotEntry,
-    `No ballot PDF found for precinct ID: ${p.precinctId} and ballot style ID: ${p.ballotStyleId}`
+    `No ballot PDF found for precinct ID: ${precinctId} and ballot style ID: ${ballotStyleId}`
   );
 
-  // Decode the base64 ballot PDF
   const baseBallotPdf = Uint8Array.from(
     Buffer.from(ballotEntry.encodedBallot, 'base64')
   );
 
-  // Generate the mark overlay composited with the base ballot PDF
+  return { election, baseBallotPdf };
+}
+
+async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
+  const { election, baseBallotPdf } = getBaseBallotPdf(
+    p.store,
+    p.ballotStyleId,
+    p.precinctId
+  );
+
   const markedBallotPdf = await generateMarkOverlay(
     election,
     p.ballotStyleId,
@@ -207,6 +223,29 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
 
   return p.printer.print({
     data: markedBallotPdf,
+    sides: PrintSides.TwoSidedLongEdge,
+    size: election.ballotLayout.paperSize,
+  });
+}
+
+export interface PrintBlankBallotProps {
+  ballotStyleId: BallotStyleId;
+  precinctId: string;
+  printer: Printer;
+  store: Store;
+}
+
+export async function printBlankBallot(
+  p: PrintBlankBallotProps
+): Promise<void> {
+  const { election, baseBallotPdf } = getBaseBallotPdf(
+    p.store,
+    p.ballotStyleId,
+    p.precinctId
+  );
+
+  return p.printer.print({
+    data: baseBallotPdf,
     sides: PrintSides.TwoSidedLongEdge,
     size: election.ballotLayout.paperSize,
   });
