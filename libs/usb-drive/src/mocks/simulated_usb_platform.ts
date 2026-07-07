@@ -82,35 +82,20 @@ function findPresentDrive(
 }
 
 /**
- * Finds the partition with the given path on a currently-attached drive. A
+ * Finds the partition matching `predicate` on a currently-attached drive. A
  * partition can only be mounted or unmounted while its drive is present, just
- * as real hardware is only accessible while plugged in.
+ * as real hardware is only accessible while plugged in. `identifier` is used
+ * only for the not-found error message.
  */
 function findPresentPartition(
   drives: SimulatedUsbDrive[],
-  partPath: UsbPartitionDevPath
+  predicate: (partition: UsbPlatformPartition) => boolean,
+  identifier: string
 ): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
   const drive = drives.find(
-    (d) => d.present && d.partition?.partPath === partPath
+    (d) => d.present && d.partition && predicate(d.partition)
   );
-  assert(drive, `Partition not found on an attached drive: ${partPath}`);
-  assert(drive.partition);
-  return { drive, partition: drive.partition };
-}
-
-/**
- * Finds the partition with the given mountpoint on a currently-attached drive.
- * A partition can only be mounted or unmounted while its drive is present, just
- * as real hardware is only accessible while plugged in.
- */
-function findPresentPartitionByMountpoint(
-  drives: SimulatedUsbDrive[],
-  mountpoint: UsbPartitionMountpoint
-): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
-  const drive = drives.find(
-    (d) => d.present && d.partition?.mountpoint === mountpoint
-  );
-  assert(drive, `Partition not found on an attached drive: ${mountpoint}`);
+  assert(drive, `Partition not found on an attached drive: ${identifier}`);
   assert(drive.partition);
   return { drive, partition: drive.partition };
 }
@@ -421,7 +406,11 @@ export class SimulatedUsbPlatform implements UsbPlatform {
   async mountPartition(partPath: UsbPartitionDevPath): Promise<void> {
     await Promise.resolve();
     this.mutateStateWithPotentialFault('mountPartition', (drives) => {
-      const { drive, partition } = findPresentPartition(drives, partPath);
+      const { drive, partition } = findPresentPartition(
+        drives,
+        (p) => p.partPath === partPath,
+        partPath
+      );
       partition.mountpoint = this.storagePath(drive.diskPath);
       mkdirSync(partition.mountpoint, { recursive: true });
     });
@@ -434,8 +423,9 @@ export class SimulatedUsbPlatform implements UsbPlatform {
   async unmountPartition(mountpoint: UsbPartitionMountpoint): Promise<void> {
     await Promise.resolve();
     this.mutateStateWithPotentialFault('unmountPartition', (drives) => {
-      const { partition } = findPresentPartitionByMountpoint(
+      const { partition } = findPresentPartition(
         drives,
+        (p) => p.mountpoint === mountpoint,
         mountpoint
       );
       this.unmountPartitionInternal(partition);
