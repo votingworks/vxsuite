@@ -601,12 +601,10 @@ test('mock PDI scanner - single sheet', async () => {
     })
   ).unsafeUnwrap();
 
-  expect(await apiClient.pdiScannerGetStatus()).toEqual(
-    typedAs<PdiScannerStatus>({
-      sheetStatus: 'noSheetEnabled',
-      queue: undefined,
-    })
-  );
+  expect(await apiClient.pdiScannerGetStatus()).toEqual<PdiScannerStatus>({
+    sheetStatus: 'noSheetEnabled',
+    queue: undefined,
+  });
 
   const scanCompletePromise = new Promise<void>((resolve) => {
     const listener = mockPdiScanner.client.addListener((event) => {
