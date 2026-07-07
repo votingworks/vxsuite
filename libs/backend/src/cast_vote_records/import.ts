@@ -46,7 +46,10 @@ import {
 } from './referenced_files';
 import { getImageHash, getLayoutHash } from './build_cast_vote_record';
 
-interface CastVoteRecordAndReferencedFiles {
+/**
+ * A parsed cast vote record plus readers for the files that it references
+ */
+export interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;
   castVoteRecordBallotSheetId?: number;
   castVoteRecordCurrentSnapshot: CVR.CVRSnapshot;
@@ -90,171 +93,180 @@ export async function readCastVoteRecordExportMetadata(
   return parseResult;
 }
 
-async function* castVoteRecordGenerator(
-  exportDirectoryPath: string,
+/**
+ * Reads and parses a single cast vote record directory (one per-ballot sub-directory of a cast
+ * vote record export). Performs basic validation on the cast vote record. Referenced image files
+ * and layout files are not read/parsed here; the returned {@link ReferencedFiles} readers verify
+ * file hashes when read.
+ */
+export async function readCastVoteRecordFromDirectory(
+  castVoteRecordDirectoryPath: string,
   batchIds: Set<string>
-): AsyncGenerator<
-  Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>
-> {
+): Promise<Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>> {
   function wrapError(
     error: Omit<ReadCastVoteRecordError, 'type'>
   ): Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError> {
     return err({ ...error, type: 'invalid-cast-vote-record' });
   }
 
+  const castVoteRecordReportPath = path.join(
+    castVoteRecordDirectoryPath,
+    CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+  );
+  if (!existsSync(castVoteRecordReportPath)) {
+    return wrapError({ subType: 'parse-error' });
+  }
+  const castVoteRecordReportContents = await fs.readFile(
+    castVoteRecordReportPath,
+    'utf-8'
+  );
+  const parseResult = safeParseJson(
+    castVoteRecordReportContents,
+    CastVoteRecordReportWithoutMetadataSchema
+  );
+  if (parseResult.isErr()) {
+    return wrapError({ subType: 'parse-error' });
+  }
+  const castVoteRecordReport = parseResult.ok();
+  if (!castVoteRecordReport.CVR || castVoteRecordReport.CVR.length !== 1) {
+    return wrapError({ subType: 'parse-error' });
+  }
+  const castVoteRecord = assertDefined(castVoteRecordReport.CVR[0]);
+
+  if (!batchIds.has(castVoteRecord.BatchId)) {
+    return wrapError({ subType: 'batch-id-not-found' });
+  }
+
+  // Only relevant for HMPBs and multi-page BMD ballots
+  let castVoteRecordBallotSheetId: number | undefined;
+  if (castVoteRecord.BallotSheetId) {
+    const parseBallotSheetIdResult = safeParseNumber(
+      castVoteRecord.BallotSheetId
+    );
+    if (parseBallotSheetIdResult.isErr()) {
+      return wrapError({ subType: 'invalid-ballot-sheet-id' });
+    }
+    castVoteRecordBallotSheetId = parseBallotSheetIdResult.ok();
+  }
+
+  const castVoteRecordCurrentSnapshot = getCurrentSnapshot(castVoteRecord);
+  if (!castVoteRecordCurrentSnapshot) {
+    return wrapError({ subType: 'no-current-snapshot' });
+  }
+
+  // HMPB has an "interpreted" current snapshot, while BMD (including multi-page) has an "original"
+  // current snapshot. Multi-page BMD also has BallotSheetId, so we can't use that alone to
+  // identify HMPB.
+  const isHandMarkedPaperBallot =
+    castVoteRecordCurrentSnapshot.Type === CVR.CVRType.Interpreted;
+
+  let castVoteRecordOriginalSnapshot: CVR.CVRSnapshot | undefined;
+  // Original snapshots are used for hmpb mark adjudication
+  if (isHandMarkedPaperBallot) {
+    castVoteRecordOriginalSnapshot = getOriginalSnapshot(castVoteRecord);
+    if (!castVoteRecordOriginalSnapshot) {
+      return wrapError({ subType: 'no-original-snapshot' });
+    }
+  }
+
+  const castVoteRecordWriteIns = getWriteInsFromCastVoteRecord(castVoteRecord);
+  if (!castVoteRecordWriteIns.every(isCastVoteRecordWriteInValid)) {
+    return wrapError({ subType: 'invalid-write-in-field' });
+  }
+
+  let referencedFiles: ReferencedFiles | undefined;
+  if (castVoteRecord.BallotImage) {
+    if (castVoteRecord.BallotImage.length !== 2) {
+      return wrapError({ subType: 'invalid-ballot-image-field' });
+    }
+    assert(castVoteRecord.BallotImage[0]);
+    assert(castVoteRecord.BallotImage[1]);
+    if (
+      !castVoteRecord.BallotImage[0].Hash?.Value ||
+      !castVoteRecord.BallotImage[1].Hash?.Value ||
+      !castVoteRecord.BallotImage[0].Location ||
+      !castVoteRecord.BallotImage[1].Location ||
+      !castVoteRecord.BallotImage[0].Location.startsWith('file:') ||
+      !castVoteRecord.BallotImage[1].Location.startsWith('file:')
+    ) {
+      return wrapError({ subType: 'invalid-ballot-image-field' });
+    }
+    const imageHashes: SheetOf<string> = [
+      getImageHash(castVoteRecord.BallotImage[0]),
+      getImageHash(castVoteRecord.BallotImage[1]),
+    ];
+    const imageRelativePaths: SheetOf<string> = [
+      castVoteRecord.BallotImage[0].Location.replace('file:', ''),
+      castVoteRecord.BallotImage[1].Location.replace('file:', ''),
+    ];
+    const imagePaths: SheetOf<string> = mapSheet(
+      imageRelativePaths,
+      (imageRelativePath) =>
+        path.join(castVoteRecordDirectoryPath, imageRelativePath)
+    );
+    const imageFiles = mapSheet(
+      imageHashes,
+      imagePaths,
+      (expectedFileHash, filePath) =>
+        referencedImageFile({ expectedFileHash, filePath })
+    );
+
+    const layoutFileHash1 = getLayoutHash(castVoteRecord.BallotImage[0]);
+    const layoutFileHash2 = getLayoutHash(castVoteRecord.BallotImage[1]);
+    let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
+    if (isHandMarkedPaperBallot) {
+      if (!layoutFileHash1 || !layoutFileHash2) {
+        return wrapError({ subType: 'invalid-ballot-image-field' });
+      }
+      const layoutFileHashes: SheetOf<string> = [
+        layoutFileHash1,
+        layoutFileHash2,
+      ];
+      const layoutFilePaths: SheetOf<string> = mapSheet(
+        imagePaths,
+        (imagePath) => {
+          const { dir, name } = path.parse(imagePath);
+          return path.join(dir, `${name}.layout.json`);
+        }
+      );
+      layoutFiles = mapSheet(
+        layoutFileHashes,
+        layoutFilePaths,
+        (expectedFileHash, filePath) =>
+          referencedLayoutFile({ expectedFileHash, filePath })
+      );
+    }
+
+    referencedFiles = { imageFiles, layoutFiles };
+  }
+
+  return ok({
+    castVoteRecord,
+    castVoteRecordBallotSheetId,
+    castVoteRecordCurrentSnapshot,
+    castVoteRecordOriginalSnapshot,
+    castVoteRecordWriteIns,
+    referencedFiles,
+  });
+}
+
+async function* castVoteRecordGenerator(
+  exportDirectoryPath: string,
+  batchIds: Set<string>
+): AsyncGenerator<
+  Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>
+> {
   const castVoteRecordIds =
     await getExportedCastVoteRecordIds(exportDirectoryPath);
   for (const castVoteRecordId of castVoteRecordIds) {
-    const castVoteRecordDirectoryPath = path.join(
-      exportDirectoryPath,
-      castVoteRecordId
+    const result = await readCastVoteRecordFromDirectory(
+      path.join(exportDirectoryPath, castVoteRecordId),
+      batchIds
     );
-    const castVoteRecordReportContents = await fs.readFile(
-      path.join(
-        castVoteRecordDirectoryPath,
-        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-      ),
-      'utf-8'
-    );
-    const parseResult = safeParseJson(
-      castVoteRecordReportContents,
-      CastVoteRecordReportWithoutMetadataSchema
-    );
-    if (parseResult.isErr()) {
-      yield wrapError({ subType: 'parse-error' });
+    yield result;
+    if (result.isErr()) {
       return;
     }
-    const castVoteRecordReport = parseResult.ok();
-    if (!castVoteRecordReport.CVR || castVoteRecordReport.CVR.length !== 1) {
-      yield wrapError({ subType: 'parse-error' });
-      return;
-    }
-    const castVoteRecord = assertDefined(castVoteRecordReport.CVR[0]);
-
-    if (!batchIds.has(castVoteRecord.BatchId)) {
-      yield wrapError({ subType: 'batch-id-not-found' });
-      return;
-    }
-
-    // Only relevant for HMPBs and multi-page BMD ballots
-    let castVoteRecordBallotSheetId: number | undefined;
-    if (castVoteRecord.BallotSheetId) {
-      const parseBallotSheetIdResult = safeParseNumber(
-        castVoteRecord.BallotSheetId
-      );
-      if (parseBallotSheetIdResult.isErr()) {
-        yield wrapError({ subType: 'invalid-ballot-sheet-id' });
-        return;
-      }
-      castVoteRecordBallotSheetId = parseBallotSheetIdResult.ok();
-    }
-
-    const castVoteRecordCurrentSnapshot = getCurrentSnapshot(castVoteRecord);
-    if (!castVoteRecordCurrentSnapshot) {
-      yield wrapError({ subType: 'no-current-snapshot' });
-      return;
-    }
-
-    // HMPB has an "interpreted" current snapshot, while BMD (including multi-page) has an "original"
-    // current snapshot. Multi-page BMD also has BallotSheetId, so we can't use that alone to
-    // identify HMPB.
-    const isHandMarkedPaperBallot =
-      castVoteRecordCurrentSnapshot.Type === CVR.CVRType.Interpreted;
-
-    let castVoteRecordOriginalSnapshot: CVR.CVRSnapshot | undefined;
-    // Original snapshots are used for hmpb mark adjudication
-    if (isHandMarkedPaperBallot) {
-      castVoteRecordOriginalSnapshot = getOriginalSnapshot(castVoteRecord);
-      if (!castVoteRecordOriginalSnapshot) {
-        yield wrapError({ subType: 'no-original-snapshot' });
-        return;
-      }
-    }
-
-    const castVoteRecordWriteIns =
-      getWriteInsFromCastVoteRecord(castVoteRecord);
-    if (!castVoteRecordWriteIns.every(isCastVoteRecordWriteInValid)) {
-      yield wrapError({ subType: 'invalid-write-in-field' });
-      return;
-    }
-
-    let referencedFiles: ReferencedFiles | undefined;
-    if (castVoteRecord.BallotImage) {
-      if (castVoteRecord.BallotImage.length !== 2) {
-        yield wrapError({ subType: 'invalid-ballot-image-field' });
-        return;
-      }
-      assert(castVoteRecord.BallotImage[0]);
-      assert(castVoteRecord.BallotImage[1]);
-      if (
-        !castVoteRecord.BallotImage[0].Hash?.Value ||
-        !castVoteRecord.BallotImage[1].Hash?.Value ||
-        !castVoteRecord.BallotImage[0].Location ||
-        !castVoteRecord.BallotImage[1].Location ||
-        !castVoteRecord.BallotImage[0].Location.startsWith('file:') ||
-        !castVoteRecord.BallotImage[1].Location.startsWith('file:')
-      ) {
-        yield wrapError({ subType: 'invalid-ballot-image-field' });
-        return;
-      }
-      const imageHashes: SheetOf<string> = [
-        getImageHash(castVoteRecord.BallotImage[0]),
-        getImageHash(castVoteRecord.BallotImage[1]),
-      ];
-      const imageRelativePaths: SheetOf<string> = [
-        castVoteRecord.BallotImage[0].Location.replace('file:', ''),
-        castVoteRecord.BallotImage[1].Location.replace('file:', ''),
-      ];
-      const imagePaths: SheetOf<string> = mapSheet(
-        imageRelativePaths,
-        (imageRelativePath) =>
-          path.join(castVoteRecordDirectoryPath, imageRelativePath)
-      );
-      const imageFiles = mapSheet(
-        imageHashes,
-        imagePaths,
-        (expectedFileHash, filePath) =>
-          referencedImageFile({ expectedFileHash, filePath })
-      );
-
-      const layoutFileHash1 = getLayoutHash(castVoteRecord.BallotImage[0]);
-      const layoutFileHash2 = getLayoutHash(castVoteRecord.BallotImage[1]);
-      let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
-      if (isHandMarkedPaperBallot) {
-        if (!layoutFileHash1 || !layoutFileHash2) {
-          yield wrapError({ subType: 'invalid-ballot-image-field' });
-          return;
-        }
-        const layoutFileHashes: SheetOf<string> = [
-          layoutFileHash1,
-          layoutFileHash2,
-        ];
-        const layoutFilePaths: SheetOf<string> = mapSheet(
-          imagePaths,
-          (imagePath) => {
-            const { dir, name } = path.parse(imagePath);
-            return path.join(dir, `${name}.layout.json`);
-          }
-        );
-        layoutFiles = mapSheet(
-          layoutFileHashes,
-          layoutFilePaths,
-          (expectedFileHash, filePath) =>
-            referencedLayoutFile({ expectedFileHash, filePath })
-        );
-      }
-
-      referencedFiles = { imageFiles, layoutFiles };
-    }
-
-    yield ok({
-      castVoteRecord,
-      castVoteRecordBallotSheetId,
-      castVoteRecordCurrentSnapshot,
-      castVoteRecordOriginalSnapshot,
-      castVoteRecordWriteIns,
-      referencedFiles,
-    });
   }
 }
 

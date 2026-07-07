@@ -2,8 +2,10 @@ import { Mock, vi } from 'vitest';
 import React from 'react';
 import type {
   Api,
+  HostConnectionInfo,
   MachineConfig,
   ScanStatus,
+  SendCastVoteRecordsToHostError,
 } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
@@ -19,7 +21,7 @@ import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ok } from '@votingworks/basics';
+import { Result, ok } from '@votingworks/basics';
 import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 import { DEFAULT_STATUS } from './fixtures';
@@ -27,12 +29,17 @@ import { screen } from './react_testing_library';
 
 export type MockApiClient = Omit<
   MockClient<Api>,
-  'getBatteryInfo' | 'getDiskSpaceSummary'
+  | 'getBatteryInfo'
+  | 'getDiskSpaceSummary'
+  | 'getHostConnectionInfo'
+  | 'getSendCvrsProgress'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
+  getHostConnectionInfo: Mock;
+  getSendCvrsProgress: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -44,6 +51,12 @@ export function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
+  );
+  (mockApiClient.getHostConnectionInfo as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ status: 'offline' })
+  );
+  (mockApiClient.getSendCvrsProgress as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(null)
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -158,6 +171,23 @@ export function createApiMock(
 
     expectExportCastVoteRecords() {
       apiClient.exportCastVoteRecordsToUsbDrive.expectCallWith().resolves(ok());
+    },
+
+    setHostConnectionInfo(hostConnectionInfo: HostConnectionInfo) {
+      apiClient.getHostConnectionInfo.mockResolvedValue(hostConnectionInfo);
+    },
+
+    setSendCvrsProgress(progress: { sent: number; total: number } | null) {
+      apiClient.getSendCvrsProgress.mockResolvedValue(progress);
+    },
+
+    expectSendCastVoteRecordsToHost(
+      result: Result<
+        { newlyAdded: number; alreadyPresent: number },
+        SendCastVoteRecordsToHostError
+      >
+    ) {
+      apiClient.sendCastVoteRecordsToHost.expectCallWith().resolves(result);
     },
 
     expectSetTestMode(testMode: boolean) {

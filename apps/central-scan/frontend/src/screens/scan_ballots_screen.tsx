@@ -19,8 +19,9 @@ import { format } from '@votingworks/utils';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
+import { SendCvrsModal } from '../components/send_cvrs_modal';
 import { ScanButton } from '../components/scan_button';
-import { clearBallotData } from '../api';
+import { clearBallotData, getHostConnectionInfo } from '../api';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -91,6 +92,10 @@ export function ScanBallotsScreen({
     .sum();
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
+  const [isSendingCvrs, setIsSendingCvrs] = useState(false);
+  const hostConnectionInfoQuery = getHostConnectionInfo.useQuery();
+  const isHostConnected =
+    hostConnectionInfoQuery.data?.status === 'connected-to-host';
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
   const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
     'confirmation' | 'deleting'
@@ -114,6 +119,12 @@ export function ScanBallotsScreen({
   } else if (status.batches.length === 0) {
     exportButtonTitle =
       'You cannot save results until you have scanned at least one sheet.';
+  }
+
+  let sendButtonTitle = exportButtonTitle;
+  if (!sendButtonTitle && !isHostConnected) {
+    sendButtonTitle =
+      'You cannot send results until a VxAdmin is detected on the network.';
   }
 
   return (
@@ -143,6 +154,19 @@ export function ScanBallotsScreen({
             </P>
           )}
           <TopBarActions>
+            <Button
+              onPress={() => setIsSendingCvrs(true)}
+              disabled={
+                status.adjudicationsRemaining > 0 ||
+                status.batches.length === 0 ||
+                !isHostConnected
+              }
+              nonAccessibleTitle={sendButtonTitle}
+              icon="Export"
+              color="primary"
+            >
+              Send CVRs
+            </Button>
             <Button
               onPress={() => setIsExportingCvrs(true)}
               disabled={
@@ -230,6 +254,9 @@ export function ScanBallotsScreen({
       )}
       {isExportingCvrs && (
         <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
+      )}
+      {isSendingCvrs && (
+        <SendCvrsModal onClose={() => setIsSendingCvrs(false)} />
       )}
       {deleteBallotDataFlowState === 'confirmation' &&
         (status.canUnconfigure ? (

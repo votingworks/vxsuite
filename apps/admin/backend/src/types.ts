@@ -33,6 +33,13 @@ export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
  */
 export type MachineMode = 'host' | 'client';
 
+/**
+ * Role of a machine on the multi-station network. In addition to VxAdmin
+ * hosts and clients, central scanners can connect to a host to send cast
+ * vote records.
+ */
+export type NetworkedMachineRole = MachineMode | 'scanner';
+
 /** Shared interface for stores that support auth state construction. */
 export interface BaseStore {
   getCurrentElectionId(): Id | undefined;
@@ -52,7 +59,7 @@ export enum ClientConnectionStatus {
 /** A record of a machine in the multi-station machines table. */
 export interface MachineRecord {
   machineId: string;
-  machineMode: MachineMode;
+  machineMode: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
   lastSeenAt: number;

@@ -26,6 +26,7 @@ import { DeskProScanner } from './deskpro_scanner';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
+import { startScannerNetworking } from './networking';
 import { getUserRole } from './util/auth';
 
 export interface StartOptions {
@@ -137,6 +138,8 @@ export function start({
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
 
+    const adminHostClient = startScannerNetworking({ logger: baseLogger });
+
     resolvedApp = buildCentralScannerApp({
       auth,
       scanner: resolvedBatchScanner,
@@ -144,6 +147,7 @@ export function start({
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
+      adminHostClient,
     });
   }
 

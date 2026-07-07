@@ -30,3 +30,21 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
+
+/**
+ * How often to poll the network for a VxAdmin host.
+ */
+export const NETWORK_POLLING_INTERVAL_MS = 2000;
+
+/**
+ * Timeout for requests to a VxAdmin host's peer API.
+ */
+export const NETWORK_REQUEST_TIMEOUT_MS = 1000;
+
+/**
+ * Dev override for the VxAdmin host peer API address, e.g.
+ * `http://192.168.1.10:3002`. When set, avahi discovery is skipped and the
+ * scanner connects to this address directly.
+ */
+export const ADMIN_HOST_ADDRESS_OVERRIDE =
+  process.env.VX_CENTRAL_SCAN_ADMIN_HOST;
