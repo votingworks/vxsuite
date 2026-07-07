@@ -65,17 +65,12 @@ export async function main(args: readonly string[]): Promise<number> {
       const ballotPath = join(outDir, `${label} - ballot.pdf`);
       await writeFile(ballotPath, ballotPdf);
       console.log(`Wrote ${ballotPath}`);
-    }
 
-    for (const party of election.parties) {
       const rovDocument = await renderNhRovForm(renderer, {
         election,
-        partyId: party.id,
+        ballotStyle,
       });
-      const rovPath = join(
-        outDir,
-        `${sanitize(`${townName} ${party.name}`)} - ROV.pdf`
-      );
+      const rovPath = join(outDir, `${label} - ROV.pdf`);
       await writeFile(rovPath, await rovDocument.renderToPdf());
       console.log(`Wrote ${rovPath}`);
     }

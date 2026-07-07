@@ -160,7 +160,7 @@ function Header({
           {ballotTitle} For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
-          <h1>
+          <h1 style={{ whiteSpace: 'nowrap' }}>
             {electionStrings.jurisdictionName(election.jurisdiction)}
             {wardName ? ` ${wardName}` : ''}
           </h1>

@@ -220,15 +220,14 @@ async function renderTown(
         await document.renderToPdf()
       );
     }
-  }
 
-  for (const party of election.parties) {
+    // Return of Votes form for this ward/party.
     const rovDocument = await renderNhRovForm(renderer, {
       election,
-      partyId: party.id,
+      ballotStyle,
     });
     await writeFile(
-      join(townDir, `${sanitize(`${townName} ${party.name}`)} - ROV.pdf`),
+      join(townDir, `${label} - ROV.pdf`),
       await rovDocument.renderToPdf()
     );
   }

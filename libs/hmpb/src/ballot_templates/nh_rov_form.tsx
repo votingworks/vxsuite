@@ -3,9 +3,13 @@ import { assert, find } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
+  BallotStyle,
   Candidate,
   CandidateContest,
   Election,
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
+  getPrecinctById,
   HmpbBallotPaperSize,
   PartyId,
 } from '@votingworks/types';
@@ -162,7 +166,22 @@ function PageFooter({
 
 interface NhRovFormProps {
   election: Election;
-  partyId?: PartyId;
+  ballotStyle: BallotStyle;
+}
+
+// Ward name for warded jurisdictions (the precinct differs from the town);
+// undefined for unwarded towns where the precinct is the town itself.
+function getWardName(
+  election: Election,
+  ballotStyle: BallotStyle
+): string | undefined {
+  const precinct = getPrecinctById({
+    election,
+    precinctId: ballotStyle.precincts[0],
+  });
+  return precinct && precinct.name !== election.jurisdiction.name
+    ? precinct.name
+    : undefined;
 }
 
 function partyColorTint(
@@ -242,12 +261,15 @@ const GENERAL_INSTRUCTIONS =
 
 export function NhRovForm({
   election,
-  partyId,
+  ballotStyle,
   totalPages,
 }: NhRovFormProps & { totalPages: number }): JSX.Element {
+  const { partyId } = ballotStyle;
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
     : undefined;
+  const wardName = getWardName(election, ballotStyle);
+  const contests = getContests({ election, ballotStyle });
   const electionDate = format.localeLongDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
@@ -286,7 +308,8 @@ export function NhRovForm({
               <div>
                 <h1>Return of Votes</h1>
                 <h2>
-                  {election.jurisdiction.name}, {election.state}
+                  {election.jurisdiction.name}
+                  {wardName ? ` ${wardName}` : ''}, {election.state}
                 </h2>
                 {party && <h2>{party.name}</h2>}
                 <h4>{election.title}</h4>
@@ -383,99 +406,95 @@ export function NhRovForm({
             columnGap: '0.5rem',
           }}
         >
-          {election.contests
-            .filter(
-              (contest) =>
-                !partyId ||
-                contest.type !== 'candidate' ||
-                contest.partyId === partyId
-            )
-            .map((contest) => (
-              <div
-                key={contest.id}
-                style={{
-                  marginBottom: '0.375rem',
-                  border: `1px solid ${Colors.DARKER_GRAY}`,
-                }}
-              >
-                <ContestTable style={{ fontSize: '0.8rem' }}>
-                  <thead>
-                    <tr>
-                      <th
-                        colSpan={2}
-                        style={
-                          colorTint
-                            ? { backgroundColor: ColorTints[colorTint] }
-                            : undefined
-                        }
-                      >
-                        <h4 style={{ fontSize: '1rem' }}>
-                          {contestTitleWithForPrefix(contest.title)}
-                        </h4>
-                        {contest.type === 'candidate' && (
-                          <div>
-                            {contest.seats === 1 ? (
-                              <>Vote for not more than 1</>
-                            ) : (
-                              <>
-                                Vote for up to {contest.seats};{' '}
-                                {SEATS_WORD[contest.seats]} will be elected
-                              </>
-                            )}
-                            {contest.termDescription && (
-                              <span> • {contest.termDescription}</span>
-                            )}
-                          </div>
-                        )}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {contest.type === 'candidate' &&
-                      mergeCrossEndorsedCandidates(contest.candidates).map(
-                        (candidate) => (
-                          <tr key={candidate.id}>
-                            <td>
-                              {cleanCandidateName(candidate.name)}
-                              {!partyId &&
-                                (candidate.partyIds?.length ?? 0) > 0 && (
-                                  <div style={{ fontWeight: '400' }}>
-                                    <CandidatePartyList
-                                      candidate={candidate}
-                                      electionParties={election.parties}
-                                    />
-                                  </div>
-                                )}
-                            </td>
-                            <td></td>
-                          </tr>
-                        )
-                      )}
-                    {contest.type === 'yesno' &&
-                      contest.options.map((option) => (
-                        <tr key={option.id}>
-                          <td>{option.label}</td>
-                          <td></td>
-                        </tr>
-                      ))}
-                    <tr>
-                      <td
-                        colSpan={2}
-                        style={{
-                          fontStyle: 'italic',
-                          fontWeight: 'normal',
-                        }}
-                      >
-                        <div style={{ display: 'flex', width: '100%' }}>
-                          <div style={{ flex: 1 }}>Undervotes:</div>
-                          <div style={{ flex: 1 }}>Overvotes:</div>
+          {contests.map((contest) => (
+            <div
+              key={contest.id}
+              style={{
+                marginBottom: '0.375rem',
+                border: `1px solid ${Colors.DARKER_GRAY}`,
+              }}
+            >
+              <ContestTable style={{ fontSize: '0.8rem' }}>
+                <thead>
+                  <tr>
+                    <th
+                      colSpan={2}
+                      style={
+                        colorTint
+                          ? { backgroundColor: ColorTints[colorTint] }
+                          : undefined
+                      }
+                    >
+                      <h4 style={{ fontSize: '1rem' }}>
+                        {contestTitleWithForPrefix(contest.title)}
+                      </h4>
+                      {contest.type === 'candidate' && (
+                        <div>
+                          {contest.seats === 1 ? (
+                            <>Vote for not more than 1</>
+                          ) : (
+                            <>
+                              Vote for up to {contest.seats};{' '}
+                              {SEATS_WORD[contest.seats]} will be elected
+                            </>
+                          )}
+                          {contest.termDescription && (
+                            <span> • {contest.termDescription}</span>
+                          )}
                         </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </ContestTable>
-              </div>
-            ))}
+                      )}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contest.type === 'candidate' &&
+                    mergeCrossEndorsedCandidates(
+                      getOrderedCandidatesForContestInBallotStyle({
+                        contest,
+                        ballotStyle,
+                      })
+                    ).map((candidate) => (
+                      <tr key={candidate.id}>
+                        <td>
+                          {cleanCandidateName(candidate.name)}
+                          {!partyId &&
+                            (candidate.partyIds?.length ?? 0) > 0 && (
+                              <div style={{ fontWeight: '400' }}>
+                                <CandidatePartyList
+                                  candidate={candidate}
+                                  electionParties={election.parties}
+                                />
+                              </div>
+                            )}
+                        </td>
+                        <td></td>
+                      </tr>
+                    ))}
+                  {contest.type === 'yesno' &&
+                    contest.options.map((option) => (
+                      <tr key={option.id}>
+                        <td>{option.label}</td>
+                        <td></td>
+                      </tr>
+                    ))}
+                  <tr>
+                    <td
+                      colSpan={2}
+                      style={{
+                        fontStyle: 'italic',
+                        fontWeight: 'normal',
+                      }}
+                    >
+                      <div style={{ display: 'flex', width: '100%' }}>
+                        <div style={{ flex: 1 }}>Undervotes:</div>
+                        <div style={{ flex: 1 }}>Overvotes:</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </ContestTable>
+            </div>
+          ))}
         </div>
         <PageFooter pageNumber={1} totalPages={totalPages} />
       </div>
@@ -641,30 +660,30 @@ function splitContestsIntoPages(
 
 function getWriteInContests(
   election: Election,
-  partyId?: PartyId
+  ballotStyle: BallotStyle
 ): CandidateContest[] {
-  return election.contests.filter(
+  return getContests({ election, ballotStyle }).filter(
     (contest): contest is CandidateContest =>
-      contest.type === 'candidate' &&
-      contest.allowWriteIns &&
-      (!partyId || contest.partyId === partyId)
+      contest.type === 'candidate' && contest.allowWriteIns
   );
 }
 
 function NhWriteInPages({
   election,
-  partyId,
+  ballotStyle,
   totalPages,
 }: NhRovFormProps & { totalPages: number }): JSX.Element | null {
+  const { partyId } = ballotStyle;
   const party = partyId
     ? find(election.parties, (p) => p.id === partyId)
     : undefined;
+  const wardName = getWardName(election, ballotStyle);
   const electionDate = format.localeLongDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
   const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
 
-  const writeInContests = getWriteInContests(election, partyId);
+  const writeInContests = getWriteInContests(election, ballotStyle);
 
   if (writeInContests.length === 0) return null;
 
@@ -722,7 +741,8 @@ function NhWriteInPages({
                         <React.Fragment>
                           <h1>Write-In Votes</h1>
                           <h2>
-                            {election.jurisdiction.name}, {election.state}
+                            {election.jurisdiction.name}
+                            {wardName ? ` ${wardName}` : ''}, {election.state}
                           </h2>
                           {party && <h2>{party.name}</h2>}
                           <h4>{election.title}</h4>
@@ -732,7 +752,8 @@ function NhWriteInPages({
                         <React.Fragment>
                           <h1>Write-In Votes Continued</h1>
                           <h2>
-                            {election.jurisdiction.name}, {election.state}
+                            {election.jurisdiction.name}
+                            {wardName ? ` ${wardName}` : ''}, {election.state}
                           </h2>
                           {party && <h2>{party.name}</h2>}
                           <h4>{election.title}</h4>
@@ -824,7 +845,7 @@ export async function render(
 ): Promise<RenderDocument> {
   const scratchpad = await renderer.createScratchpad(<BaseStyles />);
   const document = scratchpad.convertToDocument();
-  const writeInContests = getWriteInContests(props.election, props.partyId);
+  const writeInContests = getWriteInContests(props.election, props.ballotStyle);
   const numWriteInPages =
     writeInContests.length === 0
       ? 0
