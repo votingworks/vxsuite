@@ -2046,7 +2046,7 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
   ).toEqual(true);
 });
 
-test('open primary crossover votes', async () => {
+test('combined ballot primary crossover votes', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;

@@ -219,7 +219,7 @@ test('logs failure if export fails for some reason', async () => {
   );
 });
 
-test('open primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
+test('combined ballot primary: crossover, nonpartisan-only, and adjudicated ballots', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();

@@ -34,7 +34,7 @@ export function BallotStyleLabel(props: BallotStyleLabelProps): JSX.Element {
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
 
-  // Open primary ballot styles have no party, so show just the precinct name
+  // Combined ballot primary ballot styles have no party, so show just the precinct name
   // like in a general election.
   if (election.type === 'general' || isCombinedBallotPrimary(election)) {
     return (

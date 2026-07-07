@@ -24,7 +24,7 @@ export interface BallotContextInterface {
   setHasPrintedBallot: () => void;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
-  // `selectedPartyId` and `selectParty` apply only to open primaries, where the
+  // `selectedPartyId` and `selectParty` apply only to combined ballot primaries, where the
   // voter picks a party at the start of their session. In closed primaries the
   // party is determined by the ballot style; in general elections there is no
   // party. `selectedPartyId` is undefined until the voter makes a selection.

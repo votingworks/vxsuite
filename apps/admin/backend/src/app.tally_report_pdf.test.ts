@@ -473,7 +473,7 @@ test('tally report logging', async () => {
   );
 });
 
-test('tally report PDF - open primary', async () => {
+test('tally report PDF - combined ballot primary', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 

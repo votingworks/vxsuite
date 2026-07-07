@@ -174,7 +174,7 @@ export interface StateFeaturesConfig {
    */
   OMIT_ABSENTEE_POLLING_PLACES?: boolean;
   /**
-   * Allow creating open primary elections, where all parties' contests are on
+   * Allow creating combined ballot primary elections, where all parties' contests are on
    * the same ballot rather than having a separate ballot for each party.
    */
   COMBINED_BALLOT_PRIMARIES?: boolean;

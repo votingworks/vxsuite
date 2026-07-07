@@ -1022,7 +1022,7 @@ test('primary, partial write-in adjudication uses correct unadjudicated label', 
   expect(writeInTally?.name).toEqual(Tabulation.PENDING_WRITE_IN_NAME);
 });
 
-test('open primary, full election with crossover and adjudications', async () => {
+test('combined ballot primary, full election with crossover and adjudications', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -1105,7 +1105,7 @@ test('open primary, full election with crossover and adjudications', async () =>
   });
 });
 
-test('open primary, grouped by precinct', async () => {
+test('combined ballot primary, grouped by precinct', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -1270,7 +1270,7 @@ test('open primary, grouped by precinct', async () => {
   });
 });
 
-test('open primary, crossover ballots write-ins excluded from partisan tallies', async () => {
+test('combined ballot primary, crossover ballots write-ins excluded from partisan tallies', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();

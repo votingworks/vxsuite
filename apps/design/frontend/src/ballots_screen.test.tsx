@@ -157,7 +157,7 @@ describe('Ballot styles tab', () => {
     ]);
   });
 
-  test('Open primary election hides party column', async () => {
+  test('Combined ballot primary election hides party column', async () => {
     const electionRecord = combinedBallotPrimaryElectionRecord(jurisdiction.id);
     const electionId = electionRecord.election.id;
     expectElectionApiCalls(electionRecord);

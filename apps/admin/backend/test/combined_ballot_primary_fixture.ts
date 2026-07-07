@@ -23,7 +23,7 @@ export interface CombinedBallotPrimaryFixtureResult {
 }
 
 /**
- * Seeds the store with 10 open-primary CVRs covering every party-inference
+ * Seeds the store with 10 combined ballot primary CVRs covering every party-inference
  * path (single-party, nonpartisan-only, crossover) and applies two
  * adjudications: resolving one crossover and flipping a single-party ballot
  * to nonpartisan.
@@ -177,7 +177,7 @@ export interface CombinedBallotPrimaryWriteInsFixtureResult {
 }
 
 /**
- * Seeds 4 open-primary ballots, each with one write-in mark, and adjudicates
+ * Seeds 4 combined ballot primary ballots, each with one write-in mark, and adjudicates
  * each write-in to a write-in candidate.
  *
  *   cvrIds[0] = Dem-only voter, write-in on governor-democratic       → counts

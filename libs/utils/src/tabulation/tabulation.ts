@@ -191,14 +191,14 @@ function addCastVoteRecordToElectionResult(
     const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
 
     if (Tabulation.isNoPartyId(inferredPartyId)) {
-      // If an open primary voter has either voted in no partisan contests or
+      // If a combined ballot primary voter has either voted in no partisan contests or
       // crossover voted, omit all partisan contests so that they don't count,
       // even as undervotes.
       voidedContestIds = new Set(
         partisanContests(election).map((contest) => contest.id)
       );
     } else {
-      // If an open primary voter has voted validly, omit all partisan contests
+      // If a combined ballot primary voter has voted validly, omit all partisan contests
       // for the other party so that they don't count, even as undervotes.
       voidedContestIds = new Set(
         partisanContests(election)

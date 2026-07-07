@@ -62,7 +62,7 @@ test('has tabs for CVRs and Manual Tallies', async () => {
   await screen.findByText('No manual tallies entered.');
 });
 
-test('hides Manual Tallies tab for open primary elections', async () => {
+test('hides Manual Tallies tab for combined ballot primary elections', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<TallyScreen />, {
@@ -77,7 +77,7 @@ test('hides Manual Tallies tab for open primary elections', async () => {
   ).not.toBeInTheDocument();
 });
 
-test('redirects /tally/manual to CVRs tab for open primary elections', async () => {
+test('redirects /tally/manual to CVRs tab for combined ballot primary elections', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<TallyScreen />, {

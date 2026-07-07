@@ -3257,7 +3257,7 @@ test('cloneElection', async () => {
   );
 });
 
-test('open primary elections', async () => {
+test('combined ballot primary elections', async () => {
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -3265,7 +3265,7 @@ test('open primary elections', async () => {
   });
   auth0.setLoggedInUser(supportUser);
 
-  // Loading an open primary into a jurisdiction with COMBINED_BALLOT_PRIMARIES stores the
+  // Loading a combined ballot primary into a jurisdiction with COMBINED_BALLOT_PRIMARIES stores the
   // combined-ballot flag
   const electionId = (
     await apiClient.loadElection({
@@ -3284,7 +3284,7 @@ test('open primary elections', async () => {
   expect(combinedBallotPrimaryInfo.type).toEqual('primary');
   expect(combinedBallotPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
 
-  // Open primary elections generate one ballot style per precinct with no
+  // Combined ballot primary elections generate one ballot style per precinct with no
   // partyId — voters see all parties' contests on a single ballot.
   const combinedBallotPrimaryBallotStyles = await apiClient.listBallotStyles({
     electionId,
@@ -3294,7 +3294,7 @@ test('open primary elections', async () => {
     expect(ballotStyle.partyId).toBeUndefined();
   }
 
-  // Loading an open primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
+  // Loading a combined ballot primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   expect(
     await apiClient.loadElection({
       upload: {
@@ -3308,7 +3308,7 @@ test('open primary elections', async () => {
   ).toEqual(
     err(
       expect.objectContaining({
-        message: expect.stringContaining('Open primary'),
+        message: expect.stringContaining('Combined ballot primary'),
       })
     )
   );
@@ -3325,7 +3325,7 @@ test('open primary elections', async () => {
   expect(clonedInfo.type).toEqual('primary');
   expect(clonedInfo.isMiCombinedBallotPrimary).toEqual(true);
 
-  // Cloning an open primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
+  // Cloning a combined ballot primary into a jurisdiction without COMBINED_BALLOT_PRIMARIES is rejected
   await suppressingConsoleOutput(() =>
     expect(
       apiClient.cloneElection({
@@ -3333,11 +3333,11 @@ test('open primary elections', async () => {
         destElectionId: 'should-fail',
         destJurisdictionId: nonVxJurisdiction.id,
       })
-    ).rejects.toThrow('Open primary')
+    ).rejects.toThrow('Combined ballot primary')
   );
 
-  // Finalizing an open primary generates the election package but skips test
-  // decks, which don't yet support open primaries.
+  // Finalizing a combined ballot primary generates the election package but skips test
+  // decks, which don't yet support combined ballot primaries.
   await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, electionId);
   const originalMiConfig = stateFeatureConfigs.MI;
   stateFeatureConfigs.MI = { ...originalMiConfig, EXPORT_TEST_BALLOTS: true };

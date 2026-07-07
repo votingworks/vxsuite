@@ -110,7 +110,7 @@ test('primary', () => {
   expect(screen.getAllByTestId(/write-in-tally-report-/)).toHaveLength(2);
 });
 
-test('open primary: partisan contests get party labels; nonpartisan contests get a "Nonpartisan Contests" label', () => {
+test('combined ballot primary: partisan contests get party labels; nonpartisan contests get a "Nonpartisan Contests" label', () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   render(

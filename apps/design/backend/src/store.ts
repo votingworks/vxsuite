@@ -1390,7 +1390,7 @@ export class Store {
       const features = getStateFeaturesConfig(jurisdiction);
       if (!features.COMBINED_BALLOT_PRIMARIES) {
         throw new Error(
-          'Open primary elections are not supported for this jurisdiction'
+          'Combined ballot primary elections are not supported for this jurisdiction'
         );
       }
     }

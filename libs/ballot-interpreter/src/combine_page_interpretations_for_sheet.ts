@@ -78,7 +78,7 @@ export function combinePageInterpretationsForSheet(
       reasons.push({ type: AdjudicationReason.BlankBallot });
     }
 
-    // Crossover voting always triggers review in open primaries; it is not
+    // Crossover voting always triggers review in combined ballot primaries; it is not
     // gated on the configured adjudicationReasons.
     if (
       hasCrossoverVote(election, {

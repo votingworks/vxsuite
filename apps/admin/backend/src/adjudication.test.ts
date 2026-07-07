@@ -957,7 +957,7 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
   expect(store.isCvrAdjudicated({ cvrId })).toEqual(true);
 });
 
-test('open primary crossover vote', async () => {
+test('combined ballot primary crossover vote', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { electionData } =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();

@@ -86,7 +86,7 @@ export function findBallotStyleId(
       return findBallotStyleInSingleGroup();
     }
     case 'primary': {
-      // In an open primary, ballots are consolidated (all parties' contests on
+      // In a combined ballot primary, ballots are consolidated (all parties' contests on
       // one ballot), so there is no party selection and a single ballot style
       // group per precinct or split, just like a general election.
       if (isCombinedBallotPrimary(election)) {
@@ -152,7 +152,7 @@ export function addBallotsPropsToPrintCountRow(
   const languageCode = assertDefined(ballotStyle.languages)[0] as LanguageCode;
 
   let partyName: string | undefined;
-  // In an open primary, consolidated ballot styles have no partyId, so there is
+  // In a combined ballot primary, consolidated ballot styles have no partyId, so there is
   // no party name to display. Closed primaries are still expected to have one.
   if (election.type === 'primary' && !isCombinedBallotPrimary(election)) {
     assert(ballotStyle.partyId !== undefined);

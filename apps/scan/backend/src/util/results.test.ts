@@ -121,7 +121,7 @@ test('isBmdPage', () => {
   expect(isBmdPage(BLANK_PAGE)).toEqual(false);
 });
 
-test('getScannerResults groups by inferred party for an open primary', async () => {
+test('getScannerResults groups by inferred party for a combined ballot primary', async () => {
   const electionDefinition = readElectionCombinedBallotPrimaryDefinition();
   const { election } = electionDefinition;
   const democraticPartyId = election.parties.find(

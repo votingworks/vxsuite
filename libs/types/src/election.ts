@@ -1004,7 +1004,7 @@ export const ElectionSchema = z
           code: 'custom',
           path: ['ballotStyles'],
           message:
-            'Primary election ballot styles must either all have a partyId (closed primary) or all omit partyId (open primary).',
+            'Primary election ballot styles must either all have a partyId (closed primary) or all omit partyId (combined ballot primary).',
           input: election,
         });
       }

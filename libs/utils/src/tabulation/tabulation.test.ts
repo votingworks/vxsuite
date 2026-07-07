@@ -1437,7 +1437,7 @@ test('tabulateCastVoteRecords with a straight-party contest', async () => {
   expect(president.tallies['cramer-vuocolo']?.tally).toEqual(1);
 });
 
-describe('open primaries', () => {
+describe('combined ballot primaries', () => {
   const combinedBallotPrimaryElection = readElectionCombinedBallotPrimary();
 
   const baseCvrMetadata = {
@@ -1481,7 +1481,7 @@ describe('open primaries', () => {
     });
   });
 
-  test('groupByParty groups CVRs with undefined partyId together (open primaries)', async () => {
+  test('groupByParty groups CVRs with undefined partyId together (combined ballot primaries)', async () => {
     const democraticPartyId = combinedBallotPrimaryElection.parties.find(
       (p) => p.name === 'Democratic'
     )!.id;
@@ -1597,7 +1597,7 @@ describe('open primaries', () => {
     }
   });
 
-  test("open primary ballots omit other parties' contests rather than counting undervotes", async () => {
+  test("combined ballot primary ballots omit other parties' contests rather than counting undervotes", async () => {
     const results = (
       await tabulateCastVoteRecords({
         election: combinedBallotPrimaryElection,

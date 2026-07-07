@@ -288,7 +288,7 @@ test('no marginal mark when scores are above definite', () => {
   });
 });
 
-test('open primary - crossover vote', () => {
+test('combined ballot primary - crossover vote', () => {
   const combinedBallotPrimaryElectionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   expect(

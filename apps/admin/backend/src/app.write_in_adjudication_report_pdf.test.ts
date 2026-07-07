@@ -333,7 +333,7 @@ test('write-in adjudication report warning', async () => {
   });
 });
 
-test('open primary: crossover ballots write-ins on partisan contests are excluded', async () => {
+test('combined ballot primary: crossover ballots write-ins on partisan contests are excluded', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();

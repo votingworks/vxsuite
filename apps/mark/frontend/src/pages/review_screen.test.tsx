@@ -32,7 +32,7 @@ test('Renders ReviewScreen with Print My Ballot in final review mode', () => {
   screen.getByText('Settings');
   screen.getButton(/print my ballot/i);
   expect(screen.queryButton(/back/i)).toBeNull();
-  // No party row for non-open-primary elections.
+  // No party row for elections that are not combined ballot primaries.
   expect(screen.queryByText(/^party$/i)).toBeNull();
   expect(screen.queryButton(/change party/i)).toBeNull();
 });
@@ -114,7 +114,7 @@ test('renders as voter screen', () => {
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
 });
 
-test('open primary review screen shows party row and links to party selection', () => {
+test('combined ballot primary review screen shows party row and links to party selection', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,

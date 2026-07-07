@@ -762,7 +762,7 @@ export function buildApi(ctx: AppContext) {
         shouldExportTestBallots: !!stateFeatures.EXPORT_TEST_BALLOTS,
       });
 
-      // Test decks have not yet been updated to support open primaries
+      // Test decks have not yet been updated to support combined ballot primaries
       if (
         stateFeatures.EXPORT_TEST_BALLOTS &&
         !isCombinedBallotPrimary(election)

@@ -79,7 +79,7 @@ import { InternalConnectionProblemScreen } from './pages/internal_connection_pro
 
 export interface VotingState {
   votes?: VotesDict;
-  // Only set for open primary elections; see BallotContextInterface.
+  // Only set for combined ballot primary elections; see BallotContextInterface.
   selectedPartyId?: PartyId;
   showPostVotingInstructions?: boolean;
   showingPatCalibration?: boolean;
@@ -257,7 +257,7 @@ export function AppRoot(): JSX.Element | null {
             ballotStyle,
           })
         )
-          // For open primaries, show only partisan contests for the party
+          // For combined ballot primaries, show only partisan contests for the party
           // selected by the user + nonpartisan contests.
           .filter((contest) => {
             if (isCombinedBallotPrimary(electionDefinition.election)) {

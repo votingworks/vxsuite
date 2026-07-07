@@ -494,7 +494,7 @@ test('removes write-in candidates not referenced anymore', async () => {
   ).toEqual(manualResultsWithWriteInRemoved);
 });
 
-test('manual results APIs reject reads/writes for open primary elections', async () => {
+test('manual results APIs reject reads/writes for combined ballot primary elections', async () => {
   const combinedBallotPrimaryElectionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth } = buildTestEnvironment();

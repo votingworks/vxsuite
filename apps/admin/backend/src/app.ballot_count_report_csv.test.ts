@@ -313,7 +313,7 @@ test('creates accurate ballot count reports', async () => {
   });
 });
 
-test('open primary: groups by inferred party with a No Party row', async () => {
+test('combined ballot primary: groups by inferred party with a No Party row', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
@@ -408,7 +408,7 @@ test('open primary: groups by inferred party with a No Party row', async () => {
   });
 });
 
-test('open primary: groupByParty with No Party filter', async () => {
+test('combined ballot primary: groupByParty with No Party filter', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();

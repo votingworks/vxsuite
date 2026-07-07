@@ -739,7 +739,7 @@ test('tabulateFullCardCounts - blankBallots', async () => {
   }
 });
 
-test('tabulateFullCardCounts - hasCrossoverVote filter (open primary)', async () => {
+test('tabulateFullCardCounts - hasCrossoverVote filter (combined ballot primary)', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const { election, electionData } =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();

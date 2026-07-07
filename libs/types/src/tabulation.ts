@@ -67,12 +67,12 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
 };
 
 /**
- * Type-safe sentinel value for grouping/filtering "No Party" ballots in open primaries.
+ * Type-safe sentinel value for grouping/filtering "No Party" ballots in combined ballot primaries.
  * */
 export const NO_PARTY_ID = { noParty: true } as const;
 /**
  * Type of {@link NO_PARTY_ID}, the type-safe sentinel value for
- * grouping/filtering "No Party" ballots in open primaries.
+ * grouping/filtering "No Party" ballots in combined ballot primaries.
  */
 export type NoPartyId = typeof NO_PARTY_ID;
 /**

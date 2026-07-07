@@ -206,7 +206,7 @@ test('party selection', () => {
   expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
 });
 
-test('open primary party selection includes "No Party"', () => {
+test('combined ballot primary party selection includes "No Party"', () => {
   const { election } = electionCombinedBallotPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -271,7 +271,7 @@ test('adjudication status selection', () => {
   });
 });
 
-test('adjudication status selection includes "Crossover Vote" in open primary', () => {
+test('adjudication status selection includes "Crossover Vote" in combined ballot primary', () => {
   const { election } = readElectionCombinedBallotPrimaryDefinition();
   const onChange = vi.fn();
 

@@ -41,7 +41,7 @@ const nonpartisanContest = combinedBallotPrimary.contests.find(
 )!;
 
 describe('partisanContests', () => {
-  test('returns all partisan contests in an open primary', () => {
+  test('returns all partisan contests in a combined ballot primary', () => {
     const result = partisanContests(combinedBallotPrimary);
 
     // Invariants:
@@ -164,7 +164,7 @@ describe('hasCrossoverVote', () => {
     ).toEqual(false);
   });
 
-  test('false for open primary single-party votes', () => {
+  test('false for combined ballot primary single-party votes', () => {
     expect(
       hasCrossoverVote(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
@@ -172,7 +172,7 @@ describe('hasCrossoverVote', () => {
     ).toEqual(false);
   });
 
-  test('false for open primary nonpartisan-only votes', () => {
+  test('false for combined ballot primary nonpartisan-only votes', () => {
     expect(
       hasCrossoverVote(combinedBallotPrimary, {
         [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
@@ -180,7 +180,7 @@ describe('hasCrossoverVote', () => {
     ).toEqual(false);
   });
 
-  test('true for open primary multi-party votes', () => {
+  test('true for combined ballot primary multi-party votes', () => {
     expect(
       hasCrossoverVote(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
@@ -191,7 +191,7 @@ describe('hasCrossoverVote', () => {
 });
 
 describe('inferPartyFromVotes', () => {
-  test('NO_PARTY_ID for open primary with no partisan votes', () => {
+  test('NO_PARTY_ID for combined ballot primary with no partisan votes', () => {
     expect(inferPartyFromVotes(combinedBallotPrimary, {})).toEqual(
       Tabulation.NO_PARTY_ID
     );
@@ -202,7 +202,7 @@ describe('inferPartyFromVotes', () => {
     ).toEqual(Tabulation.NO_PARTY_ID);
   });
 
-  test('returns party for open primary single-party votes', () => {
+  test('returns party for combined ballot primary single-party votes', () => {
     expect(
       inferPartyFromVotes(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
@@ -210,7 +210,7 @@ describe('inferPartyFromVotes', () => {
     ).toEqual(democraticPartyId);
   });
 
-  test('NO_PARTY_ID for open primary crossover votes', () => {
+  test('NO_PARTY_ID for combined ballot primary crossover votes', () => {
     expect(
       inferPartyFromVotes(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],

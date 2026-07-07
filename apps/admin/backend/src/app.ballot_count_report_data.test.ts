@@ -122,7 +122,7 @@ test('card counts', async () => {
   ]);
 });
 
-test('open primary: card counts with party inferred from votes', async () => {
+test('combined ballot primary: card counts with party inferred from votes', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();
@@ -345,7 +345,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   ]);
 
   // Ballot style + party — exercises the groupByBallotStyle branch of the
-  // open-primary reroute (the Custom Ballot Count Report builder allows this
+  // combined ballot primary reroute (the Custom Ballot Count Report builder allows this
   // combination). All CVRs are on ballot-style-1; ballot-style-2 gets
   // zero-count rows for each party.
   expect(
@@ -412,8 +412,8 @@ test('open primary: card counts with party inferred from votes', async () => {
     },
   ]);
 
-  // Exercise the batch / batch date / scanner branches of the open-primary
-  // reroute. All ballots are in batch-1 / scanner-1, so each party row
+  // Exercise the batch / batch date / scanner branches of the combined ballot
+  // primary reroute. All ballots are in batch-1 / scanner-1, so each party row
   // collapses to a single (party, batch, scanner) bucket.
   expect(
     await apiClient.getCardCounts({
@@ -465,7 +465,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   ]);
 });
 
-test('open primary: card counts with partyIds filter', async () => {
+test('combined ballot primary: card counts with partyIds filter', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth, workspace } = buildTestEnvironment();

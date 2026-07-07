@@ -807,7 +807,7 @@ export class Store implements BaseStore {
       );
       params.push(...filter.ballotStyleGroupIds);
     }
-    // Open primaries handled below
+    // Combined ballot primaries handled below
     if (filter.partyIds && !isCombinedBallotPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
@@ -888,7 +888,7 @@ export class Store implements BaseStore {
         groupSpecifier
     );
 
-    // In open primary elections, ballot styles in the db don't have party IDs.
+    // In combined ballot primary elections, ballot styles in the db don't have party IDs.
     // Instead, each CVR's party is inferred from its votes. So we need to
     // manually create group specifiers for each party.
     if (isCombinedBallotPrimary(election) && groupBy.groupByParty) {
@@ -947,7 +947,7 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.precinctIds);
     }
 
-    // Filter by party ID only in closed primaries (generals and open primaries
+    // Filter by party ID only in closed primaries (generals and combined ballot primaries
     // don't have party IDs on ballot styles). Nonpartisan contests are always
     // included.
     whereParts.push(
@@ -1740,7 +1740,7 @@ export class Store implements BaseStore {
     filter?: Admin.ReportingFilter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<CardTally>> {
-    // In open primaries, we have to infer a CVR's party from its votes,
+    // In combined ballot primaries, we have to infer a CVR's party from its votes,
     // which we can't do via the db, so we divert and do the counting in JS.
     if (
       isCombinedBallotPrimary(election) &&

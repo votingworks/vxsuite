@@ -18,7 +18,7 @@ afterAll(async () => {
 });
 
 // run `pnpm generate-fixtures --mi-combined-ballot-primary-election` if this test fails
-test('MI open primary election fixtures', async () => {
+test('MI combined ballot primary election fixtures', async () => {
   const fixtures = miCombinedBallotPrimaryElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
 

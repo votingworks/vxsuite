@@ -641,8 +641,8 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
   });
 });
 
-test('end-to-end printing flow handles open primary (consolidated ballots)', async () => {
-  // In an open primary, ballots are consolidated (all parties' contests on one
+test('end-to-end printing flow handles combined ballot primary (consolidated ballots)', async () => {
+  // In a combined ballot primary, ballots are consolidated (all parties' contests on one
   // ballot) and ballot styles have no partyId. VxPrint should print without a
   // party selection, just like a general election.
   const electionDefinition = getMockMultiLanguageElectionDefinition(
@@ -668,7 +668,7 @@ test('end-to-end printing flow handles open primary (consolidated ballots)', asy
   const ballotStyle = ballotStyles[0];
   const precinctId = ballotStyle.precincts[0];
 
-  // Print with no partyId, matching what the frontend sends for open primaries.
+  // Print with no partyId, matching what the frontend sends for combined ballot primaries.
   await apiClient.printBallot({
     precinctId,
     languageCode: LanguageCode.ENGLISH,
@@ -691,7 +691,7 @@ test('end-to-end printing flow handles open primary (consolidated ballots)', asy
   });
 });
 
-test('printAllBallotStyles works for open primary (consolidated ballots)', async () => {
+test('printAllBallotStyles works for combined ballot primary (consolidated ballots)', async () => {
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionCombinedBallotPrimaryFixtures.readElectionDefinition(),
     [LanguageCode.ENGLISH]

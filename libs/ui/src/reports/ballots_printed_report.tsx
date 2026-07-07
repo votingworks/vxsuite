@@ -284,7 +284,7 @@ function BallotsPrintedTable({
     id: hasPrecinctSplits ? 'precinctSplitName' : 'precinctName',
   });
 
-  // In an open primary, ballots are consolidated (all parties' contests on one
+  // In a combined ballot primary, ballots are consolidated (all parties' contests on one
   // ballot) with no party selection, so there is no party breakdown to show and
   // the report behaves like a general election report.
   if (election.type === 'primary' && !isCombinedBallotPrimary(election)) {

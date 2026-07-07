@@ -60,7 +60,7 @@ test('convertLatestElectionToV4p0', () => {
     },
   });
 
-  // Open primaries convert like any other primary: the open-vs-closed
+  // Combined ballot primaries convert like any other primary: the open-vs-closed
   // distinction is carried by ballot styles' partyId, not the election type.
   const combinedBallotPrimaryElection: Election = {
     ...primaryElection,

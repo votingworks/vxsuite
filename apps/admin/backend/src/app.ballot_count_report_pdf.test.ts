@@ -229,7 +229,7 @@ test('ballot count report PDF', async () => {
   });
 });
 
-test('open primary ballot count report PDF', async () => {
+test('combined ballot primary ballot count report PDF', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
@@ -254,7 +254,7 @@ test('open primary ballot count report PDF', async () => {
   });
 
   // Matches the canned Precinct Ballot Count Report screen's groupBy on a
-  // primary election; for an open primary, the report should split each
+  // primary election; for a combined ballot primary, the report should split each
   // precinct into per-party rows plus a single "No Party" row.
   await expectIdenticalSnapshotsAcrossExportMethods({
     apiClient,

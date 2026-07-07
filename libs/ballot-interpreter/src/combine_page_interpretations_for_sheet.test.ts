@@ -345,7 +345,7 @@ test('treats unmatched page combinations as unknown invalid sheet', () => {
   });
 });
 
-test('flags crossover voting in open primaries', () => {
+test('flags crossover voting in combined ballot primaries', () => {
   const front = mockHmpbPage({
     votes: {
       'governor-democratic': [
@@ -406,7 +406,7 @@ test('combines crossover voting with other adjudication reasons', () => {
   });
 });
 
-test('treats single-party open primary voting as valid', () => {
+test('treats single-party combined ballot primary voting as valid', () => {
   const front = mockHmpbPage({
     votes: {
       'governor-democratic': [

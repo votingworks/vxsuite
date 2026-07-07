@@ -550,7 +550,7 @@ test('can tabulate results and print polls closed report for closed primary', as
   );
 });
 
-test('can tabulate results and print polls closed report for open primary', async () => {
+test('can tabulate results and print polls closed report for combined ballot primary', async () => {
   const electionCombinedBallotPrimaryDefinition =
     readElectionCombinedBallotPrimaryDefinition();
   await withApp(

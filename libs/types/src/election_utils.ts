@@ -400,7 +400,7 @@ export function getPartyIdsInBallotStyles(
 }
 
 /**
- * An open primary is a primary election where ballot styles don't have a
+ * A combined ballot primary is a primary election where ballot styles don't have a
  * partyId, meaning voters choose which party's contests to vote in at the
  * polls rather than being assigned a party ballot.
  */

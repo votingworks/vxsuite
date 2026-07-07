@@ -160,9 +160,9 @@ describe('generateBallotStyles()', () => {
   const partyBContest2 = makeContest('contest-2B', district2.id, partyB.id);
   /* eslint-enable vx/gts-identifiers */
 
-  // General and open-primary elections share the same ballot style generation
+  // General and combined ballot primary elections share the same ballot style generation
   // logic: one ballot style per precinct/district group, no partyId. Partisan
-  // contests in open primaries don't affect ballot style partitioning.
+  // contests in combined ballot primaries don't affect ballot style partitioning.
   const generalAndCombinedBallotPrimaryCases = [
     {
       name: 'general',
@@ -175,7 +175,7 @@ describe('generateBallotStyles()', () => {
       parties: [],
     },
     {
-      name: 'open primary',
+      name: 'combined ballot primary',
       electionType: 'primary' as const,
       isMiCombinedBallotPrimary: true,
       contests: {

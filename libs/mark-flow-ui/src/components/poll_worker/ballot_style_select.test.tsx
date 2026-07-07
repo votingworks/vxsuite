@@ -180,7 +180,7 @@ describe('primary election', () => {
   });
 });
 
-describe('open primary election', () => {
+describe('combined ballot primary election', () => {
   const electionDefinitionCombinedBallotPrimary =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinitionCombinedBallotPrimary;
