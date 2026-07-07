@@ -9,9 +9,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName, parseCsv } from '../test/csv';
@@ -71,8 +71,7 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const zeroExport = await getParsedExport({
     apiClient,

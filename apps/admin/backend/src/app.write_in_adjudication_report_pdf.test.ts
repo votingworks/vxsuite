@@ -13,6 +13,7 @@ import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -91,8 +92,7 @@ test('write-in adjudication report', async () => {
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   async function expectIdenticalSnapshotsAcrossExportMethods(
     customSnapshotIdentifier: string
@@ -247,8 +247,7 @@ test('write-in adjudication report logging', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // successful file export
   const validFileName = mockFileName('pdf');

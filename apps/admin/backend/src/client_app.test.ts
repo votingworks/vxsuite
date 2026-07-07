@@ -27,6 +27,7 @@ import { createClientWorkspace } from './util/workspace';
 import { ClientConnectionStatus, ElectionRecord } from './types';
 
 import {
+  attachUsbDrive,
   mockMachineLocked,
   mockSystemAdministratorAuth,
   buildMockLogger,
@@ -242,15 +243,13 @@ test('getCurrentElectionMetadata returns cached election record', async () => {
 });
 
 test('getUsbDriveStatus returns usb drive status', async () => {
-  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  env.usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(env.apiClient, env.usbPlatform);
   const status = await env.apiClient.getUsbDriveStatus();
   expect(status.status).toEqual('mounted');
 });
 
 test('ejectUsbDrive ejects the usb drive', async () => {
-  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  env.usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(env.apiClient, env.usbPlatform);
 
   await vi.waitFor(() => {
     expect(
@@ -272,8 +271,7 @@ test('formatUsbDrive returns error when not system administrator', async () => {
 
 test('formatUsbDrive formats drive when system administrator', async () => {
   mockSystemAdministratorAuth(env.auth);
-  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  env.usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(env.apiClient, env.usbPlatform);
   (await env.apiClient.formatUsbDrive()).assertOk('format failed');
   expect(env.usbPlatform.getSimulatedDrives()[0]).toEqual(
     expect.objectContaining<Partial<UsbDriveInfo>>({
@@ -287,8 +285,7 @@ test('formatUsbDrive formats drive when system administrator', async () => {
 
 test('formatUsbDrive returns error when format fails', async () => {
   mockSystemAdministratorAuth(env.auth);
-  env.usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  env.usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(env.apiClient, env.usbPlatform);
   env.usbPlatform.faults.failNext('formatDrive', new Error('format failed'));
   expect(await env.apiClient.formatUsbDrive()).toEqual(
     err(new Error('format failed'))

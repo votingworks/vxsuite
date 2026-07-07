@@ -10,9 +10,9 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import { DiagnosticRecord } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  devsdb,
   mockSystemAdministratorAuth,
 } from '../test/app';
 
@@ -212,8 +212,7 @@ test('print or save readiness report', async () => {
   });
   vi.useRealTimers();
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(

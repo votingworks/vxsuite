@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -32,6 +32,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
+  UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -159,6 +160,27 @@ export function buildMockLogger(
 }
 
 export const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
+
+/**
+ * Creates a FAT32 mock USB drive, attaches it, and waits until the app has
+ * detected and auto-mounted it. Detection and mounting happen asynchronously
+ * (via a file watcher on the {@link SimulatedUsbPlatform} state), so callers
+ * must await this before exercising APIs that write to or read from the drive.
+ */
+export async function attachUsbDrive(
+  apiClient: { getUsbDriveStatus: () => Promise<UsbDriveStatus> },
+  usbPlatform: SimulatedUsbPlatform,
+  contents?: MockFileTree
+): Promise<void> {
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32', contents });
+  usbPlatform.insertDrive(devsdb);
+  await vi.waitFor(
+    async () => {
+      expect((await apiClient.getUsbDriveStatus()).status).toEqual('mounted');
+    },
+    { timeout: 5_000 }
+  );
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {

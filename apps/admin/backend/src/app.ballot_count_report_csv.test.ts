@@ -20,9 +20,9 @@ import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -116,8 +116,7 @@ test('logs success if export succeeds', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
@@ -224,8 +223,7 @@ test('creates accurate ballot count reports', async () => {
     }),
   });
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
   expect(
     await getParsedExport({
       apiClient,
@@ -325,8 +323,7 @@ test('combined ballot primary: groups by inferred party with a No Party row', as
     store: workspace.store,
   });
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   expect(
     await getParsedExport({
@@ -419,8 +416,7 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
     store: workspace.store,
   });
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // partyIds: [NO_PARTY_ID] — only the No Party row. 2 = the crossover and
   // flipped-Dem HMPB sheet 1 ballots (the nonpartisan-only sheet 2 ballot

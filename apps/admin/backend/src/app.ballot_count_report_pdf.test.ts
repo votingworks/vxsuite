@@ -18,6 +18,7 @@ import { LogEventId } from '@votingworks/logging';
 import { Client } from '@votingworks/grout';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -126,8 +127,7 @@ test('ballot count report PDF', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,
@@ -239,8 +239,7 @@ test('combined ballot primary ballot count report PDF', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // 10 CVRs in precinct-1 after adjudication:
   //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
@@ -318,8 +317,7 @@ test('ballot count report logging', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const MOCK_REPORT_SPEC: BallotCountReportSpec = {
     filter: {},

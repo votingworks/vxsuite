@@ -32,6 +32,7 @@ import {
 } from '@votingworks/backend';
 import { MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -124,14 +125,13 @@ test('happy path - mock election flow', async () => {
     )
   ).unsafeUnwrap().castVoteRecordReportMetadata.GeneratedDate;
 
-  usbPlatform.createDrive({
-    diskPath: devsdb,
-    fstype: 'fat32',
-    contents: mockCastVoteRecordFileTree(electionDefinition, {
+  await attachUsbDrive(
+    apiClient,
+    usbPlatform,
+    mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
-    }),
-  });
-  usbPlatform.insertDrive(devsdb);
+    })
+  );
   const availableCastVoteRecordFiles =
     await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles).toMatchObject([

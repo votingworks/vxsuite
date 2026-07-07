@@ -16,6 +16,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -623,8 +624,7 @@ test('write-in image report: preview, print, and export', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const preview = await apiClient.getWriteInImageReportPreview({
     contestId: MAYOR_CONTEST_ID,
@@ -650,8 +650,7 @@ test('write-in image report logging', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const validFilename = mockFileName('pdf');
   (

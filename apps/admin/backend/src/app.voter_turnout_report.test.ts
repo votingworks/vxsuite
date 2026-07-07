@@ -18,6 +18,7 @@ import {
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -128,8 +129,7 @@ test('voter turnout report preview, print, and export', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const preview = await apiClient.getVoterTurnoutReportPreview();
   expect(preview.warning).toBeUndefined();
@@ -169,8 +169,7 @@ test('voter turnout report logging', async () => {
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // successful file export
   const validFileName = mockFileName('pdf');

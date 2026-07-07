@@ -27,6 +27,7 @@ import {
 } from '@votingworks/printing';
 import { CandidateContestResults } from '@votingworks/types/src/tabulation';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -500,14 +501,7 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
     await apiClient.listPotentialElectionPackagesOnUsbDrive()
   ).toMatchObject(err({ type: expect.any(String) }));
 
-  usbPlatform.createDrive({
-    diskPath: devsdb,
-    fstype: 'fat32',
-  });
-  usbPlatform.insertDrive(devsdb);
-  await vi.waitFor(async () => {
-    expect(await usbPlatform.getDrives()).toHaveLength(1);
-  });
+  await attachUsbDrive(apiClient, usbPlatform);
   expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(
     ok([])
   );
@@ -545,8 +539,7 @@ test('saveElectionPackageToUsb', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(ok());
 });
@@ -575,8 +568,7 @@ test('usbDrive', async () => {
     status: 'no_drive',
   });
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
     status: 'mounted',
     mountpoint: expect.any(String),

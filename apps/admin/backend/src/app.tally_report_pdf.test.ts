@@ -19,6 +19,7 @@ import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   devsdb,
@@ -129,8 +130,7 @@ test('general election tally report PDF - Part 1', async () => {
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,
@@ -181,8 +181,7 @@ test('general election tally report PDF - Part 2', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,
@@ -291,8 +290,7 @@ test('tally report PDF - primary', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,
@@ -391,8 +389,7 @@ test('tally report logging', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const MOCK_REPORT_SPEC: TallyReportSpec = {
     filter: {},
@@ -484,8 +481,7 @@ test('tally report PDF - combined ballot primary', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,

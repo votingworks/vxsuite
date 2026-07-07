@@ -22,9 +22,9 @@ import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from '.';
@@ -90,8 +90,7 @@ test('logs success if export succeeds', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const filename = mockFileName('json');
   const exportResult = await apiClient.exportCdfElectionResultsReport({
@@ -140,8 +139,7 @@ test('exports results and metadata accurately', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // add CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -457,8 +455,7 @@ test('marks report as certified when official, as primary when primary, and as n
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-  usbPlatform.insertDrive(devsdb);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // add CVR data, as non-test file
   const loadFileResult = await apiClient.addCastVoteRecordFile({
