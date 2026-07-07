@@ -75,8 +75,7 @@ function findPresentDrive(
   drives: SimulatedUsbDrive[],
   diskPath: UsbDiskDevPath
 ): SimulatedUsbDrive {
-  const drive = drives.find((d) => d.diskPath === diskPath);
-  assert(drive, `Drive not found: ${diskPath}`);
+  const drive = findDrive(drives, diskPath);
   assert(drive.present, `Drive not attached: ${diskPath}`);
   return drive;
 }
