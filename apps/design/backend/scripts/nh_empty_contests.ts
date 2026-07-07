@@ -75,11 +75,13 @@ export function reportEmptyContests(root: string): void {
     }
   }
 
-  // Machine-readable CSV to stderr for easy filtering/sharing.
-  console.error('code,party,town,ward,office,winnerNote');
+  // Machine-readable CSV to stderr for easy filtering/sharing. Headers match
+  // the field names in the source files (TownName/WardName/PartyName from
+  // HeaderInfo; Name/WinnerNote from OfficeName).
+  console.error('TownName,WardName,PartyName,Name,WinnerNote');
   for (const { empties } of byBallotStyle) {
     for (const e of empties) {
-      const csv = [e.code, e.party, e.town, e.ward, e.office, e.winnerNote]
+      const csv = [e.town, e.ward, e.party, e.office, e.winnerNote]
         .map((field) => `"${String(field).replace(/"/g, '""')}"`)
         .join(',');
       console.error(csv);
