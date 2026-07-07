@@ -2,12 +2,12 @@
 
 exports[`has various election definitions 1`] = `
 [
+  "electionCombinedBallotPrimaryFixtures",
   "electionFamousNames2021Fixtures",
   "electionGeneralFixtures",
   "electionGridLayoutNewHampshireHudsonFixtures",
   "electionGridLayoutNewHampshireTestBallotFixtures",
   "electionMultiPartyPrimaryFixtures",
-  "electionCombinedBallotPrimaryFixtures",
   "electionPrimaryPrecinctSplitsFixtures",
   "electionSimpleSinglePrecinctFixtures",
   "electionStraightPartyFixtures",

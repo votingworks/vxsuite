@@ -15,7 +15,7 @@ exports.up = (pgm) => {
       default: false,
     },
   });
-  // Combined-ballot primaries (all parties' contests on one ballot) were
+  // Combined ballot primaries (all parties' contests on one ballot) were
   // previously modeled as a distinct 'open-primary' election type. They are now
   // modeled as an ordinary 'primary' election with this flag set; whether ballot
   // styles have a partyId is otherwise derived from the ballot styles themselves.

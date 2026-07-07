@@ -180,6 +180,10 @@ test('election fixture references', async () => {
   const { apiClient } = setup();
   const expectedFixtures = [
     {
+      path: 'fixtures/data/electionCombinedBallotPrimary/election.json',
+      title: 'electionCombinedBallotPrimary',
+    },
+    {
       path: 'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
       title: 'electionFamousNames2021',
     },
@@ -198,10 +202,6 @@ test('election fixture references', async () => {
     {
       path: 'fixtures/data/electionMultiPartyPrimary/election.json',
       title: 'electionMultiPartyPrimary',
-    },
-    {
-      path: 'fixtures/data/electionCombinedBallotPrimary/election.json',
-      title: 'electionCombinedBallotPrimary',
     },
     {
       path: 'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json',
