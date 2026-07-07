@@ -25,7 +25,7 @@ import {
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   StraightPartyContest as StraightPartyContestStruct,
   Party,
 } from '@votingworks/types';
@@ -625,7 +625,7 @@ function buildContestSections(
   numColumns: number
 ): ContestSection[] {
   function isPartisanCandidateContest(contest: CandidateContestStruct) {
-    assert(!isOpenPrimary(election));
+    assert(!isCombinedBallotPrimary(election));
     switch (election.type) {
       case 'primary':
         return contest.partyId;
@@ -1015,7 +1015,9 @@ async function BallotPageContent(
     throw new Error('No contests assigned to this precinct.');
   }
 
-  const { leftoverContests, sectionsElement } = isOpenPrimary(election)
+  const { leftoverContests, sectionsElement } = isCombinedBallotPrimary(
+    election
+  )
     ? await OpenPrimaryContestColumns({
         contests,
         election,

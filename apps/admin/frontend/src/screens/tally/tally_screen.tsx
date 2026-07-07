@@ -12,7 +12,7 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled, { css } from 'styled-components';
-import { isOpenPrimary } from '@votingworks/types';
+import { isCombinedBallotPrimary } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavScreenLite } from '../../components/navigation_screen';
 import { ManualTalliesTab } from './manual_tallies_tab';
@@ -79,7 +79,7 @@ export function TallyScreen(): JSX.Element | null {
     { title: 'Cast Vote Records', path: routerPaths.tallyCvrs },
   ];
 
-  const manualTalliesEnabled = !isOpenPrimary(election);
+  const manualTalliesEnabled = !isCombinedBallotPrimary(election);
   if (manualTalliesEnabled) {
     tabs.push({ title: 'Manual Tallies', path: routerPaths.tallyManual });
   }

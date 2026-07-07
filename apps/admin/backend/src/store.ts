@@ -50,7 +50,7 @@ import {
   ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
   UserRole,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -808,7 +808,7 @@ export class Store implements BaseStore {
       params.push(...filter.ballotStyleGroupIds);
     }
     // Open primaries handled below
-    if (filter.partyIds && !isOpenPrimary(election)) {
+    if (filter.partyIds && !isCombinedBallotPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -891,7 +891,7 @@ export class Store implements BaseStore {
     // In open primary elections, ballot styles in the db don't have party IDs.
     // Instead, each CVR's party is inferred from its votes. So we need to
     // manually create group specifiers for each party.
-    if (isOpenPrimary(election) && groupBy.groupByParty) {
+    if (isCombinedBallotPrimary(election) && groupBy.groupByParty) {
       const partyIds = [
         ...unique(partisanContests(election).map((contest) => contest.partyId)),
         Tabulation.NO_PARTY_ID,
@@ -931,7 +931,7 @@ export class Store implements BaseStore {
       ballotStyleParams.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
-      assert(!isOpenPrimary(election));
+      assert(!isCombinedBallotPrimary(election));
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -1553,7 +1553,7 @@ export class Store implements BaseStore {
     }
 
     if (filter.partyIds) {
-      assert(!isOpenPrimary(election));
+      assert(!isCombinedBallotPrimary(election));
       assertFilterDoesNotContainNoPartyId(filter.partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
@@ -1707,7 +1707,7 @@ export class Store implements BaseStore {
         votesString: row.votes,
         adjudicatedVotesString: row.adjudicatedVotes,
       });
-      const partyId = isOpenPrimary(election)
+      const partyId = isCombinedBallotPrimary(election)
         ? inferPartyFromVotes(election, votes)
         : row.partyId ?? undefined;
       yield {
@@ -1742,7 +1742,10 @@ export class Store implements BaseStore {
   }): Generator<Tabulation.GroupOf<CardTally>> {
     // In open primaries, we have to infer a CVR's party from its votes,
     // which we can't do via the db, so we divert and do the counting in JS.
-    if (isOpenPrimary(election) && (groupBy.groupByParty || filter.partyIds)) {
+    if (
+      isCombinedBallotPrimary(election) &&
+      (groupBy.groupByParty || filter.partyIds)
+    ) {
       yield* this.getOpenPrimaryCardTallies({
         electionId,
         election,
@@ -2503,7 +2506,7 @@ export class Store implements BaseStore {
     }
 
     if (groupBy.groupByParty) {
-      if (isOpenPrimary(election)) {
+      if (isCombinedBallotPrimary(election)) {
         selectParts.push('cvrs.votes as votes');
         selectParts.push('cvrs.adjudicated_votes as adjudicatedVotes');
       } else {
@@ -2568,7 +2571,7 @@ export class Store implements BaseStore {
           ? row.ballotStyleGroupId
           : undefined,
         partyId: groupBy.groupByParty
-          ? isOpenPrimary(election)
+          ? isCombinedBallotPrimary(election)
             ? inferPartyFromVotes(
                 election,
                 this.applyAdjudicatedVotes({
@@ -2936,7 +2939,7 @@ export class Store implements BaseStore {
     const {
       electionDefinition: { election },
     } = assertDefined(this.getElection(electionId));
-    assert(!isOpenPrimary(election));
+    assert(!isCombinedBallotPrimary(election));
 
     const { ballotCount } = manualResults;
     const serializedContestResults = JSON.stringify(
@@ -3028,7 +3031,7 @@ export class Store implements BaseStore {
       params.push(...precinctIds);
     }
 
-    if (partyIds && !isOpenPrimary(election)) {
+    if (partyIds && !isCombinedBallotPrimary(election)) {
       assertFilterDoesNotContainNoPartyId(partyIds);
       whereParts.push(
         `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`

@@ -404,7 +404,7 @@ export function getPartyIdsInBallotStyles(
  * partyId, meaning voters choose which party's contests to vote in at the
  * polls rather than being assigned a party ballot.
  */
-export function isOpenPrimary(election: Election): boolean {
+export function isCombinedBallotPrimary(election: Election): boolean {
   return (
     election.type === 'primary' &&
     // We only need to check the first ballot style, since election validation

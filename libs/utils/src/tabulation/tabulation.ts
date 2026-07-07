@@ -13,7 +13,7 @@ import {
   ContestOptionId,
   Election,
   Id,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   PartyId,
   PrecinctSelection,
   Tabulation,
@@ -184,7 +184,7 @@ function addCastVoteRecordToElectionResult(
   }
 
   let voidedContestIds: Set<ContestId> | undefined;
-  if (isOpenPrimary(election)) {
+  if (isCombinedBallotPrimary(election)) {
     const inferredPartyId = inferPartyFromVotes(election, cvr.votes);
 
     if (Tabulation.isNoPartyId(inferredPartyId)) {

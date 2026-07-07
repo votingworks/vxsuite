@@ -11,7 +11,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   Id,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   LanguageCode,
 } from '@votingworks/types';
 import {
@@ -54,7 +54,7 @@ export function makeElectionRecord(
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,
-    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
     parties: baseElection.parties,
     precincts: [...baseElection.precincts],
     ballotTemplateId: 'VxDefaultBallot',
@@ -67,7 +67,7 @@ export function makeElectionRecord(
   };
   return {
     election,
-    isMiCombinedBallotPrimary: isOpenPrimary(baseElection),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
@@ -84,7 +84,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     title: election.title,
     date: election.date,
     type: election.type,
-    isMiCombinedBallotPrimary: isOpenPrimary(election),
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(election),
     state: election.state,
     jurisdictionName: election.jurisdiction.name,
     seal: election.seal,

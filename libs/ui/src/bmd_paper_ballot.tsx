@@ -17,7 +17,7 @@ import {
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
-  isOpenPrimary,
+  isCombinedBallotPrimary,
   OptionalYesNoVote,
   PrecinctId,
   StraightPartyVote,
@@ -763,7 +763,7 @@ export function BmdPaperBallot({
 
   const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
 
-  const isOpenPrimaryElection = isOpenPrimary(election);
+  const isCombinedBallotPrimaryElection = isCombinedBallotPrimary(election);
 
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
@@ -877,7 +877,7 @@ export function BmdPaperBallot({
           <BallotSelections numColumns={numColumns}>
             {contests.map((contest) => {
               const contestParty =
-                isOpenPrimaryElection &&
+                isCombinedBallotPrimaryElection &&
                 contest.type === 'candidate' &&
                 contest.partyId
                   ? find(election.parties, (p) => p.id === contest.partyId)
