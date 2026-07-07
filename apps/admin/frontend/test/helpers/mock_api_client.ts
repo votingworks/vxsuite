@@ -354,8 +354,12 @@ export function createApiMock(
       apiClient.getCastVoteRecordFileMode.expectCallWith().resolves(fileMode);
     },
 
+    // Repeated because the query polls for cast vote records imported over
+    // the network
     expectGetCastVoteRecordFiles(fileRecords: CastVoteRecordFileRecord[]) {
-      apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
+      apiClient.getCastVoteRecordFiles
+        .expectRepeatedCallsWith()
+        .resolves(fileRecords);
     },
 
     expectGetWriteInCandidates(
