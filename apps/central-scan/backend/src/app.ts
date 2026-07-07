@@ -9,6 +9,7 @@ import {
   err,
   iter,
   ok,
+  range,
 } from '@votingworks/basics';
 import {
   AcceptedSheet,
@@ -38,6 +39,7 @@ import {
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
+import makeDebug from 'debug';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -67,6 +69,8 @@ import {
 import { saveReadinessReport } from './readiness_report';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
 import { BatchScanner } from './fujitsu_scanner';
+
+const debug = makeDebug('scan:send-cvrs');
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
@@ -452,12 +456,16 @@ function buildApi({
           return err({ type: 'upload-failed', message });
         }
         const { sessionId } = startResult.ok();
+        const uploadUrl = `${hostConnection.address}/api/cvr-transfer/${sessionId}/cvr`;
 
         // Build and send each cast vote record individually so that progress
         // is observable and memory usage stays bounded
+        const transferStartTimeMs = Date.now();
+        let totalBytesSent = 0;
         let sent = 0;
         sendCvrsProgress = { sent, total: acceptedSheets.length };
         for (const sheet of acceptedSheets) {
+          const buildStartTimeMs = Date.now();
           const buildResult = await buildCastVoteRecordFiles(
             scannerState,
             sheet
@@ -477,14 +485,12 @@ function buildApi({
               contents: file.open(),
             }))
           );
-          const response = await fetch(
-            `${hostConnection.address}/api/cvr-transfer/${sessionId}/cvr`,
-            {
-              method: 'POST',
-              headers: { 'content-type': 'application/zip' },
-              body: zipBuffer,
-            }
-          );
+          const uploadStartTimeMs = Date.now();
+          const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: { 'content-type': 'application/zip' },
+            body: zipBuffer,
+          });
           if (!response.ok) {
             const message = `Host responded with status ${
               response.status
@@ -492,8 +498,19 @@ function buildApi({
             await logFailure(message);
             return err({ type: 'upload-failed', message });
           }
+          const uploadEndTimeMs = Date.now();
+          totalBytesSent += zipBuffer.byteLength;
           sent += 1;
           sendCvrsProgress = { sent, total: acceptedSheets.length };
+          debug(
+            'sent cvr %s (%d/%d): %d bytes, build+zip %dms, upload %dms',
+            castVoteRecordId,
+            sent,
+            acceptedSheets.length,
+            zipBuffer.byteLength,
+            uploadStartTimeMs - buildStartTimeMs,
+            uploadEndTimeMs - uploadStartTimeMs
+          );
         }
 
         const finishResult = await hostConnection.apiClient.finishCvrTransfer({
@@ -507,11 +524,28 @@ function buildApi({
           return err({ type: 'upload-failed', message });
         }
         const { newlyAdded, alreadyPresent } = finishResult.ok();
+        const transferDurationMs = Date.now() - transferStartTimeMs;
+        const totalMegabytesSent = totalBytesSent / 1024 / 1024;
+        const megabytesPerSecond =
+          transferDurationMs > 0
+            ? totalMegabytesSent / (transferDurationMs / 1000)
+            : 0;
+        debug(
+          'transfer complete: %d cast vote record(s), %s MB in %dms (%s MB/s)',
+          sent,
+          totalMegabytesSent.toFixed(2),
+          transferDurationMs,
+          megabytesPerSecond.toFixed(2)
+        );
         await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'success',
             message: `Successfully sent cast vote records to VxAdmin host ${hostConnection.machineId}. Host imported ${newlyAdded} new cast vote record(s) and ignored ${alreadyPresent} duplicate(s).`,
+            castVoteRecordsSent: sent,
+            totalBytesSent,
+            transferDurationMs,
+            megabytesPerSecond: megabytesPerSecond.toFixed(2),
           }
         );
         return ok({ newlyAdded, alreadyPresent });
