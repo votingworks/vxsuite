@@ -55,7 +55,11 @@ export function reportEmptyContests(root: string): void {
   const byBallotStyle = resolved
     .map((file) => ({ file, empties: findEmptyContests(file.path) }))
     .filter(({ empties }) => empties.length > 0)
-    .sort((a, b) => a.file.code.localeCompare(b.file.code));
+    .sort(
+      (a, b) =>
+        a.file.code.localeCompare(b.file.code) ||
+        a.file.party.localeCompare(b.file.party)
+    );
 
   const totalContests = byBallotStyle.reduce(
     (sum, { empties }) => sum + empties.length,
