@@ -7,6 +7,7 @@ import {
 import {
   ballotTemplates,
   createPlaywrightRenderer,
+  RenderDocument,
   renderBallotTemplate,
   renderNhRovForm,
 } from '@votingworks/hmpb';
@@ -78,6 +79,17 @@ const BALLOT_VARIANTS: BallotVariant[] = [
 // The precinct variant carries the full contest list, so it drives auto-fit.
 const PRECINCT_VARIANT = BALLOT_VARIANTS[0];
 
+// A voting bubble on the back page means a contest overflowed off the front;
+// NH ballots are single-sided, so that indicates the paper size is too small.
+const BACK_PAGE_BUBBLE_SELECTOR = '.page[data-page-number="2"] .bubble';
+
+async function documentOverflowsToBack(
+  document: RenderDocument
+): Promise<boolean> {
+  const backBubbles = await document.inspectElements(BACK_PAGE_BUBBLE_SELECTOR);
+  return backBubbles.length > 0;
+}
+
 function ballotStyleProps(
   election: Election,
   ballotStyleId: string,
@@ -135,10 +147,7 @@ async function overflowsToBack(
       ballotStyleProps(election, ballotStyleId, isHandCount, PRECINCT_VARIANT)
     )
   ).unsafeUnwrap();
-  const backBubbles = await document.inspectElements(
-    '.page[data-page-number="2"] .bubble'
-  );
-  return backBubbles.length > 0;
+  return documentOverflowsToBack(document);
 }
 
 interface FitResult {
@@ -175,6 +184,10 @@ interface TownResult {
   paperSize: HmpbBallotPaperSize;
   overflowedAtMax: boolean;
   ballotCount: number;
+  // Rendered ballots (label + variant) whose contests still spilled onto the
+  // back at the chosen size -- a check that every ballot fits, not just the
+  // auto-fit probe.
+  overflows: string[];
 }
 
 async function renderTown(
@@ -200,6 +213,7 @@ async function renderTown(
   const townDir = join(outDir, sanitize(`${townName} (${town.variant})`));
   await mkdir(townDir, { recursive: true });
 
+  const overflows: string[] = [];
   for (const ballotStyle of election.ballotStyles) {
     const precinct = assertDefined(
       election.precincts.find((p) => p.id === ballotStyle.precincts[0])
@@ -215,6 +229,10 @@ async function renderTown(
           ballotStyleProps(election, ballotStyle.id, isHandCount, variant)
         )
       ).unsafeUnwrap();
+      // Verify every rendered ballot fits, not just the auto-fit probe.
+      if (await documentOverflowsToBack(document)) {
+        overflows.push(`${label} - ${variant.suffix}`);
+      }
       await writeFile(
         join(townDir, `${label} - ${variant.suffix}.pdf`),
         await document.renderToPdf()
@@ -238,6 +256,7 @@ async function renderTown(
     paperSize,
     overflowedAtMax,
     ballotCount: election.ballotStyles.length,
+    overflows,
   };
 }
 
@@ -296,6 +315,20 @@ export async function main(args: readonly string[]): Promise<number> {
     for (const r of overflowed) {
       console.log(`  ${r.townName}`);
     }
+  }
+
+  // Every rendered ballot is verified, not just the auto-fit probe. Any listed
+  // here overflowed onto the back at its town's chosen size and needs a look.
+  const overflowingBallots = results.flatMap((r) => r.overflows);
+  if (overflowingBallots.length > 0) {
+    console.log(
+      `\n⚠ Ballots overflowing onto the back at the chosen size: ${overflowingBallots.length}`
+    );
+    for (const ballot of overflowingBallots) {
+      console.log(`  ${ballot}`);
+    }
+  } else {
+    console.log('\nAll rendered ballots fit on the front page.');
   }
   return 0;
 }
