@@ -21,3 +21,5 @@ export interface PrintBallotProps {
   precinctId: string;
   votes: VotesDict;
 }
+
+export type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes'>;

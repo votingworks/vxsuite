@@ -50,7 +50,11 @@ import {
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { ElectionState, PrintBallotProps } from './types';
+import {
+  ElectionState,
+  PrintBallotProps,
+  PrintBlankBallotProps,
+} from './types';
 import { printBallot, printBlankBallot } from './util/print_ballot';
 import {
   isAccessibleControllerAttached,
@@ -331,10 +335,7 @@ export function buildApi(ctx: Context) {
       });
     },
 
-    async printBlankBallot(input: {
-      ballotStyleId: BallotStyleId;
-      precinctId: string;
-    }) {
+    async printBlankBallot(input: PrintBlankBallotProps) {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
       await printBlankBallot({
         store,

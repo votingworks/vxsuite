@@ -46,6 +46,8 @@ export interface PrintBallotProps extends ClientParams {
   store: Store;
 }
 
+type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes'>;
+
 export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
 
@@ -226,13 +228,6 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
     sides: PrintSides.TwoSidedLongEdge,
     size: election.ballotLayout.paperSize,
   });
-}
-
-export interface PrintBlankBallotProps {
-  ballotStyleId: BallotStyleId;
-  precinctId: string;
-  printer: Printer;
-  store: Store;
 }
 
 export async function printBlankBallot(
