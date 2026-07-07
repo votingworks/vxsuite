@@ -37,6 +37,7 @@ import {
 } from '@votingworks/utils';
 
 import { Buffer } from 'node:buffer';
+import { readFileSync } from 'node:fs';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
@@ -566,6 +567,72 @@ test('printing ballots', async () => {
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'chinese-ballot',
     failureThreshold: 0.001,
+  });
+});
+
+test('printing a blank ballot prints the pre-rendered base ballot PDF', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const mockBallotPdfData = 'mock-blank-ballot-pdf-data';
+  const mockBallotPdfBase64 = Buffer.from(mockBallotPdfData).toString('base64');
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test', // Machine defaults to test mode
+      encodedBallot: mockBallotPdfBase64,
+    },
+  ];
+
+  mockElectionManagerAuth(electionDefinition);
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseJson(
+        systemSettings.asText(),
+        SystemSettingsSchema
+      ).unsafeUnwrap(),
+      ballots,
+    })
+  );
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+  mockUsbDrive.removeUsbDrive();
+  mockNoCard();
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  await apiClient.printBlankBallot({
+    ballotStyleId: '1',
+    precinctId: '23',
+  });
+
+  await expectElectionState({ ballotsPrintedCount: 1 });
+
+  // The printed data should be the decoded base ballot PDF, unmodified (no
+  // mark overlay applied).
+  const printedData = readFileSync(
+    assertDefined(mockPrinterHandler.getLastPrintPath())
+  );
+  expect(printedData.toString('utf-8')).toEqual(mockBallotPdfData);
+});
+
+test('printing a blank ballot throws when no ballot PDF is available', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await configureMachine(mockUsbDrive, electionDefinition);
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.printBlankBallot({
+        ballotStyleId: '1',
+        precinctId: '23',
+      })
+    ).rejects.toThrow('No ballot PDF found');
   });
 });
 

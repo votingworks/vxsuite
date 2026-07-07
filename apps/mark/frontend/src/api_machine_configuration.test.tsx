@@ -7,6 +7,7 @@ import {
   ApiClient,
   configureElectionPackageFromUsb,
   createApiClient,
+  printBlankBallot,
   uiStringsApi,
   unconfigureMachine,
 } from './api';
@@ -17,6 +18,7 @@ const mockBackendApi: ApiClient = {
   ...createApiClient(),
   configureElectionPackageFromUsb: vi.fn(),
   unconfigureMachine: vi.fn(),
+  printBlankBallot: vi.fn(),
 };
 
 function QueryWrapper(props: { children: React.ReactNode }) {
@@ -71,4 +73,20 @@ test('unconfigureMachine', async () => {
   await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockOnConfigurationChange).toHaveBeenCalled();
+});
+
+test('printBlankBallot', async () => {
+  vi.mocked(mockBackendApi).printBlankBallot.mockResolvedValueOnce();
+
+  const { result } = renderHook(() => printBlankBallot.useMutation(), {
+    wrapper: QueryWrapper,
+  });
+
+  result.current.mutate({ ballotStyleId: '1', precinctId: '23' });
+  await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
+
+  expect(mockBackendApi.printBlankBallot).toHaveBeenCalledWith({
+    ballotStyleId: '1',
+    precinctId: '23',
+  });
 });
