@@ -7,7 +7,7 @@ import {
   ElectionDefinition,
   EncodedBallotEntry,
 } from '@votingworks/types';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { logInAsElectionManager } from './auth';
 
 type ElectionPackageFileTree = Awaited<
@@ -99,7 +99,7 @@ export async function configureMachine(
   }
 ): Promise<void> {
   const { election, electionPackage, pollingPlaceName } = options;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
 
   await logInAsElectionManager(page, election);
   await page

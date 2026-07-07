@@ -2,7 +2,7 @@ import { Page, expect } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Election } from '@votingworks/types';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { postToApi } from '@votingworks/integration-test-utils';
 import { logInAsElectionManager, logInAsPollWorker } from './auth';
 
@@ -47,7 +47,7 @@ export async function configureMachine(
   }
 ): Promise<void> {
   const { election, electionPackage, pollingPlaceName } = options;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
 
   await logInAsElectionManager(page, election);
   await page.getByText(/USB drive/).waitFor();

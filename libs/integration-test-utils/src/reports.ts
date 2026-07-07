@@ -1,11 +1,12 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { capturePdfScreenshots } from './pdf';
 import type { ScreenshotNamer } from './screenshots';
 
-/** Recursively collects all file paths under `dir`. */
+/** Recursively collects all file paths under `dir`, or none if it doesn't exist. */
 function listFilesRecursive(dir: string): string[] {
+  if (!existsSync(dir)) return [];
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
     return statSync(path).isDirectory() ? listFilesRecursive(path) : [path];
@@ -23,8 +24,7 @@ export async function captureUsbReport(
   namer: ScreenshotNamer,
   options: { filenameIncludes: string }
 ): Promise<void> {
-  const usbPath = getMockFileUsbDriveHandler().getDataPath();
-  if (!usbPath) throw new Error('Mock USB drive is not mounted');
+  const usbPath = getMockUsbDriveHandler().getDataPath();
 
   const reportPath = listFilesRecursive(usbPath)
     .filter(

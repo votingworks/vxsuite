@@ -32,8 +32,10 @@ import {
 } from '@votingworks/backend';
 import { MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
+  devsdb,
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
 } from '../test/app';
@@ -95,7 +97,7 @@ async function getOfficialReportPath(): Promise<string> {
 }
 
 test('happy path - mock election flow', async () => {
-  const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -103,7 +105,6 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
   expect(await apiClient.getTotalBallotCount()).toEqual(0);
-  mockUsbDrive.removeAll();
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ListCastVoteRecordExportsOnUsbDrive,
@@ -123,7 +124,10 @@ test('happy path - mock election flow', async () => {
       castVoteRecordExport.asDirectoryPath()
     )
   ).unsafeUnwrap().castVoteRecordReportMetadata.GeneratedDate;
-  mockUsbDrive.insertUsbDrive(
+
+  await attachUsbDrive(
+    apiClient,
+    usbPlatform,
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
     })
@@ -174,7 +178,7 @@ test('happy path - mock election flow', async () => {
     }
   );
 
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
 
   // file and cast vote records should now be present
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([
@@ -226,11 +230,13 @@ test('happy path - mock election flow', async () => {
       }),
     }
   );
-  mockUsbDrive.insertUsbDrive(
+  usbPlatform.replaceDriveData(
+    devsdb,
     mockCastVoteRecordFileTree(electionDefinition, {
       [officialExportDirectoryName]: officialReportDirectoryPath,
     })
   );
+  usbPlatform.insertDrive(devsdb);
   const availableCastVoteRecordFiles2 =
     await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles2).toMatchObject([
@@ -266,7 +272,8 @@ test('happy path - mock election flow', async () => {
       exportDirectoryPath,
     }
   );
-  mockUsbDrive.removeAll();
+
+  usbPlatform.removeDrive(devsdb);
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   expect(await apiClient.getTotalBallotCount()).toEqual(184);

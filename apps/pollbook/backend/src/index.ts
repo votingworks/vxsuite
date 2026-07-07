@@ -3,7 +3,7 @@
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -54,7 +54,7 @@ function main(): Promise<number> {
   const codeVersion = process.env.VX_CODE_VERSION || 'dev';
 
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
-  const usbDrive = detectUsbDrive(logger);
+  const usbDrive = detectUsbDriveFromEnv({ logger });
   const printer = detectPrinter(logger);
   const peerWorkspace = createPeerWorkspace(
     workspacePath,

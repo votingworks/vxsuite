@@ -1,5 +1,4 @@
-import { vi } from 'vitest';
-import { assertDefined } from '@votingworks/basics';
+import { expect, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -30,9 +29,10 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import {
-  createMockMultiUsbDrive,
-  MockMultiUsbDrive,
-  UsbDriveInfo,
+  detectMultiUsbDrive,
+  SimulatedUsbPlatform,
+  UsbDiskDevPathSchema,
+  UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -42,6 +42,7 @@ import {
   MockLogger,
   mockLogger,
 } from '@votingworks/logging';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { Api, PeerApi } from '../src';
 import { BaseStore } from '../src/types';
 import { createWorkspace } from '../src/util/workspace';
@@ -158,22 +159,27 @@ export function buildMockLogger(
   });
 }
 
-export function getMountedUsbDrive(
-  mockMultiUsbDrive: MockMultiUsbDrive
-): UsbDriveInfo {
-  const drive = mockMultiUsbDrive.multiUsbDrive.getDrives()[0];
-  if (drive?.partition?.mount.type !== 'mounted') {
-    throw new Error('Expected a mounted USB drive in the test environment.');
-  }
-  return drive;
-}
+export const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
 
-export function expectUsbDriveSync(mockMultiUsbDrive: MockMultiUsbDrive): void {
-  mockMultiUsbDrive.multiUsbDrive.sync
-    .expectCallWith(
-      assertDefined(getMountedUsbDrive(mockMultiUsbDrive).partition).partPath
-    )
-    .resolves();
+/**
+ * Creates a FAT32 mock USB drive, attaches it, and waits until the app has
+ * detected and auto-mounted it. Detection and mounting happen asynchronously
+ * (via a file watcher on the {@link SimulatedUsbPlatform} state), so callers
+ * must await this before exercising APIs that write to or read from the drive.
+ */
+export async function attachUsbDrive(
+  apiClient: { getUsbDriveStatus: () => Promise<UsbDriveStatus> },
+  usbPlatform: SimulatedUsbPlatform,
+  contents?: MockFileTree
+): Promise<void> {
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32', contents });
+  usbPlatform.insertDrive(devsdb);
+  await vi.waitFor(
+    async () => {
+      expect((await apiClient.getUsbDriveStatus()).status).toEqual('mounted');
+    },
+    { timeout: 5_000 }
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -191,13 +197,14 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace.store);
-  const mockMultiUsbDrive = createMockMultiUsbDrive();
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({
     auth,
     workspace,
     logger,
-    multiUsbDrive: mockMultiUsbDrive.multiUsbDrive,
+    multiUsbDrive,
     printer: mockPrinterHandler.printer,
   });
   // port 0 will bind to a random, free port assigned by the OS
@@ -230,8 +237,8 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     peerApiClient,
     peerLogger,
     peerServer,
-    mockUsbDrive: mockMultiUsbDrive,
-    mockMultiUsbDrive,
+    usbPlatform,
+    multiUsbDrive,
     mockPrinterHandler,
   };
 }

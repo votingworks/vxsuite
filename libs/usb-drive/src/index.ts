@@ -1,12 +1,14 @@
 /* istanbul ignore file */
 export * from './media_mount_dir';
 export * from './mocks/memory_usb_drive';
-export * from './mocks/mock_multi_usb_drive';
-export * from './mocks/file_usb_drive';
+export * from './mocks/mock_usb_dir';
 export * from './mocks/simulated_usb_platform';
+export * from './mocks/simulated_usb_drive_handler';
 export * from './multi_usb_drive';
 export * from './types';
+export * from './get_env_usb_platform';
 export * from './usb_drive';
 export * from './usb_drive_adapter';
 export * from './usb_platform';
+export * from './usb_platform_types';
 export { type MockFileTree, writeMockFileTree } from './mocks/helpers';

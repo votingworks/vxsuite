@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test';
 import {
-  getMockFileUsbDriveHandler,
-  MockFileUsbDriveHandler,
+  getMockUsbDriveHandler,
+  MockUsbDriveHandler,
 } from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
@@ -91,13 +91,13 @@ test.afterAll(clearTemporaryRootDir);
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
   getMockFilePrinterHandler().cleanup();
-  getMockFileUsbDriveHandler().cleanup();
+  getMockUsbDriveHandler().cleanup();
   await page.clock.install();
 });
 
 test('system administrator', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -355,7 +355,7 @@ async function configureMachine({
   registeredVoterCounts,
 }: {
   page: Page;
-  usbHandler: MockFileUsbDriveHandler;
+  usbHandler: MockUsbDriveHandler;
   electionDefinition: ElectionDefinition;
   systemSettings?: SystemSettings;
   registeredVoterCounts?: ElectionRegisteredVoterCounts;
@@ -393,7 +393,7 @@ async function insertUsbDriveWithCvrs({
 }: {
   cvrPath: string;
   convertToOfficial: boolean;
-  usbHandler: MockFileUsbDriveHandler;
+  usbHandler: MockUsbDriveHandler;
   electionDefinition: ElectionDefinition;
 }): Promise<void> {
   const cvrPath = !convertToOfficial
@@ -426,7 +426,7 @@ async function insertUsbDriveWithCvrs({
 test('results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   test.setTimeout(180_000);
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =
@@ -825,7 +825,7 @@ test('results', async ({ page }, testInfo) => {
 
 test('adjudication', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -974,7 +974,7 @@ test('adjudication', async ({ page }, testInfo) => {
 
 test('qualified write-in candidates', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -1077,7 +1077,7 @@ test('qualified write-in candidates', async ({ page }, testInfo) => {
 
 test('manual results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   const electionDefinition =

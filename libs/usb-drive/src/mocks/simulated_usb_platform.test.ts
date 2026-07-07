@@ -12,8 +12,9 @@ import {
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from '../types';
-import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform';
+import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform_types';
 import {
+  FaultType,
   SimulatedUsbDrive,
   SimulatedUsbPlatform,
 } from './simulated_usb_platform';
@@ -498,4 +499,64 @@ test('shares on-disk state across instances on the same root', async () => {
   // And mutations made through B are visible to A.
   platformB.removeDrive(devsdb);
   await expect(platformA.getDrives()).resolves.toEqual([]);
+});
+
+test('faults', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+
+  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.insertDrive(devsdb);
+
+  async function checkOneshotFault(
+    fault: FaultType,
+    callback: () => Promise<void>
+  ) {
+    platform.faults.failNext(fault, new Error(`${fault} FAIL`));
+    await expect(callback()).rejects.toThrow(`${fault} FAIL`);
+    await callback();
+  }
+
+  async function checkRepeatedFault(
+    fault: FaultType,
+    callback: () => Promise<void>
+  ) {
+    platform.faults.failRepeatedly(fault, new Error(`${fault} FAIL`));
+    await expect(callback()).rejects.toThrow(`${fault} FAIL`);
+    await expect(callback()).rejects.toThrow(`${fault} FAIL`);
+    await expect(callback()).rejects.toThrow(`${fault} FAIL`);
+    platform.faults.clear(fault);
+    await callback();
+  }
+
+  await checkOneshotFault('mountPartition', () =>
+    platform.mountPartition(devsdb1)
+  );
+
+  await checkOneshotFault('sync', () =>
+    platform.sync(platform.storagePath(devsdb))
+  );
+
+  await checkOneshotFault('unmountPartition', () =>
+    platform.unmountPartition(platform.storagePath(devsdb))
+  );
+
+  await checkOneshotFault('formatDrive', () =>
+    platform.formatDrive(devsdb, 'fat32', 'test')
+  );
+
+  await checkRepeatedFault('mountPartition', () =>
+    platform.mountPartition(devsdb1)
+  );
+
+  await checkRepeatedFault('sync', () =>
+    platform.sync(platform.storagePath(devsdb))
+  );
+
+  await checkRepeatedFault('unmountPartition', () =>
+    platform.unmountPartition(platform.storagePath(devsdb))
+  );
+
+  await checkRepeatedFault('formatDrive', () =>
+    platform.formatDrive(devsdb, 'fat32', 'test')
+  );
 });

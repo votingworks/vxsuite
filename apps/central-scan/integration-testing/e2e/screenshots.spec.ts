@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import test from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   clearTemporaryRootDir,
   electionFamousNames2021Fixtures,
@@ -59,7 +59,7 @@ test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
-  getMockFileUsbDriveHandler().cleanup();
+  getMockUsbDriveHandler().cleanup();
 });
 
 test('screenshots', async ({ page }, testInfo) => {
@@ -67,7 +67,7 @@ test('screenshots', async ({ page }, testInfo) => {
   const fixtureSet = electionFamousNames2021Fixtures;
   const electionDefinition = fixtureSet.readElectionDefinition();
   const { election } = electionDefinition;
-  const usbHandler = getMockFileUsbDriveHandler();
+  const usbHandler = getMockUsbDriveHandler();
   const {
     screenshot,
     screenshotWithButtonHighlight,

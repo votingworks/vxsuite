@@ -17,11 +17,11 @@ import { assert, err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { Client } from '@votingworks/grout';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from './app';
@@ -80,13 +80,11 @@ afterEach(() => {
 async function expectIdenticalSnapshotsAcrossExportMethods({
   apiClient,
   mockPrinterHandler,
-  mockUsbDrive,
   reportSpec,
   customSnapshotIdentifier,
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
-  mockUsbDrive: MockMultiUsbDrive;
   reportSpec: BallotCountReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -104,7 +102,6 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     failureThreshold: 0.0001,
   });
 
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportBallotCountReportPdf({
     ...reportSpec,
@@ -124,13 +121,13 @@ test('ballot count report PDF', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
     spec,
@@ -142,7 +139,6 @@ test('ballot count report PDF', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
-      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -233,7 +229,7 @@ test('combined ballot primary ballot count report PDF', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, mockPrinterHandler, mockUsbDrive, workspace } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform, workspace } =
     buildTestEnvironment();
   const electionId = await configureMachine(
     apiClient,
@@ -243,7 +239,7 @@ test('combined ballot primary ballot count report PDF', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // 10 CVRs in precinct-1 after adjudication:
   //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
@@ -259,7 +255,6 @@ test('combined ballot primary ballot count report PDF', async () => {
   await expectIdenticalSnapshotsAcrossExportMethods({
     apiClient,
     mockPrinterHandler,
-    mockUsbDrive,
     reportSpec: {
       filter: {},
       groupBy: { groupByPrecinct: true, groupByParty: true },
@@ -316,13 +311,13 @@ test('ballot count report logging', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const MOCK_REPORT_SPEC: BallotCountReportSpec = {
     filter: {},
@@ -331,7 +326,6 @@ test('ballot count report logging', async () => {
   };
 
   // successful file export
-  expectUsbDriveSync(mockUsbDrive);
   const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,
@@ -349,7 +343,7 @@ test('ballot count report logging', async () => {
   });
 
   // failed file export
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,

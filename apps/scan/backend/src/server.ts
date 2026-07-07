@@ -1,7 +1,7 @@
 import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
+import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
@@ -50,7 +50,7 @@ export async function start({
   audioPlayer,
 }: StartOptions): Promise<void> {
   detectDevices({ logger });
-  const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+  const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
   const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
   // TODO: We can likely consolidate on the file-based mock scanner in all

@@ -38,9 +38,9 @@ import {
 } from '@votingworks/utils';
 import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
-  addMockDrive,
-  getMockFileUsbDriveHandler,
-  listMockDrives,
+  getMockUsbDirPath,
+  getMockUsbDriveHandler,
+  SimulatedUsbPlatform,
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
@@ -258,10 +258,8 @@ interface PdiScannerSheetQueueState {
 }
 
 function buildApi(devDockDir: string, mockSpec: MockSpec) {
-  if (!listMockDrives().includes(MOCK_USB_DRIVE_DISK_NAME)) {
-    addMockDrive(MOCK_USB_DRIVE_DISK_NAME);
-  }
   const printerHandler = getMockFilePrinterHandler();
+  const usbDriveHandler = getMockUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
   let pdiScannerSheetQueue: PdiScannerSheetQueueState | undefined;
 
@@ -316,20 +314,22 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         })
         .filter((item) => item !== undefined);
 
-      // Also scan mock USB drives for election packages
-      const usbElections = await iter(listMockDrives())
+      // Also scan attached mock USB drives for election packages. The data is
+      // present in each drive's storage whether or not an app has mounted it.
+      const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
+      const usbElections = await iter(platform.getSimulatedDrives())
         .async()
-        .filterMap(async (diskName) => {
-          const handler = getMockFileUsbDriveHandler(diskName);
-          const usbDriveStatus = handler.status();
-          if (usbDriveStatus.status !== 'mounted') return undefined;
+        .filterMap(async (drive) => {
+          if (!drive.present) return undefined;
           const result = await getMostRecentElectionPackageFilepath(
-            usbDriveStatus.mountpoint
+            platform.storagePath(drive.diskPath)
           );
           if (result.isErr()) return undefined;
           const zipPath = result.ok();
           return {
-            title: `USB ${diskName}: ${basename(dirname(dirname(zipPath)))}`,
+            title: `USB ${basename(drive.diskPath)}: ${basename(
+              dirname(dirname(zipPath))
+            )}`,
             inputPath: zipPath,
           };
         })
@@ -366,22 +366,21 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     getUsbDriveStatus(): DevDockUsbDriveInfo {
-      const handler = getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
       const status =
-        handler.status().status === 'mounted' ? 'inserted' : 'removed';
+        usbDriveHandler.status().status === 'no_drive' ? 'removed' : 'inserted';
       return { diskPath: MOCK_USB_DRIVE_DEV_PATH, status };
     },
 
     insertUsbDrive(): void {
-      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).insert();
+      usbDriveHandler.insert();
     },
 
     removeUsbDrive(): void {
-      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).remove();
+      usbDriveHandler.remove();
     },
 
     clearUsbDrive(): void {
-      getMockFileUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME).clearData();
+      usbDriveHandler.clearData();
     },
 
     async saveScreenshotForApp({

@@ -8,11 +8,10 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName, parseCsv } from '../test/csv';
@@ -31,12 +30,9 @@ featureFlagMock.enableFeatureFlag(
 
 async function getParsedExport({
   apiClient,
-  mockUsbDrive,
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockMultiUsbDrive;
 }): Promise<ReturnType<typeof parseCsv>> {
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filename,
@@ -64,7 +60,7 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  const { apiClient, auth, workspace, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, workspace, usbPlatform } = buildTestEnvironment();
   const { store } = workspace;
 
   // The purpose of caching is to avoid reloading and re-tabulating the same
@@ -75,11 +71,10 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const zeroExport = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(1);
   expect(zeroExport.rows.every((row) => row['Total Votes'] === '0')).toEqual(
@@ -93,7 +88,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   expect(loadFileResult).toEqual(ok(expect.anything()));
   const resultsExport = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(2);
   expect(resultsExport).not.toEqual(zeroExport);
@@ -101,7 +95,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   // loading the same results should not trigger a tabulation
   const resultsExportFromCache = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(2);
   expect(resultsExportFromCache).toEqual(resultsExport);
@@ -121,7 +114,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   loadFileAgainResult.assertOk('load file failed');
   const doubledResultsExport = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(3);
   expect(doubledResultsExport).not.toEqual(resultsExport);
@@ -163,7 +155,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   ).toEqual(ok());
   const resultsExportAfterAdjudication = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(4);
   expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
@@ -189,7 +180,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   ).toEqual(ok());
   const resultsExportAfterReAdjudication = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(5);
   expect(resultsExportAfterReAdjudication).not.toEqual(
@@ -200,7 +190,6 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   await apiClient.clearCastVoteRecordFiles();
   const clearedResultsExport = await getParsedExport({
     apiClient,
-    mockUsbDrive,
   });
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(6);
   expect(clearedResultsExport).toEqual(zeroExport);

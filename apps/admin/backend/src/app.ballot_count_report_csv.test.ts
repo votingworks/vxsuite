@@ -18,12 +18,11 @@ import {
 } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
-import { MockMultiUsbDrive } from '@votingworks/usb-drive';
 import { mockFileName, parseCsv } from '../test/csv';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
   mockElectionManagerAuth,
 } from '../test/app';
 import {
@@ -74,7 +73,7 @@ test('logs failure if export fails', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -82,9 +81,6 @@ test('logs failure if export fails', async () => {
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
-
-  mockUsbDrive.insertUsbDrive({});
-  mockUsbDrive.removeAll();
 
   const filename = mockFileName();
   const failedExportResult = await apiClient.exportBallotCountReportCsv({
@@ -111,7 +107,7 @@ test('logs success if export succeeds', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, usbPlatform } = buildTestEnvironment();
   await configureMachineWithEarlyVoting(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -120,8 +116,8 @@ test('logs success if export succeeds', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  mockUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockUsbDrive);
+  await attachUsbDrive(apiClient, usbPlatform);
+
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     filename,
@@ -144,16 +140,13 @@ test('logs success if export succeeds', async () => {
 
 async function getParsedExport({
   apiClient,
-  mockUsbDrive,
   groupBy = {},
   filter = {},
 }: {
   apiClient: Client<Api>;
-  mockUsbDrive: MockMultiUsbDrive;
   groupBy?: Tabulation.GroupBy;
   filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
-  expectUsbDriveSync(mockUsbDrive);
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     filename,
@@ -172,7 +165,7 @@ test('creates accurate ballot count reports', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
@@ -230,11 +223,10 @@ test('creates accurate ballot count reports', async () => {
     }),
   });
 
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
   expect(
     await getParsedExport({
       apiClient,
-      mockUsbDrive,
       groupBy: { groupByVotingMethod: true },
     })
   ).toEqual({
@@ -268,7 +260,6 @@ test('creates accurate ballot count reports', async () => {
   expect(
     await getParsedExport({
       apiClient,
-      mockUsbDrive,
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
     })
   ).toEqual({
@@ -316,7 +307,7 @@ test('creates accurate ballot count reports', async () => {
 test('combined ballot primary: groups by inferred party with a No Party row', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
-  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
@@ -332,11 +323,11 @@ test('combined ballot primary: groups by inferred party with a No Party row', as
     store: workspace.store,
   });
 
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
+
   expect(
     await getParsedExport({
       apiClient,
-      mockUsbDrive,
       groupBy: { groupByPrecinct: true, groupByParty: true },
     })
   ).toEqual({
@@ -411,7 +402,7 @@ test('combined ballot primary: groups by inferred party with a No Party row', as
 test('combined ballot primary: groupByParty with No Party filter', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
-  const { apiClient, auth, mockUsbDrive, workspace } = buildTestEnvironment();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
   const electionId = await configureMachineWithEarlyVoting(
     apiClient,
     auth,
@@ -425,7 +416,7 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
     store: workspace.store,
   });
 
-  mockUsbDrive.insertUsbDrive({});
+  await attachUsbDrive(apiClient, usbPlatform);
 
   // partyIds: [NO_PARTY_ID] — only the No Party row. 2 = the crossover and
   // flipped-Dem HMPB sheet 1 ballots (the nonpartisan-only sheet 2 ballot
@@ -433,7 +424,6 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
   expect(
     await getParsedExport({
       apiClient,
-      mockUsbDrive,
       filter: { partyIds: [Tabulation.NO_PARTY_ID] },
       groupBy: { groupByParty: true },
     })
@@ -456,7 +446,6 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
   expect(
     await getParsedExport({
       apiClient,
-      mockUsbDrive,
       filter: { partyIds: ['democratic-party', Tabulation.NO_PARTY_ID] },
       groupBy: { groupByParty: true },
     })

@@ -16,9 +16,10 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
+  devsdb,
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
@@ -617,14 +618,13 @@ test('two write-ins for same candidate reuse existing group', async () => {
 });
 
 test('write-in image report: preview, print, and export', async () => {
-  const { apiClient, auth, mockPrinterHandler, mockMultiUsbDrive } =
+  const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockMultiUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockMultiUsbDrive);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const preview = await apiClient.getWriteInImageReportPreview({
     contestId: MAYOR_CONTEST_ID,
@@ -644,14 +644,13 @@ test('write-in image report: preview, print, and export', async () => {
 });
 
 test('write-in image report logging', async () => {
-  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
+  const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  mockUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockUsbDrive);
+  await attachUsbDrive(apiClient, usbPlatform);
 
   const validFilename = mockFileName('pdf');
   (
@@ -667,7 +666,7 @@ test('write-in image report logging', async () => {
     path: reportPath,
   });
 
-  mockUsbDrive.removeAll();
+  usbPlatform.removeDrive(devsdb);
   const invalidFilename = mockFileName('pdf');
   (
     await apiClient.exportWriteInImageReportPdf({

@@ -10,9 +10,9 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import { DiagnosticRecord } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
+  attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
-  expectUsbDriveSync,
   mockSystemAdministratorAuth,
 } from '../test/app';
 
@@ -194,7 +194,7 @@ test('test-page print', async () => {
 });
 
 test('print or save readiness report', async () => {
-  const { apiClient, mockPrinterHandler, auth, logger, mockMultiUsbDrive } =
+  const { apiClient, mockPrinterHandler, auth, logger, usbPlatform } =
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
@@ -212,8 +212,7 @@ test('print or save readiness report', async () => {
   });
   vi.useRealTimers();
 
-  mockMultiUsbDrive.insertUsbDrive({});
-  expectUsbDriveSync(mockMultiUsbDrive);
+  await attachUsbDrive(apiClient, usbPlatform);
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(
@@ -243,10 +242,9 @@ test('print or save readiness report', async () => {
 });
 
 test('save readiness report failure logging', async () => {
-  const { apiClient, auth, logger, mockMultiUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  mockMultiUsbDrive.removeAll();
   const exportResult = await apiClient.saveReadinessReport();
   exportResult.assertErr('unexpected success saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(

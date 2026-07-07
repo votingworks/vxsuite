@@ -1,13 +1,16 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-param-reassign */
-import { isNonExistentFileOrDirectoryError, iter } from '@votingworks/basics';
-import makeDebug from 'debug';
-import assert from 'node:assert';
 import {
-  closeSync,
-  constants,
+  assert,
+  isNonExistentFileOrDirectoryError,
+  iter,
+} from '@votingworks/basics';
+import makeDebug from 'debug';
+import {
+  linkSync,
   mkdirSync,
-  openSync,
   readFileSync,
+  renameSync,
   rmSync,
   watch,
   writeFileSync,
@@ -28,7 +31,7 @@ import {
   UsbPlatformDrive,
   UsbPlatformDriveSchema,
   UsbPlatformPartition,
-} from '../usb_platform';
+} from '../usb_platform_types';
 import { MockFileTree, writeMockFileTree } from './helpers';
 
 const debug = makeDebug('SimulatedUsbPlatform');
@@ -72,48 +75,88 @@ function findPresentDrive(
   drives: SimulatedUsbDrive[],
   diskPath: UsbDiskDevPath
 ): SimulatedUsbDrive {
-  const drive = drives.find((d) => d.diskPath === diskPath);
-  assert(drive, `Drive not found: ${diskPath}`);
+  const drive = findDrive(drives, diskPath);
   assert(drive.present, `Drive not attached: ${diskPath}`);
   return drive;
 }
 
 /**
- * Finds the partition with the given path on a currently-attached drive. A
+ * Finds the partition matching `predicate` on a currently-attached drive. A
  * partition can only be mounted or unmounted while its drive is present, just
- * as real hardware is only accessible while plugged in.
+ * as real hardware is only accessible while plugged in. `identifier` is used
+ * only for the not-found error message.
  */
 function findPresentPartition(
   drives: SimulatedUsbDrive[],
-  partPath: UsbPartitionDevPath
+  predicate: (partition: UsbPlatformPartition) => boolean,
+  identifier: string
 ): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
   const drive = drives.find(
-    (d) => d.present && d.partition?.partPath === partPath
+    (d) => d.present && d.partition && predicate(d.partition)
   );
-  assert(drive, `Partition not found on an attached drive: ${partPath}`);
+  assert(drive, `Partition not found on an attached drive: ${identifier}`);
   assert(drive.partition);
   return { drive, partition: drive.partition };
 }
 
 /**
- * Finds the partition with the given mountpoint on a currently-attached drive.
- * A partition can only be mounted or unmounted while its drive is present, just
- * as real hardware is only accessible while plugged in.
+ * Actions that can artificially fail with injected faults.
  */
-function findPresentPartitionByMountpoint(
-  drives: SimulatedUsbDrive[],
-  mountpoint: UsbPartitionMountpoint
-): { drive: SimulatedUsbDrive; partition: UsbPlatformPartition } {
-  const drive = drives.find(
-    (d) => d.present && d.partition?.mountpoint === mountpoint
-  );
-  assert(drive, `Partition not found on an attached drive: ${mountpoint}`);
-  assert(drive.partition);
-  return { drive, partition: drive.partition };
+export type FaultType =
+  | 'mountPartition'
+  | 'unmountPartition'
+  | 'formatDrive'
+  | 'sync';
+
+class SimulatedUsbPlatformFaults {
+  private readonly faults = new Map<
+    FaultType,
+    {
+      repeated: boolean;
+      reason: Error;
+    }
+  >();
+
+  /**
+   * Fails the next call of `faultType` with `reason`, then clears. Replaces
+   * any previous fault of `faultType`.
+   */
+  failNext(faultType: FaultType, reason: Error): void {
+    this.faults.set(faultType, { repeated: false, reason });
+  }
+
+  /**
+   * Fails every call of `faultType` with `reason`. Replaces any previous fault
+   * of `faultType`.
+   */
+  failRepeatedly(faultType: FaultType, reason: Error): void {
+    this.faults.set(faultType, { repeated: true, reason });
+  }
+
+  /**
+   * Clears any fault of `faultType` that are currently in effect.
+   */
+  clear(faultType: FaultType): void {
+    this.faults.delete(faultType);
+  }
+
+  /**
+   * Returns the next fault of `faultType` to be raised, if any, and clears it
+   * if it is not repeated.
+   */
+  take(faultType: FaultType): Error | undefined {
+    const fault = this.faults.get(faultType);
+    if (fault) {
+      if (!fault.repeated) this.faults.delete(faultType);
+      return fault.reason;
+    }
+    return undefined;
+  }
 }
 
 export class SimulatedUsbPlatform implements UsbPlatform {
   private watchController?: AbortController;
+  private readonly internalFaults = new SimulatedUsbPlatformFaults();
 
   /**
    * The working set of drives during an in-progress {@link mutateState}
@@ -126,14 +169,15 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
   constructor(private readonly root: string) {
     mkdirSync(this.root, { recursive: true });
+    // Ensure the state file exists (so it can be read and watched) without
+    // clobbering one another process may have already populated. Write the
+    // initial value to a temp file and atomically hard-link it into place, so a
+    // concurrent reader never observes a partially-written or empty file and an
+    // existing file is left intact.
+    const initPath = `${this.stateFilePath}.${process.pid}.init`;
+    writeFileSync(initPath, JSON.stringify([]));
     try {
-      const fd = openSync(
-        this.stateFilePath,
-        // eslint-disable-next-line no-bitwise
-        constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY
-      );
-      writeFileSync(fd, JSON.stringify([]));
-      closeSync(fd);
+      linkSync(initPath, this.stateFilePath);
       debug('Created new devices file');
     } catch (e) {
       /* istanbul ignore next: unexpected errors should propagate */
@@ -141,11 +185,21 @@ export class SimulatedUsbPlatform implements UsbPlatform {
         throw e;
       }
       debug('Using existing devices file');
+    } finally {
+      rmSync(initPath, { force: true });
     }
+  }
+
+  get faults(): SimulatedUsbPlatformFaults {
+    return this.internalFaults;
   }
 
   async getDrives(): Promise<UsbPlatformDrive[]> {
     await Promise.resolve();
+    // Rebuild each partition field-by-field rather than returning the stored
+    // object directly: a round-trip through the JSON state file drops an
+    // `undefined` mountpoint key, and this keeps the shape identical to
+    // RealUsbPlatform.getDrives (which always includes an explicit mountpoint).
     return this.getSimulatedDrives()
       .filter((drive) => drive.present)
       .map(
@@ -189,8 +243,13 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
     if (!this.watchController) {
       this.watchController = new AbortController();
+      // Watch the containing directory rather than the state file itself:
+      // writes replace the file via an atomic rename (see writeStateFile),
+      // which swaps the underlying inode and would leave a file-level watch
+      // stale. Every event in this dedicated directory concerns our state, so
+      // there is no need to filter by filename.
       watch(
-        this.stateFilePath,
+        this.root,
         { signal: this.watchController.signal },
         (event, file) => {
           debug('Watch event: %s %s', event, file);
@@ -296,10 +355,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   replaceDriveData(diskPath: UsbDiskDevPath, contents: MockFileTree): void {
     debug('Replace drive data: %s', diskPath);
-    assert(
-      this.getSimulatedDrives().some((d) => d.diskPath === diskPath),
-      `Drive not found: ${diskPath}`
-    );
+    findDrive(this.getSimulatedDrives(), diskPath); // asserts the drive exists
     const storagePath = this.reinitStorage(diskPath);
     writeMockFileTree(storagePath, contents);
   }
@@ -349,8 +405,12 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   async mountPartition(partPath: UsbPartitionDevPath): Promise<void> {
     await Promise.resolve();
-    this.mutateState((drives) => {
-      const { drive, partition } = findPresentPartition(drives, partPath);
+    this.mutateStateWithPotentialFault('mountPartition', (drives) => {
+      const { drive, partition } = findPresentPartition(
+        drives,
+        (p) => p.partPath === partPath,
+        partPath
+      );
       partition.mountpoint = this.storagePath(drive.diskPath);
       mkdirSync(partition.mountpoint, { recursive: true });
     });
@@ -362,9 +422,10 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   async unmountPartition(mountpoint: UsbPartitionMountpoint): Promise<void> {
     await Promise.resolve();
-    this.mutateState((drives) => {
-      const { partition } = findPresentPartitionByMountpoint(
+    this.mutateStateWithPotentialFault('unmountPartition', (drives) => {
+      const { partition } = findPresentPartition(
         drives,
+        (p) => p.mountpoint === mountpoint,
         mountpoint
       );
       this.unmountPartitionInternal(partition);
@@ -398,7 +459,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
   ): Promise<void> {
     await Promise.resolve();
     debug('Format drive: %s', diskPath);
-    this.mutateState((drives) => {
+    this.mutateStateWithPotentialFault('formatDrive', (drives) => {
       const drive = findPresentDrive(drives, diskPath);
       if (drive.partition) {
         this.unmountPartitionInternal(drive.partition);
@@ -424,10 +485,13 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     await Promise.resolve();
     debug('Sync: %s', mountpoint);
 
-    const drive = this.getSimulatedDrives().find(
-      (d) => d.present && d.partition?.mountpoint === mountpoint
+    const fault = this.internalFaults.take('sync');
+    if (fault) throw fault;
+    const drives = await this.getDrives();
+    assert(
+      drives.some((d) => d.partition?.mountpoint === mountpoint),
+      `Drive not mounted: ${mountpoint}`
     );
-    assert(!!drive, `Drive not mounted: ${mountpoint}`);
   }
 
   /**
@@ -468,6 +532,15 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     return UsbPartitionDevPathSchema.decode(`${diskPath}1`);
   }
 
+  private mutateStateWithPotentialFault(
+    fault: FaultType,
+    mutate: (drives: SimulatedUsbDrive[]) => SimulatedUsbDrive[] | void
+  ): void {
+    const parsedFault = this.internalFaults.take(fault);
+    if (parsedFault) throw parsedFault;
+    this.mutateState(mutate);
+  }
+
   /**
    * Runs a state mutation as a read-modify-write transaction. `mutate` receives
    * the working set of drives — the only thing it may mutate — and may either
@@ -497,6 +570,11 @@ export class SimulatedUsbPlatform implements UsbPlatform {
         device.partition?.mountpoint ?? 'unmounted'
       );
     }
-    writeFileSync(this.stateFilePath, JSON.stringify(devices, null, 2));
+    // Write to a temp file and atomically rename it into place so a concurrent
+    // reader in the shared-directory setup always sees a complete state file,
+    // never a truncated or empty one mid-write.
+    const tempPath = `${this.stateFilePath}.${process.pid}.tmp`;
+    writeFileSync(tempPath, JSON.stringify(devices, null, 2));
+    renameSync(tempPath, this.stateFilePath);
   }
 }

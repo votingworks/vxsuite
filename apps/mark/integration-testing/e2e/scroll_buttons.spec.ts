@@ -5,7 +5,7 @@ import {
   readElectionGeneralDefinition,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   HP_LASER_PRINTER_CONFIG,
   getMockFilePrinterHandler,
@@ -20,7 +20,7 @@ import { openPolls } from './support/flows';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-const usbHandler = getMockFileUsbDriveHandler();
+const usbHandler = getMockUsbDriveHandler();
 const printerHandler = getMockFilePrinterHandler();
 
 /** Finds all the "More" scroll buttons on the page. */
