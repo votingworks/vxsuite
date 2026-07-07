@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { assertDefined } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockLogger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
@@ -36,7 +35,7 @@ test('drive lifecycle through the handler', () => {
   // Insert with contents: present but not yet mounted by any app.
   handler.insert({ README: Buffer.from('hello') });
   expect(handler.status()).toEqual({ status: 'ejected' });
-  const dataPath = assertDefined(handler.getDataPath());
+  const dataPath = handler.getDataPath();
   expect(readFileSync(join(dataPath, 'README'), 'utf-8')).toEqual('hello');
 
   // Re-inserting with new contents replaces the data in place.

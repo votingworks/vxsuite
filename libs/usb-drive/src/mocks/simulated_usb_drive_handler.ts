@@ -1,4 +1,3 @@
-import { Optional } from '@votingworks/basics';
 import {
   UsbDiskDevPathSchema,
   UsbDriveStatus,
@@ -22,7 +21,11 @@ export interface MockUsbDriveHandler {
   insert: (contents?: MockFileTree) => void;
   remove: () => void;
   clearData: () => void;
-  getDataPath: () => Optional<UsbPartitionMountpoint>;
+  /**
+   * The on-disk storage path for the drive's data. Always defined and
+   * independent of whether the drive is currently inserted or mounted.
+   */
+  getDataPath: () => UsbPartitionMountpoint;
   cleanup: () => void;
 }
 
