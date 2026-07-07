@@ -1,8 +1,11 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-param-reassign */
-import { isNonExistentFileOrDirectoryError, iter } from '@votingworks/basics';
+import {
+  assert,
+  isNonExistentFileOrDirectoryError,
+  iter,
+} from '@votingworks/basics';
 import makeDebug from 'debug';
-import assert from 'node:assert';
 import {
   linkSync,
   mkdirSync,
