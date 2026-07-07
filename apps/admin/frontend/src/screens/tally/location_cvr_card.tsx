@@ -25,6 +25,7 @@ const ContentSection = styled.div`
   align-items: center;
   display: grid;
   grid-template-columns: 1fr;
+  gap: 0.125rem;
   min-width: 0;
   padding: ${GAP};
 `;
@@ -44,11 +45,6 @@ export const IconSection = styled.div`
   height: 100%;
   justify-items: center;
   padding: 1rem;
-
-  /* Expand padding when icon label is present, for more square appearance. */
-  :has(${IconLabel}) {
-    padding: 1rem 1.5rem;
-  }
 `;
 
 const Meta = styled(Caption)`
