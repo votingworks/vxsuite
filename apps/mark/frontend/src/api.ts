@@ -387,6 +387,18 @@ export const printBallot = {
   },
 } as const;
 
+export const printBlankBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.printBlankBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();
