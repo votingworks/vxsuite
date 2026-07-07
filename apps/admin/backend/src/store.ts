@@ -1746,7 +1746,7 @@ export class Store implements BaseStore {
       isCombinedBallotPrimary(election) &&
       (groupBy.groupByParty || filter.partyIds)
     ) {
-      yield* this.getOpenPrimaryCardTallies({
+      yield* this.getCombinedBallotPrimaryCardTallies({
         electionId,
         election,
         filter,
@@ -1860,7 +1860,7 @@ export class Store implements BaseStore {
     }
   }
 
-  private *getOpenPrimaryCardTallies({
+  private *getCombinedBallotPrimaryCardTallies({
     electionId,
     election,
     filter,

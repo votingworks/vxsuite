@@ -11,7 +11,7 @@ import {
   calibrationSheetFixtures,
   miClosedPrimaryElectionFixtures,
   miGeneralElectionFixtures,
-  miOpenPrimaryElectionFixtures,
+  miCombinedBallotPrimaryElectionFixtures,
   msGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   nhStateGeneralElectionFixtures,
@@ -214,10 +214,10 @@ async function generateMiClosedPrimaryElectionFixtures(
   }
 }
 
-async function generateMiOpenPrimaryElectionFixtures(
+async function generateMiCombinedBallotPrimaryElectionFixtures(
   rendererPool: RendererPool
 ) {
-  const fixtures = miOpenPrimaryElectionFixtures;
+  const fixtures = miCombinedBallotPrimaryElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
@@ -297,7 +297,7 @@ type Fixture =
   | 'nh-state-primary-election'
   | 'mi-closed-primary-election'
   | 'mi-general-election'
-  | 'mi-open-primary-election'
+  | 'mi-combined-ballot-primary-election'
   | 'ms-general-election'
   | 'calibration-sheet';
 
@@ -365,8 +365,8 @@ export async function main(): Promise<number> {
         break;
       }
 
-      case '--mi-open-primary-election': {
-        fixtures.add('mi-open-primary-election');
+      case '--mi-combined-ballot-primary-election': {
+        fixtures.add('mi-combined-ballot-primary-election');
         break;
       }
 
@@ -456,12 +456,15 @@ export async function main(): Promise<number> {
     await generateMiGeneralElectionFixtures(rendererPool);
   }
 
-  if (fixtures.size === 0 || fixtures.has('mi-open-primary-election')) {
-    await rm(miOpenPrimaryElectionFixtures.dir, {
+  if (
+    fixtures.size === 0 ||
+    fixtures.has('mi-combined-ballot-primary-election')
+  ) {
+    await rm(miCombinedBallotPrimaryElectionFixtures.dir, {
       recursive: true,
       force: true,
     });
-    await generateMiOpenPrimaryElectionFixtures(rendererPool);
+    await generateMiCombinedBallotPrimaryElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('ms-general-election')) {

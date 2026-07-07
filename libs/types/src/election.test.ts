@@ -270,14 +270,14 @@ test('isCombinedBallotPrimary', () => {
   expect(isCombinedBallotPrimary(primaryElection)).toEqual(false);
 
   // open primary (ballot styles have no partyId)
-  const openPrimaryElection: Election = {
+  const combinedBallotPrimaryElection: Election = {
     ...primaryElection,
     ballotStyles: primaryElection.ballotStyles.map((bs) => ({
       ...bs,
       partyId: undefined,
     })),
   };
-  expect(isCombinedBallotPrimary(openPrimaryElection)).toEqual(true);
+  expect(isCombinedBallotPrimary(combinedBallotPrimaryElection)).toEqual(true);
 });
 
 test('getGroupIdFromBallotStyleId', () => {
@@ -323,7 +323,7 @@ test('getContests', () => {
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
 
   // open primary (ballot styles have no partyId) — returns all contests
-  const openPrimaryElection: Election = {
+  const combinedBallotPrimaryElection: Election = {
     ...electionTwoPartyPrimary,
     ballotStyles: electionTwoPartyPrimary.ballotStyles.map((bs) => ({
       ...bs,
@@ -334,9 +334,9 @@ test('getContests', () => {
     getContests({
       ballotStyle: getBallotStyle({
         ballotStyleId: '1M',
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
       })!,
-      election: openPrimaryElection,
+      election: combinedBallotPrimaryElection,
     }).map((c) => c.id)
   ).toEqual([
     'best-animal-mammal',

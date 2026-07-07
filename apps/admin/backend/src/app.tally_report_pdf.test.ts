@@ -512,7 +512,7 @@ test('tally report PDF - open primary', async () => {
       groupBy: {},
       includeSignatureLines: false,
     },
-    identifier: 'open-primary-tally-report-zero',
+    identifier: 'combined-ballot-primary-tally-report-zero',
   });
 
   const baseCvr: Omit<MockCastVoteRecordFile[number], 'votes'> = {
@@ -576,6 +576,6 @@ test('tally report PDF - open primary', async () => {
       groupBy: {},
       includeSignatureLines: false,
     },
-    identifier: 'open-primary-tally-report',
+    identifier: 'combined-ballot-primary-tally-report',
   });
 });

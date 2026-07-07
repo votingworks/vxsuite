@@ -16,7 +16,7 @@ import {
 import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet';
 
 const { election, electionDefinition } = vxFamousNamesFixtures;
-const openPrimaryElection =
+const combinedBallotPrimaryElection =
   electionCombinedBallotPrimaryFixtures.readElection();
 
 const firstBallotStyle = assertDefined(election.ballotStyles[0]);
@@ -361,7 +361,10 @@ test('flags crossover voting in open primaries', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [{ type: AdjudicationReason.CrossoverVoting }],
@@ -393,7 +396,10 @@ test('combines crossover voting with other adjudication reasons', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'NeedsReviewSheet',
     reasons: [overvoteReason, { type: AdjudicationReason.CrossoverVoting }],
@@ -416,7 +422,10 @@ test('treats single-party open primary voting as valid', () => {
     },
   });
   expect(
-    combinePageInterpretationsForSheet([front, back], openPrimaryElection)
+    combinePageInterpretationsForSheet(
+      [front, back],
+      combinedBallotPrimaryElection
+    )
   ).toEqual<SheetInterpretation>({
     type: 'ValidSheet',
   });

@@ -35,7 +35,7 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
 } from '../test/app';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -2056,7 +2056,7 @@ test('open primary crossover votes', async () => {
   mockElectionManagerAuth(auth, election);
 
   const { cvrIds, resolvedCrossoverCvrId } =
-    await seedOpenPrimaryCvrsAndAdjudications({
+    await seedCombinedBallotPrimaryCvrsAndAdjudications({
       apiClient,
       electionId: workspace.store.getCurrentElectionId()!,
       store: workspace.store,

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
-import { miOpenPrimaryElectionFixtures } from './ballot_fixtures';
+import { miCombinedBallotPrimaryElectionFixtures } from './ballot_fixtures';
 import { createPlaywrightRendererPool } from './playwright_renderer';
 import { RendererPool } from './renderer';
 
@@ -17,9 +17,9 @@ afterAll(async () => {
   await rendererPool.close();
 });
 
-// run `pnpm generate-fixtures --mi-open-primary-election` if this test fails
+// run `pnpm generate-fixtures --mi-combined-ballot-primary-election` if this test fails
 test('MI open primary election fixtures', async () => {
-  const fixtures = miOpenPrimaryElectionFixtures;
+  const fixtures = miCombinedBallotPrimaryElectionFixtures;
   const generated = await fixtures.generate(rendererPool);
 
   await expectToMatchSavedPdf(

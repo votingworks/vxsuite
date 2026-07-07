@@ -137,7 +137,9 @@ export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
     jurisdictionId
   );
 }
-export function openPrimaryElectionRecord(jurisdictionId: Id): ElectionRecord {
+export function combinedBallotPrimaryElectionRecord(
+  jurisdictionId: Id
+): ElectionRecord {
   return makeElectionRecord(
     electionCombinedBallotPrimaryFixtures.readElection(),
     jurisdictionId

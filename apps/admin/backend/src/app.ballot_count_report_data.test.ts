@@ -14,7 +14,7 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -143,7 +143,7 @@ test('open primary: card counts with party inferred from votes', async () => {
   //   3 No Party:
   //     1 nonpartisan-only — HMPB sheet 2 (exercises sheet-number axis)
   //     1 unresolved crossover + 1 flipped Dem — HMPB sheet 1
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -476,7 +476,7 @@ test('open primary: card counts with partyIds filter', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,

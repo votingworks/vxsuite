@@ -19,7 +19,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import { mockFileName } from '../test/csv';
-import { seedOpenPrimaryWriteIns } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryWriteIns } from '../test/combined_ballot_primary_fixture';
 import { generateReportPath } from './util/filenames';
 import { AdjudicatedContestOption } from './types';
 
@@ -345,7 +345,7 @@ test('open primary: crossover ballots write-ins on partisan contests are exclude
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   const { demCandidate, repCandidate, nonpartisanCandidate } =
-    await seedOpenPrimaryWriteIns({
+    await seedCombinedBallotPrimaryWriteIns({
       apiClient,
       electionId,
       store: workspace.store,

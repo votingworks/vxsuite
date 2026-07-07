@@ -28,7 +28,7 @@ import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
 import { mockFileName } from '../test/csv';
 import { generateReportPath } from './util/filenames';
-import { seedOpenPrimaryCvrsAndAdjudications } from '../test/open_primary_fixture';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -247,7 +247,7 @@ test('open primary ballot count report PDF', async () => {
 
   // 10 CVRs in precinct-1 after adjudication:
   //   4 Dem, 2 Rep, 1 Lib, 3 No Party (nonpartisan-only / crossover / flipped)
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -265,7 +265,7 @@ test('open primary ballot count report PDF', async () => {
       groupBy: { groupByPrecinct: true, groupByParty: true },
       includeSheetCounts: false,
     },
-    customSnapshotIdentifier: 'ballot-count-report-open-primary',
+    customSnapshotIdentifier: 'ballot-count-report-combined-ballot-primary',
   });
 });
 

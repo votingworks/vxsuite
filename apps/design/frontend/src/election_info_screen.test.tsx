@@ -517,15 +517,17 @@ test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', a
   userEvent.click(
     within(typeInput).getByRole('option', { name: 'Open Primary' })
   );
-  const openPrimaryInfo: ElectionInfo = {
+  const combinedBallotPrimaryInfo: ElectionInfo = {
     ...electionInfoFromRecord(electionRecord),
     type: 'primary',
     isMiCombinedBallotPrimary: true,
   };
-  apiMock.updateElectionInfo.expectCallWith(openPrimaryInfo).resolves(ok());
+  apiMock.updateElectionInfo
+    .expectCallWith(combinedBallotPrimaryInfo)
+    .resolves(ok());
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
-    .resolves(openPrimaryInfo);
+    .resolves(combinedBallotPrimaryInfo);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('option', { name: 'Open Primary', selected: true });
 
@@ -535,7 +537,7 @@ test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', a
     within(typeInput).getByRole('option', { name: 'Closed Primary' })
   );
   const closedPrimaryInfo: ElectionInfo = {
-    ...openPrimaryInfo,
+    ...combinedBallotPrimaryInfo,
     type: 'primary',
     isMiCombinedBallotPrimary: false,
   };

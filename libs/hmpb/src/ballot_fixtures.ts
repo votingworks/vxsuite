@@ -1418,8 +1418,8 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
   };
 });
 
-export const miOpenPrimaryElectionFixtures = lazyFixtures(() => {
-  const dir = join(fixturesDir, 'mi-open-primary-election');
+export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
+  const dir = join(fixturesDir, 'mi-combined-ballot-primary-election');
   const electionPath = join(dir, 'election.json');
 
   const election = electionCombinedBallotPrimaryFixtures.readElection();

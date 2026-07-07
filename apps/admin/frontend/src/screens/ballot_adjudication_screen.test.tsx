@@ -43,9 +43,9 @@ import { routerPaths } from '../router_paths';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election: primaryElection } = electionDefinition;
-const openPrimaryDefinition =
+const combinedBallotPrimaryDefinition =
   electionCombinedBallotPrimaryFixtures.readElectionDefinition();
-const openPrimaryElection = openPrimaryDefinition.election;
+const combinedBallotPrimaryElection = combinedBallotPrimaryDefinition.election;
 const straightPartyElectionDefinition =
   electionStraightPartyFixtures.readElectionDefinition();
 const straightPartyElection = straightPartyElectionDefinition.election;
@@ -938,13 +938,13 @@ test('hovering a crossover voted contest shows the warning highlight', async () 
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   repContest.options[0].scannedVote = true; // dave-wilson
   const adjData = makeBallotAdjudicationData(
@@ -986,7 +986,7 @@ test('hovering a crossover voted contest shows the warning highlight', async () 
   apiMock.expectGetSystemSettings();
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 
@@ -1960,31 +1960,31 @@ test('crossover voting detected during scanning', async () => {
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   repContest.options[0].scannedVote = true; // dave-wilson
   const nonpartisanContest = makeContestAdjudicationData(
     'circuit-court-judge',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   nonpartisanContest.options[0].scannedVote = true; // margaret-chen
   const ballotMeasure = makeContestAdjudicationData(
     'ballot-measure-1',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   ballotMeasure.options[0].scannedVote = true; // yes
   const unvotedPartisanContest = makeContestAdjudicationData(
     'governor-libertarian',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   const data = makeBallotAdjudicationData(
     CVR_ID_1,
@@ -2000,7 +2000,7 @@ test('crossover voting detected during scanning', async () => {
   setupBasicMocks({ adjudicationData: data });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 
@@ -2039,13 +2039,13 @@ test("crossover voting resolved when one party's vote is removed via adjudicatio
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   repContest.options[0].scannedVote = true; // dave-wilson
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
@@ -2059,7 +2059,7 @@ test("crossover voting resolved when one party's vote is removed via adjudicatio
   setupBasicMocks({ adjudicationData: data });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 
@@ -2080,13 +2080,13 @@ test('crossover voting confirmed when ballot is resolved without modifying the v
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   repContest.options[0].scannedVote = true; // dave-wilson
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
@@ -2096,7 +2096,7 @@ test('crossover voting confirmed when ballot is resolved without modifying the v
   setupBasicMocks({ adjudicationData: data });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 
@@ -2116,13 +2116,13 @@ test('crossover vote created indicator when adjudication introduces a crossover 
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   ); // no scanned vote
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
     tag: { isBlankBallot: false, hasCrossoverVote: false },
@@ -2133,7 +2133,7 @@ test('crossover vote created indicator when adjudication introduces a crossover 
   setupBasicMocks({ adjudicationData: data });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 
@@ -2154,13 +2154,13 @@ test('crossover voting created indicator persists when the ballot is resolved', 
   const demContest = makeContestAdjudicationData(
     'governor-democratic',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   );
   demContest.options[0].scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
-    openPrimaryElection
+    combinedBallotPrimaryElection
   ); // no scanned vote
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
     tag: { isBlankBallot: false, hasCrossoverVote: false },
@@ -2172,7 +2172,7 @@ test('crossover voting created indicator persists when the ballot is resolved', 
   setupBasicMocks({ adjudicationData: data });
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
-    electionDefinition: openPrimaryDefinition,
+    electionDefinition: combinedBallotPrimaryDefinition,
     apiMock,
   });
 

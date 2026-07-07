@@ -27,9 +27,9 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import {
-  seedOpenPrimaryCvrsAndAdjudications,
-  seedOpenPrimaryWriteIns,
-} from '../test/open_primary_fixture';
+  seedCombinedBallotPrimaryCvrsAndAdjudications,
+  seedCombinedBallotPrimaryWriteIns,
+} from '../test/combined_ballot_primary_fixture';
 import { AdjudicatedContestOption } from './types';
 
 vi.setConfig({
@@ -1035,7 +1035,7 @@ test('open primary, full election with crossover and adjudications', async () =>
   );
   mockElectionManagerAuth(auth, election);
 
-  await seedOpenPrimaryCvrsAndAdjudications({
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
     apiClient,
     electionId,
     store: workspace.store,
@@ -1281,11 +1281,12 @@ test('open primary, crossover ballots write-ins excluded from partisan tallies',
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  const { demCandidate, repCandidate } = await seedOpenPrimaryWriteIns({
-    apiClient,
-    electionId,
-    store: workspace.store,
-  });
+  const { demCandidate, repCandidate } =
+    await seedCombinedBallotPrimaryWriteIns({
+      apiClient,
+      electionId,
+      store: workspace.store,
+    });
 
   const tallyReports = await apiClient.getResultsForTallyReports();
   const [report] = tallyReports;

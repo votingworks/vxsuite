@@ -14,7 +14,7 @@ const baseCvr: Omit<MockCastVoteRecordFile[number], 'card' | 'votes'> = {
 };
 const hmpbSheet1: Tabulation.Card = { type: 'hmpb', sheetNumber: 1 };
 
-export interface OpenPrimaryFixtureResult {
+export interface CombinedBallotPrimaryFixtureResult {
   cvrIds: string[];
   // Crossover ballot whose Republican vote was adjudicated away → now Dem-only.
   resolvedCrossoverCvrId: string;
@@ -28,7 +28,7 @@ export interface OpenPrimaryFixtureResult {
  * adjudications: resolving one crossover and flipping a single-party ballot
  * to nonpartisan.
  */
-export async function seedOpenPrimaryCvrsAndAdjudications({
+export async function seedCombinedBallotPrimaryCvrsAndAdjudications({
   apiClient,
   electionId,
   store,
@@ -36,7 +36,7 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   apiClient: grout.Client<Api>;
   electionId: Id;
   store: Store;
-}): Promise<OpenPrimaryFixtureResult> {
+}): Promise<CombinedBallotPrimaryFixtureResult> {
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
       ...baseCvr,
@@ -170,7 +170,7 @@ export async function seedOpenPrimaryCvrsAndAdjudications({
   return { cvrIds, resolvedCrossoverCvrId, flippedToNoPartyCvrId };
 }
 
-export interface OpenPrimaryWriteInsFixtureResult {
+export interface CombinedBallotPrimaryWriteInsFixtureResult {
   demCandidate: { id: string; name: string };
   repCandidate: { id: string; name: string };
   nonpartisanCandidate: { id: string; name: string };
@@ -186,7 +186,7 @@ export interface OpenPrimaryWriteInsFixtureResult {
  *   cvrIds[3] = Crossover voter, write-in on circuit-court-judge      → counts
  *                (nonpartisan write-ins count regardless of crossover)
  */
-export async function seedOpenPrimaryWriteIns({
+export async function seedCombinedBallotPrimaryWriteIns({
   apiClient,
   electionId,
   store,
@@ -194,7 +194,7 @@ export async function seedOpenPrimaryWriteIns({
   apiClient: grout.Client<Api>;
   electionId: Id;
   store: Store;
-}): Promise<OpenPrimaryWriteInsFixtureResult> {
+}): Promise<CombinedBallotPrimaryWriteInsFixtureResult> {
   const file: MockCastVoteRecordFile = [
     {
       ...baseCvr,

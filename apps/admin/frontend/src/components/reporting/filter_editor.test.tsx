@@ -12,7 +12,7 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
-const electionOpenPrimaryDefinition =
+const electionCombinedBallotPrimaryDefinition =
   readElectionCombinedBallotPrimaryDefinition();
 
 let apiMock: ApiMock;
@@ -207,7 +207,7 @@ test('party selection', () => {
 });
 
 test('open primary party selection includes "No Party"', () => {
-  const { election } = electionOpenPrimaryDefinition;
+  const { election } = electionCombinedBallotPrimaryDefinition;
   const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);

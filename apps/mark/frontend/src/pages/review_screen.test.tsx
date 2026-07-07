@@ -15,7 +15,7 @@ import { render as renderWithBallotContext } from '../../test/test_utils';
 import { ReviewScreen } from './review_screen';
 
 const electionGeneral = readElectionGeneral();
-const electionOpenPrimaryDefinition =
+const electionCombinedBallotPrimaryDefinition =
   electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
 vi.setConfig({
@@ -119,7 +119,7 @@ test('open primary review screen shows party row and links to party selection', 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
     route: '/review',
-    electionDefinition: electionOpenPrimaryDefinition,
+    electionDefinition: electionCombinedBallotPrimaryDefinition,
     precinctId: 'precinct-1',
     ballotStyleId: 'ballot-style-1',
     selectedPartyId: 'democratic-party',

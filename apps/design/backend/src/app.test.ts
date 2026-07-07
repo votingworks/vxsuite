@@ -3274,21 +3274,23 @@ test('open primary elections', async () => {
         electionFileContents:
           electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
-      newId: 'open-primary-election',
+      newId: 'combined-ballot-primary-election',
       jurisdictionId: miJurisdiction.id,
     })
   ).unsafeUnwrap();
-  const openPrimaryInfo = await apiClient.getElectionInfo({ electionId });
-  expect(openPrimaryInfo.type).toEqual('primary');
-  expect(openPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
+  const combinedBallotPrimaryInfo = await apiClient.getElectionInfo({
+    electionId,
+  });
+  expect(combinedBallotPrimaryInfo.type).toEqual('primary');
+  expect(combinedBallotPrimaryInfo.isMiCombinedBallotPrimary).toEqual(true);
 
   // Open primary elections generate one ballot style per precinct with no
   // partyId — voters see all parties' contests on a single ballot.
-  const openPrimaryBallotStyles = await apiClient.listBallotStyles({
+  const combinedBallotPrimaryBallotStyles = await apiClient.listBallotStyles({
     electionId,
   });
-  expect(openPrimaryBallotStyles.length).toBeGreaterThan(0);
-  for (const ballotStyle of openPrimaryBallotStyles) {
+  expect(combinedBallotPrimaryBallotStyles.length).toBeGreaterThan(0);
+  for (const ballotStyle of combinedBallotPrimaryBallotStyles) {
     expect(ballotStyle.partyId).toBeUndefined();
   }
 
@@ -3300,7 +3302,7 @@ test('open primary elections', async () => {
         electionFileContents:
           electionCombinedBallotPrimaryFixtures.electionJson.asText(),
       },
-      newId: 'not-open-primary-election',
+      newId: 'not-combined-ballot-primary-election',
       jurisdictionId: nonVxJurisdiction.id,
     })
   ).toEqual(
@@ -3314,7 +3316,7 @@ test('open primary elections', async () => {
   // Cloning preserves the combined-ballot flag
   const clonedElectionId = await apiClient.cloneElection({
     electionId,
-    destElectionId: 'cloned-open-primary',
+    destElectionId: 'cloned-combined-ballot-primary',
     destJurisdictionId: miJurisdiction.id,
   });
   const clonedInfo = await apiClient.getElectionInfo({

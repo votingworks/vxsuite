@@ -1438,7 +1438,7 @@ test('tabulateCastVoteRecords with a straight-party contest', async () => {
 });
 
 describe('open primaries', () => {
-  const openPrimaryElection = readElectionCombinedBallotPrimary();
+  const combinedBallotPrimaryElection = readElectionCombinedBallotPrimary();
 
   const baseCvrMetadata = {
     card: { type: 'bmd' },
@@ -1452,7 +1452,7 @@ describe('open primaries', () => {
   test('single-party ballot tallies partisan + nonpartisan contests normally', async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           {
             ...baseCvrMetadata,
@@ -1482,15 +1482,15 @@ describe('open primaries', () => {
   });
 
   test('groupByParty groups CVRs with undefined partyId together (open primaries)', async () => {
-    const democraticPartyId = openPrimaryElection.parties.find(
+    const democraticPartyId = combinedBallotPrimaryElection.parties.find(
       (p) => p.name === 'Democratic'
     )!.id;
-    const republicanPartyId = openPrimaryElection.parties.find(
+    const republicanPartyId = combinedBallotPrimaryElection.parties.find(
       (p) => p.name === 'Republican'
     )!.id;
 
     const groupedResults = await tabulateCastVoteRecords({
-      election: openPrimaryElection,
+      election: combinedBallotPrimaryElection,
       groupBy: { groupByParty: true },
       cvrs: [
         {
@@ -1554,7 +1554,7 @@ describe('open primaries', () => {
   test('crossover voting — partisan contests skipped, nonpartisan tallied', async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           {
             ...baseCvrMetadata,
@@ -1592,7 +1592,7 @@ describe('open primaries', () => {
 
     // No partisan contest in the election should be counted on a
     // crossover ballot.
-    for (const contest of partisanContests(openPrimaryElection)) {
+    for (const contest of partisanContests(combinedBallotPrimaryElection)) {
       expect(results.contestResults[contest.id]?.ballots).toEqual(0);
     }
   });
@@ -1600,7 +1600,7 @@ describe('open primaries', () => {
   test("open primary ballots omit other parties' contests rather than counting undervotes", async () => {
     const results = (
       await tabulateCastVoteRecords({
-        election: openPrimaryElection,
+        election: combinedBallotPrimaryElection,
         cvrs: [
           // Dem ballot
           {

@@ -660,7 +660,7 @@ function buildContestSections(
   ]);
 }
 
-function buildOpenPrimaryContestSections(
+function buildCombinedBallotPrimaryContestSections(
   contests: readonly ContestStruct[],
   election: Election,
   ballotStyle: BallotStyle,
@@ -851,7 +851,7 @@ async function ContestColumns({
   };
 }
 
-async function OpenPrimaryContestColumns({
+async function CombinedBallotPrimaryContestColumns({
   contests,
   election,
   ballotStyle,
@@ -866,7 +866,7 @@ async function OpenPrimaryContestColumns({
 }): Promise<ContestColumnsResult> {
   const numColumns = 4;
   const { partisanSections, nonPartisanSections } =
-    buildOpenPrimaryContestSections(
+    buildCombinedBallotPrimaryContestSections(
       contests,
       election,
       ballotStyle,
@@ -1018,7 +1018,7 @@ async function BallotPageContent(
   const { leftoverContests, sectionsElement } = isCombinedBallotPrimary(
     election
   )
-    ? await OpenPrimaryContestColumns({
+    ? await CombinedBallotPrimaryContestColumns({
         contests,
         election,
         ballotStyle,

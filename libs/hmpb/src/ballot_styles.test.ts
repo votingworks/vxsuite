@@ -163,7 +163,7 @@ describe('generateBallotStyles()', () => {
   // General and open-primary elections share the same ballot style generation
   // logic: one ballot style per precinct/district group, no partyId. Partisan
   // contests in open primaries don't affect ballot style partitioning.
-  const generalAndOpenPrimaryCases = [
+  const generalAndCombinedBallotPrimaryCases = [
     {
       name: 'general',
       electionType: 'general' as const,
@@ -186,7 +186,7 @@ describe('generateBallotStyles()', () => {
     },
   ];
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, no splits, default rotation',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
@@ -248,7 +248,7 @@ describe('generateBallotStyles()', () => {
     }
   );
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, default rotation',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [
@@ -312,7 +312,7 @@ describe('generateBallotStyles()', () => {
     }
   );
 
-  test.each(generalAndOpenPrimaryCases)(
+  test.each(generalAndCombinedBallotPrimaryCases)(
     '$name election, split precincts, rotation by precinct',
     ({ electionType, isMiCombinedBallotPrimary, contests, parties }) => {
       const ballotLanguageConfigs = [

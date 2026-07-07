@@ -20,7 +20,7 @@ const electionDefinitionPrimary =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const electionDefinitionSimple =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-const electionDefinitionOpenPrimary =
+const electionDefinitionCombinedBallotPrimary =
   electionCombinedBallotPrimaryFixtures.readElectionDefinition();
 
 test('renders report with test mode banner', () => {
@@ -214,7 +214,7 @@ test('renders report for General Election with no parties, precincts, single lan
 });
 
 test('renders report for Open Primary Election without a party column', () => {
-  const { election } = electionDefinitionOpenPrimary;
+  const { election } = electionDefinitionCombinedBallotPrimary;
 
   const precinct = election.precincts[0];
   const ballotStyleId = election.ballotStyles[0].id;
@@ -235,7 +235,7 @@ test('renders report for Open Primary Election without a party column', () => {
 
   render(
     <BallotsPrintedReport
-      electionDefinition={electionDefinitionOpenPrimary}
+      electionDefinition={electionDefinitionCombinedBallotPrimary}
       electionPackageHash="test-election-package-hash"
       generatedAtTime={new Date()}
       printCounts={ballotPrintCounts}

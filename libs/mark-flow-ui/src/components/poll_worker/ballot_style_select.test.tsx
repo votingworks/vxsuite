@@ -181,9 +181,9 @@ describe('primary election', () => {
 });
 
 describe('open primary election', () => {
-  const electionDefinitionOpenPrimary =
+  const electionDefinitionCombinedBallotPrimary =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
-  const { election } = electionDefinitionOpenPrimary;
+  const { election } = electionDefinitionCombinedBallotPrimary;
 
   test('single precinct configuration', () => {
     const precinct = election.precincts[0];

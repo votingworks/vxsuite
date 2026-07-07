@@ -495,17 +495,25 @@ test('removes write-in candidates not referenced anymore', async () => {
 });
 
 test('manual results APIs reject reads/writes for open primary elections', async () => {
-  const openPrimaryElectionDefinition =
+  const combinedBallotPrimaryElectionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, openPrimaryElectionDefinition);
-  mockElectionManagerAuth(auth, openPrimaryElectionDefinition.election);
+  await configureMachine(
+    apiClient,
+    auth,
+    combinedBallotPrimaryElectionDefinition
+  );
+  mockElectionManagerAuth(
+    auth,
+    combinedBallotPrimaryElectionDefinition.election
+  );
 
   const identifier: ManualResultsIdentifier = {
-    precinctId: openPrimaryElectionDefinition.election.precincts[0]!.id,
+    precinctId:
+      combinedBallotPrimaryElectionDefinition.election.precincts[0]!.id,
     votingMethod: 'precinct',
     ballotStyleGroupId:
-      openPrimaryElectionDefinition.election.ballotStyles[0]!.groupId,
+      combinedBallotPrimaryElectionDefinition.election.ballotStyles[0]!.groupId,
   };
 
   // Writes that would create data: asserts.
@@ -514,7 +522,7 @@ test('manual results APIs reject reads/writes for open primary elections', async
       apiClient.setManualResults({
         ...identifier,
         manualResults: buildManualResultsFixture({
-          election: openPrimaryElectionDefinition.election,
+          election: combinedBallotPrimaryElectionDefinition.election,
           ballotCount: 1,
           contestResultsSummaries: {},
         }),

@@ -17,32 +17,32 @@ import {
   votedPartyIds,
 } from './combined_ballot_primary';
 
-const openPrimary = readElectionCombinedBallotPrimary();
+const combinedBallotPrimary = readElectionCombinedBallotPrimary();
 const closedPrimary = readElectionTwoPartyPrimary();
 const generalElection = readElectionGeneral();
 
-const democraticPartyId = openPrimary.parties.find(
+const democraticPartyId = combinedBallotPrimary.parties.find(
   (p) => p.name === 'Democratic'
 )!.id;
-const republicanPartyId = openPrimary.parties.find(
+const republicanPartyId = combinedBallotPrimary.parties.find(
   (p) => p.name === 'Republican'
 )!.id;
 
-const democraticContest = openPrimary.contests.find(
+const democraticContest = combinedBallotPrimary.contests.find(
   (c): c is CandidateContest =>
     c.type === 'candidate' && c.partyId === democraticPartyId
 )!;
-const republicanContest = openPrimary.contests.find(
+const republicanContest = combinedBallotPrimary.contests.find(
   (c): c is CandidateContest =>
     c.type === 'candidate' && c.partyId === republicanPartyId
 )!;
-const nonpartisanContest = openPrimary.contests.find(
+const nonpartisanContest = combinedBallotPrimary.contests.find(
   (c): c is YesNoContest => c.type === 'yesno'
 )!;
 
 describe('partisanContests', () => {
   test('returns all partisan contests in an open primary', () => {
-    const result = partisanContests(openPrimary);
+    const result = partisanContests(combinedBallotPrimary);
 
     // Invariants:
     // - Every returned contest is a candidate contest with a partyId.
@@ -50,7 +50,7 @@ describe('partisanContests', () => {
     expect(result.every((c) => c.type === 'candidate')).toEqual(true);
     expect(result.every((c) => c.partyId !== undefined)).toEqual(true);
     const resultIds = new Set(result.map((c) => c.id));
-    const missingIds = openPrimary.contests
+    const missingIds = combinedBallotPrimary.contests
       .filter((c) => c.type === 'candidate' && c.partyId !== undefined)
       .map((c) => c.id)
       .filter((id) => !resultIds.has(id));
@@ -96,14 +96,14 @@ describe('partisanContests', () => {
 
 describe('votedPartyIds', () => {
   test('returns empty array when no partisan contests have selections', () => {
-    expect(votedPartyIds(openPrimary, {})).toEqual([]);
+    expect(votedPartyIds(combinedBallotPrimary, {})).toEqual([]);
     expect(
-      votedPartyIds(openPrimary, {
+      votedPartyIds(combinedBallotPrimary, {
         [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual([]);
     expect(
-      votedPartyIds(openPrimary, {
+      votedPartyIds(combinedBallotPrimary, {
         [democraticContest.id]: [],
         [republicanContest.id]: [],
       })
@@ -112,14 +112,14 @@ describe('votedPartyIds', () => {
 
   test('returns single party for single-party votes', () => {
     expect(
-      votedPartyIds(openPrimary, {
+      votedPartyIds(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
       })
     ).toEqual([democraticPartyId]);
   });
 
   test('returns all voted parties for multi-party votes', () => {
-    const result = votedPartyIds(openPrimary, {
+    const result = votedPartyIds(combinedBallotPrimary, {
       [democraticContest.id]: [democraticContest.candidates[0]!.id],
       [republicanContest.id]: [republicanContest.candidates[0]!.id],
     });
@@ -166,7 +166,7 @@ describe('hasCrossoverVote', () => {
 
   test('false for open primary single-party votes', () => {
     expect(
-      hasCrossoverVote(openPrimary, {
+      hasCrossoverVote(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
       })
     ).toEqual(false);
@@ -174,7 +174,7 @@ describe('hasCrossoverVote', () => {
 
   test('false for open primary nonpartisan-only votes', () => {
     expect(
-      hasCrossoverVote(openPrimary, {
+      hasCrossoverVote(combinedBallotPrimary, {
         [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual(false);
@@ -182,7 +182,7 @@ describe('hasCrossoverVote', () => {
 
   test('true for open primary multi-party votes', () => {
     expect(
-      hasCrossoverVote(openPrimary, {
+      hasCrossoverVote(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
         [republicanContest.id]: [republicanContest.candidates[0]!.id],
       })
@@ -192,11 +192,11 @@ describe('hasCrossoverVote', () => {
 
 describe('inferPartyFromVotes', () => {
   test('NO_PARTY_ID for open primary with no partisan votes', () => {
-    expect(inferPartyFromVotes(openPrimary, {})).toEqual(
+    expect(inferPartyFromVotes(combinedBallotPrimary, {})).toEqual(
       Tabulation.NO_PARTY_ID
     );
     expect(
-      inferPartyFromVotes(openPrimary, {
+      inferPartyFromVotes(combinedBallotPrimary, {
         [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
       })
     ).toEqual(Tabulation.NO_PARTY_ID);
@@ -204,7 +204,7 @@ describe('inferPartyFromVotes', () => {
 
   test('returns party for open primary single-party votes', () => {
     expect(
-      inferPartyFromVotes(openPrimary, {
+      inferPartyFromVotes(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
       })
     ).toEqual(democraticPartyId);
@@ -212,7 +212,7 @@ describe('inferPartyFromVotes', () => {
 
   test('NO_PARTY_ID for open primary crossover votes', () => {
     expect(
-      inferPartyFromVotes(openPrimary, {
+      inferPartyFromVotes(combinedBallotPrimary, {
         [democraticContest.id]: [democraticContest.candidates[0]!.id],
         [republicanContest.id]: [republicanContest.candidates[0]!.id],
       })
