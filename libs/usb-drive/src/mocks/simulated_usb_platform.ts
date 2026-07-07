@@ -4,11 +4,10 @@ import { isNonExistentFileOrDirectoryError, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import assert from 'node:assert';
 import {
-  closeSync,
-  constants,
+  linkSync,
   mkdirSync,
-  openSync,
   readFileSync,
+  renameSync,
   rmSync,
   watch,
   writeFileSync,
@@ -183,14 +182,15 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
   constructor(private readonly root: string) {
     mkdirSync(this.root, { recursive: true });
+    // Ensure the state file exists (so it can be read and watched) without
+    // clobbering one another process may have already populated. Write the
+    // initial value to a temp file and atomically hard-link it into place, so a
+    // concurrent reader never observes a partially-written or empty file and an
+    // existing file is left intact.
+    const initPath = `${this.stateFilePath}.${process.pid}.init`;
+    writeFileSync(initPath, JSON.stringify([]));
     try {
-      const fd = openSync(
-        this.stateFilePath,
-        // eslint-disable-next-line no-bitwise
-        constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY
-      );
-      writeFileSync(fd, JSON.stringify([]));
-      closeSync(fd);
+      linkSync(initPath, this.stateFilePath);
       debug('Created new devices file');
     } catch (e) {
       /* istanbul ignore next: unexpected errors should propagate */
@@ -198,6 +198,8 @@ export class SimulatedUsbPlatform implements UsbPlatform {
         throw e;
       }
       debug('Using existing devices file');
+    } finally {
+      rmSync(initPath, { force: true });
     }
   }
 
@@ -250,8 +252,13 @@ export class SimulatedUsbPlatform implements UsbPlatform {
 
     if (!this.watchController) {
       this.watchController = new AbortController();
+      // Watch the containing directory rather than the state file itself:
+      // writes replace the file via an atomic rename (see writeStateFile),
+      // which swaps the underlying inode and would leave a file-level watch
+      // stale. Every event in this dedicated directory concerns our state, so
+      // there is no need to filter by filename.
       watch(
-        this.stateFilePath,
+        this.root,
         { signal: this.watchController.signal },
         (event, file) => {
           debug('Watch event: %s %s', event, file);
@@ -570,6 +577,11 @@ export class SimulatedUsbPlatform implements UsbPlatform {
         device.partition?.mountpoint ?? 'unmounted'
       );
     }
-    writeFileSync(this.stateFilePath, JSON.stringify(devices, null, 2));
+    // Write to a temp file and atomically rename it into place so a concurrent
+    // reader in the shared-directory setup always sees a complete state file,
+    // never a truncated or empty one mid-write.
+    const tempPath = `${this.stateFilePath}.${process.pid}.tmp`;
+    writeFileSync(tempPath, JSON.stringify(devices, null, 2));
+    renameSync(tempPath, this.stateFilePath);
   }
 }
