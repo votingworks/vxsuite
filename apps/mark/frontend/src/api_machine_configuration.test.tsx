@@ -17,6 +17,7 @@ const mockBackendApi: ApiClient = {
   ...createApiClient(),
   configureElectionPackageFromUsb: vi.fn(),
   unconfigureMachine: vi.fn(),
+  printBlankBallot: vi.fn(),
 };
 
 function QueryWrapper(props: { children: React.ReactNode }) {
