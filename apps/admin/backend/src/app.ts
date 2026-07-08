@@ -167,6 +167,7 @@ import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
 import { generateReportsDirectoryPath } from './util/filenames';
 import { getHostServiceName } from './networking';
+import { timeout } from './util/timeout';
 
 const debug = rootDebug.extend('app');
 
@@ -207,6 +208,15 @@ function buildApi({
     // return the first FAT32 drive
     (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
   );
+
+  // Signals `waitForUsbDriveChange` long-polls. A change that lands between one
+  // long-poll resolving and the next one starting is missed here, but the
+  // frontend's slow fallback poll of `getUsbDriveStatus` covers that gap.
+  let nextUsbDriveChange = deferred<void>();
+  multiUsbDrive.addListener(() => {
+    nextUsbDriveChange.resolve();
+    nextUsbDriveChange = deferred<void>();
+  });
 
   function convertFrontendFilter(
     filter: Admin.FrontendReportingFilter
@@ -373,6 +383,17 @@ function buildApi({
 
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();
+    },
+
+    /**
+     * Waits for a USB drive change, with a 30-second timeout.
+     * @returns `true` if a change is detected, `false` if the timeout is reached.
+     */
+    async waitForUsbDriveChange(): Promise<boolean> {
+      // Use a timeout so Node.js doesn't just kill the request when no
+      // network activity is detected.
+      const result = await timeout(30_000, nextUsbDriveChange.promise);
+      return result.type === 'success';
     },
 
     async ejectUsbDrive(): Promise<void> {

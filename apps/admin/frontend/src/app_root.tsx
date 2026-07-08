@@ -5,12 +5,12 @@ import {
   getAuthStatus,
   getCurrentElectionMetadata,
   getMachineConfig,
-  getUsbDriveStatus,
 } from './api';
+import { useWatchUsbDriveStatus } from './hooks/use_watch_usb_drive_status';
 
 export function AppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const usbDriveStatusQuery = useWatchUsbDriveStatus();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
 

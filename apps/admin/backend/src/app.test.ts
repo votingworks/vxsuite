@@ -592,6 +592,33 @@ test('usbDrive', async () => {
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
+test('waitForUsbDriveChange resolves when a USB drive change is detected', async () => {
+  const { apiClient, usbPlatform } = buildTestEnvironment();
+  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+
+  let changed: boolean | undefined;
+  void apiClient.waitForUsbDriveChange().then((result) => {
+    changed = result;
+  });
+
+  // Toggle the drive's presence until the long-poll observes a change. Looping
+  // makes this robust against a change firing before the request reaches the
+  // backend handler.
+  let present = false;
+  await vi.waitFor(
+    () => {
+      present = !present;
+      if (present) {
+        usbPlatform.insertDrive(devsdb);
+      } else {
+        usbPlatform.removeDrive(devsdb);
+      }
+      expect(changed).toEqual(true);
+    },
+    { timeout: 10_000, interval: 250 }
+  );
+});
+
 test('usbDrive without proper auth', async () => {
   const { apiClient, auth, usbPlatform } = buildTestEnvironment();
   const electionDefinition =

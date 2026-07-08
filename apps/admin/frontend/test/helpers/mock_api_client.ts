@@ -93,6 +93,12 @@ export function createMockApiClient(): MockApiClient {
   (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
     () => Promise.resolve(false)
   );
+  // The USB drive watcher long-polls this continuously. Default it to a
+  // never-resolving promise; `createApiMock` replaces it with a controllable
+  // version that reports a change whenever the expected status is updated.
+  (mockApiClient.waitForUsbDriveChange as unknown as Mock) = vi.fn(
+    () => new Promise<boolean>(() => {})
+  );
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -147,6 +153,34 @@ function createDeferredMock<T, U>(
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
+  // Emulates the backend's `waitForUsbDriveChange` long-poll: each expected
+  // status change reports exactly one change, so the watcher refetches
+  // `getUsbDriveStatus` once (rather than idly polling). The pending flag
+  // covers the case where a change is reported before the watcher has
+  // re-issued its long-poll.
+  let usbDriveChange = deferred<boolean>();
+  let usbDriveChangeParked = false;
+  let usbDriveChangePending = false;
+  (apiClient.waitForUsbDriveChange as unknown as Mock).mockImplementation(
+    () => {
+      if (usbDriveChangePending) {
+        usbDriveChangePending = false;
+        return Promise.resolve(true);
+      }
+      usbDriveChange = deferred<boolean>();
+      usbDriveChangeParked = true;
+      return usbDriveChange.promise;
+    }
+  );
+  function reportUsbDriveChange(): void {
+    if (usbDriveChangeParked) {
+      usbDriveChangeParked = false;
+      usbDriveChange.resolve(true);
+    } else {
+      usbDriveChangePending = true;
+    }
+  }
+
   function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
     apiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
       connected: true,
@@ -258,6 +292,7 @@ export function createApiMock(
       apiClient.getUsbDriveStatus
         .expectRepeatedCallsWith()
         .resolves(mockUsbDriveStatus(status));
+      reportUsbDriveChange();
     },
 
     expectEjectUsbDrive(): void {
