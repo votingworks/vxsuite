@@ -24,18 +24,21 @@ export type CvrImporter =
       state: 'duplicate';
       existingImports: ExistingImports;
       result: CvrFileImportInfo;
+      reset: () => void;
       usbExports: CvrExport[];
     }
   | {
       state: 'error';
-      errorMessage?: string;
+      errorMessage: string;
       existingImports: ExistingImports;
       filename: string;
+      reset: () => void;
       usbExports: CvrExport[];
     }
   | {
       state: 'importing';
       existingImports: ExistingImports;
+      path: string;
       usbExports: CvrExport[];
     }
   | {
@@ -50,6 +53,7 @@ export type CvrImporter =
     }
   | {
       state: 'noUsb';
+      existingImports: ExistingImports;
       manualImportButton: React.ReactNode;
     }
   | {
@@ -57,6 +61,7 @@ export type CvrImporter =
       existingImports: ExistingImports;
       import: ImportFn;
       manualImportButton: React.ReactNode;
+      reset: () => void;
       result: CvrFileImportInfo;
       usbExports: CvrExport[];
     };
@@ -81,18 +86,7 @@ export function useCvrImporter(): CvrImporter {
     <ManualImportButton importFn={importMutation.mutate} />
   );
 
-  if (
-    usbDriveStatus.status === 'no_drive' ||
-    usbDriveStatus.status === 'ejected' ||
-    usbDriveStatus.status === 'error'
-  ) {
-    return {
-      state: 'noUsb',
-      manualImportButton,
-    };
-  }
-
-  if (!imports.isSuccess || !cvrMode.isSuccess || !usbExports.isSuccess) {
+  if (!imports.isSuccess || !cvrMode.isSuccess) {
     return { state: 'loading' };
   }
 
@@ -101,10 +95,27 @@ export function useCvrImporter(): CvrImporter {
     mode: cvrMode.data,
   };
 
+  if (
+    usbDriveStatus.status === 'no_drive' ||
+    usbDriveStatus.status === 'ejected' ||
+    usbDriveStatus.status === 'error'
+  ) {
+    return {
+      state: 'noUsb',
+      existingImports,
+      manualImportButton,
+    };
+  }
+
+  if (!usbExports.isSuccess) {
+    return { state: 'loading' };
+  }
+
   if (importMutation.status === 'loading') {
     return {
       state: 'importing',
       existingImports,
+      path: assertDefined(importMutation.variables).path,
       usbExports: usbExports.data,
     };
   }
@@ -116,6 +127,7 @@ export function useCvrImporter(): CvrImporter {
         errorMessage: errorMessage(importMutation.data.err()),
         existingImports,
         filename: assertDefined(importMutation.variables).path,
+        reset: importMutation.reset,
         usbExports: usbExports.data,
       };
     }
@@ -126,6 +138,7 @@ export function useCvrImporter(): CvrImporter {
       return {
         state: 'duplicate',
         existingImports,
+        reset: importMutation.reset,
         result,
         usbExports: usbExports.data,
       };
@@ -136,6 +149,7 @@ export function useCvrImporter(): CvrImporter {
       existingImports,
       import: importMutation.mutate,
       manualImportButton,
+      reset: importMutation.reset,
       result,
       usbExports: usbExports.data,
     };
