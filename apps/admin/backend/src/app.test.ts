@@ -592,19 +592,40 @@ test('usbDrive', async () => {
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
-test('waitForUsbDriveChange resolves when a USB drive change is detected', async () => {
+test('waitForUsbDriveChange returns immediately when the sequence is already ahead', async () => {
   const { apiClient, usbPlatform } = buildTestEnvironment();
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  // Attaching a drive advances the change sequence past the caller's `lastSeq`.
+  await attachUsbDrive(apiClient, usbPlatform);
 
-  let changed: boolean | undefined;
-  void apiClient.waitForUsbDriveChange().then((result) => {
-    changed = result;
+  // Because a change already happened, the poll resolves without waiting.
+  const seq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
+  expect(seq).toBeGreaterThan(0);
+});
+
+test('waitForUsbDriveChange waits for and reports the next change', async () => {
+  const { apiClient, usbPlatform } = buildTestEnvironment();
+  await attachUsbDrive(apiClient, usbPlatform);
+
+  // Learn the current sequence (this returns immediately since attaching the
+  // drive already advanced it), giving us a quiet baseline.
+  const baselineSeq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
+
+  // With no change since the baseline, this poll parks until the next change.
+  let observedSeq: number | undefined;
+  void apiClient.waitForUsbDriveChange({ lastSeq: baselineSeq }).then((seq) => {
+    observedSeq = seq;
   });
 
-  // Toggle the drive's presence until the long-poll observes a change. Looping
-  // makes this robust against a change firing before the request reaches the
-  // backend handler.
-  let present = false;
+  // The sequence can only advance when we drive `usbPlatform`, so it stays
+  // frozen here. A couple of round-trips give the poll time to park; it must
+  // not resolve while nothing has changed.
+  await apiClient.getUsbDriveStatus();
+  await apiClient.getUsbDriveStatus();
+  expect(observedSeq).toBeUndefined();
+
+  // Now a change wakes the parked poll. Toggle presence in case a single
+  // filesystem event is missed.
+  let present = true;
   await vi.waitFor(
     () => {
       present = !present;
@@ -613,7 +634,7 @@ test('waitForUsbDriveChange resolves when a USB drive change is detected', async
       } else {
         usbPlatform.removeDrive(devsdb);
       }
-      expect(changed).toEqual(true);
+      expect(observedSeq).toBeGreaterThan(baselineSeq);
     },
     { timeout: 10_000, interval: 250 }
   );

@@ -209,11 +209,16 @@ function buildApi({
     (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
   );
 
-  // Signals `waitForUsbDriveChange` long-polls. A change that lands between one
-  // long-poll resolving and the next one starting is missed here, but the
-  // frontend's slow fallback poll of `getUsbDriveStatus` covers that gap.
+  // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a
+  // monotonic counter bumped on every change; `nextUsbDriveChange` resolves to
+  // wake any parked long-polls. The counter makes the long-poll level-triggered
+  // rather than edge-triggered: a client passes the last sequence it saw, so a
+  // change that fires between two long-polls is reported on the next one
+  // instead of being lost.
+  let usbDriveChangeSeq = 0;
   let nextUsbDriveChange = deferred<void>();
   multiUsbDrive.addListener(() => {
+    usbDriveChangeSeq += 1;
     nextUsbDriveChange.resolve();
     nextUsbDriveChange = deferred<void>();
   });
@@ -386,14 +391,28 @@ function buildApi({
     },
 
     /**
-     * Waits for a USB drive change, with a 30-second timeout.
-     * @returns `true` if a change is detected, `false` if the timeout is reached.
+     * Long-polls for a USB drive change. The caller passes the last change
+     * sequence it observed; this resolves with the current sequence once it is
+     * ahead of `lastSeq` (i.e. a change has happened), or after a 30-second
+     * timeout with the sequence unchanged. Comparing sequences lets the caller
+     * detect a change that occurred between polls, so none are missed.
      */
-    async waitForUsbDriveChange(): Promise<boolean> {
-      // Use a timeout so Node.js doesn't just kill the request when no
-      // network activity is detected.
-      const result = await timeout(30_000, nextUsbDriveChange.promise);
-      return result.type === 'success';
+    async waitForUsbDriveChange({
+      lastSeq,
+    }: {
+      lastSeq: number;
+    }): Promise<number> {
+      // Capture the wake signal before reading the counter so a change firing
+      // between the two is still observed (either the counter is already ahead,
+      // or the promise we captured is the one it resolves).
+      const changed = nextUsbDriveChange.promise;
+      if (usbDriveChangeSeq > lastSeq) {
+        return usbDriveChangeSeq;
+      }
+      // Bound the wait so Node.js doesn't kill an idle request; on timeout the
+      // sequence is unchanged and the caller simply polls again.
+      await timeout(30_000, changed);
+      return usbDriveChangeSeq;
     },
 
     async ejectUsbDrive(): Promise<void> {

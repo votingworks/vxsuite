@@ -22,7 +22,7 @@ import type {
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
-import { Result, deferred, ok } from '@votingworks/basics';
+import { Deferred, Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { Buffer } from 'node:buffer';
 import {
@@ -97,7 +97,7 @@ export function createMockApiClient(): MockApiClient {
   // never-resolving promise; `createApiMock` replaces it with a controllable
   // version that reports a change whenever the expected status is updated.
   (mockApiClient.waitForUsbDriveChange as unknown as Mock) = vi.fn(
-    () => new Promise<boolean>(() => {})
+    () => new Promise<number>(() => {})
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -153,31 +153,28 @@ function createDeferredMock<T, U>(
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
-  // Emulates the backend's `waitForUsbDriveChange` long-poll: each expected
-  // status change reports exactly one change, so the watcher refetches
-  // `getUsbDriveStatus` once (rather than idly polling). The pending flag
-  // covers the case where a change is reported before the watcher has
-  // re-issued its long-poll.
-  let usbDriveChange = deferred<boolean>();
-  let usbDriveChangeParked = false;
-  let usbDriveChangePending = false;
+  // Emulates the backend's sequence-based `waitForUsbDriveChange` long-poll:
+  // each expected status change bumps the sequence, so the watcher refetches
+  // `getUsbDriveStatus` once (rather than idly polling). Comparing against
+  // `lastSeq` covers the case where a change is reported before the watcher
+  // has re-issued its long-poll — it simply returns the new sequence at once.
+  let usbDriveChangeSeq = 0;
+  let usbDriveChangeWaiter: Deferred<number> | undefined;
   (apiClient.waitForUsbDriveChange as unknown as Mock).mockImplementation(
-    () => {
-      if (usbDriveChangePending) {
-        usbDriveChangePending = false;
-        return Promise.resolve(true);
+    ({ lastSeq }: { lastSeq: number }) => {
+      if (usbDriveChangeSeq > lastSeq) {
+        return Promise.resolve(usbDriveChangeSeq);
       }
-      usbDriveChange = deferred<boolean>();
-      usbDriveChangeParked = true;
-      return usbDriveChange.promise;
+      usbDriveChangeWaiter = deferred<number>();
+      return usbDriveChangeWaiter.promise;
     }
   );
   function reportUsbDriveChange(): void {
-    if (usbDriveChangeParked) {
-      usbDriveChangeParked = false;
-      usbDriveChange.resolve(true);
-    } else {
-      usbDriveChangePending = true;
+    usbDriveChangeSeq += 1;
+    if (usbDriveChangeWaiter) {
+      const waiter = usbDriveChangeWaiter;
+      usbDriveChangeWaiter = undefined;
+      waiter.resolve(usbDriveChangeSeq);
     }
   }
 

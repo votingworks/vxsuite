@@ -9,7 +9,7 @@ import { useWatchUsbDriveStatus } from './use_watch_usb_drive_status';
 const USB_DRIVE_STATUS_QUERY_KEY = ['getUsbDriveStatus'];
 
 function buildApiClient(
-  waitForUsbDriveChange: () => Promise<boolean>
+  waitForUsbDriveChange: () => Promise<number>
 ): ApiClient {
   return {
     waitForUsbDriveChange: vi.fn(waitForUsbDriveChange),
@@ -31,8 +31,8 @@ function renderWatchHook(apiClient: ApiClient, queryClient: QueryClient) {
   });
 }
 
-function pending(): Promise<boolean> {
-  return new Promise<boolean>(() => {});
+function pending(): Promise<number> {
+  return new Promise<number>(() => {});
 }
 
 beforeEach(() => {
@@ -43,8 +43,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('invalidates the USB drive status query when a change is signaled', async () => {
-  const change = deferred<boolean>();
+test('invalidates the USB drive status query when the sequence advances', async () => {
+  const change = deferred<number>();
   let callCount = 0;
   const apiClient = buildApiClient(() => {
     callCount += 1;
@@ -55,18 +55,23 @@ test('invalidates the USB drive status query when a change is signaled', async (
 
   renderWatchHook(apiClient, queryClient);
   await waitFor(() =>
-    expect(apiClient.waitForUsbDriveChange).toHaveBeenCalled()
+    expect(apiClient.waitForUsbDriveChange).toHaveBeenCalledWith({ lastSeq: 0 })
   );
   expect(invalidateSpy).not.toHaveBeenCalled();
 
-  change.resolve(true);
+  // A sequence ahead of the caller's `lastSeq` means a change occurred.
+  change.resolve(1);
   await waitFor(() =>
     expect(invalidateSpy).toHaveBeenCalledWith(USB_DRIVE_STATUS_QUERY_KEY)
   );
+  // The next poll advances its cursor to the observed sequence.
+  await waitFor(() =>
+    expect(apiClient.waitForUsbDriveChange).toHaveBeenCalledWith({ lastSeq: 1 })
+  );
 });
 
-test('does not invalidate when the long-poll times out with no change', async () => {
-  const timeout = deferred<boolean>();
+test('does not invalidate when the sequence is unchanged (timeout)', async () => {
+  const timeout = deferred<number>();
   let callCount = 0;
   const apiClient = buildApiClient(() => {
     callCount += 1;
@@ -77,8 +82,9 @@ test('does not invalidate when the long-poll times out with no change', async ()
 
   renderWatchHook(apiClient, queryClient);
 
-  timeout.resolve(false);
-  // The loop should re-issue the long-poll without invalidating anything.
+  // The timeout resolves with the same sequence the caller passed in.
+  timeout.resolve(0);
+  // The loop re-issues the long-poll (still from seq 0) without invalidating.
   await waitFor(() =>
     expect(apiClient.waitForUsbDriveChange).toHaveBeenCalledTimes(2)
   );
