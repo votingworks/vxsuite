@@ -211,7 +211,9 @@ async function renderTown(
     ballotLayout: { ...baseElection.ballotLayout, paperSize },
   };
   const townName = election.jurisdiction.name;
-  const townDir = join(outDir, sanitize(`${townName} (${town.variant})`));
+  const variantDir =
+    town.variant === 'HandCount' ? 'Hand Count' : 'VotingWorks';
+  const townDir = join(outDir, variantDir, sanitize(townName));
   await mkdir(townDir, { recursive: true });
 
   const overflows: string[] = [];
