@@ -282,6 +282,8 @@ export function HandCountInsignia({
           fontFamily: 'Times New Roman',
           fontSize: '18pt',
           fontWeight: 'bold',
+          textAlign: 'center',
+          lineHeight: 1,
         }}
       >
         {electionStrings.jurisdictionName(election.jurisdiction)}
@@ -329,14 +331,28 @@ const arrowNextPage = (
 export function Footer({
   pageNumber,
   totalPages,
+  ballotMode,
   isHandCount,
   isFederalOfficeOnly,
 }: {
   pageNumber: number;
   totalPages?: number;
+  ballotMode?: BallotMode;
   isHandCount?: boolean;
   isFederalOfficeOnly?: boolean;
 }): JSX.Element {
+  // The QR code and ballot hash identify a ballot for machine scanning, so they
+  // don't belong on ballots that aren't scanned. Hand-count and
+  // federal-office-only ballots are never tabulated by machine (and hand-count
+  // ballots get no election package at all), so we collapse the slot entirely
+  // (`display: none`) and reclaim its footer height -- this can keep a ballot on
+  // a smaller paper size. Those variants are excluded from the ballot-position
+  // consistency check in render_ballot, so dropping the slot is safe. A sample,
+  // by contrast, must lay out identically to its official counterpart, so we
+  // keep the slot's footprint (`visibility: hidden`): the "0000000" placeholder
+  // stays out of sight but the footer height matches.
+  const collapseBallotMetadata = isHandCount || isFederalOfficeOnly;
+  const hideBallotMetadata = ballotMode === 'sample';
   return (
     <div
       style={{
@@ -345,8 +361,13 @@ export function Footer({
         gap: '1rem',
       }}
     >
-      <div>
-        <QrCodeSlot hideQrCode={isHandCount || isFederalOfficeOnly} />
+      <div
+        style={{
+          display: collapseBallotMetadata ? 'none' : undefined,
+          visibility: hideBallotMetadata ? 'hidden' : undefined,
+        }}
+      >
+        <QrCodeSlot />
         <div
           style={{
             fontSize: '8pt',

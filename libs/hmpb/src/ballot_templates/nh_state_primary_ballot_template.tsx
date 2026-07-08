@@ -142,7 +142,7 @@ function Header({
           flexDirection: 'column',
           justifyContent: 'space-between',
           alignSelf: 'stretch',
-          padding: '0 3rem',
+          padding: '0 0.5rem',
         }}
       >
         <h3 style={{ visibility: isFederalOfficeOnly ? 'visible' : 'hidden' }}>
@@ -160,7 +160,7 @@ function Header({
           {ballotTitle} For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
-          <h1 style={{ whiteSpace: 'nowrap' }}>
+          <h1 style={{ lineHeight: 1 }}>
             {electionStrings.jurisdictionName(election.jurisdiction)}
             {wardName ? ` ${wardName}` : ''}
           </h1>
@@ -354,6 +354,7 @@ export function BallotPageFrame({
             <Footer
               pageNumber={pageNumber}
               totalPages={totalPages}
+              ballotMode={ballotMode}
               isHandCount={isHandCount}
               isFederalOfficeOnly={isFederalOfficeOnly}
             />
