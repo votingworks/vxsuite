@@ -4,6 +4,9 @@ import {
   BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
+  DEFAULT_SYSTEM_SETTINGS,
+  earlyVotingPollingPlaceId,
+  EARLY_VOTING_POLLING_PLACE_NAME,
   Election,
   ElectionStringKey,
   hasSplits,
@@ -124,14 +127,18 @@ test('formatElectionForExport', () => {
   });
 });
 
-test('addPollingPlacesForExport - non-editing state generates election_day places plus a Central Scanning absentee place', () => {
+test('addPollingPlacesForExport - non-editing state generates election_day places plus a central scanning absentee place', () => {
   const electionInput: Election = {
     ...election,
     pollingPlaces: [],
   };
 
-  const result = addPollingPlacesForExport(electionInput, msJurisdiction);
-  const pollingPlaces = result.pollingPlaces ?? [];
+  const result = addPollingPlacesForExport(
+    electionInput,
+    msJurisdiction,
+    DEFAULT_SYSTEM_SETTINGS
+  );
+  const { pollingPlaces } = result;
 
   // One election_day place per precinct (existing behavior).
   expect(
@@ -155,6 +162,41 @@ test('addPollingPlacesForExport - non-editing state generates election_day place
       ),
     },
   ]);
+
+  // Early voting is not enabled, so no early voting place is generated.
+  expect(pollingPlaces.some((place) => place.type === 'early_voting')).toEqual(
+    false
+  );
+});
+
+test('addPollingPlacesForExport - generates an early voting polling place when early voting is enabled', () => {
+  const electionInput: Election = {
+    ...election,
+    pollingPlaces: [],
+  };
+
+  const result = addPollingPlacesForExport(electionInput, msJurisdiction, {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    enableEarlyVoting: true,
+  });
+  const { pollingPlaces } = result;
+
+  const earlyVotingPlaces = pollingPlaces.filter(
+    (place) => place.type === 'early_voting'
+  );
+  expect(earlyVotingPlaces).toEqual([
+    {
+      id: earlyVotingPollingPlaceId(electionInput.id),
+      name: EARLY_VOTING_POLLING_PLACE_NAME,
+      type: 'early_voting',
+      precincts: Object.fromEntries(
+        electionInput.precincts.map((precinct) => [
+          precinct.id,
+          { type: 'whole' },
+        ])
+      ),
+    },
+  ]);
 });
 
 test('addPollingPlacesForExport - state that allows empty absentee polling places gets no Central Scanning place', () => {
@@ -163,7 +205,11 @@ test('addPollingPlacesForExport - state that allows empty absentee polling place
     pollingPlaces: [],
   };
 
-  const result = addPollingPlacesForExport(electionInput, nhJurisdiction);
+  const result = addPollingPlacesForExport(
+    electionInput,
+    nhJurisdiction,
+    DEFAULT_SYSTEM_SETTINGS
+  );
   const pollingPlaces = result.pollingPlaces ?? [];
 
   expect(pollingPlaces).toHaveLength(electionInput.precincts.length);
@@ -183,7 +229,11 @@ test('addPollingPlacesForExport - editing state keeps user-created absentee plac
   ];
   const electionInput: Election = { ...election, pollingPlaces };
 
-  const result = addPollingPlacesForExport(electionInput, miJurisdiction);
+  const result = addPollingPlacesForExport(
+    electionInput,
+    miJurisdiction,
+    DEFAULT_SYSTEM_SETTINGS
+  );
 
   // Nothing added; the election is returned unchanged.
   expect(result).toEqual(electionInput);
@@ -201,7 +251,11 @@ test('addPollingPlacesForExport - editing state does not generate a Central Scan
   ];
   const electionInput: Election = { ...election, pollingPlaces };
 
-  const result = addPollingPlacesForExport(electionInput, miJurisdiction);
+  const result = addPollingPlacesForExport(
+    electionInput,
+    miJurisdiction,
+    DEFAULT_SYSTEM_SETTINGS
+  );
 
   // Editing states are validated at finalization instead of having a Central
   // Scanning place auto-generated, so nothing is added here.

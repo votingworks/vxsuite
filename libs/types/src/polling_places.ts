@@ -183,6 +183,16 @@ export function centralScanningPollingPlaceId(electionId: string): string {
 export const CENTRAL_SCANNING_POLLING_PLACE_NAME = 'Central Scanning';
 
 /**
+ * The id and name of the default "Early Voting" polling place, derived
+ * deterministically from the election id following the same convention as
+ * {@link centralScanningPollingPlaceId}.
+ */
+export function earlyVotingPollingPlaceId(electionId: string): string {
+  return `${electionId}-early-voting`;
+}
+export const EARLY_VOTING_POLLING_PLACE_NAME = 'Early Voting';
+
+/**
  * Returns the precincts not covered by any absentee polling place, i.e.
  * precincts whose centrally-scanned ballots would have no location to be
  * tabulated under.

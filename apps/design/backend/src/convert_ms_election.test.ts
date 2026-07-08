@@ -46,7 +46,13 @@ async function expectValidElection(election: Election) {
   // polling places; they are generated at export. Validate the export form.
   const stored = (await store.getElection(election.id)).election;
   expect(
-    safeParseElection(addPollingPlacesForExport(stored, jurisdiction)).err()
+    safeParseElection(
+      addPollingPlacesForExport(
+        stored,
+        jurisdiction,
+        defaultSystemSettings(jurisdiction)
+      )
+    ).err()
   ).toBeUndefined();
 }
 

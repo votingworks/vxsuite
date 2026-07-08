@@ -62,7 +62,8 @@ export async function generateTestDecks(
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
   const election = addPollingPlacesForExport(
     electionRecord.election,
-    jurisdiction
+    jurisdiction,
+    systemSettings
   );
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
