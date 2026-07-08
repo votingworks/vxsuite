@@ -117,8 +117,6 @@ interface ContestBuilder {
   seats: number;
   allowWriteIns: boolean;
   candidates: Candidate[];
-  // Candidate-name lists from each contributing file, for drift detection.
-  candidateNamesByFile: Array<string[]>;
 }
 
 function parseSeats(winnerNote: string): number {
@@ -166,7 +164,7 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
   const districtsByName = new Map<string, District>();
   const precinctsByName = new Map<string, PrecinctWithoutSplits>();
   const partiesByName = new Map<string, Party>();
-  // Canonical contests keyed by `${partyId ?? ''}|${officeTitle}`.
+  // Canonical contests keyed by `${partyId ?? ''}|${officeTitle}|${districtName}`.
   const contestsByKey = new Map<string, ContestBuilder>();
   // Canonical candidate IDs keyed by `${contestKey}|${candidateName}`.
   const candidateIdsByKey = new Map<string, string>();
@@ -202,6 +200,97 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     return Array.isArray(info.Name) ? info.Name.join('<br/>') : info.Name;
   }
 
+  function namedCandidateInfosFor(
+    contestInfo: NhBallotStyle['AVSInterface']['Candidates'][number]
+  ) {
+    const list = Array.isArray(contestInfo.CandidateName)
+      ? contestInfo.CandidateName
+      : contestInfo.CandidateName
+      ? [contestInfo.CandidateName]
+      : [];
+    return list.filter((info) => candidateName(info) !== '');
+  }
+
+  function precinctNameFor(headerInfo: { WardName: string | number }): string {
+    return headerInfo.WardName ? `Ward ${headerInfo.WardName}` : townName;
+  }
+
+  function districtNameForWards(wards: string[]): string {
+    if (wards.some((w) => !/^Ward .+$/.test(w))) {
+      return wards.slice().sort().join(', ');
+    }
+    const wardNumbers = wards
+      .map((w) => w.replace(/^Ward /, ''))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    return `Wards ${wardNumbers.join(', ')}`;
+  }
+
+  // NH omits the district from some county office titles (e.g. "For County
+  // Commissioner"), even though a city's wards can fall in different districts
+  // with different candidates. The source carries no district field, so infer
+  // it: group a town's wards by the combined (cross-party) set of candidates for
+  // each office. An office whose wards fall into more than one disjoint group is
+  // split into a separate district per group (named after its wards); every
+  // other office keeps its single, office-titled district.
+  const candidatesByOfficeWard = new Map<string, Map<string, Set<string>>>();
+  for (const nhBallotStyle of nhBallotStyles) {
+    const { HeaderInfo, Candidates } = nhBallotStyle.AVSInterface;
+    const precinctName = precinctNameFor(HeaderInfo);
+    for (const contestInfo of Candidates) {
+      const officeTitle = cleanString(contestInfo.OfficeName.Name);
+      const byWard = candidatesByOfficeWard.get(officeTitle) ?? new Map();
+      const names = byWard.get(precinctName) ?? new Set<string>();
+      for (const info of namedCandidateInfosFor(contestInfo)) {
+        names.add(candidateName(info));
+      }
+      byWard.set(precinctName, names);
+      candidatesByOfficeWard.set(officeTitle, byWard);
+    }
+  }
+
+  // officeTitle -> precinctName -> district name to use for that office there.
+  const districtNameByOfficeWard = new Map<string, Map<string, string>>();
+  for (const [officeTitle, byWard] of candidatesByOfficeWard) {
+    const wardsBySignature = new Map<string, string[]>();
+    for (const [precinctName, names] of byWard) {
+      const signature = [...names].sort().join('\n');
+      const wards = wardsBySignature.get(signature) ?? [];
+      wards.push(precinctName);
+      wardsBySignature.set(signature, wards);
+    }
+
+    // If wards disagree but their candidate lists overlap, that's more likely a
+    // spelling difference than distinct districts -- don't split, just warn.
+    const candidateSets = [...wardsBySignature.keys()]
+      .filter((signature) => signature !== '')
+      .map((signature) => new Set(signature.split('\n')));
+    const hasOverlap = candidateSets.some((set, i) =>
+      candidateSets
+        .slice(i + 1)
+        .some((other) => [...set].some((name) => other.has(name)))
+    );
+
+    const wardToDistrictName = new Map<string, string>();
+    if (wardsBySignature.size <= 1 || hasOverlap) {
+      if (hasOverlap) {
+        console.warn(
+          `Warning: "${officeTitle}" has differing but overlapping candidate names across wards -- treating as one contest (possible spelling drift)`
+        );
+      }
+      for (const precinctName of byWard.keys()) {
+        wardToDistrictName.set(precinctName, officeTitle);
+      }
+    } else {
+      for (const wards of wardsBySignature.values()) {
+        const districtName = districtNameForWards(wards);
+        for (const precinctName of wards) {
+          wardToDistrictName.set(precinctName, districtName);
+        }
+      }
+    }
+    districtNameByOfficeWard.set(officeTitle, wardToDistrictName);
+  }
+
   for (const nhBallotStyle of nhBallotStyles) {
     const { HeaderInfo, Candidates } = nhBallotStyle.AVSInterface;
     const party = HeaderInfo.PartyName
@@ -211,14 +300,18 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     const districtIdsForBallotStyle: string[] = [];
     const orderedCandidatesByContest: Record<string, OrderedCandidateOption[]> =
       {};
+    const precinctName = precinctNameFor(HeaderInfo);
 
     for (const contestInfo of Candidates) {
       const officeTitle = cleanString(contestInfo.OfficeName.Name);
-      const district = getOrCreateDistrict(officeTitle);
+      const districtName = assertDefined(
+        districtNameByOfficeWard.get(officeTitle)?.get(precinctName)
+      );
+      const district = getOrCreateDistrict(districtName);
       districtIdsForBallotStyle.push(district.id);
 
       const seats = parseSeats(contestInfo.OfficeName.WinnerNote);
-      const contestKey = `${party?.id ?? ''}|${officeTitle}`;
+      const contestKey = `${party?.id ?? ''}|${officeTitle}|${districtName}`;
 
       let contest = contestsByKey.get(contestKey);
       if (contest) {
@@ -232,19 +325,11 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
           seats,
           allowWriteIns: contestInfo.WriteIn !== undefined,
           candidates: [],
-          candidateNamesByFile: [],
         };
         contestsByKey.set(contestKey, contest);
       }
 
-      const candidateInfos = Array.isArray(contestInfo.CandidateName)
-        ? contestInfo.CandidateName
-        : contestInfo.CandidateName
-        ? [contestInfo.CandidateName]
-        : [];
-      const namedCandidateInfos = candidateInfos.filter(
-        (info) => candidateName(info) !== ''
-      );
+      const namedCandidateInfos = namedCandidateInfosFor(contestInfo);
 
       // Assign a stable canonical ID per candidate name; record this file's
       // candidate order referencing those IDs.
@@ -266,13 +351,9 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
         }
         order.push({ id: candidateId });
       }
-      contest.candidateNamesByFile.push(namedCandidateInfos.map(candidateName));
       orderedCandidatesByContest[contest.id] = order;
     }
 
-    const precinctName = HeaderInfo.WardName
-      ? `Ward ${HeaderInfo.WardName}`
-      : townName;
     const precinct = precinctsByName.get(precinctName) ?? {
       id: generateId(),
       name: precinctName,
@@ -295,26 +376,6 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
       languages: ['en'],
       orderedCandidatesByContest,
     });
-  }
-
-  // Warn if a shared contest has inconsistent candidate names across the files
-  // that include it (e.g. spelling drift), which would split one candidate into
-  // two canonical entries.
-  for (const contest of contestsByKey.values()) {
-    const nameSets = contest.candidateNamesByFile.map((names) =>
-      [...names].sort().join('\n')
-    );
-    if (unique(nameSets).length > 1) {
-      console.warn(
-        `Warning: inconsistent candidate names across wards for contest "${
-          contest.title
-        }" (party ${
-          contest.partyId
-        }). Canonical candidates: ${contest.candidates
-          .map((c) => c.name)
-          .join(', ')}`
-      );
-    }
   }
 
   const contests: CandidateContest[] = [...contestsByKey.values()].map(
