@@ -3,10 +3,13 @@ import {
   BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
+  earlyVotingPollingPlaceId,
+  EARLY_VOTING_POLLING_PLACE_NAME,
   Election,
   hasSplits,
   PollingPlace,
   pollingPlacesGenerateFromPrecincts,
+  SystemSettings,
   UiStringsPackage,
 } from '@votingworks/types';
 import {
@@ -41,20 +44,20 @@ export function defaultBallotTemplate(
   }
 }
 
-function centralScanningPollingPlace(election: Election): PollingPlace {
-  return {
-    id: centralScanningPollingPlaceId(election.id),
-    name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
-    type: 'absentee',
-    precincts: Object.fromEntries(
-      election.precincts.map((precinct) => [precinct.id, { type: 'whole' }])
-    ),
-  };
+function allPrecinctsWhole(election: Election): PollingPlace['precincts'] {
+  return Object.fromEntries(
+    election.precincts.map((precinct) => [precinct.id, { type: 'whole' }])
+  );
 }
 
+/**
+ * Auto-generates polling places for states that don't require the ability to custom define them
+ * and for whom we accordingly hide the polling place editor.
+ */
 export function addPollingPlacesForExport(
   election: Election,
-  jurisdiction: Jurisdiction
+  jurisdiction: Jurisdiction,
+  systemSettings: SystemSettings
 ): Election {
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
@@ -62,20 +65,34 @@ export function addPollingPlacesForExport(
     return election;
   }
 
-  // Generate election day polling places from precincts and unless
-  // this state allows elections with no absentee polling places, add a single
-  // Central Scanning absentee place covering all precincts.
+  // Generate an election day polling place for each precinct
   const pollingPlaces = pollingPlacesGenerateFromPrecincts(
     election.precincts,
     'election_day',
     (p) => `${p.id}-polling-place`
   );
-  return {
-    ...election,
-    pollingPlaces: stateFeatures.OMIT_ABSENTEE_POLLING_PLACES
-      ? pollingPlaces
-      : [...pollingPlaces, centralScanningPollingPlace(election)],
-  };
+
+  // Generate a single central scanning polling place covering all precincts if necessary
+  if (!stateFeatures.OMIT_ABSENTEE_POLLING_PLACES) {
+    pollingPlaces.push({
+      id: centralScanningPollingPlaceId(election.id),
+      name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
+      type: 'absentee',
+      precincts: allPrecinctsWhole(election),
+    });
+  }
+
+  // Generate a single early voting polling place covering all precincts if necessary
+  if (systemSettings.enableEarlyVoting) {
+    pollingPlaces.push({
+      id: earlyVotingPollingPlaceId(election.id),
+      name: EARLY_VOTING_POLLING_PLACE_NAME,
+      type: 'early_voting',
+      precincts: allPrecinctsWhole(election),
+    });
+  }
+
+  return { ...election, pollingPlaces };
 }
 
 export function formatElectionForExport(
