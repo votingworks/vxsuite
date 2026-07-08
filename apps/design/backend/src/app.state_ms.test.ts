@@ -2,6 +2,8 @@ import { vi, afterAll, expect, test } from 'vitest';
 import {
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
+  earlyVotingPollingPlaceId,
+  EARLY_VOTING_POLLING_PLACE_NAME,
   ElectionIdSchema,
   formatBallotHash,
   HmpbBallotPaperSize,
@@ -227,7 +229,7 @@ test('finalizing a Mississippi election does not require absentee polling places
   );
 });
 
-test('a Central Scanning absentee polling place is added to the export for Mississippi', async () => {
+test('a central scanning absentee polling place and an early voting polling place are added to the export for Mississippi', async () => {
   const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
@@ -273,10 +275,8 @@ test('a Central Scanning absentee polling place is added to the export for Missi
     await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap();
 
-  // A single Central Scanning absentee place covering every precinct is added
-  // on export, since Mississippi has no user-defined absentee polling places.
   const exportedElection = electionPackage.electionDefinition.election;
-  const absenteePlaces = (exportedElection.pollingPlaces ?? []).filter(
+  const absenteePlaces = exportedElection.pollingPlaces.filter(
     (place) => place.type === 'absentee'
   );
   expect(absenteePlaces).toEqual([
@@ -284,6 +284,22 @@ test('a Central Scanning absentee polling place is added to the export for Missi
       id: centralScanningPollingPlaceId(exportedElection.id),
       name: CENTRAL_SCANNING_POLLING_PLACE_NAME,
       type: 'absentee',
+      precincts: Object.fromEntries(
+        exportedElection.precincts.map((precinct) => [
+          precinct.id,
+          { type: 'whole' },
+        ])
+      ),
+    },
+  ]);
+  const earlyVotingPlaces = exportedElection.pollingPlaces.filter(
+    (place) => place.type === 'early_voting'
+  );
+  expect(earlyVotingPlaces).toEqual([
+    {
+      id: earlyVotingPollingPlaceId(exportedElection.id),
+      name: EARLY_VOTING_POLLING_PLACE_NAME,
+      type: 'early_voting',
       precincts: Object.fromEntries(
         exportedElection.precincts.map((precinct) => [
           precinct.id,

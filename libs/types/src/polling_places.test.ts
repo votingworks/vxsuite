@@ -23,7 +23,18 @@ import {
   pollingPlacesGenerateFromPrecincts,
   pollingPlaceTypeName,
   getPrecinctsWithoutAbsenteePollingPlace,
+  centralScanningPollingPlaceId,
+  earlyVotingPollingPlaceId,
 } from './polling_places';
+
+test('deterministic default polling place ids', () => {
+  expect(centralScanningPollingPlaceId('election-1')).toEqual(
+    'election-1-central-scanning'
+  );
+  expect(earlyVotingPollingPlaceId('election-1')).toEqual(
+    'election-1-early-voting'
+  );
+});
 
 test('anyPollingPlace', () => {
   expect(() => anyPollingPlace(mockElection({}))).toThrow(/no polling places/i);
