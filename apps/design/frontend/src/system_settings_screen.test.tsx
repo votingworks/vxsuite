@@ -626,7 +626,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(41);
+  expect(allControls).toHaveLength(42);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -841,6 +841,21 @@ test.each<{
     checkboxLabel: 'Enable Test Deck Printing',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { enableTestDeckPrinting: true },
+  },
+  {
+    userFeatures: {
+      VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: false,
+    },
+    checkboxLabel: 'Allow Printing Blank Ballots from VxMark',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: {
+      VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
+    },
+    checkboxLabel: 'Allow Printing Blank Ballots from VxMark',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { allowPrintingBlankBallotsFromVxMark: true },
   },
 ])(
   'feature-flagged system settings toggles - $checkboxLabel',

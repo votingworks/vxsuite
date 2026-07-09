@@ -778,6 +778,23 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
+            {features.VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Enable Printing Blank Ballots from VxMark"
+                isChecked={Boolean(
+                  systemSettings.allowPrintingBlankBallotsFromVxMark
+                )}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    allowPrintingBlankBallotsFromVxMark: isChecked
+                      ? true
+                      : undefined,
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
             <CheckboxButton
               label="Include Redundant Metadata in CVRs"
               isChecked={Boolean(

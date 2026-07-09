@@ -17,6 +17,7 @@ import {
   safeParseSystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   safeParseJson,
+  SystemSettings,
   SystemSettingsSchema,
   ElectionDefinition,
   PrinterStatus,
@@ -388,17 +389,21 @@ async function expectElectionState(expected: Partial<ElectionState>) {
 async function configureMachine(
   usbDrive: MockUsbDrive,
   electionDefinition: ElectionDefinition,
-  uiStrings?: UiStringsPackage
+  uiStrings?: UiStringsPackage,
+  systemSettingsOverrides: Partial<SystemSettings> = {}
 ) {
   mockElectionManagerAuth(electionDefinition);
 
   usbDrive.insertUsbDrive(
     await mockElectionPackageFileTree({
       electionDefinition,
-      systemSettings: safeParseJson(
-        systemSettings.asText(),
-        SystemSettingsSchema
-      ).unsafeUnwrap(),
+      systemSettings: {
+        ...safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        ...systemSettingsOverrides,
+      },
       uiStrings,
     })
   );
@@ -591,10 +596,13 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   mockUsbDrive.insertUsbDrive(
     await mockElectionPackageFileTree({
       electionDefinition,
-      systemSettings: safeParseJson(
-        systemSettings.asText(),
-        SystemSettingsSchema
-      ).unsafeUnwrap(),
+      systemSettings: {
+        ...safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        allowPrintingBlankBallotsFromVxMark: true,
+      },
       ballots,
     })
   );
@@ -624,7 +632,9 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
 test('printing a blank ballot throws when no ballot PDF is available', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  await configureMachine(mockUsbDrive, electionDefinition);
+  await configureMachine(mockUsbDrive, electionDefinition, undefined, {
+    allowPrintingBlankBallotsFromVxMark: true,
+  });
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   await suppressingConsoleOutput(async () => {
@@ -635,6 +645,23 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
         languageCode: 'en',
       })
     ).rejects.toThrow('No ballot PDF found');
+  });
+});
+
+test('printing a blank ballot throws when the setting is not enabled', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await configureMachine(mockUsbDrive, electionDefinition);
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.printBlankBallot({
+        ballotStyleId: '1',
+        precinctId: '23',
+        languageCode: 'en',
+      })
+    ).rejects.toThrow('Printing blank ballots from VxMark is not enabled');
   });
 });
 

@@ -87,6 +87,11 @@ export interface UserFeaturesConfig {
    * Requires the system settings screen to be enabled.
    */
   TEST_DECK_PRINTING_SYSTEM_SETTING?: boolean;
+  /**
+   * Allow the user to toggle printing blank ballots from VxMark.
+   * Requires the system settings screen to be enabled.
+   */
+  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING?: boolean;
 }
 
 /**
@@ -212,6 +217,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
   VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,
+  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
 };
 
 export const userFeatureConfigs = {
