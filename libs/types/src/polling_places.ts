@@ -117,6 +117,14 @@ export function pollingPlaceGroups(
   return groups;
 }
 
+export function getConfiguredPrecinctsAndSplits(p: {
+  election: Election;
+  pollingPlaceId: string;
+}): PrecinctOrSplit[] {
+  const pollingPlace = pollingPlaceFromElection(p.election, p.pollingPlaceId);
+  return pollingPlaceMembers(p.election, pollingPlace);
+}
+
 /**
  * All precincts and/or splits in the given election covered by the given
  * polling place.
