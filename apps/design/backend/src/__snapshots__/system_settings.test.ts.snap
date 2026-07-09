@@ -98,6 +98,8 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
   "disableSystemLimitChecks": true,
   "disableVoterHelpButtons": true,
   "disallowCastingOvervotes": false,
+  "disallowClosingPollsBeforeElectionDayPollsCloseTime": true,
+  "electionDayPollsCloseTime": "19:00:00",
   "enableEarlyVoting": true,
   "enableTestDeckPrinting": true,
   "markThresholds": {

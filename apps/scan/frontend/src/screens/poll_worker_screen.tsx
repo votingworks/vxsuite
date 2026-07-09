@@ -405,7 +405,6 @@ function PollWorkerScreenContents({
 
   const isClosingPollsBlocked =
     !isTestMode &&
-    ballotCastingMode === 'election_day' &&
     systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime &&
     pollsCloseTime !== undefined &&
     now < pollsCloseTime;
@@ -417,6 +416,14 @@ function PollWorkerScreenContents({
     isTestMode &&
     pollsCloseTime !== undefined &&
     systemSettings.disallowClosingPollsBeforeElectionDayPollsCloseTime;
+
+  const closePollsBlockedMessage = isClosingPollsBlocked ? (
+    <React.Fragment>
+      {' '}
+      Polls cannot be closed until{' '}
+      {pollsCloseTime.toLocaleString(DateTime.TIME_SIMPLE)}.
+    </React.Fragment>
+  ) : null;
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
@@ -590,7 +597,9 @@ function PollWorkerScreenContents({
 
   if (
     isClosingPollsBlocked &&
-    pollWorkerFlowState?.type === 'close-polls-prompt'
+    pollWorkerFlowState?.type === 'close-polls-prompt' &&
+    // Default action when in early voting mode is pausing polls, which is fine to display
+    ballotCastingMode !== 'early_voting'
   ) {
     // Skip the close-polls prompt and fall through to render the pollworker menu below
   } else if (pollWorkerFlowState) {
@@ -835,18 +844,10 @@ function PollWorkerScreenContents({
             <Container>
               {closePollsWarningModal}
               <P>
-                {isClosingPollsBlocked ? (
-                  <React.Fragment>
-                    The polls are <Font weight="bold">open</Font>. Polls cannot
-                    be closed until{' '}
-                    {pollsCloseTime.toLocaleString(DateTime.TIME_SIMPLE)}.
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    The polls are <Font weight="bold">open</Font>. Close the
-                    polls to end voting.
-                  </React.Fragment>
-                )}
+                The polls are <Font weight="bold">open</Font>.
+                {isClosingPollsBlocked
+                  ? closePollsBlockedMessage
+                  : ' Close the polls to end voting.'}
               </P>
               <ButtonGrid>
                 <Button
@@ -877,6 +878,7 @@ function PollWorkerScreenContents({
             {closePollsWarningModal}
             <P>
               The polls are <Font weight="bold">open</Font>.
+              {closePollsBlockedMessage}
             </P>
             <ButtonGrid>
               <Button variant="primary" onPress={pauseVoting}>
@@ -888,6 +890,7 @@ function PollWorkerScreenContents({
               <Button
                 onPress={handleClosePollsPress}
                 disabled={
+                  isClosingPollsBlocked ||
                   !shouldAllowTogglingPolls(
                     printerSummary,
                     mustInsertUsbDriveToContinue
@@ -907,6 +910,7 @@ function PollWorkerScreenContents({
           <Container>
             <P>
               Voting is <Font weight="bold">paused</Font>.
+              {closePollsBlockedMessage}
             </P>
             <ButtonGrid>
               <Button
@@ -927,6 +931,7 @@ function PollWorkerScreenContents({
               <Button
                 onPress={handleClosePollsPress}
                 disabled={
+                  isClosingPollsBlocked ||
                   !shouldAllowTogglingPolls(
                     printerSummary,
                     mustInsertUsbDriveToContinue

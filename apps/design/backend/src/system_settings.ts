@@ -100,6 +100,8 @@ export const stateDefaultSystemSettings: Record<StateCode, SystemSettings> = {
     adminAdjudicationReasons: [],
 
     bmdPrintMode: 'summary',
+    disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+    electionDayPollsCloseTime: '19:00:00',
     enableEarlyVoting: true,
     enableTestDeckPrinting: true,
     precinctScanNumberOfReportCopies: 2,
