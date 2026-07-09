@@ -39,7 +39,7 @@
     "@storybook/types": "^7.2.2",
     "@types/eslint": "8.4.1",
     "@typescript-eslint/parser": "8.59.2",
-    "@typescript/native-preview": "7.0.0-dev.20260120.1",
+    "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "8.57.0",
     "husky": "^7.0.0",
     "lint-staged": "^15.0.0",
@@ -50,7 +50,7 @@
     "storybook": "^7.2.2",
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0",
-    "typescript": "5.8.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@9.15.9",
@@ -61,7 +61,7 @@
       "brace-expansion": "1.1.13",
       "graceful-fs": "^4.2.9",
       "nan": "^2.20.0",
-      "typescript": "5.8.3"
+      "typescript": "npm:@typescript/typescript6@6.0.2"
     }
   }
 }

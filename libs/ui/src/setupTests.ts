@@ -21,7 +21,7 @@ declare module 'vitest' {
   // vitest own `Assertion<T>` extends both `JestAssertion<T>` and
   // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
   // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`
-  // triggers tsgo to re-validate the merged interface and surface that
+  // triggers TypeScript to re-validate the merged interface and surface that
   // conflict (TS2320). Override the conflicting members here with a
   // signature compatible with both so the merge resolves cleanly.
   interface Assertion<T = any> {

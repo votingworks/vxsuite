@@ -13,7 +13,7 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest",
-    "type-check": "tsgo --build"
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@types/node": "20.17.31",
