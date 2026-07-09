@@ -724,7 +724,7 @@ export function BmdPaperBallot({
   pageNumber,
   totalPages,
   ballotAuditId,
-  contestsForPage: contests,
+  contestsForPage,
 }: BmdPaperBallotProps): JSX.Element {
   const {
     election,
@@ -734,6 +734,15 @@ export function BmdPaperBallot({
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
   const primaryBallotLanguage = assertDefined(ballotStyle.languages[0]);
+
+  // The ballot encoder canonicalizes order internally, but we still want to
+  // canonicalize the order here too so that the contests on the ballot are
+  // rendered in a consistent, expected order.
+  const contestIdsForPage = new Set(contestsForPage.map((c) => c.id));
+  const contestsForPageInCanonicalOrder = getContests({
+    ballotStyle,
+    election,
+  }).filter((c) => contestIdsForPage.has(c.id));
 
   const precinctOrSplit = find(
     getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
@@ -754,14 +763,16 @@ export function BmdPaperBallot({
     pageNumber,
     totalPages,
     ballotAuditId,
-    contests,
+    contests: contestsForPageInCanonicalOrder,
   });
 
   const ballotLayout =
     layout ??
     getLayout(machineType, ballotStyleId, electionDefinition).unsafeUnwrap();
 
-  const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
+  const numColumns = Math.ceil(
+    contestsForPageInCanonicalOrder.length / ballotLayout.maxRows
+  );
 
   const isCombinedBallotPrimaryElection = isCombinedBallotPrimary(election);
 
@@ -868,14 +879,17 @@ export function BmdPaperBallot({
               </div>
             </div>
             <QrCode
-              level={qrCodeLevelOverride(contests, votes)}
+              level={qrCodeLevelOverride(
+                contestsForPageInCanonicalOrder,
+                votes
+              )}
               value={fromByteArray(encodedBallot)}
             />
           </QrCodeContainer>
         </Header>
         <Content layout={ballotLayout}>
           <BallotSelections numColumns={numColumns}>
-            {contests.map((contest) => {
+            {contestsForPageInCanonicalOrder.map((contest) => {
               const contestParty =
                 isCombinedBallotPrimaryElection &&
                 contest.type === 'candidate' &&

@@ -535,7 +535,14 @@ export function encodeSummaryBallotPageInto(
 
   // Encode which contests are on this page as a bitmap
   // One bit per contest in the ballot style, true if contest is on this page
-  const contestsOnPage = new Set(contests.map((c) => c.id));
+  const contestIdsOnPage = new Set(contests.map((c) => c.id));
+
+  // Encode votes in canonical `getContests` order, which is the order the
+  // decoder expects them in. Don't rely on callers to handle this ordering
+  // themselves.
+  const contestsOnPageInCanonicalOrder = allContests.filter((c) =>
+    contestIdsOnPage.has(c.id)
+  );
 
   return bits
     .writeUint8(...SummaryBallotPrelude)
@@ -562,11 +569,13 @@ export function encodeSummaryBallotPageInto(
     .with(() => {
       // Write contest bitmap: which contests are on this page
       for (const contest of allContests) {
-        bits.writeBoolean(contestsOnPage.has(contest.id));
+        bits.writeBoolean(contestIdsOnPage.has(contest.id));
       }
       return bits;
     })
-    .with(() => encodeBallotVotesInto(contests, votes, bits));
+    .with(() =>
+      encodeBallotVotesInto(contestsOnPageInCanonicalOrder, votes, bits)
+    );
 }
 
 /**
