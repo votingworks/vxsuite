@@ -74,7 +74,7 @@
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
-    "vite": "8.0.5",
+    "vite": "8.0.16",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@9.15.9"
