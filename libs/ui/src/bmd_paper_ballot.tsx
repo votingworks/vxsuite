@@ -724,6 +724,12 @@ export function BmdPaperBallot({
   pageNumber,
   totalPages,
   ballotAuditId,
+  /**
+   * The contests included on this page
+   * TODO: Change this to a list of contest IDs rather than contest objects
+   * since that's all we need. We can and should look up the whole contest
+   * objects via the election def for the given ballot style ID.
+   */
   contestsForPage,
 }: BmdPaperBallotProps): JSX.Element {
   const {
