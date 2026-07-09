@@ -846,14 +846,14 @@ test.each<{
     userFeatures: {
       VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: false,
     },
-    checkboxLabel: 'Allow Printing Blank Ballots from VxMark',
+    checkboxLabel: 'Enable Printing Blank Ballots from VxMark',
     isCheckboxExpected: false,
   },
   {
     userFeatures: {
       VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
     },
-    checkboxLabel: 'Allow Printing Blank Ballots from VxMark',
+    checkboxLabel: 'Enable Printing Blank Ballots from VxMark',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { allowPrintingBlankBallotsFromVxMark: true },
   },
