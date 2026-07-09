@@ -1,4 +1,5 @@
 import {
+  Button,
   Font,
   H2,
   H3,
@@ -103,6 +104,16 @@ export function SectionSessionStart(
       />
     </VotingSession>
   );
+}
+
+export interface SectionPrintBlankBallotProps {
+  onPress: () => void;
+}
+
+export function SectionPrintBlankBallot({
+  onPress,
+}: SectionPrintBlankBallotProps): JSX.Element {
+  return <Button onPress={onPress}>Print Blank Ballot</Button>;
 }
 
 interface SystemButtonsProps {
