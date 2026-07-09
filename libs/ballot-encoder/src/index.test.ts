@@ -298,6 +298,52 @@ test('encodes & decodes multi-page summary ballot with votes', () => {
   expect(decoded.votes).toEqual(votes);
 });
 
+test('encodes votes in canonical order even when caller passes them out of order', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election, ballotHash } = electionDefinition;
+  const ballotStyle = election.ballotStyles.find((bs) => bs.id === '12')!;
+  const precinct = election.precincts[0]!;
+  const canonicalContests = getContests({ election, ballotStyle });
+
+  // Give each contest a distinct selection so that an incorrectly ordered
+  // decode can't coincidentally round-trip to the same bits
+  const votes: VotesDict = {};
+  for (const [i, contest] of canonicalContests.entries()) {
+    if (contest.type === 'candidate') {
+      votes[contest.id] =
+        contest.allowWriteIns && i % 3 === 0
+          ? [{ id: 'write-in-WRITE IN', name: 'WRITE IN', isWriteIn: true }]
+          : [contest.candidates[i % contest.candidates.length]!];
+    }
+  }
+
+  const scrambledContests = [...canonicalContests].reverse();
+  expect(scrambledContests.map((c) => c.id)).not.toEqual(
+    canonicalContests.map((c) => c.id)
+  );
+  const page: SummaryBallotPage = {
+    ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: precinct.id,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+    pageNumber: 1,
+    totalPages: 1,
+    ballotAuditId: 'test-audit-id',
+    contests: scrambledContests,
+    votes,
+  };
+  const encoded = encodeSummaryBallotPage(election, page);
+  const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+
+  expect(decoded.metadata.contestIds).toEqual(
+    canonicalContests.map((c) => c.id)
+  );
+  for (const [contestId, expectedVote] of Object.entries(votes)) {
+    expect(decoded.votes[contestId]).toEqual(expectedVote);
+  }
+});
+
 test('encodes & decodes multi-page summary ballot with write-in votes', () => {
   const electionDefinition = readElectionDefinition();
   const { election, ballotHash } = electionDefinition;

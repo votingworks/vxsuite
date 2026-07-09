@@ -487,7 +487,12 @@ export interface SummaryBallotPage {
   pageNumber: number;
   totalPages: number;
   ballotAuditId: string;
-  /** The contests included on this page */
+  /**
+   * The contests included on this page
+   * TODO: Change this to a list of contest IDs rather than contest objects
+   * since that's all we need. We can and should look up the whole contest
+   * objects via the election def for the given ballot style ID.
+   */
   contests: readonly Contest[];
   /** Votes for the contests on this page */
   votes: VotesDict;
@@ -562,7 +567,14 @@ export function encodeSummaryBallotPageInto(
 
   // Encode which contests are on this page as a bitmap
   // One bit per contest in the ballot style, true if contest is on this page
-  const contestsOnPage = new Set(contests.map((c) => c.id));
+  const contestIdsOnPage = new Set(contests.map((c) => c.id));
+
+  // Encode votes in canonical `getContests` order, which is the order the
+  // decoder expects them in. Don't rely on callers to handle this ordering
+  // themselves.
+  const contestsOnPageInCanonicalOrder = allContests.filter((c) =>
+    contestIdsOnPage.has(c.id)
+  );
 
   return bits
     .writeUint8(...SummaryBallotPrelude)
@@ -589,11 +601,13 @@ export function encodeSummaryBallotPageInto(
     .with(() => {
       // Write contest bitmap: which contests are on this page
       for (const contest of allContests) {
-        bits.writeBoolean(contestsOnPage.has(contest.id));
+        bits.writeBoolean(contestIdsOnPage.has(contest.id));
       }
       return bits;
     })
-    .with(() => encodeBallotVotesInto(contests, votes, bits));
+    .with(() =>
+      encodeBallotVotesInto(contestsOnPageInCanonicalOrder, votes, bits)
+    );
 }
 
 /**
