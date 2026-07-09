@@ -336,6 +336,12 @@ export function buildApi(ctx: Context) {
     },
 
     async printBlankBallot(input: PrintBlankBallotProps) {
+      const systemSettings =
+        store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+      assert(
+        systemSettings.allowPrintingBlankBallotsFromVxMark,
+        'Printing blank ballots from VxMark is not enabled'
+      );
       await printBlankBallot({
         store,
         printer,

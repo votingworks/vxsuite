@@ -251,6 +251,11 @@ export const SystemSettingsSchema = z
      * Enables test deck printing functionality on VxPrint and VxMark.
      */
     enableTestDeckPrinting: z.boolean().optional(),
+
+    /**
+     * Allows printing blank (unmarked) ballots from VxMark.
+     */
+    allowPrintingBlankBallotsFromVxMark: z.boolean().optional(),
   })
   .refine(
     (settings) =>
