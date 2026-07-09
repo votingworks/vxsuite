@@ -15,6 +15,7 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
+  SoftwareVersion,
   unsafeParse,
   VotesDict,
   YesNoContest,
@@ -62,8 +63,6 @@ export function sliceBallotHashForEncoding(ballotHash: string): string {
   return ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH);
 }
 
-// TODO: include "magic number" and encoding version
-
 /**
  * Encoding for write-ins, defines the characters allowed in a write-in. Should
  * match the values present on BMD's `{@link VirtualKeyboard}`.
@@ -90,6 +89,22 @@ export const BubbleBallotPrelude: readonly Uint8[] = [
 export const SummaryBallotPrelude: readonly Uint8[] = [
   /* V = VotingWorks */ 86, /* S = summary ballot */ 83, /* version = */ 1,
 ];
+
+/**
+ * @deprecated
+ * The bytes a v4.0 bubble ballot starts with. Retained so VxDesign can render
+ * v4.0 bubble ballots.
+ */
+export const BubbleBallotPreludeV4p0: readonly Uint8[] = [
+  /* V = VotingWorks */ 86, /* P = Paper */ 80, /* version = */ 2,
+];
+
+/**
+ * @deprecated
+ * Maximum ballot style index that we can encode. Retained so VxDesign can
+ * render v4.0 bubble ballots.
+ */
+export const MAXIMUM_BALLOT_STYLE_INDEX_V4_0 = 4096;
 
 /**
  * Detect whether `data` is a VotingWorks encoded ballot / metadata.
@@ -131,7 +146,8 @@ export function encodeBallotConfigInto(
     pageNumber,
     ballotAuditId,
   }: BallotConfig,
-  bits: BitWriter
+  bits: BitWriter,
+  version: SoftwareVersion
 ): BitWriter {
   const { precincts, ballotStyles } = election;
   const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
@@ -149,7 +165,12 @@ export function encodeBallotConfigInto(
 
   bits
     .writeUint(precinctIndex, { max: MAXIMUM_PRECINCT_INDEX })
-    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLE_INDEX })
+    .writeUint(ballotStyleIndex, {
+      max:
+        version === 'v4.0'
+          ? MAXIMUM_BALLOT_STYLE_INDEX_V4_0
+          : MAXIMUM_BALLOT_STYLE_INDEX,
+    })
     .writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
 
   bits.writeBoolean(isTestMode);
@@ -404,10 +425,13 @@ export function encodeHmpbBallotPageMetadataInto(
     precinctId,
     ballotAuditId,
   }: HmpbBallotPageMetadata,
-  bits: BitWriter
+  bits: BitWriter,
+  version: SoftwareVersion
 ): BitWriter {
   return bits
-    .writeUint8(...BubbleBallotPrelude)
+    .writeUint8(
+      ...(version === 'v4.0' ? BubbleBallotPreludeV4p0 : BubbleBallotPrelude)
+    )
     .writeString(sliceBallotHashForEncoding(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
@@ -424,7 +448,8 @@ export function encodeHmpbBallotPageMetadataInto(
           precinctId,
           ballotAuditId,
         },
-        bits
+        bits,
+        version
       )
     );
 }
@@ -434,12 +459,14 @@ export function encodeHmpbBallotPageMetadataInto(
  */
 export function encodeHmpbBallotPageMetadata(
   election: Election,
-  metadata: HmpbBallotPageMetadata
+  metadata: HmpbBallotPageMetadata,
+  version: SoftwareVersion
 ): Uint8Array {
   return encodeHmpbBallotPageMetadataInto(
     election,
     metadata,
-    new BitWriter()
+    new BitWriter(),
+    version
   ).toUint8Array();
 }
 
