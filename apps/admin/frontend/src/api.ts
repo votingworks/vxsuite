@@ -270,7 +270,7 @@ export const listCastVoteRecordFilesOnUsb = {
     return useQuery(
       this.queryKey(path),
       () => apiClient.listCastVoteRecordFilesOnUsb(),
-      { enabled: usb.status === 'mounted' }
+      { enabled: usb.status === 'mounted', refetchOnMount: true, staleTime: 0 }
     );
   },
 } as const;
