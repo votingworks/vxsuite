@@ -93,7 +93,8 @@ export function allBubbleBallotFixtures(
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           ballotProps,
           ballotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${filledBallotPath}`);
@@ -108,7 +109,8 @@ export function allBubbleBallotFixtures(
         const filledBallotPdf = await renderBallotPdfWithMetadataQrCode(
           ballotProps,
           ballotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${cyclingTestDeckPath}`);
@@ -157,7 +159,8 @@ export function allBubbleBallotFixtures(
             const pdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
               sheetDocument,
-              electionDefinition
+              electionDefinition,
+              LATEST_SOFTWARE_VERSION
             );
             return pdf;
           })

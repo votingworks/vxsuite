@@ -190,7 +190,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsTest[0],
           ballotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${markedBallotPath}`);
@@ -206,7 +207,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         const blankOfficialBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsOfficial[0],
           officialBallotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${markedOfficialBallotPath}`);
@@ -223,7 +225,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         const sampleBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsSample[0],
           sampleBallotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         return {
@@ -397,7 +400,8 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
             const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
               ballotDocument,
-              electionDefinition
+              electionDefinition,
+              LATEST_SOFTWARE_VERSION
             );
 
             debug(`Generating: ${spec.markedBallotPath}`);
@@ -533,7 +537,8 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
               : await renderBallotPdfWithMetadataQrCode(
                   ballotProps,
                   ballotDocument,
-                  layouts.electionDefinition
+                  layouts.electionDefinition,
+                  LATEST_SOFTWARE_VERSION
                 );
 
             debug(`Generating: ${spec.markedBallotPath}`);
@@ -542,7 +547,8 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
             const markedBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
               ballotDocument,
-              electionDefinition
+              electionDefinition,
+              LATEST_SOFTWARE_VERSION
             );
 
             return { blankBallotPdf, markedBallotPdf };
@@ -570,7 +576,8 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
               return await renderBallotPdfWithMetadataQrCode(
                 otherPrecinctBallotProps,
                 otherPrecinctBallotDocument,
-                electionDefinition
+                electionDefinition,
+                LATEST_SOFTWARE_VERSION
               );
             });
 
@@ -751,7 +758,8 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
               ballotDocument,
-              electionDefinition
+              electionDefinition,
+              LATEST_SOFTWARE_VERSION
             );
 
             debug(`Generating: ${spec.markedBallotPath}`);
@@ -934,7 +942,8 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
           const blankPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
             doc,
-            layout.electionDefinition
+            layout.electionDefinition,
+            LATEST_SOFTWARE_VERSION
           );
           if (!paths.markedPath) {
             return { blankPdf };
@@ -1146,7 +1155,8 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           const blankPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
             doc,
-            layout.electionDefinition
+            layout.electionDefinition,
+            LATEST_SOFTWARE_VERSION
           );
           if (!spec.markedPath) {
             return { blankPdf };
@@ -1271,7 +1281,8 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
           const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
             allBallotProps[0],
             ballotDocument,
-            electionDefinition
+            electionDefinition,
+            LATEST_SOFTWARE_VERSION
           );
 
           debug(`Generating: ${markedBallotPath}`);
@@ -1389,7 +1400,8 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
           const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
             ballotProps,
             ballotDocument,
-            electionDefinition
+            electionDefinition,
+            LATEST_SOFTWARE_VERSION
           );
 
           debug(`Generating: ${spec.markedBallotPath}`);
@@ -1485,7 +1497,8 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           ballotProps,
           ballotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${markedBallotPath}`);
@@ -1599,7 +1612,8 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           ballotProps,
           ballotDocument,
-          electionDefinition
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
 
         debug(`Generating: ${markedBallotPath}`);

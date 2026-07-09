@@ -183,7 +183,8 @@ export async function renderMarkedBallots(
         return renderBallotPdfWithMetadataQrCode(
           sharedBallotProps,
           doc,
-          spec.electionDefinition
+          spec.electionDefinition,
+          LATEST_SOFTWARE_VERSION
         );
       })
     );
