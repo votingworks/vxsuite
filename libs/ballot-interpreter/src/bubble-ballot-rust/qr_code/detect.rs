@@ -145,9 +145,9 @@ pub fn get_detection_areas_for_strategy(
 /// The kind of ballot as determined by the 3-byte QR code prelude.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum QrCodeKind {
-    /// `VP\x02` — Hand-marked paper ballot (bubble ballot) metadata.
+    /// `VB\x01` — bubble ballot (hand-marked paper ballot) metadata.
     BubbleBallot,
-    /// `VB\x01` — BMD summary ballot page.
+    /// `VS\x01` — summary (BMD) ballot page.
     SummaryBallot,
     /// Unrecognized prelude.
     Unknown,
