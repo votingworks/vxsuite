@@ -128,7 +128,7 @@ import {
   generateAdminLiveResultsReportingUrls,
   getMatchingAbsenteePollingPlaces,
 } from './live_results_reporting';
-import { NODE_ENV } from './globals';
+import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
@@ -393,8 +393,9 @@ function buildApi({
     /**
      * Long-polls for a USB drive change. The caller passes the last change
      * sequence it observed; this resolves with the current sequence once it is
-     * ahead of `lastSeq` (i.e. a change has happened), or after a 30-second
-     * timeout with the sequence unchanged. Comparing sequences lets the caller
+     * ahead of `lastSeq` (i.e. a change has happened), or after
+     * {@link USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS} with the sequence
+     * unchanged. Comparing sequences lets the caller
      * detect a change that occurred between polls, so none are missed.
      */
     async waitForUsbDriveChange({
@@ -402,16 +403,16 @@ function buildApi({
     }: {
       lastSeq: number;
     }): Promise<number> {
-      // Capture the wake signal before reading the counter so a change firing
-      // between the two is still observed (either the counter is already ahead,
-      // or the promise we captured is the one it resolves).
-      const changed = nextUsbDriveChange.promise;
       if (usbDriveChangeSeq > lastSeq) {
         return usbDriveChangeSeq;
       }
-      // Bound the wait so Node.js doesn't kill an idle request; on timeout the
-      // sequence is unchanged and the caller simply polls again.
-      await timeout(30_000, changed);
+      // Bound the wait so the held-open connection is recycled rather than
+      // lingering indefinitely; on timeout the sequence is unchanged and the
+      // caller simply polls again.
+      await timeout(
+        USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS,
+        nextUsbDriveChange.promise
+      );
       return usbDriveChangeSeq;
     },
 

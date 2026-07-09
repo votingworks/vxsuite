@@ -261,5 +261,14 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       disposition: 'success',
     });
   });
+
+  // Explicitly disable Node.js's idle socket timeout (its default) so long-
+  // running requests are never reset mid-flight: the `waitForUsbDriveChange`
+  // long-poll holds a connection open, and slow operations (e.g. large report
+  // generation) leave the socket idle while computing. The long-poll bounds
+  // its own wait at the application layer
+  // (USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS); no socket-level timeout is needed.
+  server.timeout = 0;
+
   return server;
 }
