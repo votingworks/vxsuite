@@ -18,6 +18,7 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import { setPollsState, setTestMode, useApiClient } from '../api';
+import { PrintBlankBallotScreen } from './print_blank_ballot_screen';
 
 export interface PollworkerScreenProps {
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
@@ -55,11 +56,14 @@ export function PollWorkerScreen({
     ScreenVotingInProgress,
     SectionHeader,
     SectionPollsState,
+    SectionPrintBlankBallot,
     SectionSessionStart,
     SectionSystem,
   } = pollWorkerComponents;
-
   const { election } = electionDefinition;
+
+  const [showPrintBlankBallotScreen, setShowPrintBlankBallotScreen] =
+    React.useState(false);
 
   const apiClient = useApiClient();
   const setPollsStateMutation = setPollsState.useMutation();
@@ -71,6 +75,10 @@ export function PollWorkerScreen({
     },
     [activateCardlessVoterSession]
   );
+
+  const onPressPrintBlankBallot = React.useCallback(() => {
+    setShowPrintBlankBallotScreen(true);
+  }, []);
 
   if (hasVotes && pollWorkerAuth.cardlessVoterUser) {
     return (
@@ -104,6 +112,21 @@ export function PollWorkerScreen({
     );
   }
 
+  if (showPrintBlankBallotScreen) {
+    return (
+      <PrintBlankBallotScreen
+        isLiveMode={isLiveMode}
+        ballotsPrintedCount={ballotsPrintedCount}
+        election={election}
+        electionPackageHash={electionPackageHash}
+        electionDefinition={electionDefinition}
+        machineConfig={machineConfig}
+        pollingPlaceId={pollingPlaceId}
+        onBackButtonPress={() => setShowPrintBlankBallotScreen(false)}
+      />
+    );
+  }
+
   return (
     <Screen>
       {!isLiveMode && <TestModeBanner />}
@@ -117,6 +140,7 @@ export function PollWorkerScreen({
               pollingPlaceId={pollingPlaceId}
             />
           )}
+          <SectionPrintBlankBallot onPress={onPressPrintBlankBallot} />
           <SectionPollsState
             pollsState={pollsState}
             updatePollsState={(newPollsState) =>

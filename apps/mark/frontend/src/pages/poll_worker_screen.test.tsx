@@ -5,10 +5,12 @@ import {
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
+  BallotStyleId,
   constructElectionKey,
   ElectionDefinition,
   formatElectionHashes,
   InsertedSmartCardAuth,
+  PrecinctId,
 } from '@votingworks/types';
 
 import {
@@ -18,12 +20,23 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import {
+  format,
+  getMockMultiLanguageElectionDefinition,
+  getRelatedBallotStyle,
+} from '@votingworks/utils';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
-import { act, fireEvent, screen } from '../../test/react_testing_library';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
@@ -32,6 +45,13 @@ const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
 const MockSectionSessionStart = vi.spyOn(
   pollWorkerComponents,
   'SectionSessionStart'
+);
+
+const MOCK_BALLOT_STYLE_PRECINCT_ID = 'precinct-1' as PrecinctId;
+const MOCK_BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
+const MockBallotStyleSelect = vi.spyOn(
+  pollWorkerComponents,
+  'BallotStyleSelect'
 );
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
@@ -47,6 +67,17 @@ beforeEach(() => {
 
   MockSectionSessionStart.mockImplementation(() => (
     <div data-testid={MOCK_SECTION_SESSION_START_ID} />
+  ));
+
+  MockBallotStyleSelect.mockImplementation(({ onSelect }) => (
+    <button
+      type="button"
+      onClick={() =>
+        onSelect(MOCK_BALLOT_STYLE_PRECINCT_ID, MOCK_BALLOT_STYLE_ID)
+      }
+    >
+      Mock Select Ballot Style
+    </button>
   ));
 });
 
@@ -178,4 +209,143 @@ test('renders session start section', () => {
     'some-precinct',
     'some-ballot-style'
   );
+});
+
+test('prints a blank ballot for the selected ballot style', async () => {
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .resolves();
+
+  renderScreen();
+
+  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  screen.getByText('Select a Ballot Style to Print');
+
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  fireEvent.click(screen.getByText('Print Ballot'));
+
+  // The progress modal is shown for a fixed duration, not gated on the print
+  // job (which completes near-instantly).
+  await screen.findByText('Printing Ballot');
+  expect(screen.queryByText('Ballot Printed')).toBeNull();
+
+  act(() => {
+    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+  });
+
+  await screen.findByText('Ballot Printed');
+  fireEvent.click(screen.getByText('Done'));
+
+  await waitFor(() => {
+    expect(screen.queryByText('Ballot Printed')).toBeNull();
+  });
+});
+
+test('returns to the poll worker menu from the print blank ballot screen', () => {
+  renderScreen();
+
+  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  screen.getByText('Select a Ballot Style to Print');
+
+  fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+
+  expect(screen.queryByText('Select a Ballot Style to Print')).toBeNull();
+  screen.getByText('Print Blank Ballot');
+});
+
+const multiLanguageDefinition = getMockMultiLanguageElectionDefinition(
+  electionGeneralDefinition,
+  ['en', 'es-US']
+);
+const multiLanguageElection = multiLanguageDefinition.election;
+const englishBallotStyle = assertDefined(
+  multiLanguageElection.ballotStyles.find(
+    (bs) => bs.languages.length === 1 && bs.languages[0] === 'en'
+  )
+);
+
+function mockBallotStyleSelectReturning(ballotStyleId: BallotStyleId) {
+  MockBallotStyleSelect.mockImplementation(({ onSelect }) => (
+    <button
+      type="button"
+      onClick={() => onSelect(MOCK_BALLOT_STYLE_PRECINCT_ID, ballotStyleId)}
+    >
+      Mock Select Ballot Style
+    </button>
+  ));
+}
+
+test('prints a blank ballot in the language chosen from the dropdown', async () => {
+  const spanishBallotStyle = getRelatedBallotStyle({
+    ballotStyles: multiLanguageElection.ballotStyles,
+    sourceBallotStyleId: englishBallotStyle.id,
+    targetBallotStyleLanguage: 'es-US',
+  }).unsafeUnwrap();
+  mockBallotStyleSelectReturning(englishBallotStyle.id);
+
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: spanishBallotStyle.id,
+    })
+    .resolves();
+
+  renderScreen(
+    {},
+    mockPollWorkerAuth(multiLanguageDefinition),
+    multiLanguageDefinition
+  );
+
+  fireEvent.click(screen.getByText('Print Blank Ballot'));
+
+  // Selecting a ballot style reveals a language dropdown scoped to that style.
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  screen.getByText('Language');
+
+  // Choose Spanish from the language dropdown (defaults to English).
+  userEvent.click(
+    screen.getByText(format.languageDisplayName({ languageCode: 'en' }))
+  );
+  userEvent.click(
+    screen.getByText(format.languageDisplayName({ languageCode: 'es-US' }))
+  );
+
+  fireEvent.click(screen.getByText('Print Ballot'));
+
+  await screen.findByText('Printing Ballot');
+  act(() => {
+    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+  });
+  await screen.findByText('Ballot Printed');
+});
+
+test('prints in the default language when the dropdown is left unchanged', async () => {
+  mockBallotStyleSelectReturning(englishBallotStyle.id);
+
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: englishBallotStyle.id,
+    })
+    .resolves();
+
+  renderScreen(
+    {},
+    mockPollWorkerAuth(multiLanguageDefinition),
+    multiLanguageDefinition
+  );
+
+  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  screen.getByText('Language');
+  fireEvent.click(screen.getByText('Print Ballot'));
+
+  await screen.findByText('Printing Ballot');
+  act(() => {
+    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+  });
+  await screen.findByText('Ballot Printed');
 });
