@@ -62,7 +62,6 @@ import {
   getPrinterStatus,
   getAccessibleControllerConnected,
   useApiClient,
-  getBarcodeConnected,
   getPatInputConnected,
 } from './api';
 
@@ -207,8 +206,6 @@ export function AppRoot(): JSX.Element | null {
   const accessibleControllerConnected = Boolean(
     accessibleControllerConnectedQuery.data
   );
-  const barcodeConnectedQuery = getBarcodeConnected.useQuery();
-  const barcodeConnected = Boolean(barcodeConnectedQuery.data ?? true);
   const patInputConnectedQuery = getPatInputConnected.useQuery();
   const patInputConnected = Boolean(patInputConnectedQuery.data);
 
@@ -537,14 +534,11 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (
-    !barcodeConnected ||
-    !patInputConnected ||
-    !accessibleControllerConnected
-  ) {
+  if (!patInputConnected || !accessibleControllerConnected) {
     return (
       <InternalConnectionProblemScreen
-        missingBarcode={!barcodeConnected}
+        // Not blocking on a missing barcode reader for now since that component is non-essential
+        // and we wouldn't want a failure of it to prevent voting
         missingPatInput={!patInputConnected}
         missingAccessibleController={!accessibleControllerConnected}
         isPollWorkerAuth={isPollWorkerAuth(authStatus)}

@@ -184,43 +184,6 @@ describe('Displays setup warning messages and errors screens', () => {
     ).toBeNull();
   });
 
-  test('Displays internal connection problem when Barcode Reader connection is lost', async () => {
-    apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionRecord(electionGeneralDefinition);
-    apiMock.expectGetElectionState({
-      pollingPlaceId: pollingPlace.id,
-      pollsState: 'polls_open',
-    });
-
-    render(<App apiClient={apiMock.mockApiClient} />);
-
-    // Start on Insert Card screen
-    await screen.findByText(insertCardScreenText);
-
-    // Disconnect Barcode Reader
-    act(() => {
-      apiMock.setBarcodeConnected(false);
-    });
-    await advanceTimersAndPromises(
-      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
-    );
-
-    // Should see Internal Connection Problem screen with barcode message
-    await vi.waitFor(() => {
-      screen.getByRole('heading', { name: /Internal Connection Problem/i });
-      screen.getByText(/Barcode reader is disconnected\./i);
-    });
-
-    // Reconnect Barcode Reader
-    act(() => {
-      apiMock.setBarcodeConnected(true);
-    });
-    await advanceTimersAndPromises(
-      INTERNAL_HARDWARE_POLLING_INTERVAL_MS / 1000
-    );
-    await screen.findByText(insertCardScreenText);
-  });
-
   test('Displays internal connection problem when Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
