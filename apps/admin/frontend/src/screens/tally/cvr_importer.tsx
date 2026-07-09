@@ -193,14 +193,14 @@ function errorMessage(err: ImportCastVoteRecordsError): string {
   switch (err.type) {
     case 'authentication-error': {
       return (
-        'Unable to authenticate cast vote records. Try exporting them' +
+        'Unable to authenticate cast vote records. Try exporting them ' +
         'from the scanner again.'
       );
     }
 
     case 'ballot-id-already-exists-with-different-data': {
       return (
-        `Found a cast vote record at index ${err.index} that has the` +
+        `Found a cast vote record at index ${err.index} that has the ` +
         'same ballot ID as a previously imported cast vote record, but with ' +
         'different data.'
       );
