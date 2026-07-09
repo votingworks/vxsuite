@@ -449,15 +449,20 @@ async function extractBallotPositions(
 async function addQrCodesAndBallotHashes(
   document: RenderDocument,
   election: Election,
-  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
+  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>,
+  version: SoftwareVersion
 ) {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
-    const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
-      ...metadata,
-      pageNumber,
-    });
+    const encodedMetadata = encodeHmpbBallotPageMetadata(
+      election,
+      {
+        ...metadata,
+        pageNumber,
+      },
+      version
+    );
     const qrCode = (
       <div
         style={{
@@ -489,17 +494,23 @@ async function addQrCodesAndBallotHashes(
 export async function renderBallotPdfWithMetadataQrCode(
   props: BaseBallotProps,
   document: RenderDocument,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  version: SoftwareVersion
 ): Promise<Uint8Array> {
   if (props.ballotMode !== 'sample') {
-    await addQrCodesAndBallotHashes(document, electionDefinition.election, {
-      ballotHash: electionDefinition.ballotHash,
-      ballotStyleId: props.ballotStyleId,
-      precinctId: props.precinctId,
-      ballotType: props.ballotType,
-      isTestMode: props.ballotMode !== 'official',
-      ballotAuditId: props.ballotAuditId,
-    });
+    await addQrCodesAndBallotHashes(
+      document,
+      electionDefinition.election,
+      {
+        ballotHash: electionDefinition.ballotHash,
+        ballotStyleId: props.ballotStyleId,
+        precinctId: props.precinctId,
+        ballotType: props.ballotType,
+        isTestMode: props.ballotMode !== 'official',
+        ballotAuditId: props.ballotAuditId,
+      },
+      version
+    );
   }
 
   return await document.renderToPdf();
@@ -767,7 +778,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         const ballotPdf = await renderBallotPdfWithMetadataQrCode(
           props,
           document,
-          electionDefinition
+          electionDefinition,
+          electionSerializationOptions.version
         );
         return ballotPdf;
       })

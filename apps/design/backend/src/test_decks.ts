@@ -1,5 +1,9 @@
 import { find } from '@votingworks/basics';
-import { BaseBallotProps, ElectionDefinition } from '@votingworks/types';
+import {
+  BaseBallotProps,
+  ElectionDefinition,
+  LATEST_SOFTWARE_VERSION,
+} from '@votingworks/types';
 import {
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
@@ -52,7 +56,8 @@ export async function createPrecinctTestDeck({
       const ballotPdf = await renderBallotPdfWithMetadataQrCode(
         props,
         markedBallot,
-        electionDefinition
+        electionDefinition,
+        LATEST_SOFTWARE_VERSION
       );
       return ballotPdf;
     }),

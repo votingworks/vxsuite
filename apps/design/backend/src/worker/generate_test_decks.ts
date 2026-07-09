@@ -60,6 +60,14 @@ export async function generateTestDecks(
     systemSettings,
   } = electionRecord;
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  // Currently, we don't support generating BMD ballots with v4.0 QR code
+  // encoding, so we can't generate test decks targeting v4.0. If we end up
+  // needing to support this, we can add that support back in.
+  if (jurisdiction.softwareVersion === 'v4.0') {
+    throw new Error(
+      'Test deck generation is not supported for software version v4.0'
+    );
+  }
   const election = addPollingPlacesForExport(
     electionRecord.election,
     jurisdiction,
