@@ -6,6 +6,12 @@
     "target": "ES2019",
     "lib": ["ES2021"],
 
+    // TypeScript 7 changed the `types` default from automatically including all
+    // installed `@types/*` packages to an empty list. Restore the previous
+    // behavior of picking up ambient type packages (e.g. `@types/node`)
+    // automatically.
+    "types": ["*"],
+
     // Enable all strict mode checks
     "strict": true,
 

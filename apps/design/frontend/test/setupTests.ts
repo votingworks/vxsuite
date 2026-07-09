@@ -22,7 +22,6 @@ vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 global.TextEncoder = TextEncoder as typeof global.TextEncoder;
 
 URL.createObjectURL = vi.fn();

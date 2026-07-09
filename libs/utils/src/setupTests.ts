@@ -15,7 +15,6 @@ beforeEach(() => {
 globalThis.clearImmediate = clearImmediate;
 globalThis.setImmediate = setImmediate;
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
 
 beforeAll(setupTemporaryRootDir);

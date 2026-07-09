@@ -19,7 +19,7 @@ interface IO {
 }
 
 /**
- * Determines whether a package builds with `tsgo --build`.
+ * Determines whether a package builds with `tsc --build`.
  */
 function isTscBuildPackage(cwd: string): boolean {
   return fs.existsSync(join(cwd, 'tsconfig.build.json'));
@@ -39,8 +39,9 @@ function npmBinCommand({
     env: {
       ...process.env,
       ...(env ?? {}),
-      PATH: `${join(cwd, 'node_modules', '.bin')}:${env?.['PATH'] ?? process.env['PATH']
-        }`,
+      PATH: `${join(cwd, 'node_modules', '.bin')}:${
+        env?.['PATH'] ?? process.env['PATH']
+      }`,
     },
     ...rest,
   };
@@ -58,7 +59,7 @@ function tscWatchBuild({
     : 'tsconfig.json';
   return npmBinCommand({
     cwd,
-    command: `tsgo --build --watch --preserveWatchOutput ${tsconfigPath}`,
+    command: `tsc --build --watch --preserveWatchOutput ${tsconfigPath}`,
     prefixColor: 'blue',
     ...rest,
   });

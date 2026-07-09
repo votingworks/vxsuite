@@ -40,13 +40,13 @@ Each app typically has `frontend/`, `backend/`, and optionally
 
 ## Tech Stack
 
-- **Language:** TypeScript 5.8 (strict mode)
+- **Language:** TypeScript 7.0 (strict mode)
 - **Frontend:** React 18, styled-components, react-router-dom v5,
   @tanstack/react-query v4
 - **Backend:** Express 4, better-sqlite3, zod for validation
 - **API Layer:** @votingworks/grout (custom type-safe RPC)
 - **Package Manager:** pnpm 9.15 (workspaces)
-- **Build:** tsgo, esbuild, Vite (frontends)
+- **Build:** tsc (TypeScript 7 native compiler), esbuild, Vite (frontends)
 - **Node:** 20.19.0
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
   logging)
@@ -109,18 +109,25 @@ pnpm --filter @votingworks/<package-name> lint:fix
 
 ### Type Checking
 
-Use `tsgo` (not `tsc`) for type checking:
+Use `tsc` for type checking. As of TypeScript 7, `tsc` is the native (Go-based)
+compiler, installed via the `@typescript/native` alias (`npm:typescript@7.0.2`):
 
 ```sh
 # Type-check a specific package
-pnpm --filter @votingworks/<package-name> exec tsgo --noEmit
+pnpm --filter @votingworks/<package-name> run type-check
 
 # Build (includes type checking) a package and its dependencies
 pnpm --filter @votingworks/<package-name>... build
 ```
 
-Do NOT use `tsc` — this repo uses `tsgo` for all TypeScript compilation and type
-checking, including in CI.
+TypeScript 7 does not ship the classic JavaScript compiler API. The `typescript`
+package is therefore aliased to `@typescript/typescript6`, which provides that
+API (as `import * as ts from 'typescript'`) for tooling such as
+`typescript-eslint` and the custom `eslint-plugin-vx` rules. Its binary is
+`tsc6`; do not use it for building — all compilation and type checking
+(including in CI) goes through the TypeScript 7 `tsc` from `@typescript/native`.
+Aliasing to a distinctly-named package (rather than a second `typescript`) keeps
+`import 'typescript'` unambiguous.
 
 ### Development Servers
 
