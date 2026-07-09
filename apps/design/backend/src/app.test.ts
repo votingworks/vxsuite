@@ -4785,23 +4785,30 @@ test('v4.0 elections', async () => {
     ElectionPackageFileName.ELECTION
   );
   const electionData = await readTextEntry(electionEntry);
-  const exportedElectionDefinition =
-    safeParseElectionDefinitionV4p0(electionData).unsafeUnwrap();
+  safeParseElectionDefinitionV4p0(electionData).unsafeUnwrap();
 
-  const testDecksFilePath = await exportTestDecks({
-    fileStorageClient,
-    apiClient,
+  // The official ballots in the election package must be rendered with v4.0 QR
+  // metadata so deployed v4.0 scanners can read them.
+  const officialBallotRenderCalls = vi.mocked(
+    renderAllBallotPdfsAndCreateElectionDefinition
+  ).mock.calls;
+  expect(officialBallotRenderCalls.length).toBeGreaterThan(0);
+  for (const call of officialBallotRenderCalls) {
+    expect(call[3].version).toEqual('v4.0');
+  }
+
+  // Test decks aren't supported for v4.0 jurisdictions
+  await apiClient.exportTestDecks({
     electionId,
-    workspace,
     electionSerializationFormat: 'vxf',
   });
-
-  const testDecksBallotHash = testDecksFilePath.match(
-    'test-decks-(.*).zip'
-  )![1];
-  expect(formatBallotHash(exportedElectionDefinition.ballotHash)).toEqual(
-    testDecksBallotHash
+  await processNextBackgroundTaskIfAny({ fileStorageClient, workspace });
+  const testDecks = await apiClient.getTestDecks({ electionId });
+  expect(testDecks.url).toBeUndefined();
+  expect(testDecks.task?.error).toContain(
+    'Test deck generation is not supported for software version v4.0'
   );
+  expect(vi.mocked(createPrecinctTestDeck)).not.toHaveBeenCalled();
 
   // Live reports should be able to parse the saved exported election
   // definition, even though it's a previous version

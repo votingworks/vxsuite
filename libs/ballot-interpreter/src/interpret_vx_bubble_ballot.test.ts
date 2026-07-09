@@ -914,7 +914,8 @@ describe('Contest option bounds', () => {
       await renderBallotPdfWithMetadataQrCode(
         ballotProps[0]!,
         ballotDocument,
-        electionDefinition
+        electionDefinition,
+        LATEST_SOFTWARE_VERSION
       );
 
       await markBallotDocument(ballotDocument, votes);
@@ -975,7 +976,8 @@ describe('Contest option bounds', () => {
       await renderBallotPdfWithMetadataQrCode(
         ballotProps[0]!,
         ballotDocument,
-        electionDefinition
+        electionDefinition,
+        LATEST_SOFTWARE_VERSION
       );
 
       await markBallotDocument(ballotDocument, votes);

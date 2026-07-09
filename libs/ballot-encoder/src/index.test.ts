@@ -6,10 +6,12 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotType,
+  BallotTypeMaximumValue,
   Candidate,
   CandidateContest,
   getContests,
   HmpbBallotPageMetadata,
+  LATEST_SOFTWARE_VERSION,
   vote,
   VotesDict,
 } from '@votingworks/types';
@@ -17,6 +19,8 @@ import {
   decodeBallotHash,
   isVxBallot,
   BALLOT_HASH_ENCODING_LENGTH,
+  BubbleBallotPreludeV4p0,
+  HexEncoding,
   SummaryBallotPrelude,
   sliceBallotHashForEncoding,
   encodeHmpbBallotPageMetadata,
@@ -25,7 +29,7 @@ import {
   decodeSummaryBallotPage,
   SummaryBallotPage,
 } from '.';
-import { BitWriter } from './bits';
+import { BitReader, BitWriter } from './bits';
 
 test('sliceBallotHashForEncoding', () => {
   expect(sliceBallotHashForEncoding('0000000000000000000000000')).toEqual(
@@ -59,7 +63,11 @@ test('encode HMPB ballot page metadata', () => {
     ballotAuditId: 'test-ballot-audit-id',
   };
 
-  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+  const encoded = encodeHmpbBallotPageMetadata(
+    election,
+    ballotMetadata,
+    LATEST_SOFTWARE_VERSION
+  );
 
   // We can at least verify that the ballot hash decodes from the encoded
   // metadata. There is no public HMPB metadata decoder in ballot-encoder.
@@ -80,7 +88,11 @@ test('encode HMPB ballot page metadata without a ballot audit id', () => {
     ballotType: BallotType.Precinct,
   };
 
-  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+  const encoded = encodeHmpbBallotPageMetadata(
+    election,
+    ballotMetadata,
+    LATEST_SOFTWARE_VERSION
+  );
 
   expect(decodeBallotHash(encoded)).toEqual(
     sliceBallotHashForEncoding(ballotMetadata.ballotHash)
@@ -100,7 +112,11 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
   };
 
   expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(
+      election,
+      ballotMetadata,
+      LATEST_SOFTWARE_VERSION
+    )
   ).toThrowError('precinct ID not found: SanDimas');
 });
 
@@ -117,8 +133,68 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   };
 
   expect(() =>
-    encodeHmpbBallotPageMetadata(election, ballotMetadata)
+    encodeHmpbBallotPageMetadata(
+      election,
+      ballotMetadata,
+      LATEST_SOFTWARE_VERSION
+    )
   ).toThrowError('ballot style ID not found: 42');
+});
+
+test('encode HMPB ballot page metadata - v4.0', () => {
+  const electionDefinition = readElectionDefinition();
+  const { election } = electionDefinition;
+  const ballotMetadata: HmpbBallotPageMetadata = {
+    ballotHash: electionDefinition.ballotHash,
+    precinctId: election.ballotStyles[0]!.precincts[0]!,
+    ballotStyleId: election.ballotStyles[0]!.id,
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Precinct,
+    ballotAuditId: 'test-ballot-audit-id',
+  };
+
+  const encodedV40 = encodeHmpbBallotPageMetadata(
+    election,
+    ballotMetadata,
+    'v4.0'
+  );
+  const encodedLatest = encodeHmpbBallotPageMetadata(
+    election,
+    ballotMetadata,
+    LATEST_SOFTWARE_VERSION
+  );
+
+  // v4.0 uses the `V P 2` prelude; the latest format uses `V B 1`.
+  expect(Array.from(encodedV40.slice(0, 3))).toEqual([86, 80, 2]);
+  expect([...BubbleBallotPreludeV4p0]).toEqual([86, 80, 2]);
+  expect(Array.from(encodedV40)).not.toEqual(Array.from(encodedLatest));
+
+  // Independently decode the v4.0 encoded data with literal field widths and
+  // confirm every field round-trips.
+  const bits = new BitReader(encodedV40);
+  expect(bits.skipUint8(86, 80, 2)).toEqual(true);
+  expect(
+    bits.readString({
+      encoding: HexEncoding,
+      length: BALLOT_HASH_ENCODING_LENGTH,
+    })
+  ).toEqual(sliceBallotHashForEncoding(ballotMetadata.ballotHash));
+  const precinctIndex = election.precincts.findIndex(
+    (p) => p.id === ballotMetadata.precinctId
+  );
+  const ballotStyleIndex = election.ballotStyles.findIndex(
+    (bs) => bs.id === ballotMetadata.ballotStyleId
+  );
+  expect(bits.readUint({ max: 8191 })).toEqual(precinctIndex);
+  expect(bits.readUint({ max: 8191 })).toEqual(ballotStyleIndex);
+  expect(bits.readUint({ max: 30 })).toEqual(3);
+  expect(bits.readBoolean()).toEqual(true); // isTestMode
+  expect(bits.readUint({ max: BallotTypeMaximumValue })).toEqual(
+    Object.values(BallotType).indexOf(BallotType.Precinct)
+  );
+  expect(bits.readBoolean()).toEqual(true); // ballotAuditId present
+  expect(bits.readString()).toEqual('test-ballot-audit-id');
 });
 
 // Multi-page summary ballot tests
