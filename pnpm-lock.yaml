@@ -386,8 +386,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       identity-obj-proxy:
         specifier: 3.0.0
         version: 3.0.0
@@ -573,8 +573,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       resolve:
         specifier: 1.18.1
         version: 1.18.1
@@ -830,8 +830,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.3
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
@@ -990,8 +990,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
 
   apps/central-scan/integration-testing:
     dependencies:
@@ -1639,8 +1639,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1784,8 +1784,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
 
   apps/mark-scan/integration-testing:
     dependencies:
@@ -2029,8 +2029,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2174,8 +2174,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
 
   apps/mark/integration-testing:
     dependencies:
@@ -2470,8 +2470,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
@@ -2609,8 +2609,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       resolve:
         specifier: 1.18.1
         version: 1.18.1
@@ -2814,8 +2814,8 @@ importers:
         specifier: 4.10.1
         version: 4.10.1
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -2920,8 +2920,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       resolve:
         specifier: 1.18.1
         version: 1.18.1
@@ -3189,8 +3189,8 @@ importers:
         specifier: 9.0.0
         version: 9.0.0
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3340,8 +3340,8 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
       http-proxy-middleware:
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.7
+        version: 3.0.7
 
   apps/scan/integration-testing:
     dependencies:
@@ -11537,15 +11537,6 @@ packages:
       supports-color:
         optional: true
 
-  debug@4.4.0:
-    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
   debug@4.4.1:
     resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
     engines: {node: '>=6.0'}
@@ -12791,9 +12782,9 @@ packages:
     resolution: {integrity: sha512-n2hY8YdoRE1i7r6M0w9DIw5GgZN0G25P8zLCRQ8rjXtTU3vsNFBI/vWK/UIeE6g5MUUz6avwAPXmL6Fy9D/90w==}
     engines: {node: '>= 6'}
 
-  http-proxy-middleware@3.0.3:
-    resolution: {integrity: sha512-usY0HG5nyDUwtqpiZdETNbmKtw3QQ1jwYFZ9wi5iHzX2BcILwQKtYDJPo7XHTsu5Z0B2Hj3W9NNnbd+AjFWjqg==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+  http-proxy-middleware@3.0.7:
+    resolution: {integrity: sha512-iwbQltVlx8bCrqePUM8C+hllHvdawVhQJaLrj1X7qllkvFQdXFsr16pW/mo9+JDVjN+QO2XUx9jd8SmoFkE5qw==}
+    engines: {node: ^14.18.0 || ^16.10.0 || >=18.0.0}
 
   http-proxy@1.18.1:
     resolution: {integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==}
@@ -23819,10 +23810,6 @@ snapshots:
     optionalDependencies:
       supports-color: 5.5.0
 
-  debug@4.4.0:
-    dependencies:
-      ms: 2.1.3
-
   debug@4.4.1:
     dependencies:
       ms: 2.1.3
@@ -24879,9 +24866,9 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 2.3.8
 
-  follow-redirects@1.15.9(debug@4.4.0):
+  follow-redirects@1.15.9(debug@4.4.3):
     optionalDependencies:
-      debug: 4.4.0
+      debug: 4.4.3
 
   fontkit@2.0.4:
     dependencies:
@@ -25408,21 +25395,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy-middleware@3.0.3:
+  http-proxy-middleware@3.0.7:
     dependencies:
       '@types/http-proxy': 1.17.15
-      debug: 4.4.0
-      http-proxy: 1.18.1(debug@4.4.0)
+      debug: 4.4.3
+      http-proxy: 1.18.1(debug@4.4.3)
       is-glob: 4.0.3
       is-plain-object: 5.0.0
       micromatch: 4.0.8
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy@1.18.1(debug@4.4.0):
+  http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
