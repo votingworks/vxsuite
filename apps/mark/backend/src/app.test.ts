@@ -616,7 +616,6 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   await apiClient.printBlankBallot({
     ballotStyleId: '1',
     precinctId: '23',
-    languageCode: 'en',
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
@@ -658,7 +657,6 @@ test('printing a blank ballot throws when the setting is not enabled', async () 
       apiClient.printBlankBallot({
         ballotStyleId: '1',
         precinctId: '23',
-        languageCode: 'en',
       })
     ).rejects.toThrow('Printing blank ballots from VxMark is not enabled');
   });
