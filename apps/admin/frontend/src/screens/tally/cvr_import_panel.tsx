@@ -77,7 +77,7 @@ export function CvrImportPanel(props: Props): React.ReactNode {
 
   return (
     <Panel {...props} importer={importer} mode={mode}>
-      <CvrUsbExports key="exports" importer={importer} />
+      <CvrUsbExports importer={importer} />
       {alert}
     </Panel>
   );
@@ -211,14 +211,19 @@ function PartialImportAlert(props: {
 
   if (total === 1) {
     return (
-      <Alert close={close} title="1 New CVR Loaded">
+      <Alert close={close} title="No New CVRs Loaded">
         The 1 CVR in the selected export was previously loaded.
       </Alert>
     );
   }
 
+  const title =
+    newlyAdded === 1
+      ? '1 New CVR Loaded'
+      : `${format.count(newlyAdded)} New CVRs Loaded`;
+
   return (
-    <Alert close={close} title={`${format.count(newlyAdded)} New CVRs Loaded`}>
+    <Alert close={close} title={title}>
       {format.count(alreadyPresent)} of the {format.count(total)} total CVRs in
       the selected export {alreadyPresent === 1 ? 'was' : 'were'} previously
       loaded.
