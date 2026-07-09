@@ -7,9 +7,8 @@ import {
   pollingPlaceMembers,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
-import { SectionPrintBlankBallot, SectionSessionStart } from './sections';
+import { SectionSessionStart } from './sections';
 import {
   BallotStyleSelect,
   BallotStyleSelectProps,
@@ -87,15 +86,5 @@ describe('SectionSessionStart', () => {
       election: electionMod,
       onSelect,
     });
-  });
-});
-
-describe('SectionPrintBlankBallot', () => {
-  test('calls onPress when pressed', () => {
-    const onPress = vi.fn();
-    render(<SectionPrintBlankBallot onPress={onPress} />);
-
-    userEvent.click(screen.getButton('Print Blank Ballot'));
-    expect(onPress).toHaveBeenCalledOnce();
   });
 });

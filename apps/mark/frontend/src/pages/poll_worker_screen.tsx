@@ -61,7 +61,6 @@ export function PollWorkerScreen({
     ScreenVotingInProgress,
     SectionHeader,
     SectionPollsState,
-    SectionPrintBlankBallot,
     SectionSessionStart,
     SectionSystem,
   } = pollWorkerComponents;
@@ -151,7 +150,9 @@ export function PollWorkerScreen({
             />
           )}
           {allowPrintingBlankBallots && (
-            <SectionPrintBlankBallot onPress={onPressPrintBlankBallot} />
+            <Button onPress={onPressPrintBlankBallot}>
+              Print Blank Ballot
+            </Button>
           )}
           <SectionPollsState
             pollsState={pollsState}
