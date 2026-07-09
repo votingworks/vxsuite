@@ -70,6 +70,7 @@ test('mark thresholds', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   screen.getByRole('heading', { name: 'Scanner Thresholds' });
 
@@ -130,6 +131,7 @@ test('minimum detected scale', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   screen.getByRole('heading', { name: 'Scanner Thresholds' });
 
@@ -167,6 +169,7 @@ test('adjudication reasons', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   for (const option of screen.getAllByRole('checkbox')) {
     expect(option).toBeDisabled();
@@ -252,6 +255,7 @@ test('setting write-in text area threshold', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -361,6 +365,7 @@ test('setting auth settings', async () => {
   const { systemSettings } = electionRecord;
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -440,6 +445,7 @@ test('setting "other" system settings', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -491,6 +497,7 @@ test('setting number of report copies on VxScan', async () => {
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   const input = screen.getByRole('spinbutton', {
     name: 'Number of Report Copies on VxScan',
@@ -526,6 +533,7 @@ test('number of report copies can be cleared to remove the setting', async () =>
   });
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   const input = screen.getByRole('spinbutton', {
     name: 'Number of Report Copies on VxScan',
@@ -564,6 +572,7 @@ test('number of report copies setting is hidden without the feature flag', async
   });
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   expect(
     screen.queryByText('Number of Report Copies on VxScan')
@@ -578,6 +587,7 @@ test('cancelling', async () => {
   renderScreen();
 
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   expect(
@@ -616,6 +626,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   renderScreen();
 
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   const allTextBoxes = document.body.querySelectorAll('input');
 
@@ -656,6 +667,7 @@ describe('BMD print mode', () => {
     renderScreen();
 
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
     expect(screen.queryByText('VxMark Print Mode')).not.toBeInTheDocument();
   });
 
@@ -872,6 +884,7 @@ test.each<{
     renderScreen();
 
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
     if (!isCheckboxExpected) {
       expect(screen.queryByText(checkboxLabel)).not.toBeInTheDocument();
     } else {
@@ -906,6 +919,7 @@ describe('election day polls close time', () => {
       .resolves(electionRecord.systemSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -946,6 +960,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     userEvent.click(
@@ -983,6 +998,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     userEvent.click(
@@ -1020,6 +1036,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     const input = screen.getByLabelText<HTMLInputElement>(
       'Election Day Polls Close Time'
@@ -1064,6 +1081,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     const input = screen.getByLabelText('Election Day Polls Close Time');
@@ -1098,6 +1116,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -1154,6 +1173,7 @@ describe('election day polls close time', () => {
       .resolves(initialSettings);
     renderScreen();
     await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
 
     userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     const input = screen.getByLabelText('Election Day Polls Close Time');
@@ -1202,6 +1222,7 @@ test('validates streak width threshold must be less than max cumulative width', 
     .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
+  await screen.findByRole('button', { name: 'Edit' });
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
