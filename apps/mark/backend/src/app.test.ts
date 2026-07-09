@@ -642,7 +642,6 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
       apiClient.printBlankBallot({
         ballotStyleId: '1',
         precinctId: '23',
-        languageCode: 'en',
       })
     ).rejects.toThrow('No ballot PDF found');
   });
