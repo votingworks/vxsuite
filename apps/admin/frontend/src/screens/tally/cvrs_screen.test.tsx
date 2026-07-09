@@ -173,7 +173,7 @@ test('load button opens import panel', async () => {
   await waitFor(() => api.assertComplete());
   screen.getByText(/Load CVRs/);
 
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Done'));
   expect(screen.queryByText(/Load CVRs/)).not.toBeInTheDocument();
 });
 

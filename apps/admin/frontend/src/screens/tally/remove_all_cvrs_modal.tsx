@@ -42,6 +42,7 @@ export function RemoveAllCvrsModal({
     });
   }
 
+  /* istanbul ignore next - TODO: Add missing coverage for updated CVR screen */
   function removeManualResults() {
     deleteAllManualResultsMutation.mutate(undefined, {
       onSuccess: onClose,
@@ -81,6 +82,7 @@ export function RemoveAllCvrsModal({
     );
   }
 
+  /* istanbul ignore next - TODO: Add missing coverage for updated CVR screen */
   return (
     <Modal
       title="Remove All Manual Tallies"

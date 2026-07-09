@@ -16,7 +16,7 @@ interface Props {
   path: string;
   nCvrs: number;
   onPress: (path: string) => void;
-  scannerIds: string[];
+  scannerIds: readonly string[];
   status: Status;
   testExport: boolean;
   type: PollingPlaceType;

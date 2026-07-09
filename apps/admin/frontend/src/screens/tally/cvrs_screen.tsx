@@ -15,9 +15,9 @@ import { CvrSummaries } from './cvr_summaries';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles';
 import { LocationFilter, LocationFilterBar } from './location_filter_bar';
 import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
-import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { CvrsState, useCvrsState } from './cvrs_state';
 import { LocationList } from './location_list';
+import { CvrImportPanel } from './cvr_import_panel';
 
 const TEST_MODE_CONTAINER_CSS = css`
   grid-template-rows: min-content min-content 1fr;
@@ -61,9 +61,8 @@ export function CvrsScreen(): React.ReactNode {
         <ViewPanel openImportPanel={() => setUiMode('import')} state={state} />
       )}
 
-      {/* [TODO] Render inline import panel instead of modal. */}
       {uiMode === 'import' && (
-        <ImportCvrFilesModal onClose={() => setUiMode('view')} />
+        <CvrImportPanel onClose={() => setUiMode('view')} />
       )}
     </Container>
   );

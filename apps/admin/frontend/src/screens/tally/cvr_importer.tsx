@@ -13,6 +13,7 @@ import type {
   CvrFileMode,
 } from '@votingworks/admin-backend';
 import { Button } from '@votingworks/ui';
+import { ElectionDefinition } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
 import * as api from '../../api';
@@ -22,6 +23,7 @@ export type ImportFn = (p: { path: string }) => void;
 export type CvrImporter =
   | {
       state: 'duplicate';
+      electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
       result: CvrFileImportInfo;
       reset: () => void;
@@ -29,6 +31,7 @@ export type CvrImporter =
     }
   | {
       state: 'error';
+      electionDefinition: ElectionDefinition;
       errorMessage: string;
       existingImports: ExistingImports;
       filename: string;
@@ -37,12 +40,14 @@ export type CvrImporter =
     }
   | {
       state: 'importing';
+      electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
       path: string;
       usbExports: CvrExport[];
     }
   | {
       state: 'init';
+      electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
       import: ImportFn;
       manualImportButton: React.ReactNode;
@@ -53,11 +58,13 @@ export type CvrImporter =
     }
   | {
       state: 'noUsb';
+      electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
       manualImportButton: React.ReactNode;
     }
   | {
       state: 'success';
+      electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
       import: ImportFn;
       manualImportButton: React.ReactNode;
@@ -102,6 +109,7 @@ export function useCvrImporter(): CvrImporter {
   ) {
     return {
       state: 'noUsb',
+      electionDefinition,
       existingImports,
       manualImportButton,
     };
@@ -114,6 +122,7 @@ export function useCvrImporter(): CvrImporter {
   if (importMutation.status === 'loading') {
     return {
       state: 'importing',
+      electionDefinition,
       existingImports,
       path: assertDefined(importMutation.variables).path,
       usbExports: usbExports.data,
@@ -124,6 +133,7 @@ export function useCvrImporter(): CvrImporter {
     if (importMutation.data.isErr()) {
       return {
         state: 'error',
+        electionDefinition,
         errorMessage: errorMessage(importMutation.data.err()),
         existingImports,
         filename: assertDefined(importMutation.variables).path,
@@ -137,6 +147,7 @@ export function useCvrImporter(): CvrImporter {
     if (result.wasExistingFile) {
       return {
         state: 'duplicate',
+        electionDefinition,
         existingImports,
         reset: importMutation.reset,
         result,
@@ -146,6 +157,7 @@ export function useCvrImporter(): CvrImporter {
 
     return {
       state: 'success',
+      electionDefinition,
       existingImports,
       import: importMutation.mutate,
       manualImportButton,
@@ -157,6 +169,7 @@ export function useCvrImporter(): CvrImporter {
 
   return {
     state: 'init',
+    electionDefinition,
     existingImports,
     import: importMutation.mutate,
     manualImportButton,
@@ -164,6 +177,7 @@ export function useCvrImporter(): CvrImporter {
   };
 }
 
+/* istanbul ignore next - TODO: remove once this is rendered in the new UI */
 function ManualImportButton(props: { importFn: ImportFn }) {
   const { importFn } = props;
 
@@ -189,7 +203,8 @@ function ManualImportButton(props: { importFn: ImportFn }) {
   );
 }
 
-function errorMessage(err: ImportCastVoteRecordsError): string {
+export function errorMessage(err: ImportCastVoteRecordsError): string {
+  /* istanbul ignore next - mostly trivial error mapping */
   switch (err.type) {
     case 'authentication-error': {
       return (

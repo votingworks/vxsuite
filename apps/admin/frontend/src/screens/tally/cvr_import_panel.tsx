@@ -1,4 +1,3 @@
-/* istanbul ignore file - TODO: remove when CvrUsbExports is implemented. */
 import React from 'react';
 import styled from 'styled-components';
 
@@ -69,8 +68,8 @@ export function CvrImportPanel(props: Props): React.ReactNode {
       case 'init':
         return null;
 
-      /* istanbul ignore next */
       default:
+        /* istanbul ignore next */
         throwIllegalValue(importer, 'state');
     }
   })();
@@ -212,7 +211,7 @@ function PartialImportAlert(props: {
   if (total === 1) {
     return (
       <Alert close={close} title="No New CVRs Loaded">
-        The 1 CVR in the selected export was previously loaded.
+        The only CVR in the selected export was previously loaded.
       </Alert>
     );
   }

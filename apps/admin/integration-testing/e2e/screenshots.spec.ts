@@ -584,10 +584,10 @@ test('results', async ({ page }, testInfo) => {
   await screenshot('load-cvrs');
 
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('17 New CVRs Loaded').waitFor();
+  await expect(page.getByRole('button', { name: 'Done' })).toBeEnabled();
   await screenshot('cvrs-loaded');
 
-  await page.getByRole('button', { name: 'Close' }).click();
+  await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Cvrs17').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
@@ -891,8 +891,8 @@ test('adjudication', async ({ page }, testInfo) => {
   });
   await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('3 New CVRs Loaded').waitFor();
-  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(page.getByRole('button', { name: 'Done' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Cvrs3').waitFor();
 
   // Adjudication start screen
@@ -1060,8 +1060,8 @@ test('qualified write-in candidates', async ({ page }, testInfo) => {
   });
   await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('1 New CVR Loaded').waitFor();
-  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(page.getByRole('button', { name: 'Done' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Done' }).click();
 
   // Adjudicate the write-in: the dropdown now offers the qualified candidates
   // we added, rather than free-text entry.
@@ -1108,8 +1108,8 @@ test('manual results', async ({ page }, testInfo) => {
   });
   await page.getByRole('button', { name: 'Load', exact: true }).click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('184 New CVRs Loaded').waitFor();
-  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(page.getByRole('button', { name: 'Done' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Done' }).click();
   await page.getByText('Cvrs184').waitFor();
 
   await page.getByText('Manual Tallies').click();
