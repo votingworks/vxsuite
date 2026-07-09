@@ -1454,6 +1454,54 @@ describe('election day polls close time enforcement', () => {
       expect(screen.queryByText('Close Polls')).not.toBeInTheDocument();
     });
 
+    test('before close time, disallow flag set, polls open - Close Polls in menu is disabled with explanation', async () => {
+      vi.setSystemTime(BEFORE_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'early_voting',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+          disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_open');
+      renderScreen({});
+
+      const pauseVotingButton = await screen.findButton('Pause Voting');
+      expect(pauseVotingButton).toHaveAttribute('data-variant', 'primary');
+
+      userEvent.click(await screen.findByText('Menu'));
+      await screen.findByText(/Polls cannot be closed until/);
+      await screen.findByText(/8:00 PM/);
+      expect(screen.getButton('Close Polls')).toBeDisabled();
+    });
+
+    test('before close time, disallow flag set, polls paused - Close Polls in menu is disabled with explanation', async () => {
+      vi.setSystemTime(BEFORE_CLOSE_TIME);
+      apiMock.mockApiClient.getConfig.reset();
+      apiMock.expectGetConfig({
+        isTestMode: false,
+        ballotCastingMode: 'early_voting',
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          electionDayPollsCloseTime: POLLS_CLOSE_TIME,
+          disallowClosingPollsBeforeElectionDayPollsCloseTime: true,
+        },
+      });
+      apiMock.expectGetPollsInfo('polls_paused');
+      renderScreen({});
+
+      const resumeVotingButton = await screen.findButton('Resume Voting');
+      expect(resumeVotingButton).toHaveAttribute('data-variant', 'primary');
+
+      userEvent.click(await screen.findByText('Menu'));
+      await screen.findByText(/Polls cannot be closed until/);
+      await screen.findByText(/8:00 PM/);
+      expect(screen.getButton('Close Polls')).toBeDisabled();
+    });
+
     test('past close time - Close Polls is primary action in menu', async () => {
       vi.setSystemTime(AFTER_CLOSE_TIME);
       apiMock.mockApiClient.getConfig.reset();
