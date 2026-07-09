@@ -160,6 +160,7 @@ const server = http.createServer((req, res) => {
             webhook_url?: string;
             qa_run_id?: string;
             election_id?: string;
+            vxsuite_version?: string;
           };
         };
         const params = data.parameters ?? {};
@@ -169,6 +170,7 @@ const server = http.createServer((req, res) => {
         console.log(`  webhook_url: ${params.webhook_url}`);
         console.log(`  qa_run_id: ${params.qa_run_id}`);
         console.log(`  election_id: ${params.election_id}`);
+        console.log(`  vxsuite_version: ${params.vxsuite_version}`);
 
         pipelineCounter += 1;
         const pipelineId = `mock-pipeline-${Date.now()}-${pipelineCounter}`;
