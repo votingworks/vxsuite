@@ -17,7 +17,12 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
-import { setPollsState, setTestMode, useApiClient } from '../api';
+import {
+  getSystemSettings,
+  setPollsState,
+  setTestMode,
+  useApiClient,
+} from '../api';
 import { PrintBlankBallotScreen } from './print_blank_ballot_screen';
 
 export interface PollworkerScreenProps {
@@ -66,8 +71,13 @@ export function PollWorkerScreen({
     React.useState(false);
 
   const apiClient = useApiClient();
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const setPollsStateMutation = setPollsState.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
+
+  const allowPrintingBlankBallots = Boolean(
+    systemSettingsQuery.data?.allowPrintingBlankBallotsFromVxMark
+  );
 
   const onChooseBallotStyle = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
@@ -140,7 +150,9 @@ export function PollWorkerScreen({
               pollingPlaceId={pollingPlaceId}
             />
           )}
-          <SectionPrintBlankBallot onPress={onPressPrintBlankBallot} />
+          {allowPrintingBlankBallots && (
+            <SectionPrintBlankBallot onPress={onPressPrintBlankBallot} />
+          )}
           <SectionPollsState
             pollsState={pollsState}
             updatePollsState={(newPollsState) =>

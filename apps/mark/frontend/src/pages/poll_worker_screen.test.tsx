@@ -7,6 +7,7 @@ import {
   anyPollingPlace,
   BallotStyleId,
   constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   formatElectionHashes,
   InsertedSmartCardAuth,
@@ -124,7 +125,15 @@ function renderScreen(
   );
 }
 
+function expectSystemSettings(allowPrintingBlankBallotsFromVxMark = false) {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowPrintingBlankBallotsFromVxMark,
+  });
+}
+
 test('renders PollWorkerScreen', () => {
+  expectSystemSettings();
   renderScreen(undefined, undefined, undefined);
   screen.getByText('Poll Worker Menu');
   expect(
@@ -138,6 +147,7 @@ test('switching out of test mode on election day', () => {
     ...election,
     date: DateWithoutTime.today(),
   });
+  expectSystemSettings();
   apiMock.expectSetTestMode(false);
   renderScreen({
     pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
@@ -155,6 +165,7 @@ test('keeping test mode on election day', () => {
     ...election,
     date: DateWithoutTime.today(),
   });
+  expectSystemSettings();
   renderScreen({ electionDefinition });
 
   screen.getByText(
@@ -164,6 +175,7 @@ test('keeping test mode on election day', () => {
 });
 
 test('live mode on election day', () => {
+  expectSystemSettings();
   renderScreen({ isLiveMode: true });
   expect(
     screen.queryByText(
@@ -173,6 +185,7 @@ test('live mode on election day', () => {
 });
 
 test('Shows election info', () => {
+  expectSystemSettings();
   renderScreen();
   screen.getByText(election.title);
   screen.getByText(
@@ -189,6 +202,7 @@ test('renders session start section', () => {
   const activateCardlessVoterSession = vi.fn();
   const pollingPlaceId = pollingPlace.id;
 
+  expectSystemSettings();
   renderScreen({
     activateCardlessVoterSession,
     pollingPlaceId,
@@ -212,6 +226,7 @@ test('renders session start section', () => {
 });
 
 test('prints a blank ballot for the selected ballot style', async () => {
+  expectSystemSettings(true);
   apiMock.mockApiClient.printBlankBallot
     .expectCallWith({
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
@@ -221,7 +236,7 @@ test('prints a blank ballot for the selected ballot style', async () => {
 
   renderScreen();
 
-  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
   screen.getByText('Select a Ballot Style to Print');
 
   fireEvent.click(screen.getByText('Mock Select Ballot Style'));
@@ -244,16 +259,25 @@ test('prints a blank ballot for the selected ballot style', async () => {
   });
 });
 
-test('returns to the poll worker menu from the print blank ballot screen', () => {
+test('returns to the poll worker menu from the print blank ballot screen', async () => {
+  expectSystemSettings(true);
   renderScreen();
 
-  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
   screen.getByText('Select a Ballot Style to Print');
 
   fireEvent.click(screen.getByRole('button', { name: 'Back' }));
 
   expect(screen.queryByText('Select a Ballot Style to Print')).toBeNull();
   screen.getByText('Print Blank Ballot');
+});
+
+test('hides the Print Blank Ballot button when the setting is disabled', () => {
+  expectSystemSettings(false);
+  renderScreen();
+
+  screen.getByText('Poll Worker Menu');
+  expect(screen.queryByText('Print Blank Ballot')).toBeNull();
 });
 
 const multiLanguageDefinition = getMockMultiLanguageElectionDefinition(
@@ -286,6 +310,7 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
   }).unsafeUnwrap();
   mockBallotStyleSelectReturning(englishBallotStyle.id);
 
+  expectSystemSettings(true);
   apiMock.mockApiClient.printBlankBallot
     .expectCallWith({
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
@@ -299,7 +324,7 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
     multiLanguageDefinition
   );
 
-  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
 
   // Selecting a ballot style reveals a language dropdown scoped to that style.
   fireEvent.click(screen.getByText('Mock Select Ballot Style'));
@@ -325,6 +350,7 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
 test('prints in the default language when the dropdown is left unchanged', async () => {
   mockBallotStyleSelectReturning(englishBallotStyle.id);
 
+  expectSystemSettings(true);
   apiMock.mockApiClient.printBlankBallot
     .expectCallWith({
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
@@ -338,7 +364,7 @@ test('prints in the default language when the dropdown is left unchanged', async
     multiLanguageDefinition
   );
 
-  fireEvent.click(screen.getByText('Print Blank Ballot'));
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
   fireEvent.click(screen.getByText('Mock Select Ballot Style'));
   screen.getByText('Language');
   fireEvent.click(screen.getByText('Print Ballot'));
