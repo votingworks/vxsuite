@@ -87,5 +87,5 @@
     "vitest": "^4.1.6",
     "wait-for-expect": "^3.0.2"
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@10.34.5"
 }
