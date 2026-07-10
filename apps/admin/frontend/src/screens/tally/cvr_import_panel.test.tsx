@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type {
   CastVoteRecordFileRecord as CvrImport,
@@ -9,8 +9,9 @@ import type {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-
+import { mockKiosk } from '@votingworks/test-utils';
 import { deferred, err, ok, Result, sleep } from '@votingworks/basics';
+
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { CvrImportPanel } from './cvr_import_panel';
@@ -23,6 +24,10 @@ import {
   location2,
   location2Export,
 } from '../../../test/helpers/cvrs';
+
+beforeEach(() => {
+  window.kiosk = mockKiosk(vi.fn);
+});
 
 describe('title reflects CVR mode', () => {
   async function expectTitle(api: ApiMock, title: string) {
@@ -235,11 +240,64 @@ test('disables controls while importing', async () => {
 
   expect(screen.getButton(new RegExp(location1.name))).toBeDisabled();
   expect(screen.getButton(new RegExp(location2.name))).toBeDisabled();
+  expect(screen.getButton(/Select CVR Export Manually/)).toBeDisabled();
   expect(screen.getButton('Done')).toBeDisabled();
 
   mockModeOfficial(api, []);
   deferredRes.resolve(ok(res));
   await waitFor(() => api.assertComplete());
+});
+
+test('supports manual file selection', async () => {
+  const api = createApiMock();
+  mockModeUnlocked(api);
+  mockUsbExports(api, []);
+
+  render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
+  await waitFor(() => api.assertComplete());
+
+  const mockPath = '/foo/metadata.json';
+  vi.mocked(window.kiosk)?.showOpenDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePaths: [mockPath],
+  });
+
+  const res = resultFromExport(location1Export, {});
+  mockImportResult(api, mockPath, ok(res));
+  mockModeOfficial(api, []);
+
+  userEvent.click(screen.getButton(/Select CVR Export Manually/));
+  await waitFor(() => api.assertComplete());
+});
+
+test('handles user cancellation in manual file selection', async () => {
+  const api = createApiMock();
+  mockModeUnlocked(api);
+  mockUsbExports(api, []);
+
+  render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
+  await waitFor(() => api.assertComplete());
+
+  vi.mocked(window.kiosk)?.showOpenDialog.mockResolvedValueOnce({
+    canceled: true,
+    filePaths: [],
+  });
+
+  userEvent.click(screen.getButton(/Select CVR Export Manually/));
+  await waitFor(() => api.assertComplete());
+});
+
+test('omits manual file selector when running outside kiosk-browser', async () => {
+  const api = createApiMock();
+  mockModeUnlocked(api);
+  mockUsbExports(api, []);
+
+  delete window.kiosk;
+
+  render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
+  await waitFor(() => api.assertComplete());
+
+  expect(screen.queryButton(/Select.+Manually/)).not.toBeInTheDocument();
 });
 
 type CvrImportResult = Result<CvrImportOk, CvrImportErr>;
