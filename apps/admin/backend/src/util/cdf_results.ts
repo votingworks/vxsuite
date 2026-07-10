@@ -3,7 +3,6 @@ import {
   Election,
   NcName,
   ResultsReporting,
-  straightPartyNotYetImplemented,
   Tabulation,
   YesNoContest,
 } from '@votingworks/types';
@@ -173,12 +172,19 @@ function buildContests(
   const reportContests: ReportContest[] = [];
 
   for (const contest of election.contests) {
-    const contestResults = electionResults.contestResults[contest.id];
-    assert(contestResults);
     /* istanbul ignore next */
     if (contest.type === 'straight-party') {
-      straightPartyNotYetImplemented();
+      /**
+       * Simply skip the straight party contest for now so that the export
+       * doesn't crash.
+       *
+       * Including this reference for easy cataloging of straight party gaps:
+       * straightPartyNotYetImplemented()
+       */
+      continue;
     }
+    const contestResults = electionResults.contestResults[contest.id];
+    assert(contestResults);
     if (contest.type === 'yesno') {
       assert(contestResults.contestType === 'yesno');
       reportContests.push(buildBallotMeasureContest(contest, contestResults));

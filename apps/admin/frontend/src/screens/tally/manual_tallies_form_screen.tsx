@@ -437,7 +437,10 @@ function BallotCountForm({
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
-  const contests = getContests({ election, ballotStyle: ballotStyleGroup });
+  const contests = getContests({
+    election,
+    ballotStyle: ballotStyleGroup,
+  }).filter((c) => c.type !== 'straight-party'); // Simply skip the straight party contest for now
 
   const initialManualResults = convertTabulationResultsToFormResults(
     contests,
@@ -552,7 +555,10 @@ function ContestForm({
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
 
-  const contests = getContests({ election, ballotStyle: ballotStyleGroup });
+  const contests = getContests({
+    election,
+    ballotStyle: ballotStyleGroup,
+  }).filter((c) => c.type !== 'straight-party'); // Simply skip the straight party contest for now
   const contest = find(contests, (c) => c.id === contestId);
   const contestIndex = contests.indexOf(contest);
   const nextContest = contests[contestIndex + 1];
