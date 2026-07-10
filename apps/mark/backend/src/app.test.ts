@@ -616,7 +616,6 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   await apiClient.printBlankBallot({
     ballotStyleId: '1',
     precinctId: '23',
-    languageCode: 'en',
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
@@ -627,6 +626,24 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
     assertDefined(mockPrinterHandler.getLastPrintPath())
   );
   expect(printedData.toString('utf-8')).toEqual(mockBallotPdfData);
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    expect.objectContaining({
+      message: 'Printing a blank ballot',
+      ballotStyleId: '1',
+      precinctId: '23',
+    })
+  );
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintComplete,
+    expect.objectContaining({
+      message: 'Blank ballot printed',
+      disposition: 'success',
+      ballotStyleId: '1',
+      precinctId: '23',
+    })
+  );
 });
 
 test('printing a blank ballot throws when no ballot PDF is available', async () => {
@@ -642,10 +659,19 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
       apiClient.printBlankBallot({
         ballotStyleId: '1',
         precinctId: '23',
-        languageCode: 'en',
       })
     ).rejects.toThrow('No ballot PDF found');
   });
+
+  // The request is logged, but the completion is not, since printing failed.
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    expect.objectContaining({ message: 'Printing a blank ballot' })
+  );
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalledWith(
+    LogEventId.PrinterPrintComplete,
+    expect.anything()
+  );
 });
 
 test('printing a blank ballot throws when the setting is not enabled', async () => {
@@ -659,7 +685,6 @@ test('printing a blank ballot throws when the setting is not enabled', async () 
       apiClient.printBlankBallot({
         ballotStyleId: '1',
         precinctId: '23',
-        languageCode: 'en',
       })
     ).rejects.toThrow('Printing blank ballots from VxMark is not enabled');
   });

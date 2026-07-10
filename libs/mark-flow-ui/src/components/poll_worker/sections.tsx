@@ -17,8 +17,7 @@ import {
 } from '@votingworks/utils';
 import {
   Election,
-  pollingPlaceFromElection,
-  pollingPlaceMembers,
+  getConfiguredPrecinctsAndSplits,
   PollsState,
 } from '@votingworks/types';
 import { BallotStyleSelect, OnBallotStyleSelect } from './ballot_style_select';
@@ -80,14 +79,6 @@ export interface SectionSessionStartProps {
   onChooseBallotStyle: OnBallotStyleSelect;
   pollingPlaceId: string;
   disabled?: boolean;
-}
-
-function getConfiguredPrecinctsAndSplits(p: {
-  election: Election;
-  pollingPlaceId: string;
-}) {
-  const pollingPlace = pollingPlaceFromElection(p.election, p.pollingPlaceId);
-  return pollingPlaceMembers(p.election, pollingPlace);
 }
 
 export function SectionSessionStart(

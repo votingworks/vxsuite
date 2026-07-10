@@ -342,12 +342,23 @@ export function buildApi(ctx: Context) {
         systemSettings.allowPrintingBlankBallotsFromVxMark,
         'Printing blank ballots from VxMark is not enabled'
       );
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        message: 'Printing a blank ballot',
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+      });
       await printBlankBallot({
         store,
         printer,
         ...input,
       });
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+        message: 'Blank ballot printed',
+        disposition: 'success',
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+      });
     },
 
     async printTestDeck({

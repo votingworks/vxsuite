@@ -22,4 +22,7 @@ export interface PrintBallotProps {
   votes: VotesDict;
 }
 
-export type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes'>;
+export type PrintBlankBallotProps = Omit<
+  PrintBallotProps,
+  'votes' | 'languageCode'
+>;

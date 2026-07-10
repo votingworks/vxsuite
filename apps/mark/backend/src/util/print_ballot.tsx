@@ -46,7 +46,7 @@ export interface PrintBallotProps extends ClientParams {
   store: Store;
 }
 
-type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes'>;
+type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes' | 'languageCode'>;
 
 export async function printBallot(p: PrintBallotProps): Promise<void> {
   const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
