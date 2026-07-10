@@ -288,6 +288,10 @@ function generateCircleCiFilteredAppConfigForPackage(
     '          name: Ensure Rust tooling is in PATH',
     '          command: |',
     '            echo \'export PATH="/root/.cargo/bin:$PATH"\' >> $BASH_ENV',
+    '      # TODO: Remove once the CI base images ship pnpm 10 (VX_DOCKER images).',
+    '      - run:',
+    '          name: Install pnpm 10',
+    '          command: npm install --global pnpm@10.34.5',
     '      - checkout',
     '      # Edit this comment somehow in order to invalidate the CircleCI cache.',
     '      # Since the contents of this file affect the cache key, editing only a',
@@ -310,7 +314,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     '                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
     '                  "pnpm-lock.yaml" }}',
     '                paths:',
-    '                  - /root/.local/share/pnpm/store/v3',
+    '                  - /root/.local/share/pnpm/store/v10',
     '                  - /root/.cache/ms-playwright',
     '      - restore_cache:',
     '          name: Restore Cargo Cache',
@@ -491,6 +495,10 @@ commands:
           name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      # TODO: Remove once the CI base images ship pnpm 10 (VX_DOCKER images).
+      - run:
+          name: Install pnpm 10
+          command: npm install --global pnpm@10.34.5
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
@@ -511,7 +519,7 @@ commands:
                 key:
                   pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
                 paths:
-                  - /root/.local/share/pnpm/store/v3
+                  - /root/.local/share/pnpm/store/v10
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
