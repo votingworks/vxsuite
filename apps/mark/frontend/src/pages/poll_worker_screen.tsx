@@ -125,7 +125,6 @@ export function PollWorkerScreen({
     return (
       <PrintBlankBallotScreen
         isLiveMode={isLiveMode}
-        ballotsPrintedCount={ballotsPrintedCount}
         election={election}
         electionPackageHash={electionPackageHash}
         electionDefinition={electionDefinition}

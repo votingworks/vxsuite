@@ -26,19 +26,16 @@ import { UpdatePollsButton } from './update_polls_button';
 
 export interface HeaderProps {
   ballotsPrintedCount: number;
-  hideRemoveCardMessage?: boolean;
 }
 
 /* istanbul ignore next - currently tested via apps. */
 export function SectionHeader(props: HeaderProps): JSX.Element {
-  const { ballotsPrintedCount, hideRemoveCardMessage } = props;
+  const { ballotsPrintedCount } = props;
 
   return (
     <React.Fragment>
       <H2 as="h1">Poll Worker Menu</H2>
-      {!hideRemoveCardMessage && (
-        <P>Remove the poll worker card to leave this screen.</P>
-      )}
+      <P>Remove the poll worker card to leave this screen.</P>
       <P style={{ fontSize: '1.2em' }}>
         <Font weight="bold">Ballots Printed:</Font>{' '}
         {format.count(ballotsPrintedCount)}

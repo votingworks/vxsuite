@@ -27,14 +27,23 @@ import {
   Modal,
   Loading,
   SearchSelect,
+  H2,
 } from '@votingworks/ui';
+
+import styled from 'styled-components';
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { printBlankBallot } from '../api';
 
+const Contents = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+`;
+
 export interface PrintBlankBallotScreenProps {
   isLiveMode: boolean;
-  ballotsPrintedCount: number;
   electionPackageHash: string;
   electionDefinition: ElectionDefinition;
   election: Election;
@@ -45,7 +54,6 @@ export interface PrintBlankBallotScreenProps {
 
 export function PrintBlankBallotScreen({
   isLiveMode,
-  ballotsPrintedCount,
   electionPackageHash,
   electionDefinition,
   election,
@@ -53,7 +61,7 @@ export function PrintBlankBallotScreen({
   pollingPlaceId,
   onBackButtonPress,
 }: PrintBlankBallotScreenProps): JSX.Element {
-  const { BallotStyleSelect, SectionHeader } = pollWorkerComponents;
+  const { BallotStyleSelect } = pollWorkerComponents;
   const printBlankBallotMutation = printBlankBallot.useMutation();
 
   const [printStatus, setPrintStatus] = React.useState<
@@ -124,62 +132,50 @@ export function PrintBlankBallotScreen({
     <Screen>
       {!isLiveMode && <TestModeBanner />}
       <Main padded>
-        <div>
-          <SectionHeader
-            ballotsPrintedCount={ballotsPrintedCount}
-            hideRemoveCardMessage
-          />
-          <P>
-            <Button icon="Previous" onPress={onBackButtonPress}>
-              Back
-            </Button>
-          </P>
-          <H4 as="h2">Select a Ballot Style to Print</H4>
+        <Contents>
+          <H2 as="h1">Blank Ballot Printing</H2>
+          <Button icon="Previous" onPress={onBackButtonPress}>
+            Back
+          </Button>
+          <H4 as="h2">Ballot Style</H4>
           <BallotStyleSelect
             election={election}
             onSelect={onChooseBallotStyle}
             disabled={printStatus !== 'idle'}
+            selectedBallotStyleId={selection?.ballotStyleId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
               pollingPlaceId,
             })}
           />
-          {selection && (
+          {selection && showLanguagePicker && (
             <React.Fragment>
-              {showLanguagePicker && (
-                <React.Fragment>
-                  <H4 as="h2">Language</H4>
-                  <P>
-                    <SearchSelect
-                      aria-label="Ballot language"
-                      options={languageOptions.map((languageCode) => ({
-                        value: languageCode,
-                        label: format.languageDisplayName({ languageCode }),
-                      }))}
-                      value={selectedLanguage}
-                      onChange={(value) => {
-                        if (value) {
-                          setSelectedLanguage(value);
-                        }
-                      }}
-                      style={{ width: '100%' }}
-                      disabled={printStatus !== 'idle'}
-                    />
-                  </P>
-                </React.Fragment>
-              )}
-              <P>
-                <Button
-                  variant="primary"
-                  onPress={onPrint}
-                  disabled={printStatus !== 'idle'}
-                >
-                  Print Ballot
-                </Button>
-              </P>
+              <H4 as="h2">Language</H4>
+              <SearchSelect
+                aria-label="Ballot language"
+                options={languageOptions.map((languageCode) => ({
+                  value: languageCode,
+                  label: format.languageDisplayName({ languageCode }),
+                }))}
+                value={selectedLanguage}
+                onChange={(value) => {
+                  if (value) {
+                    setSelectedLanguage(value);
+                  }
+                }}
+                style={{ width: '100%' }}
+                disabled={printStatus !== 'idle'}
+              />
             </React.Fragment>
           )}
-        </div>
+          <Button
+            variant="primary"
+            onPress={onPrint}
+            disabled={printStatus !== 'idle'}
+          >
+            Print Ballot
+          </Button>
+        </Contents>
       </Main>
       {printStatus === 'printing' && (
         <Modal centerContent content={<Loading>Printing Ballot</Loading>} />

@@ -23,10 +23,18 @@ export interface BallotStyleSelectProps {
   configuredPrecinctsAndSplits: PrecinctOrSplit[];
   onSelect: OnBallotStyleSelect;
   disabled?: boolean;
+  /** Highlights the button for this ballot style, if any, as selected. */
+  selectedBallotStyleId?: BallotStyleId;
 }
 
 export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
-  const { election, configuredPrecinctsAndSplits, onSelect, disabled } = props;
+  const {
+    election,
+    configuredPrecinctsAndSplits,
+    onSelect,
+    disabled,
+    selectedBallotStyleId,
+  } = props;
 
   // Only used for primary elections
   const [selectedPrecinctOrSplitId, setSelectedPrecinctOrSplitId] = useState<
@@ -49,16 +57,16 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     if (configuredPrecinctsAndSplits.length === 1) {
       const [precinctOrSplit] = configuredPrecinctsAndSplits;
       const { precinct } = precinctOrSplit;
+      const ballotStyleId =
+        getBallotStyleForPrecinctOrSplit(precinctOrSplit).id;
       return (
         <Button
-          onPress={() =>
-            onSelect(
-              precinct.id,
-              getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
-            )
-          }
+          onPress={() => onSelect(precinct.id, ballotStyleId)}
           rightIcon="Next"
           disabled={disabled}
+          variant={
+            ballotStyleId === selectedBallotStyleId ? 'primary' : 'neutral'
+          }
         >
           {precinct.name}
         </Button>
@@ -150,6 +158,11 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                     onSelect(selectedPrecinctOrSplit.precinct.id, ballotStyleId)
                   }
                   disabled={disabled}
+                  variant={
+                    ballotStyleId === selectedBallotStyleId
+                      ? 'primary'
+                      : 'neutral'
+                  }
                 >
                   {
                     assertDefined(

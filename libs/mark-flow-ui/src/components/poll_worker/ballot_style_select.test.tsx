@@ -35,6 +35,23 @@ describe('general election', () => {
     expect(onSelect).toHaveBeenCalledWith(precinct.id, ballotStyle.id);
   });
 
+  test('highlights the selected precinct button', () => {
+    const precinct = election.precincts[0];
+    const ballotStyle = election.ballotStyles[0];
+
+    renderSelect({
+      election,
+      onSelect: vi.fn(),
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
+      selectedBallotStyleId: ballotStyle.id,
+    });
+
+    expect(screen.getButton(precinct.name)).toHaveAttribute(
+      'data-variant',
+      'primary'
+    );
+  });
+
   test('single precinct configuration with splits', () => {
     const precinct = election.precincts[1];
     assert(hasSplits(precinct));
@@ -114,6 +131,23 @@ describe('primary election', () => {
     userEvent.click(screen.getButton('Mammal'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, '1-Ma_en');
+  });
+
+  test('highlights the selected party button', () => {
+    const precinct = election.precincts[0];
+
+    renderSelect({
+      election,
+      onSelect: vi.fn(),
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
+      selectedBallotStyleId: '1-Ma_en',
+    });
+
+    expect(screen.getButton('Mammal')).toHaveAttribute(
+      'data-variant',
+      'primary'
+    );
+    expect(screen.getButton('Fish')).toHaveAttribute('data-variant', 'neutral');
   });
 
   test('single precinct configuration with splits', () => {

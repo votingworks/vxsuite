@@ -237,7 +237,7 @@ test('prints a blank ballot for the selected ballot style', async () => {
   renderScreen();
 
   fireEvent.click(await screen.findByText('Print Blank Ballot'));
-  screen.getByText('Select a Ballot Style to Print');
+  screen.getByText('Ballot Style');
 
   fireEvent.click(screen.getByText('Mock Select Ballot Style'));
   fireEvent.click(screen.getByText('Print Ballot'));
@@ -264,11 +264,11 @@ test('returns to the poll worker menu from the print blank ballot screen', async
   renderScreen();
 
   fireEvent.click(await screen.findByText('Print Blank Ballot'));
-  screen.getByText('Select a Ballot Style to Print');
+  screen.getByText('Ballot Style');
 
   fireEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-  expect(screen.queryByText('Select a Ballot Style to Print')).toBeNull();
+  expect(screen.queryByText('Ballot Style')).toBeNull();
   screen.getByText('Print Blank Ballot');
 });
 
