@@ -120,7 +120,8 @@ function Panel(props: {
         {children}
       </Body>
 
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
+      <div style={{ display: 'flex', gap: GAP, justifyContent: 'end' }}>
+        {importer.manualImportButton}
         <Button
           disabled={disableClose}
           fill="outlined"

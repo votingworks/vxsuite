@@ -156,6 +156,7 @@ test('import cards disabled while importing', () => {
     state: 'importing',
     electionDefinition,
     existingImports: { imports: [], mode: 'unlocked' },
+    manualImportButton: null,
     path: location2Export.path,
     usbExports: [location1Export, location2Export],
   };

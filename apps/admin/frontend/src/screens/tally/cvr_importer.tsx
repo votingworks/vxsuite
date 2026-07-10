@@ -25,6 +25,7 @@ export type CvrImporter =
       state: 'duplicate';
       electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
+      manualImportButton?: undefined;
       result: CvrFileImportInfo;
       reset: () => void;
       usbExports: CvrExport[];
@@ -34,6 +35,7 @@ export type CvrImporter =
       electionDefinition: ElectionDefinition;
       errorMessage: string;
       existingImports: ExistingImports;
+      manualImportButton?: undefined;
       filename: string;
       reset: () => void;
       usbExports: CvrExport[];
@@ -42,6 +44,7 @@ export type CvrImporter =
       state: 'importing';
       electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
+      manualImportButton: React.ReactNode;
       path: string;
       usbExports: CvrExport[];
     }
@@ -55,12 +58,13 @@ export type CvrImporter =
     }
   | {
       state: 'loading';
+      manualImportButton?: undefined;
     }
   | {
       state: 'noUsb';
       electionDefinition: ElectionDefinition;
       existingImports: ExistingImports;
-      manualImportButton: React.ReactNode;
+      manualImportButton?: undefined;
     }
   | {
       state: 'success';
@@ -89,9 +93,6 @@ export function useCvrImporter(): CvrImporter {
   const usbExports = api.listCastVoteRecordFilesOnUsb.useQuery(usbDriveStatus);
 
   const importMutation = api.addCastVoteRecordFile.useMutation();
-  const manualImportButton = (
-    <ManualImportButton importFn={importMutation.mutate} />
-  );
 
   if (!imports.isSuccess || !cvrMode.isSuccess) {
     return { state: 'loading' };
@@ -111,7 +112,6 @@ export function useCvrImporter(): CvrImporter {
       state: 'noUsb',
       electionDefinition,
       existingImports,
-      manualImportButton,
     };
   }
 
@@ -124,6 +124,9 @@ export function useCvrImporter(): CvrImporter {
       state: 'importing',
       electionDefinition,
       existingImports,
+      manualImportButton: (
+        <ManualImportButton disabled importFn={importMutation.mutate} />
+      ),
       path: assertDefined(importMutation.variables).path,
       usbExports: usbExports.data,
     };
@@ -160,7 +163,9 @@ export function useCvrImporter(): CvrImporter {
       electionDefinition,
       existingImports,
       import: importMutation.mutate,
-      manualImportButton,
+      manualImportButton: (
+        <ManualImportButton importFn={importMutation.mutate} />
+      ),
       reset: importMutation.reset,
       result,
       usbExports: usbExports.data,
@@ -172,18 +177,18 @@ export function useCvrImporter(): CvrImporter {
     electionDefinition,
     existingImports,
     import: importMutation.mutate,
-    manualImportButton,
+    manualImportButton: <ManualImportButton importFn={importMutation.mutate} />,
     usbExports: usbExports.data,
   };
 }
 
-/* istanbul ignore next - TODO: remove once this is rendered in the new UI */
-function ManualImportButton(props: { importFn: ImportFn }) {
-  const { importFn } = props;
+function ManualImportButton(props: { disabled?: boolean; importFn: ImportFn }) {
+  const { disabled, importFn } = props;
 
   return (
     window.kiosk && (
       <Button
+        disabled={disabled}
         onPress={async () => {
           const kiosk = assertDefined(window.kiosk);
           const dialogResult = await kiosk.showOpenDialog({
