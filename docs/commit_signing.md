@@ -12,6 +12,14 @@ This guide assumes that you want to use the SSH key you create for both commit
 signing and authentication. It also assumes you have a macOS host and a Debian
 Linux VM.
 
+> **Working from remote/headless sessions?** The 1Password approach below relies
+> on a GUI prompt (and optionally a hardware touch) to approve each signing and
+> authentication operation. If you connect to your VM over SSH without access to
+> its GUI — where the 1Password prompt appears on a screen you can't reach and
+> commits hang — see
+> [Alternative: on-machine key + HTTPS (no GUI or agent)](#alternative-on-machine-key--https-no-gui-or-agent)
+> instead.
+
 ### Official documentation:
 
 - https://developer.1password.com/docs/ssh/git-commit-signing/
@@ -70,3 +78,95 @@ Linux VM.
 
 11. [VM] Update all your repositories to use SSH instead of HTTPS for the origin
     remote, i.e. `git@github.com:…` instead of `https://github.com/…`.
+
+## Alternative: on-machine key + HTTPS (no GUI or agent)
+
+The 1Password approach keeps your private key off disk and gates every use
+behind a biometric/GUI prompt, but that prompt must be answered on the host's
+GUI. When you drive the VM entirely over SSH (e.g. remote editor sessions,
+`tmux`, or tooling like Claude Code), that prompt appears on a screen you can't
+reach and Git operations hang.
+
+This alternative keeps the signing key **on the VM** so signing and pushing
+never require a GUI, an SSH agent, agent forwarding, or a hardware touch.
+
+**Security tradeoff:** the private key lives unencrypted on disk (a passphrase
+would reintroduce a prompt), so it is only as protected as the machine's file
+permissions and disk encryption — weaker than 1Password's hardware/biometric
+gating. Prefer it only for a VM you control with full-disk encryption, and
+generate a **distinct** key per machine so you can revoke one without affecting
+the others. This key is used for signing only; GitHub authentication goes
+through a Personal Access Token over HTTPS.
+
+All steps run on the VM.
+
+1. Generate a dedicated, passphrase-less signing key (empty `-N ""` = no
+   passphrase, so signing never prompts):
+
+   ```bash
+   ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "you@example.com git signing"
+   ```
+
+2. Configure Git to sign with that key file directly. The crucial difference
+   from the 1Password setup is that there is **no `defaultKeyCommand`** — that
+   command (`ssh-add -L`) is what queries the SSH agent and, via forwarding,
+   triggers the 1Password prompt. Setting `user.signingkey` to the key file
+   bypasses the agent entirely:
+
+   ```ini
+   [user]
+   signingkey = ~/.ssh/id_ed25519.pub
+
+   [commit]
+   gpgsign = true
+
+   [gpg]
+   format = ssh
+
+   [gpg "ssh"]
+   allowedSignersFile = ~/.ssh/allowed_signers
+   ```
+
+3. Create `~/.ssh/allowed_signers` so `git verify-commit` and
+   `git log --show-signature` can verify locally. Format is
+   `<email> namespaces="git" <public key>`:
+
+   ```bash
+   printf 'you@example.com namespaces="git" %s\n' "$(cat ~/.ssh/id_ed25519.pub)" \
+     > ~/.ssh/allowed_signers
+   ```
+
+4. Add the **public** key to GitHub at https://github.com/settings/ssh/new as a
+   **Signing Key** (only once — you do not also need it as an authentication
+   key, since auth uses HTTPS). Paste the contents of `~/.ssh/id_ed25519.pub`.
+
+5. Set up HTTPS authentication with a Personal Access Token instead of SSH:
+
+   ```bash
+   gh auth login          # choose HTTPS; paste a PAT with at least `repo` scope
+   ```
+
+   `gh` installs a credential helper so Git pushes over HTTPS use the token. To
+   make any existing `git@github.com:…` remotes transparently use HTTPS (so you
+   don't have to edit each remote), add a global rewrite:
+
+   ```bash
+   git config --global url."https://github.com/".insteadOf "git@github.com:"
+   ```
+
+6. Test it in a repo:
+
+   ```bash
+   $ git commit --allow-empty -m "Test commit"
+   $ git verify-commit HEAD
+   Good "git" signature for …
+   $ git push        # over HTTPS, using the PAT — no SSH, no prompt
+   ```
+
+   After pushing, the commit should show as **Verified** on GitHub.
+
+If you previously used the 1Password/agent-forwarding setup, remove any
+`SSH_AUTH_SOCK`/agent-forwarding shell customizations that were added to keep
+signing working, and drop `ForwardAgent yes` from the host's `~/.ssh/config`
+entry for the VM — none of it is needed anymore. Leave your 1Password signing
+key registered on GitHub so commits you signed with it previously stay Verified.
