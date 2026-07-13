@@ -167,7 +167,7 @@ export function SendCvrsModal({ onClose }: Props): JSX.Element | null {
       onOverlayClick={onClose}
       actions={
         <React.Fragment>
-          <Button icon="Export" variant="primary" onPress={sendCvrs}>
+          <Button icon="Upload" variant="primary" onPress={sendCvrs}>
             Send
           </Button>
           <Button onPress={onClose}>Cancel</Button>

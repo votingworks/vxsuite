@@ -162,7 +162,7 @@ export function ScanBallotsScreen({
                 !isHostConnected
               }
               nonAccessibleTitle={sendButtonTitle}
-              icon="Export"
+              icon="Upload"
               color="primary"
             >
               Send CVRs

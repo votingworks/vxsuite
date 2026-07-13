@@ -86,6 +86,7 @@ import {
   faTextHeight,
   faTrashCan,
   faUnderline,
+  faUpload,
   faVolumeHigh,
   faVolumeMute,
   faVolumeUp,
@@ -675,6 +676,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faUnderline} />;
+  },
+
+  Upload(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faUpload} />;
   },
 
   UsbDrive(props) {
