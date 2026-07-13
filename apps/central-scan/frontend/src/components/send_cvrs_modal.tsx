@@ -103,11 +103,9 @@ export function SendCvrsModal({ onClose }: Props): JSX.Element | null {
             VxAdmin loaded {sendResult.newlyAdded} new CVR
             {sendResult.newlyAdded === 1 ? '' : 's'}
             {sendResult.alreadyPresent > 0
-              ? ` and ignored ${sendResult.alreadyPresent} duplicate CVR${
+              ? ` and ignored ${sendResult.alreadyPresent} previously sent CVR${
                   sendResult.alreadyPresent === 1 ? '' : 's'
-                } that ${
-                  sendResult.alreadyPresent === 1 ? 'was' : 'were'
-                } previously sent`
+                } `
               : ''}
             .
           </P>

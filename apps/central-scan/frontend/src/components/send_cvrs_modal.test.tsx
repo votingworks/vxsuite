@@ -90,7 +90,7 @@ test('reports duplicates when CVRs were previously sent', async () => {
   userEvent.click(screen.getByText('Send'));
   await screen.findByText('CVRs Sent');
   screen.getByText(
-    /VxAdmin loaded 0 new CVRs and ignored 3 duplicate CVRs that were previously sent/
+    /VxAdmin loaded 0 new CVRs and ignored 3 previously sent CVRs/
   );
 });
 
