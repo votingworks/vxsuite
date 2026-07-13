@@ -2,6 +2,7 @@ import {
   assert,
   assertDefined,
   extractErrorMessage,
+  ok,
   Optional,
   sleep,
 } from '@votingworks/basics';
@@ -111,13 +112,17 @@ export class Importer {
     try {
       debug(
         'sheetAdded %s %s batchId=%s STARTING',
-        sheetInfo.frontPath,
-        sheetInfo.backPath,
+        sheetInfo.front,
+        sheetInfo.back,
         batchId
       );
       const [frontImageData, backImageData] = await Promise.all([
-        loadImageData(sheetInfo.frontPath),
-        loadImageData(sheetInfo.backPath),
+        typeof sheetInfo.front === 'string'
+          ? loadImageData(sheetInfo.front)
+          : ok(sheetInfo.front),
+        typeof sheetInfo.back === 'string'
+          ? loadImageData(sheetInfo.back)
+          : ok(sheetInfo.back),
       ]);
       return await this.importSheet(
         batchId,
@@ -129,8 +134,8 @@ export class Importer {
       const end = Date.now();
       debug(
         'sheetAdded %s %s batchId=%s FINISHED in %dms',
-        sheetInfo.frontPath,
-        sheetInfo.backPath,
+        sheetInfo.front,
+        sheetInfo.back,
         batchId,
         Math.round(end - start)
       );
@@ -345,6 +350,11 @@ export class Importer {
 
       if (this.workspace.store.adjudicationsRemaining() === 0) {
         this.continueImport({ forceAccept: false });
+      } else {
+        // This sheet needs adjudication, so we stop pulling sheets until the
+        // operator resolves it. For a push-streaming scanner (DeskPro) that
+        // isn't enough to stop the feed, so signal it to halt the rollers.
+        await currentBatch.sheetGenerator.pauseFeeding?.();
       }
     }
   }

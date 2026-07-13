@@ -22,6 +22,7 @@ import {
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
+import { DeskProScanner } from './deskpro_scanner';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
@@ -115,9 +116,13 @@ export function start({
       ? new MockBatchScanner(join(DEFAULT_DEV_DOCK_DIR, 'batch-images'))
       : undefined;
 
+    // PoC: DESKPRO_SCANNER=1 selects the InoTec SCAMAX DeskPro over the WS
+    // bridge instead of the Fujitsu (scanimage). See deskpro_scanner.ts.
     const resolvedBatchScanner =
       mockBatchScanner ??
-      new FujitsuScanner({ mode: ScannerMode.Gray, logger });
+      (process.env['DESKPRO_SCANNER']
+        ? new DeskProScanner({ logger })
+        : new FujitsuScanner({ mode: ScannerMode.Gray, logger }));
 
     const resolvedImporter =
       importer ??

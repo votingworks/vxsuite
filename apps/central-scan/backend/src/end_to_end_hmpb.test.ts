@@ -89,8 +89,8 @@ test('going through the whole process works - HMPB', async () => {
         await writeImageData(frontPath, frontImageData);
         await writeImageData(backPath, backImageData);
         nextSession.sheet({
-          frontPath,
-          backPath,
+          front: frontPath,
+          back: backPath,
           ballotAuditId: 'fake-ballot-audit-id',
         });
 
@@ -204,8 +204,8 @@ test('ballots printed with invalid scale are rejected', async () => {
         await writeImageData(frontPath, frontImageData);
         await writeImageData(backPath, backImageData);
         nextSession.sheet({
-          frontPath,
-          backPath,
+          front: frontPath,
+          back: backPath,
           ballotAuditId: 'fake-ballot-audit-id',
         });
 

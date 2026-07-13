@@ -1,15 +1,16 @@
-import { assert, deferredQueue } from '@votingworks/basics';
-import makeDebug from 'debug';
-import { join } from 'node:path';
-import { dirSync } from 'tmp';
+import { isDeviceAttached } from '@votingworks/backend';
+import { assert, deferredQueue, Optional } from '@votingworks/basics';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   BmdBallotPaperSize,
   HmpbBallotPaperSize,
   Tabulation,
   ballotPaperDimensions,
 } from '@votingworks/types';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { isDeviceAttached } from '@votingworks/backend';
+import { ImageData } from 'canvas';
+import makeDebug from 'debug';
+import { join } from 'node:path';
+import { dirSync } from 'tmp';
 import { streamExecFile } from './exec';
 import { StreamLines } from './util/stream_lines';
 
@@ -29,14 +30,21 @@ export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
   'attempted to set readonly option endorser';
 
 export interface ScannedSheetInfo {
-  frontPath: string;
-  backPath: string;
+  front: string | ImageData;
+  back: string | ImageData;
   ballotAuditId?: string;
 }
 
 export interface BatchControl {
   scanSheet(): Promise<ScannedSheetInfo | undefined>;
   endBatch(): Promise<void>;
+  /**
+   * Halt the physical feed mid-batch (e.g. because a sheet needs adjudication)
+   * without ending the batch. Pull-driven scanners stop feeding as soon as the
+   * importer stops calling `scanSheet`, so this is a no-op for them; the
+   * push-streaming DeskPro overrides it to signal the device to stop.
+   */
+  pauseFeeding?(): Promise<void>;
 }
 
 export interface ScanOptions {
@@ -237,7 +245,7 @@ export class FujitsuScanner implements BatchScanner {
     );
 
     const scannedFiles: string[] = [];
-    const results = deferredQueue<Promise<ScannedSheetInfo | undefined>>();
+    const results = deferredQueue<Optional<ScannedSheetInfo>>();
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
@@ -266,22 +274,17 @@ export class FujitsuScanner implements BatchScanner {
       scannedFiles.push(path);
       if (scannedFiles.length % 2 === 0) {
         const [frontPath, backPath] = scannedFiles.slice(-2);
-        results.resolve(
-          Promise.resolve({
-            frontPath,
-            backPath,
-            ballotAuditId:
-              // Because we pass `${imprintIdPrefix}_%04ud` to --endorser-string the scanner
-              // will imprint the prefix followed by a sequential index for each page in the batch,
-              // starting with 0000 for the first page, then 0001 and so on.
-              imprintIdPrefix !== undefined
-                ? `${imprintIdPrefix}_${zeroPad(
-                    scannedFiles.length / 2 - 1,
-                    4
-                  )}`
-                : undefined,
-          })
-        );
+        results.resolve({
+          front: frontPath,
+          back: backPath,
+          ballotAuditId:
+            // Because we pass `${imprintIdPrefix}_%04ud` to --endorser-string the scanner
+            // will imprint the prefix followed by a sequential index for each page in the batch,
+            // starting with 0000 for the first page, then 0001 and so on.
+            imprintIdPrefix !== undefined
+              ? `${imprintIdPrefix}_${zeroPad(scannedFiles.length / 2 - 1, 4)}`
+              : undefined,
+        });
       }
     });
 
@@ -320,7 +323,7 @@ export class FujitsuScanner implements BatchScanner {
           },
           debug
         );
-        results.resolveAll(Promise.resolve(undefined));
+        results.resolveAll(undefined);
       }
     });
 

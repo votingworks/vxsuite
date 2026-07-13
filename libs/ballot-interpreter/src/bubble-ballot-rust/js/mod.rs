@@ -391,6 +391,29 @@ pub async fn run_blank_paper_diagnostic_from_path(
     ))
 }
 
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "imageWidth: number, imageHeight: number, imageData: Buffer | Uint8ClampedArray, debugPath?: string",
+    ts_return_type = "Promise<boolean>"
+)]
+pub async fn run_blank_paper_diagnostic_from_image(
+    image_width: f64,
+    image_height: f64,
+    image_data: Buffer,
+    debug_path: Option<String>,
+) -> napi::Result<bool> {
+    let image = gray_image(
+        as_u32(image_width)?,
+        as_u32(image_height)?,
+        image_data.to_vec(),
+    )?;
+    Ok(crate::diagnostic::blank_paper(
+        image,
+        debug_path.map(PathBuf::from),
+    ))
+}
+
 /// Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
 /// cross-language testing to verify the Rust decoder matches the TypeScript
 /// encoder.

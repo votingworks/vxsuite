@@ -6,7 +6,9 @@ import {
 } from './fujitsu_scanner';
 
 export interface MockBatchScannerApi {
-  addSheets(sheets: readonly ScannedSheetInfo[]): void;
+  addSheets(
+    sheets: ReadonlyArray<{ frontPath: string; backPath: string }>
+  ): void;
   getStatus(): { sheetCount: number };
   clearSheets(): void;
   /** Directory for writing temporary ballot images. */
@@ -45,8 +47,15 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     return Promise.resolve(false);
   }
 
-  addSheets(sheets: ScannedSheetInfo[]): void {
-    this.queue.push(...sheets);
+  addSheets(
+    sheets: ReadonlyArray<{ frontPath: string; backPath: string }>
+  ): void {
+    this.queue.push(
+      ...sheets.map(({ frontPath, backPath }) => ({
+        front: frontPath,
+        back: backPath,
+      }))
+    );
   }
 
   getStatus(): { sheetCount: number } {
