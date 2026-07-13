@@ -122,6 +122,12 @@ export function createApiMock(
         .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
     },
 
+    expectGetScannerConfig(isDeskProScanner = false) {
+      apiClient.getScannerConfig
+        .expectRepeatedCallsWith()
+        .resolves({ isDeskProScanner });
+    },
+
     expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {
       apiClient.getElectionRecord.expectRepeatedCallsWith().resolves(
         electionDefinition && {

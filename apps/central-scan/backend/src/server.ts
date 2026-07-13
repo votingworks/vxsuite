@@ -121,9 +121,10 @@ export function start({
     // bridge instead of the Fujitsu (scanimage). See deskpro_scanner.ts. This
     // selection isn't exercised in tests, hence the coverage ignore.
     /* istanbul ignore start */
+    const isDeskProScanner = Boolean(process.env['DESKPRO_SCANNER']);
     const resolvedBatchScanner =
       mockBatchScanner ??
-      (process.env['DESKPRO_SCANNER']
+      (isDeskProScanner
         ? new DeskProScanner({ logger })
         : new FujitsuScanner({ mode: ScannerMode.Gray, logger }));
     /* istanbul ignore stop */
@@ -148,6 +149,7 @@ export function start({
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
       adminHostClient,
+      isDeskProScanner,
     });
   }
 

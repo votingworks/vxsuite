@@ -50,7 +50,10 @@ export async function withApp(
     server: Server;
     store: Store;
   }) => Promise<void>,
-  options: { adminHostClient?: AdminHostClient } = {}
+  options: {
+    adminHostClient?: AdminHostClient;
+    isDeskProScanner?: boolean;
+  } = {}
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth(vi.fn);
@@ -71,6 +74,7 @@ export async function withApp(
     workspace,
     logger,
     adminHostClient: options.adminHostClient,
+    isDeskProScanner: options.isDeskProScanner,
   });
   const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient({

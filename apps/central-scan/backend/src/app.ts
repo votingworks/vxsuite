@@ -80,6 +80,7 @@ export interface AppOptions {
   logger: Logger;
   usbDrive: UsbDrive;
   adminHostClient?: AdminHostClient;
+  isDeskProScanner?: boolean;
 }
 
 function buildApi({
@@ -90,6 +91,7 @@ function buildApi({
   scanner,
   importer,
   adminHostClient,
+  isDeskProScanner = false,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
 
@@ -231,6 +233,10 @@ function buildApi({
 
     getSystemSettings(): SystemSettings {
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+    },
+
+    getScannerConfig(): { isDeskProScanner: boolean } {
+      return { isDeskProScanner };
     },
 
     getElectionRecord(): ElectionRecord | null {
@@ -653,6 +659,7 @@ export function buildCentralScannerApp({
   logger,
   usbDrive,
   adminHostClient,
+  isDeskProScanner,
 }: AppOptions): Application {
   const app: Application = express();
   const api = buildApi({
@@ -663,6 +670,7 @@ export function buildCentralScannerApp({
     scanner,
     importer,
     adminHostClient,
+    isDeskProScanner,
   });
   app.use('/api', grout.buildRouter(api, express));
 

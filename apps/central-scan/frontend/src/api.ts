@@ -117,6 +117,16 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const getScannerConfig = {
+  queryKey(): QueryKey {
+    return ['getScannerConfig'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getScannerConfig());
+  },
+} as const;
+
 export const getMachineConfig = {
   queryKey(): QueryKey {
     return ['getMachineConfig'];
