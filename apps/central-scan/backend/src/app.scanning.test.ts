@@ -43,8 +43,8 @@ test('scanBatch with multiple sheets', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const bmdFixture = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
-    frontPath: bmdFixture.sheet[0],
-    backPath: bmdFixture.sheet[1],
+    front: bmdFixture.sheet[0],
+    back: bmdFixture.sheet[1],
   };
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
@@ -103,12 +103,12 @@ test('continueScanning after invalid ballot', async () => {
     scanner
       .withNextScannerSession()
       .sheet({
-        frontPath: bmdFixture.sheet[0],
-        backPath: bmdFixture.sheet[1],
+        front: bmdFixture.sheet[0],
+        back: bmdFixture.sheet[1],
       })
       // Invalid BMD ballot
-      .sheet({ frontPath: bmdFixture.sheet[1], backPath: bmdFixture.sheet[1] })
-      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
+      .sheet({ front: bmdFixture.sheet[1], back: bmdFixture.sheet[1] })
+      .sheet({ front: bmdFixture.sheet[0], back: bmdFixture.sheet[1] })
       .end();
 
     await apiClient.scanBatch();
@@ -178,8 +178,8 @@ test('scanBatch with streaked page', async () => {
   await writeImageData(backPath, backImageData);
 
   const scannedBallot: ScannedSheetInfo = {
-    frontPath,
-    backPath,
+    front: frontPath,
+    back: backPath,
   };
 
   // try with vertical streak detection enabled
@@ -246,8 +246,8 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
   // scanned ballot is rejected as being outside the selected polling place.
   const bmdFixture = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
-    frontPath: bmdFixture.sheet[0],
-    backPath: bmdFixture.sheet[1],
+    front: bmdFixture.sheet[0],
+    back: bmdFixture.sheet[1],
   };
 
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {

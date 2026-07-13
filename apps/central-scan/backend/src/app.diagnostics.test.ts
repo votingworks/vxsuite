@@ -90,8 +90,8 @@ test('save readiness report', async () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          front: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          back: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -144,8 +144,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          front: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          back: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
 
@@ -183,8 +183,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          front: join(__dirname, '../test/fixtures/streaked-page.jpg'),
+          back: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -214,8 +214,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
+          front: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          back: join(__dirname, '../test/fixtures/streaked-page.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();

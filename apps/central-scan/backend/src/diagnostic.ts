@@ -1,5 +1,5 @@
-import { LogEventId, Logger } from '@votingworks/logging';
 import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { BatchScanner, ScannedSheetInfo } from './fujitsu_scanner';
 import { Store } from './store';
 
@@ -36,12 +36,9 @@ export async function performScanDiagnostic(
     return 'no-paper';
   }
 
-  const pathA = sheets.frontPath;
-  const pathB = sheets.backPath;
-
   const [frontPassed, backPassed] = await Promise.all([
-    runBlankPaperDiagnostic(pathA),
-    runBlankPaperDiagnostic(pathB),
+    runBlankPaperDiagnostic(sheets.front),
+    runBlankPaperDiagnostic(sheets.back),
   ]);
   const didPass = frontPassed && backPassed;
   if (didPass) {

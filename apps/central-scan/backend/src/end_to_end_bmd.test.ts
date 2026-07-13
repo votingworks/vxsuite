@@ -54,8 +54,8 @@ test('going through the whole process works - BMD', async () => {
 
       const bmdFixture = await generateBmdBallotFixture();
       const scannedBallot: ScannedSheetInfo = {
-        frontPath: bmdFixture.sheet[0],
-        backPath: bmdFixture.sheet[1],
+        front: bmdFixture.sheet[0],
+        back: bmdFixture.sheet[1],
       };
       {
         // define the next scanner session & scan some sample ballots
