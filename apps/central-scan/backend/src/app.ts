@@ -9,7 +9,6 @@ import {
   err,
   iter,
   ok,
-  range,
 } from '@votingworks/basics';
 import {
   AcceptedSheet,

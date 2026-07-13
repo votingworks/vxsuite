@@ -149,8 +149,8 @@ async function configureAndScanOneBallot({
 
   const bmdFixture = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
-    frontPath: bmdFixture.sheet[0],
-    backPath: bmdFixture.sheet[1],
+    front: bmdFixture.sheet[0],
+    back: bmdFixture.sheet[1],
   };
   scanner.withNextScannerSession().sheet(scannedBallot).end();
   await apiClient.scanBatch();
