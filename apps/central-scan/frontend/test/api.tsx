@@ -175,6 +175,18 @@ export function createApiMock(
       apiClient.continueScanning.expectCallWith(input).resolves();
     },
 
+    expectContinueBatch() {
+      apiClient.continueBatch.expectCallWith().resolves();
+    },
+
+    expectSaveBatch() {
+      apiClient.saveBatch.expectCallWith().resolves();
+    },
+
+    expectCancelBatch() {
+      apiClient.cancelBatch.expectCallWith().resolves();
+    },
+
     expectExportCastVoteRecords() {
       apiClient.exportCastVoteRecordsToUsbDrive.expectCallWith().resolves(ok());
     },

@@ -63,6 +63,7 @@ test('going through the whole process works - BMD', async () => {
         await apiClient.scanBatch();
 
         await importer.waitForEndOfBatchOrScanningPause();
+        await apiClient.saveBatch();
 
         // check the status
         const status = await apiClient.getStatus();

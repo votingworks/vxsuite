@@ -26,8 +26,8 @@ export function logScanBatchContinueSuccess(
   return logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
     disposition: 'success',
     message: forceAccept
-      ? 'Sheet tabulated with warnings and scanning of batch continued.'
-      : 'User indicated removing the sheet from tabulation and scanning continued without sheet.',
+      ? 'Sheet tabulated with warnings; the batch is paused.'
+      : 'User indicated removing the sheet from tabulation; the batch is paused without the sheet.',
     sheetRemoved: !forceAccept,
   });
 }

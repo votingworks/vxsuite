@@ -112,13 +112,21 @@ test('screenshots', async ({ page }, testInfo) => {
   // obscures the timing marks, with the ballot's real back page behind it.
   const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf);
 
-  // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
+  // Scans a batch of counted (fully-voted) ballots, then saves it. The batch
+  // pauses when the input tray empties; saving finalizes it.
   let expectedSheets = 0;
-  async function scanCountedBatch(paths: string[]) {
+  async function scanCountedBatch(paths: string[], pausedScreenshot?: string) {
     await devDockClient.batchScannerClearBallots();
     await devDockClient.batchScannerLoadBallots({ paths });
     await page.getByRole('button', { name: 'Scan New Batch' }).click();
     expectedSheets += paths.length;
+    await page
+      .getByText('paused — input tray is empty')
+      .waitFor({ timeout: 60000 });
+    if (pausedScreenshot) {
+      await screenshot(pausedScreenshot);
+    }
+    await page.getByRole('button', { name: 'Save Batch' }).click();
     await page
       .getByText(`Total Sheets: ${expectedSheets}`)
       .waitFor({ timeout: 60000 });
@@ -151,7 +159,7 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByText(/Configuring VxCentralScan/).waitFor();
   await screenshot('configuring');
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
-  await page.getByText('No ballots have been scanned').waitFor();
+  await page.getByText('No batches have been saved').waitFor();
 
   // Scan Ballots screen immediately after configuring, while still in test
   // mode (the switch to official mode happens below). Capture it plain, then
@@ -201,10 +209,10 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
-  await page.getByText('No ballots have been scanned').waitFor();
+  await page.getByText('No batches have been saved').waitFor();
   await screenshot('scan-ballots-empty');
   await screenshotWithLocatorHighlight(
-    page.getByText('No ballots have been scanned'),
+    page.getByText('No batches have been saved'),
     'scan-ballots-empty-no-ballots-highlight'
   );
   await screenshotWithButtonHighlight(
@@ -213,8 +221,11 @@ test('screenshots', async ({ page }, testInfo) => {
   );
 
   // Scan several non-trivial batches so the Scan Ballots screen looks like
-  // real use.
-  await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf));
+  // real use. Capture the paused batch control card on the first one.
+  await scanCountedBatch(
+    Array.from({ length: 9 }, () => fullPdf),
+    'scan-ballots-batch-paused'
+  );
   await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
@@ -271,12 +282,23 @@ test('screenshots', async ({ page }, testInfo) => {
     await page
       .getByRole('heading', { name: shownHeading, exact: true })
       .waitFor({ state: 'hidden', timeout: 60000 });
+    // Resolving a ballot pauses the batch; continue feeding the rest of the
+    // stack.
+    await page.getByRole('button', { name: 'Continue Scanning' }).click();
   }
 
+  // The tray is empty after the last problem ballot, so the batch pauses
+  // again; save it.
+  await page
+    .getByText('paused — input tray is empty')
+    .waitFor({ timeout: 60000 });
+  await page.getByRole('button', { name: 'Save Batch' }).click();
+  expectedSheets += 1; // the good ballot that led the problem batch
+  await page
+    .getByText(`Total Sheets: ${expectedSheets}`)
+    .waitFor({ timeout: 60000 });
+
   // Back on Scan Ballots with batches present: highlight Save CVRs.
-  await page.getByText('No ballots have been scanned').waitFor({
-    state: 'hidden',
-  });
   await screenshotWithButtonHighlight(
     'Save CVRs',
     'scan-ballots-save-cvrs-button'

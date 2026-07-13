@@ -342,6 +342,68 @@ function buildApi({
       }
     },
 
+    async continueBatch(): Promise<void> {
+      try {
+        importer.continueBatch();
+        await logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
+          disposition: 'success',
+          message: 'User continued scanning the paused batch.',
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
+          disposition: 'failure',
+          message: `User attempt to continue the paused batch failed: ${error.message}`,
+        });
+      }
+    },
+
+    async saveBatch(): Promise<void> {
+      try {
+        // `finishBatch` logs batch completion on success.
+        await importer.saveBatch();
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
+          disposition: 'failure',
+          message: `User attempt to save the paused batch failed: ${error.message}`,
+        });
+      }
+    },
+
+    async cancelBatch(): Promise<void> {
+      const status = importer.getStatus();
+      const batchId = status.currentBatch?.batchId;
+      const numberOfBallotsInBatch = status.batches.find(
+        (batch) => batch.id === batchId
+      )?.count;
+
+      await logger.logAsCurrentRole(LogEventId.DeleteScanBatchInit, {
+        message: `User canceling batch id ${batchId}...`,
+        numberOfBallotsInBatch,
+        batchId,
+      });
+
+      try {
+        await importer.cancelBatch();
+        await logger.logAsCurrentRole(LogEventId.DeleteScanBatchComplete, {
+          disposition: 'success',
+          message: `User successfully canceled batch id: ${batchId} containing ${numberOfBallotsInBatch} ballots.`,
+          numberOfBallotsInBatch,
+          batchId,
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.logAsCurrentRole(LogEventId.DeleteScanBatchComplete, {
+          disposition: 'failure',
+          message: `Error canceling batch id: ${batchId}.`,
+          error: error.message,
+          result: 'Batch not canceled.',
+        });
+        throw error;
+      }
+    },
+
     async unconfigure(
       input: {
         ignoreBackupRequirement?: boolean;

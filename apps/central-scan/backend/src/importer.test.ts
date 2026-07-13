@@ -64,25 +64,42 @@ test('startImport rejects concurrent calls', async () => {
   await first;
   await importer.waitForEndOfBatchOrScanningPause();
 
-  // isStartingBatch is reset, so a new call should work
+  // the batch pauses when the tray empties and stays open until saved
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'paused',
+    pauseReason: 'tray-empty',
+  });
+  await expect(importer.startImport()).rejects.toThrowError(
+    'scanning already in progress'
+  );
+  await importer.saveBatch();
+
+  // isStartingBatch is reset and the batch is saved, so a new call should work
   scanner.withNextScannerSession().end();
   await expect(importer.startImport()).resolves.toBeDefined();
   await importer.waitForEndOfBatchOrScanningPause();
 });
 
-test('finishBatch clears currentBatch before async cleanup to prevent concurrent calls', async () => {
+test('saveBatch clears currentBatch before async cleanup to prevent concurrent calls', async () => {
   const { workspace } = setupImporter();
 
-  // Create a scanner where endBatch is a deferred promise we control, so we
-  // can observe intermediate state while finishBatch is running.
+  // Create a scanner where the second endBatch call (the one made by
+  // finishBatch during save; the first happens when the batch pauses) is a
+  // deferred promise we control, so we can observe intermediate state while
+  // finishBatch is running.
   const endBatchDeferred = deferred<void>();
-  const endBatchMock = vi.fn().mockReturnValue(endBatchDeferred.promise);
+  let endBatchCalls = 0;
+  const endBatchMock = vi.fn(() => {
+    endBatchCalls += 1;
+    return endBatchCalls === 1 ? Promise.resolve() : endBatchDeferred.promise;
+  });
   const scanner: BatchScanner = {
     isAttached: vi.fn().mockReturnValue(true),
     isImprinterAttached: vi.fn().mockResolvedValue(false),
     scanSheets: () => {
       const control: BatchControl = {
-        scanSheet: vi.fn(), // no sheets → triggers finishBatch
+        scanSheet: vi.fn(), // no sheets → pauses the batch
         endBatch: endBatchMock,
       };
       return control;
@@ -98,32 +115,124 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   await importer.startImport();
+  await importer.waitForEndOfBatchOrScanningPause();
+  expect(importer.getStatus().currentBatch?.state).toEqual('paused');
 
-  // At this point, scanOneSheet found no sheets and called finishBatch.
+  const savePromise = importer.saveBatch();
+
   // finishBatch should have cleared currentBatch immediately, even though
   // endBatch hasn't resolved yet.
-  const finishBatchSpy = vi.spyOn(workspace.store, 'finishBatch');
-
-  // Wait a tick to let the fire-and-forget scanOneSheet promise run
   await vi.waitFor(() => {
-    expect(endBatchMock).toHaveBeenCalled();
+    expect(endBatchMock).toHaveBeenCalledTimes(2);
   });
+  expect(importer.getStatus().currentBatch).toBeUndefined();
 
-  // Verify currentBatch is already cleared while endBatch is still pending
-  expect(importer.getStatus().ongoingBatchId).toBeUndefined();
-
-  // store.finishBatch should have been called exactly once
-  // (the call happened before our spy, so check the batch was finished)
+  // the batch was finished in the store before cleanup completed
   const batches = workspace.store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].endedAt).toBeDefined();
 
   // Resolve endBatch and let cleanup complete
   endBatchDeferred.resolve();
+  await savePromise;
+});
+
+test('a paused batch can be continued with a fresh scanner session or canceled', async () => {
+  const { importer, workspace, scanner } = setupImporter();
+  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  scanner.withNextScannerSession().end();
+  await importer.startImport();
+  await importer.waitForEndOfBatchOrScanningPause();
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'paused',
+    pauseReason: 'tray-empty',
+  });
+
+  // continuing opens a fresh scanner session for the same batch; an empty
+  // tray pauses it again
+  scanner.withNextScannerSession().end();
+  importer.continueBatch();
+  await importer.waitForEndOfBatchOrScanningPause();
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'paused',
+    pauseReason: 'tray-empty',
+  });
+
+  // canceling discards the batch entirely
+  await importer.cancelBatch();
+  expect(importer.getStatus().currentBatch).toBeUndefined();
+  expect(workspace.store.getBatches()).toHaveLength(0);
+});
+
+test('cancelBatch while scanning halts the feed and discards the batch', async () => {
+  const { importer, workspace, scanner } = setupImporter();
+  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  // A session that never produces a sheet until we let it observe the end of
+  // the stream, simulating a scanner waiting for paper.
+  const gate = deferred<void>();
+  scanner.withNextScannerSession().end(gate.promise);
+
+  await importer.startImport();
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'scanning',
+    pauseReason: undefined,
+  });
+
+  const cancelPromise = importer.cancelBatch();
+  gate.resolve();
+  await cancelPromise;
+
+  expect(importer.getStatus().currentBatch).toBeUndefined();
+  expect(workspace.store.getBatches()).toHaveLength(0);
+});
+
+test('batch controls require the right batch state', async () => {
+  const { importer, workspace, scanner } = setupImporter();
+  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  // no batch at all
+  expect(() => importer.continueBatch()).toThrowError('no paused batch');
+  await expect(importer.saveBatch()).rejects.toThrowError('no paused batch');
+  await expect(importer.cancelBatch()).rejects.toThrowError(
+    'no batch in progress'
+  );
+
+  // while actively scanning (cancelBatch, in contrast, is allowed)
+  const gate = deferred<void>();
+  scanner.withNextScannerSession().end(gate.promise);
+  await importer.startImport();
+  expect(() => importer.continueBatch()).toThrowError('no paused batch');
+  await expect(importer.saveBatch()).rejects.toThrowError('no paused batch');
+
+  gate.resolve();
+  await importer.waitForEndOfBatchOrScanningPause();
+  await importer.saveBatch();
+  expect(importer.getStatus().currentBatch).toBeUndefined();
+  expect(workspace.store.getBatches()[0].endedAt).toBeDefined();
+});
+
+test('a scanner error finishes the batch with an error', async () => {
+  const { importer, workspace, scanner } = setupImporter();
+  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  scanner.withNextScannerSession().error(new Error('scanner jam')).end();
+
+  await importer.startImport();
   await importer.waitForEndOfBatchOrScanningPause();
 
-  // No additional finishBatch calls should have been made
-  expect(finishBatchSpy).not.toHaveBeenCalled();
+  expect(importer.getStatus().currentBatch).toBeUndefined();
+  const batches = workspace.store.getBatches();
+  expect(batches).toHaveLength(1);
+  expect(batches[0].endedAt).toBeDefined();
 });
 
 test('startImport cleans up batch on failure after addBatch', async () => {

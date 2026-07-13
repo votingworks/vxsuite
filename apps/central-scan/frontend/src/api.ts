@@ -297,6 +297,42 @@ export const continueScanning = {
   },
 } as const;
 
+export const continueBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.continueBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const saveBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.saveBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const cancelBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.cancelBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const deleteBatch = {
   useMutation() {
     const apiClient = useApiClient();

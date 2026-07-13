@@ -32,9 +32,23 @@ export type SendCastVoteRecordsToHostError =
 
 export type ScanState = 'idle' | 'scanning' | 'adjudication';
 
+/** Why an in-progress batch is paused. */
+export type BatchPauseReason = 'tray-empty' | 'stopped' | 'ballot-review';
+
+/**
+ * The batch currently being scanned. A batch stays open when scanning is
+ * interrupted (tray empty, operator stop, or a ballot needing review) until
+ * the operator continues, saves, or cancels it.
+ */
+export interface CurrentBatchStatus {
+  batchId: BatchInfo['id'];
+  state: 'scanning' | 'paused';
+  pauseReason?: BatchPauseReason;
+}
+
 export interface ScanStatus {
   isScannerAttached: boolean;
-  ongoingBatchId?: BatchInfo['id'];
+  currentBatch?: CurrentBatchStatus;
   adjudicationsRemaining: number;
   batches: BatchInfo[];
   canUnconfigure: boolean;
