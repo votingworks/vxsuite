@@ -4,6 +4,7 @@ import {
   CandidateContest,
   District,
   Election,
+  getContests,
   HmpbBallotPaperSize,
   OrderedCandidateOption,
   Party,
@@ -132,6 +133,80 @@ function parseSeats(winnerNote: string): number {
 }
 
 /**
+ * Merges the per-file contest orderings into a single global order. Each ward
+ * file lists its contests in the intended order, but no single file lists every
+ * contest (e.g. each ward has its own state-rep district). We treat every file
+ * as a set of ordering constraints -- contest[i] comes before contest[i+1] --
+ * and topologically sort their union. This reproduces each ward's source order
+ * when the result is later filtered to that ward's contests, without relying on
+ * the fragile happenstance of first-seen insertion order.
+ *
+ * Ties (contests unconstrained relative to each other, because they never share
+ * a file) are broken by first-seen order to keep the output deterministic. A
+ * cycle means two files disagree on the relative order of two contests, which no
+ * global order can satisfy -- we throw rather than emit a silently wrong order.
+ */
+function mergeContestOrder(
+  keysInFirstSeenOrder: readonly string[],
+  perFileKeySequences: ReadonlyArray<readonly string[]>
+): string[] {
+  const ordinal = new Map(keysInFirstSeenOrder.map((key, i) => [key, i]));
+  const successors = new Map<string, Set<string>>(
+    keysInFirstSeenOrder.map((key) => [key, new Set<string>()])
+  );
+  const inDegree = new Map<string, number>(
+    keysInFirstSeenOrder.map((key) => [key, 0])
+  );
+
+  for (const sequence of perFileKeySequences) {
+    for (let i = 0; i + 1 < sequence.length; i += 1) {
+      const from = sequence[i];
+      const to = sequence[i + 1];
+      if (!assertDefined(successors.get(from)).has(to)) {
+        assertDefined(successors.get(from)).add(to);
+        inDegree.set(to, assertDefined(inDegree.get(to)) + 1);
+      }
+    }
+  }
+
+  const available = keysInFirstSeenOrder.filter(
+    (key) => inDegree.get(key) === 0
+  );
+  const ordered: string[] = [];
+  while (available.length > 0) {
+    // Take the available node with the smallest first-seen ordinal, so ties
+    // (nodes with no ordering constraint between them) stay deterministic.
+    let bestIndex = 0;
+    for (let i = 1; i < available.length; i += 1) {
+      if (
+        assertDefined(ordinal.get(available[i])) <
+        assertDefined(ordinal.get(available[bestIndex]))
+      ) {
+        bestIndex = i;
+      }
+    }
+    const next = available.splice(bestIndex, 1)[0];
+    ordered.push(next);
+    for (const successor of assertDefined(successors.get(next))) {
+      const remaining = assertDefined(inDegree.get(successor)) - 1;
+      inDegree.set(successor, remaining);
+      if (remaining === 0) {
+        available.push(successor);
+      }
+    }
+  }
+
+  if (ordered.length !== keysInFirstSeenOrder.length) {
+    const cyclic = keysInFirstSeenOrder.filter((key) => !ordered.includes(key));
+    throw new Error(
+      `Source files disagree on contest ordering; no consistent global order ` +
+        `exists for: ${cyclic.join(', ')}`
+    );
+  }
+  return ordered;
+}
+
+/**
  * Converts one town's NH ballot-style files (all wards across both parties)
  * into a single VxSuite primary election. Each ward becomes a precinct, and
  * each (party, ward) file becomes a ballot style. Because candidate rotation is
@@ -169,6 +244,10 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
   // Canonical candidate IDs keyed by `${contestKey}|${candidateName}`.
   const candidateIdsByKey = new Map<string, string>();
   const ballotStyles: BallotStyle[] = [];
+  // The ordered contest keys for each ballot style, parallel to `ballotStyles`.
+  // Each entry is one ward file's contests in source order -- the intended
+  // ballot order we merge globally and validate against below.
+  const contestKeySequences: Array<string[]> = [];
 
   function getOrCreateParty(name: string): Party {
     const partyName = toTitleCase(name);
@@ -301,6 +380,7 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     const orderedCandidatesByContest: Record<string, OrderedCandidateOption[]> =
       {};
     const precinctName = precinctNameFor(HeaderInfo);
+    const fileContestKeys: string[] = [];
 
     for (const contestInfo of Candidates) {
       const officeTitle = cleanString(contestInfo.OfficeName.Name);
@@ -312,6 +392,9 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
 
       const seats = parseSeats(contestInfo.OfficeName.WinnerNote);
       const contestKey = `${party?.id ?? ''}|${officeTitle}|${districtName}`;
+      if (!fileContestKeys.includes(contestKey)) {
+        fileContestKeys.push(contestKey);
+      }
 
       let contest = contestsByKey.get(contestKey);
       if (contest) {
@@ -376,10 +459,16 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
       languages: ['en'],
       orderedCandidatesByContest,
     });
+    contestKeySequences.push(fileContestKeys);
   }
 
-  const contests: CandidateContest[] = [...contestsByKey.values()].map(
-    (contest) => ({
+  const orderedContestKeys = mergeContestOrder(
+    [...contestsByKey.keys()],
+    contestKeySequences
+  );
+  const contests: CandidateContest[] = orderedContestKeys.map((key) => {
+    const contest = assertDefined(contestsByKey.get(key));
+    return {
       id: contest.id,
       type: 'candidate',
       title: contest.title,
@@ -388,8 +477,8 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
       seats: contest.seats,
       allowWriteIns: contest.allowWriteIns,
       candidates: contest.candidates,
-    })
-  );
+    };
+  });
 
   const paperSize = (() => {
     switch (nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize) {
@@ -404,7 +493,7 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     }
   })();
 
-  return {
+  const election: Election = {
     id: generateId(),
     type: partiesByName.size > 0 ? 'primary' : 'general',
     title,
@@ -431,6 +520,35 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     },
     ballotStrings: {},
   };
+
+  // Guarantee that every ballot renders its contests in the exact order of its
+  // source file. `getContests` returns contests in `election.contests` order,
+  // filtered to the ballot style, so this checks the merged global order against
+  // each ward's intended order and fails loudly on any mismatch.
+  const titleById = new Map(contests.map((c) => [c.id, c.title]));
+  function titleList(ids: string[]): string {
+    return ids.map((id) => titleById.get(id) ?? id).join('\n  ');
+  }
+  for (const [i, ballotStyle] of ballotStyles.entries()) {
+    const expectedIds = contestKeySequences[i].map(
+      (key) => assertDefined(contestsByKey.get(key)).id
+    );
+    const actualIds = getContests({ election, ballotStyle }).map(
+      (contest) => contest.id
+    );
+    if (JSON.stringify(actualIds) !== JSON.stringify(expectedIds)) {
+      const { HeaderInfo } = nhBallotStyles[i].AVSInterface;
+      throw new Error(
+        `Contest order for ${precinctNameFor(HeaderInfo)}` +
+          `${HeaderInfo.PartyName ? ` (${HeaderInfo.PartyName})` : ''} ` +
+          `does not match its source file.\nExpected:\n  ${titleList(
+            expectedIds
+          )}\nActual:\n  ${titleList(actualIds)}`
+      );
+    }
+  }
+
+  return election;
 }
 
 const USAGE = `Usage: convert_nh_election nh-ballot-style.json...`;
