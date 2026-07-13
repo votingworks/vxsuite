@@ -114,6 +114,43 @@ test('Delete All Batches button', async () => {
   );
 });
 
+describe('Send CVRs Button', () => {
+  test('disabled when no VxAdmin host is connected', () => {
+    const status: ScanStatus = mockStatus({
+      batches: [mockBatch()],
+    });
+    renderScreen({ status });
+    expect(screen.getButton('Send CVRs')).toBeDisabled();
+  });
+
+  test('disabled when no batches have been scanned', async () => {
+    apiMock.setHostConnectionInfo({
+      status: 'connected-to-host',
+      hostMachineId: 'ADMIN-01',
+    });
+    renderScreen();
+    await vi.waitFor(() =>
+      expect(screen.getButton('Save CVRs')).toBeDisabled()
+    );
+    expect(screen.getButton('Send CVRs')).toBeDisabled();
+  });
+
+  test('enabled when a host is connected and batches are scanned, opens modal', async () => {
+    apiMock.setHostConnectionInfo({
+      status: 'connected-to-host',
+      hostMachineId: 'ADMIN-01',
+    });
+    const status: ScanStatus = mockStatus({
+      batches: [mockBatch()],
+    });
+    renderScreen({ status });
+    await vi.waitFor(() => expect(screen.getButton('Send CVRs')).toBeEnabled());
+
+    userEvent.click(screen.getButton('Send CVRs'));
+    await screen.findByRole('heading', { name: 'Send CVRs' });
+  });
+});
+
 describe('Scan Ballots Button', () => {
   test('disabled when no scanner is attached', () => {
     renderScreen({ status: mockStatus({ isScannerAttached: false }) });

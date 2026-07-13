@@ -645,6 +645,9 @@ importers:
 
   apps/central-scan/backend:
     dependencies:
+      '@votingworks/admin-backend':
+        specifier: workspace:*
+        version: link:../../admin/backend
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -675,6 +678,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/networking':
+        specifier: workspace:*
+        version: link:../../../libs/networking
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -714,12 +720,18 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
+      node-fetch:
+        specifier: ^2.6.0
+        version: 2.7.0
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
       ws:
         specifier: 8.15.1
         version: 8.15.1
+      zip-stream:
+        specifier: ^4.1.0
+        version: 4.1.0
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -742,6 +754,9 @@ importers:
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
+      '@types/node-fetch':
+        specifier: ^2.6.0
+        version: 2.6.4
       '@types/supertest':
         specifier: ^2.0.10
         version: 2.0.10
@@ -751,6 +766,9 @@ importers:
       '@types/ws':
         specifier: 8.5.10
         version: 8.5.10
+      '@types/zip-stream':
+        specifier: workspace:*
+        version: link:../../../libs/@types/zip-stream
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)

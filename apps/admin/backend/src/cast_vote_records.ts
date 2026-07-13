@@ -2,6 +2,7 @@ import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
+  CastVoteRecordAndReferencedFiles,
   isTestReport,
   readCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
@@ -23,6 +24,10 @@ import {
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  Id,
+  MarkThresholds,
+  ReadCastVoteRecordError,
+  SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -204,6 +209,201 @@ export async function listCastVoteRecordExportsInDirectory(
 }
 
 /**
+ * An error encountered while importing a single cast vote record. The positional variants of
+ * {@link ImportCastVoteRecordsError}, without the position.
+ */
+export type ImportCastVoteRecordError =
+  | ReadCastVoteRecordError
+  | CastVoteRecordElectionDefinitionValidationError
+  | { type: 'ballot-id-already-exists-with-different-data' };
+
+/**
+ * The context needed to import a single cast vote record
+ */
+export interface ImportCastVoteRecordContext {
+  store: Store;
+  electionId: Id;
+  electionDefinition: ElectionDefinition;
+  adminAdjudicationReasons: SystemSettings['adminAdjudicationReasons'];
+  markThresholds: MarkThresholds;
+  cvrFileId: Id;
+}
+
+/**
+ * Imports a single parsed cast vote record, storing the cast vote record itself plus any ballot
+ * images and write-ins. Used by both directory-based import (from a USB drive) and network
+ * transfer from a central scanner. Should be called within a store transaction.
+ */
+export async function importCastVoteRecord(
+  context: ImportCastVoteRecordContext,
+  castVoteRecordAndReferencedFiles: CastVoteRecordAndReferencedFiles
+): Promise<
+  Result<
+    {
+      castVoteRecordId: Id;
+      isNew: boolean;
+      precinctId: string;
+      isHmpb: boolean;
+      markScores?: Tabulation.MarkScores;
+    },
+    ImportCastVoteRecordError
+  >
+> {
+  const {
+    store,
+    electionId,
+    electionDefinition,
+    adminAdjudicationReasons,
+    markThresholds,
+    cvrFileId,
+  } = context;
+  const {
+    castVoteRecord,
+    castVoteRecordBallotSheetId,
+    castVoteRecordCurrentSnapshot,
+    castVoteRecordOriginalSnapshot,
+    castVoteRecordWriteIns,
+    referencedFiles,
+  } = castVoteRecordAndReferencedFiles;
+
+  const validationResult = validateCastVoteRecordAgainstElectionDefinition(
+    castVoteRecord,
+    electionDefinition
+  );
+  if (validationResult.isErr()) {
+    return validationResult;
+  }
+
+  const votes = convertCastVoteRecordVotesToTabulationVotes(
+    castVoteRecordCurrentSnapshot
+  );
+  // HMPB ballots have an original snapshot (for mark adjudication), while BMD ballots
+  // (including multi-page BMD) do not. Multi-page BMD also has BallotSheetId, so we
+  // can't use that alone to identify HMPB.
+  const isHmpb = castVoteRecordOriginalSnapshot !== undefined;
+  let markScores: Tabulation.MarkScores | undefined;
+  if (isHmpb) {
+    markScores = convertCastVoteRecordMarkMetricsToMarkScores(
+      castVoteRecordOriginalSnapshot
+    );
+  }
+
+  // Determine the card type:
+  // - HMPB: has original snapshot and sheet number
+  // - Multi-page BMD: has sheet number but no original snapshot
+  // - Single-page BMD: no sheet number
+  let card: Tabulation.Card;
+  if (isHmpb) {
+    assert(castVoteRecordBallotSheetId !== undefined);
+    card = { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId };
+  } else if (castVoteRecordBallotSheetId !== undefined) {
+    // Multi-page BMD ballot
+    card = { type: 'bmd', sheetNumber: castVoteRecordBallotSheetId };
+  } else {
+    // Single-page BMD ballot
+    card = { type: 'bmd' };
+  }
+
+  // Currently, we only support filtering on initial adjudication status,
+  // rather than post-adjudication status. As a result, we can just calculate
+  // now, during import.
+  const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+    electionDefinition,
+    votes,
+    castVoteRecordWriteIns.length,
+    isHmpb ? markScores : undefined,
+    markThresholds
+  );
+  const votingMethod = assertDefined(
+    getCastVoteRecordBallotType(castVoteRecord)
+  );
+  const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
+    ballotId: castVoteRecord.UniqueId,
+    cvr: {
+      ballotStyleGroupId: getGroupIdFromBallotStyleId({
+        ballotStyleId: castVoteRecord.BallotStyleId,
+        election: electionDefinition.election,
+      }),
+      batchId: castVoteRecord.BatchId,
+      card,
+      precinctId: castVoteRecord.BallotStyleUnitId,
+      markScores,
+      votes,
+      votingMethod,
+    },
+    cvrFileId,
+    electionId,
+    adjudicationFlags,
+  });
+  if (addCastVoteRecordResult.isErr()) {
+    return addCastVoteRecordResult;
+  }
+  const { cvrId: castVoteRecordId, isNew: isCastVoteRecordNew } =
+    addCastVoteRecordResult.ok();
+
+  if (isCastVoteRecordNew) {
+    const needsAdjudication = doesCvrNeedAdjudication(
+      adjudicationFlags,
+      adminAdjudicationReasons
+    );
+
+    if (needsAdjudication) {
+      // Guaranteed to be defined given validation in readCastVoteRecordExport
+      assert(referencedFiles !== undefined);
+      for (const i of [0, 1] as const) {
+        const imageFileReadResult = await referencedFiles.imageFiles[i].read();
+        if (imageFileReadResult.isErr()) {
+          return imageFileReadResult;
+        }
+        if (referencedFiles.layoutFiles !== undefined) {
+          const layoutFileReadResult =
+            await referencedFiles.layoutFiles[i].read();
+          if (layoutFileReadResult.isErr()) {
+            return layoutFileReadResult;
+          }
+          store.addBallotImage({
+            cvrId: castVoteRecordId,
+            electionDefinitionId: electionDefinition.election.id,
+            imageData: imageFileReadResult.ok(),
+            pageLayout: layoutFileReadResult.ok(),
+            side: (['front', 'back'] as const)[i],
+          });
+        } else {
+          // bmd ballots do not have pageLayout information.
+          store.addBallotImage({
+            cvrId: castVoteRecordId,
+            electionDefinitionId: electionDefinition.election.id,
+            imageData: imageFileReadResult.ok(),
+            side: (['front', 'back'] as const)[i],
+          });
+        }
+      }
+    }
+    if (castVoteRecordWriteIns.length > 0) {
+      for (const castVoteRecordWriteIn of castVoteRecordWriteIns) {
+        store.addWriteIn({
+          castVoteRecordId,
+          contestId: castVoteRecordWriteIn.contestId,
+          electionId,
+          optionId: castVoteRecordWriteIn.optionId,
+          isUnmarked: castVoteRecordWriteIn.isUnmarked,
+          isUndetected: false,
+          machineMarkedText: castVoteRecordWriteIn.text,
+        });
+      }
+    }
+  }
+
+  return ok({
+    castVoteRecordId,
+    isNew: isCastVoteRecordNew,
+    precinctId: castVoteRecord.BallotStyleUnitId,
+    isHmpb,
+    markScores,
+  });
+}
+
+/**
  * Imports cast vote records given a cast vote record export directory path
  */
 export async function importCastVoteRecords(
@@ -309,165 +509,35 @@ export async function importCastVoteRecords(
           index: castVoteRecordIndex,
         });
       }
-      const {
-        castVoteRecord,
-        castVoteRecordBallotSheetId,
-        castVoteRecordCurrentSnapshot,
-        castVoteRecordOriginalSnapshot,
-        castVoteRecordWriteIns,
-        referencedFiles,
-      } = castVoteRecordResult.ok();
 
-      const validationResult = validateCastVoteRecordAgainstElectionDefinition(
-        castVoteRecord,
-        electionDefinition
-      );
-      if (validationResult.isErr()) {
-        return err({ ...validationResult.err(), index: castVoteRecordIndex });
-      }
-
-      const votes = convertCastVoteRecordVotesToTabulationVotes(
-        castVoteRecordCurrentSnapshot
-      );
-      // HMPB ballots have an original snapshot (for mark adjudication), while BMD ballots
-      // (including multi-page BMD) do not. Multi-page BMD also has BallotSheetId, so we
-      // can't use that alone to identify HMPB.
-      const isHmpb = castVoteRecordOriginalSnapshot !== undefined;
-      let markScores: Tabulation.MarkScores | undefined;
-      if (isHmpb) {
-        markScores = convertCastVoteRecordMarkMetricsToMarkScores(
-          castVoteRecordOriginalSnapshot
-        );
-      }
-
-      // Determine the card type:
-      // - HMPB: has original snapshot and sheet number
-      // - Multi-page BMD: has sheet number but no original snapshot
-      // - Single-page BMD: no sheet number
-      let card: Tabulation.Card;
-      if (isHmpb) {
-        assert(castVoteRecordBallotSheetId !== undefined);
-        card = { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId };
-      } else if (castVoteRecordBallotSheetId !== undefined) {
-        // Multi-page BMD ballot
-        card = { type: 'bmd', sheetNumber: castVoteRecordBallotSheetId };
-      } else {
-        // Single-page BMD ballot
-        card = { type: 'bmd' };
-      }
-
-      // Currently, we only support filtering on initial adjudication status,
-      // rather than post-adjudication status. As a result, we can just calculate
-      // now, during import.
-      const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
-        electionDefinition,
-        votes,
-        castVoteRecordWriteIns.length,
-        isHmpb ? markScores : undefined,
-        markThresholds
-      );
-      const votingMethod = assertDefined(
-        getCastVoteRecordBallotType(castVoteRecord)
-      );
-      const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
-        ballotId: castVoteRecord.UniqueId,
-        cvr: {
-          ballotStyleGroupId: getGroupIdFromBallotStyleId({
-            ballotStyleId: castVoteRecord.BallotStyleId,
-            election: electionDefinition.election,
-          }),
-          batchId: castVoteRecord.BatchId,
-          card,
-          precinctId: castVoteRecord.BallotStyleUnitId,
-          markScores,
-          votes,
-          votingMethod,
+      const importResult = await importCastVoteRecord(
+        {
+          store,
+          electionId,
+          electionDefinition,
+          adminAdjudicationReasons,
+          markThresholds,
+          cvrFileId: importId,
         },
-        cvrFileId: importId,
-        electionId,
-        adjudicationFlags,
-      });
-      if (addCastVoteRecordResult.isErr()) {
-        return err({
-          ...addCastVoteRecordResult.err(),
-          index: castVoteRecordIndex,
-        });
+        castVoteRecordResult.ok()
+      );
+      if (importResult.isErr()) {
+        return err({ ...importResult.err(), index: castVoteRecordIndex });
       }
-      const { cvrId: castVoteRecordId, isNew: isCastVoteRecordNew } =
-        addCastVoteRecordResult.ok();
+      const { isNew, precinctId, isHmpb, markScores } = importResult.ok();
 
-      if (isCastVoteRecordNew) {
-        const needsAdjudication = doesCvrNeedAdjudication(
-          adjudicationFlags,
-          adminAdjudicationReasons
-        );
-
-        if (needsAdjudication) {
-          // Guaranteed to be defined given validation in readCastVoteRecordExport
-          assert(referencedFiles !== undefined);
-          for (const i of [0, 1] as const) {
-            const imageFileReadResult =
-              await referencedFiles.imageFiles[i].read();
-            if (imageFileReadResult.isErr()) {
-              return err({
-                ...imageFileReadResult.err(),
-                index: castVoteRecordIndex,
-              });
-            }
-            if (referencedFiles.layoutFiles !== undefined) {
-              const layoutFileReadResult =
-                await referencedFiles.layoutFiles[i].read();
-              if (layoutFileReadResult.isErr()) {
-                return err({
-                  ...layoutFileReadResult.err(),
-                  index: castVoteRecordIndex,
-                });
-              }
-              store.addBallotImage({
-                cvrId: castVoteRecordId,
-                electionDefinitionId: electionDefinition.election.id,
-                imageData: imageFileReadResult.ok(),
-                pageLayout: layoutFileReadResult.ok(),
-                side: (['front', 'back'] as const)[i],
-              });
-            } else {
-              // bmd ballots do not have pageLayout information.
-              store.addBallotImage({
-                cvrId: castVoteRecordId,
-                electionDefinitionId: electionDefinition.election.id,
-                imageData: imageFileReadResult.ok(),
-                side: (['front', 'back'] as const)[i],
-              });
-            }
-          }
-        }
-        if (castVoteRecordWriteIns.length > 0) {
-          for (const castVoteRecordWriteIn of castVoteRecordWriteIns) {
-            store.addWriteIn({
-              castVoteRecordId,
-              contestId: castVoteRecordWriteIn.contestId,
-              electionId,
-              optionId: castVoteRecordWriteIn.optionId,
-              isUnmarked: castVoteRecordWriteIn.isUnmarked,
-              isUndetected: false,
-              machineMarkedText: castVoteRecordWriteIn.text,
-            });
-          }
-        }
+      if (isNew) {
+        newlyAdded += 1;
         if (isHmpb && markScores) {
           updateMarkScoreDistributionFromMarkScores(
             markScoreDistribution,
             markScores
           );
         }
-      }
-
-      if (isCastVoteRecordNew) {
-        newlyAdded += 1;
       } else {
         alreadyPresent += 1;
       }
-      precinctIds.add(castVoteRecord.BallotStyleUnitId);
+      precinctIds.add(precinctId);
 
       castVoteRecordIndex += 1;
     }

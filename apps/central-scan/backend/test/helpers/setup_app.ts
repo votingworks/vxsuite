@@ -21,6 +21,7 @@ import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
 import { Api } from '../../src';
 import { buildCentralScannerApp } from '../../src/app';
+import { AdminHostClient } from '../../src/networking';
 import { start } from '../../src/server';
 import { Store } from '../../src/store';
 import { getUserRole } from '../../src/util/auth';
@@ -48,7 +49,8 @@ export async function withApp(
     apiClient: grout.Client<Api>;
     server: Server;
     store: Store;
-  }) => Promise<void>
+  }) => Promise<void>,
+  options: { adminHostClient?: AdminHostClient } = {}
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth(vi.fn);
@@ -68,6 +70,7 @@ export async function withApp(
     importer,
     workspace,
     logger,
+    adminHostClient: options.adminHostClient,
   });
   const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient({

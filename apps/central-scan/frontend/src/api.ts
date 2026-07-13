@@ -344,6 +344,41 @@ export const exportCastVoteRecordsToUsbDrive = {
   },
 } as const;
 
+const HOST_CONNECTION_POLLING_INTERVAL_MS = 2000;
+
+export const getHostConnectionInfo = {
+  queryKey(): QueryKey {
+    return ['getHostConnectionInfo'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getHostConnectionInfo(), {
+      refetchInterval: HOST_CONNECTION_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+export const sendCastVoteRecordsToHost = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.sendCastVoteRecordsToHost);
+  },
+} as const;
+
+const SEND_CVRS_PROGRESS_POLLING_INTERVAL_MS = 500;
+
+export const getSendCvrsProgress = {
+  queryKey(): QueryKey {
+    return ['getSendCvrsProgress'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSendCvrsProgress(), {
+      refetchInterval: SEND_CVRS_PROGRESS_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
 export const performScanDiagnostic = {
   useMutation() {
     const apiClient = useApiClient();

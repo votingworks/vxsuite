@@ -281,7 +281,12 @@ export const getCastVoteRecordFiles = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCastVoteRecordFiles());
+    return useQuery(this.queryKey(), () => apiClient.getCastVoteRecordFiles(), {
+      // Cast vote records can be imported over the network from a central
+      // scanner, without any mutation from this frontend, so poll for
+      // changes
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+    });
   },
 } as const;
 

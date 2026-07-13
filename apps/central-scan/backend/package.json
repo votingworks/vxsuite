@@ -30,6 +30,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@votingworks/admin-backend": "workspace:*",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
@@ -40,6 +41,7 @@
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/networking": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -53,8 +55,10 @@
     "fs-extra": "11.1.1",
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
+    "node-fetch": "^2.6.0",
     "tmp": "^0.2.6",
     "ws": "8.15.1",
+    "zip-stream": "^4.1.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -64,9 +68,11 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",
+    "@types/node-fetch": "^2.6.0",
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
     "@types/ws": "8.5.10",
+    "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
