@@ -98,7 +98,8 @@ function expectSingleLanguageString(params: MockUiStringOutput) {
   ).not.toBeInTheDocument();
 }
 
-const { getLanguageContext, mockApiClient, render } = newUiStringsTestContext();
+const { getLanguageContext, mockApiClient, queryClient, render } =
+  newUiStringsTestContext();
 
 beforeEach(() => {
   mockApiClient.getAvailableLanguages.mockResolvedValueOnce(ballotLanguages);
@@ -359,17 +360,21 @@ describe('English ballot style', () => {
     // affected:
     act(() => getLanguageContext()!.setLanguage('es-US'));
 
-    // Wait for both the language context update and all cascading re-renders
-    // to settle. The language change triggers async effects in UiStringsLoader
-    // (via i18next resource updates and react-i18next re-renders), which can
-    // cause transient intermediate render states where LanguageOverride's
-    // nested context hasn't yet propagated to its children.
-    await waitFor(() => {
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('es-US');
-      expect(container).not.toHaveTextContent(
-        new RegExp(getMockUiStringPrefix('es-US'))
-      );
+    // The language change kicks off async resource loads (e.g. UiStringsLoader
+    // fetching es-US strings/audio ids via react-query), which in turn drive
+    // i18next resource updates and react-i18next re-renders. Rather than
+    // racing those against a fixed-time waitFor (which previously flaked under
+    // CI load when the loads took longer than the default 1000ms timeout),
+    // wait on the actual, deterministic signal that all in-flight queries
+    // triggered by the language switch have settled.
+    await waitFor(() => expect(queryClient.isFetching()).toEqual(0), {
+      timeout: 5000,
     });
+
+    expect(getLanguageContext()?.currentLanguageCode).toEqual('es-US');
+    expect(container).not.toHaveTextContent(
+      new RegExp(getMockUiStringPrefix('es-US'))
+    );
   });
 
   test('no votes', async () => {
