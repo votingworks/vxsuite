@@ -5,6 +5,7 @@ import {
   District,
   Election,
   getContests,
+  getOrderedCandidatesForContestInBallotStyle,
   HmpbBallotPaperSize,
   OrderedCandidateOption,
   Party,
@@ -521,30 +522,100 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     ballotStrings: {},
   };
 
-  // Guarantee that every ballot renders its contests in the exact order of its
-  // source file. `getContests` returns contests in `election.contests` order,
-  // filtered to the ballot style, so this checks the merged global order against
-  // each ward's intended order and fails loudly on any mismatch.
-  const titleById = new Map(contests.map((c) => [c.id, c.title]));
-  function titleList(ids: string[]): string {
-    return ids.map((id) => titleById.get(id) ?? id).join('\n  ');
+  // Guarantee that every ballot faithfully represents its source file.
+  // `getContests` and `getOrderedCandidatesForContestInBallotStyle` reflect
+  // exactly what the renderer draws, so reconciling them against the source
+  // catches any conversion error -- dropped, extra, or reordered contests or
+  // candidates; wrong seat counts, write-in settings, or candidate party -- and
+  // fails loudly rather than shipping a wrong ballot.
+  const partyNameById = new Map(
+    [...partiesByName.values()].map((party) => [party.id, party.name])
+  );
+  function fail(where: string, detail: string): never {
+    throw new Error(`${where}: ${detail}`);
   }
   for (const [i, ballotStyle] of ballotStyles.entries()) {
-    const expectedIds = contestKeySequences[i].map(
-      (key) => assertDefined(contestsByKey.get(key)).id
-    );
-    const actualIds = getContests({ election, ballotStyle }).map(
-      (contest) => contest.id
-    );
-    if (JSON.stringify(actualIds) !== JSON.stringify(expectedIds)) {
-      const { HeaderInfo } = nhBallotStyles[i].AVSInterface;
-      throw new Error(
-        `Contest order for ${precinctNameFor(HeaderInfo)}` +
-          `${HeaderInfo.PartyName ? ` (${HeaderInfo.PartyName})` : ''} ` +
-          `does not match its source file.\nExpected:\n  ${titleList(
-            expectedIds
-          )}\nActual:\n  ${titleList(actualIds)}`
+    const { HeaderInfo, Candidates } = nhBallotStyles[i].AVSInterface;
+    const where = `${precinctNameFor(HeaderInfo)}${
+      HeaderInfo.PartyName ? ` (${toTitleCase(HeaderInfo.PartyName)})` : ''
+    }`;
+
+    const renderedContests = getContests({ election, ballotStyle });
+    const expectedContests = Candidates.map((contestInfo) => ({
+      title: cleanString(contestInfo.OfficeName.Name),
+      seats: parseSeats(contestInfo.OfficeName.WinnerNote),
+      allowWriteIns: contestInfo.WriteIn !== undefined,
+      candidates: namedCandidateInfosFor(contestInfo).map((info) => ({
+        name: candidateName(info),
+        party: info.Party ? toTitleCase(info.Party) : undefined,
+      })),
+    }));
+
+    if (renderedContests.length !== expectedContests.length) {
+      fail(
+        where,
+        `renders ${renderedContests.length} contests but its source file has ` +
+          `${expectedContests.length}.\n  Rendered: ${renderedContests
+            .map((c) => c.title)
+            .join(', ')}\n  Source: ${expectedContests
+            .map((c) => c.title)
+            .join(', ')}`
       );
+    }
+
+    for (const [j, expected] of expectedContests.entries()) {
+      const contest = renderedContests[j];
+      assert(contest.type === 'candidate');
+      if (contest.title !== expected.title) {
+        fail(
+          where,
+          `contest ${j + 1} is "${contest.title}" but the source has ` +
+            `"${expected.title}"`
+        );
+      }
+      if (contest.seats !== expected.seats) {
+        fail(
+          where,
+          `"${contest.title}" has ${contest.seats} seat(s) but the source ` +
+            `has ${expected.seats}`
+        );
+      }
+      if (contest.allowWriteIns !== expected.allowWriteIns) {
+        fail(
+          where,
+          `"${contest.title}" allowWriteIns=${contest.allowWriteIns} but the ` +
+            `source has ${expected.allowWriteIns}`
+        );
+      }
+
+      const renderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+        contest,
+        ballotStyle,
+      });
+      const renderedNames = renderedCandidates.map((c) => c.name);
+      const expectedNames = expected.candidates.map((c) => c.name);
+      if (JSON.stringify(renderedNames) !== JSON.stringify(expectedNames)) {
+        fail(
+          where,
+          `"${contest.title}" candidates (in rotation order) are ` +
+            `[${renderedNames.join(', ')}] but the source has ` +
+            `[${expectedNames.join(', ')}]`
+        );
+      }
+      for (const [k, candidate] of renderedCandidates.entries()) {
+        const renderedParty = candidate.partyIds?.[0]
+          ? partyNameById.get(candidate.partyIds[0])
+          : undefined;
+        const expectedParty = expected.candidates[k].party;
+        if (renderedParty !== expectedParty) {
+          fail(
+            where,
+            `candidate "${candidate.name}" party is ${
+              renderedParty ?? 'none'
+            } but the source has ${expectedParty ?? 'none'}`
+          );
+        }
+      }
     }
   }
 

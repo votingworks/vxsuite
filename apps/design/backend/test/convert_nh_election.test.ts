@@ -2,8 +2,11 @@
 // OX, OY) are two-letter abbreviations we don't control.
 /* eslint-disable vx/gts-identifiers */
 import { expect, test } from 'vitest';
-import { getContests } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import {
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
+} from '@votingworks/types';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   convertNhElection,
   NhBallotStyle,
@@ -83,6 +86,19 @@ function renderedTitlesForWard(
   return getContests({ election, ballotStyle }).map((c) => c.title);
 }
 
+function ballotStyleForWard(
+  election: ReturnType<typeof convertNhElection>,
+  ward: string
+) {
+  return assertDefined(
+    election.ballotStyles.find(
+      (bs) =>
+        assertDefined(election.precincts.find((p) => p.id === bs.precincts[0]))
+          .name === ward
+    )
+  );
+}
+
 // The offices shared verbatim across every ward: statewide, the floterial
 // state-rep district, and the county races. Using identical candidate lists
 // keeps each of these a single canonical contest shared by all wards.
@@ -148,6 +164,42 @@ test('renders each ward in its source order despite shared floterial districts',
     'For Sheriff',
     'For County Commissioner',
   ]);
+});
+
+test('preserves seats, write-ins, and each ward’s own candidate rotation', () => {
+  // NH bakes candidate rotation into each ward file (RSA 656): both wards share
+  // the same county commissioner contest but list its candidates rotated.
+  const ward1 = makeBallotStyle(1, 'REPUBLICAN', [
+    contestInfo('For County Commissioner', ['Ann', 'Bea', 'Cy'], 2),
+  ]);
+  const ward2 = makeBallotStyle(2, 'REPUBLICAN', [
+    contestInfo('For County Commissioner', ['Bea', 'Cy', 'Ann'], 2),
+  ]);
+
+  const election = convertNhElection([ward1, ward2]);
+
+  const contest = assertDefined(
+    election.contests.find((c) => c.title === 'For County Commissioner')
+  );
+  assert(contest.type === 'candidate');
+  expect(contest.seats).toEqual(2);
+  expect(contest.allowWriteIns).toEqual(true);
+
+  // One shared canonical contest, but each ward keeps its own rotation order.
+  function rotation(ward: string): string[] {
+    return getOrderedCandidatesForContestInBallotStyle({
+      contest,
+      ballotStyle: ballotStyleForWard(election, ward),
+    }).map((c) => c.name);
+  }
+  expect(rotation('Ward 1')).toEqual(['Ann', 'Bea', 'Cy']);
+  expect(rotation('Ward 2')).toEqual(['Bea', 'Cy', 'Ann']);
+});
+
+test('throws when a source file lists the same office twice', () => {
+  const ward1 = makeBallotStyle(1, 'DEMOCRATIC', [sheriff(), sheriff()]);
+
+  expect(() => convertNhElection([ward1])).toThrow(/source file has/);
 });
 
 test('throws when source files disagree on the relative order of two contests', () => {
