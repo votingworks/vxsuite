@@ -14,11 +14,13 @@ import {
 } from '@votingworks/types';
 import {
   ballotTemplates,
+  convertPdfToSpotColor,
   createPlaywrightRendererPool,
   hmpbStringsCatalog,
   renderAllBallotPdfsAndCreateElectionDefinition,
   renderBallotTemplate,
   renderNhRovForm,
+  spotColorForParty,
   ElectionSerializationOptions,
   RenderDocument,
   Renderer,
@@ -222,13 +224,27 @@ async function renderTownPackage(
     .map((p) => ({ ...p, isHandCount }));
 
   // 6. Render all ballots + build the v4.0 election definition.
-  const { ballotPdfs, electionDefinition } =
+  const { ballotPdfs: renderedBallotPdfs, electionDefinition } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       pool,
       ballotTemplates.NhStateBallot,
       props,
       SERIALIZATION_OPTIONS
     );
+
+  // Convert each ballot to two-ink spot color for printing: the party tint on
+  // its named spot plate, everything else on a single black plate. Both the
+  // package-encoded ballots and the loose copies use the print-ready version.
+  const ballotPdfs = await Promise.all(
+    renderedBallotPdfs.map((pdf, i) => {
+      const ballotStyle = assertDefined(
+        election.ballotStyles.find((bs) => bs.id === props[i].ballotStyleId)
+      );
+      const party = election.parties.find((p) => p.id === ballotStyle.partyId);
+      const spot = party && spotColorForParty(party);
+      return spot ? convertPdfToSpotColor(pdf, spot) : Promise.resolve(pdf);
+    })
+  );
 
   // 7. Assemble the election package zip (8 standard entries; audio omitted).
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
@@ -321,9 +337,17 @@ async function renderTownPackage(
     })
   );
   await Promise.all(
-    rovPdfs.map((pdf, i) =>
-      writeFile(join(townDir, 'rov', `${rovLabels[i]} - ROV.pdf`), pdf)
-    )
+    rovPdfs.map(async (pdf, i) => {
+      const party = election.parties.find(
+        (p) => p.id === election.ballotStyles[i].partyId
+      );
+      const spot = party && spotColorForParty(party);
+      const rovPdf = spot ? await convertPdfToSpotColor(pdf, spot) : pdf;
+      return writeFile(
+        join(townDir, 'rov', `${rovLabels[i]} - ROV.pdf`),
+        rovPdf
+      );
+    })
   );
 
   return {

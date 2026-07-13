@@ -6,11 +6,13 @@ import {
 } from '@votingworks/types';
 import {
   ballotTemplates,
+  convertPdfToSpotColor,
   createPlaywrightRendererPool,
   RenderDocument,
   Renderer,
   renderBallotTemplate,
   renderNhRovForm,
+  spotColorForParty,
 } from '@votingworks/hmpb';
 import { assertDefined } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
@@ -224,6 +226,8 @@ async function renderTown(
     const party = election.parties.find((p) => p.id === ballotStyle.partyId);
     const ward = precinct.name === townName ? '' : ` ${precinct.name}`;
     const label = sanitize(`${townName}${ward} ${party ? party.name : ''}`);
+    // Print the ballot as two inks: the party's spot plate plus black.
+    const spot = party && spotColorForParty(party);
     for (const variant of BALLOT_VARIANTS) {
       const document = (
         await renderBallotTemplate(
@@ -236,20 +240,24 @@ async function renderTown(
       if (await documentOverflowsToBack(document)) {
         overflows.push(`${label} - ${variant.suffix}`);
       }
+      const pdf = await document.renderToPdf();
       await writeFile(
         join(townDir, `${label} - ${variant.suffix}.pdf`),
-        await document.renderToPdf()
+        spot ? await convertPdfToSpotColor(pdf, spot) : pdf
       );
     }
 
-    // Return of Votes form for this ward/party.
+    // Return of Votes form for this ward/party. Spot-converted like the
+    // ballots: the party tint prints on its spot plate and the form's gray
+    // shading stays on the black plate.
     const rovDocument = await renderNhRovForm(renderer, {
       election,
       ballotStyle,
     });
+    const rovPdf = await rovDocument.renderToPdf();
     await writeFile(
       join(townDir, `${label} - ROV.pdf`),
-      await rovDocument.renderToPdf()
+      spot ? await convertPdfToSpotColor(rovPdf, spot) : rovPdf
     );
   }
 
