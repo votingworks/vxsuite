@@ -158,7 +158,7 @@ interface FitResult {
 
 // Pick the smallest paper size on which the town's largest ballot style keeps
 // all contests off the back page.
-async function autoFitPaperSize(
+export async function autoFitPaperSize(
   renderer: Renderer,
   election: Election,
   isHandCount: boolean
