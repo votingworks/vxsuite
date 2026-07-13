@@ -117,12 +117,16 @@ export class Importer {
         batchId
       );
       const [frontImageData, backImageData] = await Promise.all([
+        // The `ImageData` arms are only taken by the push-streaming DeskPro
+        // scanner (PoC), which hands back decoded images rather than file paths.
+        /* istanbul ignore start */
         typeof sheetInfo.front === 'string'
           ? loadImageData(sheetInfo.front)
           : ok(sheetInfo.front),
         typeof sheetInfo.back === 'string'
           ? loadImageData(sheetInfo.back)
           : ok(sheetInfo.back),
+        /* istanbul ignore stop */
       ]);
       return await this.importSheet(
         batchId,
@@ -354,7 +358,11 @@ export class Importer {
         // This sheet needs adjudication, so we stop pulling sheets until the
         // operator resolves it. For a push-streaming scanner (DeskPro) that
         // isn't enough to stop the feed, so signal it to halt the rollers.
+        // (The `pauseFeeding` call is a PoC DeskPro-only hook; pull-driven
+        // scanners used in tests don't define it.)
+        /* istanbul ignore start */
         await currentBatch.sheetGenerator.pauseFeeding?.();
+        /* istanbul ignore stop */
       }
     }
   }

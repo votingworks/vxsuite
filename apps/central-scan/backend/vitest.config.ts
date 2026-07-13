@@ -14,6 +14,11 @@ export default defineConfig({
         '**/*.d.ts',
         'src/index.ts',
         'src/types.ts',
+        // PoC: DeskPro (SCAMAX) WebSocket scanner bridge + demo entrypoint.
+        // Hardware-integration code that can't be meaningfully unit-tested yet;
+        // excluded from coverage until it's productionized.
+        'src/deskpro_scanner.ts',
+        'src/deskpro_demo.ts',
         '**/*.test.ts',
         'test/**/*',
       ],

@@ -18,14 +18,14 @@ const debug = makeDebug('scan:deskpro');
 // PoC: the Windows 11 VM running the SCAMAX `scanserver` (TWAIN bridge).
 // The server streams a duplex capture over a WebSocket as (JSON meta frame,
 // raw BMP frame) pairs per page.
-const DESKPRO_HOST = (() => {
+function requireDeskProHost(): string {
   const value = process.env['DESKPRO_HOST'];
   assert(
     typeof value === 'string',
     'Missing DESKPRO_HOST environment variable'
   );
   return value;
-})();
+}
 const DESKPRO_PORT = 8765;
 
 /**
@@ -112,12 +112,12 @@ export class DeskProScanner implements BatchScanner {
   private readonly logger: BaseLogger;
 
   constructor({
-    host = DESKPRO_HOST,
+    host,
     mode = 'gray',
     dpi = 200,
     logger,
   }: DeskProScannerOptions) {
-    this.host = host;
+    this.host = host ?? requireDeskProHost();
     this.mode = mode;
     this.dpi = dpi;
     this.logger = logger;

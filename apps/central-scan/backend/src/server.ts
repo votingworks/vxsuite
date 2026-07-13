@@ -117,12 +117,15 @@ export function start({
       : undefined;
 
     // PoC: DESKPRO_SCANNER=1 selects the InoTec SCAMAX DeskPro over the WS
-    // bridge instead of the Fujitsu (scanimage). See deskpro_scanner.ts.
+    // bridge instead of the Fujitsu (scanimage). See deskpro_scanner.ts. This
+    // selection isn't exercised in tests, hence the coverage ignore.
+    /* istanbul ignore start */
     const resolvedBatchScanner =
       mockBatchScanner ??
       (process.env['DESKPRO_SCANNER']
         ? new DeskProScanner({ logger })
         : new FujitsuScanner({ mode: ScannerMode.Gray, logger }));
+    /* istanbul ignore stop */
 
     const resolvedImporter =
       importer ??

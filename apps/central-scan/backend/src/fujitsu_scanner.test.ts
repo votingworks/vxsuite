@@ -56,8 +56,9 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
 
   scanimage.emit('exit', 0, null);
   await expect(sheets.scanSheet()).resolves.toEqual({
-    frontPath: '/tmp/image-0001.png',
-    backPath: '/tmp/image-0002.png',
+    front: '/tmp/image-0001.png',
+    back: '/tmp/image-0002.png',
+    ballotAuditId: undefined,
   });
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
@@ -88,8 +89,8 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
 
   scanimage.emit('exit', 0, null);
   await expect(sheets.scanSheet()).resolves.toEqual({
-    frontPath: '/tmp/image-0001.png',
-    backPath: '/tmp/image-0002.png',
+    front: '/tmp/image-0001.png',
+    back: '/tmp/image-0002.png',
     ballotAuditId: 'test-batch_0000',
   });
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
@@ -442,8 +443,9 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
   scanimage.stdout.append('/tmp/front.png\n');
   scanimage.stdout.append('/tmp/back.png\n');
   await expect(sheetPromise).resolves.toEqual({
-    frontPath: '/tmp/front.png',
-    backPath: '/tmp/back.png',
+    front: '/tmp/front.png',
+    back: '/tmp/back.png',
+    ballotAuditId: undefined,
   });
 });
 
