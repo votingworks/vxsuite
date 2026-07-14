@@ -35,6 +35,23 @@ test('addSheets and getStatus', () => {
   expect(scanner.getStatus()).toEqual({ sheetCount: 3 });
 });
 
+test('sheetCopies loads each added sheet multiple times', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'mock-batch-test-'));
+  const scanner = new MockBatchScanner(join(dir, 'images'), 3);
+
+  scanner.addSheets([inputSheet(1), inputSheet(2)]);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 6 });
+
+  const batch = scanner.scanSheets();
+  expect(await batch.scanSheet()).toEqual(scannedSheet(1));
+  expect(await batch.scanSheet()).toEqual(scannedSheet(1));
+  expect(await batch.scanSheet()).toEqual(scannedSheet(1));
+  expect(await batch.scanSheet()).toEqual(scannedSheet(2));
+  expect(await batch.scanSheet()).toEqual(scannedSheet(2));
+  expect(await batch.scanSheet()).toEqual(scannedSheet(2));
+  expect(await batch.scanSheet()).toBeUndefined();
+});
+
 test('imageDir is a writable directory', () => {
   const scanner = createScanner();
   expect(fs.existsSync(scanner.imageDir)).toEqual(true);
