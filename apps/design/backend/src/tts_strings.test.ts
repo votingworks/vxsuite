@@ -13,6 +13,7 @@ import { ElectionRecord, Store } from './store';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
+    fromSsml: vi.fn(),
     synthesizeSpeech: vi.fn(),
   };
 

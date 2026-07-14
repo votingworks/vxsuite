@@ -379,6 +379,24 @@ export const ttsStringDefaults = {
   },
 } as const;
 
+export const ttsSynthesizeFromSsml = {
+  queryKey(input: { languageCode: string; ssml: string }): QueryKey {
+    return ['synthesizedSsml', input.languageCode, input.ssml];
+  },
+  useQuery(input: { languageCode: string; ssml: string }) {
+    const apiClient = useApiClient();
+
+    return useQuery(
+      this.queryKey(input),
+      () => {
+        if (!input.ssml) return '';
+        return apiClient.ttsSynthesizeFromSsml(input);
+      },
+      { staleTime: Infinity }
+    );
+  },
+} as const;
+
 /* istanbul ignore next - WIP */
 export const ttsSynthesizeFromText = {
   queryKey(input: { languageCode: string; text: string }): QueryKey {

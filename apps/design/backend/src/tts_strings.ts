@@ -188,9 +188,23 @@ export function apiMethods(ctx: TtsApiContext) {
 
       return `data:audio/mp3;base64,${base64Data}`;
     },
+
+    /* istanbul ignore next */
+    async ttsSynthesizeFromSsml(input: {
+      ssml: string;
+      languageCode: string;
+    }): Promise<DataUrl> {
+      const base64Data = await ctx.speechSynthesizer.fromSsml(
+        input.ssml,
+        input.languageCode as LanguageCode
+      );
+
+      return `data:audio/mp3;base64,${base64Data}`;
+    },
   } as const;
 }
 
 export const methodsThatHandleAuthThemselves = [
+  'ttsSynthesizeFromSsml',
   'ttsSynthesizeFromText',
 ] as const satisfies Array<keyof ReturnType<typeof apiMethods>>;

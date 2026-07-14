@@ -25,6 +25,30 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
     this.store = input.store;
   }
 
+  /* istanbul ignore next */
+  async fromSsml(ssml: string, languageCode: LanguageCode): Promise<string> {
+    const audioClipBase64FromCache =
+      await this.store.getAudioClipBase64FromCache({
+        languageCode,
+        text: ssml,
+      });
+    if (audioClipBase64FromCache) return audioClipBase64FromCache;
+
+    const audioClipBase64 = await this.fromSsmlWithGoogleCloud(
+      ssml,
+      languageCode
+    );
+    if (isValidPrimaryKey(ssml)) {
+      await this.store.addSpeechSynthesisCacheEntry({
+        languageCode,
+        text: ssml,
+        audioClipBase64,
+      });
+    }
+
+    return audioClipBase64;
+  }
+
   async synthesizeSpeechSanitized(
     text: string,
     languageCode: LanguageCode

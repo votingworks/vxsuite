@@ -57,6 +57,7 @@ export interface MinimalGoogleCloudTextToSpeechClient {
  */
 export interface SpeechSynthesizer {
   synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
+  fromSsml(ssml: string, languageCode: LanguageCode): Promise<string>;
 }
 
 /**
@@ -101,6 +102,27 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
       input: { text: sanitizedText },
+      voice: GoogleCloudVoices[languageCode],
+    });
+
+    assert(response.audioContent instanceof Uint8Array);
+
+    return Buffer.from(response.audioContent.buffer).toString('base64');
+  }
+
+  /* istanbul ignore next */
+  async fromSsml(ssml: string, languageCode: LanguageCode): Promise<string> {
+    return await this.fromSsmlWithGoogleCloud(ssml, languageCode);
+  }
+
+  /* istanbul ignore next */
+  protected async fromSsmlWithGoogleCloud(
+    ssml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    const [response] = await this.textToSpeechClient.synthesizeSpeech({
+      audioConfig: { audioEncoding: 'MP3' },
+      input: { ssml },
       voice: GoogleCloudVoices[languageCode],
     });
 
