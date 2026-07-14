@@ -264,8 +264,14 @@ async function renderTownPackage(
     ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
     JSON.stringify({}, null, 2)
   );
+  // Only machine-scannable ballots belong in the encoded set. Sample ballots
+  // and federal-office-only ("-foo") variants intentionally have no timing
+  // marks (NH hand-counts them), so scanning them fails; exclude both. Their
+  // loose PDFs are still written below for the handoff.
   const encodedBallots = props
-    .map((p, i) => {
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => p.ballotMode === 'official' && !p.isFederalOfficeOnly)
+    .map(({ p, i }) => {
       const entry: EncodedBallotEntry = {
         ballotStyleId: p.ballotStyleId,
         precinctId: p.precinctId,
