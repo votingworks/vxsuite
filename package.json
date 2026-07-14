@@ -60,6 +60,7 @@
       "canvas",
       "esbuild",
       "node-hid",
+      "node-quirc",
       "pcsclite",
       "usb"
     ],
