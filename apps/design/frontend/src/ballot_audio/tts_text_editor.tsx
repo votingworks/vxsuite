@@ -16,7 +16,6 @@ const Container = styled.div`
 `;
 
 const Header = styled(Font)`
-  box-shadow: 0 0.25rem 0.5rem rgba(255, 255, 255, 75%);
   display: block;
   padding: 0 0 0.5rem;
   margin: 0;
@@ -103,13 +102,10 @@ const Note = styled(Caption)`
 
 const Footer = styled.div`
   background: ${(p) => p.theme.colors.background};
-  border-top: 1px solid ${DesktopPalette.Gray30};
+  bottom: 0;
   gap: 0.5rem;
-  padding: 0.5rem 0 0;
+  padding: 0.5rem 0 0.125rem;
   position: sticky;
-
-  /** Bottom of the buttons get clipped a bit on Safari and Firefox. */
-  bottom: 0.125rem;
 `;
 
 const Controls = styled.div`

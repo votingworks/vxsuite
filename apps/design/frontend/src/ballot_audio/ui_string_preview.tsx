@@ -1,15 +1,13 @@
 import styled from 'styled-components';
 
 import { ElectionStringKey } from '@votingworks/types';
-import { DesktopPalette, richTextStyles } from '@votingworks/ui';
+import { richTextStyles } from '@votingworks/ui';
 
 import { cssThemedScrollbars } from '../scrollbars';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${DesktopPalette.Gray30};
 
   > :last-child {
     padding-bottom: 0.75rem;

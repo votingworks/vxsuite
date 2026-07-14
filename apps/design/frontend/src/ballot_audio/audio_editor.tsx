@@ -3,11 +3,12 @@ import React from 'react';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey, TtsExportSource } from '@votingworks/types';
-import { H3, P, RadioGroup, RadioGroupOption } from '@votingworks/ui';
+import { TtsExportSource } from '@votingworks/types';
+import { H3, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 
 import * as api from '../api';
 import { TtsTextEditor } from './tts_text_editor';
+import { Phoneditor } from './phoneditor';
 
 const ModeContainer = styled.div`
   button {
@@ -37,23 +38,10 @@ export interface AudioEditorProps {
   languageCode: string;
   jurisdictionId: string;
   ttsDefault: TtsStringDefault;
-
-  /**
-   * For development/testing - phonetic editing will be a fast-follow after
-   * initial launch of plain text editing.
-   * [TODO] Remove once launched.
-   */
-  phoneticEnabled?: boolean;
 }
 
 export function AudioEditor(props: AudioEditorProps): React.ReactNode {
-  const {
-    electionId,
-    languageCode,
-    jurisdictionId,
-    phoneticEnabled,
-    ttsDefault,
-  } = props;
+  const { electionId, languageCode, jurisdictionId, ttsDefault } = props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
   const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
@@ -69,16 +57,6 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
   const currentMode = mode || defaultMode;
   const editable = !ballotsFinalizedAt.data;
 
-  // Phonetic editing isn't supported for ballot measures at the moment, given
-  // how long/complex they can get.
-  //
-  // [TODO] Consider approaches that allow users to edit with a combination of
-  // text editing and spot editing certain words, like names of people/places,
-  // with phonetic edits.
-  const textOnly =
-    ttsDefault.key === ElectionStringKey.CONTEST_DESCRIPTION ||
-    !phoneticEnabled;
-
   return (
     <React.Fragment>
       <ModeContainer>
@@ -88,7 +66,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
           hideLabel
           numColumns={2}
           onChange={setMode}
-          options={textOnly ? [TTS_MODE_OPTIONS[0]] : TTS_MODE_OPTIONS}
+          options={TTS_MODE_OPTIONS}
           value={currentMode}
         />
       </ModeContainer>
@@ -106,7 +84,14 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
             );
 
           case 'phonetic':
-            return <P>TODO: Phonetic Editor</P>;
+            return (
+              <Phoneditor
+                editable={editable}
+                jurisdictionId={jurisdictionId}
+                languageCode={languageCode}
+                original={ttsDefault.text}
+              />
+            );
 
           default:
             throwIllegalValue(currentMode);

@@ -25,6 +25,8 @@ import {
   faBan,
   faCheckSquare as faCheckSquareSolid,
   faCircle as faCircleSolid,
+  faCircleDown,
+  faCircleUp,
   faSquare as faSquareSolid,
   faChevronCircleUp,
   faChevronCircleDown,
@@ -450,6 +452,10 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faCheckCircle} />;
   },
 
+  DownCircle(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleDown} />;
+  },
+
   Download(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faDownload} />;
   },
@@ -676,6 +682,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faUnderline} />;
+  },
+
+  UpCircle(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleUp} />;
   },
 
   Upload(props) {
