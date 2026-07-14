@@ -98,6 +98,7 @@ test('going through the whole process works - HMPB', async () => {
 
         await apiClient.scanBatch();
         await importer.waitForEndOfBatchOrScanningPause();
+        await apiClient.saveBatch();
 
         // check the latest batch has the expected counts
         const status = await apiClient.getStatus();
@@ -220,8 +221,9 @@ test('ballots printed with invalid scale are rejected', async () => {
         expect(status.batches[0].count).toEqual(1);
         expect(status.adjudicationsRemaining).toEqual(1);
 
-        // Reject the ballot
+        // Reject the ballot, then save the (now empty) batch
         await apiClient.continueScanning({ forceAccept: false });
+        await apiClient.saveBatch();
       }
 
       {

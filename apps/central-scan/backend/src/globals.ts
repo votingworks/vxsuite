@@ -48,3 +48,14 @@ export const NETWORK_REQUEST_TIMEOUT_MS = 1000;
  */
 export const ADMIN_HOST_ADDRESS_OVERRIDE =
   process.env.VX_CENTRAL_SCAN_ADMIN_HOST;
+
+/**
+ * Dev-dock mock scanner: load each sheet into the tray this many times, to
+ * simulate scanning a larger stack (a longer scanning window). Defaults to 1.
+ */
+export const MOCK_SCANNER_SHEET_COPIES = process.env.MOCK_SCANNER_SHEET_COPIES
+  ? unsafeParse(
+      z.coerce.number().int().positive(),
+      process.env.MOCK_SCANNER_SHEET_COPIES
+    )
+  : 1;

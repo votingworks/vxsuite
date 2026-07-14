@@ -26,7 +26,7 @@ export function makeMock<T>(Cls: new (...args: never[]) => T): Mocked<T> {
 }
 
 type ScanSessionStep =
-  | { type: 'sheet'; sheet: ScannedSheetInfo }
+  | { type: 'sheet'; sheet: ScannedSheetInfo; gate?: Promise<void> }
   | { type: 'error'; error: Error };
 
 /**
@@ -35,19 +35,26 @@ type ScanSessionStep =
 class ScannerSessionPlan {
   private readonly steps: ScanSessionStep[] = [];
   private ended = false;
+  private endGate?: Promise<void>;
 
   getStep(index: number): Optional<ScanSessionStep> {
     return this.steps[index];
   }
 
+  getEndGate(): Optional<Promise<void>> {
+    return this.endGate;
+  }
+
   /**
-   * Adds a scanning step to the session.
+   * Adds a scanning step to the session. If `gate` is provided, the sheet is
+   * not produced until it resolves, simulating a sheet that is still making
+   * its way through the scanner.
    */
-  sheet(sheet: ScannedSheetInfo): this {
+  sheet(sheet: ScannedSheetInfo, gate?: Promise<void>): this {
     if (this.ended) {
       throw new Error('cannot add a sheet scan step to an ended session');
     }
-    this.steps.push({ type: 'sheet', sheet });
+    this.steps.push({ type: 'sheet', sheet, gate });
     return this;
   }
 
@@ -62,8 +69,14 @@ class ScannerSessionPlan {
     return this;
   }
 
-  end(): void {
+  /**
+   * Ends the session. If `gate` is provided, the end of the sheet stream is
+   * not observable until it resolves, simulating a scanner that is still
+   * waiting for more paper.
+   */
+  end(gate?: Promise<void>): void {
     this.ended = true;
+    this.endGate = gate;
   }
 
   *[Symbol.iterator](): IterableIterator<ScanSessionStep> {
@@ -118,18 +131,20 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
-        // eslint-disable-next-line @typescript-eslint/require-await
         scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
           const step = session.getStep(stepIndex);
           stepIndex += 1;
 
           if (!step) {
+            await session.getEndGate();
             return undefined;
           }
 
           switch (step.type) {
-            case 'sheet':
+            case 'sheet': {
+              await step.gate;
               return step.sheet;
+            }
 
             case 'error':
               throw step.error;

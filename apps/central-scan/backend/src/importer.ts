@@ -39,7 +39,7 @@ import {
   logScanSheetSuccess,
   logSheetAdjudicationInfo,
 } from './util/logging';
-import { ScanStatus } from './types';
+import { BatchPauseReason, ScanStatus } from './types';
 
 const debug = makeDebug('scan:importer');
 export interface Options {
@@ -55,7 +55,8 @@ interface CurrentBatch {
   batchId: Id;
 
   /**
-   * The scanner control object for the current batch.
+   * The scanner control object for the current batch. Replaced with a fresh
+   * control when a paused batch is continued.
    */
   sheetGenerator: BatchControl;
 
@@ -65,6 +66,29 @@ interface CurrentBatch {
    * finished.
    */
   directory: string;
+
+  /**
+   * The imprint prefix used when the batch was started, so continuing the
+   * batch imprints with the same prefix.
+   */
+  imprintIdPrefix?: string;
+
+  /**
+   * Whether the batch is actively scanning or paused. A paused batch stays
+   * open until the operator continues, saves, or cancels it.
+   */
+  state: 'scanning' | 'paused';
+
+  /**
+   * Why the batch is paused, when `state` is `'paused'`.
+   */
+  pauseReason?: BatchPauseReason;
+
+  /**
+   * Set when the operator asks to stop scanning; the scan loop observes this
+   * after the in-flight sheet and pauses the batch.
+   */
+  stopRequested: boolean;
 }
 
 /**
@@ -337,6 +361,35 @@ export class Importer {
   }
 
   /**
+   * Pause the current batch without finishing it: halt the physical feed and
+   * release the underlying scan session. The batch stays open until the
+   * operator continues, saves, or cancels it.
+   */
+  private async pauseBatch(reason: BatchPauseReason): Promise<void> {
+    const { currentBatch } = this;
+    assert(typeof currentBatch !== 'undefined');
+    debug('pausing batch %s: %s', currentBatch.batchId, reason);
+    currentBatch.state = 'paused';
+    currentBatch.pauseReason = reason;
+    currentBatch.stopRequested = false;
+    // For pull-driven scanners ending the session is enough to halt the feed.
+    // The push-streaming DeskPro additionally drops the buffered sheets that
+    // coasted out after the last counted one and logs reload guidance for the
+    // operator. (The `pauseFeeding` call is a PoC DeskPro-only hook;
+    // pull-driven scanners used in tests don't define it.)
+    /* istanbul ignore start */
+    await currentBatch.sheetGenerator.pauseFeeding?.();
+    /* istanbul ignore stop */
+    await currentBatch.sheetGenerator.endBatch();
+    await this.logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
+      disposition: 'success',
+      message: `Batch ${currentBatch.batchId} paused (${reason}).`,
+      batchId: currentBatch.batchId,
+      pauseReason: reason,
+    });
+  }
+
+  /**
    * Scan a single sheet and see how it looks
    */
   private async scanOneSheet(): Promise<void> {
@@ -345,26 +398,48 @@ export class Importer {
 
     const sheet = await currentBatch.sheetGenerator.scanSheet();
     if (!sheet) {
-      debug('closing batch %s', currentBatch.batchId);
-      await this.finishBatch();
-    } else {
-      debug('got a ballot card: %o', sheet);
-      const sheetId = await this.sheetAdded(sheet, currentBatch.batchId);
-      debug('got a ballot card: %o, %s', sheet, sheetId);
-
-      if (this.workspace.store.adjudicationsRemaining() === 0) {
-        this.continueImport({ forceAccept: false });
-      } else {
-        // This sheet needs adjudication, so we stop pulling sheets until the
-        // operator resolves it. For a push-streaming scanner (DeskPro) that
-        // isn't enough to stop the feed, so signal it to halt the rollers.
-        // (The `pauseFeeding` call is a PoC DeskPro-only hook; pull-driven
-        // scanners used in tests don't define it.)
-        /* istanbul ignore start */
-        await currentBatch.sheetGenerator.pauseFeeding?.();
-        /* istanbul ignore stop */
-      }
+      await this.pauseBatch(
+        currentBatch.stopRequested ? 'stopped' : 'tray-empty'
+      );
+      return;
     }
+
+    debug('got a ballot card: %o', sheet);
+    const sheetId = await this.sheetAdded(sheet, currentBatch.batchId);
+    debug('got a ballot card: %o, %s', sheet, sheetId);
+
+    if (this.workspace.store.adjudicationsRemaining() > 0) {
+      // The sheet needs review. Halt the feed and pause the batch; once the
+      // operator resolves the sheet (see `continueImport`) the batch stays
+      // paused until they explicitly continue, save, or cancel it.
+      await this.pauseBatch('ballot-review');
+    } else if (currentBatch.stopRequested) {
+      await this.pauseBatch('stopped');
+    } else {
+      this.scanNextSheet();
+    }
+  }
+
+  /**
+   * Kick off scanning the next sheet, routing failures to `finishBatch`.
+   */
+  private scanNextSheet(): void {
+    this.scanOneSheet().catch((error) => {
+      const message = extractErrorMessage(error);
+      debug('processing sheet failed with error: %s', message);
+      void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
+        disposition: 'failure',
+        message: `Processing sheet failed: ${message}`,
+      });
+      void this.finishBatch(message).catch((finishError) => {
+        void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
+          disposition: 'failure',
+          message: `Additionally, finishing batch failed: ${extractErrorMessage(
+            finishError
+          )}`,
+        });
+      });
+    });
   }
 
   /**
@@ -415,12 +490,20 @@ export class Importer {
         batchId,
         sheetGenerator,
         directory: batchScanDirectory,
+        imprintIdPrefix: hasImprinter ? batchId : undefined,
+        state: 'scanning',
+        stopRequested: false,
       };
-      this.continueImport({ forceAccept: false });
+      this.scanNextSheet();
 
       return batchId;
     } catch (error) {
-      if (!this.currentBatch) {
+      // Only unwind state created by this call; a pre-existing batch (e.g. a
+      // paused one when the operator tries to start another) must be left
+      // untouched.
+      if (this.currentBatch && this.currentBatch.batchId === batchId) {
+        await this.finishBatch(extractErrorMessage(error));
+      } else {
         // Might have done some setup work, but didn't get to
         // `this.currentBatch = ...`. Clean up anything that would be a loose
         // end since `finishBatch` will bail without `currentBatch` set.
@@ -430,8 +513,6 @@ export class Importer {
         if (typeof batchScanDirectory !== 'undefined') {
           await fsExtra.remove(batchScanDirectory);
         }
-      } else {
-        await this.finishBatch(extractErrorMessage(error));
       }
       throw error;
     } finally {
@@ -440,7 +521,8 @@ export class Importer {
   }
 
   /**
-   * Continue the existing scanning process
+   * Resolve the sheet currently under review. The batch stays paused
+   * afterwards; the operator continues, saves, or cancels it explicitly.
    */
   continueImport(options: { forceAccept: boolean }): void {
     if (!this.currentBatch) {
@@ -456,34 +538,92 @@ export class Importer {
         this.workspace.store.deleteSheet(sheet.id);
       }
     }
-
-    this.scanOneSheet().catch((error) => {
-      const message = extractErrorMessage(error);
-      debug('processing sheet failed with error: %s', message);
-      void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
-        disposition: 'failure',
-        message: `Processing sheet failed: ${message}`,
-      });
-      void this.finishBatch(message).catch((finishError) => {
-        void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
-          disposition: 'failure',
-          message: `Additionally, finishing batch failed: ${extractErrorMessage(
-            finishError
-          )}`,
-        });
-      });
-    });
   }
 
   /**
-   * this is really for testing
+   * Resume scanning a paused batch, appending newly loaded sheets to it via a
+   * fresh scanner session.
+   */
+  continueBatch(): void {
+    const { currentBatch } = this;
+    if (!currentBatch || currentBatch.state !== 'paused') {
+      throw new Error('no paused batch');
+    }
+    if (this.workspace.store.adjudicationsRemaining() > 0) {
+      throw new Error('cannot continue batch with a sheet pending review');
+    }
+
+    const ballotPaperSize =
+      this.workspace.store.getBallotPaperSizeForElection();
+    currentBatch.sheetGenerator = this.scanner.scanSheets({
+      directory: currentBatch.directory,
+      pageSize: ballotPaperSize,
+      imprintIdPrefix: currentBatch.imprintIdPrefix,
+    });
+    currentBatch.state = 'scanning';
+    currentBatch.pauseReason = undefined;
+    this.scanNextSheet();
+  }
+
+  /**
+   * Finalize a paused batch, making it ready for CVR export.
+   */
+  async saveBatch(): Promise<void> {
+    const { currentBatch } = this;
+    if (!currentBatch || currentBatch.state !== 'paused') {
+      throw new Error('no paused batch');
+    }
+    if (this.workspace.store.adjudicationsRemaining() > 0) {
+      throw new Error('cannot save batch with a sheet pending review');
+    }
+
+    await this.finishBatch();
+  }
+
+  /**
+   * Discard the current batch and all its scanned sheets, like deleting a
+   * saved batch. If the batch is actively scanning, the physical feed is
+   * halted first and any in-flight sheet is discarded with the rest.
+   */
+  async cancelBatch(): Promise<void> {
+    const { currentBatch } = this;
+    if (!currentBatch) {
+      throw new Error('no batch in progress');
+    }
+
+    if (currentBatch.state === 'scanning') {
+      // Halt the physical feed and wait for the scan loop to drain the
+      // in-flight sheet and pause.
+      currentBatch.stopRequested = true;
+      await currentBatch.sheetGenerator.endBatch();
+      await this.waitForEndOfBatchOrScanningPause();
+    }
+
+    this.currentBatch = undefined;
+
+    // A sheet awaiting review belongs to this batch (only one batch can be
+    // open at a time). Discard it explicitly: the adjudication queries filter
+    // on sheet-level deletion, so soft-deleting the batch alone would leave
+    // the sheet pending review.
+    const { store } = this.workspace;
+    for (
+      let sheet = store.getNextAdjudicationSheet();
+      sheet;
+      sheet = store.getNextAdjudicationSheet()
+    ) {
+      store.deleteSheet(sheet.id);
+    }
+
+    store.deleteBatch(currentBatch.batchId);
+    await fsExtra.remove(currentBatch.directory);
+  }
+
+  /**
+   * Wait until the current batch is no longer actively scanning (it paused or
+   * finished). Used by `cancelBatch` and by tests.
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
-    while (this.currentBatch) {
-      if (this.workspace.store.adjudicationsRemaining() > 0) {
-        break;
-      }
-
+    while (this.currentBatch?.state === 'scanning') {
       await sleep(200);
     }
   }
@@ -508,7 +648,11 @@ export class Importer {
   getStatus(): ScanStatus {
     return {
       isScannerAttached: this.scanner.isAttached(),
-      ongoingBatchId: this.currentBatch?.batchId,
+      currentBatch: this.currentBatch && {
+        batchId: this.currentBatch.batchId,
+        state: this.currentBatch.state,
+        pauseReason: this.currentBatch.pauseReason,
+      },
       adjudicationsRemaining: this.workspace.store.adjudicationsRemaining(),
       batches: this.workspace.store.getBatches(),
       canUnconfigure: this.workspace.store.getCanUnconfigure(),

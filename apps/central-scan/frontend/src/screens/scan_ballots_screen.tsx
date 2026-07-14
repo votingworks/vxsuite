@@ -20,7 +20,7 @@ import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { SendCvrsModal } from '../components/send_cvrs_modal';
-import { ScanButton } from '../components/scan_button';
+import { BatchControlCard } from '../components/batch_control_card';
 import { clearBallotData, getHostConnectionInfo } from '../api';
 
 pluralize.addIrregularRule('requires', 'require');
@@ -83,8 +83,11 @@ export function ScanBallotsScreen({
   statusIsStale,
   isPollingPlaceUnconfigured,
 }: ScanBallotsScreenProps): JSX.Element {
-  const isScanning = !!status.ongoingBatchId;
-  const { batches } = status;
+  const isBatchOpen = !!status.currentBatch;
+  // the open batch appears in the batch control card, not the saved list
+  const batches = status.batches.filter(
+    (b) => b.id !== status.currentBatch?.batchId
+  );
   const batchCount = batches.length;
 
   const ballotCount = iter(batches)
@@ -116,7 +119,9 @@ export function ScanBallotsScreen({
   if (status.adjudicationsRemaining > 0) {
     exportButtonTitle =
       'You cannot save results until all sheets have been adjudicated.';
-  } else if (status.batches.length === 0) {
+  } else if (isBatchOpen) {
+    exportButtonTitle = 'You cannot save results while a batch is in progress.';
+  } else if (batches.length === 0) {
     exportButtonTitle =
       'You cannot save results until you have scanned at least one sheet.';
   }
@@ -136,11 +141,16 @@ export function ScanBallotsScreen({
             screen before scanning ballots.
           </Callout>
         )}
+        <BatchControlCard
+          status={status}
+          statusIsStale={statusIsStale}
+          isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
+        />
         <TopBar>
           {batchCount ? (
             <TopBarStats color="neutral" style={{ gap: '3rem' }}>
               <P>
-                <Font weight="bold">Total Batches:</Font>{' '}
+                <Font weight="bold">Saved Batches:</Font>{' '}
                 {format.count(batchCount)}
               </P>
               <P>
@@ -150,7 +160,7 @@ export function ScanBallotsScreen({
             </TopBarStats>
           ) : (
             <P>
-              <Icons.Info /> No ballots have been scanned
+              <Icons.Info /> No batches have been saved
             </P>
           )}
           <TopBarActions>
@@ -158,7 +168,8 @@ export function ScanBallotsScreen({
               onPress={() => setIsSendingCvrs(true)}
               disabled={
                 status.adjudicationsRemaining > 0 ||
-                status.batches.length === 0 ||
+                isBatchOpen ||
+                batches.length === 0 ||
                 !isHostConnected
               }
               nonAccessibleTitle={sendButtonTitle}
@@ -170,7 +181,9 @@ export function ScanBallotsScreen({
             <Button
               onPress={() => setIsExportingCvrs(true)}
               disabled={
-                status.adjudicationsRemaining > 0 || status.batches.length === 0
+                status.adjudicationsRemaining > 0 ||
+                isBatchOpen ||
+                batches.length === 0
               }
               nonAccessibleTitle={exportButtonTitle}
               icon="Export"
@@ -178,13 +191,6 @@ export function ScanBallotsScreen({
             >
               Save CVRs
             </Button>
-            <ScanButton
-              /* disable scan button while status query is refetching to avoid double clicks */
-              disabled={
-                isScanning || statusIsStale || isPollingPlaceUnconfigured
-              }
-              isScannerAttached={status.isScannerAttached}
-            />
           </TopBarActions>
         </TopBar>
         {batchCount ? (
@@ -207,13 +213,7 @@ export function ScanBallotsScreen({
                       <td>{format.count(batch.count)}</td>
                       <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                       <TD nowrap>
-                        {isScanning && !batch.endedAt ? (
-                          <Font weight="bold">
-                            <Icons.Loading /> Scanning…
-                          </Font>
-                        ) : batch.endedAt ? (
-                          shortDateTime(batch.endedAt)
-                        ) : null}
+                        {batch.endedAt ? shortDateTime(batch.endedAt) : null}
                       </TD>
                       <TD narrow>
                         <Button
@@ -222,7 +222,7 @@ export function ScanBallotsScreen({
                           color="danger"
                           onPress={() => setPendingDeleteBatch(batch)}
                           style={{ flexWrap: 'nowrap' }}
-                          disabled={isScanning}
+                          disabled={isBatchOpen}
                         >
                           Delete
                         </Button>
@@ -236,7 +236,7 @@ export function ScanBallotsScreen({
               <Button
                 icon="Delete"
                 color="danger"
-                disabled={isScanning}
+                disabled={isBatchOpen}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
                 Delete All Batches

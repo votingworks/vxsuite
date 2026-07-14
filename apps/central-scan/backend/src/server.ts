@@ -19,7 +19,7 @@ import {
   DEFAULT_DEV_DOCK_DIR,
   useDevDockRouter,
 } from '@votingworks/dev-dock-backend';
-import { PORT, SCAN_WORKSPACE } from './globals';
+import { MOCK_SCANNER_SHEET_COPIES, PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
 import { DeskProScanner } from './deskpro_scanner';
@@ -114,7 +114,10 @@ export function start({
     mockBatchScanner = isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.USE_MOCK_CENTRAL_SCANNER
     )
-      ? new MockBatchScanner(join(DEFAULT_DEV_DOCK_DIR, 'batch-images'))
+      ? new MockBatchScanner(
+          join(DEFAULT_DEV_DOCK_DIR, 'batch-images'),
+          MOCK_SCANNER_SHEET_COPIES
+        )
       : undefined;
 
     // PoC: DESKPRO_SCANNER=1 selects the InoTec SCAMAX DeskPro over the WS

@@ -1,4 +1,4 @@
-import { iter } from '@votingworks/basics';
+import { deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryPath,
@@ -69,19 +69,155 @@ test('scanBatch with multiple sheets', async () => {
     await apiClient.scanBatch();
     await importer.waitForEndOfBatchOrScanningPause();
 
+    // the batch pauses when the tray empties, staying open for more sheets
+    {
+      const status = await apiClient.getStatus();
+      expect(status.adjudicationsRemaining).toEqual(0);
+      expect(status.currentBatch).toEqual({
+        batchId: status.batches[0].id,
+        state: 'paused',
+        pauseReason: 'tray-empty',
+      });
+      expect(status.batches.length).toEqual(1);
+      expect(status.batches[0].count).toEqual(3);
+      expect(status.batches[0].endedAt).toBeUndefined();
+    }
+
+    // continuing scans another stack into the same batch
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+    await apiClient.continueBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+
+    // saving finalizes the batch
+    await apiClient.saveBatch();
     const status = await apiClient.getStatus();
-    expect(status.adjudicationsRemaining).toEqual(0);
+    expect(status.currentBatch).toBeUndefined();
     expect(status.canUnconfigure).toEqual(true);
     expect(status.batches.length).toEqual(1);
     expect(status.batches[0]).toEqual<BatchInfo>({
       id: expect.any(String),
       batchNumber: 1,
       label: 'Batch 1',
-      count: 3,
+      count: 4,
       startedAt: expect.any(String),
       endedAt: expect.any(String),
       pollingPlaceId: '23-polling-place',
     });
+  });
+});
+
+test('cancelBatch while scanning halts the feed and discards the batch', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    front: bmdFixture.sheet[0],
+    back: bmdFixture.sheet[1],
+  };
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    // scan one sheet, then hold the next sheet in the scanner while the
+    // operator presses stop
+    const gate = deferred<void>();
+    scanner
+      .withNextScannerSession()
+      .sheet(scannedBallot)
+      .sheet(scannedBallot, gate.promise)
+      .end();
+
+    await apiClient.scanBatch();
+    await vi.waitFor(async () => {
+      const status = await apiClient.getStatus();
+      expect(status.batches[0]?.count).toEqual(1);
+    });
+
+    // stopping discards the whole batch, including the in-flight sheet
+    const cancelPromise = apiClient.cancelBatch();
+    gate.resolve();
+    await cancelPromise;
+
+    const status = await apiClient.getStatus();
+    expect(status.currentBatch).toBeUndefined();
+    expect(status.batches).toEqual([]);
+  });
+});
+
+test('cancelBatch discards a sheet awaiting review', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    scanner
+      .withNextScannerSession()
+      .sheet({ front: bmdFixture.sheet[0], back: bmdFixture.sheet[1] })
+      // Invalid BMD ballot
+      .sheet({ front: bmdFixture.sheet[1], back: bmdFixture.sheet[1] })
+      .end();
+
+    await apiClient.scanBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+    {
+      const status = await apiClient.getStatus();
+      expect(status.adjudicationsRemaining).toEqual(1);
+      expect(status.currentBatch?.pauseReason).toEqual('ballot-review');
+    }
+
+    // canceling discards the batch, including the sheet awaiting review
+    await apiClient.cancelBatch();
+    {
+      const status = await apiClient.getStatus();
+      expect(status.currentBatch).toBeUndefined();
+      expect(status.adjudicationsRemaining).toEqual(0);
+      expect(status.batches).toEqual([]);
+    }
+  });
+});
+
+test('batch control endpoints log failures when there is no batch to act on', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await withApp(async ({ auth, apiClient, importer, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    // these log a failure and return without throwing
+    await apiClient.continueBatch();
+    await apiClient.saveBatch();
+    await apiClient.continueScanning({ forceAccept: false });
+    // canceling rethrows, like deleting a batch
+    await expect(apiClient.cancelBatch()).rejects.toThrowError(
+      'no batch in progress'
+    );
+
+    const status = await apiClient.getStatus();
+    expect(status.currentBatch).toBeUndefined();
+    expect(status.batches).toEqual([]);
   });
 });
 
@@ -108,7 +244,6 @@ test('continueScanning after invalid ballot', async () => {
       })
       // Invalid BMD ballot
       .sheet({ front: bmdFixture.sheet[1], back: bmdFixture.sheet[1] })
-      .sheet({ front: bmdFixture.sheet[0], back: bmdFixture.sheet[1] })
       .end();
 
     await apiClient.scanBatch();
@@ -117,6 +252,11 @@ test('continueScanning after invalid ballot', async () => {
       const status = await apiClient.getStatus();
       expect(status.adjudicationsRemaining).toEqual(1);
       expect(status.canUnconfigure).toEqual(true);
+      expect(status.currentBatch).toEqual({
+        batchId: status.batches[0].id,
+        state: 'paused',
+        pauseReason: 'ballot-review',
+      });
       expect(status.batches.length).toEqual(1);
       expect(status.batches[0]).toEqual<BatchInfo>({
         id: expect.any(String),
@@ -128,18 +268,48 @@ test('continueScanning after invalid ballot', async () => {
         pollingPlaceId: 'central-scanning',
       });
     }
+
+    // the batch can't be continued or saved until the sheet under review is
+    // resolved
+    await apiClient.continueBatch(); // logs a failure and returns
+    await apiClient.saveBatch(); // logs a failure and returns
+
+    // resolving the sheet leaves the batch paused
     await apiClient.continueScanning({ forceAccept: false });
+    // resolving again is a no-op since no sheet is pending review
+    await apiClient.continueScanning({ forceAccept: false });
+    {
+      const status = await apiClient.getStatus();
+      expect(status.adjudicationsRemaining).toEqual(0);
+      expect(status.currentBatch).toEqual({
+        batchId: status.batches[0].id,
+        state: 'paused',
+        pauseReason: 'ballot-review',
+      });
+      expect(status.batches[0].count).toEqual(1); // bad ballot removed
+      expect(status.batches[0].endedAt).toBeUndefined();
+    }
+
+    // reload the remaining sheets and continue the same batch
+    scanner
+      .withNextScannerSession()
+      .sheet({ front: bmdFixture.sheet[0], back: bmdFixture.sheet[1] })
+      .end();
+    await apiClient.continueBatch();
     await importer.waitForEndOfBatchOrScanningPause();
+
+    await apiClient.saveBatch();
     {
       const status = await apiClient.getStatus();
       expect(status.adjudicationsRemaining).toEqual(0);
       expect(status.canUnconfigure).toEqual(true);
+      expect(status.currentBatch).toBeUndefined();
       expect(status.batches.length).toEqual(1);
       expect(status.batches[0]).toEqual<BatchInfo>({
         id: expect.any(String),
         batchNumber: 1,
         label: 'Batch 1',
-        count: 2, // bad ballot removed
+        count: 2,
         startedAt: expect.any(String),
         endedAt: expect.any(String),
         pollingPlaceId: 'central-scanning',

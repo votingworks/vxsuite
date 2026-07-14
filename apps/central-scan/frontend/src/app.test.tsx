@@ -162,7 +162,7 @@ test('configuring election from usb election package works end to end', async ()
   expectConfigureFromElectionPackageOnUsbDrive();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  await screen.findByText('No ballots have been scanned');
+  await screen.findByText('No batches have been saved');
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);

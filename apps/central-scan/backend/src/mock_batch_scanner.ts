@@ -1,4 +1,5 @@
 import * as fs from 'node:fs';
+import { range } from '@votingworks/basics';
 import {
   BatchControl,
   BatchScanner,
@@ -18,10 +19,13 @@ export interface MockBatchScannerApi {
 /**
  * A mock batch scanner for dev-dock use. PDFs loaded via the dev dock are
  * converted to image pairs and written to {@link imageDir}, then enqueued.
- * When "Scan New Batch" is clicked, the importer calls `scanSheets()`, which
- * returns sheets from the queue. Sheets remain in the queue across scans so
- * the same ballots can be scanned repeatedly. Use `clearSheets()` to reset
- * and clean up temporary files.
+ * The queue models the input tray: scanning consumes sheets, and sheets left
+ * over when a scan session ends (e.g. the batch is paused) stay in the tray
+ * for the next session. Reload the tray via the dev dock to scan the same
+ * ballots again. Use `clearSheets()` to reset and clean up temporary files.
+ *
+ * `sheetCopies` loads each added sheet that many times, simulating a larger
+ * stack (and therefore a longer scanning window, e.g. to try the Stop button).
  *
  * Images are stored in the provided directory rather than a random temp
  * directory, so previous runs' files are cleaned up on startup.
@@ -29,7 +33,10 @@ export interface MockBatchScannerApi {
 export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private queue: ScannedSheetInfo[] = [];
 
-  constructor(private readonly imageDirPath: string) {
+  constructor(
+    private readonly imageDirPath: string,
+    private readonly sheetCopies = 1
+  ) {
     // Wipe any leftover images from a previous run
     fs.rmSync(this.imageDirPath, { recursive: true, force: true });
     fs.mkdirSync(this.imageDirPath, { recursive: true });
@@ -51,10 +58,12 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     sheets: ReadonlyArray<{ frontPath: string; backPath: string }>
   ): void {
     this.queue.push(
-      ...sheets.map(({ frontPath, backPath }) => ({
-        front: frontPath,
-        back: backPath,
-      }))
+      ...sheets.flatMap(({ frontPath, backPath }) =>
+        range(0, this.sheetCopies).map(() => ({
+          front: frontPath,
+          back: backPath,
+        }))
+      )
     );
   }
 
@@ -70,21 +79,19 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   /* eslint-disable @typescript-eslint/require-await */
   scanSheets(): BatchControl {
-    const snapshot = [...this.queue];
-    let index = 0;
+    const { queue } = this;
+    let done = false;
 
     return {
       async scanSheet(): Promise<ScannedSheetInfo | undefined> {
-        if (index >= snapshot.length) {
+        if (done) {
           return undefined;
         }
-        const sheet = snapshot[index];
-        index += 1;
-        return sheet;
+        return queue.shift();
       },
 
       async endBatch(): Promise<void> {
-        index = Infinity;
+        done = true;
       },
     };
   }

@@ -155,6 +155,7 @@ async function configureAndScanOneBallot({
   scanner.withNextScannerSession().sheet(scannedBallot).end();
   await apiClient.scanBatch();
   await importer.waitForEndOfBatchOrScanningPause();
+  await apiClient.saveBatch();
 }
 
 test('sendCastVoteRecordsToHost returns an error when no host is connected', async () => {
