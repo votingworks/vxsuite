@@ -4,6 +4,12 @@ export SCAN_WORKSPACE=/tmp/central-scan-integration-testing
 export REACT_APP_VX_ENABLE_DEV_DOCK=TRUE
 export REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER=TRUE
 
+# Load and export environment variables from this package's .env file so they
+# take precedence over any .env.local overrides in the frontend/backend
+# packages when running locally.
+include .env
+export
+
 build-frontend:
 	make -C $(APP)/frontend install; \
 	make -C $(APP)/frontend build; \

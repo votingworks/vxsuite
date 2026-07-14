@@ -1,6 +1,12 @@
 APP := ..
 export ADMIN_WORKSPACE=/tmp/admin-integration-testing
 
+# Load and export environment variables from this package's .env file so they
+# take precedence over any .env.local overrides in the frontend/backend
+# packages when running locally.
+include .env
+export
+
 build:
 	# building the frontend builds the backend too
 	make -C $(APP)/frontend install; \
