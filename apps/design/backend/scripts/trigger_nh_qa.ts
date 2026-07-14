@@ -16,6 +16,11 @@ const PRESIGN_EXPIRY_SECONDS = 12 * 60 * 60;
 // S3 key prefix for staged QA packages.
 const KEY_PREFIX = 'nh-qa';
 
+// vx-qa's VxAdmin automation waits for an election package named exactly
+// `election-package.zip` to appear on the mock USB, so upload under that fixed
+// name regardless of the local hashed filename.
+const QA_PACKAGE_FILENAME = 'election-package.zip';
+
 const CIRCLECI_API = 'https://circleci.com/api/v2';
 const POLL_INTERVAL_MS = 15_000;
 
@@ -85,10 +90,14 @@ async function uploadPackage(zipPath: string): Promise<string> {
     );
   }
   const contents = await readFile(zipPath);
-  const key = `${KEY_PREFIX}/${randomUUID()}/${basename(zipPath)}`;
+  const key = `${KEY_PREFIX}/${randomUUID()}/${QA_PACKAGE_FILENAME}`;
   const client = new S3FileStorageClient();
   (await client.writeFile(key, contents)).unsafeUnwrap();
-  console.log(`Uploaded ${basename(zipPath)} to s3://${bucket}/${key}`);
+  console.log(
+    `Uploaded ${basename(
+      zipPath
+    )} as ${QA_PACKAGE_FILENAME} to s3://${bucket}/${key}`
+  );
   return client.getSignedUrl(key, PRESIGN_EXPIRY_SECONDS);
 }
 
