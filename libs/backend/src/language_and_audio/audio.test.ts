@@ -79,6 +79,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
   test('overrides election strings with TTS edits', async () => {
     const mockSynthesizer: Mocked<SpeechSynthesizer> = {
+      fromSsml: vi.fn(),
       synthesizeSpeech: vi.fn((text, lang) =>
         Promise.resolve(`audio-${lang}-${text}`)
       ),
@@ -187,6 +188,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
   test('matches contest description edits based on sanitized strings', async () => {
     const mockSynthesizer: Mocked<SpeechSynthesizer> = {
+      fromSsml: vi.fn(),
       synthesizeSpeech: vi.fn((text, lang) =>
         Promise.resolve(`audio-${lang}-${text}`)
       ),
