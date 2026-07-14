@@ -37,6 +37,7 @@ describe('CircleCiClient', () => {
         webhookUrl: 'https://example.com/webhook',
         qaRunId: 'qa-run-123',
         electionId: 'election-123',
+        vxsuiteVersion: 'v4.1',
       })
     ).rejects.toThrow('CircleCI client is not configured');
   });
@@ -61,6 +62,7 @@ describe('CircleCiClient', () => {
       webhookUrl: 'https://example.com/webhook',
       qaRunId: 'qa-run-123',
       electionId: 'election-123',
+      vxsuiteVersion: 'v4.1',
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
@@ -78,6 +80,7 @@ describe('CircleCiClient', () => {
             webhook_url: 'https://example.com/webhook',
             qa_run_id: 'qa-run-123',
             election_id: 'election-123',
+            vxsuite_version: 'v4.1',
           },
         }),
       }
@@ -107,6 +110,7 @@ describe('CircleCiClient', () => {
         webhookUrl: 'https://example.com/webhook',
         qaRunId: 'qa-run-123',
         electionId: 'election-123',
+        vxsuiteVersion: 'v4.1',
       })
     ).rejects.toThrow('CircleCI API request failed: 401 Unauthorized');
   });
@@ -121,6 +125,7 @@ describe('CircleCiClient', () => {
         webhookUrl: 'https://example.com/webhook',
         qaRunId: 'qa-run-123',
         electionId: 'election-123',
+        vxsuiteVersion: 'v4.1',
       })
     ).rejects.toThrow('Network error');
   });

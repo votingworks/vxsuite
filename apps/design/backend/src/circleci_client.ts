@@ -1,3 +1,4 @@
+import { SoftwareVersion } from '@votingworks/types';
 import {
   circleCiApiToken,
   circleCiBaseUrl,
@@ -29,6 +30,12 @@ export interface TriggerPipelineParams {
    * The election ID being QA'd.
    */
   electionId: string;
+
+  /**
+   * The VxSuite version the election targets, so the QA run builds and tests
+   * against the matching VxSuite release (e.g. 'v4.0', 'v4.1').
+   */
+  vxsuiteVersion: SoftwareVersion;
 }
 
 export interface TriggerPipelineResponse {
@@ -94,7 +101,13 @@ export class CircleCiClient {
       );
     }
 
-    const { exportPackageUrl, webhookUrl, qaRunId, electionId } = params;
+    const {
+      exportPackageUrl,
+      webhookUrl,
+      qaRunId,
+      electionId,
+      vxsuiteVersion,
+    } = params;
 
     const url = `${circleCiBaseUrl()}/api/v2/project/${
       this.projectSlug
@@ -116,6 +129,7 @@ export class CircleCiClient {
           webhook_url: webhookUrl,
           qa_run_id: qaRunId,
           election_id: electionId,
+          vxsuite_version: vxsuiteVersion,
         },
       });
       const response = await fetch(url, {

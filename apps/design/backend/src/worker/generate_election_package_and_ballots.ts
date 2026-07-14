@@ -14,6 +14,7 @@ import {
   ElectionSerializationFormatSchema,
   EncodedBallotEntry,
   BaseBallotProps,
+  SoftwareVersion,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -110,8 +111,15 @@ async function triggerCircleCiQaBuild(params: {
   electionId: ElectionId;
   electionPackageUrl: string;
   fileStorageClient: FileStorageClient;
+  vxsuiteVersion: SoftwareVersion;
 }): Promise<void> {
-  const { store, electionId, electionPackageUrl, fileStorageClient } = params;
+  const {
+    store,
+    electionId,
+    electionPackageUrl,
+    fileStorageClient,
+    vxsuiteVersion,
+  } = params;
 
   // Check if CircleCI integration is enabled
   if (!shouldTriggerCircleCi()) {
@@ -167,6 +175,7 @@ async function triggerCircleCiQaBuild(params: {
       webhookUrl,
       qaRunId,
       electionId,
+      vxsuiteVersion,
     });
 
     // Construct a link to the pipeline page
@@ -508,6 +517,7 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionPackageUrl,
     fileStorageClient: ctx.fileStorageClient,
+    vxsuiteVersion: jurisdiction.softwareVersion,
   });
 }
 
