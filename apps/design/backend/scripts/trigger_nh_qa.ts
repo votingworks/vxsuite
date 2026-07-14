@@ -7,7 +7,7 @@ import { S3FileStorageClient } from '../src/file_storage_client';
 
 // The internal vx-qa pipeline used for QA of customer elections. VxDesign
 // triggers this same project in production.
-const DEFAULT_PROJECT_SLUG = 'gh/votingworks/vx-qa-internal';
+export const DEFAULT_PROJECT_SLUG = 'gh/votingworks/vx-qa-internal';
 
 // vx-qa downloads the package before the QA workflow starts, but the pipeline
 // can sit in the CircleCI queue first. Give the presigned URL a generous life.
@@ -25,7 +25,7 @@ const CIRCLECI_API = 'https://circleci.com/api/v2';
 const POLL_INTERVAL_MS = 15_000;
 
 // Terminal CircleCI workflow statuses (anything else means still running).
-const TERMINAL_WORKFLOW_STATUSES = new Set([
+export const TERMINAL_WORKFLOW_STATUSES = new Set([
   'success',
   'failed',
   'error',
@@ -63,7 +63,7 @@ function parseArgs(argv: readonly string[]): Args | undefined {
   return { zipPath: positionals[0], projectSlug, wait };
 }
 
-async function circleCiGet(
+export async function circleCiGet(
   path: string,
   token: string
 ): Promise<Record<string, unknown>> {
@@ -82,7 +82,7 @@ async function circleCiGet(
  * Upload the election package to S3 and return a presigned download URL that
  * the vx-qa CI container can fetch without any AWS credentials.
  */
-async function uploadPackage(zipPath: string): Promise<string> {
+export async function uploadPackage(zipPath: string): Promise<string> {
   const bucket = process.env.AWS_S3_BUCKET_NAME;
   if (!bucket || !process.env.AWS_S3_REGION) {
     throw new Error(
@@ -114,7 +114,7 @@ async function waitForResult(
   for (;;) {
     const workflows = ((
       await circleCiGet(`/pipeline/${pipelineId}/workflow`, token)
-    ).items ?? []) as Array<{ id: string; name: string; status: string }>;
+    )['items'] ?? []) as Array<{ id: string; name: string; status: string }>;
     const workflow = workflows[0];
     if (!workflow) {
       await sleep(POLL_INTERVAL_MS);
@@ -125,8 +125,9 @@ async function waitForResult(
       lastStatus = workflow.status;
     }
     if (TERMINAL_WORKFLOW_STATUSES.has(workflow.status)) {
-      const jobs = ((await circleCiGet(`/workflow/${workflow.id}/job`, token))
-        .items ?? []) as Array<{
+      const jobs = ((await circleCiGet(`/workflow/${workflow.id}/job`, token))[
+        'items'
+      ] ?? []) as Array<{
         job_number?: number;
         name: string;
         status: string;
