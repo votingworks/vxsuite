@@ -291,7 +291,12 @@ function generateCircleCiFilteredAppConfigForPackage(
     '      # TODO: Remove once the CI base images ship pnpm 10 (VX_DOCKER images).',
     '      - run:',
     '          name: Install pnpm 10',
-    '          command: npm install --global pnpm@10.34.5',
+    '          command: |',
+    '            npm install --global pnpm@10.34.5',
+    '            # TODO: Remove once we upgrade past pnpm 11.10, which ships',
+    '            # node-gyp with the gyp entrypoints executable.',
+    '            # See https://github.com/pnpm/pnpm/issues/12455',
+    '            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"',
     '      - checkout',
     '      # Edit this comment somehow in order to invalidate the CircleCI cache.',
     '      # Since the contents of this file affect the cache key, editing only a',
@@ -498,7 +503,12 @@ commands:
       # TODO: Remove once the CI base images ship pnpm 10 (VX_DOCKER images).
       - run:
           name: Install pnpm 10
-          command: npm install --global pnpm@10.34.5
+          command: |
+            npm install --global pnpm@10.34.5
+            # TODO: Remove once we upgrade past pnpm 11.10, which ships
+            # node-gyp with the gyp entrypoints executable.
+            # See https://github.com/pnpm/pnpm/issues/12455
+            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
