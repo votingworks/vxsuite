@@ -463,6 +463,26 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
     contestKeySequences.push(fileContestKeys);
   }
 
+  // VxSuite treats a ballot style's districts as its precinct's full district
+  // set: parties in a primary differ by contest, not by district coverage, and
+  // VxAdmin drops any ballot style whose districts don't deepEqual its
+  // precinct's (see hasMatchingDistrictIds in libs/utils). Because we derive
+  // each ballot style's districts from only its own (party-filtered) contests,
+  // a party lacking a contest in some district would otherwise get a narrower
+  // set than the precinct union. Widen each ballot style to its precinct's
+  // districts; getContests still filters contests by party, so ballot content
+  // is unchanged (the reconciliation pass below verifies this).
+  const precinctsById = new Map(
+    [...precinctsByName.values()].map((precinct) => [precinct.id, precinct])
+  );
+  for (const [i, ballotStyle] of ballotStyles.entries()) {
+    ballotStyles[i] = {
+      ...ballotStyle,
+      districts: assertDefined(precinctsById.get(ballotStyle.precincts[0]))
+        .districtIds,
+    };
+  }
+
   const orderedContestKeys = mergeContestOrder(
     [...contestsByKey.keys()],
     contestKeySequences
@@ -616,6 +636,25 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
           );
         }
       }
+    }
+  }
+
+  // Enforce the VxSuite invariant that a ballot style's districts exactly match
+  // its precinct's district set. VxAdmin relies on this (hasMatchingDistrictIds
+  // in libs/utils deepEquals the two) and silently drops a ballot style from
+  // precinct-scoped UI -- e.g. manual tally entry -- when it doesn't hold. NH
+  // precincts have no splits, so comparing against the precinct suffices.
+  function districtKey(ids: readonly string[]) { return [...ids].sort().join(',') };
+  for (const ballotStyle of ballotStyles) {
+    const precinct = assertDefined(precinctsById.get(ballotStyle.precincts[0]));
+    if (
+      districtKey(ballotStyle.districts) !== districtKey(precinct.districtIds)
+    ) {
+      fail(
+        precinct.name,
+        `ballot style ${ballotStyle.id} districts do not match the precinct's ` +
+          `district set; VxAdmin requires exact equality.`
+      );
     }
   }
 
