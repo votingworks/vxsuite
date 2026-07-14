@@ -53,11 +53,9 @@ export const ADMIN_HOST_ADDRESS_OVERRIDE =
  * Dev-dock mock scanner: load each sheet into the tray this many times, to
  * simulate scanning a larger stack (a longer scanning window). Defaults to 1.
  */
-export const MOCK_SCANNER_SHEET_COPIES = process.env[
-  'MOCK_SCANNER_SHEET_COPIES'
-]
+export const MOCK_SCANNER_SHEET_COPIES = process.env.MOCK_SCANNER_SHEET_COPIES
   ? unsafeParse(
       z.coerce.number().int().positive(),
-      process.env['MOCK_SCANNER_SHEET_COPIES']
+      process.env.MOCK_SCANNER_SHEET_COPIES
     )
   : 1;
