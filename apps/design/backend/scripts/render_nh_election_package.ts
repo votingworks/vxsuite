@@ -8,7 +8,6 @@ import {
   HmpbBallotPaperSize,
   LanguageCode,
   LATEST_METADATA,
-  DEFAULT_SYSTEM_SETTINGS,
   formatElectionHashes,
   mergeUiStrings,
 } from '@votingworks/types';
@@ -41,6 +40,7 @@ import {
   formatElectionForExport,
 } from '../src/ballots';
 import { getBallotPdfFileName } from '../src/utils';
+import { stateDefaultSystemSettings } from '../src/system_settings';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
 import {
   discoverBallotStyleFiles,
@@ -189,14 +189,15 @@ async function renderTownPackage(
   //    them empty).
   // addPollingPlacesForExport reads jurisdiction.stateCode (NH generates
   // polling places from precincts) and systemSettings.enableEarlyVoting (NH
-  // has no early voting), so a minimal stub plus the default settings suffice.
+  // has no early voting), so a minimal stub plus the NH default settings
+  // suffice.
   const jurisdictionStub = { stateCode: 'NH' } as const;
   const withPollingPlaces = addPollingPlacesForExport(
     sizedElection,
     jurisdictionStub as unknown as Parameters<
       typeof addPollingPlacesForExport
     >[1],
-    DEFAULT_SYSTEM_SETTINGS
+    stateDefaultSystemSettings.NH
   );
 
   // 3. Strings (English only).
@@ -257,7 +258,7 @@ async function renderTownPackage(
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
   zip.file(
     ElectionPackageFileName.SYSTEM_SETTINGS,
-    JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2)
+    JSON.stringify(stateDefaultSystemSettings.NH, null, 2)
   );
   zip.file(
     ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
