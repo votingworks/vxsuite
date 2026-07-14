@@ -25,6 +25,7 @@ import { Header } from '../navigation_screen';
 import {
   continueScanning,
   getNextReviewSheet,
+  getScannerConfig,
   getSystemSettings,
 } from '../api';
 
@@ -69,6 +70,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   assert(isElectionManagerAuth(auth));
 
   const systemSettingsQuery = getSystemSettings.useQuery();
+  const scannerConfigQuery = getScannerConfig.useQuery();
   const getNextReviewSheetQuery = getNextReviewSheet.useQuery();
   const continueScanningMutation = continueScanning.useMutation();
 
@@ -82,9 +84,15 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
 
   const reviewInfo = getNextReviewSheetQuery.data;
 
-  if (!reviewInfo || !systemSettingsQuery.isSuccess) {
+  if (
+    !reviewInfo ||
+    !systemSettingsQuery.isSuccess ||
+    !scannerConfigQuery.isSuccess
+  ) {
     return null;
   }
+
+  const { isDeskProScanner } = scannerConfigQuery.data;
 
   const { disallowCastingOvervotes } = systemSettingsQuery.data;
   const { sheetInterpretation } = reviewInfo;
@@ -98,8 +106,20 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           reading the ballot.
         </P>
         <P>
-          Remove the ballot and reload it into the scanner to try again. If the
-          error persists, remove the ballot for manual adjudication.
+          {isDeskProScanner ? (
+            <React.Fragment>
+              Remove the ballot and reload it into the scanner to try again. If
+              the error persists, remove it for manual adjudication. Check the
+              top 10 sheets in the output stack for the pictured ballot, and put
+              any sheets that were on top of it back into the input tray before
+              continuing.
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              Remove the ballot and reload it into the scanner to try again. If
+              the error persists, remove the ballot for manual adjudication.
+            </React.Fragment>
+          )}
         </P>
       </React.Fragment>
     ),
@@ -123,7 +143,18 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                   The last scanned ballot was not tabulated because the scanner
                   needs to be cleaned.
                 </P>
-                <P>Clean the scanner before continuing to scan ballots.</P>
+                <P>
+                  {isDeskProScanner ? (
+                    <React.Fragment>
+                      Clean the scanner before continuing to scan ballots. Check
+                      the top 10 sheets in the output stack for the pictured
+                      ballot, and put any sheets that were on top of it back
+                      into the input tray first.
+                    </React.Fragment>
+                  ) : (
+                    'Clean the scanner before continuing to scan ballots.'
+                  )}
+                </P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
@@ -135,7 +166,18 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             body: (
               <React.Fragment>
                 <P>The last scanned ballot was printed at an invalid scale.</P>
-                <P>Ballots must be printed full-scale.</P>
+                <P>
+                  {isDeskProScanner ? (
+                    <React.Fragment>
+                      Ballots must be printed full-scale. Check the top 10
+                      sheets in the output stack for the pictured ballot, and
+                      put any sheets that were on top of it back into the input
+                      tray before continuing.
+                    </React.Fragment>
+                  ) : (
+                    'Ballots must be printed full-scale.'
+                  )}
+                </P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
@@ -151,7 +193,18 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                       The last scanned ballot was not tabulated because it is an
                       official ballot but the scanner is in test ballot mode.
                     </P>
-                    <P>Remove the ballot before continuing.</P>
+                    <P>
+                      {isDeskProScanner ? (
+                        <React.Fragment>
+                          Remove the ballot before continuing. Check the top 10
+                          sheets in the output stack for it as well, and put any
+                          sheets that were on top of it back into the input
+                          tray.
+                        </React.Fragment>
+                      ) : (
+                        'Remove the ballot before continuing.'
+                      )}
+                    </P>
                   </React.Fragment>
                 ),
                 allowBallotDuplication: false,
@@ -164,7 +217,18 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                       The last scanned ballot was not tabulated because it is a
                       test ballot but the scanner is in official ballot mode.
                     </P>
-                    <P>Remove the ballot before continuing.</P>
+                    <P>
+                      {isDeskProScanner ? (
+                        <React.Fragment>
+                          Remove the ballot before continuing. Check the top 10
+                          sheets in the output stack for it as well, and put any
+                          sheets that were on top of it back into the input
+                          tray.
+                        </React.Fragment>
+                      ) : (
+                        'Remove the ballot before continuing.'
+                      )}
+                    </P>
                   </React.Fragment>
                 ),
                 allowBallotDuplication: false,
@@ -184,7 +248,17 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                 <H6>Scanner Election ID</H6>
                 <P>{formatBallotHash(electionDefinition.ballotHash)}</P>
                 <br />
-                <P>Remove the ballot before continuing.</P>
+                <P>
+                  {isDeskProScanner ? (
+                    <React.Fragment>
+                      Remove the ballot before continuing. Check the top 10
+                      sheets in the output stack for it as well, and put any
+                      sheets that were on top of it back into the input tray.
+                    </React.Fragment>
+                  ) : (
+                    'Remove the ballot before continuing.'
+                  )}
+                </P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
@@ -200,7 +274,17 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                   is configured for a polling place that does not include the
                   ballot&apos;s precinct.
                 </P>
-                <P>Remove the ballot before continuing.</P>
+                <P>
+                  {isDeskProScanner ? (
+                    <React.Fragment>
+                      Remove the ballot before continuing. Check the top 10
+                      sheets in the output stack for it as well, and put any
+                      sheets that were on top of it back into the input tray.
+                    </React.Fragment>
+                  ) : (
+                    'Remove the ballot before continuing.'
+                  )}
+                </P>
               </React.Fragment>
             ),
             allowBallotDuplication: false,
@@ -223,11 +307,20 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       return {
         header: 'Crossover Voting',
         body: (
-          <P>
-            The last scanned ballot was not tabulated because votes were
-            detected in contests for more than one party. If tabulated, those
-            votes will not be counted.
-          </P>
+          <React.Fragment>
+            <P>
+              The last scanned ballot was not tabulated because votes were
+              detected in contests for more than one party. If tabulated, those
+              votes will not be counted.
+            </P>
+            {isDeskProScanner && (
+              <P>
+                Check the top 10 sheets in the output stack for the pictured
+                ballot, and put any sheets that were on top of it back into the
+                input tray before continuing.
+              </P>
+            )}
+          </React.Fragment>
         ),
         allowBallotDuplication: true,
       };
@@ -237,10 +330,19 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       return {
         header: 'Overvote',
         body: (
-          <P>
-            The last scanned ballot was not tabulated because an overvote was
-            detected.
-          </P>
+          <React.Fragment>
+            <P>
+              The last scanned ballot was not tabulated because an overvote was
+              detected.
+            </P>
+            {isDeskProScanner && (
+              <P>
+                Check the top 10 sheets in the output stack for the pictured
+                ballot, and put any sheets that were on top of it back into the
+                input tray before continuing.
+              </P>
+            )}
+          </React.Fragment>
         ),
         allowBallotDuplication: !disallowCastingOvervotes,
         highlightedContestIds: new Set(
@@ -255,10 +357,19 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       return {
         header: 'Blank Ballot',
         body: (
-          <P>
-            The last scanned ballot was not tabulated because no marks were
-            detected.
-          </P>
+          <React.Fragment>
+            <P>
+              The last scanned ballot was not tabulated because no marks were
+              detected.
+            </P>
+            {isDeskProScanner && (
+              <P>
+                Check the top 10 sheets in the output stack for the pictured
+                ballot, and put any sheets that were on top of it back into the
+                input tray before continuing.
+              </P>
+            )}
+          </React.Fragment>
         ),
         allowBallotDuplication: true,
       };
@@ -268,10 +379,19 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       return {
         header: 'Undervote',
         body: (
-          <P>
-            The last scanned ballot was not tabulated because an undervote was
-            detected.
-          </P>
+          <React.Fragment>
+            <P>
+              The last scanned ballot was not tabulated because an undervote was
+              detected.
+            </P>
+            {isDeskProScanner && (
+              <P>
+                Check the top 10 sheets in the output stack for the pictured
+                ballot, and put any sheets that were on top of it back into the
+                input tray before continuing.
+              </P>
+            )}
+          </React.Fragment>
         ),
         allowBallotDuplication: true,
         highlightedContestIds: new Set(

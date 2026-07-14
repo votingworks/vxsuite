@@ -294,6 +294,23 @@ test('getting / setting test mode', async () => {
   });
 });
 
+test('getScannerConfig', async () => {
+  await withApp(async ({ apiClient }) => {
+    expect(await apiClient.getScannerConfig()).toEqual({
+      isDeskProScanner: false,
+    });
+  });
+
+  await withApp(
+    async ({ apiClient }) => {
+      expect(await apiClient.getScannerConfig()).toEqual({
+        isDeskProScanner: true,
+      });
+    },
+    { isDeskProScanner: true }
+  );
+});
+
 test('usbDrive', async () => {
   await withApp(async ({ apiClient, mockUsbDrive }) => {
     const { usbDrive } = mockUsbDrive;

@@ -74,6 +74,7 @@ function buildNextReviewSheet(
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetScannerConfig();
 });
 
 afterEach(() => {
@@ -476,3 +477,167 @@ test('ballot from a precinct not in the selected polling place', async () => {
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
+
+test('shows extra-sheets note when the DeskPro scanner is in use', async () => {
+  apiMock.apiClient.getScannerConfig.reset();
+  apiMock.expectGetScannerConfig(true);
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      type: 'InvalidSheet',
+      reason: { type: 'unknown' },
+    })
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+
+  await screen.findByText('Unreadable');
+  screen.getByText(
+    /Check the top 10 sheets in the output stack for the pictured ballot/
+  );
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
+test('does not show extra-sheets note when not using the DeskPro scanner', async () => {
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      type: 'InvalidSheet',
+      reason: { type: 'unknown' },
+    })
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+
+  await screen.findByText('Unreadable');
+  expect(
+    screen.queryByText(
+      /Check the top 10 sheets in the output stack for the pictured ballot/
+    )
+  ).not.toBeInTheDocument();
+
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
+const deskProCases: Array<{
+  name: string;
+  isTestMode: boolean;
+  sheetInterpretation: SheetInterpretation;
+}> = [
+  {
+    name: 'Streak Detected',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: { type: 'vertical_streaks_detected' },
+    },
+  },
+  {
+    name: 'Invalid Scale',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_scale' },
+    },
+  },
+  {
+    name: 'Official Ballot',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_test_mode' },
+    },
+  },
+  {
+    name: 'Test Ballot',
+    isTestMode: false,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_test_mode' },
+    },
+  },
+  {
+    name: 'Wrong Election',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: {
+        type: 'invalid_ballot_hash',
+        actualBallotHash: 'this-is-a-hash-hooray',
+      },
+    },
+  },
+  {
+    name: 'Wrong Precinct',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_precinct' },
+    },
+  },
+  {
+    name: 'Crossover Voting',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'NeedsReviewSheet',
+      reasons: [{ type: AdjudicationReason.CrossoverVoting }],
+    },
+  },
+  {
+    name: 'Overvote',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'NeedsReviewSheet',
+      reasons: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: '1',
+          optionIds: ['1', '2'],
+          expected: 1,
+        },
+      ],
+    },
+  },
+  {
+    name: 'Blank Ballot',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'NeedsReviewSheet',
+      reasons: [{ type: AdjudicationReason.BlankBallot }],
+    },
+  },
+  {
+    name: 'Undervote',
+    isTestMode: true,
+    sheetInterpretation: {
+      type: 'NeedsReviewSheet',
+      reasons: [
+        {
+          type: AdjudicationReason.Undervote,
+          contestId: '1',
+          optionIds: [],
+          expected: 1,
+        },
+      ],
+    },
+  },
+];
+
+test.each(deskProCases)(
+  'shows extra-sheets note for $name with the DeskPro scanner',
+  async ({ isTestMode, sheetInterpretation }) => {
+    apiMock.apiClient.getScannerConfig.reset();
+    apiMock.expectGetScannerConfig(true);
+    apiMock.expectGetNextReviewSheet(buildNextReviewSheet(sheetInterpretation));
+
+    renderInAppContext(<BallotEjectScreen isTestMode={isTestMode} />, {
+      apiMock,
+    });
+
+    await screen.findByText(/Check the top 10 sheets in the output stack/);
+
+    apiMock.expectContinueScanning({ forceAccept: false });
+    userEvent.click(screen.getAllByText('Confirm Ballot Removed')[0]);
+  }
+);
