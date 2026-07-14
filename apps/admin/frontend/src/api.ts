@@ -19,7 +19,6 @@ import type {
 } from '@votingworks/usb-drive';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals';
 
-const SLOW_USB_DRIVE_STATUS_POLLING_INTERVAL_MS = 2000;
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
 export type ApiClient = grout.Client<Api>;
@@ -203,7 +202,6 @@ export const getUsbDriveStatus = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: SLOW_USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
       structuralSharing(oldData, newData) {
         if (!oldData) {
           return newData;
