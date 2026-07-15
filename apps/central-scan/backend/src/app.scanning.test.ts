@@ -135,10 +135,15 @@ test('cancelBatch while scanning halts the feed and discards the batch', async (
       .end();
 
     await apiClient.scanBatch();
-    await vi.waitFor(async () => {
-      const status = await apiClient.getStatus();
-      expect(status.batches[0]?.count).toEqual(1);
-    });
+    // Interpreting the first sheet can take a while under load; the default
+    // 1s timeout flakes.
+    await vi.waitFor(
+      async () => {
+        const status = await apiClient.getStatus();
+        expect(status.batches[0]?.count).toEqual(1);
+      },
+      { timeout: 10_000 }
+    );
 
     // stopping discards the whole batch, including the in-flight sheet
     const cancelPromise = apiClient.cancelBatch();

@@ -165,19 +165,8 @@ function buildPeerApi(
     registerScanner(input: {
       machineId: string;
       codeVersion: string;
-    }): MachineConfig & { isCompatible: boolean } {
+    }): MachineConfig {
       const machineConfig = getMachineConfig();
-      // Refuse to register a scanner running a different code version.
-      if (input.codeVersion !== machineConfig.codeVersion) {
-        logger.log(LogEventId.AdminNetworkStatus, 'system', {
-          message: `Rejected connection from central scanner ${input.machineId}: incompatible software version (scanner ${input.codeVersion}, host ${machineConfig.codeVersion}).`,
-          disposition: 'failure',
-          scannerMachineId: input.machineId,
-          scannerCodeVersion: input.codeVersion,
-          hostCodeVersion: machineConfig.codeVersion,
-        });
-        return { ...machineConfig, isCompatible: false };
-      }
       const previous = store.getMachine(input.machineId);
       if (
         !previous ||
@@ -194,7 +183,7 @@ function buildPeerApi(
         'scanner',
         Admin.ClientMachineStatus.Active
       );
-      return { ...machineConfig, isCompatible: true };
+      return machineConfig;
     },
 
     /**
