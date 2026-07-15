@@ -11,6 +11,7 @@ export interface VoterContestSummaryProps {
   title: React.ReactNode;
   titleType: HeadingProps['as'];
   undervoteWarning?: React.ReactNode;
+  overvoteWarning?: React.ReactNode;
   votes: ContestVote[];
   'data-testid'?: string;
 }
@@ -56,6 +57,7 @@ export function VoterContestSummary(
     title,
     titleType,
     undervoteWarning,
+    overvoteWarning,
     votes,
     'data-testid': testId,
   } = props;
@@ -67,6 +69,13 @@ export function VoterContestSummary(
         {title}
       </H5>
       {subtitle && <P>{subtitle}</P>}
+      {overvoteWarning && (
+        <P>
+          <Caption>
+            <Icons.Warning color="warning" /> {overvoteWarning}
+          </Caption>
+        </P>
+      )}
       {undervoteWarning && (
         <P>
           <Caption>
