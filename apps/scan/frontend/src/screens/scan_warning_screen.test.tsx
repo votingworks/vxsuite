@@ -63,6 +63,8 @@ function renderScreen(props: Partial<Props> = {}) {
       apiMock,
       <ScanWarningScreen
         electionDefinition={electionGeneralDefinition}
+        ballotStyleId={electionGeneralDefinition.election.ballotStyles[0].id}
+        votes={{}}
         systemSettings={DEFAULT_SYSTEM_SETTINGS}
         adjudicationReasonInfo={[]}
         isTestMode={false}

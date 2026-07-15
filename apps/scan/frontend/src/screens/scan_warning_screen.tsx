@@ -1,13 +1,16 @@
 import React from 'react';
 import {
   AdjudicationReason,
+  BallotStyleId,
   CandidateContest,
+  ContestId,
   ElectionDefinition,
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
   Contest,
   SystemSettings,
+  VotesDict,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import {
@@ -26,6 +29,7 @@ import { Screen } from '../components/layout';
 import { acceptBallot, getConfig, returnBallot } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { MisvoteWarnings } from '../components/misvote_warnings';
+import { BallotReviewScreen } from './ballot_review_screen';
 
 interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
@@ -33,6 +37,7 @@ interface MisvoteWarningScreenProps {
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
   isTestMode: boolean;
+  onReview: () => void;
 }
 
 function MisvoteWarningScreen({
@@ -41,15 +46,15 @@ function MisvoteWarningScreen({
   overvotes,
   undervotes,
   isTestMode,
+  onReview,
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
-  const acceptBallotMutation = acceptBallot.useMutation();
-  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+  const [hasReturnedBallot, setHasReturnedBallot] = React.useState(false);
   const allowCastingOvervotes = !systemSettings.disallowCastingOvervotes;
 
-  function onCastBallot() {
-    setHasCastBallot(true);
-    acceptBallotMutation.mutate();
+  function onReturnBallot() {
+    setHasReturnedBallot(true);
+    returnBallotMutation.mutate();
   }
 
   const { contests } = electionDefinition.election;
@@ -107,8 +112,8 @@ function MisvoteWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant={returnBallotButtonIsPrimary ? 'primary' : undefined}
-            onPress={() => returnBallotMutation.mutate()}
-            disabled={hasCastBallot}
+            onPress={onReturnBallot}
+            disabled={hasReturnedBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
@@ -117,10 +122,10 @@ function MisvoteWarningScreen({
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
               variant={returnBallotButtonIsPrimary ? undefined : 'primary'}
-              onPress={onCastBallot}
-              disabled={hasCastBallot}
+              onPress={onReview}
+              disabled={hasReturnedBallot}
             >
-              {appStrings.buttonCastBallot()}
+              {appStrings.buttonReviewChoices()}
             </Button>
           )}
         </React.Fragment>
@@ -146,18 +151,19 @@ function MisvoteWarningScreen({
 
 interface BlankBallotWarningScreenProps {
   isTestMode: boolean;
+  onReview: () => void;
 }
 
 function BlankBallotWarningScreen({
   isTestMode,
+  onReview,
 }: BlankBallotWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
-  const acceptBallotMutation = acceptBallot.useMutation();
-  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+  const [hasReturnedBallot, setHasReturnedBallot] = React.useState(false);
 
-  function onCastBallot() {
-    setHasCastBallot(true);
-    acceptBallotMutation.mutate();
+  function onReturnBallot() {
+    setHasReturnedBallot(true);
+    returnBallotMutation.mutate();
   }
 
   return (
@@ -167,17 +173,17 @@ function BlankBallotWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-            disabled={hasCastBallot}
+            onPress={onReturnBallot}
+            disabled={hasReturnedBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={onCastBallot}
-            disabled={hasCastBallot}
+            onPress={onReview}
+            disabled={hasReturnedBallot}
           >
-            {appStrings.buttonCastBallot()}
+            {appStrings.buttonReviewChoices()}
           </Button>
         </React.Fragment>
       }
@@ -203,18 +209,19 @@ function BlankBallotWarningScreen({
 
 interface CrossoverVotingWarningScreenProps {
   isTestMode: boolean;
+  onReview: () => void;
 }
 
 function CrossoverVotingWarningScreen({
   isTestMode,
+  onReview,
 }: CrossoverVotingWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
-  const acceptBallotMutation = acceptBallot.useMutation();
-  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+  const [hasReturnedBallot, setHasReturnedBallot] = React.useState(false);
 
-  function onCastBallot() {
-    setHasCastBallot(true);
-    acceptBallotMutation.mutate();
+  function onReturnBallot() {
+    setHasReturnedBallot(true);
+    returnBallotMutation.mutate();
   }
 
   return (
@@ -224,17 +231,17 @@ function CrossoverVotingWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-            disabled={hasCastBallot}
+            onPress={onReturnBallot}
+            disabled={hasReturnedBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={onCastBallot}
-            disabled={hasCastBallot}
+            onPress={onReview}
+            disabled={hasReturnedBallot}
           >
-            {appStrings.buttonCastBallot()}
+            {appStrings.buttonReviewChoices()}
           </Button>
         </React.Fragment>
       }
@@ -260,18 +267,19 @@ function CrossoverVotingWarningScreen({
 
 interface OtherReasonWarningScreenProps {
   isTestMode: boolean;
+  onReview: () => void;
 }
 
 function OtherReasonWarningScreen({
   isTestMode,
+  onReview,
 }: OtherReasonWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
-  const acceptBallotMutation = acceptBallot.useMutation();
-  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+  const [hasReturnedBallot, setHasReturnedBallot] = React.useState(false);
 
-  function onCastBallot() {
-    setHasCastBallot(true);
-    acceptBallotMutation.mutate();
+  function onReturnBallot() {
+    setHasReturnedBallot(true);
+    returnBallotMutation.mutate();
   }
 
   return (
@@ -281,17 +289,17 @@ function OtherReasonWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-            disabled={hasCastBallot}
+            onPress={onReturnBallot}
+            disabled={hasReturnedBallot}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={onCastBallot}
-            disabled={hasCastBallot}
+            onPress={onReview}
+            disabled={hasReturnedBallot}
           >
-            {appStrings.buttonCastBallot()}
+            {appStrings.buttonReviewChoices()}
           </Button>
         </React.Fragment>
       }
@@ -317,6 +325,8 @@ function OtherReasonWarningScreen({
 
 export interface Props {
   electionDefinition: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+  votes: VotesDict;
   adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
   systemSettings: SystemSettings;
   isTestMode: boolean;
@@ -324,10 +334,26 @@ export interface Props {
 
 export function ScanWarningScreen({
   electionDefinition,
+  ballotStyleId,
+  votes,
   adjudicationReasonInfo,
   systemSettings,
   isTestMode,
 }: Props): JSX.Element {
+  const acceptBallotMutation = acceptBallot.useMutation();
+  const [hasCastBallot, setHasCastBallot] = React.useState(false);
+  const [showBallotReviewScreen, setShowBallotReviewScreen] =
+    React.useState(false);
+
+  function onCastBallot() {
+    setHasCastBallot(true);
+    acceptBallotMutation.mutate();
+  }
+
+  function onReview() {
+    setShowBallotReviewScreen(true);
+  }
+
   let isBlank = false;
   let isCrossover = false;
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
@@ -345,12 +371,38 @@ export function ScanWarningScreen({
     }
   }
 
+  // Once the voter chooses to review, show the detailed ballot review screen
+  // (with over/undervote and blank-contest warnings) where they cast or return.
+  if (showBallotReviewScreen) {
+    const overvoteContestIds = new Set<ContestId>(
+      overvoteReasons.map((reason) => reason.contestId)
+    );
+    return (
+      <BallotReviewScreen
+        electionDefinition={electionDefinition}
+        ballotStyleId={ballotStyleId}
+        votes={votes}
+        isTestMode={isTestMode}
+        hasCastBallot={hasCastBallot}
+        onCastBallot={onCastBallot}
+        overvoteContestIds={overvoteContestIds}
+      />
+    );
+  }
+
   if (isCrossover) {
-    return <CrossoverVotingWarningScreen isTestMode={isTestMode} />;
+    return (
+      <CrossoverVotingWarningScreen
+        isTestMode={isTestMode}
+        onReview={onReview}
+      />
+    );
   }
 
   if (isBlank) {
-    return <BlankBallotWarningScreen isTestMode={isTestMode} />;
+    return (
+      <BlankBallotWarningScreen isTestMode={isTestMode} onReview={onReview} />
+    );
   }
 
   if (undervoteReasons.length > 0 || overvoteReasons.length > 0) {
@@ -361,11 +413,14 @@ export function ScanWarningScreen({
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
         isTestMode={isTestMode}
+        onReview={onReview}
       />
     );
   }
 
-  return <OtherReasonWarningScreen isTestMode={isTestMode} />;
+  return (
+    <OtherReasonWarningScreen isTestMode={isTestMode} onReview={onReview} />
+  );
 }
 
 /* istanbul ignore next */
@@ -401,6 +456,8 @@ export function OvervotePreview(): JSX.Element {
         },
       ]}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -432,6 +489,8 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
           expected: contest.seats,
         },
       ]}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -461,6 +520,8 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
         optionIds: [],
         expected: contest.seats,
       }))}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -494,6 +555,8 @@ export function Undervote1ContestPreview(): JSX.Element {
           expected: contest.seats,
         },
       ]}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -539,6 +602,8 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
           expected: c.seats,
         })),
       ]}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -558,6 +623,8 @@ export function CrossoverVotingPreview(): JSX.Element {
       electionDefinition={electionDefinition}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.CrossoverVoting }]}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
@@ -577,6 +644,8 @@ export function BlankBallotPreview(): JSX.Element {
       electionDefinition={electionDefinition}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
+      votes={{}}
+      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
       isTestMode={false}
     />
   );
