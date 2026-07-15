@@ -10,6 +10,7 @@ import {
 import makeDebug from 'debug';
 import {
   ADMIN_HOST_ADDRESS_OVERRIDE,
+  HOST_DISCONNECT_FAILURE_THRESHOLD,
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
 } from './globals';
@@ -69,6 +70,7 @@ export function startScannerNetworking({
 
   let connectionInfo: HostConnectionInfo = { status: 'offline' };
   let hostConnection: HostConnection | undefined;
+  let consecutiveFailedCycles = 0;
 
   function setConnectionState(
     newInfo: HostConnectionInfo,
@@ -86,6 +88,28 @@ export function startScannerNetworking({
     hostConnection = newConnection;
   }
 
+  /**
+   * Records a polling cycle where the host couldn't be reached. Discovery and
+   * requests to a busy host can transiently fail, so an established
+   * connection is kept until enough consecutive cycles fail.
+   */
+  function recordFailedCycle(): void {
+    consecutiveFailedCycles += 1;
+    if (
+      hostConnection &&
+      consecutiveFailedCycles < HOST_DISCONNECT_FAILURE_THRESHOLD
+    ) {
+      debug(
+        'Failed polling cycle %d/%d, keeping connection to host at %s',
+        consecutiveFailedCycles,
+        HOST_DISCONNECT_FAILURE_THRESHOLD,
+        hostConnection.address
+      );
+      return;
+    }
+    setConnectionState({ status: 'waiting-for-host' });
+  }
+
   let isPolling = false;
 
   process.nextTick(() => {
@@ -101,6 +125,7 @@ export function startScannerNetworking({
         } else {
           if (!(await hasOnlineInterface())) {
             debug('No online interface found, skipping discovery');
+            consecutiveFailedCycles = 0;
             setConnectionState({ status: 'offline' });
             return;
           }
@@ -127,7 +152,7 @@ export function startScannerNetworking({
         }
 
         if (reachableHosts.length === 0) {
-          setConnectionState({ status: 'waiting-for-host' });
+          recordFailedCycle();
           return;
         }
         if (reachableHosts.length > 1) {
@@ -135,6 +160,7 @@ export function startScannerNetworking({
             'Multiple reachable VxAdmin hosts found on network (%d), refusing to connect',
             reachableHosts.length
           );
+          consecutiveFailedCycles = 0;
           setConnectionState({ status: 'multiple-hosts-detected' });
           return;
         }
@@ -146,6 +172,7 @@ export function startScannerNetworking({
             machineId,
             codeVersion,
           });
+          consecutiveFailedCycles = 0;
           setConnectionState(
             {
               status: 'connected-to-host',
@@ -155,8 +182,8 @@ export function startScannerNetworking({
           );
           debug('Connected to host at %s', address);
         } catch (error) {
-          debug('Lost connection to host at %s: %s', address, error);
-          setConnectionState({ status: 'waiting-for-host' });
+          debug('Failed to register with host at %s: %s', address, error);
+          recordFailedCycle();
         }
       } catch (error) {
         /* istanbul ignore next - defensive */

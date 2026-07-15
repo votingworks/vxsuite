@@ -37,9 +37,20 @@ export const SCAN_WORKSPACE =
 export const NETWORK_POLLING_INTERVAL_MS = 2000;
 
 /**
- * Timeout for requests to a VxAdmin host's peer API.
+ * Timeout for requests to a VxAdmin host's peer API. Generous relative to the
+ * polling interval (the polling loop is not re-entrant) because the host
+ * backend can block its event loop for a while, e.g. while importing cast
+ * vote records.
  */
-export const NETWORK_REQUEST_TIMEOUT_MS = 1000;
+export const NETWORK_REQUEST_TIMEOUT_MS = 5000;
+
+/**
+ * How many consecutive failed polling cycles to tolerate before dropping an
+ * established connection to a VxAdmin host. mDNS discovery and requests to a
+ * busy host can transiently fail, and a single failed cycle shouldn't
+ * flicker the connection.
+ */
+export const HOST_DISCONNECT_FAILURE_THRESHOLD = 3;
 
 /**
  * Dev override for the VxAdmin host peer API address, e.g.
