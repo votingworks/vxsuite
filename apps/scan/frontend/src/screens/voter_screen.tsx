@@ -12,6 +12,7 @@ import { ScanProcessingScreen } from './scan_processing_screen';
 import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
 import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
+import { ScanConfirmScreen } from './scan_confirm_screen';
 import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
 
 /**
@@ -150,16 +151,37 @@ export function VoterScreen({
       return <InsertBallotScreen {...sharedScreenProps} />;
     }
     case 'scanning':
-    case 'accepting':
       return <ScanProcessingScreen {...sharedScreenProps} />;
+    case 'accepting':
+      // The ballot has already been scanned and is being cast, so don't show the
+      // "Scanning the marks on your ballot." note — just the loading animation.
+      return (
+        <ScanProcessingScreen {...sharedScreenProps} hideScanInProgressNote />
+      );
+    case 'ready_to_accept':
+      assert(scannerStatus.interpretation?.type === 'ValidSheet');
+      assert(scannerStatus.votes !== undefined);
+      assert(scannerStatus.ballotStyleId !== undefined);
+      return (
+        <ScanConfirmScreen
+          electionDefinition={electionDefinition}
+          ballotStyleId={scannerStatus.ballotStyleId}
+          votes={scannerStatus.votes}
+          {...sharedScreenProps}
+        />
+      );
     case 'accepted':
       return <ScanSuccessScreen {...sharedScreenProps} />;
     case 'needs_review':
     case 'accepting_after_review':
       assert(scannerStatus.interpretation?.type === 'NeedsReviewSheet');
+      assert(scannerStatus.votes !== undefined);
+      assert(scannerStatus.ballotStyleId !== undefined);
       return (
         <ScanWarningScreen
           electionDefinition={electionDefinition}
+          ballotStyleId={scannerStatus.ballotStyleId}
+          votes={scannerStatus.votes}
           systemSettings={systemSettings}
           adjudicationReasonInfo={scannerStatus.interpretation.reasons}
           {...sharedScreenProps}
