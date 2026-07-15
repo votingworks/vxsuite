@@ -100,7 +100,7 @@ async function readExportMetadata(
   ).unsafeUnwrap();
 }
 
-test('registerScanner records a compatible scanner in the machines table', async () => {
+test('registerScanner records the scanner in the machines table', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   const machineConfig = getMachineConfig();
 
@@ -108,7 +108,7 @@ test('registerScanner records a compatible scanner in the machines table', async
     machineId: 'SCANNER-01',
     codeVersion: machineConfig.codeVersion,
   });
-  expect(result).toEqual({ ...machineConfig, isCompatible: true });
+  expect(result).toEqual(machineConfig);
   expect(workspace.store.getMachine('SCANNER-01')).toMatchObject({
     machineId: 'SCANNER-01',
     machineMode: 'scanner',
@@ -116,7 +116,7 @@ test('registerScanner records a compatible scanner in the machines table', async
   });
 });
 
-test('registerScanner rejects a scanner running a different code version', async () => {
+test('registerScanner accepts a scanner running a different code version', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   const machineConfig = getMachineConfig();
 
@@ -124,8 +124,12 @@ test('registerScanner rejects a scanner running a different code version', async
     machineId: 'SCANNER-02',
     codeVersion: 'some-other-version',
   });
-  expect(result).toEqual({ ...machineConfig, isCompatible: false });
-  expect(workspace.store.getMachine('SCANNER-02')).toBeUndefined();
+  expect(result).toEqual(machineConfig);
+  expect(workspace.store.getMachine('SCANNER-02')).toMatchObject({
+    machineId: 'SCANNER-02',
+    machineMode: 'scanner',
+    status: Admin.ClientMachineStatus.Active,
+  });
 });
 
 test('cvr transfer session imports cast vote records one at a time', async () => {

@@ -146,19 +146,6 @@ export function startScannerNetworking({
             machineId,
             codeVersion,
           });
-          if (!hostConfig.isCompatible) {
-            debug(
-              'Host at %s runs incompatible code version %s (scanner is %s), refusing to connect',
-              address,
-              hostConfig.codeVersion,
-              codeVersion
-            );
-            setConnectionState({
-              status: 'incompatible-host-version',
-              hostMachineId: hostConfig.machineId,
-            });
-            return;
-          }
           setConnectionState(
             {
               status: 'connected-to-host',

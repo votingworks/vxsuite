@@ -15,8 +15,7 @@ export type HostConnectionStatus =
   | 'offline'
   | 'waiting-for-host'
   | 'connected-to-host'
-  | 'multiple-hosts-detected'
-  | 'incompatible-host-version';
+  | 'multiple-hosts-detected';
 
 /** Summary of the scanner's connection to a VxAdmin host. */
 export interface HostConnectionInfo {
