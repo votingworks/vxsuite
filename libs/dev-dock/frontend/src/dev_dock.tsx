@@ -790,9 +790,17 @@ function BatchScannerMockControl() {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['batchScannerGetStatus']),
   });
+  const simulateErrorMutation = useMutation(
+    apiClient.batchScannerSimulateError,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['batchScannerGetStatus']),
+    }
+  );
 
   const status = getStatusQuery.data;
   const sheetCount = status?.sheetCount ?? 0;
+  const errorQueued = status?.errorQueued ?? false;
 
   return (
     <div>
@@ -824,7 +832,13 @@ function BatchScannerMockControl() {
             Clear
           </ScannerButton>
         </>
-      )}
+      )}{' '}
+      <ScannerButton
+        onClick={() => simulateErrorMutation.mutate()}
+        disabled={errorQueued || simulateErrorMutation.isLoading}
+      >
+        {errorQueued ? 'Error Queued' : 'Queue Error'}
+      </ScannerButton>
     </div>
   );
 }
