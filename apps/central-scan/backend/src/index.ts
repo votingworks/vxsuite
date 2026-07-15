@@ -8,6 +8,7 @@ import * as server from './server';
 
 export type { Api } from './app';
 export type { ScanDiagnosticOutcome } from './diagnostic';
+export type * from './ballot_print_validator';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

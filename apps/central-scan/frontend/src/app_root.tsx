@@ -22,6 +22,7 @@ import { AppContext, AppContextInterface } from './contexts/app_context';
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { SettingsScreen } from './screens/settings_screen';
+import { BallotPrintValidatorScreen } from './screens/ballot_print_validator_screen';
 
 import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
@@ -32,6 +33,7 @@ import {
   getStatus,
   getTestMode,
   getUsbDriveStatus,
+  isBallotPrintValidatorEnabled,
   logOut,
   unconfigure,
   useApiClient,
@@ -45,6 +47,13 @@ export interface AppRootProps {
 }
 
 export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
+  if (isBallotPrintValidatorEnabled()) {
+    return <BallotPrintValidatorScreen />;
+  }
+  return <CentralScanAppRoot logger={logger} />;
+}
+
+function CentralScanAppRoot({ logger }: AppRootProps): JSX.Element | null {
   const apiClient = useApiClient();
   const machineConfigQuery = getMachineConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();

@@ -16,6 +16,11 @@ import {
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
 import { Id, Side } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  isIntegrationTest,
+} from '@votingworks/utils';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -373,5 +378,78 @@ export const saveReadinessReport = {
     return useMutation(apiClient.saveReadinessReport);
   },
 } as const;
+
+//
+// START: Ballot print validator
+//
+
+export function isBallotPrintValidatorEnabled(): boolean {
+  return (
+    !isIntegrationTest() &&
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_BALLOT_PRINT_VALIDATOR
+    )
+  );
+}
+
+export const getBallotPrintValidationStatus = {
+  queryKey(): QueryKey {
+    return ['getBallotPrintValidationStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getBallotPrintValidationStatus(),
+      isBallotPrintValidatorEnabled() ? { refetchInterval: 100 } : undefined
+    );
+  },
+} as const;
+
+export const scanBallotsForPrintValidation = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.scanBallotsForPrintValidation, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getBallotPrintValidationStatus.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const clearBallotPrintValidation = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.clearBallotPrintValidation, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getBallotPrintValidationStatus.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const acknowledgeInvalidBallotPrint = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.acknowledgeInvalidBallotPrint, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getBallotPrintValidationStatus.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+//
+// END: Ballot print validator
+//
 
 export const systemCallApi = createSystemCallApi(useApiClient);

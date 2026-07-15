@@ -44,6 +44,10 @@ import {
 import { saveReadinessReport } from './readiness_report';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
 import { BatchScanner } from './fujitsu_scanner';
+import {
+  BallotPrintValidationStatus,
+  BallotPrintValidator,
+} from './ballot_print_validator';
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
@@ -64,6 +68,8 @@ function buildApi({
   importer,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
+
+  const ballotPrintValidator = new BallotPrintValidator({ scanner });
 
   return grout.createApi({
     getAuthStatus() {
@@ -406,6 +412,30 @@ function buildApi({
       });
       return qrCodeValue;
     },
+
+    //
+    // START: Ballot print validator
+    //
+
+    getBallotPrintValidationStatus(): BallotPrintValidationStatus {
+      return ballotPrintValidator.getStatus();
+    },
+
+    scanBallotsForPrintValidation(): void {
+      ballotPrintValidator.start();
+    },
+
+    clearBallotPrintValidation(): void {
+      ballotPrintValidator.clear();
+    },
+
+    acknowledgeInvalidBallotPrint(): void {
+      ballotPrintValidator.acknowledgeAndContinue();
+    },
+
+    //
+    // END: Ballot print validator
+    //
 
     ...createSystemCallApi({
       usbDrive,
