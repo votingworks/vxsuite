@@ -111,6 +111,11 @@ export enum BooleanEnvironmentVariableName {
    * [In Development] Enables multi-station adjudication in VxAdmin
    */
   ENABLE_MULTI_STATION_ADMIN = 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
+  /**
+   * Runs an election-agnostic ballot print validation app in place of the
+   * standard VxCentralScan app
+   */
+  ENABLE_BALLOT_PRINT_VALIDATOR = 'REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -194,6 +199,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_EARLY_VOTING;
     case BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN:
       return process.env['REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN'];
+    case BooleanEnvironmentVariableName.ENABLE_BALLOT_PRINT_VALIDATOR:
+      return process.env.REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -354,6 +361,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_BALLOT_PRINT_VALIDATOR:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:

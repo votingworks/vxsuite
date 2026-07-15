@@ -1,12 +1,16 @@
 APP := ..
+ROOT_ENV := $(APP)/../../.env
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp/central-scan-integration-testing
 export REACT_APP_VX_ENABLE_DEV_DOCK=TRUE
 export REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER=TRUE
 
 build-frontend:
-	make -C $(APP)/frontend install; \
-	make -C $(APP)/frontend build; \
+	sed -i 's/REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR=TRUE/REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR=FALSE/' $(ROOT_ENV); \
+	make -C $(APP)/frontend install && make -C $(APP)/frontend build; \
+	status=$$?; \
+	sed -i 's/REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR=FALSE/REACT_APP_VX_ENABLE_BALLOT_PRINT_VALIDATOR=TRUE/' $(ROOT_ENV); \
+	exit $$status
 
 build-backend:
 	make -C $(APP)/backend install; \
