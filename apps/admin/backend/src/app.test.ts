@@ -592,6 +592,54 @@ test('usbDrive', async () => {
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
+test('waitForUsbDriveChange returns immediately when the sequence is already ahead', async () => {
+  const { apiClient, usbPlatform } = buildTestEnvironment();
+  // Attaching a drive advances the change sequence past the caller's `lastSeq`.
+  await attachUsbDrive(apiClient, usbPlatform);
+
+  // Because a change already happened, the poll resolves without waiting.
+  const seq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
+  expect(seq).toBeGreaterThan(0);
+});
+
+test('waitForUsbDriveChange waits for and reports the next change', async () => {
+  const { apiClient, usbPlatform } = buildTestEnvironment();
+  await attachUsbDrive(apiClient, usbPlatform);
+
+  // Learn the current sequence (this returns immediately since attaching the
+  // drive already advanced it), giving us a quiet baseline.
+  const baselineSeq = await apiClient.waitForUsbDriveChange({ lastSeq: 0 });
+
+  // With no change since the baseline, this poll parks until the next change.
+  let observedSeq: number | undefined;
+  void apiClient.waitForUsbDriveChange({ lastSeq: baselineSeq }).then((seq) => {
+    observedSeq = seq;
+  });
+
+  // The sequence can only advance when we drive `usbPlatform`, so it stays
+  // frozen here. A couple of round-trips give the poll time to park; it must
+  // not resolve while nothing has changed.
+  await apiClient.getUsbDriveStatus();
+  await apiClient.getUsbDriveStatus();
+  expect(observedSeq).toBeUndefined();
+
+  // Now a change wakes the parked poll. Toggle presence in case a single
+  // filesystem event is missed.
+  let present = true;
+  await vi.waitFor(
+    () => {
+      present = !present;
+      if (present) {
+        usbPlatform.insertDrive(devsdb);
+      } else {
+        usbPlatform.removeDrive(devsdb);
+      }
+      expect(observedSeq).toBeGreaterThan(baselineSeq);
+    },
+    { timeout: 10_000, interval: 250 }
+  );
+});
+
 test('usbDrive without proper auth', async () => {
   const { apiClient, auth, usbPlatform } = buildTestEnvironment();
   const electionDefinition =

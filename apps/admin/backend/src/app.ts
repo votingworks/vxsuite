@@ -128,7 +128,7 @@ import {
   generateAdminLiveResultsReportingUrls,
   getMatchingAbsenteePollingPlaces,
 } from './live_results_reporting';
-import { NODE_ENV } from './globals';
+import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
@@ -167,6 +167,7 @@ import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
 import { generateReportsDirectoryPath } from './util/filenames';
 import { getHostServiceName } from './networking';
+import { timeout } from './util/timeout';
 
 const debug = rootDebug.extend('app');
 
@@ -207,6 +208,20 @@ function buildApi({
     // return the first FAT32 drive
     (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
   );
+
+  // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a
+  // monotonic counter bumped on every change; `nextUsbDriveChange` resolves to
+  // wake any parked long-polls. The counter makes the long-poll level-triggered
+  // rather than edge-triggered: a client passes the last sequence it saw, so a
+  // change that fires between two long-polls is reported on the next one
+  // instead of being lost.
+  let usbDriveChangeSeq = 0;
+  let nextUsbDriveChange = deferred<void>();
+  multiUsbDrive.addListener(() => {
+    usbDriveChangeSeq += 1;
+    nextUsbDriveChange.resolve();
+    nextUsbDriveChange = deferred<void>();
+  });
 
   function convertFrontendFilter(
     filter: Admin.FrontendReportingFilter
@@ -373,6 +388,32 @@ function buildApi({
 
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();
+    },
+
+    /**
+     * Long-polls for a USB drive change. The caller passes the last change
+     * sequence it observed; this resolves with the current sequence once it is
+     * ahead of `lastSeq` (i.e. a change has happened), or after
+     * {@link USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS} with the sequence
+     * unchanged. Comparing sequences lets the caller
+     * detect a change that occurred between polls, so none are missed.
+     */
+    async waitForUsbDriveChange({
+      lastSeq,
+    }: {
+      lastSeq: number;
+    }): Promise<number> {
+      if (usbDriveChangeSeq > lastSeq) {
+        return usbDriveChangeSeq;
+      }
+      // Bound the wait so the held-open connection is recycled rather than
+      // lingering indefinitely; on timeout the sequence is unchanged and the
+      // caller simply polls again.
+      await timeout(
+        USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS,
+        nextUsbDriveChange.promise
+      );
+      return usbDriveChangeSeq;
     },
 
     async ejectUsbDrive(): Promise<void> {
