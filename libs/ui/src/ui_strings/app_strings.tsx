@@ -233,6 +233,10 @@ export const appStrings = {
 
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
+  buttonReviewChoices: () => (
+    <UiString uiStringKey="buttonReviewChoices">Review Choices</UiString>
+  ),
+
   buttonStartVoting: () => (
     <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
   ),
@@ -1335,6 +1339,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerReviewOrCastBallot: () => (
+    <UiString uiStringKey="noteScannerReviewOrCastBallot">
+      You may cast your ballot now or review your votes.
+    </UiString>
+  ),
+
   noteThankYouForVoting: () => (
     <UiString uiStringKey="noteThankYouForVoting">
       Thank you for voting.
@@ -1499,6 +1509,12 @@ export const appStrings = {
 
   titleBmdReviewScreen: () => (
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
+  ),
+
+  titleScannerConfirmScreen: () => (
+    <UiString uiStringKey="titleScannerConfirmScreen">
+      Your ballot was scanned
+    </UiString>
   ),
 
   titleLanguage: () => (
