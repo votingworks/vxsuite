@@ -1837,11 +1837,9 @@ commands:
           name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
-      # TODO: Remove once the CI base images ship pnpm 10 (VX_DOCKER images).
       - run:
-          name: Install pnpm 10
+          name: Fix node-gyp gyp entrypoint permissions
           command: |
-            npm install --global pnpm@10.34.5
             # TODO: Remove once we upgrade past pnpm 11.10, which ships
             # node-gyp with the gyp entrypoints executable.
             # See https://github.com/pnpm/pnpm/issues/12455
