@@ -421,24 +421,37 @@ export class Importer {
   }
 
   /**
-   * Kick off scanning the next sheet, routing failures to `finishBatch`.
+   * Kick off scanning the next sheet, pausing the batch on failure.
    */
   private scanNextSheet(): void {
-    this.scanOneSheet().catch((error) => {
+    this.scanOneSheet().catch(async (error) => {
       const message = extractErrorMessage(error);
       debug('processing sheet failed with error: %s', message);
       void this.logger.logAsCurrentRole(LogEventId.ScanSheetComplete, {
         disposition: 'failure',
         message: `Processing sheet failed: ${message}`,
       });
-      void this.finishBatch(message).catch((finishError) => {
-        void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
-          disposition: 'failure',
-          message: `Additionally, finishing batch failed: ${extractErrorMessage(
-            finishError
-          )}`,
+      try {
+        // Pause rather than finish the batch: an error (e.g. a failure to
+        // open a fresh scanner session when continuing a batch) must not take
+        // the in-progress batch away from the operator. They can retry with
+        // "Continue Scanning", or save or cancel what was scanned so far.
+        await this.pauseBatch('error');
+      } catch (pauseError) {
+        debug(
+          'pausing batch after error failed: %s',
+          extractErrorMessage(pauseError)
+        );
+        // Last resort: end the batch, recording the original error.
+        void this.finishBatch(message).catch((finishError) => {
+          void this.logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
+            disposition: 'failure',
+            message: `Additionally, finishing batch failed: ${extractErrorMessage(
+              finishError
+            )}`,
+          });
         });
-      });
+      }
     });
   }
 
@@ -597,6 +610,13 @@ export class Importer {
       currentBatch.stopRequested = true;
       await currentBatch.sheetGenerator.endBatch();
       await this.waitForEndOfBatchOrScanningPause();
+
+      // The scan loop may have ended the batch while we waited (last-resort
+      // error handling); in that case there is nothing left to cancel.
+      /* istanbul ignore next - timing-dependent race */
+      if (this.currentBatch !== currentBatch) {
+        throw new Error('batch already ended');
+      }
     }
 
     this.currentBatch = undefined;

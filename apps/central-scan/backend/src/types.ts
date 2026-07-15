@@ -33,7 +33,11 @@ export type SendCastVoteRecordsToHostError =
 export type ScanState = 'idle' | 'scanning' | 'adjudication';
 
 /** Why an in-progress batch is paused. */
-export type BatchPauseReason = 'tray-empty' | 'stopped' | 'ballot-review';
+export type BatchPauseReason =
+  | 'tray-empty'
+  | 'stopped'
+  | 'ballot-review'
+  | 'error';
 
 /**
  * The batch currently being scanned. A batch stays open when scanning is

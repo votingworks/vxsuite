@@ -131,13 +131,22 @@ describe('paused batch', () => {
   });
 
   test('shows other pause reasons', () => {
-    renderScreen({
+    const { unmount } = renderScreen({
       status: mockStatus({
         currentBatch: { batchId: 'a', state: 'paused', pauseReason: 'stopped' },
         batches: [mockBatch({ id: 'a', endedAt: undefined })],
       }),
     });
     screen.getByText('Batch paused — scanning stopped');
+    unmount();
+
+    renderScreen({
+      status: mockStatus({
+        currentBatch: { batchId: 'a', state: 'paused', pauseReason: 'error' },
+        batches: [mockBatch({ id: 'a', endedAt: undefined })],
+      }),
+    });
+    screen.getByText('Batch paused — a scanning error occurred');
   });
 
   test('continue scanning', () => {

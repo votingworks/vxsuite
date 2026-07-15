@@ -219,7 +219,7 @@ test('batch controls require the right batch state', async () => {
   expect(workspace.store.getBatches()[0].endedAt).toBeDefined();
 });
 
-test('a scanner error finishes the batch with an error', async () => {
+test('a scanner error pauses the batch so it can be retried', async () => {
   const { importer, workspace, scanner } = setupImporter();
   importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
@@ -229,10 +229,64 @@ test('a scanner error finishes the batch with an error', async () => {
   await importer.startImport();
   await importer.waitForEndOfBatchOrScanningPause();
 
+  // the batch stays open, paused with an error, instead of being finished
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'paused',
+    pauseReason: 'error',
+  });
+  expect(workspace.store.getBatches()[0].endedAt).toBeUndefined();
+
+  // continuing retries with a fresh scanner session
+  scanner.withNextScannerSession().end();
+  importer.continueBatch();
+  await importer.waitForEndOfBatchOrScanningPause();
+  expect(importer.getStatus().currentBatch).toEqual({
+    batchId: expect.any(String),
+    state: 'paused',
+    pauseReason: 'tray-empty',
+  });
+
+  await importer.saveBatch();
   expect(importer.getStatus().currentBatch).toBeUndefined();
+  expect(workspace.store.getBatches()[0].endedAt).toBeDefined();
+});
+
+test('a scanner error finishes the batch if pausing also fails', async () => {
+  const { workspace } = setupImporter();
+
+  // A scanner whose sheet stream errors AND whose session refuses to end, so
+  // pausing the batch is impossible.
+  const scanner: BatchScanner = {
+    isAttached: vi.fn().mockReturnValue(true),
+    isImprinterAttached: vi.fn().mockResolvedValue(false),
+    scanSheets: () => {
+      const control: BatchControl = {
+        scanSheet: vi.fn().mockRejectedValue(new Error('scan failed')),
+        endBatch: vi.fn().mockRejectedValue(new Error('end failed')),
+      };
+      return control;
+    },
+  };
+
+  const importer = new Importer({
+    workspace,
+    scanner,
+    logger: mockLogger({ fn: vi.fn }),
+  });
+  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  await importer.startImport();
+  await vi.waitFor(() => {
+    expect(importer.getStatus().currentBatch).toBeUndefined();
+  });
+
+  // last resort: the batch is finished, recording the error
   const batches = workspace.store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].endedAt).toBeDefined();
+  expect(batches[0].error).toContain('scan failed');
 });
 
 test('startImport cleans up batch on failure after addBatch', async () => {
