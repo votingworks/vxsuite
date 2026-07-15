@@ -272,7 +272,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     'executors:',
     '  nodejs:',
     '    docker:',
-    '      - image: votingworks/cimg-debian12:4.5.0',
+    '      - image: votingworks/cimg-debian12:4.6.0',
     '        auth:',
     '          username: $VX_DOCKER_USERNAME',
     '          password: $VX_DOCKER_PASSWORD',
@@ -288,6 +288,13 @@ function generateCircleCiFilteredAppConfigForPackage(
     '          name: Ensure Rust tooling is in PATH',
     '          command: |',
     '            echo \'export PATH="/root/.cargo/bin:$PATH"\' >> $BASH_ENV',
+    '      - run:',
+    '          name: Fix node-gyp gyp entrypoint permissions',
+    '          command: |',
+    '            # TODO: Remove once we upgrade past pnpm 11.10, which ships',
+    '            # node-gyp with the gyp entrypoints executable.',
+    '            # See https://github.com/pnpm/pnpm/issues/12455',
+    '            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"',
     '      - checkout',
     '      # Edit this comment somehow in order to invalidate the CircleCI cache.',
     '      # Since the contents of this file affect the cache key, editing only a',
@@ -310,7 +317,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     '                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
     '                  "pnpm-lock.yaml" }}',
     '                paths:',
-    '                  - /root/.local/share/pnpm/store/v3',
+    '                  - /root/.local/share/pnpm/store/v10',
     '                  - /root/.cache/ms-playwright',
     '      - restore_cache:',
     '          name: Restore Cargo Cache',
@@ -409,14 +416,14 @@ orbs:
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.5.0
+      - image: votingworks/cimg-debian12:4.6.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.5.0
+      - image: votingworks/cimg-debian12:4.6.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -491,6 +498,13 @@ commands:
           name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Fix node-gyp gyp entrypoint permissions
+          command: |
+            # TODO: Remove once we upgrade past pnpm 11.10, which ships
+            # node-gyp with the gyp entrypoints executable.
+            # See https://github.com/pnpm/pnpm/issues/12455
+            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
@@ -511,7 +525,7 @@ commands:
                 key:
                   pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
                 paths:
-                  - /root/.local/share/pnpm/store/v3
+                  - /root/.local/share/pnpm/store/v10
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache

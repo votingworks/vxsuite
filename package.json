@@ -53,8 +53,17 @@
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "^4.1.6"
   },
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@10.34.5",
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "canvas",
+      "esbuild",
+      "node-hid",
+      "node-quirc",
+      "pcsclite",
+      "usb"
+    ],
     "overrides": {
       "@babel/traverse": "7.23.2",
       "@types/eslint": "8.4.1",
