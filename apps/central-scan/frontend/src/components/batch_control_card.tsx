@@ -48,6 +48,7 @@ const PAUSE_REASON_TEXT: Record<BatchPauseReason, string> = {
   'tray-empty': 'input tray is empty',
   stopped: 'scanning stopped',
   'ballot-review': 'a ballot required review',
+  error: 'a scanning error occurred',
 };
 
 export interface BatchControlCardProps {

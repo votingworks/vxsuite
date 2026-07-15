@@ -10,8 +10,9 @@ export interface MockBatchScannerApi {
   addSheets(
     sheets: ReadonlyArray<{ frontPath: string; backPath: string }>
   ): void;
-  getStatus(): { sheetCount: number };
+  getStatus(): { sheetCount: number; errorQueued: boolean };
   clearSheets(): void;
+  simulateError(): void;
   /** Directory for writing temporary ballot images. */
   imageDir: string;
 }
@@ -27,11 +28,17 @@ export interface MockBatchScannerApi {
  * `sheetCopies` loads each added sheet that many times, simulating a larger
  * stack (and therefore a longer scanning window, e.g. to try the Stop button).
  *
+ * `simulateError()` queues a one-shot scanner error: the next attempt to scan
+ * a sheet fails, whether mid-batch or when opening the next scan session.
+ * This exercises the batch pause-on-error flow; retrying (Continue Scanning)
+ * succeeds since the error is consumed.
+ *
  * Images are stored in the provided directory rather than a random temp
  * directory, so previous runs' files are cleaned up on startup.
  */
 export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private queue: ScannedSheetInfo[] = [];
+  private pendingError?: Error;
 
   constructor(
     private readonly imageDirPath: string,
@@ -67,14 +74,22 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     );
   }
 
-  getStatus(): { sheetCount: number } {
-    return { sheetCount: this.queue.length };
+  getStatus(): { sheetCount: number; errorQueued: boolean } {
+    return {
+      sheetCount: this.queue.length,
+      errorQueued: this.pendingError !== undefined,
+    };
   }
 
   clearSheets(): void {
     this.queue = [];
+    this.pendingError = undefined;
     fs.rmSync(this.imageDirPath, { recursive: true, force: true });
     fs.mkdirSync(this.imageDirPath, { recursive: true });
+  }
+
+  simulateError(): void {
+    this.pendingError = new Error('simulated scanner error');
   }
 
   /* eslint-disable @typescript-eslint/require-await */
@@ -83,7 +98,12 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     let done = false;
 
     return {
-      async scanSheet(): Promise<ScannedSheetInfo | undefined> {
+      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
+        if (this.pendingError) {
+          const error = this.pendingError;
+          this.pendingError = undefined;
+          throw error;
+        }
         if (done) {
           return undefined;
         }

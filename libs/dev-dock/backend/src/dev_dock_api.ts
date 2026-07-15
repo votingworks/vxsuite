@@ -63,8 +63,9 @@ import { execFile } from './utils';
 
 export interface MockBatchScannerApi {
   addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
-  getStatus(): { sheetCount: number };
+  getStatus(): { sheetCount: number; errorQueued: boolean };
   clearSheets(): void;
+  simulateError(): void;
   readonly imageDir: string;
 }
 
@@ -523,8 +524,12 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
       }
     },
 
-    batchScannerGetStatus(): { sheetCount: number } {
+    batchScannerGetStatus(): { sheetCount: number; errorQueued: boolean } {
       return assertDefined(mockSpec.mockBatchScanner).getStatus();
+    },
+
+    batchScannerSimulateError(): void {
+      assertDefined(mockSpec.mockBatchScanner).simulateError();
     },
 
     async batchScannerLoadBallots(input: { paths: string[] }): Promise<void> {
