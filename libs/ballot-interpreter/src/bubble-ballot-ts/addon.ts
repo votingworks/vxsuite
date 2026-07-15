@@ -108,3 +108,16 @@ export function findTimingMarkGrid(
         debugBasePath ?? null
       );
 }
+
+export interface BallotPrintSideValidation {
+  timingMarksDetected: boolean;
+  timingMarksError?: string;
+  scale?: number;
+  qrCodeDetected: boolean;
+}
+
+export function validateBallotPrintSide(
+  imagePath: string
+): BallotPrintSideValidation {
+  return addon.validateBallotPrintSideFromPath(imagePath);
+}

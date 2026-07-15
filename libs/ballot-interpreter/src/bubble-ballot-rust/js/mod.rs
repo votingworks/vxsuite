@@ -10,12 +10,14 @@ use serde::{Deserialize, Serialize};
 use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
 use types_rs::election::Election;
 
-use crate::ballot_card::{load_ballot_scan_bubble_image, BallotPage, PaperInfo};
+use crate::ballot_card::{load_ballot_scan_bubble_image, BallotImage, BallotPage, PaperInfo};
+use crate::debug::ImageDebugWriter;
 use crate::interpret::{
     self, ballot_card, InterpretedBallotCard, Options, VerticalStreakDetection, WriteInScoring,
 };
+use crate::qr_code;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::TimingMarks;
+use crate::timing_marks::{BorderAxis, TimingMarks};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -264,6 +266,63 @@ fn find_timing_mark_grid_from_image(
         "image",
         debug_path.map(Into::into),
     )?))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct BallotPrintSideValidation {
+    timing_marks_detected: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    timing_marks_error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    scale: Option<f64>,
+    qr_code_detected: bool,
+}
+
+#[neon::export]
+fn validate_ballot_print_side_from_path(
+    image_path: String,
+) -> Result<Json<BallotPrintSideValidation>, Error> {
+    let image_path = PathBuf::from(image_path);
+    let label = image_path
+        .file_name()
+        .map(OsStr::to_string_lossy)
+        .map_or_else(|| "image".to_owned(), Cow::into_owned);
+    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
+
+    let Some(ballot_image) = BallotImage::from_image(image, None) else {
+        return Ok(Json(BallotPrintSideValidation {
+            timing_marks_detected: false,
+            timing_marks_error: Some("could not find ballot within scanned image".to_owned()),
+            scale: None,
+            qr_code_detected: false,
+        }));
+    };
+
+    let qr_code_detected =
+        qr_code::detect(ballot_image.image(), &ImageDebugWriter::disabled()).is_ok();
+
+    let (timing_marks_detected, timing_marks_error, scale) =
+        match BallotPage::from_ballot_image(&label, ballot_image, &PaperInfo::scanned()) {
+            Ok(ballot_page) => match ballot_page.find_timing_marks() {
+                Ok(timing_marks) => (
+                    true,
+                    None,
+                    timing_marks
+                        .compute_scale_based_on_axis(BorderAxis::Horizontal)
+                        .map(|scale| f64::from(scale.0)),
+                ),
+                Err(err) => (false, Some(format!("{err}")), None),
+            },
+            Err(err) => (false, Some(format!("{err}")), None),
+        };
+
+    Ok(Json(BallotPrintSideValidation {
+        timing_marks_detected,
+        timing_marks_error,
+        scale,
+        qr_code_detected,
+    }))
 }
 
 fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, Error> {

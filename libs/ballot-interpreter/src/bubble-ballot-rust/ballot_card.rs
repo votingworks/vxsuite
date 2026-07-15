@@ -232,6 +232,19 @@ impl BallotPage {
             });
         };
 
+        Self::from_ballot_image(label, ballot_image, possible_paper_infos)
+    }
+
+    /// # Errors
+    ///
+    /// Returns an error if the image dimensions don't match any of the possible
+    /// paper sizes.
+    #[allow(clippy::result_large_err)]
+    pub fn from_ballot_image(
+        label: &str,
+        ballot_image: BallotImage,
+        possible_paper_infos: &[PaperInfo],
+    ) -> Result<Self> {
         let Some(paper_info) =
             get_matching_paper_info_for_image_size(ballot_image.dimensions(), possible_paper_infos)
         else {

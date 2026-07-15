@@ -65,6 +65,19 @@ export type InterpretError =
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
 
+export function trim(imageData: ImageData): ImageData {
+  const threshold = otsu(imageData.data);
+  const inset = findScannedDocumentInset(imageData, threshold);
+  return inset
+    ? crop(imageData, {
+        x: inset.left,
+        y: inset.top,
+        width: imageData.width - inset.right - inset.left,
+        height: imageData.height - inset.bottom - inset.top,
+      })
+    : imageData;
+}
+
 /**
  * Interprets a ballot card as a VX BMD ballot.
  */
@@ -73,19 +86,7 @@ export async function interpret(
   card: SheetOf<ImageData>,
   disableBmdBallotScanning: boolean = false
 ): Promise<InterpretResult> {
-  const croppedCard = mapSheet(card, (imageData) => {
-    const threshold = otsu(imageData.data);
-    const inset = findScannedDocumentInset(imageData, threshold);
-
-    return inset
-      ? crop(imageData, {
-          x: inset.left,
-          y: inset.top,
-          width: imageData.width - inset.right - inset.left,
-          height: imageData.height - inset.bottom - inset.top,
-        })
-      : imageData;
-  });
+  const croppedCard = mapSheet(card, trim);
 
   const [frontResult, backResult] = await mapSheet(croppedCard, detectInBallot);
 
