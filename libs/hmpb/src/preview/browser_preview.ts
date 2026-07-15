@@ -13,6 +13,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import {
   BallotPageTemplate,
+  gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
   renderBallotTemplate,
@@ -147,13 +148,13 @@ export async function main(): Promise<void> {
           bubble.y +
           bubble.height / 2 -
           page.y -
-          gridWidthToPixels(grid, writeInArea.top)
+          gridHeightToPixels(grid, writeInArea.top)
         }px`;
         writeInAreaElement.style.width = `${gridWidthToPixels(
           grid,
           Math.abs(writeInArea.left + writeInArea.right)
         )}px`;
-        writeInAreaElement.style.height = `${gridWidthToPixels(
+        writeInAreaElement.style.height = `${gridHeightToPixels(
           grid,
           writeInArea.top + writeInArea.bottom
         )}px`;
