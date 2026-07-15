@@ -15,13 +15,16 @@ import {
 import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ExportCastVoteRecordsToUsbDriveError,
+  BallotMetadata,
   HmpbBallotPaperSize,
   InsertedSmartCardAuth,
+  PageInterpretation,
   PrecinctScannerState,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
   SheetInterpretation,
   SheetOf,
+  VotesDict,
   ballotPaperDimensions,
   mapSheet,
   pollingPlacePrecinctIds,
@@ -327,6 +330,22 @@ type Event =
   | { type: 'BEGIN_SCANNER_DIAGNOSTIC' }
   | { type: 'END_SCANNER_DIAGNOSTIC' }
   | { type: 'AUTH_STATUS'; status: InsertedSmartCardAuth.AuthStatus };
+
+function getVotesFromPage(page: PageInterpretation): VotesDict {
+  return page.type === 'InterpretedHmpbPage' ||
+    page.type === 'InterpretedBmdPage'
+    ? page.votes
+    : {};
+}
+
+function getMetadataFromPage(
+  page: PageInterpretation
+): BallotMetadata | undefined {
+  return page.type === 'InterpretedHmpbPage' ||
+    page.type === 'InterpretedBmdPage'
+    ? page.metadata
+    : undefined;
+}
 
 function isEventUserAction(event: EventObject): boolean {
   if (event.type === 'SCANNER_EVENT') {
@@ -942,10 +961,11 @@ function buildMachine({
         },
 
         readyToAccept: {
-          always: [
-            { cond: isShoeshineModeEnabled, target: 'accepted' },
-            { target: 'accepting' },
-          ],
+          always: [{ cond: isShoeshineModeEnabled, target: 'accepted' }],
+          on: {
+            ACCEPT: 'accepting',
+            RETURN: 'returning',
+          },
         },
 
         accepting: acceptingState,
@@ -1528,8 +1548,8 @@ export function createPrecinctScannerStateMachine({
           case state.matches('accepting.paperInFront'):
           case state.matches('acceptingAfterReview.paperInFront'):
             return 'both_sides_have_paper';
-          /* istanbul ignore next - state transitions too quickly to test */
           case state.matches('readyToAccept'):
+            return 'ready_to_accept';
           case state.matches('accepting'):
             return 'accepting';
           case state.matches('accepted'):
@@ -1588,6 +1608,35 @@ export function createPrecinctScannerStateMachine({
         return rest;
       })();
 
+      // While a ballot is held awaiting the voter's confirmation or review,
+      // surface the combined front/back votes so the frontend can display the
+      // voter's selections. Each contest appears on exactly one page, so a
+      // spread merge of the two pages' votes yields the full ballot's votes. The
+      // ballot style and precinct are surfaced alongside so the frontend can
+      // display the selections in ballot-rotation order.
+      const statesWithHeldBallot: PrecinctScannerState[] = [
+        'ready_to_accept',
+        'needs_review',
+        'accepting_after_review',
+      ];
+      const heldBallot = (() => {
+        if (!statesWithHeldBallot.includes(scannerState) || !interpretation) {
+          return undefined;
+        }
+        const [front, back] = interpretation.pages;
+        const metadata =
+          getMetadataFromPage(front.interpretation) ??
+          getMetadataFromPage(back.interpretation);
+        return {
+          votes: {
+            ...getVotesFromPage(front.interpretation),
+            ...getVotesFromPage(back.interpretation),
+          },
+          ballotStyleId: metadata?.ballotStyleId,
+          precinctId: metadata?.precinctId,
+        };
+      })();
+
       const stateNeedsErrorDetails = [
         'rejecting',
         'rejected',
@@ -1605,6 +1654,9 @@ export function createPrecinctScannerStateMachine({
       return {
         state: scannerState,
         interpretation: interpretationResult,
+        votes: heldBallot?.votes,
+        ballotStyleId: heldBallot?.ballotStyleId,
+        precinctId: heldBallot?.precinctId,
         error: errorDetails,
       };
     },
