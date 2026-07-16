@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 
 import userEvent from '@testing-library/user-event';
 import { deferred, sleep } from '@votingworks/basics';
-import { TtsEdit } from '@votingworks/types';
+import { LanguageCode, TtsEdit } from '@votingworks/types';
 
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { TtsTextEditor } from './tts_text_editor';
@@ -14,7 +14,7 @@ import {
 } from '../../test/api_helpers';
 
 const jurisdictionId = 'jurisdiction-1';
-const languageCode = 'en';
+const languageCode = LanguageCode.ENGLISH;
 
 test('renders TTS defaults if no edits exist', async () => {
   const original = 'CA';
@@ -81,7 +81,7 @@ test('renders saved edits if available', async () => {
   expectAudioPlayerData(container, mockAudio);
 });
 
-test('enables save and reset button when applicable', async () => {
+test('enables save and cancel button when applicable', async () => {
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
     .expectCallWith({ jurisdictionId, languageCode, original: 'CA' })
@@ -106,20 +106,20 @@ test('enables save and reset button when applicable', async () => {
 
   expect(screen.getByRole('textbox')).toHaveValue('CA');
   expect(screen.getButton(/save/i)).toBeDisabled();
-  expect(screen.getButton(/reset/i)).toBeDisabled();
+  expect(screen.queryButton(/cancel/i)).not.toBeInTheDocument();
 
   userEvent.type(screen.getByRole('textbox'), 'li');
   expect(screen.getByRole('textbox')).toHaveValue('CAli');
   expect(screen.getButton(/save/i)).toBeEnabled();
-  expect(screen.getButton(/reset/i)).toBeEnabled();
+  expect(screen.getButton(/cancel/i)).toBeEnabled();
 
   userEvent.clear(screen.getByRole('textbox'));
   expect(screen.getByRole('textbox')).toHaveValue('');
   expect(screen.getButton(/save/i)).toBeDisabled();
-  expect(screen.getButton(/reset/i)).toBeEnabled();
+  expect(screen.getButton(/cancel/i)).toBeEnabled();
 });
 
-test('reset button restores saved state', async () => {
+test('cancel button restores saved state', async () => {
   const original = 'CA';
   const savedEdit: TtsEdit = {
     exportSource: 'text',
@@ -155,7 +155,7 @@ test('reset button restores saved state', async () => {
   userEvent.type(screen.getByRole('textbox'), 'CA');
   expect(screen.getByRole('textbox')).toHaveValue('CA');
 
-  userEvent.click(screen.getButton(/reset/i));
+  userEvent.click(screen.getButton(/cancel/i));
   expect(screen.getByRole('textbox')).toHaveValue('California');
 });
 
@@ -212,7 +212,7 @@ test('save button updates backend data, refreshes content', async () => {
   await sleep(0);
   expect(screen.getByRole('textbox')).toBeDisabled();
   expect(screen.getButton(/saving/i)).toBeDisabled();
-  expect(screen.getButton(/reset/i)).toBeDisabled();
+  expect(screen.getButton(/cancel/i)).toBeDisabled();
 
   mockApi.assertComplete();
 
@@ -234,7 +234,7 @@ test('save button updates backend data, refreshes content', async () => {
   expect(screen.getByRole('textbox')).toHaveValue('California');
   expect(screen.getByRole('textbox')).toBeEnabled();
   expect(screen.getButton(/save/i)).toBeDisabled();
-  expect(screen.getButton(/reset/i)).toBeDisabled();
+  expect(screen.queryButton(/cancel/i)).not.toBeInTheDocument();
 
   mockApi.assertComplete();
 });
@@ -269,7 +269,7 @@ test('omits form actions if not editable', async () => {
   expect(screen.getByRole('textbox')).toBeDisabled();
   expectAudioPlayerData(container, mockAudio);
   expect(screen.queryButton(/save/i)).not.toBeInTheDocument();
-  expect(screen.queryButton(/reset/i)).not.toBeInTheDocument();
+  expect(screen.queryButton(/cancel/i)).not.toBeInTheDocument();
 });
 
 function expectAudioPlayerData(container: HTMLElement, data: string) {

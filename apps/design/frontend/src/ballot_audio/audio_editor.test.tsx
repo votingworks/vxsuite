@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey } from '@votingworks/types';
+import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 
 import { TtsTextEditor, TtsTextEditorProps } from './tts_text_editor';
 import {
@@ -20,7 +20,7 @@ const PHONETIC_EDITOR_CONTENT = /pick a word below/i;
 
 const jurisdictionId = 'jurisdiction-1';
 const electionId = 'election-1';
-const languageCode = 'en';
+const languageCode = LanguageCode.ENGLISH;
 
 test('defaults to plain text editor if no saved edits exist', async () => {
   const ttsDefault: TtsStringDefault = {

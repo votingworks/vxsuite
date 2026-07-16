@@ -17,6 +17,7 @@ export default defineConfig({
         'src/index.tsx',
         '**/*.test.ts',
         '**/*.test.tsx',
+        'src/ballot_audio/language_select.tsx',
       ],
     },
 

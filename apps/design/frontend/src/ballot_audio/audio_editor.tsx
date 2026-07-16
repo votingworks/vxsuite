@@ -3,7 +3,7 @@ import React from 'react';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { TtsExportSource } from '@votingworks/types';
+import { LanguageCode, TtsExportSource } from '@votingworks/types';
 import { H3, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 
 import * as api from '../api';
@@ -35,7 +35,7 @@ const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
 
 export interface AudioEditorProps {
   electionId: string;
-  languageCode: string;
+  languageCode: LanguageCode;
   jurisdictionId: string;
   ttsDefault: TtsStringDefault;
 }

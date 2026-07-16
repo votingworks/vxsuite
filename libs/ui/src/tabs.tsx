@@ -49,7 +49,7 @@ export function RouterTabBar(props: RouterTabBarProps): JSX.Element {
   return (
     <TabBar className={className}>
       {tabs.map((tab) => {
-        const isActive = location.pathname === tab.path;
+        const isActive = location.pathname.startsWith(tab.path);
         return (
           <TabButton
             key={tab.path}
