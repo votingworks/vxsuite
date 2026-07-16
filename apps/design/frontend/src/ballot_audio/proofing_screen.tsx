@@ -381,6 +381,7 @@ export function LanguageProofingScreen(): React.ReactNode {
               stringKey !== ElectionStringKey.CANDIDATE_NAME && (
                 <Translation
                   electionId={electionId}
+                  key={`${stringKey}-${subkey}-${language}`}
                   language={language}
                   stringKey={currentString.key}
                   subKey={currentString.subkey}
