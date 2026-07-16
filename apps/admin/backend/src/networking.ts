@@ -161,7 +161,7 @@ export function startHostNetworking({
           }
         }
 
-        if (otherHosts.length > 1) {
+        if (otherHosts.length >= 1) {
           logStatusTransition('multipleHosts', {
             hostCount: String(otherHosts.length),
           });
