@@ -356,9 +356,19 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     let raw = ballot_image.image().as_raw();
     let thresh = ballot_image.threshold();
 
-    // Two reusable buffers for binarized column data, swapped each iteration
-    // to avoid per-column Vec allocations and re-computing single-column streak
-    // data for each column.
+    // Count the black pixels in every column in a single row-major pass (the
+    // image data is stored row-major, so walking columns directly would miss
+    // cache on nearly every access). Only columns whose count clears
+    // MIN_ONE_COLUMN_STREAK_SCORE — usually none — need the detailed
+    // two-column analysis below, which reads just those columns.
+    let mut column_black_counts = vec![0u32; width_usize];
+    for row in raw.chunks_exact(width_usize) {
+        for (count, &p) in column_black_counts.iter_mut().zip(row.iter()) {
+            *count += u32::from(p <= thresh);
+        }
+    }
+
+    // Two reusable buffers for binarized column data of candidate columns.
     let mut cur_col = vec![false; height_usize];
     let mut next_col = vec![false; height_usize];
 
@@ -370,17 +380,16 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
         }
     };
 
-    fill_column(&mut cur_col, x_range.start as usize);
-    let mut cur_black_count: usize = cur_col.iter().filter(|&&b| b).count();
-
     let mut uncoalesced: Vec<VerticalStreak> = Vec::new();
     for x in x_range.start..=x_range.end - 2 {
         debug_assert!(x_range.contains(&(x + 1)));
-        fill_column(&mut next_col, (x + 1) as usize);
-        let next_black_count: usize = next_col.iter().filter(|&&b| b).count();
+        let cur_black_count = column_black_counts[x as usize];
 
         let column_streak_score = UnitIntervalScore(cur_black_count as f32 / height as f32);
         if column_streak_score >= MIN_ONE_COLUMN_STREAK_SCORE {
+            fill_column(&mut cur_col, x as usize);
+            fill_column(&mut next_col, (x + 1) as usize);
+
             // Compute two-column stats inline without allocating.
             let mut num_two_column_black = 0u32;
             let mut longest_white_gap: PixelUnit = 0;
@@ -403,6 +412,7 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
             if two_column_streak_score >= MIN_TWO_COLUMN_STREAK_SCORE
                 && longest_white_gap <= MAX_WHITE_GAP_PIXELS
             {
+                let next_black_count = column_black_counts[(x + 1) as usize];
                 let next_column_streak_score =
                     UnitIntervalScore(next_black_count as f32 / height as f32);
                 if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
@@ -420,9 +430,6 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
                 }
             }
         }
-
-        swap(&mut cur_col, &mut next_col);
-        cur_black_count = next_black_count;
     }
 
     let streaks = uncoalesced
