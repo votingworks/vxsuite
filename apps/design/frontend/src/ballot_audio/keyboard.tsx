@@ -99,9 +99,8 @@ export interface Phoneme {
 type Alphabet = 'ipa' | 'vx';
 
 const consonantModifier = {
-  regular: 'ə',
   ipa: 'ə',
-  'x-sampa': '@',
+  vx: 'ə',
 } as const;
 
 export function Keyboard(props: {

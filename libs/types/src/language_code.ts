@@ -11,16 +11,6 @@ export enum LanguageCode {
 }
 
 export const LanguageCodeSchema: z.ZodType<LanguageCode> = z.enum(LanguageCode);
-
-export const ORDERED_LANGUAGE_CODES = Object.values(LanguageCode).sort(
-  /* istanbul ignore next */
-  (a, b) => {
-    if (a === LanguageCode.ENGLISH) return -1;
-    if (b === LanguageCode.ENGLISH) return 1;
-    return a.localeCompare(b);
-  }
-);
-
 export type NonEnglishLanguageCode = Exclude<
   LanguageCode,
   LanguageCode.ENGLISH

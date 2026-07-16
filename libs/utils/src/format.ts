@@ -1,4 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
+import { LanguageCode } from '@votingworks/types';
 import { DateTime } from 'luxon';
 
 export const DEFAULT_LOCALE: string = 'en';
@@ -125,6 +126,51 @@ export function languageDisplayName(params: {
     displayLanguageCode = languageCode,
     style = 'narrow',
   } = params;
+
+  return assertDefined(
+    // TODO(kofi): This util doesn't currently have a comprehensive list of
+    // native language names for all languages, so probably better to find a
+    // reliably sourced list and hardcode the mappings instead.
+    // This at least works for the top 10 spoken in the US and is sufficient for
+    // cert.
+    new Intl.DisplayNames([displayLanguageCode], {
+      style,
+      type: 'language',
+      fallback: 'none',
+    }).of(languageCode),
+    `unexpected missing language display name for ${languageCode} in ${displayLanguageCode}`
+  );
+}
+
+export function languageDisplayName2(params: {
+  languageCode: string;
+
+  /** @default {@link params.languageCode} */
+  displayLanguageCode?: string;
+
+  /** @default 'narrow' */
+  style?: Intl.RelativeTimeFormatStyle;
+}): string {
+  const {
+    languageCode,
+    displayLanguageCode = languageCode,
+    style = 'narrow',
+  } = params;
+
+  if (displayLanguageCode === LanguageCode.ENGLISH) {
+    // Override Chinese language English labels so they sort together:
+    if (languageCode === LanguageCode.CHINESE_SIMPLIFIED) {
+      return 'Chinese (Simplified)';
+    }
+    if (languageCode === LanguageCode.CHINESE_TRADITIONAL) {
+      return 'Chinese (Traditional)';
+    }
+
+    // Omit the "(US)" qualifier for Spanish since it's the national default:
+    if (languageCode === LanguageCode.SPANISH) {
+      return 'Spanish';
+    }
+  }
 
   return assertDefined(
     // TODO(kofi): This util doesn't currently have a comprehensive list of
