@@ -2,7 +2,7 @@ import { assertDefined, sleep } from '@votingworks/basics';
 import { safeParseNumber } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { CircleCiClient } from '../src/circleci_client';
@@ -12,6 +12,7 @@ import {
   TERMINAL_WORKFLOW_STATUSES,
   uploadPackage,
 } from './trigger_nh_qa';
+import { ELECTION_PACKAGES_DIR } from './nh_deliverable_layout';
 
 // Pace the trigger API calls so a large batch doesn't trip CircleCI's API rate
 // limit, and space out status polls.
@@ -27,6 +28,9 @@ interface Args {
   projectSlug: string;
   triggerDelayMs: number;
   maxInflight: number;
+  // Rebuild the summary (adding report links) from an existing qa-results.json
+  // without re-triggering any pipelines.
+  refresh: boolean;
 }
 
 function parseArgs(argv: readonly string[]): Args | undefined {
@@ -34,9 +38,12 @@ function parseArgs(argv: readonly string[]): Args | undefined {
   let projectSlug = DEFAULT_PROJECT_SLUG;
   let triggerDelayMs = TRIGGER_DELAY_MS;
   let maxInflight = Number.POSITIVE_INFINITY;
+  let refresh = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg === '--slug') {
+    if (arg === '--refresh') {
+      refresh = true;
+    } else if (arg === '--slug') {
       i += 1;
       projectSlug = argv[i];
     } else if (arg === '--trigger-delay-ms') {
@@ -65,7 +72,13 @@ function parseArgs(argv: readonly string[]): Args | undefined {
   if (positionals.length !== 1) {
     return undefined;
   }
-  return { outDir: positionals[0], projectSlug, triggerDelayMs, maxInflight };
+  return {
+    outDir: positionals[0],
+    projectSlug,
+    triggerDelayMs,
+    maxInflight,
+    refresh,
+  };
 }
 
 interface TownPackage {
@@ -73,18 +86,17 @@ interface TownPackage {
   zipPath: string;
 }
 
-// render_nh_election_package writes <outDir>/<Town>/election-package-*.zip.
+// render_nh_election_package writes
+// <outDir>/election-packages/<Town> - election-package-<hash>.zip.
 function discoverPackages(outDir: string): TownPackage[] {
+  const packagesDir = join(outDir, ELECTION_PACKAGES_DIR);
+  if (!existsSync(packagesDir)) return [];
   const packages: TownPackage[] = [];
-  for (const town of readdirSync(outDir).sort()) {
-    const townDir = join(outDir, town);
-    if (!statSync(townDir).isDirectory()) continue;
-    const zipName = readdirSync(townDir).find(
-      (f) => f.startsWith('election-package-') && f.endsWith('.zip')
-    );
-    if (zipName) {
-      packages.push({ town, zipPath: join(townDir, zipName) });
-    }
+  for (const file of readdirSync(packagesDir).sort()) {
+    if (!file.endsWith('.zip')) continue;
+    const match = file.match(/^(.*) - election-package-.*\.zip$/);
+    const town = match ? match[1] : file.replace(/\.zip$/, '');
+    packages.push({ town, zipPath: join(packagesDir, file) });
   }
   return packages;
 }
@@ -135,45 +147,69 @@ async function fetchJobs(
   }));
 }
 
+interface Artifact {
+  path: string;
+  url: string;
+}
+
+// All artifacts across a workflow's jobs.
+async function fetchArtifacts(
+  jobNumbers: readonly number[],
+  projectSlug: string,
+  token: string
+): Promise<Artifact[]> {
+  const all: Artifact[] = [];
+  for (const jobNumber of jobNumbers) {
+    try {
+      const items = ((
+        await circleCiGet(
+          `/project/${projectSlug}/${jobNumber}/artifacts`,
+          token
+        )
+      )['items'] ?? []) as Artifact[];
+      all.push(...items);
+    } catch {
+      // Best effort -- a missing artifact list just means no report link.
+    }
+  }
+  return all;
+}
+
+function reportUrlOf(artifacts: readonly Artifact[]): string | undefined {
+  return artifacts.find((a) => basename(a.path) === 'report.html')?.url;
+}
+
 // Best-effort: pull run.log/report.html for a failed town into destDir so the
 // failure can be read locally instead of via expiring artifact URLs.
-async function downloadFailureArtifacts(
-  jobs: readonly JobInfo[],
-  projectSlug: string,
+async function downloadArtifacts(
+  artifacts: readonly Artifact[],
+  names: ReadonlySet<string>,
   token: string,
   destDir: string
 ): Promise<void> {
   await mkdir(destDir, { recursive: true });
-  for (const job of jobs) {
-    if (!job.jobNumber) continue;
-    let items: Array<{ path: string; url: string }>;
+  for (const artifact of artifacts) {
+    if (!names.has(basename(artifact.path))) continue;
     try {
-      items = ((
-        await circleCiGet(
-          `/project/${projectSlug}/${job.jobNumber}/artifacts`,
-          token
-        )
-      )['items'] ?? []) as Array<{ path: string; url: string }>;
-    } catch {
-      continue;
-    }
-    for (const artifact of items) {
-      if (!FAILURE_ARTIFACT_NAMES.has(basename(artifact.path))) continue;
-      try {
-        const response = await fetch(artifact.url, {
-          headers: { 'Circle-Token': token },
-        });
-        if (response.ok) {
-          await writeFile(
-            join(destDir, basename(artifact.path)),
-            Buffer.from(await response.arrayBuffer())
-          );
-        }
-      } catch {
-        // Best effort -- the pipeline URL in the summary is the fallback.
+      const response = await fetch(artifact.url, {
+        headers: { 'Circle-Token': token },
+      });
+      if (response.ok) {
+        await writeFile(
+          join(destDir, basename(artifact.path)),
+          Buffer.from(await response.arrayBuffer())
+        );
       }
+    } catch {
+      // Best effort -- the pipeline URL in the summary is the fallback.
     }
   }
+}
+
+function jobNumbersOf(jobs: readonly JobInfo[]): number[] {
+  return jobs
+    .map((job) => job.jobNumber)
+    .filter((n): n is number => n !== undefined);
 }
 
 interface TownResult {
@@ -182,6 +218,9 @@ interface TownResult {
   passed: boolean;
   pipelineUrl: string;
   jobs: string[];
+  // CircleCI artifact URL of the QA report.html (viewable in a browser session
+  // authenticated to CircleCI). Absent if the job produced no report.
+  reportUrl?: string;
 }
 
 interface BatchResult {
@@ -253,12 +292,17 @@ async function runBatch(
         if (state && TERMINAL_WORKFLOW_STATUSES.has(state.status)) {
           const passed = state.status === 'success';
           const jobs = await fetchJobs(state.workflowId, projectSlug, token);
+          const artifacts = await fetchArtifacts(
+            jobNumbersOf(jobs),
+            projectSlug,
+            token
+          );
           if (!passed) {
-            await downloadFailureArtifacts(
-              jobs,
-              projectSlug,
+            await downloadArtifacts(
+              artifacts,
+              FAILURE_ARTIFACT_NAMES,
               token,
-              join(dirname(e.zipPath), 'qa-report')
+              join(dirname(e.zipPath), 'qa-report', e.town)
             );
           }
           results.push({
@@ -267,6 +311,7 @@ async function runBatch(
             passed,
             pipelineUrl: e.pipelineUrl,
             jobs: jobs.map((job) => `${job.name}: ${job.url}`),
+            reportUrl: reportUrlOf(artifacts),
           });
           inflight.delete(pipelineId);
           console.log(
@@ -296,13 +341,20 @@ async function runBatch(
 
 function formatSummary(results: readonly TownResult[]): string {
   const sorted = [...results].sort((a, b) => a.town.localeCompare(b.town));
-  const lines = sorted.map(
-    (r) =>
-      `${r.passed ? 'PASS' : 'FAIL'}  ${r.town.padEnd(28)} ${r.pipelineUrl}`
-  );
+  const lines = sorted.flatMap((r) => {
+    const status = `${r.passed ? 'PASS' : 'FAIL'}  ${r.town.padEnd(28)}`;
+    const line = `${status} ${r.pipelineUrl}`;
+    // Indent the report link under the pipeline line so the columns stay clean.
+    return r.reportUrl
+      ? [line, `${' '.repeat(status.length)} report: ${r.reportUrl}`]
+      : [line];
+  });
   const failed = sorted.filter((r) => !r.passed);
   if (failed.length > 0) {
-    lines.push('', 'Failed job links (reports saved to <town>/qa-report/):');
+    lines.push(
+      '',
+      'Failed job links (reports saved to election-packages/qa-report/<town>/):'
+    );
     for (const r of failed) {
       lines.push(`  ${r.town}`);
       for (const job of r.jobs) {
@@ -318,13 +370,63 @@ function formatSummary(results: readonly TownResult[]): string {
   return lines.join('\n');
 }
 
-const USAGE = `Usage: trigger_nh_qa_batch <out-dir> [--slug <gh/org/repo>] [--max-inflight <n>] [--trigger-delay-ms <ms>]
+async function writeSummary(
+  outDir: string,
+  results: readonly TownResult[]
+): Promise<void> {
+  const summary = formatSummary(results);
+  console.log(`\n${summary}`);
+  await writeFile(join(outDir, 'qa-summary.txt'), `${summary}\n`);
+  await writeFile(
+    join(outDir, 'qa-results.json'),
+    `${JSON.stringify(results, null, 2)}\n`
+  );
+}
+
+// Rebuild the summary + results for a completed run, adding each town's
+// report.html link, without re-triggering any pipelines. Reads the job numbers
+// recorded in qa-results.json and fetches their artifacts.
+async function refreshSummary(
+  outDir: string,
+  projectSlug: string,
+  token: string
+): Promise<number> {
+  const resultsPath = join(outDir, 'qa-results.json');
+  if (!existsSync(resultsPath)) {
+    console.error(`No qa-results.json found in ${outDir}`);
+    return 1;
+  }
+  const results = JSON.parse(readFileSync(resultsPath, 'utf8')) as TownResult[];
+  console.log(`Refreshing report links for ${results.length} town(s)...`);
+  for (const result of results) {
+    const jobNumbers = result.jobs
+      .map((job) => job.match(/\/jobs\/(\d+)/)?.[1])
+      .filter((n): n is string => n !== undefined)
+      .map(Number);
+    const artifacts = await fetchArtifacts(jobNumbers, projectSlug, token);
+    result.reportUrl = reportUrlOf(artifacts);
+    console.log(
+      `  ${result.reportUrl ? '✓' : '·'} ${result.town}${
+        result.reportUrl ? '' : ' (no report artifact)'
+      }`
+    );
+    await sleep(POLL_SPACING_MS);
+  }
+  await writeSummary(outDir, results);
+  return 0;
+}
+
+const USAGE = `Usage: trigger_nh_qa_batch <out-dir> [--refresh] [--slug <gh/org/repo>] [--max-inflight <n>] [--trigger-delay-ms <ms>]
 
 Triggers the vx-qa pipeline for every town package under <out-dir> (the output
-of render_nh_election_package: <out-dir>/<Town>/election-package-*.zip), polling
-to completion. Writes <out-dir>/qa-summary.txt and qa-results.json, and saves
-failing towns' run.log/report.html to <out-dir>/<Town>/qa-report/.
+of render_nh_election_package: <out-dir>/election-packages/<Town> - election-package-*.zip),
+polling to completion. Writes <out-dir>/qa-summary.txt and qa-results.json, and
+saves failing towns' run.log/report.html to
+<out-dir>/election-packages/qa-report/<Town>/.
 
+  --refresh            Don't trigger anything: rebuild qa-summary.txt /
+                       qa-results.json from the existing qa-results.json,
+                       adding each town's report.html link.
   --max-inflight <n>   Cap the number of pipelines running at once (default:
                        unbounded -- enqueue all and let CircleCI's queue limit
                        concurrency). Use this to avoid saturating shared CI.
@@ -343,6 +445,10 @@ export async function main(argv: readonly string[]): Promise<number> {
   if (!token) {
     console.error('CIRCLECI_API_TOKEN must be set (VxQA Admin API token).');
     return 1;
+  }
+
+  if (args.refresh) {
+    return refreshSummary(args.outDir, args.projectSlug, token);
   }
 
   const packages = discoverPackages(args.outDir);
@@ -374,13 +480,7 @@ export async function main(argv: readonly string[]): Promise<number> {
     })),
   ];
 
-  const summary = formatSummary(results);
-  console.log(`\n${summary}`);
-  await writeFile(join(args.outDir, 'qa-summary.txt'), `${summary}\n`);
-  await writeFile(
-    join(args.outDir, 'qa-results.json'),
-    `${JSON.stringify(results, null, 2)}\n`
-  );
+  await writeSummary(args.outDir, results);
 
   return results.every((r) => r.passed) ? 0 : 1;
 }

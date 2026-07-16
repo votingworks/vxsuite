@@ -22,6 +22,12 @@ import {
 export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
   isHandCount?: boolean;
   isFederalOfficeOnly?: boolean;
+  // UOCAVA (overseas/military) ballots are printed in the field, often on
+  // single-sided printers, and are hand-counted. They match their absentee
+  // counterpart's content but omit the machine-scanning apparatus (timing marks
+  // + QR/ballot hash) and are emitted as a single page (see the single-page
+  // reduction in the render scripts).
+  isUocava?: boolean;
 };
 
 const FONT_DECLARATIONS = css`
@@ -334,25 +340,31 @@ export function Footer({
   ballotMode,
   isHandCount,
   isFederalOfficeOnly,
+  isUocava,
 }: {
   pageNumber: number;
   totalPages?: number;
   ballotMode?: BallotMode;
   isHandCount?: boolean;
   isFederalOfficeOnly?: boolean;
+  isUocava?: boolean;
 }): JSX.Element {
   // The QR code and ballot hash identify a ballot for machine scanning, so they
-  // don't belong on ballots that aren't scanned. Hand-count and
-  // federal-office-only ballots are never tabulated by machine (and hand-count
-  // ballots get no election package at all), so we collapse the slot entirely
+  // don't belong on ballots that aren't scanned. Hand-count, federal-office-only,
+  // and UOCAVA ballots are never tabulated by machine (and hand-count ballots get
+  // no election package at all), so we collapse the slot entirely
   // (`display: none`) and reclaim its footer height -- this can keep a ballot on
   // a smaller paper size. Those variants are excluded from the ballot-position
   // consistency check in render_ballot, so dropping the slot is safe. A sample,
   // by contrast, must lay out identically to its official counterpart, so we
   // keep the slot's footprint (`visibility: hidden`): the "0000000" placeholder
   // stays out of sight but the footer height matches.
-  const collapseBallotMetadata = isHandCount || isFederalOfficeOnly;
+  const collapseBallotMetadata = isHandCount || isFederalOfficeOnly || isUocava;
   const hideBallotMetadata = ballotMode === 'sample';
+  // Federal-office-only and UOCAVA ballots are reduced to a single page after
+  // rendering (they're field-printed, often on single-sided printers), so the
+  // "VOTE BOTH SIDES" prompt would be misleading -- there is no second side.
+  const isSingleSided = isFederalOfficeOnly || isUocava;
   return (
     <div
       style={{
@@ -381,7 +393,7 @@ export function Footer({
           <BallotHashSlot />
         </div>
       </div>
-      {pageNumber === 1 && pageNumber !== totalPages && (
+      {pageNumber === 1 && pageNumber !== totalPages && !isSingleSided && (
         <div
           style={{
             flex: 1,

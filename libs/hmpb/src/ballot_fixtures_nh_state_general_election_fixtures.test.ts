@@ -43,4 +43,8 @@ test('NH state general election fixtures', async () => {
     generated.federalOfficeOnlyBlankBallotPdf,
     fixtures.federalOfficeOnlyBlankBallotPath
   );
+  await expectToMatchSavedPdf(
+    generated.uocavaBlankBallotPdf,
+    fixtures.uocavaBlankBallotPath
+  );
 });

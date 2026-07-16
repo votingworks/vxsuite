@@ -163,11 +163,19 @@ export function createBallotPropsForTemplate(
   function buildNhStateBallotProps(
     props: BaseBallotProps
   ): NhStateBallotProps[] {
+    // For each official absentee ballot, also produce the field-distributed
+    // variants that share its content: a federal-office-only ballot and a UOCAVA
+    // (overseas/military) ballot. Both are single-page and omit the
+    // machine-scanning apparatus; see the render scripts for the single-page
+    // reduction.
     return [
       props,
       ...(props.ballotMode === 'official' &&
       props.ballotType === BallotType.Absentee
-        ? [{ ...props, isFederalOfficeOnly: true }]
+        ? [
+            { ...props, isFederalOfficeOnly: true },
+            { ...props, isUocava: true },
+          ]
         : []),
     ];
   }

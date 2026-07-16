@@ -27,13 +27,14 @@ export interface TownGroup {
 const BALLOT_STYLE_FILENAME = /^(\d{5}) (DEM|REP) (.*)\.json$/;
 
 function variantFromPath(path: string): Variant | undefined {
-  if (
-    path.includes('VotingWorks Eric Forcier') ||
-    path.includes('voting-works')
-  ) {
+  // NH drops have used a few folder namings for the two sets: "VotingWorks
+  // Eric Forcier"/"Hand Count Eric Forcier", the hyphenated "voting-works"/
+  // "hand-count", and the plain "VotingWorks"/"Hand Count" (possibly with a
+  // date suffix like "Hand Count 7-6"). Match any of them.
+  if (path.includes('voting-works') || path.includes('VotingWorks')) {
     return 'VotingWorks';
   }
-  if (path.includes('Hand Count Eric Forcier') || path.includes('hand-count')) {
+  if (path.includes('hand-count') || path.includes('Hand Count')) {
     return 'HandCount';
   }
   return undefined;

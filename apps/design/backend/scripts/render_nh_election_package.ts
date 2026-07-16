@@ -16,6 +16,7 @@ import {
   convertPdfToSpotColor,
   createPlaywrightRendererPool,
   hmpbStringsCatalog,
+  reducePdfToFirstPage,
   renderAllBallotPdfsAndCreateElectionDefinition,
   renderBallotTemplate,
   renderNhRovForm,
@@ -33,13 +34,12 @@ import JsZip from 'jszip';
 import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../src/ballots';
-import { getBallotPdfFileName } from '../src/utils';
 import { stateDefaultSystemSettings } from '../src/system_settings';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
 import {
@@ -48,6 +48,12 @@ import {
   resolveLatestVersions,
   TownGroup,
 } from './nh_delivery';
+import {
+  deliverableBallotPath,
+  deliverablePackagePath,
+  deliverableRovPath,
+  deliverableType,
+} from './nh_deliverable_layout';
 
 // NH elections serialize at software version v4.0. cdf is asserted incompatible
 // with v4.0, so the format must be vxf.
@@ -160,7 +166,8 @@ interface TownResult {
   townName: string;
   variant: string;
   paperSize: HmpbBallotPaperSize;
-  packageFile: string;
+  // Hand-count towns get ballots + ROV forms but no election package.
+  packageFile?: string;
   ballotCount: number;
 }
 
@@ -247,96 +254,111 @@ async function renderTownPackage(
     })
   );
 
-  // 7. Assemble the election package zip (8 standard entries; audio omitted).
-  const metadata: ElectionPackageMetadata = LATEST_METADATA;
-  const zip = createDeterministicZip();
-  zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
-  zip.file(
-    ElectionPackageFileName.APP_STRINGS,
-    JSON.stringify(appStrings, null, 2)
-  );
-  zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
-  zip.file(
-    ElectionPackageFileName.SYSTEM_SETTINGS,
-    JSON.stringify(stateDefaultSystemSettings.NH, null, 2)
-  );
-  zip.file(
-    ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
-    JSON.stringify({}, null, 2)
-  );
-  // Only machine-scannable ballots belong in the encoded set. Sample ballots
-  // and federal-office-only ("-foo") variants intentionally have no timing
-  // marks (NH hand-counts them), so scanning them fails; exclude both. Their
-  // loose PDFs are still written below for the handoff.
-  const encodedBallots = props
-    .map((p, i) => ({ p, i }))
-    .filter(({ p }) => p.ballotMode === 'official' && !p.isFederalOfficeOnly)
-    .map(({ p, i }) => {
-      const entry: EncodedBallotEntry = {
-        ballotStyleId: p.ballotStyleId,
-        precinctId: p.precinctId,
-        ballotType: p.ballotType,
-        ballotMode: p.ballotMode,
-        watermark: p.watermark,
-        // NH state ballots ignore `compact` (the template omits it); it's built
-        // with compact: false, so record that.
-        compact: false,
-        ballotAuditId: p.ballotAuditId,
-        encodedBallot: Buffer.from(ballotPdfs[i]).toString('base64'),
-      };
-      return JSON.stringify(entry);
-    })
-    .join('\n');
-  zip.file(ElectionPackageFileName.BALLOTS, `${encodedBallots}\n`);
-
-  const zipContents = await zip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
-  const combinedHash = formatElectionHashes(
-    electionDefinition.ballotHash,
-    sha256(zipContents)
-  );
-
-  // 8. Write handoff artifacts: package zip, loose ballot PDFs, ROV forms.
-  const townDir = join(outDir, sanitize(townName));
-  await mkdir(join(townDir, 'ballots'), { recursive: true });
-  await mkdir(join(townDir, 'rov'), { recursive: true });
-
-  const packageName = `election-package-${combinedHash}.zip`;
-  await writeFile(join(townDir, packageName), zipContents);
-
-  // Loose ballot PDFs for the handoff. Inject the party abbrev into the
-  // production filename so DEM/REP ballots are legible at a glance (the encoded
-  // ballots inside the package keep the standard scheme).
-  await Promise.all(
-    props.map((p, i) => {
-      const ballotStyle = assertDefined(
-        election.ballotStyles.find((bs) => bs.id === p.ballotStyleId)
-      );
-      const party = election.parties.find(
-        (pp) => pp.id === ballotStyle.partyId
-      );
-      const fileName = party
-        ? getBallotPdfFileName(p).replace(
-            p.ballotStyleId,
-            `${party.abbrev}-${p.ballotStyleId}`
-          )
-        : getBallotPdfFileName(p);
-      return writeFile(join(townDir, 'ballots', fileName), ballotPdfs[i]);
-    })
-  );
-
-  // Return of Votes form per ballot style. Render them in a single pool batch --
-  // the renderer pool allows only one set of tasks running at a time.
-  const rovLabels = election.ballotStyles.map((ballotStyle) => {
+  // Per ballot style, the town/ward label and party used to place its PDFs in
+  // the deliverable tree.
+  function ballotStyleLabels(ballotStyleId: string) {
+    const ballotStyle = assertDefined(
+      election.ballotStyles.find((bs) => bs.id === ballotStyleId)
+    );
+    const party = election.parties.find((p) => p.id === ballotStyle.partyId);
+    const partyAbbrev = party ? party.abbrev : 'NONPARTISAN';
     const precinct = assertDefined(
       election.precincts.find((p) => p.id === ballotStyle.precincts[0])
     );
-    const party = election.parties.find((p) => p.id === ballotStyle.partyId);
     const ward = precinct.name === townName ? '' : ` ${precinct.name}`;
-    return sanitize(`${townName}${ward} ${party ? party.name : ''}`);
-  });
+    return { party, partyAbbrev, townWard: sanitize(`${townName}${ward}`) };
+  }
+
+  // 7. Machine-scannable towns get an election package zip (8 standard entries,
+  //    audio omitted). Hand-count towns are never scanned, so they get no
+  //    package. Zips live flat under <out-dir>/election-packages/.
+  let packageFile: string | undefined;
+  if (!isHandCount) {
+    const metadata: ElectionPackageMetadata = LATEST_METADATA;
+    const zip = createDeterministicZip();
+    zip.file(
+      ElectionPackageFileName.METADATA,
+      JSON.stringify(metadata, null, 2)
+    );
+    zip.file(
+      ElectionPackageFileName.APP_STRINGS,
+      JSON.stringify(appStrings, null, 2)
+    );
+    zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
+    zip.file(
+      ElectionPackageFileName.SYSTEM_SETTINGS,
+      JSON.stringify(stateDefaultSystemSettings.NH, null, 2)
+    );
+    zip.file(
+      ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+      JSON.stringify({}, null, 2)
+    );
+    // Only machine-scannable ballots belong in the encoded set. Sample,
+    // federal-office-only, and UOCAVA variants intentionally have no timing
+    // marks (NH hand-counts them), so scanning them fails; exclude them all.
+    // Their loose PDFs are still written below for the handoff.
+    const encodedBallots = props
+      .map((p, i) => ({ p, i }))
+      .filter(
+        ({ p }) =>
+          p.ballotMode === 'official' && !p.isFederalOfficeOnly && !p.isUocava
+      )
+      .map(({ p, i }) => {
+        const entry: EncodedBallotEntry = {
+          ballotStyleId: p.ballotStyleId,
+          precinctId: p.precinctId,
+          ballotType: p.ballotType,
+          ballotMode: p.ballotMode,
+          watermark: p.watermark,
+          // NH state ballots ignore `compact` (the template omits it); it's
+          // built with compact: false, so record that.
+          compact: false,
+          ballotAuditId: p.ballotAuditId,
+          encodedBallot: Buffer.from(ballotPdfs[i]).toString('base64'),
+        };
+        return JSON.stringify(entry);
+      })
+      .join('\n');
+    zip.file(ElectionPackageFileName.BALLOTS, `${encodedBallots}\n`);
+
+    const zipContents = await zip.generateAsync({
+      type: 'nodebuffer',
+      streamFiles: true,
+    });
+    const combinedHash = formatElectionHashes(
+      electionDefinition.ballotHash,
+      sha256(zipContents)
+    );
+    const relPath = deliverablePackagePath(sanitize(townName), combinedHash);
+    await mkdir(join(outDir, dirname(relPath)), { recursive: true });
+    packageFile = join(outDir, relPath);
+    await writeFile(packageFile, zipContents);
+  }
+
+  // 8. Loose ballot PDFs for the handoff, organized as
+  //    <out-dir>/<type>/<party>/<town-or-ward> - <party> - <type>.pdf.
+  //    Field-distributed variants (federal-office-only + UOCAVA) are reduced to
+  //    a single page.
+  await Promise.all(
+    props.map(async (p, i) => {
+      const { partyAbbrev, townWard } = ballotStyleLabels(p.ballotStyleId);
+      const singleSided = p.isFederalOfficeOnly || p.isUocava;
+      const pdf = singleSided
+        ? await reducePdfToFirstPage(ballotPdfs[i])
+        : ballotPdfs[i];
+      const relPath = deliverableBallotPath(
+        deliverableType(p),
+        partyAbbrev,
+        townWard
+      );
+      await mkdir(join(outDir, dirname(relPath)), { recursive: true });
+      return writeFile(join(outDir, relPath), pdf);
+    })
+  );
+
+  // 9. Return of Votes form per ballot style, into the parallel rov/ tree.
+  //    Render them in a single pool batch -- the renderer pool allows only one
+  //    set of tasks running at a time.
   const rovPdfs = await pool.runTasks(
     election.ballotStyles.map((ballotStyle) => async (renderer: Renderer) => {
       const rov = await renderNhRovForm(renderer, { election, ballotStyle });
@@ -345,15 +367,14 @@ async function renderTownPackage(
   );
   await Promise.all(
     rovPdfs.map(async (pdf, i) => {
-      const party = election.parties.find(
-        (p) => p.id === election.ballotStyles[i].partyId
+      const { party, partyAbbrev, townWard } = ballotStyleLabels(
+        election.ballotStyles[i].id
       );
       const spot = party && spotColorForParty(party);
       const rovPdf = spot ? await convertPdfToSpotColor(pdf, spot) : pdf;
-      return writeFile(
-        join(townDir, 'rov', `${rovLabels[i]} - ROV.pdf`),
-        rovPdf
-      );
+      const relPath = deliverableRovPath(partyAbbrev, townWard);
+      await mkdir(join(outDir, dirname(relPath)), { recursive: true });
+      return writeFile(join(outDir, relPath), rovPdf);
     })
   );
 
@@ -361,18 +382,20 @@ async function renderTownPackage(
     townName,
     variant: town.variant,
     paperSize,
-    packageFile: join(townDir, packageName),
+    packageFile,
     ballotCount: props.length,
   };
 }
 
-const USAGE = `Usage: render_nh_election_package <delivery-dir> <out-dir> <town-name-filter>
+const USAGE = `Usage: render_nh_election_package <delivery-dir> <out-dir> [town-name-filter]
 
-Generates a production-quality v4.0 election package (+ official/sample ballot
-PDFs and ROV forms) for each town matching the filter.`;
+Generates the final (unwatermarked) ballot deliverable for all towns, organized
+as <out-dir>/<type>/<party>/<town-or-ward> - <party> - <type>.pdf, plus ROV forms
+under <out-dir>/rov/. Machine-scanned (VotingWorks) towns additionally get a
+production v4.0 election package zip at <out-dir>/<town>/ for VxQA.`;
 
 export async function main(args: readonly string[]): Promise<number> {
-  if (args.length < 3) {
+  if (args.length < 2) {
     console.error(USAGE);
     return 1;
   }
@@ -382,27 +405,17 @@ export async function main(args: readonly string[]): Promise<number> {
   const { resolved } = resolveLatestVersions(
     discoverBallotStyleFiles(deliveryDir)
   );
-  const matching = groupByTown(resolved).filter((t) =>
-    t.townName.toLowerCase().includes(filter.toLowerCase())
-  );
-  // Hand-count towns aren't machine-scanned, so they don't get an election
-  // package -- skip them (they still get proofs via render_nh_batch).
-  const handCount = matching.filter((t) => t.variant === 'HandCount');
-  if (handCount.length > 0) {
-    console.log(
-      `Skipping ${
-        handCount.length
-      } hand-count town(s) (no election package needed): ${handCount
-        .map((t) => t.townName)
-        .join(', ')}`
+  let towns = groupByTown(resolved);
+  if (filter) {
+    towns = towns.filter((t) =>
+      t.townName.toLowerCase().includes(filter.toLowerCase())
     );
   }
-  const towns = matching.filter((t) => t.variant !== 'HandCount');
   if (towns.length === 0) {
-    console.error(`No VotingWorks towns match filter "${filter}"`);
+    console.error(`No towns match filter "${filter}"`);
     return 1;
   }
-  console.log(`Generating packages for ${towns.length} town(s) -> ${outDir}\n`);
+  console.log(`Generating ${towns.length} town(s) -> ${outDir}\n`);
 
   const pool = await createPlaywrightRendererPool();
   try {
@@ -410,7 +423,10 @@ export async function main(args: readonly string[]): Promise<number> {
       const result = await renderTownPackage(pool, town, outDir);
       console.log(
         `${result.townName} (${result.variant}): ${result.ballotCount} ballots, ` +
-          `${result.paperSize} -> ${result.packageFile}`
+          `${result.paperSize}` +
+          `${
+            result.packageFile ? ` -> ${result.packageFile}` : ' (no package)'
+          }`
       );
     }
   } finally {

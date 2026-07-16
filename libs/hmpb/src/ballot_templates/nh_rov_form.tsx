@@ -502,8 +502,11 @@ export function NhRovForm({
   );
 }
 
-// Write-in page constants
-const WRITE_IN_BLANK_ROWS = 5;
+// Write-in page constants. Four blank rows per contest keeps the whole write-in
+// summary on a single page (one sheet, front and back with the tally form) even
+// for the largest NH ballot styles; clerks can attach additional sheets per the
+// instructions if a race needs more room.
+const WRITE_IN_BLANK_ROWS = 4;
 
 function primaryWriteInInstructions(partyName: string): JSX.Element {
   const upperParty = partyName.toUpperCase();
@@ -633,8 +636,11 @@ function WriteInContest({
 
 // Split contests into pages. First page has less space due to header +
 // attestation, continuation pages have more room.
-const CONTESTS_PER_FIRST_PAGE = 12;
-const CONTESTS_PER_CONTINUATION_PAGE = 14;
+// Sized so every NH ballot style's write-in contests fit on a single page in the
+// 3-column layout (the largest has 17). If a future style exceeds this, the
+// summary spills to a continuation page rather than clipping.
+const CONTESTS_PER_FIRST_PAGE = 21;
+const CONTESTS_PER_CONTINUATION_PAGE = 21;
 
 function splitContestsIntoPages(
   contests: CandidateContest[]
@@ -814,10 +820,11 @@ function NhWriteInPages({
                 </div>
               )}
 
-              {/* Contests in 2-column layout */}
+              {/* Contests in 3-column layout (matches the tally form's density
+                  so the whole write-in summary fits on one page). */}
               <div
                 style={{
-                  columns: 2,
+                  columns: 3,
                   columnGap: '0.5rem',
                   flex: 1,
                 }}

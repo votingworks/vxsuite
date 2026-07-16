@@ -8,16 +8,18 @@ import {
   ballotTemplates,
   convertPdfToSpotColor,
   createPlaywrightRendererPool,
+  reducePdfToFirstPage,
   RenderDocument,
   Renderer,
   renderBallotTemplate,
   renderNhRovForm,
   spotColorForParty,
 } from '@votingworks/hmpb';
+import type { NhStateBallotProps } from '@votingworks/hmpb';
 import { assertDefined } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
 import {
   discoverBallotStyleFiles,
@@ -25,6 +27,11 @@ import {
   resolveLatestVersions,
   TownGroup,
 } from './nh_delivery';
+import {
+  deliverableBallotPath,
+  deliverableRovPath,
+  deliverableType,
+} from './nh_deliverable_layout';
 
 // Paper sizes tried in ascending height order for auto-fit. NH ballots are
 // single-sided, so a size "fits" when no contests spill onto the back page.
@@ -43,39 +50,58 @@ function sanitize(name: string): string {
 }
 
 interface BallotVariant {
-  suffix: string;
   ballotMode: 'official' | 'sample';
   ballotType: BallotType;
   isFederalOfficeOnly: boolean;
+  isUocava: boolean;
+  // Field-printed variants (UOCAVA + federal-office-only) go to voters who
+  // often lack duplex printers, so they must be reduced to a single page. NH
+  // auto-fits the paper size so all contests land on the front page, so dropping
+  // the (blank) back page loses no votable content.
+  singleSided: boolean;
 }
 
 // The variants produced for every ballot style, matching what NH expects:
 // the regular precinct ballot, an absentee ballot, a federal-office-only
-// (overseas/military) ballot, and a sample ballot.
+// (overseas/military) ballot, a UOCAVA (overseas/military) ballot, and a sample
+// ballot. `deliverableType` maps each to its /[type]/ folder name.
 const BALLOT_VARIANTS: BallotVariant[] = [
   {
-    suffix: 'precinct',
     ballotMode: 'official',
     ballotType: BallotType.Precinct,
     isFederalOfficeOnly: false,
+    isUocava: false,
+    singleSided: false,
   },
   {
-    suffix: 'absentee',
     ballotMode: 'official',
     ballotType: BallotType.Absentee,
     isFederalOfficeOnly: false,
+    isUocava: false,
+    singleSided: false,
   },
   {
-    suffix: 'federal-office-only',
     ballotMode: 'official',
     ballotType: BallotType.Absentee,
     isFederalOfficeOnly: true,
+    isUocava: false,
+    singleSided: true,
   },
   {
-    suffix: 'sample',
+    // UOCAVA matches the absentee ballot's content but omits the
+    // machine-scanning apparatus (timing marks + QR) and is a single page.
+    ballotMode: 'official',
+    ballotType: BallotType.Absentee,
+    isFederalOfficeOnly: false,
+    isUocava: true,
+    singleSided: true,
+  },
+  {
     ballotMode: 'sample',
     ballotType: BallotType.Precinct,
     isFederalOfficeOnly: false,
+    isUocava: false,
+    singleSided: false,
   },
 ];
 
@@ -98,7 +124,7 @@ function ballotStyleProps(
   ballotStyleId: string,
   isHandCount: boolean,
   variant: BallotVariant
-) {
+): NhStateBallotProps {
   const ballotStyle = assertDefined(
     election.ballotStyles.find((b) => b.id === ballotStyleId)
   );
@@ -108,9 +134,12 @@ function ballotStyleProps(
     ballotType: variant.ballotType,
     ballotStyleId,
     precinctId: ballotStyle.precincts[0],
-    watermark: 'PROOF' as const,
+    // Proofs are always watermarked; the unwatermarked finals come from
+    // render_nh_election_package.
+    watermark: 'PROOF',
     isHandCount,
     isFederalOfficeOnly: variant.isFederalOfficeOnly,
+    isUocava: variant.isUocava,
   };
 }
 
@@ -213,10 +242,6 @@ async function renderTown(
     ballotLayout: { ...baseElection.ballotLayout, paperSize },
   };
   const townName = election.jurisdiction.name;
-  const variantDir =
-    town.variant === 'HandCount' ? 'Hand Count' : 'VotingWorks';
-  const townDir = join(outDir, variantDir, sanitize(townName));
-  await mkdir(townDir, { recursive: true });
 
   const overflows: string[] = [];
   for (const ballotStyle of election.ballotStyles) {
@@ -224,8 +249,11 @@ async function renderTown(
       election.precincts.find((p) => p.id === ballotStyle.precincts[0])
     );
     const party = election.parties.find((p) => p.id === ballotStyle.partyId);
+    const partyAbbrev = party ? party.abbrev : 'NONPARTISAN';
+    // Leaf granularity is per town/ward: unwarded towns use the town name; a
+    // warded town adds the ward name to disambiguate its ballot styles.
     const ward = precinct.name === townName ? '' : ` ${precinct.name}`;
-    const label = sanitize(`${townName}${ward} ${party ? party.name : ''}`);
+    const townWard = sanitize(`${townName}${ward}`);
     // Print the ballot as two inks: the party's spot plate plus black.
     const spot = party && spotColorForParty(party);
     for (const variant of BALLOT_VARIANTS) {
@@ -236,13 +264,21 @@ async function renderTown(
           ballotStyleProps(election, ballotStyle.id, isHandCount, variant)
         )
       ).unsafeUnwrap();
-      // Verify every rendered ballot fits, not just the auto-fit probe.
+      // Verify every rendered ballot fits, not just the auto-fit probe. This
+      // also guards the single-sided variants: an overflow means dropping the
+      // back page would lose a contest.
+      const type = deliverableType(variant);
       if (await documentOverflowsToBack(document)) {
-        overflows.push(`${label} - ${variant.suffix}`);
+        overflows.push(`${townWard} ${partyAbbrev} - ${type}`);
       }
-      const pdf = await document.renderToPdf();
+      const fullPdf = await document.renderToPdf();
+      const pdf = variant.singleSided
+        ? await reducePdfToFirstPage(fullPdf)
+        : fullPdf;
+      const relPath = deliverableBallotPath(type, partyAbbrev, townWard);
+      await mkdir(join(outDir, dirname(relPath)), { recursive: true });
       await writeFile(
-        join(townDir, `${label} - ${variant.suffix}.pdf`),
+        join(outDir, relPath),
         spot ? await convertPdfToSpotColor(pdf, spot) : pdf
       );
     }
@@ -255,8 +291,10 @@ async function renderTown(
       ballotStyle,
     });
     const rovPdf = await rovDocument.renderToPdf();
+    const rovRelPath = deliverableRovPath(partyAbbrev, townWard);
+    await mkdir(join(outDir, dirname(rovRelPath)), { recursive: true });
     await writeFile(
-      join(townDir, `${label} - ROV.pdf`),
+      join(outDir, rovRelPath),
       spot ? await convertPdfToSpotColor(rovPdf, spot) : rovPdf
     );
   }
