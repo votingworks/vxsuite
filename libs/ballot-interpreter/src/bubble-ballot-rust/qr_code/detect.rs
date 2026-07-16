@@ -1,7 +1,7 @@
 use std::cell::OnceCell;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use image::{GenericImageView, GrayImage};
+use image::GrayImage;
 use serde::Serialize;
 use types_rs::{
     bmd, bubble_ballot,
@@ -11,6 +11,7 @@ use types_rs::{
 use crate::{
     ballot_card::Orientation,
     debug::{self, ImageDebugWriter},
+    image_utils::crop_to_image,
 };
 
 use super::{rqrr, zedbar};
@@ -66,14 +67,13 @@ impl<'a> DetectionArea<'a> {
 
     pub fn image(&self) -> &GrayImage {
         self.cropped.get_or_init(|| {
-            self.source
-                .view(
-                    self.origin.x,
-                    self.origin.y,
-                    self.size.width,
-                    self.size.height,
-                )
-                .to_image()
+            crop_to_image(
+                self.source,
+                self.origin.x,
+                self.origin.y,
+                self.size.width,
+                self.size.height,
+            )
         })
     }
 }
