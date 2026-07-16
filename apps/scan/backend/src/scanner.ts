@@ -16,9 +16,11 @@ import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ExportCastVoteRecordsToUsbDriveError,
   BallotMetadata,
+  BallotStyleId,
   HmpbBallotPaperSize,
   InsertedSmartCardAuth,
   PageInterpretation,
+  PrecinctId,
   PrecinctScannerState,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
@@ -330,6 +332,16 @@ type Event =
   | { type: 'BEGIN_SCANNER_DIAGNOSTIC' }
   | { type: 'END_SCANNER_DIAGNOSTIC' }
   | { type: 'AUTH_STATUS'; status: InsertedSmartCardAuth.AuthStatus };
+
+/**
+ * The interpreted votes and identity of a ballot held in the scanner while the
+ * voter reviews or confirms it before casting.
+ */
+interface HeldBallot {
+  votes: VotesDict;
+  ballotStyleId?: BallotStyleId;
+  precinctId?: PrecinctId;
+}
 
 function getVotesFromPage(page: PageInterpretation): VotesDict {
   return page.type === 'InterpretedHmpbPage' ||
@@ -1609,25 +1621,20 @@ export function createPrecinctScannerStateMachine({
       })();
 
       // While a ballot is held awaiting the voter's confirmation or review,
-      // surface the combined front/back votes so the frontend can display the
-      // voter's selections. Each contest appears on exactly one page, so a
-      // spread merge of the two pages' votes yields the full ballot's votes. The
-      // ballot style and precinct are surfaced alongside so the frontend can
-      // display the selections in ballot-rotation order.
+      // surface votes so the frontend can display the voter's selections.
       const statesWithHeldBallot: PrecinctScannerState[] = [
         'ready_to_accept',
         'needs_review',
         'accepting_after_review',
       ];
-      const heldBallot = (() => {
-        if (!statesWithHeldBallot.includes(scannerState) || !interpretation) {
-          return undefined;
-        }
+
+      let heldBallot: HeldBallot | undefined;
+      if (statesWithHeldBallot.includes(scannerState) && interpretation) {
         const [front, back] = interpretation.pages;
         const metadata =
           getMetadataFromPage(front.interpretation) ??
           getMetadataFromPage(back.interpretation);
-        return {
+        heldBallot = {
           votes: {
             ...getVotesFromPage(front.interpretation),
             ...getVotesFromPage(back.interpretation),
@@ -1635,7 +1642,7 @@ export function createPrecinctScannerStateMachine({
           ballotStyleId: metadata?.ballotStyleId,
           precinctId: metadata?.precinctId,
         };
-      })();
+      }
 
       const stateNeedsErrorDetails = [
         'rejecting',
