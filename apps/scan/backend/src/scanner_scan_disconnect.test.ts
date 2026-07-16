@@ -175,6 +175,11 @@ test('scanner disconnected while accepting', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -215,10 +220,15 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
       const deferredEject = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredEject.promise
       );
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
@@ -251,6 +261,11 @@ test('scanner disconnected after accepting', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,

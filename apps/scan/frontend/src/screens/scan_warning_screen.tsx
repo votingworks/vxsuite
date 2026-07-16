@@ -125,7 +125,7 @@ function MisvoteWarningScreen({
               onPress={onReview}
               disabled={hasReturnedBallot}
             >
-              {appStrings.buttonReviewChoices()}
+              {appStrings.buttonReviewYourVotes()}
             </Button>
           )}
         </React.Fragment>
@@ -183,7 +183,7 @@ function BlankBallotWarningScreen({
             onPress={onReview}
             disabled={hasReturnedBallot}
           >
-            {appStrings.buttonReviewChoices()}
+            {appStrings.buttonReviewYourVotes()}
           </Button>
         </React.Fragment>
       }
@@ -241,7 +241,7 @@ function CrossoverVotingWarningScreen({
             onPress={onReview}
             disabled={hasReturnedBallot}
           >
-            {appStrings.buttonReviewChoices()}
+            {appStrings.buttonReviewYourVotes()}
           </Button>
         </React.Fragment>
       }
@@ -299,7 +299,7 @@ function OtherReasonWarningScreen({
             onPress={onReview}
             disabled={hasReturnedBallot}
           >
-            {appStrings.buttonReviewChoices()}
+            {appStrings.buttonReviewYourVotes()}
           </Button>
         </React.Fragment>
       }

@@ -99,10 +99,15 @@ test('jam while accepting', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
       const deferredAccept = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredAccept.promise
       );
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
@@ -160,6 +165,11 @@ test('timeout while accepting', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
