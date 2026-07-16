@@ -121,7 +121,7 @@ async function setupHostAndClient(
   const logger = mockBaseLogger({ fn: vi.fn });
   const workspace = createWorkspace(tmpDir, logger);
   const { store } = workspace;
-  const peerApp = buildPeerApp({ workspace, logger });
+  const peerApp = buildPeerApp({ workspace, logger, machineId: hostMachineId });
   peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;
 
@@ -388,6 +388,7 @@ async function addElectionWithAdjudicableCvrs(
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
+  store.setIsClientAdjudicationEnabled(true);
   const cvrIds = addMockCvrFileToStore({
     electionId,
     mockCastVoteRecordFile: Array.from({ length: count }, () => ({
@@ -437,9 +438,11 @@ test('a ballot claimed via the peer API is released when the client goes stale',
   const peerApiClient = grout.createClient<PeerApi>({
     baseUrl: `http://127.0.0.1:${peerPort}/api`,
   });
-  const claimed = await peerApiClient.claimAndLoadBallot({
-    machineId: clientMachineId,
-  });
+  const claimed = (
+    await peerApiClient.claimAndLoadBallot({
+      machineId: clientMachineId,
+    })
+  ).unsafeUnwrap();
   expect(claimed?.cvrId).toEqual(cvrId);
   expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
 
@@ -490,9 +493,11 @@ test('a client logging out releases its ballot claim on the next heartbeat', asy
   const peerApiClient = grout.createClient<PeerApi>({
     baseUrl: `http://127.0.0.1:${peerPort}/api`,
   });
-  const claimed = await peerApiClient.claimAndLoadBallot({
-    machineId: clientMachineId,
-  });
+  const claimed = (
+    await peerApiClient.claimAndLoadBallot({
+      machineId: clientMachineId,
+    })
+  ).unsafeUnwrap();
   expect(claimed?.cvrId).toEqual(cvrId);
   expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
 

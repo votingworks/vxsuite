@@ -48,6 +48,7 @@ import { BaseStore } from '../src/types';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { buildPeerApp } from '../src/peer_app';
+import { getMachineConfig } from '../src/machine_config';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 import { getUserRole } from '../src/util/auth';
 
@@ -219,6 +220,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const peerApp = buildPeerApp({
     workspace,
     logger: peerLogger,
+    machineId: getMachineConfig().machineId,
   });
   const peerServer = peerApp.listen();
   const { port: peerPort } = peerServer.address() as AddressInfo;

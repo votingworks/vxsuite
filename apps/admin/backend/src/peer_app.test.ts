@@ -12,6 +12,7 @@ import {
 } from '@votingworks/fixtures';
 import { assertDefined, err, range } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import type { Result } from '@votingworks/basics';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 import { getCurrentTime } from './get_current_time';
 import {
@@ -29,12 +30,12 @@ async function claimBallot(
     claimAndLoadBallot: (input: {
       machineId: string;
       afterCvrId?: string;
-    }) => Promise<{ cvrId: string } | undefined>;
+    }) => Promise<Result<{ cvrId: string } | undefined, unknown>>;
   },
   input: { machineId: string; afterCvrId?: string }
 ): Promise<string | undefined> {
   const result = await peerApiClient.claimAndLoadBallot(input);
-  return result?.cvrId;
+  return result.unsafeUnwrap()?.cvrId;
 }
 
 beforeEach(() => {
@@ -118,6 +119,7 @@ test("connectToHost releases the client's claims when it transitions to OnlineLo
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 2);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   // Client logs in (Active) and claims a ballot.
   await peerApiClient.connectToHost({
@@ -153,6 +155,7 @@ test('connectToHost does not release claims when status stays Active or transiti
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   await peerApiClient.connectToHost({
     machineId: 'client-001',
@@ -285,6 +288,7 @@ test('claimBallot claims an unresolved CVR', async () => {
     electionDefinition
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 2);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const result1 = await claimBallot(peerApiClient, { machineId: 'client-001' });
   expect(cvrIds).toContain(result1);
@@ -307,6 +311,7 @@ test('parallel claims from more machines than ballots assign each ballot exactly
     electionDefinition
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 3);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const results = await Promise.all(
     range(1, 6).map((i) =>
@@ -330,6 +335,7 @@ test('releaseBallot frees a claimed CVR', async () => {
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
@@ -364,6 +370,7 @@ test("releaseBallot does not release another machine's claim", async () => {
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
@@ -393,6 +400,7 @@ test('claimAndLoadBallot advances past a just-completed ballot', async () => {
     electionDefinition
   );
   addTestCvrs(workspace.store, electionId, 3);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   // Arrange for client-001 to hold the SECOND ballot in queue order, with
   // the first ballot released back to the pool. The accept-and-next cursor
@@ -437,6 +445,7 @@ test('adjudicateCvr completes the ballot claim', async () => {
     electionDefinition
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 2);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const claimedCvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
@@ -637,6 +646,7 @@ test('adjudicateCvr returns claim-failed when machine has no claim', async () =>
     electionDefinition
   );
   const cvrIds = addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
 
   const result = await peerApiClient.adjudicateCvr({
     machineId: 'unknown-machine',
@@ -644,4 +654,87 @@ test('adjudicateCvr returns claim-failed when machine has no claim', async () =>
     contests: [],
   });
   expect(result).toEqual(err({ type: 'claim-failed' }));
+});
+
+test('adjudication endpoints reject requests when client adjudication is disabled', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  const cvrIds = addTestCvrs(workspace.store, electionId, 1);
+  const cvrId = assertDefined(cvrIds[0]);
+
+  // Client adjudication was never enabled — claims and adjudications are
+  // rejected at the peer API even if a client tries anyway
+  expect(
+    await peerApiClient.claimAndLoadBallot({ machineId: 'client-001' })
+  ).toEqual(err({ type: 'adjudication-disabled' }));
+  expect(
+    await peerApiClient.adjudicateCvr({
+      machineId: 'client-001',
+      cvrId,
+      contests: [],
+    })
+  ).toEqual(err({ type: 'adjudication-disabled' }));
+});
+
+test('adjudication endpoints reject requests when multiple hosts are detected', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  addTestCvrs(workspace.store, electionId, 1);
+  workspace.store.setIsClientAdjudicationEnabled(true);
+
+  const cvrId = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-001' })
+  );
+
+  // A second host appears on the network
+  workspace.store.setNetworkedMachineStatus(
+    'other-host',
+    'host',
+    Admin.ClientMachineStatus.Active
+  );
+
+  expect(
+    await peerApiClient.claimAndLoadBallot({ machineId: 'client-002' })
+  ).toEqual(err({ type: 'adjudication-disabled' }));
+  expect(
+    await peerApiClient.adjudicateCvr({
+      machineId: 'client-001',
+      cvrId,
+      contests: [],
+    })
+  ).toEqual(err({ type: 'adjudication-disabled' }));
+
+  // Release requests are ignored while adjudication is not allowed — claim
+  // cleanup is the host's responsibility in this state
+  await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });
+  expect(
+    workspace.store.hasBallotClaim({
+      electionId,
+      cvrId,
+      machineId: 'client-001',
+    })
+  ).toEqual(true);
+
+  // Once the other host goes offline, adjudication operations resume
+  workspace.store.setNetworkedMachineStatus(
+    'other-host',
+    'host',
+    Admin.ClientMachineStatus.Offline
+  );
+  await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });
+  expect(await claimBallot(peerApiClient, { machineId: 'client-002' })).toEqual(
+    cvrId
+  );
 });

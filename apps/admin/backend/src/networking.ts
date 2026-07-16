@@ -161,7 +161,7 @@ export function startHostNetworking({
           }
         }
 
-        if (otherHosts.length > 1) {
+        if (otherHosts.length >= 1) {
           logStatusTransition('multipleHosts', {
             hostCount: String(otherHosts.length),
           });
@@ -170,6 +170,22 @@ export function startHostNetworking({
         }
 
         store.cleanupStaleMachines();
+
+        // Client adjudication cannot run safely with multiple hosts on the
+        // network — disable it (which also releases all active ballot
+        // claims). It stays off until an election manager re-enables it.
+        if (
+          store.getIsClientAdjudicationEnabled() &&
+          store.getMultipleHostsDetected(machineId)
+        ) {
+          store.setIsClientAdjudicationEnabled(false);
+          logger.log(LogEventId.AdminClientAdjudicationToggled, 'system', {
+            message:
+              'Client adjudication disabled because multiple VxAdmin hosts were detected on the network.',
+            disposition: 'failure',
+            enabled: false,
+          });
+        }
       } finally {
         isPolling = false;
       }
