@@ -1,0 +1,10 @@
+# Build for x86-64-v3 (AVX2/BMI2/FMA) on x86_64 Linux, the production target:
+# the production SBC (Intel N97, Alder Lake-N) is v3-capable, as is any
+# x86_64 CPU from roughly 2015 onward. The vectorizable pixel loops (Otsu,
+# streak detection, bubble scoring, PNG bit-packing) benefit measurably.
+#
+# This section only applies when compiling for x86_64 Linux. macOS builds
+# (Apple Silicon or Intel) and other targets are unaffected, and setting the
+# RUSTFLAGS environment variable overrides it entirely.
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-cpu=x86-64-v3"]
