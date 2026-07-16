@@ -18,3 +18,48 @@ packages:
 
   # code exercises
   - 'docs/exercises'
+
+# Supply-chain and safety settings. These all match pnpm v11's defaults; we
+# adopt them early while on v10 so the v11 upgrade is a no-op here.
+
+# Don't install a newly published version until it has been on the registry for
+# at least this many minutes. Gives the community time to catch and yank
+# malicious releases (24h).
+minimumReleaseAge: 1440
+
+# Only direct dependencies may use exotic sources (git repos, tarball URLs);
+# transitive deps must resolve from the registry. We have no exotic deps, so
+# this is purely preventative.
+blockExoticSubdeps: true
+
+# Fail the install (rather than warn) if a dependency has an unreviewed build
+# script. Left off on v10: pnpm caches the ignored-builds state and re-emits the
+# error on incremental installs after any `allowBuilds` change (pnpm/pnpm#10528),
+# so every `allowBuilds` edit would force a clean reinstall across the team.
+# Unreviewed builds still warn. Enable this when we upgrade to v11 (where it is
+# the default and everyone reinstalls fresh anyway).
+strictDepBuilds: false
+
+# Fast up-to-date check before installing; speeds up repeat/no-op installs.
+optimisticRepeatInstall: true
+
+# Auto-run install before `pnpm run`/`pnpm exec` when node_modules is stale.
+verifyDepsBeforeRun: install
+
+# Which dependency build scripts may run. `true` = native/binary modules we
+# rely on and want built; `false` = packages whose postinstall we intentionally
+# skip (funding banners / unused codegen). This is pnpm v11's `allowBuilds` map,
+# which supersedes the v10 `onlyBuiltDependencies`/`ignoredBuiltDependencies`
+# fields (removed in v11). Combined with `strictDepBuilds`, any unlisted build
+# script fails the install until a human classifies it here.
+allowBuilds:
+  better-sqlite3: true
+  canvas: true
+  esbuild: true
+  node-hid: true
+  node-quirc: true
+  pcsclite: true
+  usb: true
+  core-js: false
+  core-js-pure: false
+  protobufjs: false
