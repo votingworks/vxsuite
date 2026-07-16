@@ -1,4 +1,4 @@
-import test, { expect } from '@playwright/test';
+import test, { expect, type Page } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
@@ -43,6 +43,20 @@ test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
   getMockUsbDriveHandler().cleanup();
 });
+
+/**
+ * A successfully scanned ballot is held in the scanner for the voter to confirm
+ * before it's counted. Both the confirm screen (valid ballots) and the detailed
+ * review screen (reached via "Review Your Votes" for flagged ballots) expose a
+ * "Cast Ballot" button. Waits for it to be enabled — the screen also renders
+ * briefly with buttons disabled while a previous ballot's acceptance is
+ * processed — then clicks it to cast.
+ */
+async function castHeldBallot(page: Page): Promise<void> {
+  const castBallotButton = page.getByRole('button', { name: 'Cast Ballot' });
+  await expect(castBallotButton).toBeEnabled({ timeout: 15000 });
+  await castBallotButton.click();
+}
 
 test('configuration', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
@@ -446,6 +460,11 @@ test('voting', async ({ page }, testInfo) => {
   mockPdiScannerHandler.insertSheet(fullPdf);
   await page.getByText('Please wait').waitFor({ timeout: 15000 });
   await screenshot('scanning');
+  // A valid ballot is held at the confirmation screen for the voter to cast or
+  // review before it's counted.
+  await page.getByText('Your ballot was scanned').waitFor({ timeout: 15000 });
+  await screenshot('ballot-scanned-confirm');
+  await castHeldBallot(page);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
   await screenshot('ballot-counted');
 
@@ -453,40 +472,53 @@ test('voting', async ({ page }, testInfo) => {
   // screen also renders briefly (with its buttons disabled) while the previous
   // ballot's acceptance is processed. Since we insert the next sheet without
   // waiting for the "Insert Your Ballot" screen to return, waiting only on the
-  // heading can capture that stale, disabled screen. Wait for the "Cast Ballot"
-  // button to be enabled so every screenshot consistently shows it enabled.
-  async function waitForReviewScreen() {
+  // heading can capture that stale, disabled screen. Wait for the "Review Your
+  // Votes" button to be enabled so every screenshot consistently shows it
+  // enabled.
+  async function waitForWarningScreen() {
     await page
       .getByRole('heading', { name: 'Review Your Ballot' })
       .waitFor({ timeout: 15000 });
-    await expect(page.getByRole('button', { name: 'Cast Ballot' })).toBeEnabled(
-      { timeout: 15000 }
-    );
+    await expect(
+      page.getByRole('button', { name: 'Review Your Votes' })
+    ).toBeEnabled({ timeout: 15000 });
   }
+
+  // A flagged ballot's warning screen offers "Review Your Votes", which opens
+  // the detailed review screen where the voter casts or returns the ballot.
 
   // Blank ballot warning.
   mockPdiScannerHandler.insertSheet(blankPdf);
-  await waitForReviewScreen();
+  await waitForWarningScreen();
   await screenshot('blank-ballot-warning');
-  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByRole('button', { name: 'Review Your Votes' }).click();
+  await castHeldBallot(page);
 
   // Undervote warning.
   mockPdiScannerHandler.insertSheet(undervotePdf);
-  await waitForReviewScreen();
+  await waitForWarningScreen();
   await screenshot('undervote-warning');
-  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByRole('button', { name: 'Review Your Votes' }).click();
+  await castHeldBallot(page);
 
   // Overvote warning.
   mockPdiScannerHandler.insertSheet(overvotePdf);
-  await waitForReviewScreen();
+  await waitForWarningScreen();
   await screenshot('overvote-warning');
-  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByRole('button', { name: 'Review Your Votes' }).click();
+  await castHeldBallot(page);
 
-  // Mixed overvote + undervote warning.
+  // Mixed overvote + undervote warning, including the detailed review screen
+  // that surfaces each contest's over/undervote and blank-contest warnings.
   mockPdiScannerHandler.insertSheet(mixedPdf);
-  await waitForReviewScreen();
+  await waitForWarningScreen();
   await screenshot('mixed-overvote-undervote-warning');
-  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByRole('button', { name: 'Review Your Votes' }).click();
+  await page
+    .getByRole('heading', { name: 'Review Your Votes' })
+    .waitFor({ timeout: 15000 });
+  await screenshot('ballot-review');
+  await castHeldBallot(page);
   await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Voter settings screenshots.
@@ -570,6 +602,7 @@ test('voting', async ({ page }, testInfo) => {
   await page.getByText('Insert Your Ballot').waitFor();
 
   mockPdiScannerHandler.insertSheet(fullPdf);
+  await castHeldBallot(page);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
 
   // Pause voting.
@@ -599,6 +632,7 @@ test('voting', async ({ page }, testInfo) => {
   await page.getByText('Insert Your Ballot').waitFor();
 
   mockPdiScannerHandler.insertSheet(fullPdf);
+  await castHeldBallot(page);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
 
   // Closing polls flow (multi-batch).
@@ -780,6 +814,7 @@ test('write-in-report', async ({ page }, testInfo) => {
   const writeInPdfs = [writeInPdfA, writeInPdfB];
   for (const [index, writeInPdf] of writeInPdfs.entries()) {
     mockPdiScannerHandler.insertSheet(writeInPdf);
+    await castHeldBallot(page);
     await expect(page.getByTestId('ballot-count')).toHaveText(
       String(index + 1),
       { timeout: 15000 }
