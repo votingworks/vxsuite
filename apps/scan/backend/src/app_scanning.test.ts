@@ -141,6 +141,13 @@ test('scanBatch with streaked page', async () => {
       ]);
 
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation: {
+          type: 'ValidSheet',
+        },
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation: {
           type: 'ValidSheet',

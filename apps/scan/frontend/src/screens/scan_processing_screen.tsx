@@ -3,17 +3,21 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export interface ScanProcessingScreenProps {
   isTestMode: boolean;
+  hideScanInProgressNote?: boolean;
 }
 
 export function ScanProcessingScreen({
   isTestMode,
+  hideScanInProgressNote,
 }: ScanProcessingScreenProps): JSX.Element {
   return (
     <ScreenMainCenterChild voterFacing showTestModeBanner={isTestMode}>
       <LoadingAnimation />
       <CenteredText>
         <H1>{appStrings.titleScannerProcessingScreen()}</H1>
-        <P>{appStrings.noteScannerScanInProgress()}</P>
+        {!hideScanInProgressNote && (
+          <P>{appStrings.noteScannerScanInProgress()}</P>
+        )}
       </CenteredText>
     </ScreenMainCenterChild>
   );

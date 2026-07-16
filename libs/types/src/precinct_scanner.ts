@@ -1,3 +1,4 @@
+import { BallotStyleId, PrecinctId, VotesDict } from './election';
 import { SheetInterpretation } from './interpretation';
 
 export const PRECINCT_SCANNER_STATES = [
@@ -5,6 +6,7 @@ export const PRECINCT_SCANNER_STATES = [
   'disconnected',
   'waiting_for_ballot',
   'scanning',
+  'ready_to_accept',
   'accepting',
   'accepted',
   'needs_review',
@@ -58,5 +60,18 @@ export class PrecinctScannerError extends Error {
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
   interpretation?: SheetInterpretation;
+  /**
+   * Combined front and back votes for the ballot currently held in the scanner.
+   * Only present in the `ready_to_accept` state, where the voter reviews their
+   * selections before confirming.
+   */
+  votes?: VotesDict;
+  /**
+   * Ballot style and precinct of the ballot currently held in the scanner. Only
+   * present in the `ready_to_accept` state. The ballot style is needed to
+   * display the voter's selections in ballot-rotation order.
+   */
+  ballotStyleId?: BallotStyleId;
+  precinctId?: PrecinctId;
   error?: PrecinctScannerErrorType;
 }

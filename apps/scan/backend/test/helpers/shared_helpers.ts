@@ -43,7 +43,12 @@ export async function expectStatus(
     state: PrecinctScannerState;
   } & Partial<PrecinctScannerStatus>
 ): Promise<void> {
-  const status = await apiClient.getScannerStatus();
+  const {
+    votes: _votes,
+    ballotStyleId: _ballotStyleId,
+    precinctId: _precinctId,
+    ...status
+  } = await apiClient.getScannerStatus();
   expect(status).toEqual({
     ballotsCounted: 0,
     error: undefined,

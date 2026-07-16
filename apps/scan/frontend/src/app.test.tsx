@@ -516,15 +516,29 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(
-    scannerStatus({ state: 'needs_review', interpretation })
+    scannerStatus({
+      state: 'needs_review',
+      interpretation,
+      votes: {},
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
+    })
   );
   apiMock.expectPlaySound('warning');
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
 
+  // Voter proceeds to the detailed ballot review screen to cast.
+  userEvent.click(screen.getByRole('button', { name: 'Review Your Votes' }));
+  await screen.findByRole('button', { name: 'Cast Ballot' });
+
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(
-    scannerStatus({ state: 'accepting_after_review', interpretation })
+    scannerStatus({
+      state: 'accepting_after_review',
+      interpretation,
+      votes: {},
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
+    })
   );
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', interpretation })
@@ -604,6 +618,8 @@ test('voter can cast another ballot while the success screen is showing', async 
         type: 'NeedsReviewSheet',
         reasons: [{ type: AdjudicationReason.BlankBallot }],
       },
+      votes: {},
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
     })
   );
   apiMock.expectPlaySound('warning');
