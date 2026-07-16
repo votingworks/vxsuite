@@ -70,6 +70,11 @@ test('insert second ballot after scan', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -120,6 +125,11 @@ test('insert second ballot before accept', async () => {
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -162,6 +172,11 @@ test('insert second ballot during accept', async () => {
         await ballotImages.completeHmpb()
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
@@ -264,6 +279,11 @@ test('insert second ballot after accept, should be scanned', async () => {
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -296,6 +316,12 @@ test('insert second ballot after accept, should be scanned', async () => {
         await ballotImages.completeHmpb(),
         ballotsCounted
       );
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+        ballotsCounted,
+      });
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,

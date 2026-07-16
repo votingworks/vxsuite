@@ -299,6 +299,15 @@ export async function scanBallot(
     initialBallotsCounted
   );
 
+  // A valid ballot is held for the voter to confirm before it's cast.
+  await waitForStatus(apiClient, {
+    state: 'ready_to_accept',
+    ballotsCounted: initialBallotsCounted,
+    interpretation: { type: 'ValidSheet' },
+  });
+
+  await apiClient.acceptBallot();
+
   await waitForStatus(apiClient, {
     state: 'accepting',
     ballotsCounted: initialBallotsCounted,

@@ -77,6 +77,11 @@ test('configure and scan hmpb', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -155,6 +160,11 @@ test('configure and scan bmd ballot', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,

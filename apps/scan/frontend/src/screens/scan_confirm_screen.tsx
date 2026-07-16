@@ -61,7 +61,7 @@ export function ScanConfirmScreen(props: ScanConfirmScreenProps): JSX.Element {
             onPress={() => setShowBallotReviewScreen(true)}
             disabled={hasCastBallot}
           >
-            {appStrings.buttonReviewChoices()}
+            {appStrings.buttonReviewYourVotes()}
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}

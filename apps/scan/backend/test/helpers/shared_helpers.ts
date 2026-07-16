@@ -43,7 +43,15 @@ export async function expectStatus(
     state: PrecinctScannerState;
   } & Partial<PrecinctScannerStatus>
 ): Promise<void> {
-  const status = await apiClient.getScannerStatus();
+  // The held-ballot details (votes, ballot style, precinct) surfaced during
+  // review/confirmation aren't asserted here; individual tests that care can
+  // check them directly.
+  const {
+    votes: _votes,
+    ballotStyleId: _ballotStyleId,
+    precinctId: _precinctId,
+    ...status
+  } = await apiClient.getScannerStatus();
   expect(status).toEqual({
     ballotsCounted: 0,
     error: undefined,

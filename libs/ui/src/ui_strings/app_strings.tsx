@@ -233,8 +233,8 @@ export const appStrings = {
 
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
-  buttonReviewChoices: () => (
-    <UiString uiStringKey="buttonReviewChoices">Review Choices</UiString>
+  buttonReviewYourVotes: () => (
+    <UiString uiStringKey="buttonReviewYourVotes">Review Your Votes</UiString>
   ),
 
   buttonStartVoting: () => (
