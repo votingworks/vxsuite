@@ -2,7 +2,7 @@ use std::io::Cursor;
 use std::mem::swap;
 use std::ops::RangeInclusive;
 
-use image::{GrayImage, ImageEncoder, Luma, Rgb};
+use image::{GrayImage, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
@@ -512,26 +512,55 @@ pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
     })
 }
 
-/// Applies a binary threshold and encodes the result as PNG bytes in one step.
-/// Returns both the thresholded image and its PNG encoding.
-pub(crate) fn threshold_and_encode_png(
+/// Binarizes a grayscale image with the given threshold and encodes it as a
+/// 1-bit grayscale PNG in memory, in a single pass over the image.
+///
+/// Pixels with luma `<= thresh` become black and others white, exactly like
+/// [`threshold`], but the bits are packed directly from the source image
+/// rather than materializing an intermediate 8-bit binarized image. The
+/// 1-bit representation gives the DEFLATE step an eighth of the data an
+/// 8-bit encoding would, making encoding faster and files smaller: the `Up`
+/// filter with fast compression measured smaller *and* faster than an 8-bit
+/// encoding with the `image` crate's defaults on a corpus of real ballot
+/// scans.
+pub(crate) fn binarize_and_encode_png(
     image: &GrayImage,
     thresh: u8,
-) -> (GrayImage, image::ImageResult<Vec<u8>>) {
-    let normalized = threshold(image, thresh);
-    let encoded = encode_png(&normalized);
-    (normalized, encoded)
-}
+) -> image::ImageResult<Vec<u8>> {
+    let (width, height) = image.dimensions();
+    let row_bytes = width.div_ceil(u8::BITS) as usize;
+    let mut packed = vec![0u8; row_bytes * height as usize];
+    for (pixel_row, packed_row) in image
+        .as_raw()
+        .chunks_exact(width as usize)
+        .zip(packed.chunks_exact_mut(row_bytes))
+    {
+        for (pixels, packed_byte) in pixel_row
+            .chunks(u8::BITS as usize)
+            .zip(packed_row.iter_mut())
+        {
+            let mut byte = 0u8;
+            for (bit, &pixel) in pixels.iter().enumerate() {
+                byte |= u8::from(pixel > thresh) << ((u8::BITS - 1) as usize - bit);
+            }
+            *packed_byte = byte;
+        }
+    }
 
-/// Encodes a grayscale image as PNG bytes in memory.
-pub(crate) fn encode_png(image: &GrayImage) -> image::ImageResult<Vec<u8>> {
-    let mut buf = Vec::new();
-    image::codecs::png::PngEncoder::new(Cursor::new(&mut buf)).write_image(
-        image.as_raw(),
-        image.width(),
-        image.height(),
-        image::ExtendedColorType::L8,
-    )?;
+    let to_image_error =
+        |e: png::EncodingError| image::ImageError::IoError(std::io::Error::other(e));
+
+    // Pre-size for the compressed output; binarized ballot images compress
+    // to well under half of the packed size.
+    let mut buf = Vec::with_capacity(packed.len() / 2);
+    let mut encoder = png::Encoder::new(Cursor::new(&mut buf), width, height);
+    encoder.set_color(png::ColorType::Grayscale);
+    encoder.set_depth(png::BitDepth::One);
+    encoder.set_compression(png::Compression::Fast);
+    encoder.set_filter(png::Filter::Up);
+    let mut writer = encoder.write_header().map_err(to_image_error)?;
+    writer.write_image_data(&packed).map_err(to_image_error)?;
+    writer.finish().map_err(to_image_error)?;
     Ok(buf)
 }
 
@@ -677,6 +706,22 @@ mod test {
             let expected = image.view(x, y, width, height).to_image();
             let actual = crop_to_image(&image, x, y, width, height);
             assert_eq!(actual.as_raw(), expected.as_raw());
+        }
+
+        // Arbitrary widths cover the row padding cases (width % 8 != 0).
+        #[test]
+        fn binarize_and_encode_png_matches_threshold_exactly(
+            width in 1u32..40,
+            height in 1u32..40,
+            thresh in proptest::num::u8::ANY,
+            seed in proptest::collection::vec(proptest::num::u8::ANY, 40 * 40),
+        ) {
+            let image = GrayImage::from_fn(width, height, |x, y| {
+                Luma([seed[(y * width + x) as usize]])
+            });
+            let encoded = binarize_and_encode_png(&image, thresh).unwrap();
+            let decoded = image::load_from_memory(&encoded).unwrap().to_luma8();
+            assert_eq!(decoded.as_raw(), threshold(&image, thresh).as_raw());
         }
     }
 

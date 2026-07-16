@@ -205,36 +205,3 @@ fn interpret_and_save(bencher: Bencher, fixture: InterpretFixture) {
         black_box(result);
     });
 }
-
-/// For comparison: the old sequential approach of saving by re-encoding.
-#[divan::bench(args = [
-    InterpretFixture::new(
-        "vx-general-election/letter-en",
-        "../hmpb/fixtures/vx-general-election/letter-en/election.json",
-        "blank-ballot",
-        1,
-    ),
-    InterpretFixture::new(
-        "vx-famous-names",
-        "../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
-        "marked-ballot",
-        1,
-    ),
-])]
-fn interpret_and_save_sequential(bencher: Bencher, fixture: InterpretFixture) {
-    let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
-    let tmp_dir = tempfile::tempdir().unwrap();
-    let front_path = tmp_dir.path().join("front_seq.png");
-    let back_path = tmp_dir.path().join("back_seq.png");
-
-    bencher.bench_local(move || {
-        let result = interpreter
-            .interpret(side_a_image.clone(), side_b_image.clone(), None, None)
-            .unwrap();
-
-        // Simulate the old behavior: encode and save sequentially after interpretation
-        result.front.normalized_image.save(&front_path).unwrap();
-        result.back.normalized_image.save(&back_path).unwrap();
-        black_box(result);
-    });
-}
