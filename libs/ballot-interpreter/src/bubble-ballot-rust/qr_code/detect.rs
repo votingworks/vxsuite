@@ -1,5 +1,7 @@
+use std::cell::OnceCell;
+
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use image::{DynamicImage, GenericImageView, GrayImage};
+use image::{GenericImageView, GrayImage};
 use serde::Serialize;
 use types_rs::{
     bmd, bubble_ballot,
@@ -14,31 +16,34 @@ use crate::{
 use super::{rqrr, zedbar};
 
 /// An area in a ballot image to be searched for QR codes.
-pub struct DetectionArea {
+pub struct DetectionArea<'a> {
+    source: &'a GrayImage,
     origin: Point<PixelUnit>,
+    size: Size<PixelUnit>,
     orientation: Orientation,
-    image: GrayImage,
+    cropped: OnceCell<GrayImage>,
 }
 
-impl DetectionArea {
-    /// Crops the given image at the specified point and size. Records that this
-    /// detection area represents a particular orientation.
+impl<'a> DetectionArea<'a> {
+    /// Defines an area of the given image at the specified point and size.
+    /// Records that this detection area represents a particular orientation.
+    ///
+    /// The crop itself happens lazily on first access to
+    /// [`DetectionArea::image`], so areas that are never scanned (because a
+    /// QR code was already found in an earlier area) are never copied.
     #[must_use]
     pub fn with_crop(
-        img: &GrayImage,
+        img: &'a GrayImage,
         origin: Point<PixelUnit>,
         size: Size<PixelUnit>,
         orientation: Orientation,
     ) -> Self {
-        let cropped_img = DynamicImage::from(
-            img.view(origin.x, origin.y, size.width, size.height)
-                .to_image(),
-        )
-        .into_luma8();
         Self {
+            source: img,
             origin,
-            image: cropped_img,
+            size,
             orientation,
+            cropped: OnceCell::new(),
         }
     }
 
@@ -50,8 +55,8 @@ impl DetectionArea {
         Rect::new(
             self.origin.x as i32,
             self.origin.y as i32,
-            self.image.width(),
-            self.image.height(),
+            self.size.width,
+            self.size.height,
         )
     }
 
@@ -59,8 +64,17 @@ impl DetectionArea {
         self.orientation
     }
 
-    pub const fn image(&self) -> &GrayImage {
-        &self.image
+    pub fn image(&self) -> &GrayImage {
+        self.cropped.get_or_init(|| {
+            self.source
+                .view(
+                    self.origin.x,
+                    self.origin.y,
+                    self.size.width,
+                    self.size.height,
+                )
+                .to_image()
+        })
     }
 }
 
@@ -78,7 +92,7 @@ pub enum SearchStrategy {
 }
 
 /// Gets the HMPB-specific detection areas: bottom-left and top-right corners.
-pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
+pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let (width, height) = img.dimensions();
     let crop_size = Size {
         width: width / 4,
@@ -105,7 +119,7 @@ pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
 /// top 50% of the image at full width. Uses `Portrait` for the bottom area
 /// (QR at bottom = right-side up) and `PortraitReversed` for the top area
 /// (QR at top = upside down).
-pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
+pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let (width, height) = img.dimensions();
     let height_midpoint = height / 2;
 
@@ -135,7 +149,7 @@ pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
 pub fn get_detection_areas_for_strategy(
     img: &GrayImage,
     strategy: SearchStrategy,
-) -> Vec<DetectionArea> {
+) -> Vec<DetectionArea<'_>> {
     match strategy {
         SearchStrategy::BubbleCorners => get_hmpb_detection_areas(img),
         SearchStrategy::Broad => get_broad_detection_areas(img),
