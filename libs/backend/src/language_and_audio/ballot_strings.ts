@@ -81,7 +81,8 @@ export async function translateElectionAndHmpbStrings(
   translator: GoogleCloudTranslator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  jurisdictionId?: string
 ): Promise<{
   electionStrings: UiStringsPackage;
   hmpbStrings: UiStringsPackage;
@@ -95,7 +96,8 @@ export async function translateElectionAndHmpbStrings(
   const electionStrings = await extractAndTranslateElectionStrings(
     translator,
     election,
-    ballotLanguageConfigs
+    ballotLanguageConfigs,
+    jurisdictionId
   );
   const hmpbStrings = await translateHmpbStrings(
     translator,

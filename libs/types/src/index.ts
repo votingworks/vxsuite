@@ -43,6 +43,7 @@ export * from './system_limits';
 export * from './system_settings';
 export * as Tabulation from './tabulation';
 export * from './tallies';
+export * from './translation_edits';
 export * from './tts_phonemes';
 export * from './tts_strings';
 export * from './ui_audio_controls';

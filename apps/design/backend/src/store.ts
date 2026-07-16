@@ -36,6 +36,8 @@ import {
   YesNoContest,
   CandidateContest,
   Signature,
+  TranslationEdit,
+  TranslationEditKey,
   TtsEdit,
   TtsEditKey,
   safeParse,
@@ -3024,6 +3026,60 @@ export class Store {
         data.exportSource,
         JSON.stringify(data.phonetic),
         data.text
+      );
+    });
+  }
+
+  /* istanbul ignore next - WIP */
+  async translationEditsGet(
+    key: TranslationEditKey
+  ): Promise<TranslationEdit | null> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            text
+          from translation_edits
+          where
+            jurisdiction_id = $1 and
+            language_code = $2 and
+            english_text = $3
+        `,
+        key.jurisdictionId,
+        key.languageCode,
+        key.englishText
+      );
+
+      if (res.rows.length === 0) return null;
+
+      return {
+        text: res.rows[0].text as string,
+      };
+    });
+  }
+
+  /* istanbul ignore next - WIP */
+  async translationEditsSet(
+    key: TranslationEditKey,
+    text: string
+  ): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          insert into translation_edits (
+            jurisdiction_id,
+            language_code,
+            english_text,
+            text
+          )
+          values ($1, $2, $3, $4)
+          on conflict (jurisdiction_id, language_code, english_text) do update set
+            text = EXCLUDED.text
+        `,
+        key.jurisdictionId,
+        key.languageCode,
+        key.englishText,
+        text
       );
     });
   }

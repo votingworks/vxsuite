@@ -103,7 +103,8 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   },
 };
 
-const electionStringExtractorFns: Record<
+/**  */
+export const electionStringExtractorFns: Record<
   ElectionStringKey,
   (election: Election) => ElectionString[]
 > = {
@@ -294,7 +295,8 @@ export function extractElectionStrings(
 export async function extractAndTranslateElectionStrings(
   translator: GoogleCloudTranslator,
   election: Election,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  jurisdictionId?: string
 ): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);
   const untranslatedElectionStrings = extractElectionStrings(election);
@@ -337,7 +339,11 @@ export async function extractAndTranslateElectionStrings(
     const stringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? stringsInEnglish
-        : await translator.translateText(stringsInEnglish, languageCode);
+        : await translator.translateText(
+            stringsInEnglish,
+            languageCode,
+            jurisdictionId
+          );
     for (const [
       i,
       electionString,

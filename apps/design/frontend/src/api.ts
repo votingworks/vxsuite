@@ -1,8 +1,9 @@
 import React from 'react';
-import {
+import type {
   Api,
   AuthErrorCode,
   ElectionUpload,
+  TranslationKey,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -361,6 +362,37 @@ export const ttsEditsSet = {
     return useMutation(apiClient.ttsEditsSet, {
       onSuccess: (_, params) =>
         queryClient.invalidateQueries(ttsEditsGet.queryKey(params)),
+    });
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const translationGet = {
+  queryKey(key: TranslationKey): QueryKey {
+    return [
+      'translation',
+      key.electionId,
+      key.language,
+      key.stringKey,
+      key.subKey,
+    ];
+  },
+
+  useQuery(key: TranslationKey) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(key), () => apiClient.translationGet(key));
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const translationSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.translationSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(translationGet.queryKey(params)),
     });
   },
 } as const;
