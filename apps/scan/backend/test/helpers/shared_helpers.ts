@@ -43,9 +43,6 @@ export async function expectStatus(
     state: PrecinctScannerState;
   } & Partial<PrecinctScannerStatus>
 ): Promise<void> {
-  // The held-ballot details (votes, ballot style, precinct) surfaced during
-  // review/confirmation aren't asserted here; individual tests that care can
-  // check them directly.
   const {
     votes: _votes,
     ballotStyleId: _ballotStyleId,

@@ -89,16 +89,11 @@ function ContestResult({
     districtName: electionStrings.districtName(district),
     title: electionStrings.contestTitle(contest),
     titleType: 'h2',
-    // An overvoted contest is not counted, so surface that regardless of the
-    // per-contest-type details below.
     overvoteWarning: isOvervoted
       ? appStrings.noteScannerOvervoteContestsCardSingular()
       : undefined,
   } as const;
 
-  // For a blank contest (no selections), show "No Selection". For a partially
-  // voted candidate contest, show the number of unused votes. These reuse the
-  // same strings VxMark shows when reviewing a completed (non-editable) ballot.
   const noSelectionWarning = appStrings.noteBallotContestNoSelection();
 
   switch (contest.type) {
@@ -110,16 +105,15 @@ function ContestResult({
           {...commonProps}
           votes={candidateContestVotes(election, contest, ballotStyle, vote)}
           undervoteWarning={
-            !isOvervoted && numUnusedVotes > 0 ? (
-              vote.length === 0 ? (
-                noSelectionWarning
-              ) : (
-                <React.Fragment>
-                  {appStrings.labelNumVotesUnused()}{' '}
-                  <NumberString value={numUnusedVotes} />
-                </React.Fragment>
-              )
-            ) : undefined
+            numUnusedVotes > 0 &&
+            (vote.length === 0 ? (
+              noSelectionWarning
+            ) : (
+              <React.Fragment>
+                {appStrings.labelNumVotesUnused()}{' '}
+                <NumberString value={numUnusedVotes} />
+              </React.Fragment>
+            ))
           }
         />
       );
@@ -136,9 +130,7 @@ function ContestResult({
             id: option.id,
             label: electionStrings.contestOptionLabel(option),
           }))}
-          undervoteWarning={
-            !isOvervoted && vote.length === 0 ? noSelectionWarning : undefined
-          }
+          undervoteWarning={vote.length === 0 && noSelectionWarning}
         />
       );
     }
@@ -153,9 +145,7 @@ function ContestResult({
               ? [{ id: party.id, label: electionStrings.partyFullName(party) }]
               : []
           }
-          undervoteWarning={
-            !isOvervoted && !party ? noSelectionWarning : undefined
-          }
+          undervoteWarning={!party ? noSelectionWarning : undefined}
         />
       );
     }
@@ -193,19 +183,13 @@ export interface BallotReviewScreenProps {
   isTestMode: boolean;
   hasCastBallot: boolean;
   onCastBallot: () => void;
-  /**
-   * Contests flagged as overvoted by the interpreter. Overvote detection also
-   * falls back to comparing the number of selections against the allowed count,
-   * so this is only needed for edge cases the vote counts don't capture (e.g. an
-   * unmarked write-in pushing a contest over the limit).
-   */
   overvoteContestIds?: ReadonlySet<ContestId>;
 }
 
 /**
  * Displays the voter's interpreted selections for a scanned ballot held in the
  * scanner, including over/undervote and blank-contest warnings, and lets them
- * either cast the ballot (into the ballot box) or return it.
+ * either cast the ballot or return it.
  */
 export function BallotReviewScreen({
   electionDefinition,
@@ -222,7 +206,6 @@ export function BallotReviewScreen({
   const ballotStyle = assertDefined(
     getBallotStyle({ ballotStyleId, election })
   );
-  // Only show contests that appear on the scanned ballot.
   const contests = election.contests.filter((contest) => contest.id in votes);
 
   return (

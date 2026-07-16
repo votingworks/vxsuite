@@ -153,8 +153,6 @@ export function VoterScreen({
     case 'scanning':
       return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'accepting':
-      // The ballot has already been scanned and is being cast, so don't show the
-      // "Scanning the marks on your ballot." note — just the loading animation.
       return (
         <ScanProcessingScreen {...sharedScreenProps} hideScanInProgressNote />
       );

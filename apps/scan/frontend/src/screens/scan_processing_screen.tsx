@@ -3,11 +3,6 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export interface ScanProcessingScreenProps {
   isTestMode: boolean;
-  /**
-   * Hides the "Scanning the marks on your ballot." note. Used when the screen is
-   * shown while casting an already-scanned ballot (the `accepting` state), where
-   * no scanning is actually happening.
-   */
   hideScanInProgressNote?: boolean;
 }
 
