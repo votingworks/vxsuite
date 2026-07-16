@@ -14,7 +14,13 @@ import {
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
-import { phonemes, PhoneticSyllable, PhoneticWord } from '@votingworks/types';
+import {
+  IS_RTL,
+  LanguageCode,
+  phonemes,
+  PhoneticSyllable,
+  PhoneticWord,
+} from '@votingworks/types';
 import { Keyboard, Phoneme } from './keyboard';
 import * as api from '../api';
 import { cssThemedScrollbars } from '../scrollbars';
@@ -404,7 +410,7 @@ const SHOW_DEV_MENU = process.env.NODE_ENV === 'development';
 export interface PhoneditorProps {
   editable?: boolean;
   jurisdictionId: string;
-  languageCode: string;
+  languageCode: LanguageCode;
   original: string;
 }
 
@@ -456,13 +462,13 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
   const lastAudio = React.useRef<HTMLAudioElement>();
 
   const audioPreviewQuery = api.ttsSynthesizeFromSsml.useQuery({
-    languageCode: 'en',
+    languageCode,
     ssml: ssmlToPreview,
   });
   const audioPreview = audioPreviewQuery.data;
   const audioPreviewLoading = audioPreviewQuery.isLoading;
 
-  function onClickWord2(p: { chunk: PhoneticWord; idx: number }) {
+  function onClickWord(p: { chunk: PhoneticWord; idx: number }) {
     setCurrentChunk(p.idx);
 
     const chunkSyllables = p.chunk.syllables;
@@ -479,7 +485,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
     const elems: JSX.Element[] = [];
     let resolvedChunks: PhoneticWord[] = [];
 
-    if (savedSsml) {
+    if (savedSsml?.length) {
       resolvedChunks = savedSsml;
 
       for (let i = 0; i < resolvedChunks.length; i += 1) {
@@ -519,7 +525,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
           <WordContainer key={`${i}-${resolvedChunks[i].text}`}>
             <Word
               disabled={!editable}
-              onClick={() => onClickWord2({ chunk, idx: i })}
+              onClick={() => onClickWord({ chunk, idx: i })}
               hasEdits={!!chunk.syllables?.length}
             >
               {chunk.syllables ? phoneticChunks : resolvedChunks[i].text}
@@ -542,7 +548,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
             disabled={!editable}
             key={`${i}-${fragments[i]}`}
             onClick={() =>
-              onClickWord2({ chunk: { text: fragments[i] }, idx: i })
+              onClickWord({ chunk: { text: fragments[i] }, idx: i })
             }
           >
             {fragments[i]}
@@ -895,6 +901,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
               <Keyboard
                 alphabet={alphabet}
                 disabled={saving}
+                languageCode={languageCode}
                 onInput={onInput}
                 split={splitKeyboard}
               />
@@ -916,12 +923,12 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
   return (
     <Container>
       <Header>
-        <Icons.ChevronRight />{' '}
+        <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
         {editable
           ? 'Pick a word below to edit its phonetic pronunciation:'
           : 'Audio will be generated from the following:'}
       </Header>
-      <Body>
+      <Body dir={IS_RTL[languageCode] ? 'rtl' : undefined}>
         <Words>{wordElements}</Words>
       </Body>
       {modal}
@@ -979,7 +986,7 @@ export function PhoneticAudioControls(
   }, [original, savedSsml]);
 
   const dataUrlQuery = api.ttsSynthesizeFromSsml.useQuery({
-    languageCode: 'en',
+    languageCode,
     ssml,
   });
   const dataUrl = dataUrlQuery.data;

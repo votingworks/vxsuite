@@ -15,14 +15,16 @@ export async function getAllStringsForElectionPackage(
   election: Election,
   translator: GoogleCloudTranslator,
   hmpbStringsCatalog: Record<string, string>,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  jurisdictionId?: string
 ): Promise<[UiStringsPackage, UiStringsPackage, UiStringsPackage]> {
   const { hmpbStrings, electionStrings } =
     await translateElectionAndHmpbStrings(
       translator,
       election,
       hmpbStringsCatalog,
-      ballotLanguageConfigs
+      ballotLanguageConfigs,
+      jurisdictionId
     );
 
   const appStrings = await translateAppStrings(

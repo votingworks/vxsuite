@@ -3,7 +3,11 @@ import React from 'react';
 
 import { assertDefined } from '@votingworks/basics';
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey, YesNoContest } from '@votingworks/types';
+import {
+  ElectionStringKey,
+  LanguageCode,
+  YesNoContest,
+} from '@votingworks/types';
 
 import { LinkButton, LinkButtonProps } from '@votingworks/ui';
 import * as api from '../api';
@@ -24,7 +28,7 @@ const Container = styled.div`
 export interface AudioEditorPanelProps {
   electionId: string;
   header: React.ReactNode;
-  languageCode: string;
+  languageCode: LanguageCode;
   jurisdictionId: string;
   ttsDefault: TtsStringDefault;
 }

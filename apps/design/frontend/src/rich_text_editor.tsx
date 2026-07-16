@@ -398,6 +398,7 @@ interface RichTextEditorProps {
   initialHtmlContent: string;
   onChange: (htmlContent: string) => void;
   className?: string;
+  dir?: 'ltr' | 'rtl';
 }
 
 export const tiptapErrorContextBox: {
@@ -413,6 +414,7 @@ export function RichTextEditor({
   initialHtmlContent,
   onChange,
   className,
+  dir,
 }: RichTextEditorProps): JSX.Element {
   const editor = useEditor({
     editable: !disabled,
@@ -474,7 +476,7 @@ export function RichTextEditor({
       className={className}
     >
       {editor && <Toolbar disabled={disabled} editor={editor} />}
-      <EditorContent editor={editor} />
+      <EditorContent dir={dir} editor={editor} />
     </StyledRichTextEditor>
   );
 }

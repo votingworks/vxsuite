@@ -8,6 +8,7 @@ import { ResultsReportingPath } from '@votingworks/design-backend';
 import {
   ElectionId,
   ElectionStringKey,
+  LanguageCode,
   SystemSettings,
 } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
@@ -147,9 +148,30 @@ export const routes = {
           title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
+        language: (lang?: ':language' | LanguageCode) => {
+          const langComponent = lang ? `/${lang}` : '';
+          return {
+            title: 'Language and Audio',
+            path: `${root}/ballots/language${langComponent}`,
+          };
+        },
+        languageManage: (p: {
+          language: ':language' | LanguageCode;
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey?: ':subkey' | (string & {});
+        }) => {
+          const base = `${root}/ballots/language`;
+          const components = [base, p.language, p.stringKey];
+          if (p.subkey) components.push(p.subkey);
+
+          return {
+            title: 'Language and Audio',
+            path: components.join('/'),
+          };
+        },
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           title: 'View Ballot',
-          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+          path: `${root}/ballots/view/${ballotStyleId}/${precinctId}`,
         }),
       },
       systemSettings: {

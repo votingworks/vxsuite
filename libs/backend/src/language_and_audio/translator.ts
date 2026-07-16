@@ -64,7 +64,8 @@ export interface MinimalGoogleCloudTranslationClient {
 export interface Translator {
   translateText(
     textArray: string[],
-    targetLanguageCode: NonEnglishLanguageCode
+    targetLanguageCode: NonEnglishLanguageCode,
+    jurisdictionId?: string
   ): Promise<string[]>;
 }
 
@@ -87,7 +88,8 @@ export class GoogleCloudTranslator implements Translator {
 
   async translateText(
     textArray: string[],
-    targetLanguageCode: NonEnglishLanguageCode
+    targetLanguageCode: NonEnglishLanguageCode,
+    _jurisdictionId?: string
   ): Promise<string[]> {
     return await this.translateTextWithGoogleCloud(
       textArray,

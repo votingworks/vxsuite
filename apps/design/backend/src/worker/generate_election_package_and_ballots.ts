@@ -276,7 +276,8 @@ export async function generateElectionPackageAndBallots(
       election,
       translator,
       hmpbStringsCatalog,
-      ballotLanguageConfigs
+      ballotLanguageConfigs,
+      jurisdictionId
     );
 
   electionPackageZip.file(

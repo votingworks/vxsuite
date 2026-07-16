@@ -41,7 +41,8 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
    */
   async translateText(
     textArray: string[],
-    targetLanguageCode: NonEnglishLanguageCode
+    targetLanguageCode: NonEnglishLanguageCode,
+    jurisdictionId?: string
   ): Promise<string[]> {
     const translatedTextArray: string[] = Array.from<string>({
       length: textArray.length,
@@ -58,8 +59,23 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
         continue;
       }
 
-      // Check cache using the stripped text as the key
+      // Check caches using the stripped text as the key
       const strippedText = stripImagesFromRichText(text);
+
+      // [TODO] Require jurisdiction ID, post-demo.
+      if (jurisdictionId) {
+        const userEdit = await this.store.translationEditsGet({
+          englishText: strippedText,
+          jurisdictionId,
+          languageCode: targetLanguageCode,
+        });
+        if (userEdit) {
+          translatedTextArray[index] = userEdit.text;
+          counts.increment('User translations');
+          continue;
+        }
+      }
+
       const translatedTextFromCache =
         await this.store.getTranslatedTextFromCache(
           strippedText,

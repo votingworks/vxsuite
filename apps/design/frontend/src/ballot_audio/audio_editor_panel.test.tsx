@@ -1,7 +1,12 @@
 import { expect, test, vi } from 'vitest';
 
 import { TtsStringDefault } from '@votingworks/design-backend';
-import { Contest, ElectionStringKey, YesNoContest } from '@votingworks/types';
+import {
+  Contest,
+  ElectionStringKey,
+  LanguageCode,
+  YesNoContest,
+} from '@votingworks/types';
 
 import { AudioEditor, AudioEditorProps } from './audio_editor';
 import {
@@ -18,7 +23,7 @@ const EDITOR_TEST_ID = 'TtsTextEditor';
 
 const electionId = 'election-1';
 const jurisdictionId = 'jurisdiction-1';
-const languageCode = 'en';
+const languageCode = LanguageCode.ENGLISH;
 
 test('renders editor, along with a preview of the original text', () => {
   const ttsDefault: TtsStringDefault = {

@@ -6,11 +6,11 @@ import {
   LinkButton,
   Button,
   RadioGroup,
-  MainContent,
   TabPanel,
   RouterTabBar,
   Font,
   Callout,
+  MainContent,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
@@ -36,6 +36,8 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
 import { BallotsStatus } from './ballots_status';
+import { LanguageProofingScreen } from './ballot_audio/proofing_screen';
+import { LanguageSelect } from './ballot_audio/language_select';
 
 function BallotDesignForm({
   electionId,
@@ -372,11 +374,61 @@ function BallotLayoutTab(): JSX.Element | null {
   );
 }
 
+/* istanbul ignore next */
+export const FixedContent = styled.div`
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  padding: 1rem 1rem 0;
+  flex-grow: 1;
+  overflow-y: hidden;
+  position: relative;
+`;
+
+const LanguageSelectContainer = styled.div`
+  position: absolute;
+  right: 1rem;
+  top: 0.35rem;
+
+  /* transform: translateY(-100%); */
+`;
+
 export function BallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotsParamRoutes = electionParamRoutes.ballots;
   const ballotsRoutes = routes.election(electionId).ballots;
   useTitle(routes.election(electionId).ballots.root.title);
+
+  const tabBar = (
+    <RouterTabBar
+      tabs={[
+        ballotsRoutes.ballotStyles,
+        ballotsRoutes.ballotLayout,
+        ballotsRoutes.language(),
+      ]}
+    />
+  );
+
+  /* istanbul ignore next */
+  function withFixedContent(ui: JSX.Element) {
+    return (
+      <FixedContent>
+        {tabBar}
+        {ui}
+        <LanguageSelectContainer>
+          <LanguageSelect />
+        </LanguageSelectContainer>
+      </FixedContent>
+    );
+  }
+
+  function withScrollContent(ui: JSX.Element) {
+    return (
+      <MainContent>
+        {tabBar}
+        {ui}
+      </MainContent>
+    );
+  }
 
   return (
     <Switch>
@@ -392,25 +444,45 @@ export function BallotsScreen(): JSX.Element | null {
           <Header>
             <H1>Proof Ballots</H1>
           </Header>
-          <MainContent>
-            <RouterTabBar
-              tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}
+          <Switch>
+            <Route path={ballotsParamRoutes.ballotStyles.path}>
+              {withScrollContent(<BallotStylesTab />)}
+            </Route>
+            <Route path={ballotsParamRoutes.ballotLayout.path}>
+              {withScrollContent(<BallotLayoutTab />)}
+            </Route>
+            <Route
+              path={
+                ballotsParamRoutes.languageManage({
+                  language: ':language',
+                  stringKey: ':stringKey',
+                  subkey: ':subkey',
+                }).path
+              }
+            >
+              {withFixedContent(<LanguageProofingScreen />)}
+            </Route>
+            <Route
+              path={
+                ballotsParamRoutes.languageManage({
+                  language: ':language',
+                  stringKey: ':stringKey',
+                }).path
+              }
+            >
+              {withFixedContent(<LanguageProofingScreen />)}
+            </Route>
+            <Route path={ballotsParamRoutes.language(':language').path}>
+              {withFixedContent(<LanguageProofingScreen />)}
+            </Route>
+            <Route path={ballotsParamRoutes.language().path}>
+              {withFixedContent(<LanguageProofingScreen />)}
+            </Route>
+            <Redirect
+              from={ballotsParamRoutes.root.path}
+              to={ballotsParamRoutes.ballotStyles.path}
             />
-            <Switch>
-              <Route
-                path={ballotsParamRoutes.ballotStyles.path}
-                component={BallotStylesTab}
-              />
-              <Route
-                path={ballotsParamRoutes.ballotLayout.path}
-                component={BallotLayoutTab}
-              />
-              <Redirect
-                from={ballotsParamRoutes.root.path}
-                to={ballotsParamRoutes.ballotStyles.path}
-              />
-            </Switch>
-          </MainContent>
+          </Switch>
         </ElectionNavScreen>
       </Route>
     </Switch>

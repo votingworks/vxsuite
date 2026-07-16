@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { assertDefined } from '@votingworks/basics';
-import { TtsEdit } from '@votingworks/types';
+import { IS_RTL, LanguageCode, TtsEdit } from '@votingworks/types';
 import { Icons, Button, DesktopPalette, Caption, Font } from '@votingworks/ui';
 
 import * as api from '../api';
@@ -30,7 +30,6 @@ const Form = styled.form`
   overflow-y: auto;
   position: relative;
   margin: 0.25rem 0 0;
-  padding-right: 0.25rem;
 
   ${cssThemedScrollbars}
 `;
@@ -40,6 +39,8 @@ const TextMirror = styled.pre`
 `;
 
 const TextArea = styled.textarea<{ editable: boolean }>`
+  background: ${(p) => p.theme.colors.background};
+
   :disabled {
     color: ${(p) => !p.editable && p.theme.colors.onBackground};
     background: ${(p) => !p.editable && p.theme.colors.background};
@@ -65,6 +66,7 @@ const Editor = styled.div`
     margin: 0 0 0.25rem;
     min-height: 100%;
     overflow: hidden;
+    outline-offset: ${(p) => -p.theme.sizes.bordersRem.medium}rem;
     padding: var(--tts-editor-padding);
     position: absolute;
     resize: none;
@@ -75,7 +77,8 @@ const Editor = styled.div`
 
     :focus {
       border-color: ${DesktopPalette.Purple60};
-      outline: none;
+
+      /* outline: none; */
     }
   }
 
@@ -157,7 +160,7 @@ const FormButtons = styled.div`
 
 export interface TtsTextEditorProps {
   editable: boolean;
-  languageCode: string;
+  languageCode: LanguageCode;
   jurisdictionId: string;
   original: string;
 }
@@ -204,7 +207,7 @@ function EditorImpl(
         languageCode,
         data: {
           exportSource: 'text',
-          phonetic: savedEdit?.phonetic || [],
+          phonetic: [],
           text: assertDefined(edit).trim(),
         },
       },
@@ -228,7 +231,7 @@ function EditorImpl(
   return (
     <Container>
       <Header>
-        <Icons.ChevronRight />{' '}
+        <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
         {editable
           ? 'Edit the text below to change the corresponding audio:'
           : 'Audio will be generated from the following text:'}
@@ -248,7 +251,7 @@ function EditorImpl(
           <TextMirror>{value}.</TextMirror>
 
           <TextArea
-            autoFocus
+            dir={IS_RTL[languageCode] ? 'rtl' : undefined}
             editable={editable}
             disabled={saving || !editable}
             id="ttsTextEditor"
@@ -279,16 +282,18 @@ function EditorImpl(
 
             {editable && (
               <FormButtons>
-                <Button disabled={resetDisabled} type="reset">
-                  Reset
-                </Button>
+                {textChanged && (
+                  <Button disabled={resetDisabled} type="reset">
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   disabled={saveDisabled}
                   icon={saving ? 'Loading' : 'Save'}
                   type="submit"
                   variant={saveDisabled ? 'neutral' : 'primary'}
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? 'Saving...' : 'Save'}
                 </Button>
               </FormButtons>
             )}

@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button, Caption, DesktopPalette, H4, P } from '@votingworks/ui';
-import { IpaPhoneme, phonemes } from '@votingworks/types';
+import { IpaPhoneme, LanguageCode, phonemes } from '@votingworks/types';
 import * as api from '../api';
 import { Tooltip, TooltipContainer } from '../tooltip';
 
@@ -107,10 +107,11 @@ const consonantModifier = {
 export function Keyboard(props: {
   alphabet: Alphabet;
   disabled?: boolean;
+  languageCode: LanguageCode;
   onInput: (phoneme: Phoneme) => void;
   split?: boolean;
 }): JSX.Element {
-  const { alphabet, disabled, onInput, split } = props;
+  const { alphabet, disabled, languageCode, onInput, split } = props;
   const audioTimer = React.useRef<number>();
   const lastAudioPhoneme = React.useRef<Phoneme>();
   const lastAudio = React.useRef<HTMLAudioElement>();
@@ -119,46 +120,43 @@ export function Keyboard(props: {
   const [playingSample, setPlayingSample] = React.useState(false);
 
   const audioSample = api.ttsSynthesizeFromSsml.useQuery({
-    languageCode: 'en',
+    languageCode,
     ssml: currentSsml,
   }).data;
 
-  const onMouseOver = React.useCallback(
-    (phoneme: Phoneme) => {
-      if (audioTimer.current) {
-        window.clearTimeout(audioTimer.current);
-        audioTimer.current = undefined;
+  const onMouseOver = React.useCallback((phoneme: Phoneme) => {
+    if (audioTimer.current) {
+      window.clearTimeout(audioTimer.current);
+      audioTimer.current = undefined;
+    }
+
+    if (lastAudio.current) {
+      if (!lastAudio.current.paused && lastAudioPhoneme.current === phoneme) {
+        return;
       }
 
-      if (lastAudio.current) {
-        if (!lastAudio.current.paused && lastAudioPhoneme.current === phoneme) {
-          return;
-        }
+      lastAudio.current = undefined;
+    }
 
-        lastAudio.current = undefined;
+    lastAudioPhoneme.current = phoneme;
+
+    const alphabetForAudio = 'ipa';
+    audioTimer.current = window.setTimeout(() => {
+      let sound = phoneme[alphabetForAudio];
+      if (phoneme.consonant) {
+        sound += consonantModifier[alphabetForAudio];
       }
 
-      lastAudioPhoneme.current = phoneme;
-
-      const alphabetForAudio = 'ipa';
-      audioTimer.current = window.setTimeout(() => {
-        let sound = phoneme[alphabetForAudio];
-        if (phoneme.consonant) {
-          sound += consonantModifier[alphabetForAudio];
-        }
-
-        setCurrentSsml(
-          `<speak>` +
-            `<phoneme alphabet="${alphabetForAudio}" ph="${sound}">` +
-            `${phoneme[alphabet]}` +
-            `</phoneme>` +
-            `</speak>`
-        );
-        setPlayingSample(true);
-      }, 250);
-    },
-    [alphabet]
-  );
+      setCurrentSsml(
+        `<speak>` +
+          `<phoneme alphabet="${alphabetForAudio}" ph="${sound}">` +
+          `${phoneme[alphabetForAudio]}` +
+          `</phoneme>` +
+          `</speak>`
+      );
+      setPlayingSample(true);
+    }, 250);
+  }, []);
 
   const onMouseOut = React.useCallback(() => {
     if (audioTimer.current) {
@@ -167,8 +165,6 @@ export function Keyboard(props: {
     }
 
     if (lastAudio.current) {
-      // lastAudio.current.pause();
-      // lastAudio.current.src = '';
       lastAudio.current = undefined;
     }
 
@@ -205,9 +201,7 @@ export function Keyboard(props: {
           <Tooltip opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.sampleWord}</P>
-            <P>
-              <P>{alphabet === 'vx' ? phoneme.sampleVx : phoneme.sampleIpa}</P>
-            </P>
+            <P>{alphabet === 'vx' ? phoneme.sampleVx : phoneme.sampleIpa}</P>
           </Tooltip>
           <Key
             alphabet={alphabet}
@@ -290,7 +284,7 @@ export function Keyboard(props: {
 }
 
 const ShortcutLabel = styled(Caption)`
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  color: ${DesktopPalette.Gray60};
   left: 0.25rem;
   line-height: 1;
   position: absolute;

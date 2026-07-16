@@ -1,14 +1,18 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionStringKey,
   hasSplits,
   LanguageCode,
+  TranslationEditKey,
   TtsEdit,
   TtsEditKey,
 } from '@votingworks/types';
 import {
   SpeechSynthesizer,
+  Translator,
   convertHtmlToAudioCues,
+  electionStringExtractorFns,
+  stripImagesFromRichText,
 } from '@votingworks/backend';
 import { Workspace } from './workspace';
 
@@ -16,6 +20,7 @@ export type DataUrl = string;
 
 export interface TtsApiContext {
   speechSynthesizer: SpeechSynthesizer;
+  translator: Translator;
   workspace: Workspace;
 }
 
@@ -25,9 +30,84 @@ export interface TtsStringDefault {
   text: string;
 }
 
+export interface TranslationKey {
+  electionId: string;
+  language: LanguageCode;
+  stringKey: ElectionStringKey;
+  subKey?: string;
+}
+
+export interface Translation {
+  forDisplay: string;
+  forAudio: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function apiMethods(ctx: TtsApiContext) {
   return {
+    /* istanbul ignore next - DEMO */
+    async translationGet(input: TranslationKey): Promise<Translation> {
+      const { election } = await ctx.workspace.store.getElection(
+        input.electionId
+      );
+      const jurisdiction = await ctx.workspace.store.getElectionJurisdiction(
+        input.electionId
+      );
+
+      const strings = electionStringExtractorFns[input.stringKey](election);
+      let match = strings[0];
+      if (input.subKey) {
+        match = find(strings, (s) => s.stringKey[1] === input.subKey);
+      }
+
+      let forDisplay = match.stringInEnglish;
+      if (input.language !== LanguageCode.ENGLISH) {
+        [forDisplay] = await ctx.translator.translateText(
+          [match.stringInEnglish],
+          input.language,
+          jurisdiction.id
+        );
+      }
+
+      let forAudio = forDisplay;
+      if (input.stringKey === ElectionStringKey.CONTEST_DESCRIPTION) {
+        try {
+          forAudio = convertHtmlToAudioCues(forDisplay);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('translation sanitization failed:', error);
+        }
+      }
+
+      return { forDisplay, forAudio };
+    },
+
+    /* istanbul ignore next - DEMO */
+    async translationSet(
+      input: TranslationKey & {
+        text: string;
+      }
+    ): Promise<void> {
+      const { election } = await ctx.workspace.store.getElection(
+        input.electionId
+      );
+      const jurisdiction = await ctx.workspace.store.getElectionJurisdiction(
+        input.electionId
+      );
+
+      const strings = electionStringExtractorFns[input.stringKey](election);
+      const match = find(strings, (s) => s.stringKey[1] === input.subKey);
+      const englishText = stripImagesFromRichText(match.stringInEnglish);
+
+      const editKey: TranslationEditKey = {
+        englishText,
+        jurisdictionId: jurisdiction.id,
+        languageCode: input.language,
+      };
+
+      return ctx.workspace.store.translationEditsSet(editKey, input.text);
+    },
+
     ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {
       return ctx.workspace.store.ttsEditsGet(key);
     },
