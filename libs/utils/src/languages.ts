@@ -1,28 +1,45 @@
 import { LanguageCode, Election } from '@votingworks/types';
+import { languageDisplayName2 } from './format';
+
+const { ENGLISH } = LanguageCode;
+
+/**
+ * All language codes, ordered in order of precedence for user selection when
+ * displayed in English.
+ */
+export const ORDERED_LANGUAGES = Object.values(LanguageCode).sort(
+  /* istanbul ignore next */
+  (a, b) => {
+    if (a === LanguageCode.ENGLISH) return -1;
+    if (b === LanguageCode.ENGLISH) return 1;
+
+    const labelA = languageDisplayName2({
+      displayLanguageCode: ENGLISH,
+      languageCode: a,
+    });
+
+    const labelB = languageDisplayName2({
+      displayLanguageCode: ENGLISH,
+      languageCode: b,
+    });
+
+    return labelA.localeCompare(labelB);
+  }
+);
 
 export function languageSort(
   languageA: LanguageCode,
   languageB: LanguageCode
 ): number {
-  const languageOrder: LanguageCode[] = [
-    LanguageCode.ENGLISH,
-    LanguageCode.ARABIC,
-    LanguageCode.BENGALI,
-    LanguageCode.CHINESE_SIMPLIFIED,
-    LanguageCode.CHINESE_TRADITIONAL,
-    LanguageCode.SPANISH,
-  ];
-  const indexA = languageOrder.indexOf(languageA);
-  const indexB = languageOrder.indexOf(languageB);
+  const indexA = ORDERED_LANGUAGES.indexOf(languageA);
+  const indexB = ORDERED_LANGUAGES.indexOf(languageB);
   return indexA - indexB;
 }
 
 export function getLanguageOptions(election: Election): LanguageCode[] {
-  return [
-    ...new Set(
-      election.ballotStyles.flatMap((bs) => bs.languages as LanguageCode[])
-    ),
-  ]
-    .filter((lang) => lang !== undefined)
-    .sort(languageSort);
+  const ballotLanguages = new Set(
+    election.ballotStyles.flatMap((bs) => bs.languages as LanguageCode[])
+  );
+
+  return ORDERED_LANGUAGES.filter((l) => ballotLanguages.has(l));
 }

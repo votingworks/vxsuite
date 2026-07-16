@@ -2,16 +2,17 @@
 
 import styled from 'styled-components';
 
-import { LanguageCode, ORDERED_LANGUAGE_CODES } from '@votingworks/types';
+import { LanguageCode } from '@votingworks/types';
+import { ORDERED_LANGUAGES, format } from '@votingworks/utils';
 import {
   DesktopPalette,
   Icons,
   SearchSelect,
   useCurrentTheme,
 } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import { BallotAudioPathParams } from './routes';
+import * as api from '../api';
 
 const Container = styled.div`
   align-items: center;
@@ -34,34 +35,41 @@ const Container = styled.div`
 
 const { ENGLISH } = LanguageCode;
 
-export function LanguageSelect(): JSX.Element {
+export function LanguageSelect(): React.ReactNode {
   const theme = useCurrentTheme();
 
   const params = useParams<BallotAudioPathParams>();
-  const { language = ENGLISH } = params;
+  const { electionId, language = ENGLISH } = params;
   const history = useHistory();
+
+  const election = api.getElectionInfo.useQuery(electionId).data;
 
   function setLanguage(newLang: LanguageCode) {
     const newPath = history.location.pathname.replace(
-      /language\/[a-zA-Z-_]+/,
+      /language(\/[a-zA-Z-_]+|$)/,
       `language/${newLang}`
     );
 
     history.replace(newPath);
   }
 
+  if (!election) return null;
+
+  const { languageCodes } = election;
+  const ordered = ORDERED_LANGUAGES.filter((l) => languageCodes.includes(l));
+  if (!ordered.includes(language)) setLanguage(LanguageCode.ENGLISH);
+
   return (
     <Container>
       <Icons.Language
         color="neutral"
-        // style={{ fontSize: '1.5rem', padding: '0 0.7rem' }}
         style={{ fontSize: '1.25rem', padding: '0 0.75rem' }}
       />
       <SearchSelect
         // @ts-expect-error - shhh
         onChange={setLanguage}
-        options={ORDERED_LANGUAGE_CODES.map((l) => ({
-          label: format.languageDisplayName({
+        options={ordered.map((l) => ({
+          label: format.languageDisplayName2({
             languageCode: l,
             displayLanguageCode: LanguageCode.ENGLISH,
           }),

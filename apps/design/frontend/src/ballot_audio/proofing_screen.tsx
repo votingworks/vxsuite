@@ -594,6 +594,8 @@ const DescriptionEditor = styled(RichTextEditor)`
   background: ${(p) => p.theme.colors.background};
 `;
 
+// [TODO] Trim down to just the `DescriptionEditor`, now that this is mostly
+// aligned with the plain `Translation` component.
 function RichTextTranslation(props: {
   electionId: string;
   language: LanguageCode;
@@ -614,6 +616,11 @@ function RichTextTranslation(props: {
 
   return (
     <TranslationContainer header={<H3>Translation</H3>}>
+      <div>
+        <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
+        Edit the following text to change the translation shown on voter
+        ballots:
+      </div>
       <DescriptionEditor
         dir={IS_RTL[language] ? 'rtl' : undefined}
         initialHtmlContent={edit || translation.forDisplay}

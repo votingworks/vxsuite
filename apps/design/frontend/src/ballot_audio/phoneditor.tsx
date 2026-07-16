@@ -407,6 +407,11 @@ const alphabets = ['ipa', 'vx'] as const;
 
 const SHOW_DEV_MENU = process.env.NODE_ENV === 'development';
 
+const IDEOGRAPHIC_LANGS: LanguageCode[] = [
+  LanguageCode.CHINESE_SIMPLIFIED,
+  LanguageCode.CHINESE_TRADITIONAL,
+];
+
 export interface PhoneditorProps {
   editable?: boolean;
   jurisdictionId: string;
@@ -434,13 +439,15 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
       const ssmlChunks = [...savedSsml];
       ssmlChunks[syllableIndex].syllables = undefined;
 
+      const hasAnyPhonetics = ssmlChunks.some((c) => !!c.syllables);
+
       await save({
         jurisdictionId,
         original,
         languageCode,
         data: {
-          exportSource: 'phonetic',
-          phonetic: ssmlChunks,
+          exportSource: hasAnyPhonetics ? 'phonetic' : 'text',
+          phonetic: hasAnyPhonetics ? ssmlChunks : [],
           text: savedEdit.text,
         },
       });
@@ -539,7 +546,9 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
         );
       }
     } else {
-      const fragments = original.split(' ');
+      const fragments = IDEOGRAPHIC_LANGS.includes(languageCode)
+        ? splitIdeographic(original)
+        : original.split(' ');
 
       for (let i = 0; i < fragments.length; i += 1) {
         resolvedChunks.push({ text: fragments[i] });
@@ -558,7 +567,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
     }
 
     return [resolvedChunks, elems];
-  }, [clearEdits, editable, original, savedSsml, saving]);
+  }, [clearEdits, editable, languageCode, original, savedSsml, saving]);
 
   const onInput = React.useCallback(
     (phoneme: Phoneme) => {
@@ -624,31 +633,11 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
 
   const onPlayPreview = React.useCallback(() => {
     if (lastAudio.current) {
-      // lastAudio.current.pause();
       lastAudio.current.src = '';
       lastAudio.current = undefined;
     }
 
-    let combinedPhonemes = '';
-    for (let i = 0; i < syllables.length; i += 1) {
-      const syllable = syllables[i];
-      if (syllable.ipaPhonemes.length === 0) continue;
-
-      if (syllable.stress === 'primary') {
-        combinedPhonemes += phonemes.en.stresses.primary.ipa;
-      } else if (syllable.stress === 'secondary') {
-        combinedPhonemes += phonemes.en.stresses.secondary.ipa;
-      } else if (i > 0) {
-        combinedPhonemes += '.';
-      }
-
-      for (const phoneme of syllable.ipaPhonemes) combinedPhonemes += phoneme;
-    }
-    setSsmlToPreview(
-      `<speak>` +
-        `<phoneme alphabet="ipa" ph="${combinedPhonemes}" />.` +
-        `</speak>`
-    );
+    setSsmlToPreview(`<speak>${ssmlWord(syllables)}</speak>`);
     setPlayingPreview(true);
   }, [syllables]);
 
@@ -949,6 +938,45 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
   );
 }
 
+// [TODO] Very rough sketch. Clean up, extend to non-ideographic text, and
+// handle splitting at punctuation/symbol boundaries too.
+function splitIdeographic(text: string) {
+  const chunks: string[] = [];
+
+  let nextChunk: string[] = [];
+  for (const codepointStr of text) {
+    const codepoint = codepointStr.codePointAt(0);
+    if (!codepoint) continue;
+
+    if (codepoint > 0xff) {
+      if (nextChunk.length) {
+        chunks.push(nextChunk.join(''));
+        nextChunk = [];
+      }
+
+      chunks.push(codepointStr);
+      continue;
+    }
+
+    if (/\s/.test(codepointStr)) {
+      if (nextChunk.length) {
+        chunks.push(nextChunk.join(''));
+        nextChunk = [];
+      }
+      continue;
+    }
+
+    nextChunk.push(codepointStr);
+  }
+
+  if (nextChunk.length) {
+    chunks.push(nextChunk.join(''));
+    nextChunk = [];
+  }
+
+  return chunks;
+}
+
 export interface PhoneticAudioControlsProps {
   disabled?: boolean;
   languageCode: string;
@@ -1011,10 +1039,12 @@ function ssmlWord(syllables: PhoneticSyllable[]) {
     const syllable = syllables[i];
     if (syllable.ipaPhonemes.length === 0) continue;
 
-    if (i > 0) combinedPhonemes += '.';
-
     if (syllable.stress === 'primary') {
       combinedPhonemes += phonemes.en.stresses.primary.ipa;
+    } else if (syllable.stress === 'secondary') {
+      combinedPhonemes += phonemes.en.stresses.secondary.ipa;
+    } else if (i > 0) {
+      combinedPhonemes += '.';
     }
 
     for (const phoneme of syllable.ipaPhonemes) combinedPhonemes += phoneme;

@@ -19,6 +19,7 @@ import type { ElectionInfo } from '@votingworks/design-backend';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
+import { format, ORDERED_LANGUAGES } from '@votingworks/utils';
 import styled from 'styled-components';
 import {
   deleteElection,
@@ -325,20 +326,13 @@ function ElectionInfoForm({
               onChange={(languageCodes) => {
                 setElectionInfo({ ...electionInfo, languageCodes });
               }}
-              options={[
-                { label: 'English', value: LanguageCode.ENGLISH },
-                { label: 'Arabic', value: LanguageCode.ARABIC },
-                { label: 'Bengali', value: LanguageCode.BENGALI },
-                {
-                  label: 'Chinese (Simplified)',
-                  value: LanguageCode.CHINESE_SIMPLIFIED,
-                },
-                {
-                  label: 'Chinese (Traditional)',
-                  value: LanguageCode.CHINESE_TRADITIONAL,
-                },
-                { label: 'Spanish', value: LanguageCode.SPANISH },
-              ]}
+              options={ORDERED_LANGUAGES.map((l) => ({
+                label: format.languageDisplayName2({
+                  displayLanguageCode: LanguageCode.ENGLISH,
+                  languageCode: l,
+                }),
+                value: l,
+              }))}
             />
           </div>
         )}
