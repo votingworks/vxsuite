@@ -77,3 +77,7 @@ tempfile = "3.3.0"
 
 [lints]
 workspace = true
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
