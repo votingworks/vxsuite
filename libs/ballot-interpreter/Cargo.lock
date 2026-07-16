@@ -235,6 +235,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "png",
  "proptest",
  "rayon",
  "rqrr",
