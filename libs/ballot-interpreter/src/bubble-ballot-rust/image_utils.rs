@@ -142,19 +142,18 @@ pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
 pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
     let mut counted = CountedPixels::default();
     let bounds = shape.bounds();
-    for x in bounds.left()..bounds.right() {
-        if x < 0 || x >= ballot_image.width() as i32 {
-            continue;
-        }
-
-        for y in bounds.top()..bounds.bottom() {
-            if y < 0 || y >= ballot_image.height() as i32 {
-                continue;
-            }
-
+    let width = ballot_image.width() as usize;
+    let raw = ballot_image.image().as_raw();
+    let thresh = ballot_image.threshold();
+    let x_range = bounds.left().max(0)..bounds.right().min(ballot_image.width() as i32);
+    let y_range = bounds.top().max(0)..bounds.bottom().min(ballot_image.height() as i32);
+    // Iterate rows in the outer loop since the image data is stored row-major.
+    for y in y_range {
+        let row = &raw[y as usize * width..(y as usize + 1) * width];
+        for x in x_range.clone() {
             if shape.contains_subpixel(x as f32 + 0.5, y as f32 + 0.5) {
                 counted.examined += 1;
-                if ballot_image.get_pixel(x as u32, y as u32).is_foreground() {
+                if row[x as usize] <= thresh {
                     counted.matched += 1;
                 }
             }
@@ -172,33 +171,49 @@ pub fn find_scanned_document_inset(
     threshold: u8,
     min_ratio_above_threshold: UnitIntervalValue,
 ) -> Option<Inset> {
+    // Determines whether more than `required` of the pixels yielded by the
+    // given iterator are above the threshold, stopping as soon as the answer
+    // is known rather than counting every pixel.
+    fn has_enough_above_threshold(
+        pixels: impl Iterator<Item = u8>,
+        threshold: u8,
+        required: usize,
+    ) -> bool {
+        let mut count = 0;
+        for luma in pixels {
+            if luma > threshold {
+                count += 1;
+                if count > required {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
     let (width, height) = image.dimensions();
     let (max_x, max_y) = (width - 1, height - 1);
+    let raw = image.as_raw();
 
-    let min_y_above_threshold = (0..height).find(|y| {
-        (0..width)
-            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (width as f32 * min_ratio_above_threshold) as usize
-    });
-    let max_y_above_threshold = (0..height).rev().find(|y| {
-        (0..width)
-            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (width as f32 * min_ratio_above_threshold) as usize
-    });
-    let min_x_above_threshold = (0..width).find(|x| {
-        (0..height)
-            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (height as f32 * min_ratio_above_threshold) as usize
-    });
-    let max_x_above_threshold = (0..width).rev().find(|x| {
-        (0..height)
-            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (height as f32 * min_ratio_above_threshold) as usize
-    });
+    let row_pixels = |y: u32| {
+        let row_start = y as usize * width as usize;
+        raw[row_start..row_start + width as usize].iter().copied()
+    };
+    let column_pixels = |x: u32| raw[x as usize..].iter().step_by(width as usize).copied();
+
+    let required_per_row = (width as f32 * min_ratio_above_threshold) as usize;
+    let required_per_column = (height as f32 * min_ratio_above_threshold) as usize;
+
+    let min_y_above_threshold = (0..height)
+        .find(|y| has_enough_above_threshold(row_pixels(*y), threshold, required_per_row));
+    let max_y_above_threshold = (0..height)
+        .rev()
+        .find(|y| has_enough_above_threshold(row_pixels(*y), threshold, required_per_row));
+    let min_x_above_threshold = (0..width)
+        .find(|x| has_enough_above_threshold(column_pixels(*x), threshold, required_per_column));
+    let max_x_above_threshold = (0..width)
+        .rev()
+        .find(|x| has_enough_above_threshold(column_pixels(*x), threshold, required_per_column));
 
     match (
         min_x_above_threshold,

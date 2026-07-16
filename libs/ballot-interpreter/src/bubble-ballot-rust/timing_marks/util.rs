@@ -161,11 +161,13 @@ impl<T> CornerWise<T> for [T; 4] {
 /// See <https://en.wikipedia.org/wiki/Median_filter>
 pub(crate) fn median_filter(values: &[u32], window_size: usize) -> Vec<u32> {
     let half = window_size / 2;
+    let mut window = Vec::with_capacity(window_size + 1);
     (0..values.len())
         .map(|i| {
             let start = i.saturating_sub(half);
             let end = (i + half + 1).min(values.len());
-            let mut window = values[start..end].to_vec();
+            window.clear();
+            window.extend_from_slice(&values[start..end]);
             // If the window extends past either the start or end of the
             // values, wrap around to the other side. This ensures that
             // values on the edges have the same window size as those in
