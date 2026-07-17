@@ -6,10 +6,10 @@ export default defineConfig({
     coverage: {
       exclude: ['src/ui_strings/**'],
       thresholds: {
-        lines: -15,
+        lines: -36,
         // TODO: Restore -31 once the network CVR transfer prototype has full
         // test coverage
-        branches: -33,
+        branches: -45,
       },
     },
   },

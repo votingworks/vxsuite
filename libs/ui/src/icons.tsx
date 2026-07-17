@@ -64,6 +64,7 @@ import {
   faMagnifyingGlass,
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
+  faMicrophone,
   faMinusCircle,
   faMouse,
   faPause,
@@ -560,6 +561,10 @@ export const Icons = {
     return (
       <FaIcon {...props} flipInRtlMode={false} type={faArrowRightFromBracket} />
     );
+  },
+
+  Mic(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faMicrophone} />;
   },
 
   Minus(props) {

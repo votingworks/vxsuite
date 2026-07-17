@@ -62,7 +62,12 @@ test.skip('picks initial editor based on saved edits', async () => {
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
     .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
-    .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
+    .resolves({
+      exportSource: 'phonetic',
+      phonetic: [],
+      recordingDataUrl: '',
+      text: 'CA',
+    });
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
@@ -94,7 +99,12 @@ test.skip('supports switching between text and phonetic editing', async () => {
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
     .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
-    .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
+    .resolves({
+      exportSource: 'phonetic',
+      phonetic: [],
+      recordingDataUrl: '',
+      text: 'CA',
+    });
 
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
@@ -171,7 +181,12 @@ test.skip('phonetic mode - not editable after ballots are finalized', async () =
   const mockApi = createMockApiClient();
   mockApi.ttsEditsGet
     .expectCallWith({ jurisdictionId, languageCode, original: ttsDefault.text })
-    .resolves({ exportSource: 'phonetic', phonetic: [], text: 'CA' });
+    .resolves({
+      exportSource: 'phonetic',
+      phonetic: [],
+      recordingDataUrl: '',
+      text: 'CA',
+    });
 
   const now = new Date();
   mockApi.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(now);

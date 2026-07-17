@@ -56,7 +56,7 @@ export const TtsEditKeySchema: z.ZodType<TtsEditKey> = z.object({
   original: z.string(),
 });
 
-const ExportSourceSchema = z.enum(['phonetic', 'text']);
+const ExportSourceSchema = z.enum(['phonetic', 'recorded', 'text']);
 
 /**
  * Determines which type of input to use when generating election audio for
@@ -70,12 +70,14 @@ export type TtsExportSource = z.infer<typeof ExportSourceSchema>;
 export interface TtsEdit {
   exportSource: TtsExportSource;
   phonetic: PhoneticWord[];
+  recordingDataUrl: string;
   text: string;
 }
 
 export const TtsEditSchema: z.ZodType<TtsEdit> = z.object({
   exportSource: ExportSourceSchema,
   phonetic: z.array(PhoneticWordSchema),
+  recordingDataUrl: z.string(),
   text: z.string(),
 });
 

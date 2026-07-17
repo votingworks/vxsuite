@@ -2950,6 +2950,7 @@ export class Store {
             original,
             language_code as "languageCode",
             export_source as "exportSource",
+            recording_data_url as "recordingDataUrl",
             phonetic,
             text
           from tts_edits
@@ -2963,6 +2964,7 @@ export class Store {
         original: row.original,
         languageCode: row.languageCode,
         phonetic: safeParse(PhoneticWordsSchema, row.phonetic).unsafeUnwrap(),
+        recordingDataUrl: row.recording_data_url,
         text: row.text as string,
       }));
     });
@@ -2975,6 +2977,7 @@ export class Store {
           select
             export_source as "exportSource",
             phonetic,
+            recording_data_url as "recordingDataUrl",
             text
           from tts_edits
           where
@@ -2997,6 +3000,8 @@ export class Store {
           res.rows[0]['phonetic']
         ).unsafeUnwrap(),
 
+        recordingDataUrl: res.rows[0].recordingDataUrl,
+
         text: res.rows[0].text as string,
       };
     });
@@ -3012,12 +3017,14 @@ export class Store {
               original,
               export_source,
               phonetic,
+              recording_data_url,
               text
             )
-            values ($1, $2, $3, $4, $5, $6)
+            values ($1, $2, $3, $4, $5, $6, $7)
             on conflict (jurisdiction_id, language_code, original) do update set
               export_source = EXCLUDED.export_source,
               phonetic = EXCLUDED.phonetic,
+              recording_data_url = EXCLUDED.recording_data_url,
               text = EXCLUDED.text
           `,
         key.jurisdictionId,
@@ -3025,6 +3032,7 @@ export class Store {
         key.original,
         data.exportSource,
         JSON.stringify(data.phonetic),
+        data.recordingDataUrl,
         data.text
       );
     });

@@ -51,6 +51,7 @@ test('renders saved edits if available', async () => {
   const savedEdit: TtsEdit = {
     exportSource: 'text',
     phonetic: [],
+    recordingDataUrl: '',
     text: 'California',
   };
 
@@ -124,6 +125,7 @@ test('cancel button restores saved state', async () => {
   const savedEdit: TtsEdit = {
     exportSource: 'text',
     phonetic: [],
+    recordingDataUrl: '',
     text: 'California',
   };
 
@@ -191,6 +193,7 @@ test('save button updates backend data, refreshes content', async () => {
   const expectedEdit: TtsEdit = {
     exportSource: 'text',
     phonetic: [],
+    recordingDataUrl: '',
     text: 'California',
   };
 

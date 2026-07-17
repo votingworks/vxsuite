@@ -3,7 +3,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button, Caption, DesktopPalette, H4, P } from '@votingworks/ui';
-import { IpaPhoneme, LanguageCode, phonemes } from '@votingworks/types';
+import {
+  isVowel,
+  LanguageCode,
+  phonemes,
+  TtsPhoneme,
+} from '@votingworks/types';
 import * as api from '../api';
 import { Tooltip, TooltipContainer } from '../tooltip';
 
@@ -86,15 +91,7 @@ const KeyContainer = styled.div`
   }
 `;
 
-export interface Phoneme {
-  consonant: boolean;
-  ipa: IpaPhoneme;
-  sampleIpa: string;
-  sampleVx: string;
-  sampleWord: string;
-  shortcut: string | null;
-  vx: string;
-}
+export type Phoneme = TtsPhoneme;
 
 type Alphabet = 'ipa' | 'vx';
 
@@ -142,7 +139,7 @@ export function Keyboard(props: {
     const alphabetForAudio = 'ipa';
     audioTimer.current = window.setTimeout(() => {
       let sound = phoneme[alphabetForAudio];
-      if (phoneme.consonant) {
+      if (!isVowel(phoneme.ipa)) {
         sound += consonantModifier[alphabetForAudio];
       }
 
@@ -195,12 +192,12 @@ export function Keyboard(props: {
   const consonants = React.useMemo(
     () =>
       split &&
-      phonemes.en.consonants.map((phoneme) => (
+      phonemes[languageCode].consonants.map((phoneme) => (
         <TooltipContainer key={phoneme.ipa}>
           <Tooltip opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.sampleWord}</P>
-            <P>{alphabet === 'vx' ? phoneme.sampleVx : phoneme.sampleIpa}</P>
+            <P>{alphabet === 'vx' ? phoneme.sampleIpa : phoneme.sampleIpa}</P>
           </Tooltip>
           <Key
             alphabet={alphabet}
@@ -212,18 +209,18 @@ export function Keyboard(props: {
           />
         </TooltipContainer>
       )),
-    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
+    [split, languageCode, alphabet, disabled, onMouseOver, onMouseOut, onInput]
   );
 
   const vowels = React.useMemo(
     () =>
       split &&
-      phonemes.en.vowels.map((phoneme) => (
+      phonemes[languageCode].vowels.map((phoneme) => (
         <TooltipContainer key={phoneme.ipa}>
           <Tooltip alignTo="right" opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.sampleWord}</P>
-            <P>{alphabet === 'vx' ? phoneme.sampleVx : phoneme.sampleIpa}</P>
+            <P>{alphabet === 'vx' ? phoneme.sampleIpa : phoneme.sampleIpa}</P>
           </Tooltip>
           <Key
             alphabet={alphabet}
@@ -235,18 +232,18 @@ export function Keyboard(props: {
           />
         </TooltipContainer>
       )),
-    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
+    [split, languageCode, alphabet, disabled, onMouseOver, onMouseOut, onInput]
   );
 
   const all = React.useMemo(
     () =>
       !split &&
-      Object.values(phonemes.en.allByIpa).map((phoneme, i) => (
+      Object.values(phonemes[languageCode].allByIpa).map((phoneme, i) => (
         <TooltipContainer key={phoneme.ipa}>
           <Tooltip alignTo={i % 16 < 8 ? 'left' : 'right'} opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.sampleWord}</P>
-            <P>{alphabet === 'vx' ? phoneme.sampleVx : phoneme.sampleIpa}</P>
+            <P>{alphabet === 'vx' ? phoneme.sampleIpa : phoneme.sampleIpa}</P>
           </Tooltip>
           <Key
             alphabet={alphabet}
@@ -258,7 +255,7 @@ export function Keyboard(props: {
           />
         </TooltipContainer>
       )),
-    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
+    [split, languageCode, alphabet, disabled, onMouseOver, onMouseOut, onInput]
   );
 
   return (
@@ -266,14 +263,28 @@ export function Keyboard(props: {
       <MainKeys>
         {all && <KeySet split={split}>{all}</KeySet>}
         {consonants && (
-          <Consonants>
-            <H4>Consonants</H4>
+          <Consonants style={{ flex: `${consonants.length - 1} 0` }}>
+            <H4
+              style={{
+                color: DesktopPalette.Gray80,
+                fontWeight: 900,
+              }}
+            >
+              Consonants
+            </H4>
             <KeySet split={split}>{consonants}</KeySet>
           </Consonants>
         )}
         {vowels && (
-          <Vowels>
-            <H4>Vowels</H4>
+          <Vowels style={{ flex: `${vowels.length + 1} 0` }}>
+            <H4
+              style={{
+                color: DesktopPalette.Gray80,
+                fontWeight: 900,
+              }}
+            >
+              Vowels
+            </H4>
             <KeySet split={split}>{vowels}</KeySet>
           </Vowels>
         )}
@@ -310,7 +321,9 @@ function Key(props: {
       <Button disabled={disabled} onPress={onPress} value={phoneme}>
         {phoneme[alphabet]}
       </Button>
-      {phoneme.shortcut && <ShortcutLabel>{phoneme.shortcut}</ShortcutLabel>}
+      {phoneme.shortcut && false && (
+        <ShortcutLabel>{phoneme.shortcut}</ShortcutLabel>
+      )}
     </KeyContainer>
   );
 }

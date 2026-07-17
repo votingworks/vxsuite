@@ -429,7 +429,7 @@ function LanguageAudioEditor(props: {
     <Card header={<H3>Audio</H3>}>
       <AudioEditor
         electionId={election.electionId}
-        key={`${englishDefault.key}-${englishDefault.subkey}`}
+        hackyKey={`${englishDefault.key}-${englishDefault.subkey}`}
         languageCode={
           englishDefault.key === ElectionStringKey.CANDIDATE_NAME
             ? ENGLISH

@@ -448,15 +448,24 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
         data: {
           exportSource: hasAnyPhonetics ? 'phonetic' : 'text',
           phonetic: hasAnyPhonetics ? ssmlChunks : [],
+          recordingDataUrl: savedEdit.recordingDataUrl,
           text: savedEdit.text,
         },
       });
     },
-    [jurisdictionId, languageCode, original, save, savedEdit?.text, savedSsml]
+    [
+      jurisdictionId,
+      languageCode,
+      original,
+      save,
+      savedEdit?.recordingDataUrl,
+      savedEdit?.text,
+      savedSsml,
+    ]
   );
 
   const [splitKeyboard, setSplitKeyboard] = React.useState(true);
-  const [alphabet, setAlphabet] = React.useState<'ipa' | 'vx'>('vx');
+  const [alphabet, setAlphabet] = React.useState<'ipa' | 'vx'>('ipa');
   const [currentChunk, setCurrentChunk] = React.useState<number>();
   const [syllables, setSyllables] = React.useState<PhoneticSyllable[]>([
     { ipaPhonemes: [] },
@@ -505,11 +514,11 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
           const syllableChunks: string[] = [];
 
           if (syllable.stress === 'primary') {
-            syllableChunks.push(phonemes.en.stresses.primary.ipa);
+            syllableChunks.push(phonemes[languageCode].stresses.primary.ipa);
           }
 
           for (const p of syllable.ipaPhonemes) {
-            syllableChunks.push(phonemes.en.allByIpa[p]['vx']);
+            syllableChunks.push(phonemes[languageCode].allByIpa[p]?.ipa || '?');
           }
 
           const joinedSyllable = syllableChunks.join('');
@@ -637,9 +646,9 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
       lastAudio.current = undefined;
     }
 
-    setSsmlToPreview(`<speak>${ssmlWord(syllables)}</speak>`);
+    setSsmlToPreview(`<speak>${ssmlWord(syllables, languageCode)}</speak>`);
     setPlayingPreview(true);
-  }, [syllables]);
+  }, [languageCode, syllables]);
 
   const onKeyDown = React.useCallback(
     (event: KeyboardEvent) => {
@@ -669,7 +678,9 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
           break;
 
         default: {
-          for (const phoneme of Object.values(phonemes.en.allByIpa)) {
+          for (const phoneme of Object.values(
+            phonemes[languageCode].allByIpa
+          )) {
             if ('shortcut' in phoneme && phoneme.shortcut === event.key) {
               onInput(phoneme);
               break;
@@ -681,6 +692,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
     [
       addSyllable,
       currentSyllableIdx,
+      languageCode,
       onBackspace,
       onInput,
       onPlayPreview,
@@ -747,6 +759,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
       data: {
         exportSource: 'phonetic',
         phonetic: ssmlChunks,
+        recordingDataUrl: '',
         text: savedEdit?.text || original,
       },
     });
@@ -784,11 +797,11 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
       >
         <SyllableText>
           {syllable.ipaPhonemes.length === 0 && ' '}
-          {hasStress && phonemes.en.stresses.primary[alphabet]}
+          {hasStress && phonemes[languageCode].stresses.primary[alphabet]}
           {syllable.ipaPhonemes.map((p, idxPhoneme) => (
             // eslint-disable-next-line react/no-array-index-key
             <span key={`${idxPhoneme}-${p}`}>
-              {phonemes.en.allByIpa[p][alphabet]}
+              {phonemes[languageCode].allByIpa[p]?.[alphabet] || '?'}
             </span>
           ))}
         </SyllableText>
@@ -979,7 +992,7 @@ function splitIdeographic(text: string) {
 
 export interface PhoneticAudioControlsProps {
   disabled?: boolean;
-  languageCode: string;
+  languageCode: LanguageCode;
   jurisdictionId: string;
   original: string;
 }
@@ -999,10 +1012,10 @@ export function PhoneticAudioControls(
   const ssml = React.useMemo(() => {
     const chunks: string[] = ['<speak>'];
 
-    if (savedSsml) {
+    if (savedSsml?.length) {
       for (let i = 0; i < savedSsml.length; i += 1) {
         const { syllables, text } = savedSsml[i];
-        chunks.push(syllables ? ssmlWord(syllables) : text);
+        chunks.push(syllables ? ssmlWord(syllables, languageCode) : text);
       }
     } else {
       chunks.push(original);
@@ -1011,7 +1024,7 @@ export function PhoneticAudioControls(
     chunks.push('</speak>');
 
     return chunks.join(' ');
-  }, [original, savedSsml]);
+  }, [languageCode, original, savedSsml]);
 
   const dataUrlQuery = api.ttsSynthesizeFromSsml.useQuery({
     languageCode,
@@ -1033,16 +1046,16 @@ export function PhoneticAudioControls(
   );
 }
 
-function ssmlWord(syllables: PhoneticSyllable[]) {
+function ssmlWord(syllables: PhoneticSyllable[], lang: LanguageCode) {
   let combinedPhonemes = '';
   for (let i = 0; i < syllables.length; i += 1) {
     const syllable = syllables[i];
     if (syllable.ipaPhonemes.length === 0) continue;
 
     if (syllable.stress === 'primary') {
-      combinedPhonemes += phonemes.en.stresses.primary.ipa;
+      combinedPhonemes += phonemes[lang].stresses.primary.ipa;
     } else if (syllable.stress === 'secondary') {
-      combinedPhonemes += phonemes.en.stresses.secondary.ipa;
+      combinedPhonemes += phonemes[lang].stresses.secondary.ipa;
     } else if (i > 0) {
       combinedPhonemes += '.';
     }

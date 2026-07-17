@@ -434,12 +434,14 @@ describe('tts_strings', () => {
     await store.ttsEditsSet(key, {
       exportSource: 'phonetic',
       phonetic: [{ text: 'one' }, { text: 'two' }],
+      recordingDataUrl: '',
       text: 'one two',
     });
 
     await expect(store.ttsEditsGet(key)).resolves.toEqual({
       exportSource: 'phonetic',
       phonetic: [{ text: 'one' }, { text: 'two' }],
+      recordingDataUrl: '',
       text: 'one two',
     });
 
@@ -449,6 +451,7 @@ describe('tts_strings', () => {
         { text: 'one' },
         { syllables: [{ ipaPhonemes: ['t', 'uː'] }], text: 'two' },
       ],
+      recordingDataUrl: '',
       text: 'one two',
     });
 
@@ -458,6 +461,7 @@ describe('tts_strings', () => {
         { text: 'one' },
         { syllables: [{ ipaPhonemes: ['t', 'uː'] }], text: 'two' },
       ],
+      recordingDataUrl: '',
       text: 'one two',
     });
   });
@@ -472,7 +476,12 @@ describe('tts_strings', () => {
         languageCode: 'en',
         original: 'one two',
       },
-      { exportSource: 'text', phonetic: [], text: 'wun too' }
+      {
+        exportSource: 'text',
+        phonetic: [],
+        recordingDataUrl: '',
+        text: 'wun too',
+      }
     );
     await store.ttsEditsSet(
       {
@@ -480,7 +489,12 @@ describe('tts_strings', () => {
         languageCode: 'es',
         original: 'three four',
       },
-      { exportSource: 'text', phonetic: [], text: 'three foar' }
+      {
+        exportSource: 'text',
+        phonetic: [],
+        recordingDataUrl: '',
+        text: 'three foar',
+      }
     );
 
     await store.ttsEditsSet(
@@ -489,7 +503,12 @@ describe('tts_strings', () => {
         languageCode: 'en',
         original: 'five six',
       },
-      { exportSource: 'text', phonetic: [], text: 'fayv six' }
+      {
+        exportSource: 'text',
+        phonetic: [],
+        recordingDataUrl: '',
+        text: 'fayv six',
+      }
     );
 
     await expect(

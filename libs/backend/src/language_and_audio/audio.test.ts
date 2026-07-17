@@ -110,6 +110,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
           exportSource: 'text',
           phonetic: [],
+          recordingDataUrl: '',
         },
 
         // Ignored - no language match:
@@ -120,6 +121,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
           exportSource: 'text',
           phonetic: [],
+          recordingDataUrl: '',
         },
 
         // Ignored - no app string editing supported, currently:
@@ -130,6 +132,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
           exportSource: 'text',
           phonetic: [],
+          recordingDataUrl: '',
         },
       ],
       speechSynthesizer: mockSynthesizer,
@@ -217,6 +220,7 @@ describe('extractAndTranslateElectionStrings', () => {
 
           exportSource: 'text',
           phonetic: [],
+          recordingDataUrl: '',
         },
       ],
       speechSynthesizer: mockSynthesizer,
