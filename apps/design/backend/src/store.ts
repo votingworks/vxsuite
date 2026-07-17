@@ -2964,7 +2964,7 @@ export class Store {
         original: row.original,
         languageCode: row.languageCode,
         phonetic: safeParse(PhoneticWordsSchema, row.phonetic).unsafeUnwrap(),
-        recordingDataUrl: row.recording_data_url,
+        recordingDataUrl: row.recordingDataUrl,
         text: row.text as string,
       }));
     });

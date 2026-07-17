@@ -519,6 +519,7 @@ describe('tts_strings', () => {
         languageCode: 'en',
         original: 'one two',
         phonetic: [],
+        recordingDataUrl: '',
         text: 'wun too',
       },
       {
@@ -526,6 +527,7 @@ describe('tts_strings', () => {
         languageCode: 'es',
         original: 'three four',
         phonetic: [],
+        recordingDataUrl: '',
         text: 'three foar',
       },
     ]);
