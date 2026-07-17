@@ -9,6 +9,7 @@ import { H3, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 import * as api from '../api';
 import { TtsTextEditor } from './tts_text_editor';
 import { Phoneditor } from './phoneditor';
+import { AudioRecorder } from './audio_recorder';
 
 const ModeContainer = styled.div`
   button {
@@ -31,17 +32,23 @@ const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
     value: 'phonetic',
     label: <ModeTitle>Phonetic</ModeTitle>,
   },
+  {
+    value: 'recorded',
+    label: <ModeTitle>Recorded</ModeTitle>,
+  },
 ];
 
 export interface AudioEditorProps {
   electionId: string;
+  hackyKey?: string;
   languageCode: LanguageCode;
   jurisdictionId: string;
   ttsDefault: TtsStringDefault;
 }
 
 export function AudioEditor(props: AudioEditorProps): React.ReactNode {
-  const { electionId, languageCode, jurisdictionId, ttsDefault } = props;
+  const { electionId, hackyKey, languageCode, jurisdictionId, ttsDefault } =
+    props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
   const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
@@ -50,6 +57,11 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
     languageCode,
     original: ttsDefault.text,
   });
+
+  React.useMemo(() => {
+    setMode(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ttsDefault.key, ttsDefault.subkey]);
 
   if (!savedEdit.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
 
@@ -64,7 +76,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
           disabled={!editable}
           label="Audio Source"
           hideLabel
-          numColumns={2}
+          numColumns={3}
           onChange={setMode}
           options={TTS_MODE_OPTIONS}
           value={currentMode}
@@ -77,6 +89,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
             return (
               <TtsTextEditor
                 editable={editable}
+                key={hackyKey}
                 languageCode={languageCode}
                 jurisdictionId={jurisdictionId}
                 original={ttsDefault.text}
@@ -87,6 +100,18 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
             return (
               <Phoneditor
                 editable={editable}
+                key={hackyKey}
+                jurisdictionId={jurisdictionId}
+                languageCode={languageCode}
+                original={ttsDefault.text}
+              />
+            );
+
+          case 'recorded':
+            return (
+              <AudioRecorder
+                editable={editable}
+                key={hackyKey}
                 jurisdictionId={jurisdictionId}
                 languageCode={languageCode}
                 original={ttsDefault.text}

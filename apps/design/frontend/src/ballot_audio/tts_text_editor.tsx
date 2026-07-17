@@ -208,6 +208,7 @@ function EditorImpl(
         data: {
           exportSource: 'text',
           phonetic: [],
+          recordingDataUrl: '',
           text: assertDefined(edit).trim(),
         },
       },
