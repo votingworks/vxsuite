@@ -49,6 +49,7 @@ test('ttsEditsGet', async () => {
   const output: TtsEdit = {
     exportSource: 'text',
     phonetic: [],
+    recordingDataUrl: '',
     text: 'ratatooie',
   };
 
@@ -80,6 +81,7 @@ test('ttsEditsSet', async () => {
     data: {
       exportSource: 'text',
       phonetic: [],
+      recordingDataUrl: '',
       text: 'ratatooie',
     },
   };

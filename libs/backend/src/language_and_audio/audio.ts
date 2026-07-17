@@ -7,6 +7,8 @@ import {
   TtsEditEntry,
   LanguageCode,
   ElectionStringKey,
+  phonemes,
+  PhoneticSyllable,
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
@@ -57,6 +59,7 @@ export function generateAudioIdsAndClips(ctx: {
       key: str.stringKey,
       languageCode: str.languageCode,
       phonetic: [],
+      recordingDataUrl: '',
       text,
     });
   });
@@ -103,6 +106,7 @@ export function generateAudioIdsAndClips(ctx: {
       key: str.stringKey,
       languageCode: str.languageCode,
       phonetic: [],
+      recordingDataUrl: '',
       text,
     });
   });
@@ -113,12 +117,44 @@ export function generateAudioIdsAndClips(ctx: {
     ctx.emitProgress?.(i, ttsStrings.size);
 
     for (const [audioId, str] of ttsStrings.entries()) {
-      // [TODO](https://github.com/votingworks/vxsuite/issues/7264): Support
-      // synthesis from phonetic edits.
-      assert(
-        str.exportSource === 'text',
-        'phonetic-based TTS not yet implemented'
-      );
+      if (str.exportSource === 'recorded') {
+        const clip: UiStringAudioClip = {
+          dataBase64: str.recordingDataUrl,
+          id: audioId,
+          languageCode: str.languageCode,
+        };
+
+        yield `${JSON.stringify(clip)}\n`;
+
+        continue;
+      }
+
+      if (str.exportSource === 'phonetic' && str.phonetic.length) {
+        const chunks: string[] = ['<speak>'];
+        for (const { syllables, text } of str.phonetic) {
+          chunks.push(
+            syllables
+              ? ssmlWord(syllables, str.languageCode as LanguageCode)
+              : text
+          );
+        }
+        chunks.push('</speak>');
+
+        const clip: UiStringAudioClip = {
+          dataBase64: await ctx.speechSynthesizer.fromSsml(
+            chunks.join(' '),
+            str.languageCode as LanguageCode
+          ),
+          id: audioId,
+          languageCode: str.languageCode,
+        };
+
+        yield `${JSON.stringify(clip)}\n`;
+
+        continue;
+      }
+
+      assert(str.exportSource === 'text');
 
       const clip: UiStringAudioClip = {
         dataBase64: await ctx.speechSynthesizer.synthesizeSpeech(
@@ -138,4 +174,23 @@ export function generateAudioIdsAndClips(ctx: {
   const uiStringAudioClips = Readable.from(uiStringAudioClipGenerator());
 
   return { uiStringAudioIds: audioIds, uiStringAudioClips };
+}
+
+function ssmlWord(syllables: PhoneticSyllable[], lang: LanguageCode) {
+  let combinedPhonemes = '';
+  for (const [i, syllable] of syllables.entries()) {
+    if (syllable.ipaPhonemes.length === 0) continue;
+
+    if (syllable.stress === 'primary') {
+      combinedPhonemes += phonemes[lang].stresses.primary.ipa;
+    } else if (syllable.stress === 'secondary') {
+      combinedPhonemes += phonemes[lang].stresses.secondary.ipa;
+    } else if (i > 0) {
+      combinedPhonemes += '.';
+    }
+
+    for (const phoneme of syllable.ipaPhonemes) combinedPhonemes += phoneme;
+  }
+
+  return `<phoneme alphabet="ipa" ph="${combinedPhonemes}" />`;
 }
