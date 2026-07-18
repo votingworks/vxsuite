@@ -1,0 +1,12 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build:self": {
+      "outputs": [
+        "build/**",
+        "target/release/pdictl",
+        "target/release/pdi-parse-traffic"
+      ]
+    }
+  }
+}

@@ -120,6 +120,12 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
+      case turbo.ValidationIssueKind.MissingCargoBinaryOutput:
+        stderr.write(
+          `${issue.packageDir}: Cargo binary "${issue.binaryName}" is not a turbo output. Add it to build:self outputs in ${issue.packageDir}/turbo.json, e.g. "outputs": ["build/**", "${issue.expectedOutput}"]\n`
+        );
+        break;
+
       default:
         throwIllegalValue(issue);
     }

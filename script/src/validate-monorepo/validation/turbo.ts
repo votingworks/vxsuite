@@ -6,6 +6,7 @@ import { findCargoTomlFiles } from './cargo';
 
 export enum ValidationIssueKind {
   UntrackedCargoPathDependency = 'UntrackedCargoPathDependency',
+  MissingCargoBinaryOutput = 'MissingCargoBinaryOutput',
 }
 
 /**
@@ -23,7 +24,22 @@ export interface UntrackedCargoPathDependencyIssue {
   readonly suggestedInput: string;
 }
 
-export type ValidationIssue = UntrackedCargoPathDependencyIssue;
+/**
+ * A package whose turbo build runs `cargo build` produces a Cargo `[[bin]]`
+ * binary that isn't declared in its turbo `build:self` outputs. A turbo cache
+ * hit would then skip the build without restoring the binary.
+ */
+export interface MissingCargoBinaryOutputIssue {
+  readonly kind: ValidationIssueKind.MissingCargoBinaryOutput;
+  readonly packageName: string;
+  readonly packageDir: string;
+  readonly binaryName: string;
+  readonly expectedOutput: string;
+}
+
+export type ValidationIssue =
+  | UntrackedCargoPathDependencyIssue
+  | MissingCargoBinaryOutputIssue;
 
 const CARGO_DEP_SECTIONS = [
   'dependencies',
@@ -127,11 +143,62 @@ function buildsRust(pkg: PnpmPackageInfo): boolean {
 }
 
 /**
+ * If the package builds Rust binaries via `cargo build` (which builds every
+ * `[[bin]]`), returns the Cargo profile directory (`release`/`debug`/custom)
+ * those binaries land under; otherwise undefined (e.g. napi builds, which
+ * produce a `.node` library and no binaries).
+ */
+function cargoBuildProfile(pkg: PnpmPackageInfo): string | undefined {
+  const scripts = pkg.packageJson?.scripts ?? {};
+  const command = [scripts['build:self'], scripts['build:rust-addon']]
+    .filter((script): script is string => typeof script === 'string')
+    .join(' ');
+  if (!/cargo build/.test(command)) return undefined;
+  if (/--release\b/.test(command)) return 'release';
+  const profile = command.match(/--profile[ =]([\w-]+)/);
+  return profile ? profile[1] : 'debug';
+}
+
+function cargoBinaryNames(crateDir: string): string[] {
+  const cargoTomlPath = join(crateDir, 'Cargo.toml');
+  if (!existsSync(cargoTomlPath)) return [];
+  const bins = parseTomlFile(cargoTomlPath)['bin'];
+  if (!Array.isArray(bins)) return [];
+  return bins
+    .map((bin) => asRecord(bin)?.['name'])
+    .filter((name): name is string => typeof name === 'string');
+}
+
+/** Effective build:self outputs: the package override, else the root config. */
+function turboBuildSelfOutputs(pkgDir: string, root: string): string[] {
+  for (const turboJsonPath of [
+    join(pkgDir, 'turbo.json'),
+    join(root, 'turbo.json'),
+  ]) {
+    if (!existsSync(turboJsonPath)) continue;
+    const parsed = JSON.parse(readFileSync(turboJsonPath, 'utf-8')) as {
+      tasks?: Record<string, { outputs?: string[] }>;
+    };
+    const outputs = parsed.tasks?.['build:self']?.outputs;
+    if (outputs) return outputs;
+  }
+  return [];
+}
+
+function outputsCover(outputs: readonly string[], relPath: string): boolean {
+  return outputs.some((output) => {
+    if (output === relPath) return true;
+    const base = output.replace(/[/\\]\*.*$/, '');
+    return relPath === base || relPath.startsWith(`${base}/`);
+  });
+}
+
+/**
  * Check that every Rust-building package's transitive Cargo `path` dependencies
  * are visible to turbo's cache invalidation — either as a pnpm workspace
  * dependency or as an explicit `build:self` input in the package's turbo.json.
  */
-export function* checkConfig(
+function* checkCargoPathDepInputs(
   root: string,
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
@@ -178,4 +245,45 @@ export function* checkConfig(
       };
     }
   }
+}
+
+/**
+ * Check that every package building Rust binaries via `cargo build` declares
+ * each of its Cargo `[[bin]]` outputs in its turbo `build:self` outputs, so a
+ * turbo cache hit restores the binaries instead of silently omitting them.
+ */
+function* checkCargoBinaryOutputs(
+  root: string,
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
+): Generator<ValidationIssue> {
+  for (const pkg of workspacePackages.values()) {
+    if (!pkg.packageJson) continue;
+    const profile = cargoBuildProfile(pkg);
+    if (!profile) continue;
+    const outputs = turboBuildSelfOutputs(pkg.path, root);
+    for (const binaryName of cargoBinaryNames(pkg.path)) {
+      const expectedOutput = `target/${profile}/${binaryName}`;
+      if (outputsCover(outputs, expectedOutput)) continue;
+      yield {
+        kind: ValidationIssueKind.MissingCargoBinaryOutput,
+        packageName: pkg.name,
+        packageDir: relative(root, pkg.path),
+        binaryName,
+        expectedOutput,
+      };
+    }
+  }
+}
+
+/**
+ * Validate that per-package turbo.json configs keep turbo's cache correct for
+ * Rust: Cargo path-dependency sources are tracked as inputs, and Cargo binaries
+ * are declared as outputs.
+ */
+export function* checkConfig(
+  root: string,
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
+): Generator<ValidationIssue> {
+  yield* checkCargoPathDepInputs(root, workspacePackages);
+  yield* checkCargoBinaryOutputs(root, workspacePackages);
 }
