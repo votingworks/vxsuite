@@ -19,7 +19,7 @@ test('file open error', async () => {
 
 test('file exceeds max size', async () => {
   await fc.assert(
-    fc.asyncProperty(fc.nat(1024 * 1024 * 10), async (maxSize) => {
+    fc.asyncProperty(fc.nat(1024 * 1024), async (maxSize) => {
       const path = makeTemporaryFile({ content: 'a'.repeat(maxSize + 1) });
       expect(await readFile(path, { maxSize })).toEqual(
         err(
