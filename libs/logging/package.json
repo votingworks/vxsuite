@@ -10,9 +10,7 @@
     "build"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:generate-docs": "pnpm esr --cache ./scripts/generate_documentation.ts",
     "build:generate-rust-types": "pnpm esr --cache ./scripts/generate_rust_enums_from_toml.ts",
     "build:generate-types": "pnpm build:generate-typescript-types && pnpm build:generate-rust-types",

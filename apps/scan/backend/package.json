@@ -18,9 +18,7 @@
     "schema.sql"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "tsc --build tsconfig.build.json && ./scripts/copy_build_assets.sh",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",

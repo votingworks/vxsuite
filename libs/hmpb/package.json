@@ -12,9 +12,7 @@
   "scripts": {
     "benchmark": "bin/run-benchmarks ${BENCH_ENV:-default}",
     "benchmark:compare": "vitest bench --compare bench-results/${BENCH_ENV:-default}.json",
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "tsc --build tsconfig.build.json && cp -R ./src/fonts ./build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",

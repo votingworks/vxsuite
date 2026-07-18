@@ -15,9 +15,7 @@
   ],
   "scripts": {
     "benchmark": "cd benchmarks && vitest",
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:rust-addon": "napi build --platform --release",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",

@@ -6,9 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:watch": "nodemon -x 'pnpm build:self' -w src -w test -e rs",
     "build:self": "napi build --platform --release",
     "build:debug": "napi build --platform",

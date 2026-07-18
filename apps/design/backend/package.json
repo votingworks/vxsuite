@@ -16,9 +16,7 @@
     "bin"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
     "build:self": "tsc --build tsconfig.build.json",
     "cancel-background-task": "pnpm build:self && node ./build/scripts/cancel_background_task.js",

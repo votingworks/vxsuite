@@ -10,9 +10,7 @@
     "prodserver"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
     "build:self": "pnpm type-check && vite build",
     "clean": "pnpm --filter $npm_package_name... clean:self",

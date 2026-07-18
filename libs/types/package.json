@@ -10,9 +10,7 @@
     "build"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
     "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
