@@ -28,7 +28,8 @@
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsc --build",
+    "dev": "NODE_ENV=development pnpm start"
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",

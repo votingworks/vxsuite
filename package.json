@@ -14,7 +14,6 @@
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
     "generate-circleci-config": "node libs/monorepo-utils/bin/generate-circleci-config",
     "prepare": "husky install",
-    "run-dev": "script/run-dev",
     "shellcheck": "script/shellcheck",
     "update-snapshots": "script/update-snapshots"
   },

@@ -152,9 +152,18 @@ Aliasing to a distinctly-named package (rather than a second `typescript`) keeps
 ### Development Servers
 
 ```sh
-# Run a dev server for an app (from repo root)
+# Run an app's dev servers (frontend + backend) from repo root
 pnpm --filter @votingworks/<app-frontend> start
+# ...or from the app's frontend directory
+pnpm start
 ```
+
+Each app frontend's `start` script runs `turbo watch` over the frontend's Vite
+dev server (`dev:server`) and its backend service (`dev`). Because `turbo watch`
+re-runs a task when the package **or any of its dependencies** change, editing a
+shared library rebuilds it and restarts the backend automatically — including
+transitive dependency changes, which the previous `nodemon` setup missed. Vite
+keeps running across library changes and handles its own HMR.
 
 ## Turborepo
 
@@ -172,6 +181,8 @@ Tasks and their wiring (`turbo.json`):
 | `test:run`   | `^build:self` | (logs only)                                        |
 | `test:ci`    | `^build:self` | `coverage/**`, `reports/**`                        |
 | `clean:self` | —             | not cached                                         |
+| `dev:server` | `^build:self` | not cached (persistent; frontend Vite dev server)  |
+| `dev`        | `build:self`  | not cached (persistent + interruptible; a backend) |
 
 Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
 (`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm test:ci`,

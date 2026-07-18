@@ -21,6 +21,19 @@
     },
     "clean:self": {
       "cache": false
+    },
+    "dev:server": {
+      "dependsOn": ["^build:self"],
+      "cache": false,
+      "persistent": true,
+      "passThroughEnv": ["*"]
+    },
+    "dev": {
+      "dependsOn": ["build:self"],
+      "cache": false,
+      "persistent": true,
+      "interruptible": true,
+      "passThroughEnv": ["*"]
     }
   }
 }

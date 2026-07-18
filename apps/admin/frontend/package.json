@@ -18,8 +18,7 @@
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
-    "start": "pnpm -w run-dev admin",
-    "start:core": "pnpm -w run-dev admin --core-only",
+    "start": "VX_MACHINE_TYPE=admin turbo watch @votingworks/admin-frontend#dev:server @votingworks/admin-backend#dev",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.cjs",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.cjs --fix",
     "test": "is-ci test:ci test:watch",
@@ -27,7 +26,8 @@
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest",
-    "type-check": "tsc --build"
+    "type-check": "tsc --build",
+    "dev:server": "vite --clearScreen false"
   },
   "browserslist": {
     "production": [
