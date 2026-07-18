@@ -7,7 +7,7 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "turbo run build:self --filter=$npm_package_name",
-    "build:watch": "nodemon -x 'pnpm build:self' -w src -w test -e rs",
+    "build:watch": "turbo watch build:self --filter=$npm_package_name",
     "build:self": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "install:rust-addon": "cargo fetch",
@@ -30,7 +30,6 @@
     "@votingworks/types": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "nodemon": "^3.1.7",
     "tmp": "^0.2.6",
     "vitest": "^4.1.6"
   },
