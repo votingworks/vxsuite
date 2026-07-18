@@ -24,6 +24,20 @@ const singlePrecinctElectionTownVoters =
 const singlePrecinctElectionTownStreetNames =
   electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText();
 
+const multiPrecinctElectionDefinition =
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
+// Parse the street lists once at module load rather than inside each test body:
+// parsing is CPU-intensive and would otherwise count against the per-test
+// timeout (which flakes under CI load).
+const multiPrecinctCityStreets = parseValidStreetsFromCsvString(
+  electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+  multiPrecinctElectionDefinition.election
+);
+const singlePrecinctTownStreets = parseValidStreetsFromCsvString(
+  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
+  singlePrecinctElectionDefinition.election
+);
+
 let mockNodeEnv: 'production' | 'test' = 'test';
 
 vi.mock(
@@ -197,16 +211,10 @@ test('app config - polling usb from backend does trigger with system admin auth'
 test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns the configured precinct', async () => {
   await withApp(async ({ localApiClient, workspace }) => {
     // Initially, no configured precinct on a multi precinct election
-    const multiPrecinctElection =
-      electionMultiPartyPrimaryFixtures.readElectionDefinition();
-    const testStreets = parseValidStreetsFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
-      multiPrecinctElection.election
-    );
     workspace.store.setElectionAndVoters(
-      multiPrecinctElection,
+      multiPrecinctElectionDefinition,
       'mock-package-hash',
-      testStreets,
+      multiPrecinctCityStreets,
       []
     );
     let config = await localApiClient.getPollbookConfigurationInformation();
@@ -220,14 +228,14 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
     );
 
     const ok = await localApiClient.setConfiguredPrecinct({
-      precinctId: multiPrecinctElection.election.precincts[0].id,
+      precinctId: multiPrecinctElectionDefinition.election.precincts[0].id,
     });
     expect(ok.ok()).toEqual(undefined);
 
     // Now it should be returned
     config = await localApiClient.getPollbookConfigurationInformation();
     expect(config.configuredPrecinctId).toEqual(
-      multiPrecinctElection.election.precincts[0].id
+      multiPrecinctElectionDefinition.election.precincts[0].id
     );
   });
 });
@@ -235,14 +243,10 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
 test('setting a single precinct election automatically sets the configured precinct', async () => {
   await withApp(async ({ localApiClient, workspace }) => {
     // Initially, no configured precinct on a multi precinct election
-    const testStreets = parseValidStreetsFromCsvString(
-      electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
-      singlePrecinctElectionDefinition.election
-    );
     workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,
       'mock-package-hash',
-      testStreets,
+      singlePrecinctTownStreets,
       []
     );
     const config = await localApiClient.getPollbookConfigurationInformation();
