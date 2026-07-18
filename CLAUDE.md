@@ -66,13 +66,27 @@ pnpm install
 
 ### Building
 
-```sh
-# Build a specific package and its dependencies
-pnpm --filter @votingworks/<package-name>... build
+Builds are orchestrated by [Turborepo](https://turborepo.com). Turbo derives
+task order from the workspace dependency graph and caches results (see the
+`## Turborepo` section below).
 
-# Build just one package (assumes deps are built)
+```sh
+# Build everything (from repo root)
+pnpm build
+
+# Build a specific package and its dependencies
+pnpm --filter @votingworks/<package-name> build
+# ...or, equivalently, from anywhere:
+turbo run build:self --filter=@votingworks/<package-name>
+
+# Build the package only, without (re)building its dependencies
 pnpm --filter @votingworks/<package-name> build:self
 ```
+
+A package's `build` script is a thin delegation to
+`turbo run build:self --filter=$npm_package_name`; `build:self` is the actual
+per-package build step (the Turbo task). Running `build` for any package builds
+its dependencies first, from the cache when possible.
 
 ### Running Tests
 
@@ -96,6 +110,9 @@ will hang.
 ### Linting & Formatting
 
 ```sh
+# Lint everything (from repo root, cached by Turbo)
+pnpm lint
+
 # Check for lint errors (from the package directory)
 pnpm lint
 
@@ -113,11 +130,14 @@ Use `tsc` for type checking. As of TypeScript 7, `tsc` is the native (Go-based)
 compiler, installed via the `@typescript/native` alias (`npm:typescript@7.0.2`):
 
 ```sh
+# Type-check everything (from repo root)
+pnpm type-check
+
 # Type-check a specific package
 pnpm --filter @votingworks/<package-name> run type-check
 
 # Build (includes type checking) a package and its dependencies
-pnpm --filter @votingworks/<package-name>... build
+pnpm --filter @votingworks/<package-name> build
 ```
 
 TypeScript 7 does not ship the classic JavaScript compiler API. The `typescript`
@@ -135,6 +155,35 @@ Aliasing to a distinctly-named package (rather than a second `typescript`) keeps
 # Run a dev server for an app (from repo root)
 pnpm --filter @votingworks/<app-frontend> start
 ```
+
+## Turborepo
+
+Task orchestration and caching are handled by [Turborepo](https://turborepo.com)
+(`turbo.json` at the repo root). It replaces the previous homegrown
+`is-ci`/`build:ci`/`build:dev` + `pnpm --filter …` recursion.
+
+Tasks and their wiring (`turbo.json`):
+
+| Task         | Depends on    | Cached outputs                                     |
+| ------------ | ------------- | -------------------------------------------------- |
+| `build:self` | `^build:self` | `build/**`, `tsconfig.build.tsbuildinfo`, `*.node` |
+| `type-check` | `^build:self` | `tsconfig.tsbuildinfo`                             |
+| `lint`       | `^build:self` | (logs only)                                        |
+| `test:run`   | `^build:self` | (logs only)                                        |
+| `test:ci`    | `^build:self` | `coverage/**`, `reports/**`                        |
+| `clean:self` | —             | not cached                                         |
+
+Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
+(`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm test:ci`,
+`pnpm clean`) wrap the corresponding Turbo task across all packages.
+
+**Cross-worktree cache:** Turbo automatically shares its local cache across git
+worktrees of this repo (stored under the shared `.git` directory), so artifacts
+built in one worktree are reused in another with no configuration.
+
+**CI caching:** CI currently runs Turbo tasks per package without a shared
+remote cache (each job builds fresh). Enabling Turbo remote caching in CI is a
+planned follow-up.
 
 ## Testing
 
