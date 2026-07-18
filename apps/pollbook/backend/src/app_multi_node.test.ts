@@ -38,6 +38,14 @@ const testStreets = parseValidStreetsFromCsvString(
   electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
   singlePrecinctElectionDefinition.election
 );
+const multiPrecinctCityVoters = parseVotersFromCsvString(
+  electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
+  multiPrecinctElectionDefinition.election
+);
+const multiPrecinctCityStreets = parseValidStreetsFromCsvString(
+  electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+  multiPrecinctElectionDefinition.election
+);
 
 vi.mock(
   './globals.js',
@@ -1260,14 +1268,8 @@ test('pollbooks with different configured precinct values cannot connect', async
     pollbookContext1.workspace.store.setElectionAndVoters(
       multiPrecinctElectionDefinition,
       'mock-package-hash',
-      parseValidStreetsFromCsvString(
-        electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
-        multiPrecinctElectionDefinition.election
-      ),
-      parseVotersFromCsvString(
-        electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
-        multiPrecinctElectionDefinition.election
-      )
+      multiPrecinctCityStreets,
+      multiPrecinctCityVoters
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
       multiPrecinctElectionDefinition,
