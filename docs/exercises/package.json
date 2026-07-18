@@ -9,11 +9,9 @@
     "clean": "echo 'Nothing to clean'",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
-    "test:watch": "vitest",
-    "type-check": "tsc --build"
+    "test": "vitest",
+    "type-check": "tsc --build",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@types/node": "20.19.43",
@@ -21,7 +19,6 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"
   },

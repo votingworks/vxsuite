@@ -34,6 +34,11 @@ function generateTestJobForNodeJsPackage(
   const snapshotDirs = findImageSnapshotDirsRelativeToSrc(pkg.path);
   const hasSnapshotTests = snapshotDirs.length > 0;
   const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
+  // Most packages' `test` script is plain `vitest`, which runs once with
+  // coverage in CI (see vitest.config.shared.mts). A couple of packages keep a
+  // dedicated `test:ci` for non-vitest CI steps (DB migration validation,
+  // generated-type checks); prefer it when present.
+  const testScript = pkg.packageJson?.scripts?.['test:ci'] ? 'test:ci' : 'test';
 
   const lines = [
     `# ${pkg.name}`,
@@ -68,7 +73,7 @@ function generateTestJobForNodeJsPackage(
           `          - run:`,
           `              name: Test`,
           `              command: |`,
-          `                pnpm --dir ${pkg.relativePath} test`,
+          `                pnpm --dir ${pkg.relativePath} ${testScript}`,
           `              environment:`,
           `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `          - store_test_results:`,
@@ -81,7 +86,7 @@ function generateTestJobForNodeJsPackage(
           `    - run:`,
           `        name: Test`,
           `        command: |`,
-          `          pnpm --dir ${pkg.relativePath} test`,
+          `          pnpm --dir ${pkg.relativePath} ${testScript}`,
           `        environment:`,
           `          JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `    - store_test_results:`,

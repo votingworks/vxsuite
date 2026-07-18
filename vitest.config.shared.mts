@@ -6,6 +6,12 @@ export const base: vitest.ViteUserConfig = {
   test: {
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     coverage: {
+      // Collect coverage (and enforce thresholds) in CI only; locally, tests
+      // run without coverage for speed. This — together with vitest's built-in
+      // watch-when-interactive default — is what lets a single `test` script
+      // (`vitest`) watch locally and run-once-with-coverage in CI, replacing
+      // the previous is-ci `test:ci`/`test:watch` split.
+      enabled: isCI,
       thresholds: {
         lines: 100,
         branches: 100,

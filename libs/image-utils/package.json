@@ -12,11 +12,8 @@
     "clean:self": "rm -rf build",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
+    "test": "vitest",
     "test:run": "vitest run",
-    "test:watch": "vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -43,7 +40,6 @@
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "is-ci-cli": "2.2.0",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@10.34.5"

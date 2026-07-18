@@ -7,7 +7,6 @@
     "type-check": "turbo run type-check",
     "lint": "turbo run lint",
     "test": "turbo run test:run",
-    "test:ci": "turbo run test:ci",
     "clean": "turbo run clean:self",
     "clean-all": "git clean -dfX",
     "configure-env": "node libs/utils/build/scripts/generate_env_file.js",

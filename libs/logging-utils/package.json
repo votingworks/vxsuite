@@ -13,10 +13,8 @@
     "install:rust-addon": "cargo fetch",
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "cargo test && vitest",
+    "test": "vitest",
     "test:run": "cargo test && vitest run",
-    "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
     "universal": "napi universal",
     "version": "napi version"
   },
@@ -29,7 +27,6 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "tmp": "^0.2.6",
     "vitest": "^4.1.6"
   },

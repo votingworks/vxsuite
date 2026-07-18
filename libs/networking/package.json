@@ -24,11 +24,8 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm test:coverage --run",
-    "test:coverage": "vitest --coverage",
+    "test": "vitest",
     "test:run": "vitest run",
-    "test:watch": "vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -43,7 +40,6 @@
     "esbuild": "0.28.1",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"

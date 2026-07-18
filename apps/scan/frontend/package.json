@@ -22,11 +22,8 @@
     "start": "VX_MACHINE_TYPE=scan turbo watch @votingworks/scan-frontend#dev:server @votingworks/scan-backend#dev",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test": "TZ=America/Anchorage vitest",
     "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
   },
   "browserslist": {
@@ -93,7 +90,6 @@
     "@votingworks/usb-drive": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "history": "4.10.1",
-    "is-ci-cli": "2.2.0",
     "jsdom": "20.0.1",
     "react-app-polyfill": "3.0.0",
     "sort-package-json": "^1.50.0",

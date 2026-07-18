@@ -16,8 +16,7 @@
       "dependsOn": ["build:self"]
     },
     "test:ci": {
-      "dependsOn": ["build:self"],
-      "outputs": ["coverage/**", "reports/**"]
+      "dependsOn": ["build:self"]
     },
     "clean:self": {
       "cache": false

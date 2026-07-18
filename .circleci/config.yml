@@ -235,7 +235,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/design/backend test
+            pnpm --dir apps/design/backend test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1221,7 +1221,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/logging test
+            pnpm --dir libs/logging test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:

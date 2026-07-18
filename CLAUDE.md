@@ -107,6 +107,13 @@ pnpm test:run -t "test name pattern"
 Do NOT use `pnpm test` or run vitest directly without `--run` — the watch mode
 will hang.
 
+Each package's `test` script is just `vitest`: it watches locally (interactive)
+and runs once with coverage in CI. Coverage is enabled only in CI, keyed on the
+`CI` env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so
+`test:run` is fast locally and enforces the 100% thresholds in CI. This replaces
+the old `is-ci`-based `test:ci`/`test:watch` split; a couple of packages
+(design, logging) keep a dedicated `test:ci` for non-vitest CI steps.
+
 ### Linting & Formatting
 
 ```sh
@@ -178,8 +185,8 @@ Tasks and their wiring (`turbo.json`):
 | `build:self` | `^build:self` | `build/**`, `tsconfig.build.tsbuildinfo`, `*.node` |
 | `type-check` | `^build:self` | `tsconfig.tsbuildinfo`                             |
 | `lint`       | `^build:self` | (logs only)                                        |
-| `test:run`   | `^build:self` | (logs only)                                        |
-| `test:ci`    | `^build:self` | `coverage/**`, `reports/**`                        |
+| `test:run`   | `build:self`  | (logs only)                                        |
+| `test:ci`    | `build:self`  | (logs only; design/logging non-vitest CI steps)    |
 | `clean:self` | —             | not cached                                         |
 | `dev:server` | `^build:self` | not cached (persistent; frontend Vite dev server)  |
 | `dev`        | `build:self`  | not cached (persistent + interruptible; a backend) |

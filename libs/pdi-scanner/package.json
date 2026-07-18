@@ -19,14 +19,9 @@
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "vitest run --coverage",
+    "test": "vitest",
     "test:run": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
-    "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "vitest --coverage",
-    "test:ts:run": "vitest run",
-    "test:ts:watch": "vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -44,7 +39,6 @@
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@10.34.5"
