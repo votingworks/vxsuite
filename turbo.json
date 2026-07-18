@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build:self": {
+      "dependsOn": ["^build:self"],
+      "outputs": ["build/**", "*.node"]
+    },
+    "type-check": {
+      "dependsOn": ["^build:self"],
+      "outputs": ["tsconfig.tsbuildinfo"]
+    },
+    "lint": {
+      "dependsOn": ["^build:self"]
+    },
+    "test:run": {
+      "dependsOn": ["^build:self"]
+    },
+    "test:ci": {
+      "dependsOn": ["^build:self"],
+      "outputs": ["coverage/**", "reports/**"]
+    },
+    "clean:self": {
+      "cache": false
+    }
+  }
+}

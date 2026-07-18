@@ -3,6 +3,12 @@
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {
+    "build": "turbo run build:self",
+    "type-check": "turbo run type-check",
+    "lint": "turbo run lint",
+    "test": "turbo run test:run",
+    "test:ci": "turbo run test:ci",
+    "clean": "turbo run clean:self",
     "clean-all": "git clean -dfX",
     "configure-env": "node libs/utils/build/scripts/generate_env_file.js",
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
@@ -50,6 +56,7 @@
     "storybook": "^7.2.2",
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0",
+    "turbo": "2.10.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "^4.1.6"
   },

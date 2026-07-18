@@ -31,6 +31,7 @@ junit.xml
 
 # Mock state files (namespaced by NODE_ENV for worktree isolation)
 /.mock-state
+.turbo
 
 # jest-image-snapshot failure diffs, regenerated on each failing run
 **/__diff_output__/
