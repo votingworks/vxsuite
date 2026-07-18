@@ -74,6 +74,7 @@ import { InvalidateRegistrationReceipt } from './receipts/invalidate_registratio
 import { BarcodeScannerClient } from './barcode_scanner/client';
 import { securityHeadersMiddleware } from './security_middleware';
 import { constructAuthMachineState } from './auth';
+import { RestartablePoller, setStopBackgroundTasks } from './background_tasks';
 
 const debug = rootDebug.extend('local_app');
 
@@ -83,7 +84,16 @@ interface BuildAppParams {
   logger: Logger;
 }
 
-function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
+interface BuildApiParams extends BuildAppParams {
+  usbDrivePoller: RestartablePoller;
+}
+
+function buildApi({
+  context,
+  logger,
+  barcodeScannerClient,
+  usbDrivePoller,
+}: BuildApiParams) {
   const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
     context;
   const { store } = workspace;
@@ -255,7 +265,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         workspace.store.setConfigurationStatus(undefined);
       }
       await workspace.peerApiClient.unconfigure();
-      pollUsbDriveForPollbookPackage(context);
+      usbDrivePoller.restart();
     },
 
     getIsAbsenteeMode(): boolean {
@@ -790,10 +800,18 @@ export function buildLocalApp({
   // Apply security headers middleware first
   app.use(securityHeadersMiddleware);
 
-  const api = buildApi({ context, logger, barcodeScannerClient });
+  const usbDrivePoller = new RestartablePoller(() =>
+    pollUsbDriveForPollbookPackage(context)
+  );
+  const api = buildApi({
+    context,
+    logger,
+    barcodeScannerClient,
+    usbDrivePoller,
+  });
   app.use('/api', grout.buildRouter(api, express));
 
-  pollUsbDriveForPollbookPackage(context);
+  setStopBackgroundTasks(app, () => usbDrivePoller.stop());
 
   return app;
 }

@@ -17,8 +17,9 @@ import {
 import { pollNetworkForPollbookPackage } from './pollbook_package';
 import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals';
 import { securityHeadersMiddleware } from './security_middleware';
+import { RestartablePoller, setStopBackgroundTasks } from './background_tasks';
 
-function buildApi(context: PeerAppContext) {
+function buildApi(context: PeerAppContext, networkPoller: RestartablePoller) {
   const { workspace } = context;
   const { store } = workspace;
 
@@ -39,7 +40,7 @@ function buildApi(context: PeerAppContext) {
     },
 
     unconfigure() {
-      pollNetworkForPollbookPackage(context);
+      networkPoller.restart();
     },
 
     async resetNetwork() {
@@ -66,7 +67,10 @@ export function buildPeerApp(context: PeerAppContext): Application {
   // Apply security headers middleware first
   app.use(securityHeadersMiddleware);
 
-  const api = buildApi(context);
+  const networkPoller = new RestartablePoller(() =>
+    pollNetworkForPollbookPackage(context)
+  );
+  const api = buildApi(context, networkPoller);
   app.use('/api', grout.buildRouter(api, express));
 
   // Streaming endpoint for sending the pollbook package zip file to a peer
@@ -97,9 +101,14 @@ export function buildPeerApp(context: PeerAppContext): Application {
     });
   });
 
-  setupMachineNetworking(context);
-  fetchEventsFromConnectedPollbooks(context);
-  pollNetworkForPollbookPackage(context);
+  const machineNetworkingPoller = setupMachineNetworking(context);
+  const fetchEventsPoller = fetchEventsFromConnectedPollbooks(context);
+
+  setStopBackgroundTasks(app, () => {
+    networkPoller.stop();
+    machineNetworkingPoller.stop();
+    fetchEventsPoller.stop();
+  });
 
   return app;
 }

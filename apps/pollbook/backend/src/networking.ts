@@ -22,6 +22,7 @@ import {
 } from './globals';
 import type { PeerApi } from './peer_app';
 import { intermediateScript } from './intermediate_scripts';
+import { Poller } from './background_tasks';
 
 const debug = rootDebug.extend('networking');
 
@@ -85,12 +86,17 @@ export function getNodeServiceName(machineId: string): string {
 
 export function fetchEventsFromConnectedPollbooks({
   workspace,
-}: PeerAppContext): void {
+}: PeerAppContext): Poller {
+  let intervalId: ReturnType<typeof setInterval> | undefined;
+  let stopped = false;
   // Poll to fetch events from connected pollbooks using a gossip protocol
   process.nextTick(() => {
+    if (stopped) {
+      return;
+    }
     let isPolling = false;
     let pollbookQueue: string[] = [];
-    setInterval(async () => {
+    intervalId = setInterval(async () => {
       if (isPolling) {
         return;
       }
@@ -217,6 +223,15 @@ export function fetchEventsFromConnectedPollbooks({
       }
     }, EVENT_POLLING_INTERVAL);
   });
+
+  return {
+    stop: () => {
+      stopped = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    },
+  };
 }
 
 export function isValidIpv4Address(address: string): boolean {
@@ -228,7 +243,7 @@ export function isValidIpv4Address(address: string): boolean {
 export function setupMachineNetworking({
   machineId,
   workspace,
-}: PeerAppContext): void {
+}: PeerAppContext): Poller {
   const selfMachineServiceName = getNodeServiceName(machineId);
   // Advertise a service for this machine
   debug(
@@ -242,10 +257,15 @@ export function setupMachineNetworking({
   });
 
   // Poll for new machines on the network
+  let intervalId: ReturnType<typeof setInterval> | undefined;
+  let stopped = false;
   process.nextTick(() => {
+    if (stopped) {
+      return;
+    }
     let isPolling = false;
 
-    setInterval(async () => {
+    intervalId = setInterval(async () => {
       if (isPolling) {
         return;
       }
@@ -442,4 +462,13 @@ export function setupMachineNetworking({
       }
     }, NETWORK_POLLING_INTERVAL);
   });
+
+  return {
+    stop: () => {
+      stopped = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    },
+  };
 }

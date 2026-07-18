@@ -39,6 +39,7 @@ import {
 } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
+import { stopBackgroundTasks } from '../src/background_tasks';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client';
 import {
   EVENT_POLLING_INTERVAL,
@@ -195,6 +196,8 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
+    stopBackgroundTasks(app);
+    stopBackgroundTasks(peerApp);
     // wait for paper backup export to finish?
     await new Promise<void>((resolve, reject) => {
       AvahiService.stopAdvertisedService();
@@ -303,6 +306,8 @@ export async function withManyApps(
   } finally {
     for (const context of contexts) {
       const serviceName = `Pollbook-test-${contexts.indexOf(context)}`;
+      stopBackgroundTasks(context.app);
+      stopBackgroundTasks(context.peerApp);
       await new Promise<void>((resolve, reject) => {
         AvahiService.stopAdvertisedService(serviceName);
         context.localServer.close((error) =>

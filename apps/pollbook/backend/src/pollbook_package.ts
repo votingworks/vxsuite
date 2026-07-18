@@ -36,6 +36,7 @@ import {
   POLLBOOK_PACKAGE_FILENAME_PREFIX,
 } from './globals';
 import { constructAuthMachineState } from './auth';
+import { Poller } from './background_tasks';
 
 const usbDebug = rootDebug.extend('usb');
 const debug = rootDebug.extend('pollbook-package');
@@ -291,16 +292,21 @@ export function pollUsbDriveForPollbookPackage({
   auth,
   workspace,
   usbDrive,
-}: LocalAppContext): void {
+}: LocalAppContext): Poller {
   usbDebug('Polling USB drive for pollbook package');
   if (workspace.store.getElection()) {
-    return;
+    return { stop: () => {} };
   }
   let pollingIntervalLock = false; // Flag to prevent overlapping executions
   let hadConfigurationError = false;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
+  let stopped = false;
 
   process.nextTick(() => {
-    const intervalId = setInterval(async () => {
+    if (stopped) {
+      return;
+    }
+    intervalId = setInterval(async () => {
       if (pollingIntervalLock) {
         return; // Skip if a polling iteration is already in progress
       }
@@ -406,21 +412,35 @@ export function pollUsbDriveForPollbookPackage({
       }
     }, CONFIGURATION_POLLING_INTERVAL);
   });
+
+  return {
+    stop: () => {
+      stopped = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    },
+  };
 }
 
 export function pollNetworkForPollbookPackage({
   auth,
   workspace,
-}: PeerAppContext): void {
+}: PeerAppContext): Poller {
   usbDebug('Polling network for pollbook package');
   if (workspace.store.getElection()) {
-    return;
+    return { stop: () => {} };
   }
   let pollingIntervalLock = false; // Flag to prevent overlapping executions
   let hadConfigurationError = false;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
+  let stopped = false;
 
   process.nextTick(() => {
-    const intervalId = setInterval(async () => {
+    if (stopped) {
+      return;
+    }
+    intervalId = setInterval(async () => {
       if (pollingIntervalLock) {
         return; // Skip if a polling iteration is already in progress
       }
@@ -508,4 +528,13 @@ export function pollNetworkForPollbookPackage({
       }
     }, CONFIGURATION_POLLING_INTERVAL);
   });
+
+  return {
+    stop: () => {
+      stopped = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    },
+  };
 }
