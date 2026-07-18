@@ -16,7 +16,7 @@
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
     "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts",
     "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",

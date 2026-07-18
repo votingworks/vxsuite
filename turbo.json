@@ -13,10 +13,10 @@
       "dependsOn": ["^build:self"]
     },
     "test:run": {
-      "dependsOn": ["^build:self"]
+      "dependsOn": ["build:self"]
     },
     "test:ci": {
-      "dependsOn": ["^build:self"],
+      "dependsOn": ["build:self"],
       "outputs": ["coverage/**", "reports/**"]
     },
     "clean:self": {

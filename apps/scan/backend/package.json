@@ -20,7 +20,7 @@
   "scripts": {
     "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "tsc --build tsconfig.build.json && ./scripts/copy_build_assets.sh",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache .",

@@ -13,7 +13,7 @@
     "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "pnpm type-check && vite build",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts os:src/stubs/os.ts",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run",

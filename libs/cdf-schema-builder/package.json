@@ -14,7 +14,7 @@
   "scripts": {
     "build": "turbo run build:self --filter=$npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",

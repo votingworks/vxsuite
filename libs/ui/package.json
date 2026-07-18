@@ -15,7 +15,7 @@
     "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
     "build:self": "tsc --build tsconfig.build.json && pnpm build:app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run && pnpm check:app-strings-catalog",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",

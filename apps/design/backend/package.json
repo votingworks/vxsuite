@@ -20,7 +20,7 @@
     "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
     "build:self": "tsc --build tsconfig.build.json",
     "cancel-background-task": "pnpm build:self && node ./build/scripts/cancel_background_task.js",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
     "create-jurisdiction": "pnpm build:self && node ./build/scripts/create_jurisdiction.js",
     "create-jurisdiction-user": "pnpm build:self && node ./build/scripts/create_jurisdiction_user.js",
