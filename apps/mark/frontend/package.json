@@ -93,7 +93,6 @@
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "concurrently": "7.6.0",
     "eslint-plugin-vx": "workspace:*",
     "fetch-mock": "9.11.0",
     "is-ci-cli": "2.2.0",
