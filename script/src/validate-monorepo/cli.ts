@@ -6,6 +6,7 @@ import * as cargo from './validation/cargo';
 import * as circleci from './validation/circleci';
 import * as pkgs from './validation/packages';
 import * as tsconfig from './validation/tsconfig';
+import * as turbo from './validation/turbo';
 
 /**
  * Validate the monorepo build configuration, printing any issues found.
@@ -21,7 +22,8 @@ export async function main({ stderr }: IO): Promise<number> {
         stderr.write(`Mismatched package configuration:\n`);
         for (const { packageJsonPath, propertyName, value } of properties) {
           stderr.write(
-            `  ${relative(cwd, packageJsonPath)}: ${propertyName} ${typeof value === 'undefined' ? 'is unset' : `= ${value}`
+            `  ${relative(cwd, packageJsonPath)}: ${propertyName} ${
+              typeof value === 'undefined' ? 'is unset' : `= ${value}`
             }\n`
           );
         }
@@ -63,7 +65,8 @@ export async function main({ stderr }: IO): Promise<number> {
 
       case tsconfig.ValidationIssueKind.InvalidPropertyValue:
         stderr.write(
-          `${relative(cwd, issue.tsconfigPath)}: invalid value for "${issue.propertyKeyPath
+          `${relative(cwd, issue.tsconfigPath)}: invalid value for "${
+            issue.propertyKeyPath
           }": ${issue.actualValue} (expected ${issue.expectedValue})\n`
         );
         break;
@@ -85,7 +88,8 @@ export async function main({ stderr }: IO): Promise<number> {
           `${relative(
             cwd,
             issue.packageJsonPath
-          )}: missing expected workspace dependency on ${issue.dependencyName
+          )}: missing expected workspace dependency on ${
+            issue.dependencyName
           }\n`
         );
         break;
@@ -108,6 +112,12 @@ export async function main({ stderr }: IO): Promise<number> {
             `  ${prop.cargoTomlPath}: ${prop.section}.${prop.name} = ${prop.version}\n`
           );
         }
+        break;
+
+      case turbo.ValidationIssueKind.UntrackedCargoPathDependency:
+        stderr.write(
+          `${issue.packageDir}: Cargo path dependency "${issue.cargoPathDep}" is not tracked by turbo. Add it to build:self inputs in ${issue.packageDir}/turbo.json, e.g. "inputs": ["$TURBO_DEFAULT$", "${issue.suggestedInput}"]\n`
+        );
         break;
 
       default:
