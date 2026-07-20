@@ -52,7 +52,7 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     const cacheMisses: Array<{ index: number; text: string }> = [];
     for (const [index, text] of textArray.entries()) {
       const vendoredTranslation =
-        this.vendoredTranslations[targetLanguageCode][text];
+        this.vendoredTranslations[targetLanguageCode]?.[text];
       if (vendoredTranslation) {
         translatedTextArray[index] = vendoredTranslation;
         counts.increment('Vendored translations');

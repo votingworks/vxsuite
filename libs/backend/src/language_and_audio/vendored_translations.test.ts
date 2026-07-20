@@ -18,13 +18,13 @@ function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
 
 test('vendored_translations.json', () => {
   const vendoredTranslations = parseVendoredTranslations();
-  const keySetsForEachLanguage: Array<Set<string>> = Object.values(
-    vendoredTranslations
-  )
-    .map(Object.keys)
-    .map((keys) => new Set(keys))
-    // Ignore languages that don't have vendored translations yet.
-    .filter((keySet) => keySet.size > 0);
+  const keySetsForEachLanguage: Array<Set<string>> = [];
+
+  for (const translations of Object.values(vendoredTranslations)) {
+    if (!translations || Object.keys(translations).length === 0) continue;
+    keySetsForEachLanguage.push(new Set(Object.keys(translations)));
+  }
+
   const firstKeySet = keySetsForEachLanguage[0];
   for (const keySet of keySetsForEachLanguage) {
     expect(areSetsEqual(assertDefined(firstKeySet), keySet)).toEqual(true);

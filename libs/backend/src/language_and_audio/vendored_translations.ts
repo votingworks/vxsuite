@@ -2,7 +2,7 @@ import { z } from 'zod/v4';
 import {
   safeParse,
   NonEnglishLanguageCode,
-  LanguageCode,
+  NonEnglishLanguageCodeSchema,
 } from '@votingworks/types';
 
 import vendoredTranslations from './vendored_translations.json';
@@ -10,18 +10,14 @@ import vendoredTranslations from './vendored_translations.json';
 /**
  * A mapping of non-English language codes to translations of English text.
  */
-export type VendoredTranslations = Record<
-  NonEnglishLanguageCode,
-  { [englishText: string]: string }
+export type VendoredTranslations = Partial<
+  Record<NonEnglishLanguageCode, { [englishText: string]: string }>
 >;
 
-const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.object({
-  [LanguageCode.ARABIC]: z.record(z.string(), z.string()),
-  [LanguageCode.BENGALI]: z.record(z.string(), z.string()),
-  [LanguageCode.CHINESE_SIMPLIFIED]: z.record(z.string(), z.string()),
-  [LanguageCode.CHINESE_TRADITIONAL]: z.record(z.string(), z.string()),
-  [LanguageCode.SPANISH]: z.record(z.string(), z.string()),
-});
+const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.record(
+  NonEnglishLanguageCodeSchema,
+  z.record(z.string(), z.string()).optional()
+);
 
 /**
  * Parse the vendored translations from the JSON file.

@@ -170,6 +170,11 @@ export function languageDisplayName2(params: {
     if (languageCode === LanguageCode.SPANISH) {
       return 'Spanish';
     }
+
+    // Omit the "(Japan)" qualifier.
+    if (languageCode === LanguageCode.JAPANESE) {
+      return 'Japanese';
+    }
   }
 
   return assertDefined(
