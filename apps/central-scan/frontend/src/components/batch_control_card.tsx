@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Button, Font, Icons, Modal, P } from '@votingworks/ui';
 import type {
   BatchPauseReason,
@@ -9,7 +9,7 @@ import { format } from '@votingworks/utils';
 import { cancelBatch, continueBatch, saveBatch } from '../api';
 import { ScanButton } from './scan_button';
 
-const Card = styled.div`
+const Card = styled.div<{ large?: boolean; minimized?: boolean }>`
   border: 1px solid ${(p) => p.theme.colors.outline};
   border-radius: 0.5rem;
   padding: 1rem;
@@ -17,12 +17,41 @@ const Card = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
+  ${(p) =>
+    p.large &&
+    css`
+      flex-direction: column;
+      justify-content: center;
+      padding: ${p.minimized ? '1rem' : '2.5rem 2rem'};
+      gap: ${p.minimized ? '0.75rem' : '2rem'};
+
+      /* Keep a constant footprint across the ready/scanning/paused states so
+       * the controls don't jump around as scanning starts and stops. */
+      min-height: ${p.minimized ? '0' : '19rem'};
+      transition:
+        min-height 0.3s ease,
+        padding 0.3s ease,
+        gap 0.3s ease;
+    `}
 `;
 
-const CardStatus = styled.div`
+const CardStatus = styled.div<{ large?: boolean; minimized?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  ${(p) =>
+    p.large &&
+    css`
+      align-items: center;
+      gap: ${p.minimized ? '0.25rem' : '1rem'};
+
+      p {
+        font-size: ${p.minimized ? '1rem' : '1.5rem'};
+        transition: font-size 0.3s ease;
+      }
+    `}
 `;
 
 const SheetCount = styled.div`
@@ -31,17 +60,33 @@ const SheetCount = styled.div`
   gap: 0.5rem;
 `;
 
-const BigCount = styled.span`
-  font-size: 2.5rem;
+const BigCount = styled.span<{ large?: boolean; minimized?: boolean }>`
+  font-size: ${(p) => (p.large && !p.minimized ? '5rem' : '2.5rem')};
   font-weight: 700;
   line-height: 1;
+  transition: font-size 0.3s ease;
 `;
 
-const CardActions = styled.div`
+const CardActions = styled.div<{ large?: boolean; minimized?: boolean }>`
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
+
+  ${(p) =>
+    p.large &&
+    css`
+      justify-content: center;
+      gap: ${p.minimized ? '0.5rem' : '1rem'};
+
+      button {
+        font-size: ${p.minimized ? '1rem' : '1.4rem'};
+        padding: ${p.minimized ? '0.5rem 1.25rem' : '0.75rem 2rem'};
+        transition:
+          font-size 0.3s ease,
+          padding 0.3s ease;
+      }
+    `}
 `;
 
 const PAUSE_REASON_TEXT: Record<BatchPauseReason, string> = {
@@ -55,12 +100,21 @@ export interface BatchControlCardProps {
   status: ScanStatus;
   statusIsStale: boolean;
   isPollingPlaceUnconfigured: boolean;
+  /** Renders a larger version of the card for the poll worker screen. */
+  large?: boolean;
+  /**
+   * Shrinks the large card (with an animated transition) while keeping its
+   * layout, e.g. while the batch history is open. Only applies with `large`.
+   */
+  minimized?: boolean;
 }
 
 export function BatchControlCard({
   status,
   statusIsStale,
   isPollingPlaceUnconfigured,
+  large,
+  minimized,
 }: BatchControlCardProps): JSX.Element {
   const continueBatchMutation = continueBatch.useMutation();
   const saveBatchMutation = saveBatch.useMutation();
@@ -91,7 +145,7 @@ export function BatchControlCard({
   if (!currentBatch) {
     content = (
       <React.Fragment>
-        <CardStatus>
+        <CardStatus large={large} minimized={minimized}>
           <P>
             <Font weight="bold">
               <Icons.Info /> Ready to scan
@@ -99,7 +153,7 @@ export function BatchControlCard({
           </P>
           <P>No batch in progress</P>
         </CardStatus>
-        <CardActions>
+        <CardActions large={large} minimized={minimized}>
           <ScanButton
             /* disable scan button while status query is refetching to avoid double clicks */
             disabled={statusIsStale || isPollingPlaceUnconfigured}
@@ -111,18 +165,20 @@ export function BatchControlCard({
   } else if (currentBatch.state === 'scanning') {
     content = (
       <React.Fragment>
-        <CardStatus>
+        <CardStatus large={large} minimized={minimized}>
           <P>
             <Font weight="bold">
               <Icons.Loading /> Scanning batch
             </Font>
           </P>
           <SheetCount>
-            <BigCount>{format.count(sheetCount)}</BigCount>{' '}
+            <BigCount large={large} minimized={minimized}>
+              {format.count(sheetCount)}
+            </BigCount>{' '}
             <span>sheets scanned in this batch</span>
           </SheetCount>
         </CardStatus>
-        <CardActions>
+        <CardActions large={large} minimized={minimized}>
           <Button
             variant="danger"
             onPress={stopAndCancelBatch}
@@ -139,7 +195,7 @@ export function BatchControlCard({
       : '';
     content = (
       <React.Fragment>
-        <CardStatus>
+        <CardStatus large={large} minimized={minimized}>
           <P>
             <Font weight="bold">
               <Icons.Warning color="warning" /> Batch paused
@@ -147,11 +203,13 @@ export function BatchControlCard({
             </Font>
           </P>
           <SheetCount>
-            <BigCount>{format.count(sheetCount)}</BigCount>{' '}
+            <BigCount large={large} minimized={minimized}>
+              {format.count(sheetCount)}
+            </BigCount>{' '}
             <span>sheets scanned in this batch</span>
           </SheetCount>
         </CardStatus>
-        <CardActions>
+        <CardActions large={large} minimized={minimized}>
           <Button
             variant="primary"
             onPress={() => continueBatchMutation.mutate()}
@@ -180,7 +238,9 @@ export function BatchControlCard({
 
   return (
     <React.Fragment>
-      <Card>{content}</Card>
+      <Card large={large} minimized={minimized}>
+        {content}
+      </Card>
       {isConfirmingCancel && (
         <Modal
           title="Cancel Batch"

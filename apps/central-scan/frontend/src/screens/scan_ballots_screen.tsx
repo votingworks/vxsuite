@@ -22,20 +22,10 @@ import { ExportResultsModal } from '../components/export_results_modal';
 import { SendCvrsModal } from '../components/send_cvrs_modal';
 import { BatchControlCard } from '../components/batch_control_card';
 import { clearBallotData, getHostConnectionInfo } from '../api';
+import { shortDateTime } from '../util/date_time';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
-
-function z2(number: number) {
-  return number.toString().padStart(2, '0');
-}
-
-function shortDateTime(iso8601Timestamp: string) {
-  const d = new Date(iso8601Timestamp);
-  return `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(
-    d.getDate()
-  )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
-}
 
 const Content = styled.div`
   display: flex;

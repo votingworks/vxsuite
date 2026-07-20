@@ -2,6 +2,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 import {
   isElectionManagerAuth,
+  isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -20,6 +21,7 @@ import { assert } from '@votingworks/basics';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
+import { PollWorkerScanBallotsScreen } from './screens/poll_worker_scan_ballots_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { SettingsScreen } from './screens/settings_screen';
 
@@ -118,7 +120,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
         reasonAndContext={authStatus}
         recommendedAction={
           electionDefinition
-            ? 'Use a valid election manager or system administrator card.'
+            ? 'Use a valid poll worker, election manager, or system administrator card.'
             : 'Use an election manager card.'
         }
         cardInsertionDirection="right"
@@ -196,6 +198,23 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     return (
       <AppContext.Provider value={currentContext}>
         <BallotEjectScreen isTestMode={isTestMode} />
+      </AppContext.Provider>
+    );
+  }
+
+  if (isPollWorkerAuth(authStatus)) {
+    return (
+      <AppContext.Provider value={currentContext}>
+        <Switch>
+          <Route path="/scan">
+            <PollWorkerScanBallotsScreen
+              status={status}
+              statusIsStale={statusQuery.isStale}
+              isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
+            />
+          </Route>
+          <Redirect to="/scan" />
+        </Switch>
       </AppContext.Provider>
     );
   }

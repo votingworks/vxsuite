@@ -21,6 +21,7 @@ import React, { useContext } from 'react';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
+  isPollWorkerAuth,
 } from '@votingworks/utils';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
@@ -72,6 +73,10 @@ const ELECTION_MANAGER_NAV_ITEMS = [
   { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
 ] as const;
 
+const POLL_WORKER_NAV_ITEMS = [
+  { label: 'Scan Ballots', routerPath: '/scan' },
+] as const;
+
 function getNavItems(
   auth: DippedSmartCardAuth.AuthStatus,
   electionDefinition?: ElectionDefinition
@@ -82,6 +87,10 @@ function getNavItems(
 
   if (isElectionManagerAuth(auth) && electionDefinition) {
     return ELECTION_MANAGER_NAV_ITEMS;
+  }
+
+  if (isPollWorkerAuth(auth) && electionDefinition) {
+    return POLL_WORKER_NAV_ITEMS;
   }
 
   return [];
@@ -133,20 +142,24 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
       </LeftNav>
       <Main flexColumn>
         <SessionTimeLimitTimer authStatus={auth} />
-        {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
-          <TestModeBanner />
-        )}
+        {isTestMode &&
+          (isElectionManagerAuth(auth) || isPollWorkerAuth(auth)) &&
+          electionDefinition && <TestModeBanner />}
         <Header>
           <H1>{title}</H1>
           <HeaderActions>
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
+              <UsbControllerButton
+                usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+                usbDriveStatus={usbDriveStatus}
+                usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
+              />
+            )}
+            {(isSystemAdministratorAuth(auth) ||
+              isElectionManagerAuth(auth) ||
+              isPollWorkerAuth(auth)) && (
               <React.Fragment>
-                <UsbControllerButton
-                  usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-                  usbDriveStatus={usbDriveStatus}
-                  usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-                />
                 <Button onPress={() => logOutMutation.mutate()} icon="Lock">
                   Lock Machine
                 </Button>

@@ -106,6 +106,7 @@ test('getAuthStatus', async () => {
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: true,
   });
 });
 
@@ -116,7 +117,13 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      electionKey,
+      jurisdiction,
+      machineType,
+      isConfigured: true,
+    },
     { pin: '123456' }
   );
 });
@@ -131,6 +138,7 @@ test('logOut', async () => {
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: true,
   });
 });
 
@@ -148,6 +156,7 @@ test('updateSessionExpiry', async () => {
       electionKey,
       jurisdiction,
       machineType,
+      isConfigured: true,
     },
     { sessionExpiresAt: expect.any(Date) }
   );
@@ -159,6 +168,7 @@ test('getAuthStatus before election definition has been configured', async () =>
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     machineType,
+    isConfigured: false,
   });
 });
 
@@ -167,7 +177,7 @@ test('checkPin before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType, isConfigured: false },
     {
       pin: '123456',
     }
@@ -180,6 +190,7 @@ test('logOut before election definition has been configured', async () => {
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     machineType,
+    isConfigured: false,
   });
 });
 
@@ -190,7 +201,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType, isConfigured: false },
     { sessionExpiresAt: expect.any(Date) }
   );
 });

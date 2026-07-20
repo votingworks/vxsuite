@@ -102,6 +102,7 @@ export function start({
           'vendor',
           'system_administrator',
           'election_manager',
+          'poll_worker',
         ],
       },
       logger: baseLogger,

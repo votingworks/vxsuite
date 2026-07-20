@@ -19,6 +19,7 @@ export function constructAuthMachineState(
     electionKey,
     jurisdiction,
     machineType,
+    isConfigured: electionKey !== undefined,
   };
 }
 

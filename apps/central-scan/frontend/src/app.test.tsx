@@ -331,7 +331,7 @@ test('election manager cannot auth onto machine with different election', async 
   });
   await screen.findByText(
     'The inserted election manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Use a valid election manager or system administrator card.'
+      'Use a valid poll worker, election manager, or system administrator card.'
   );
 });
 
