@@ -3,9 +3,10 @@ import { LanguageCode } from './language_code';
 
 // prettier-ignore
 export const ALL_VOWELS_ARR = [// [TODO] Incomplete - fill out;
-  'æ', 'ɑː', 'ɔː', 'eɪ', 'aɪ', 'iː', 'ɛ', 'ɪ', 'ɚ', 'oʊ', 'ɔɪ', 'uː', 'aʊ', 'ʊ',
+  'æ', 'ɑː', 'ɔː', 'eɪ', 'aɪ', 'ɪː', 'ɛ', 'ɪ', 'ɚ', 'oʊ', 'ɔɪ', 'uː', 'aʊ', 'ʊ',
   'ʌ', 'ə', 'a', 'ai', 'au', 'e', 'ei', 'eu', 'i', 'o', 'oi', 'ou', 'u', 'ə',
-  'ɯ', 'ø'
+  'ɯ', 'ø', 'a:', 'ãː', 'ə̃', 'ẽː', 'ɛ̃ː', 'ɪ', 'ɪː', 'ɪ̃ː', 'ɪ̃', 'ɔː', 'ɔ̃ː',
+  'õː', 'ʊ', 'ʊ̃', 'ũː', 'oː',
 ] as const;
 
 export const ALL_VOWELS = new Set<IpaPhoneme>(ALL_VOWELS_ARR);
@@ -24,16 +25,16 @@ const ENGLISH_BY_IPA = {
   'b':  { ipa: 'b',  vx: 'b',   sampleWord: 'bubble',    sampleIpa: 'ˈbʌbəl',       sampleVx: 'ˈbubuhl',             shortcut: 'b' },
   'ʧ':  { ipa: 'ʧ',  vx: 'ch',  sampleWord: 'changed',   sampleIpa: 'ˈʧeɪnʤd',      sampleVx: 'ˈchaynjd',            shortcut: 'c' },
   'd':  { ipa: 'd',  vx: 'd',   sampleWord: 'dog',       sampleIpa: 'ˈdɑːg',        sampleVx: 'ˈdahg',               shortcut: 'd' },
-  'iː': { ipa: 'iː', vx: 'ee',  sampleWord: 'unique',    sampleIpa: 'ˌjuːˈniːk',    sampleVx: 'yoo • ˈneek',         shortcut: 'E' },
+  'ɪː': { ipa: 'ɪː', vx: 'ee',  sampleWord: 'unique',    sampleIpa: 'ˌjuːˈnɪːk',    sampleVx: 'yoo • ˈneek',         shortcut: 'E' },
   'ɛ':  { ipa: 'ɛ',  vx: 'eh',  sampleWord: 'bed',       sampleIpa: 'ˈbɛd',         sampleVx: 'ˈbehd',               shortcut: 'e' },
   'f':  { ipa: 'f',  vx: 'f',   sampleWord: 'frog',      sampleIpa: 'ˈfɹɑːg',       sampleVx: 'ˈfrahg',              shortcut: 'f' },
-  'ɡ':  { ipa: 'ɡ',  vx: 'g',   sampleWord: 'gravely',   sampleIpa: 'ˈgɹeɪˌvliː',   sampleVx: 'ˈgray • vlee',        shortcut: 'g' },
-  'h':  { ipa: 'h',  vx: 'h',   sampleWord: 'mahogany',  sampleIpa: 'məˈhɑːgəˌniː', sampleVx: 'muh • ˈhahguh • nee', shortcut: 'h' },
+  'ɡ':  { ipa: 'ɡ',  vx: 'g',   sampleWord: 'gravely',   sampleIpa: 'ˈgɹeɪˌvlɪː',   sampleVx: 'ˈgray • vlee',        shortcut: 'g' },
+  'h':  { ipa: 'h',  vx: 'h',   sampleWord: 'mahogany',  sampleIpa: 'məˈhɑːgəˌnɪː', sampleVx: 'muh • ˈhahguh • nee', shortcut: 'h' },
   'ɪ':  { ipa: 'ɪ',  vx: 'i',   sampleWord: 'kit',       sampleIpa: 'ˈkɪt',         sampleVx: 'ˈkit',                shortcut: 'i' },
   'ɚ':  { ipa: 'ɚ',  vx: 'ir',  sampleWord: 'bird',      sampleIpa: 'ˈbɚd',         sampleVx: 'ˈbird',               shortcut: 'R' },
   'ʤ':  { ipa: 'ʤ',  vx: 'j',   sampleWord: 'magenta',   sampleIpa: 'məˈʤɛntə',     sampleVx: 'muh • ˈjehntuh',      shortcut: 'j' },
   'k':  { ipa: 'k',  vx: 'k',   sampleWord: 'crown',     sampleIpa: 'ˈkɹaʊn',       sampleVx: 'ˈkrown',              shortcut: 'k' },
-  'l':  { ipa: 'l',  vx: 'l',   sampleWord: 'lately',    sampleIpa: 'ˈleɪtˌliː',    sampleVx: 'ˈlayt • lee',         shortcut: 'l' },
+  'l':  { ipa: 'l',  vx: 'l',   sampleWord: 'lately',    sampleIpa: 'ˈleɪtˌlɪː',    sampleVx: 'ˈlayt • lee',         shortcut: 'l' },
   'm':  { ipa: 'm',  vx: 'm',   sampleWord: 'mapping',   sampleIpa: 'ˈmæpəŋ',       sampleVx: 'ˈmapuhng',            shortcut: 'm' },
   'n':  { ipa: 'n',  vx: 'n',   sampleWord: 'nine',      sampleIpa: 'ˈnaɪn',        sampleVx: 'ˈnayen',              shortcut: 'n' },
   'ŋ':  { ipa: 'ŋ',  vx: 'ng',  sampleWord: 'bank',      sampleIpa: 'ˈbæŋk',        sampleVx: 'ˈbangk',              shortcut: 'N' },
@@ -45,7 +46,7 @@ const ENGLISH_BY_IPA = {
   'ɹ':  { ipa: 'ɹ',  vx: 'r',   sampleWord: 'roaring',   sampleIpa: 'ˈɹɔːɹəŋ',      sampleVx: 'ˈrauruhng',           shortcut: 'r' },
   's':  { ipa: 's',  vx: 's',   sampleWord: 'massage',   sampleIpa: 'məˈsɑːʒ',      sampleVx: 'muh • ˈsahszh',       shortcut: 's' },
   'ʃ':  { ipa: 'ʃ',  vx: 'sh',  sampleWord: 'shopping',  sampleIpa: 'ˈʃɑːpəŋ',      sampleVx: 'ˈshahpuhng',          shortcut: 'S' },
-  'ʒ':  { ipa: 'ʒ',  vx: 'szh', sampleWord: 'leisure',   sampleIpa: 'ˈliːʒɚ',       sampleVx: 'ˈleeszhir',           shortcut: 'Z' },
+  'ʒ':  { ipa: 'ʒ',  vx: 'szh', sampleWord: 'leisure',   sampleIpa: 'ˈlɪːʒɚ',       sampleVx: 'ˈleeszhir',           shortcut: 'Z' },
   't':  { ipa: 't',  vx: 't',   sampleWord: 'tinker',    sampleIpa: 'ˈtɪŋkɚ',       sampleVx: 'ˈtingkir',            shortcut: 't' },
   'ð':  { ipa: 'ð',  vx: 'th',  sampleWord: 'mother',    sampleIpa: 'ˈmʌðɚ',        sampleVx: 'ˈmuthir',             shortcut: 'T' },
   'θ':  { ipa: 'θ',  vx: 'thh', sampleWord: 'thigh',     sampleIpa: 'ˈθaɪ',         sampleVx: 'ˈthhaye',             shortcut: '3' },
@@ -113,6 +114,68 @@ const ALL_SPANISH = Object.values(SPANISH_BY_IPA);
  * https://cloud.google.com/text-to-speech/docs/phonemes.
  */
 // prettier-ignore
+const HINDI_BY_IPA = {
+  'a:':  { ipa: 'a:',  vx: 'a:',    sampleWord: 'बात',         sampleIpa: 'ˈbaːt̪',           sampleVx: 'ˈbaːt̪' },
+  'ãː':  { ipa: 'ãː',  vx: 'ãː',    sampleWord: 'लड़कियां',     sampleIpa: 'ˈləɽkɪjãː',       sampleVx: 'ˈləɽkɪjãː' },
+  'b':   { ipa: 'b',   vx: 'b',     sampleWord: 'बादल',        sampleIpa: 'ˈbaːd̪əl',         sampleVx: 'ˈbaːd̪əl' },
+  'bʰ':  { ipa: 'bʰ',  vx: 'bʰ',    sampleWord: 'भारत',        sampleIpa: 'ˈbʰaːrət̪',        sampleVx: 'ˈbʰaːrət̪' },
+  'd̪':  { ipa: 'd̪',  vx : 'd̪',   sampleWord: 'दाल',         sampleIpa: 'ˈd̪aːl',           sampleVx: 'ˈd̪aːl' },
+  'd̪ʰ': { ipa: 'd̪ʰ', vx: 'd̪ʰ',   sampleWord: 'धूम',         sampleIpa: 'ˈd̪ʰuːm',          sampleVx: 'ˈd̪ʰuːm' },
+  'ʤ':   { ipa: 'ʤ',   vx: 'ʤ',     sampleWord: 'जंगल',        sampleIpa: 'ˈdʒəngəl',         sampleVx: 'ˈdʒəngəl' },
+  'ʤʰ':  { ipa: 'ʤʰ',  vx: 'ʤʰ',    sampleWord: 'मुझ',         sampleIpa: 'ˈmʊdʒʰ',           sampleVx: 'ˈmʊdʒʰ' },
+  'ɖ':   { ipa: 'ɖ',   vx: 'ɖ',     sampleWord: 'डमरू',        sampleIpa: 'ˈɖəmruː',          sampleVx: 'ˈɖəmruː' },
+  'ɖʰ':  { ipa: 'ɖʰ',  vx: 'ɖʰ',    sampleWord: 'ढोलक',        sampleIpa: 'ˈɖʰoːlək',         sampleVx: 'ˈɖʰoːlək' },
+  'e':   { ipa: 'e',   vx: 'e',     sampleWord: 'केला',        sampleIpa: 'ˈkeːlaː',          sampleVx: 'ˈkeːlaː' },
+  'ẽː':  { ipa: 'ẽː',  vx: 'ẽː',    sampleWord: 'किताबें',     sampleIpa: 'kɪˈt̪aːbẽː',      sampleVx: 'kɪˈt̪aːbẽː' },
+  'ə':   { ipa: 'ə',   vx: 'ə',     sampleWord: 'अलग',         sampleIpa: 'ˈələg',            sampleVx: 'ˈələg' },
+  'ə̃':  { ipa: 'ə̃',  vx: 'ə̃',    sampleWord: 'हंसना',       sampleIpa: 'ˈhə̃snaː',         sampleVx: 'ˈhə̃snaː' },
+  'ɛ':   { ipa: 'ɛ',   vx: 'ɛ',     sampleWord: 'फैलाव',       sampleIpa: 'ˈfɛːlaːʋ',         sampleVx: 'ˈfɛːlaːʋ' },
+  'ɛ̃ː': { ipa: 'ɛ̃ː', vx: 'ɛ̃ː',   sampleWord: 'मैं',         sampleIpa: 'ˈmɛ̃ː',            sampleVx: 'ˈmɛ̃ː' },
+  'f':   { ipa: 'f',   vx: 'f',     sampleWord: 'फल',          sampleIpa: 'ˈfəl',             sampleVx: 'ˈfəl' },
+  'g':   { ipa: 'g',   vx: 'g',     sampleWord: 'गाय',         sampleIpa: 'ˈgaːeː',           sampleVx: 'ˈgaːeː' },
+  'gʰ':  { ipa: 'gʰ',  vx: 'gʰ',    sampleWord: 'घर',          sampleIpa: 'ˈgʰər',            sampleVx: 'ˈgʰər' },
+  'h':   { ipa: 'h',   vx: 'h',     sampleWord: 'होना',        sampleIpa: 'ˈhoːnaː',          sampleVx: 'ˈhoːnaː' },
+  'ɪː':  { ipa: 'ɪː',  vx: 'ɪː',    sampleWord: 'खीर',         sampleIpa: 'ˈkʰɪːr',           sampleVx: 'ˈkʰɪːr' },
+  'ɪ̃ː': { ipa: 'ɪ̃ː',  vx: 'ɪ̃ː',  sampleWord: 'नहीं',        sampleIpa: 'ˈnəhɪ̃ː',          sampleVx: 'ˈnəhɪ̃ː' },
+  'ɪ':   { ipa: 'ɪ',   vx: 'ɪ',     sampleWord: 'इच्छा',       sampleIpa: 'ˈɪtʃtʃʰaː',        sampleVx: 'ˈɪtʃtʃʰaː' },
+  'ɪ̃':  { ipa: 'ɪ̃',  vx: 'ɪ̃',    sampleWord: 'सिंचाई',      sampleIpa: 'sɪ̃ˈtʃaːɪː',       sampleVx: 'sɪ̃ˈtʃaːɪː' },
+  'j':   { ipa: 'j',   vx: 'j',     sampleWord: 'योग',         sampleIpa: 'ˈjoːg',            sampleVx: 'ˈjoːg' },
+  'k':   { ipa: 'k',   vx: 'k',     sampleWord: 'किताब',       sampleIpa: 'kɪˈt̪aːb',         sampleVx: 'kɪˈt̪aːb' },
+  'kʰ':  { ipa: 'kʰ',  vx: 'kʰ',    sampleWord: 'खान',         sampleIpa: 'ˈkʰaːn',           sampleVx: 'ˈkʰaːn' },
+  'l':   { ipa: 'l',   vx: 'l',     sampleWord: 'लड़कियां',     sampleIpa: 'ˈləɽkɪjãː',       sampleVx: 'ˈləɽkɪjãː' },
+  'm':   { ipa: 'm',   vx: 'm',     sampleWord: 'मंत्र',       sampleIpa: 'ˈmənt̪rə',         sampleVx: 'ˈmənt̪rə' },
+  'n':   { ipa: 'n',   vx: 'n',     sampleWord: 'नमक',         sampleIpa: 'ˈnəmək',           sampleVx: 'ˈnəmək' },
+  'ɳ':   { ipa: 'ɳ',   vx: 'ɳ',     sampleWord: 'नारायण',      sampleIpa: 'naːˈraːjəɳ',       sampleVx: 'naːˈraːjəɳ' },
+  'ŋ':   { ipa: 'ŋ',   vx: 'ŋ',     sampleWord: 'लंका',        sampleIpa: 'ˈlənkaː',          sampleVx: 'ˈlənkaː' },
+  'oː':  { ipa: 'oː',  vx: 'oː',    sampleWord: 'ओखली',        sampleIpa: 'ˈoːkʰlɪː',         sampleVx: 'ˈoːkʰlɪː' },
+  'õː':  { ipa: 'õː',  vx: 'õː',    sampleWord: 'क्यों',       sampleIpa: 'ˈkjõː',           sampleVx: 'ˈkjõː' },
+  'ɔː':  { ipa: 'ɔː',  vx: 'ɔː',    sampleWord: 'औरत',         sampleIpa: 'ˈɔːrət̪',          sampleVx: 'ˈɔːrət̪' },
+  'ɔ̃ː': { ipa: 'ɔ̃ː', vx: 'ɔ̃ː',   sampleWord: 'भौं',         sampleIpa: 'ˈbʰɔ̃ː',           sampleVx: 'ˈbʰɔ̃ː' },
+  'p':   { ipa: 'p',   vx: 'p',     sampleWord: 'पंजाब',       sampleIpa: 'pənˈdʒaːb',        sampleVx: 'pənˈdʒaːb' },
+  'r':   { ipa: 'r',   vx: 'ɹ',     sampleWord: 'रोक',         sampleIpa: 'ˈroːk',            sampleVx: 'ˈroːk' },
+  'ɽ':   { ipa: 'ɽ',   vx: 'ɽ',     sampleWord: 'कूड़ा',        sampleIpa: 'ˈkuːɽaː',          sampleVx: 'ˈkuːɽaː' },
+  's':   { ipa: 's',   vx: 's',     sampleWord: 'किस्मत',      sampleIpa: 'ˈkɪsmət̪',         sampleVx: 'ˈkɪsmət̪' },
+  'ʃ':   { ipa: 'ʃ',   vx: 'ʃ',     sampleWord: 'ख़ुश | भाषा', sampleIpa: 'ˈkʰʊʃ | ˈbʰaːʃaː', sampleVx: 'ˈkʰʊʃ | ˈbʰaːʃaː' },
+  't̪':  { ipa: 't̪',  vx: 't̪',    sampleWord: 'तबला',        sampleIpa: 'ˈt̪əblaː',         sampleVx: 'ˈt̪əblaː' },
+  't̪ʰ': { ipa: 't̪ʰ', vx: 't̪ʰ',   sampleWord: 'थाली',        sampleIpa: 'ˈt̪ʰaːlɪː',        sampleVx: 'ˈt̪ʰaːlɪː' },
+  'ʧ':   { ipa: 'ʧ',   vx: 'ʧ',     sampleWord: 'चाय',         sampleIpa: 'ˈʧaːeː',           sampleVx: 'ˈʧaːeː' },
+  'ʧʰ':  { ipa: 'ʧʰ',  vx: 'ʧʰ',    sampleWord: 'छांव',        sampleIpa: 'ˈʧʰãːoː',         sampleVx: 'ˈʧʰãːoː' },
+  'ʈ':   { ipa: 'ʈ',   vx: 'ʈ',     sampleWord: 'टमाटर',       sampleIpa: 'ʈəˈmaːʈər',        sampleVx: 'ʈəˈmaːʈər' },
+  'ʈʰ':  { ipa: 'ʈʰ',  vx: 'ʈʰ',    sampleWord: 'अठारह',       sampleIpa: 'əˈʈʰaːrəh',        sampleVx: 'əˈʈʰaːrəh' },
+  'uː':  { ipa: 'uː',  vx: 'uː',    sampleWord: 'कबूतर',       sampleIpa: 'kəˈbuːt̪ər',       sampleVx: 'kəˈbuːt̪ər' },
+  'ũː':  { ipa: 'ũː',  vx: 'ũː', sampleWord: 'ऊंट',         sampleIpa: 'ˈũːʈ',            sampleVx: 'ˈũːʈ' },
+  'ʊ':   { ipa: 'ʊ',   vx: 'ʊ',     sampleWord: 'पुत्र',       sampleIpa: 'ˈpʊt̪r',           sampleVx: 'ˈpʊt̪r' },
+  'ʊ̃':  { ipa: 'ʊ̃',  vx: 'ʊ̃',    sampleWord: 'मुंह',        sampleIpa: 'ˈmʊ̃h',            sampleVx: 'ˈmʊ̃h' },
+  'ʋ':   { ipa: 'ʋ',   vx: 'ʋ',     sampleWord: 'व्रत',        sampleIpa: 'ˈʋrət̪',           sampleVx: 'ˈʋrət̪' },
+  'z':   { ipa: 'z',   vx: 'z',     sampleWord: 'ज़हर',        sampleIpa: 'ˈzɛːhɛːr',         sampleVx: 'ˈzɛːhɛːr' },
+} as const;
+
+const ALL_HINDI = Object.values(HINDI_BY_IPA);
+/**
+ * Original mapping and examples pulled from
+ * https://cloud.google.com/text-to-speech/docs/phonemes.
+ */
+// prettier-ignore
 const KOREAN_BY_IPA = {
   'p':   { ipa: 'p',   vx: 'p',   sampleWord: '불',   sampleIpa: 'pul',    sampleVx: 'pul' },
   'pʰ':  { ipa: 'pʰ',  vx: 'pʰ',  sampleWord: '풀',   sampleIpa: 'pʰul',   sampleVx: 'pʰul' },
@@ -157,11 +220,13 @@ const ALL_KOREAN = Object.values(KOREAN_BY_IPA);
  */
 export type IpaPhoneme =
   | keyof typeof ENGLISH_BY_IPA
+  | keyof typeof HINDI_BY_IPA
   | keyof typeof KOREAN_BY_IPA
   | keyof typeof SPANISH_BY_IPA;
 
 const IPA_PHONEMES = new Set([
   ...(Object.keys(ENGLISH_BY_IPA) as IpaPhoneme[]),
+  ...(Object.keys(HINDI_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(KOREAN_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(SPANISH_BY_IPA) as IpaPhoneme[]),
 ]);
@@ -293,10 +358,10 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.HINDI]: {
-    allByIpa: ENGLISH_BY_IPA,
-    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    allByIpa: HINDI_BY_IPA,
+    consonants: ALL_HINDI.filter((p) => !ALL_VOWELS.has(p.ipa)),
     stresses: STANDARD_STRESSES,
-    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+    vowels: ALL_HINDI.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.JAPANESE]: {
     allByIpa: ENGLISH_BY_IPA,
