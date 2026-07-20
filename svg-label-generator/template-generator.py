@@ -13,7 +13,7 @@ generate_nameplate_svg.py — Using fontTools for accurate text measurements
 Requires: pip install fonttools pyyaml
 """
 
-import os, sys
+import os, sys, glob
 import yaml
 from fontTools.ttLib import TTFont
 from fontTools.pens.boundsPen import BoundsPen
@@ -40,11 +40,24 @@ LINE_HEIGHT_MULTIPLIER = 1.3
 FONT_SIZE_SEARCH_ITERATIONS = 20
 
 # Font paths - adjust these to your system
-FONT_PATHS = {
-    'roboto': '/System/Library/Fonts/Supplemental/Arial.ttf',  # fallback to Arial if Roboto not found
-    'arial': '/System/Library/Fonts/Supplemental/Arial.ttf',
-    'arial-bold': '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
+FONT_CANDIDATES = {
+    'roboto': ['Roboto-Regular.ttf', 'Roboto-Medium.ttf',
+               'Arimo-Regular.ttf', 'LiberationSans-Regular.ttf', 'Arial.ttf'],
+    'arial': ['Arial.ttf', 'Arimo-Regular.ttf', 'LiberationSans-Regular.ttf'],
+    'arial-bold': ['Arial_Bold.ttf', 'Arimo-Bold.ttf', 'LiberationSans-Bold.ttf'],
 }
+
+FONT_SEARCH_DIRS = [
+    '/usr/share/fonts',
+    '/usr/local/share/fonts',
+    os.path.expanduser('~/.local/share/fonts'),
+    os.path.expanduser('~/.fonts'),
+    '/System/Library/Fonts',
+    '/System/Library/Fonts/Supplemental',
+    '/Library/Fonts',
+    os.path.expanduser('~/Library/Fonts'),
+    'C:\\Windows\\Fonts',
+]
 
 # Logo SVG path data
 LOGO_PATH_DATA = (
@@ -216,12 +229,28 @@ def prompt_for_save(config, products):
 # FONT HANDLING
 # ============================================================================
 
-def load_font(font_path):
-    """Load a font file."""
-    try:
-        return TTFont(font_path)
-    except:
-        return None
+def find_font_file(filename):
+    """Return first existing path matching filename across FONT_SEARCH_DIRS."""
+    for d in FONT_SEARCH_DIRS:
+        if not os.path.isdir(d):
+            continue
+        for path in glob.glob(os.path.join(d, '**', '*'), recursive=True):
+            if os.path.basename(path).lower() == filename.lower():
+                return path
+    return None
+
+def load_font(logical_name):
+    """Resolve a logical font name to a TTFont, trying candidates in order."""
+    for candidate in FONT_CANDIDATES.get(logical_name, []):
+        path = find_font_file(candidate)
+        if path:
+            try:
+                font = TTFont(path)
+                print(f"  {logical_name}: {path}")
+                return font
+            except Exception as e:
+                print(f"  font load error for {path}: {e}")
+    return None
 
 
 def get_text_width_mm(text, font, font_size_mm, is_bold=False):
@@ -898,9 +927,9 @@ def main():
     
     print("\nLoading fonts...")
     fonts = {
-        'roboto': load_font(FONT_PATHS['roboto']),
-        'arial': load_font(FONT_PATHS['arial']),
-        'arial-bold': load_font(FONT_PATHS['arial-bold'])
+        'roboto': load_font('roboto'),
+        'arial': load_font('arial'),
+        'arial-bold': load_font('arial-bold')
     }
     
     for name, font in fonts.items():
