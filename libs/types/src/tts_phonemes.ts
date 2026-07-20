@@ -204,6 +204,11 @@ export type PhoneticSyllableStress = z.infer<
   typeof PhoneticSyllableStressSchema
 >;
 
+const STANDARD_STRESSES: TtsPhonemes['stresses'] = {
+  primary: { ipa: 'ˈ', vx: 'ˈ' },
+  secondary: { ipa: 'ˌ', vx: 'ˌ' },
+};
+
 /**
  * Language-specific phonemes for speech synthesis.
  * [TODO] Actually configure phonemes for the non-English languages.
@@ -212,56 +217,68 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
   [LanguageCode.ENGLISH]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.ARABIC]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.BENGALI]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_SIMPLIFIED]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_TRADITIONAL]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
+  [LanguageCode.HINDI]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
+  [LanguageCode.JAPANESE]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
+  [LanguageCode.KOREAN]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.SPANISH]: {
     allByIpa: SPANISH_BY_IPA,
     consonants: ALL_SPANISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: {
-      primary: { ipa: 'ˈ', vx: 'ˈ' },
-      secondary: { ipa: 'ˌ', vx: 'ˌ' },
-    },
+    stresses: STANDARD_STRESSES,
     vowels: ALL_SPANISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
+  [LanguageCode.TAGALOG]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
+  [LanguageCode.VIETNAMESE]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
 };
 

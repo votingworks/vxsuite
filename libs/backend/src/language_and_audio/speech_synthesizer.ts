@@ -34,7 +34,12 @@ export const GoogleCloudVoices: Record<
     name: 'cmn-CN-Wavenet-B',
   },
   [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
+  [LanguageCode.HINDI]: { languageCode: 'hi-IN', name: 'hi-IN-Neural2-B' },
+  [LanguageCode.JAPANESE]: { languageCode: 'ja-JP', name: 'ja-JP-Neural2-D' },
+  [LanguageCode.KOREAN]: { languageCode: 'ko-KR', name: 'ko-KR-Wavenet-C' },
   [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
+  [LanguageCode.TAGALOG]: { languageCode: 'fil-PH', name: 'fil-PH-Neural2-D' },
+  [LanguageCode.VIETNAMESE]: { languageCode: 'vi-VN', name: 'vi-VN-Neural2-D' },
 };
 
 /**
