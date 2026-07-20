@@ -23,7 +23,16 @@ const ModeTitle = styled(H3)`
   margin: 0;
 `;
 
-const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
+const RECORD_ONLY_LANGUAGES: LanguageCode[] = [LanguageCode.KHMER];
+
+const RECORD_ONLY_OPTION: Array<RadioGroupOption<TtsExportSource>> = [
+  {
+    value: 'recorded',
+    label: <ModeTitle>Recorded</ModeTitle>,
+  },
+];
+
+const MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
   {
     value: 'text',
     label: <ModeTitle>Text-To-Speech</ModeTitle>,
@@ -32,10 +41,7 @@ const TTS_MODE_OPTIONS: Array<RadioGroupOption<TtsExportSource>> = [
     value: 'phonetic',
     label: <ModeTitle>Phonetic</ModeTitle>,
   },
-  {
-    value: 'recorded',
-    label: <ModeTitle>Recorded</ModeTitle>,
-  },
+  ...RECORD_ONLY_OPTION,
 ];
 
 export interface AudioEditorProps {
@@ -65,7 +71,10 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
 
   if (!savedEdit.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
 
-  const defaultMode = savedEdit.data?.exportSource || 'text';
+  const recordOnly = RECORD_ONLY_LANGUAGES.includes(languageCode);
+  const defaultMode: TtsExportSource = recordOnly
+    ? 'recorded'
+    : savedEdit.data?.exportSource || 'text';
   const currentMode = mode || defaultMode;
   const editable = !ballotsFinalizedAt.data;
 
@@ -76,9 +85,9 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
           disabled={!editable}
           label="Audio Source"
           hideLabel
-          numColumns={3}
+          numColumns={recordOnly ? 1 : 3}
           onChange={setMode}
-          options={TTS_MODE_OPTIONS}
+          options={recordOnly ? RECORD_ONLY_OPTION : MODE_OPTIONS}
           value={currentMode}
         />
       </ModeContainer>

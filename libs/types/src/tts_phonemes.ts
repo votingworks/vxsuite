@@ -256,6 +256,12 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
+  [LanguageCode.KHMER]: {
+    allByIpa: ENGLISH_BY_IPA,
+    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    stresses: STANDARD_STRESSES,
+    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+  },
   [LanguageCode.KOREAN]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),

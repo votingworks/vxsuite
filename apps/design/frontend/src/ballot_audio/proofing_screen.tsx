@@ -132,8 +132,6 @@ export const StringHeader = styled.div`
   display: flex;
   gap: 1rem;
 
-  /* flex-wrap: wrap; */
-
   > :first-child {
     flex-grow: 1;
   }
@@ -235,6 +233,7 @@ const TextArea = styled.textarea<{ editable: boolean }>`
   :disabled {
     color: ${(p) => !p.editable && p.theme.colors.onBackground};
     background: ${(p) => !p.editable && p.theme.colors.background};
+    cursor: not-allowed;
   }
 `;
 
@@ -377,16 +376,20 @@ export function LanguageProofingScreen(): React.ReactNode {
               text={currentString.text}
             />
 
-            {language !== ENGLISH &&
-              stringKey !== ElectionStringKey.CANDIDATE_NAME && (
-                <Translation
-                  electionId={electionId}
-                  key={`${stringKey}-${subkey}-${language}`}
-                  language={language}
-                  stringKey={currentString.key}
-                  subKey={currentString.subkey}
-                />
-              )}
+            {language !== ENGLISH && (
+              <Translation
+                electionId={electionId}
+                key={`${stringKey}-${subkey}-${language}`}
+                language={
+                  // [TODO] Allow languages that support transliterated names.
+                  stringKey === ElectionStringKey.CANDIDATE_NAME
+                    ? ENGLISH
+                    : language
+                }
+                stringKey={currentString.key}
+                subKey={currentString.subkey}
+              />
+            )}
 
             <LanguageAudioEditor
               election={election}
@@ -491,6 +494,8 @@ function Translation(props: {
   const { electionId, language, stringKey, subKey } = props;
   const [edit, setEdit] = React.useState<string>();
 
+  const englishOnly = stringKey === ElectionStringKey.CANDIDATE_NAME;
+
   const translation = api.translationGet.useQuery({
     electionId,
     stringKey,
@@ -521,11 +526,21 @@ function Translation(props: {
 
   return (
     <TranslationContainer header={<H3>Translation</H3>}>
-      <div>
-        <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
-        Edit the following text to change the translation shown on voter
-        ballots:
-      </div>
+      {!englishOnly && (
+        <div>
+          <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
+          Edit the following text to change the translation shown on voter
+          ballots:
+        </div>
+      )}
+
+      {englishOnly && (
+        <div>
+          <Icons.Info style={{ marginRight: '0.5rem' }} />
+          Candidate names are displayed in English for ballots in this language.
+        </div>
+      )}
+
       {/* [TODO] Copied from TtsTextEditor - consolidate. */}
       <Editor>
         {/*
@@ -541,8 +556,8 @@ function Translation(props: {
 
         <TextArea
           dir={IS_RTL[language] ? 'rtl' : undefined}
-          editable
-          disabled={saving}
+          editable={!englishOnly}
+          disabled={saving || englishOnly}
           id="ttsTextEditor"
           name="ttsText"
           onChange={(event) => setEdit(event.target.value)}
@@ -554,34 +569,36 @@ function Translation(props: {
           value={edit || translation.forDisplay}
         />
       </Editor>
-      <FormButtons>
-        {changed && (
+      {!englishOnly && (
+        <FormButtons>
+          {changed && (
+            <Button
+              disabled={saving}
+              onPress={setEdit}
+              value={undefined}
+              type="reset"
+            >
+              Cancel
+            </Button>
+          )}
           <Button
-            disabled={saving}
-            onPress={setEdit}
-            value={undefined}
-            type="reset"
+            disabled={saveDisabled}
+            icon={saving ? 'Loading' : 'Save'}
+            onPress={translationSet}
+            value={{
+              electionId,
+              language,
+              stringKey,
+              subKey,
+              text: sanitizedEdit,
+            }}
+            type="submit"
+            variant={saveDisabled ? 'neutral' : 'primary'}
           >
-            Cancel
+            {saving ? 'Saving...' : 'Save'}
           </Button>
-        )}
-        <Button
-          disabled={saveDisabled}
-          icon={saving ? 'Loading' : 'Save'}
-          onPress={translationSet}
-          value={{
-            electionId,
-            language,
-            stringKey,
-            subKey,
-            text: sanitizedEdit,
-          }}
-          type="submit"
-          variant={saveDisabled ? 'neutral' : 'primary'}
-        >
-          {saving ? 'Saving...' : 'Save'}
-        </Button>
-      </FormButtons>
+        </FormButtons>
+      )}
     </TranslationContainer>
   );
 }

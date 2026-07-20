@@ -15,7 +15,7 @@ import { convertHtmlToAudioCues } from './rich_text';
  */
 export const GoogleCloudVoices: Record<
   LanguageCode,
-  { languageCode: string; name: string }
+  { languageCode: string; name: string } | null
 > = {
   [LanguageCode.ARABIC]: {
     languageCode: 'ar-XA',
@@ -36,6 +36,7 @@ export const GoogleCloudVoices: Record<
   [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
   [LanguageCode.HINDI]: { languageCode: 'hi-IN', name: 'hi-IN-Neural2-B' },
   [LanguageCode.JAPANESE]: { languageCode: 'ja-JP', name: 'ja-JP-Neural2-D' },
+  [LanguageCode.KHMER]: null, // Not yet supported by Google Cloud TTS.
   [LanguageCode.KOREAN]: { languageCode: 'ko-KR', name: 'ko-KR-Wavenet-C' },
   [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
   [LanguageCode.TAGALOG]: { languageCode: 'fil-PH', name: 'fil-PH-Neural2-D' },
@@ -63,6 +64,7 @@ export interface MinimalGoogleCloudTextToSpeechClient {
 export interface SpeechSynthesizer {
   synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
   fromSsml(ssml: string, languageCode: LanguageCode): Promise<string>;
+  supportsLanguage?(languageCode: LanguageCode): boolean;
 }
 
 /**
@@ -80,6 +82,10 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     this.textToSpeechClient =
       input.textToSpeechClient ??
       /* istanbul ignore next */ new GoogleCloudTextToSpeechClient();
+  }
+  /* istanbul ignore next */
+  supportsLanguage(languageCode: LanguageCode): boolean {
+    return !!GoogleCloudVoices[languageCode];
   }
 
   async synthesizeSpeech(
@@ -104,6 +110,10 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     sanitizedText: string,
     languageCode: LanguageCode
   ): Promise<string> {
+    // [TODO] Better handling.
+    /* istanbul ignore next */
+    if (!this.supportsLanguage(languageCode)) return '';
+
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
       input: { text: sanitizedText },
@@ -125,6 +135,10 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     ssml: string,
     languageCode: LanguageCode
   ): Promise<string> {
+    // [TODO] Better handling.
+    /* istanbul ignore next */
+    if (!this.supportsLanguage(languageCode)) return '';
+
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
       input: { ssml },
