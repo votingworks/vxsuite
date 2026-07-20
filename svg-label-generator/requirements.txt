@@ -1,1 +1,10 @@
-qrcode[pil]==7.4.2
+# Python 3.10+ required.
+#
+# template-generator.py
+fonttools==4.62.1
+pyyaml==6.0.3
+#
+# nameplate-batch-generator.py  (Pillow is pulled in by the qrcode [pil] extra)
+qrcode[pil]==8.2
+#
+# laser-layout.py uses only the Python standard library — no dependencies.
