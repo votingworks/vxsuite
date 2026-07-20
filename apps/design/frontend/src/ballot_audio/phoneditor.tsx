@@ -174,6 +174,8 @@ const cursorAnimation = keyframes`
 `;
 
 const SyllableDelete = styled(Button)`
+  ${tooltipContainerCss}
+
   border-radius: 100vh;
   border: none;
   color: ${DesktopPalette.Purple70};
@@ -780,7 +782,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
     const syllable = syllables[i];
     const canDelete = syllable.ipaPhonemes.length > 0 || i > 0;
     const canStress =
-      syllable.ipaPhonemes.length > 0 && phonemes[languageCode].noStress;
+      syllable.ipaPhonemes.length > 0 && !phonemes[languageCode].noStress;
 
     const hasStress = syllable.stress === 'primary';
 

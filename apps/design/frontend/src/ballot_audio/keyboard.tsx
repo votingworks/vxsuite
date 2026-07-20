@@ -22,13 +22,13 @@ const MainKeys = styled.div`
   display: flex;
   gap: 0.25rem;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: 1rem 0 0.25rem;
 `;
 
 const KeySet = styled.div<{ split?: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: 0.2rem;
   justify-content: ${(p) => (p.split ? undefined : 'center')};
   flex-grow: 0;
 `;
