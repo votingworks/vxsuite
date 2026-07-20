@@ -3092,6 +3092,89 @@ export class Store {
     });
   }
 
+  /* istanbul ignore next - DEMO */
+  async translationEditsDelete(key: TranslationEditKey): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from translation_edits
+          where
+            jurisdiction_id = $1 and
+            language_code = $2 and
+            english_text = $3
+        `,
+        key.jurisdictionId,
+        key.languageCode,
+        key.englishText
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async bulkTranslationUploadRecord(
+    electionId: string,
+    languageCode: string
+  ): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          insert into bulk_translation_uploads (
+            election_id,
+            language_code,
+            uploaded_at
+          )
+          values ($1, $2, now())
+          on conflict (election_id, language_code) do update set
+            uploaded_at = EXCLUDED.uploaded_at
+        `,
+        electionId,
+        languageCode
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async bulkTranslationUploadClear(
+    electionId: string,
+    languageCode: string
+  ): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from bulk_translation_uploads
+          where
+            election_id = $1 and
+            language_code = $2
+        `,
+        electionId,
+        languageCode
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async bulkTranslationUploadsGet(
+    electionId: string
+  ): Promise<Array<{ languageCode: string; uploadedAt: string }>> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            language_code,
+            uploaded_at
+          from bulk_translation_uploads
+          where election_id = $1
+        `,
+        electionId
+      );
+
+      return res.rows.map((row) => ({
+        languageCode: row.language_code as string,
+        uploadedAt: (row.uploaded_at as Date).toISOString(),
+      }));
+    });
+  }
+
   async electionHasLiveReportData(
     electionId: string,
     ballotHash: string

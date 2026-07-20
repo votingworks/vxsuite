@@ -37,6 +37,7 @@ import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
 import { BallotsStatus } from './ballots_status';
 import { LanguageProofingScreen } from './ballot_audio/proofing_screen';
+import { BulkTranslationsTab } from './bulk_translations_tab';
 import { LanguageSelect } from './ballot_audio/language_select';
 
 function BallotDesignForm({
@@ -404,6 +405,7 @@ export function BallotsScreen(): JSX.Element | null {
         ballotsRoutes.ballotStyles,
         ballotsRoutes.ballotLayout,
         ballotsRoutes.language(),
+        ballotsRoutes.bulkTranslations,
       ]}
     />
   );
@@ -450,6 +452,9 @@ export function BallotsScreen(): JSX.Element | null {
             </Route>
             <Route path={ballotsParamRoutes.ballotLayout.path}>
               {withScrollContent(<BallotLayoutTab />)}
+            </Route>
+            <Route path={ballotsParamRoutes.bulkTranslations.path}>
+              {withScrollContent(<BulkTranslationsTab />)}
             </Route>
             <Route
               path={

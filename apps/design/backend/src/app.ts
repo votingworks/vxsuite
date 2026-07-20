@@ -132,6 +132,7 @@ import {
 } from './features';
 import { rootDebug } from './debug';
 import * as ttsStrings from './tts_strings';
+import * as bulkTranslations from './bulk_translations';
 import { convertMsElection } from './convert_ms_election';
 import { convertMsResults, ConvertMsResultsError } from './convert_ms_results';
 import { defaultSystemSettings } from './system_settings';
@@ -1215,6 +1216,8 @@ export function buildApi(ctx: AppContext) {
     },
 
     ...ttsStrings.apiMethods(ctx),
+
+    ...bulkTranslations.apiMethods(ctx),
   } as const;
 
   return grout.createApi(methods, middlewares);

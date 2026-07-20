@@ -148,6 +148,10 @@ export const routes = {
           title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
+        bulkTranslations: {
+          title: 'Bulk Translations',
+          path: `${root}/ballots/bulk-translations`,
+        },
         language: (lang?: ':language' | LanguageCode) => {
           const langComponent = lang ? `/${lang}` : '';
           return {
