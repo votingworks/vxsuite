@@ -5,6 +5,7 @@ import { LanguageCode } from './language_code';
 export const ALL_VOWELS_ARR = [// [TODO] Incomplete - fill out;
   'æ', 'ɑː', 'ɔː', 'eɪ', 'aɪ', 'iː', 'ɛ', 'ɪ', 'ɚ', 'oʊ', 'ɔɪ', 'uː', 'aʊ', 'ʊ',
   'ʌ', 'ə', 'a', 'ai', 'au', 'e', 'ei', 'eu', 'i', 'o', 'oi', 'ou', 'u', 'ə',
+  'ɯ', 'ø'
 ] as const;
 
 export const ALL_VOWELS = new Set<IpaPhoneme>(ALL_VOWELS_ARR);
@@ -108,6 +109,47 @@ const SPANISH_BY_IPA = {
 const ALL_SPANISH = Object.values(SPANISH_BY_IPA);
 
 /**
+ * Original mapping and examples pulled from
+ * https://cloud.google.com/text-to-speech/docs/phonemes.
+ */
+// prettier-ignore
+const KOREAN_BY_IPA = {
+  'p':   { ipa: 'p',   vx: 'p',   sampleWord: '불',   sampleIpa: 'pul',    sampleVx: 'pul' },
+  'pʰ':  { ipa: 'pʰ',  vx: 'pʰ',  sampleWord: '풀',   sampleIpa: 'pʰul',   sampleVx: 'pʰul' },
+  'p͈':   { ipa: 'p͈',   vx: 'p͈',   sampleWord: '뿔',   sampleIpa: 'p͈ul',    sampleVx: 'p͈ul' },
+  't':   { ipa: 't',   vx: 't',   sampleWord: '달',   sampleIpa: 'tal',    sampleVx: 'tal' },
+  'tʰ':  { ipa: 'tʰ',  vx: 'tʰ',  sampleWord: '탈',   sampleIpa: 'tʰal',   sampleVx: 'tʰal' },
+  't͈':   { ipa: 't͈',   vx: 't͈',   sampleWord: '딸',   sampleIpa: 't͈al',    sampleVx: 't͈al' },
+  'k':   { ipa: 'k',   vx: 'k',   sampleWord: '가다',  sampleIpa: 'kata',   sampleVx: 'kata' },
+  'kʰ':  { ipa: 'kʰ',  vx: 'kʰ',  sampleWord: '칼',   sampleIpa: 'kʰal',   sampleVx: 'kʰal' },
+  'k͈':   { ipa: 'k͈',   vx: 'k͈',   sampleWord: '까다',  sampleIpa: 'k͈ata',   sampleVx: 'k͈ata' },
+  'sʰ':  { ipa: 'sʰ',  vx: 'sʰ',  sampleWord: '살',   sampleIpa: 'sʰal',   sampleVx: 'sʰal' },
+  's͈':   { ipa: 's͈',   vx: 's͈',   sampleWord: '쌀',   sampleIpa: 's͈al',    sampleVx: 's͈al' },
+  'h':   { ipa: 'h',   vx: 'h',   sampleWord: '하다',  sampleIpa: 'hata',   sampleVx: 'hata' },
+  'tɕ':  { ipa: 'tɕ',  vx: 'tɕ',  sampleWord: '자다',  sampleIpa: 'tɕata',  sampleVx: 'tɕata' },
+  'tɕʰ': { ipa: 'tɕʰ', vx: 'tɕʰ', sampleWord: '차다',  sampleIpa: 'tɕʰata', sampleVx: 'tɕʰata' },
+  't͈ɕ':  { ipa: 't͈ɕ',  vx: 't͈ɕ',  sampleWord: '짜다',  sampleIpa: 't͈ɕata',  sampleVx: 't͈ɕata' },
+  'm':   { ipa: 'm',   vx: 'm',   sampleWord: '물',   sampleIpa: 'mul',     sampleVx: 'mul' },
+  'n':   { ipa: 'n',   vx: 'n',   sampleWord: '날',   sampleIpa: 'nal',     sampleVx: 'nal' },
+  'ŋ':   { ipa: 'ŋ',   vx: 'ŋ',   sampleWord: '방',   sampleIpa: 'paŋ',     sampleVx: 'paŋ' },
+  'ɾ':   { ipa: 'ɾ',   vx: 'ɾ',   sampleWord: '바람',  sampleIpa: 'paɾam',   sampleVx: 'paɾam' },
+  'l':   { ipa: 'l',   vx: 'l',   sampleWord: '스쿨',  sampleIpa: 'sʰɯkʰul', sampleVx: 'sʰɯkʰul' },
+  'w':   { ipa: 'w',   vx: 'w',   sampleWord: '문화',  sampleIpa: 'munhwa',  sampleVx: 'munhwa' },
+  'j':   { ipa: 'j',   vx: 'j',   sampleWord: '양명',  sampleIpa: 'jaŋmjʌŋ', sampleVx: 'jaŋmjʌŋ' },
+  'i':   { ipa: 'i',   vx: 'i',   sampleWord: '시장',  sampleIpa: 'sʰitɕaŋ', sampleVx: 'sʰitɕaŋ' },
+  'a':   { ipa: 'a',   vx: 'a',   sampleWord: '말',   sampleIpa: 'mal',     sampleVx: 'mal' },
+  'e':   { ipa: 'e',   vx: 'e',   sampleWord: '베개',  sampleIpa: 'pekɛ',    sampleVx: 'pekɛ' },
+  'ɯ':   { ipa: 'ɯ',   vx: 'ɯ',   sampleWord: '음악',  sampleIpa: 'ɯmak',    sampleVx: 'ɯmak' },
+  'ʌ':   { ipa: 'ʌ',   vx: 'ʌ',   sampleWord: '어머니', sampleIpa: 'ʌmʌni',   sampleVx: 'ʌmʌni' },
+  'u':   { ipa: 'u',   vx: 'u',   sampleWord: '우리',  sampleIpa: 'uɾi',     sampleVx: 'uɾi' },
+  'o':   { ipa: 'o',   vx: 'o',   sampleWord: '오리',  sampleIpa: 'oɾi',     sampleVx: 'oɾi' },
+  'ø':   { ipa: 'ø',   vx: 'ø',   sampleWord: '교회',  sampleIpa: 'kjohø',   sampleVx: 'kjohø' },
+  'ɛ':   { ipa: 'ɛ',   vx: 'ɛ',   sampleWord: '태양',  sampleIpa: 'tʰɛjaŋ',  sampleVx: 'tʰɛjaŋ' },
+} as const;
+
+const ALL_KOREAN = Object.values(KOREAN_BY_IPA);
+
+/**
  * Represents a phonetic sound in IPA format. Used for speech synthesis via the
  * Google Cloud Text-To-Speech API.
  *
@@ -115,10 +157,12 @@ const ALL_SPANISH = Object.values(SPANISH_BY_IPA);
  */
 export type IpaPhoneme =
   | keyof typeof ENGLISH_BY_IPA
+  | keyof typeof KOREAN_BY_IPA
   | keyof typeof SPANISH_BY_IPA;
 
 const IPA_PHONEMES = new Set([
   ...(Object.keys(ENGLISH_BY_IPA) as IpaPhoneme[]),
+  ...(Object.keys(KOREAN_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(SPANISH_BY_IPA) as IpaPhoneme[]),
 ]);
 
@@ -176,6 +220,10 @@ export interface TtsPhonemes {
    * split consonant/vowel layouts for the on-screen phonetic keyboard.
    */
   consonants: TtsPhoneme[];
+
+  /** `true` if stresses are not applicable for the language. */
+  // [TODO] Clean up.
+  noStress?: boolean;
 
   /**
    * Syllable emphasis/stress annotations: `vx` for display and `ipa` for
@@ -263,10 +311,14 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.KOREAN]: {
-    allByIpa: ENGLISH_BY_IPA,
-    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    stresses: STANDARD_STRESSES,
-    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+    allByIpa: KOREAN_BY_IPA,
+    consonants: ALL_KOREAN.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    noStress: true,
+    stresses: {
+      primary: { ipa: '.', vx: '.' },
+      secondary: { ipa: '.', vx: '.' },
+    },
+    vowels: ALL_KOREAN.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.SPANISH]: {
     allByIpa: SPANISH_BY_IPA,

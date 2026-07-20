@@ -95,10 +95,12 @@ export type Phoneme = TtsPhoneme;
 
 type Alphabet = 'ipa' | 'vx';
 
-const consonantModifier = {
-  ipa: 'ə',
-  vx: 'ə',
-} as const;
+const DEFAULT_CONSONANT_MODIFIER = 'ə';
+
+const CONSONANT_MODIFIER: Partial<Record<LanguageCode, string>> = {
+  [LanguageCode.ENGLISH]: DEFAULT_CONSONANT_MODIFIER,
+  [LanguageCode.KOREAN]: 'ɯ',
+};
 
 export function Keyboard(props: {
   alphabet: Alphabet;
@@ -120,39 +122,43 @@ export function Keyboard(props: {
     ssml: currentSsml,
   }).data;
 
-  const onMouseOver = React.useCallback((phoneme: Phoneme) => {
-    if (audioTimer.current) {
-      window.clearTimeout(audioTimer.current);
-      audioTimer.current = undefined;
-    }
-
-    if (lastAudio.current) {
-      if (!lastAudio.current.paused && lastAudioPhoneme.current === phoneme) {
-        return;
+  const onMouseOver = React.useCallback(
+    (phoneme: Phoneme) => {
+      if (audioTimer.current) {
+        window.clearTimeout(audioTimer.current);
+        audioTimer.current = undefined;
       }
 
-      lastAudio.current = undefined;
-    }
+      if (lastAudio.current) {
+        if (!lastAudio.current.paused && lastAudioPhoneme.current === phoneme) {
+          return;
+        }
 
-    lastAudioPhoneme.current = phoneme;
-
-    const alphabetForAudio = 'ipa';
-    audioTimer.current = window.setTimeout(() => {
-      let sound = phoneme[alphabetForAudio];
-      if (!isVowel(phoneme.ipa)) {
-        sound += consonantModifier[alphabetForAudio];
+        lastAudio.current = undefined;
       }
 
-      setCurrentSsml(
-        `<speak>` +
-          `<phoneme alphabet="${alphabetForAudio}" ph="${sound}">` +
-          `${phoneme[alphabetForAudio]}` +
-          `</phoneme>` +
-          `</speak>`
-      );
-      setPlayingSample(true);
-    }, 250);
-  }, []);
+      lastAudioPhoneme.current = phoneme;
+
+      const alphabetForAudio = 'ipa';
+      audioTimer.current = window.setTimeout(() => {
+        let sound = phoneme[alphabetForAudio];
+        if (!isVowel(phoneme.ipa)) {
+          sound +=
+            CONSONANT_MODIFIER[languageCode] || DEFAULT_CONSONANT_MODIFIER;
+        }
+
+        setCurrentSsml(
+          `<speak>` +
+            `<phoneme alphabet="${alphabetForAudio}" ph="${sound}">` +
+            `${phoneme[alphabetForAudio]}` +
+            `</phoneme>` +
+            `</speak>`
+        );
+        setPlayingSample(true);
+      }, 250);
+    },
+    [languageCode]
+  );
 
   const onMouseOut = React.useCallback(() => {
     if (audioTimer.current) {
