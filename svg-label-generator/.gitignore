@@ -40,3 +40,6 @@ output/
 
 # Logs
 *.log
+
+#live yaml
+nameplate_config.yaml
