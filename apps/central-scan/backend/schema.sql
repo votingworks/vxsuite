@@ -20,6 +20,7 @@ create table batches (
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   deleted_at datetime,
+  sent_to_admin_at datetime,
   error varchar(4000)
 );
 

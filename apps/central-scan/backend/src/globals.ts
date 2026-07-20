@@ -42,6 +42,19 @@ export const NETWORK_POLLING_INTERVAL_MS = 2000;
 export const NETWORK_REQUEST_TIMEOUT_MS = 1000;
 
 /**
+ * How often the background sync checks for saved batches that haven't been
+ * sent to a VxAdmin host yet.
+ */
+export const CVR_SYNC_INTERVAL_MS = 2000;
+
+/**
+ * How long the background sync waits after a failed send before automatically
+ * retrying, so a persistent failure doesn't hammer the host with new transfer
+ * sessions every polling tick.
+ */
+export const CVR_SYNC_RETRY_BACKOFF_MS = 15_000;
+
+/**
  * Dev override for the VxAdmin host peer API address, e.g.
  * `http://192.168.1.10:3002`. When set, avahi discovery is skipped and the
  * scanner connects to this address directly.

@@ -54,6 +54,7 @@ import {
 import { BaseLogger } from '@votingworks/logging';
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path';
+import { BatchInfoWithSyncStatus } from './types';
 
 const debug = makeDebug('scan:store');
 
@@ -786,7 +787,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  getBatches(): BatchInfo[] {
+  getBatches(): BatchInfoWithSyncStatus[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -794,6 +795,7 @@ export class Store {
       pollingPlaceId: string;
       startedAt: string;
       endedAt: string | null;
+      sentToAdminAt: string | null;
       error: string | null;
       count: number;
     }
@@ -805,6 +807,7 @@ export class Store {
         batches.polling_place_id as pollingPlaceId,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
+        (case when sent_to_admin_at is null then sent_to_admin_at else strftime('%s', sent_to_admin_at) end) as sentToAdminAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -834,6 +837,11 @@ export class Store {
         // eslint-disable-next-line vx/gts-safe-number-parse
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
         undefined,
+      sentToAdminAt:
+        (info.sentToAdminAt &&
+          // eslint-disable-next-line vx/gts-safe-number-parse
+          DateTime.fromSeconds(Number(info.sentToAdminAt)).toISO()) ||
+        undefined,
       error: info.error || undefined,
       count: info.count,
     }));
@@ -844,6 +852,34 @@ export class Store {
    */
   getBatch(batchId: string): BatchInfo {
     return find(this.getBatches(), (b) => b.id === batchId);
+  }
+
+  /**
+   * Gets all finished batches that have not yet been sent to a VxAdmin host,
+   * oldest first.
+   */
+  getBatchesUnsentToAdmin(): BatchInfo[] {
+    const rows = this.client.all(`
+      select id
+      from batches
+      where
+        deleted_at is null and
+        ended_at is not null and
+        sent_to_admin_at is null
+      order by batch_number
+    `) as Array<{ id: string }>;
+    const batches = this.getBatches();
+    return rows.map(({ id }) => find(batches, (b) => b.id === id));
+  }
+
+  /**
+   * Records that a batch has been sent to a VxAdmin host.
+   */
+  markBatchSentToAdmin(batchId: string): void {
+    this.client.run(
+      'update batches set sent_to_admin_at = current_timestamp where id = ?',
+      batchId
+    );
   }
 
   /**
