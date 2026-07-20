@@ -655,6 +655,7 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
       if (event.metaKey || event.ctrlKey) {
         switch (event.key) {
           case 'b':
+            if (phonemes[languageCode].noStress) break;
             toggleStress(currentSyllableIdx);
             return;
 
@@ -778,7 +779,8 @@ export function Phoneditor(props: PhoneditorProps): JSX.Element {
 
     const syllable = syllables[i];
     const canDelete = syllable.ipaPhonemes.length > 0 || i > 0;
-    const canStress = syllable.ipaPhonemes.length > 0;
+    const canStress =
+      syllable.ipaPhonemes.length > 0 && phonemes[languageCode].noStress;
 
     const hasStress = syllable.stress === 'primary';
 
