@@ -2,10 +2,10 @@ import { Mock, vi } from 'vitest';
 import React from 'react';
 import type {
   Api,
+  CvrSyncStatus,
   HostConnectionInfo,
   MachineConfig,
   ScanStatus,
-  SendCastVoteRecordsToHostError,
 } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
@@ -21,7 +21,7 @@ import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Result, ok } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 import { DEFAULT_STATUS } from './fixtures';
@@ -32,14 +32,14 @@ export type MockApiClient = Omit<
   | 'getBatteryInfo'
   | 'getDiskSpaceSummary'
   | 'getHostConnectionInfo'
-  | 'getSendCvrsProgress'
+  | 'getCvrSyncStatus'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
   getHostConnectionInfo: Mock;
-  getSendCvrsProgress: Mock;
+  getCvrSyncStatus: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -55,8 +55,8 @@ export function createMockApiClient(): MockApiClient {
   (mockApiClient.getHostConnectionInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'offline' })
   );
-  (mockApiClient.getSendCvrsProgress as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(null)
+  (mockApiClient.getCvrSyncStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve({ state: 'idle', unsentBatchCount: 0 })
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -195,17 +195,8 @@ export function createApiMock(
       apiClient.getHostConnectionInfo.mockResolvedValue(hostConnectionInfo);
     },
 
-    setSendCvrsProgress(progress: { sent: number; total: number } | null) {
-      apiClient.getSendCvrsProgress.mockResolvedValue(progress);
-    },
-
-    expectSendCastVoteRecordsToHost(
-      result: Result<
-        { newlyAdded: number; alreadyPresent: number },
-        SendCastVoteRecordsToHostError
-      >
-    ) {
-      apiClient.sendCastVoteRecordsToHost.expectCallWith().resolves(result);
+    setCvrSyncStatus(cvrSyncStatus: CvrSyncStatus) {
+      apiClient.getCvrSyncStatus.mockResolvedValue(cvrSyncStatus);
     },
 
     expectSetTestMode(testMode: boolean) {

@@ -1,5 +1,7 @@
-import { ScanStatus } from '@votingworks/central-scan-backend';
-import { BatchInfo } from '@votingworks/types';
+import {
+  BatchInfoWithSyncStatus,
+  ScanStatus,
+} from '@votingworks/central-scan-backend';
 
 export const DEFAULT_STATUS: ScanStatus = {
   isScannerAttached: true,
@@ -16,7 +18,7 @@ export function mockStatus(status: Partial<ScanStatus> = {}): ScanStatus {
   };
 }
 
-export const MOCK_BATCH: BatchInfo = {
+export const MOCK_BATCH: BatchInfoWithSyncStatus = {
   id: 'id',
   batchNumber: 1,
   count: 1,
@@ -26,7 +28,9 @@ export const MOCK_BATCH: BatchInfo = {
   pollingPlaceId: 'place-1',
 };
 
-export function mockBatch(batch: Partial<BatchInfo> = {}): BatchInfo {
+export function mockBatch(
+  batch: Partial<BatchInfoWithSyncStatus> = {}
+): BatchInfoWithSyncStatus {
   return {
     ...MOCK_BATCH,
     ...batch,

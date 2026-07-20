@@ -1,12 +1,13 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
 import {
+  hasTextAcrossElements,
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/api';
 import { mockBatch, mockStatus } from '../test/fixtures';
@@ -51,8 +52,8 @@ test('poll worker sees the simplified batch scanning screen', async () => {
   screen.getByText('Insert a poll worker or election manager card to unlock.');
   logInAsPollWorker(electionDefinition);
 
-  await screen.findByText('Scan New Batch');
-  expect(screen.getButton('Scan New Batch')).toBeEnabled();
+  await screen.findByText('Start Batch 1');
+  expect(screen.getButton('Start Batch 1')).toBeEnabled();
   screen.getByText('Lock Machine');
 
   // No CVR management or batch deletion controls
@@ -65,12 +66,22 @@ test('poll worker sees the simplified batch scanning screen', async () => {
   expect(screen.queryByText('Diagnostics')).not.toBeInTheDocument();
 });
 
-test('poll worker can toggle batch history, which has no delete buttons', async () => {
+test('poll worker can open batch history, which has no delete buttons', async () => {
   apiMock.setStatus(
     mockStatus({
       batches: [
-        mockBatch({ id: 'batch-1', label: 'Batch 1', count: 25 }),
-        mockBatch({ id: 'batch-2', label: 'Batch 2', count: 32 }),
+        mockBatch({
+          id: 'batch-1',
+          batchNumber: 1,
+          label: 'Batch 1',
+          count: 25,
+        }),
+        mockBatch({
+          id: 'batch-2',
+          batchNumber: 2,
+          label: 'Batch 2',
+          count: 32,
+        }),
       ],
     })
   );
@@ -81,28 +92,23 @@ test('poll worker can toggle batch history, which has no delete buttons', async 
   await screen.findByText('VxCentralScan Locked');
   logInAsPollWorker(electionDefinition);
 
-  // History is collapsed (hidden from the accessibility tree) by default;
-  // stats are always visible
-  await screen.findByText('Saved Batches:');
-  screen.getByText('Total Sheets:');
-  expect(
-    screen.queryByRole('complementary', { name: 'Batch History' })
-  ).not.toBeInTheDocument();
+  // Summary stats are always visible; the line-by-line history lives on its
+  // own page
+  await screen.findByText(hasTextAcrossElements('Total Batches: 2'));
+  screen.getByText(hasTextAcrossElements('Total Sheets: 57'));
 
-  userEvent.click(screen.getButton('Show Batch History'));
-  const historySheet = await screen.findByRole('complementary', {
-    name: 'Batch History',
-  });
-  within(historySheet).getByText('Batch 1');
-  within(historySheet).getByText('Batch 2');
+  userEvent.click(screen.getByText('Batch History'));
+  await screen.findByRole('heading', { name: 'Batch History' });
+  screen.getByText('Batch 1');
+  screen.getByText('Batch 2');
+  // totals are shown on the history page too
+  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
   expect(screen.queryByText('Delete')).not.toBeInTheDocument();
+  expect(screen.queryByText('Delete All Batches')).not.toBeInTheDocument();
+  expect(screen.queryByText('Save CVRs')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Close'));
-  await vi.waitFor(() => {
-    expect(
-      screen.queryByRole('complementary', { name: 'Batch History' })
-    ).not.toBeInTheDocument();
-  });
+  userEvent.click(screen.getByText('Scan Ballots'));
+  await screen.findByText('Start Batch 3');
 });
 
 test('poll worker is warned when no polling place is selected', async () => {
@@ -116,5 +122,5 @@ test('poll worker is warned when no polling place is selected', async () => {
 
   await screen.findByText(/No polling place selected/);
   screen.getByText(/Ask an election manager/);
-  expect(screen.getButton('Scan New Batch')).toBeDisabled();
+  expect(screen.getButton('Start Batch 1')).toBeDisabled();
 });

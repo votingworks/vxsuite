@@ -36,13 +36,12 @@ function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
 test('warns and disables scanning when a polling place needs to be selected', () => {
   renderScreen({ isPollingPlaceUnconfigured: true });
   screen.getByText(/No polling place selected/);
-  expect(screen.getButton('Scan New Batch')).toBeDisabled();
+  expect(screen.getButton('Start Batch 1')).toBeDisabled();
 });
 
 test('null state', () => {
   renderScreen();
-  screen.getByText('Ready to scan');
-  screen.getByText('No batch in progress');
+  screen.getByText('Ready to Scan');
   screen.getByText('No batches have been saved');
 });
 
@@ -61,7 +60,7 @@ test('shows saved batch count', () => {
   });
   renderScreen({ status });
   screen.getByText(hasTextAcrossElements('Total Sheets: 4'));
-  screen.getByText(hasTextAcrossElements('Saved Batches: 2'));
+  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
 });
 
 test('shows the scanning batch in the control card, not the saved list', () => {
@@ -81,34 +80,37 @@ test('shows the scanning batch in the control card, not the saved list', () => {
     ],
   });
   renderScreen({ status });
-  screen.getByText('Scanning batch');
-  screen.getByText(hasTextAcrossElements('5 sheets scanned in this batch'));
+  screen.getByText('Scanning');
+  screen.getByText('Batch 1');
+  screen.getByText('5');
+  screen.getByText('sheets scanned in this batch');
   expect(screen.getButton('Stop')).toBeEnabled();
 
-  // only the saved batch appears in the list, and it can't be deleted while a
-  // batch is open
-  screen.getByText(hasTextAcrossElements('Saved Batches: 1'));
-  expect(screen.getAllButtons('Delete')).toHaveLength(1);
-  for (const deleteButton of screen.getAllButtons('Delete')) {
-    expect(deleteButton).toBeDisabled();
-  }
-  expect(screen.getButton('Delete All Batches')).toBeDisabled();
-  expect(screen.getButton('Save CVRs')).toBeDisabled();
+  // only the saved batch is counted in the summary
+  screen.getByText(hasTextAcrossElements('Total Batches: 1'));
 });
 
-test('stop button cancels the batch and shows an info modal', async () => {
+test('stop button confirms, cancels the batch, and shows an info modal', async () => {
   const status: ScanStatus = mockStatus({
     currentBatch: { batchId: 'a', state: 'scanning' },
-    batches: [mockBatch({ id: 'a', endedAt: undefined })],
+    batches: [mockBatch({ id: 'a', count: 5, endedAt: undefined })],
   });
   renderScreen({ status });
-  apiMock.expectCancelBatch();
   userEvent.click(screen.getButton('Stop'));
 
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Batch Canceled' });
-  within(modal).getByText(/discarded/);
-  userEvent.click(within(modal).getButton('Close'));
+  const confirmModal = await screen.findByRole('alertdialog');
+  within(confirmModal).getByRole('heading', { name: 'Stop Scanning' });
+  within(confirmModal).getByText(
+    hasTextAcrossElements(
+      /all 5 sheets scanned in this batch will be discarded/
+    )
+  );
+  apiMock.expectCancelBatch();
+  userEvent.click(within(confirmModal).getButton('Stop and Discard'));
+
+  await screen.findByRole('heading', { name: 'Batch Discarded' });
+  screen.getByText(/discarded/);
+  userEvent.click(screen.getButton('Close'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -126,8 +128,11 @@ describe('paused batch', () => {
 
   test('shows the pause reason and sheet count', () => {
     renderScreen({ status: pausedStatus });
-    screen.getByText('Batch paused — input tray is empty');
-    screen.getByText(hasTextAcrossElements('7 sheets scanned in this batch'));
+    screen.getByText('Paused');
+    screen.getByText('Batch 1');
+    screen.getByText('Input tray empty');
+    screen.getByText('7');
+    screen.getByText('sheets scanned in this batch');
   });
 
   test('shows other pause reasons', () => {
@@ -137,7 +142,7 @@ describe('paused batch', () => {
         batches: [mockBatch({ id: 'a', endedAt: undefined })],
       }),
     });
-    screen.getByText('Batch paused — scanning stopped');
+    screen.getByText('Scanning stopped');
     unmount();
 
     renderScreen({
@@ -146,7 +151,7 @@ describe('paused batch', () => {
         batches: [mockBatch({ id: 'a', endedAt: undefined })],
       }),
     });
-    screen.getByText('Batch paused — a scanning error occurred');
+    screen.getByText('A scanning error occurred');
   });
 
   test('continue scanning', () => {
@@ -155,32 +160,55 @@ describe('paused batch', () => {
     userEvent.click(screen.getButton('Continue Scanning'));
   });
 
-  test('save batch', () => {
+  test('save batch requires confirmation', async () => {
     renderScreen({ status: pausedStatus });
-    apiMock.expectSaveBatch();
     userEvent.click(screen.getButton('Save Batch'));
-  });
-
-  test('cancel batch requires confirmation', async () => {
-    renderScreen({ status: pausedStatus });
-    userEvent.click(screen.getButton('Cancel'));
 
     const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Cancel Batch' });
+    within(modal).getByRole('heading', { name: 'Save Batch' });
     within(modal).getByText(
-      hasTextAcrossElements(/All 7 sheets scanned in this batch/)
+      hasTextAcrossElements(
+        /All 7 sheets scanned in this batch will be saved and sent to VxAdmin/
+      )
     );
 
-    apiMock.expectCancelBatch();
-    userEvent.click(within(modal).getButton('Cancel Batch'));
+    apiMock.expectSaveBatch();
+    userEvent.click(within(modal).getButton('Save Batch'));
     await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
   });
 
-  test('cancel batch can be dismissed', async () => {
+  test('save batch can be dismissed', async () => {
     renderScreen({ status: pausedStatus });
+    userEvent.click(screen.getButton('Save Batch'));
+    await screen.findByRole('alertdialog');
     userEvent.click(screen.getButton('Cancel'));
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+  });
+
+  test('discard batch requires confirmation', async () => {
+    renderScreen({ status: pausedStatus });
+    userEvent.click(screen.getButton('Discard Batch'));
+
+    const modal = await screen.findByRole('alertdialog');
+    within(modal).getByRole('heading', { name: 'Discard Batch' });
+    within(modal).getByText(
+      hasTextAcrossElements(/All 7 sheets scanned in this batch/)
+    );
+
+    apiMock.expectCancelBatch();
+    userEvent.click(within(modal).getButton('Discard Batch'));
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+  });
+
+  test('discard batch can be dismissed', async () => {
+    renderScreen({ status: pausedStatus });
+    userEvent.click(screen.getButton('Discard Batch'));
     await screen.findByRole('alertdialog');
     userEvent.click(screen.getButton('Close'));
     await vi.waitFor(() =>
@@ -189,76 +217,14 @@ describe('paused batch', () => {
   });
 });
 
-test('Delete All Batches is not allowed when canUnconfigure is false', () => {
-  const status: ScanStatus = mockStatus({
-    canUnconfigure: false,
-    batches: [mockBatch()],
-  });
-  renderScreen({ status });
-
-  userEvent.click(screen.getButton('Delete All Batches'));
-  screen.getByRole('heading', { name: 'CVR Backup Required' });
-  userEvent.click(screen.getButton('Close'));
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-});
-
-test('Delete All Batches button', async () => {
+test('there is no manual Send CVRs button; batches are sent automatically', () => {
   const status: ScanStatus = mockStatus({
     batches: [mockBatch()],
   });
   renderScreen({ status });
-
-  // initial button
-  userEvent.click(screen.getButton('Delete All Batches'));
-
-  // confirmation
-  apiMock.expectClearBallotData();
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Delete All Batches' });
-  userEvent.click(screen.getButton('Delete All Batches'));
-
-  // progress message
-  await screen.findByText('Deleting Batches');
-  await vi.waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-});
-
-describe('Send CVRs Button', () => {
-  test('disabled when no VxAdmin host is connected', () => {
-    const status: ScanStatus = mockStatus({
-      batches: [mockBatch()],
-    });
-    renderScreen({ status });
-    expect(screen.getButton('Send CVRs')).toBeDisabled();
-  });
-
-  test('disabled when no batches have been scanned', async () => {
-    apiMock.setHostConnectionInfo({
-      status: 'connected-to-host',
-      hostMachineId: 'ADMIN-01',
-    });
-    renderScreen();
-    await vi.waitFor(() =>
-      expect(screen.getButton('Save CVRs')).toBeDisabled()
-    );
-    expect(screen.getButton('Send CVRs')).toBeDisabled();
-  });
-
-  test('enabled when a host is connected and batches are scanned, opens modal', async () => {
-    apiMock.setHostConnectionInfo({
-      status: 'connected-to-host',
-      hostMachineId: 'ADMIN-01',
-    });
-    const status: ScanStatus = mockStatus({
-      batches: [mockBatch()],
-    });
-    renderScreen({ status });
-    await vi.waitFor(() => expect(screen.getButton('Send CVRs')).toBeEnabled());
-
-    userEvent.click(screen.getButton('Send CVRs'));
-    await screen.findByRole('heading', { name: 'Send CVRs' });
-  });
+  expect(
+    screen.queryByRole('button', { name: 'Send CVRs' })
+  ).not.toBeInTheDocument();
 });
 
 describe('Scan Ballots Button', () => {
@@ -275,18 +241,18 @@ describe('Scan Ballots Button', () => {
       }),
     });
     expect(
-      screen.queryByRole('button', { name: 'Scan New Batch' })
+      screen.queryByRole('button', { name: /Start Batch/ })
     ).not.toBeInTheDocument();
     screen.getButton('Stop');
   });
 
   test('disabled when scan status is stale', () => {
     renderScreen({ statusIsStale: true });
-    expect(screen.getButton('Scan New Batch')).toBeDisabled();
+    expect(screen.getButton('Start Batch 1')).toBeDisabled();
   });
 
   test('enabled otherwise', () => {
     renderScreen();
-    expect(screen.getButton('Scan New Batch')).toBeEnabled();
+    expect(screen.getButton('Start Batch 1')).toBeEnabled();
   });
 });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import { Button, Font, Icons, Modal, P } from '@votingworks/ui';
+import styled, { useTheme } from 'styled-components';
+import { Button, H2, Modal, P } from '@votingworks/ui';
+import { iter } from '@votingworks/basics';
 import type {
   BatchPauseReason,
   ScanStatus,
@@ -9,116 +10,144 @@ import { format } from '@votingworks/utils';
 import { cancelBatch, continueBatch, saveBatch } from '../api';
 import { ScanButton } from './scan_button';
 
-const Card = styled.div<{ large?: boolean; minimized?: boolean }>`
-  border: 1px solid ${(p) => p.theme.colors.outline};
-  border-radius: 0.5rem;
-  padding: 1rem;
+const Card = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  ${(p) =>
-    p.large &&
-    css`
-      flex-direction: column;
-      justify-content: center;
-      padding: ${p.minimized ? '1rem' : '2.5rem 2rem'};
-      gap: ${p.minimized ? '0.75rem' : '2rem'};
-
-      /* Keep a constant footprint across the ready/scanning/paused states so
-       * the controls don't jump around as scanning starts and stops. */
-      min-height: ${p.minimized ? '0' : '19rem'};
-      transition:
-        min-height 0.3s ease,
-        padding 0.3s ease,
-        gap 0.3s ease;
-    `}
+  align-items: stretch;
+  height: 100%;
 `;
 
-const CardStatus = styled.div<{ large?: boolean; minimized?: boolean }>`
+const StatusPane = styled.div`
+  background: ${(p) => p.theme.colors.containerLow};
+  padding: 2rem;
+  width: 26rem;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 
-  ${(p) =>
-    p.large &&
-    css`
-      align-items: center;
-      gap: ${p.minimized ? '0.25rem' : '1rem'};
+  h2 {
+    margin-bottom: 0;
+  }
 
-      p {
-        font-size: ${p.minimized ? '1rem' : '1.5rem'};
-        transition: font-size 0.3s ease;
-      }
-    `}
+  p {
+    margin-bottom: 0;
+  }
 `;
 
-const SheetCount = styled.div`
+const ActionsPane = styled.div`
+  padding: 2rem;
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  flex-grow: 1;
+
+  button {
+    font-size: 1.4rem;
+    padding: 0.75rem 2rem;
+  }
 `;
 
-const BigCount = styled.span<{ large?: boolean; minimized?: boolean }>`
-  font-size: ${(p) => (p.large && !p.minimized ? '5rem' : '2.5rem')};
+const ActionsFooter = styled.div`
+  margin-top: auto;
+`;
+
+const PageWrapper = styled.div`
+  position: relative;
+  width: 12rem;
+  margin: 0 auto;
+`;
+
+const PageCount = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
   font-weight: 700;
-  line-height: 1;
-  transition: font-size 0.3s ease;
 `;
 
-const CardActions = styled.div<{ large?: boolean; minimized?: boolean }>`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.5rem;
-
-  ${(p) =>
-    p.large &&
-    css`
-      justify-content: center;
-      gap: ${p.minimized ? '0.5rem' : '1rem'};
-
-      button {
-        font-size: ${p.minimized ? '1rem' : '1.4rem'};
-        padding: ${p.minimized ? '0.5rem 1.25rem' : '0.75rem 2rem'};
-        transition:
-          font-size 0.3s ease,
-          padding 0.3s ease;
-      }
-    `}
+const PageCaption = styled.p`
+  text-align: center;
 `;
+
+/**
+ * A page with a folded top-right corner, standing in for the batch being
+ * scanned — the batch-control equivalent of the smart card illustration on
+ * VxAdmin's card programming screen. Dashed while there is no batch in
+ * progress.
+ */
+function PageIllustration({
+  dashed,
+  active,
+  children,
+}: {
+  dashed?: boolean;
+  active?: boolean;
+  children?: React.ReactNode;
+}): JSX.Element {
+  const theme = useTheme();
+  let stroke = theme.colors.onBackground;
+  if (dashed) {
+    stroke = theme.colors.outline;
+  } else if (active) {
+    stroke = theme.colors.primary;
+  }
+  return (
+    <PageWrapper>
+      <svg viewBox="0 0 120 156" role="img" aria-hidden="true">
+        <path
+          d="M6 6 H84 L114 36 V150 H6 Z"
+          fill={dashed ? 'none' : theme.colors.background}
+          stroke={stroke}
+          strokeWidth="3"
+          strokeLinejoin="round"
+          strokeDasharray={dashed ? '10 8' : undefined}
+        />
+        <path
+          d="M84 6 V36 H114"
+          fill="none"
+          stroke={stroke}
+          strokeWidth="3"
+          strokeLinejoin="round"
+          strokeDasharray={dashed ? '10 8' : undefined}
+        />
+      </svg>
+      <PageCount>{children}</PageCount>
+    </PageWrapper>
+  );
+}
 
 const PAUSE_REASON_TEXT: Record<BatchPauseReason, string> = {
-  'tray-empty': 'input tray is empty',
-  stopped: 'scanning stopped',
-  'ballot-review': 'a ballot required review',
-  error: 'a scanning error occurred',
+  'tray-empty': 'Input tray empty',
+  stopped: 'Scanning stopped',
+  'ballot-review': 'A ballot required review',
+  error: 'A scanning error occurred',
 };
 
 export interface BatchControlCardProps {
   status: ScanStatus;
   statusIsStale: boolean;
   isPollingPlaceUnconfigured: boolean;
-  /** Renders a larger version of the card for the poll worker screen. */
-  large?: boolean;
-  /**
-   * Shrinks the large card (with an animated transition) while keeping its
-   * layout, e.g. while the batch history is open. Only applies with `large`.
-   */
-  minimized?: boolean;
+  /** Notice (e.g. a warning callout) shown above the action buttons. */
+  notice?: React.ReactNode;
+  /** Content (e.g. batch stats) pinned to the bottom of the actions pane. */
+  actionsFooter?: React.ReactNode;
 }
 
 export function BatchControlCard({
   status,
   statusIsStale,
   isPollingPlaceUnconfigured,
-  large,
-  minimized,
+  notice,
+  actionsFooter,
 }: BatchControlCardProps): JSX.Element {
   const continueBatchMutation = continueBatch.useMutation();
   const saveBatchMutation = saveBatch.useMutation();
   const cancelBatchMutation = cancelBatch.useMutation();
+  const [isConfirmingSave, setIsConfirmingSave] = useState(false);
+  const [isConfirmingStop, setIsConfirmingStop] = useState(false);
   const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const [isShowingBatchCanceledInfo, setIsShowingBatchCanceledInfo] =
     useState(false);
@@ -126,13 +155,17 @@ export function BatchControlCard({
   const { currentBatch } = status;
   const batch = status.batches.find((b) => b.id === currentBatch?.batchId);
   const sheetCount = batch?.count ?? 0;
+  const nextBatchNumber =
+    (iter(status.batches).maxBy((b) => b.batchNumber)?.batchNumber ?? 0) + 1;
 
   // Stopping a scanning batch means something went wrong with the batch as
-  // scanned, so it discards the batch immediately and informs the operator
-  // afterward.
+  // scanned, so it discards the batch and informs the operator afterward.
   function stopAndCancelBatch() {
     cancelBatchMutation.mutate(undefined, {
-      onSuccess: () => setIsShowingBatchCanceledInfo(true),
+      onSuccess: () => {
+        setIsConfirmingStop(false);
+        setIsShowingBatchCanceledInfo(true);
+      },
     });
   }
 
@@ -141,113 +174,157 @@ export function BatchControlCard({
     saveBatchMutation.isLoading ||
     cancelBatchMutation.isLoading;
 
-  let content: JSX.Element;
+  let statusContent: JSX.Element;
+  let actions: JSX.Element;
   if (!currentBatch) {
-    content = (
+    statusContent = (
       <React.Fragment>
-        <CardStatus large={large} minimized={minimized}>
-          <P>
-            <Font weight="bold">
-              <Icons.Info /> Ready to scan
-            </Font>
-          </P>
-          <P>No batch in progress</P>
-        </CardStatus>
-        <CardActions large={large} minimized={minimized}>
-          <ScanButton
-            /* disable scan button while status query is refetching to avoid double clicks */
-            disabled={statusIsStale || isPollingPlaceUnconfigured}
-            isScannerAttached={status.isScannerAttached}
-          />
-        </CardActions>
+        <div>
+          <H2>Ready to Scan</H2>
+          <P>{' '}</P>
+        </div>
+        <PageIllustration dashed />
       </React.Fragment>
+    );
+    actions = (
+      <ScanButton
+        /* disable scan button while status query is refetching to avoid double clicks */
+        disabled={statusIsStale || isPollingPlaceUnconfigured}
+        isScannerAttached={status.isScannerAttached}
+        label={`Start Batch ${format.count(nextBatchNumber)}`}
+      />
     );
   } else if (currentBatch.state === 'scanning') {
-    content = (
+    statusContent = (
       <React.Fragment>
-        <CardStatus large={large} minimized={minimized}>
-          <P>
-            <Font weight="bold">
-              <Icons.Loading /> Scanning batch
-            </Font>
-          </P>
-          <SheetCount>
-            <BigCount large={large} minimized={minimized}>
-              {format.count(sheetCount)}
-            </BigCount>{' '}
-            <span>sheets scanned in this batch</span>
-          </SheetCount>
-        </CardStatus>
-        <CardActions large={large} minimized={minimized}>
-          <Button
-            variant="danger"
-            onPress={stopAndCancelBatch}
-            disabled={cancelBatchMutation.isLoading}
-          >
-            Stop
-          </Button>
-        </CardActions>
+        <div>
+          <H2>Scanning</H2>
+          <P>{' '}</P>
+        </div>
+        <PageIllustration active>{format.count(sheetCount)}</PageIllustration>
+        <PageCaption>sheets scanned in this batch</PageCaption>
       </React.Fragment>
     );
+    actions = (
+      <Button
+        variant="danger"
+        onPress={() => setIsConfirmingStop(true)}
+        disabled={cancelBatchMutation.isLoading}
+      >
+        Stop
+      </Button>
+    );
   } else {
-    const pauseReasonText = currentBatch.pauseReason
-      ? ` — ${PAUSE_REASON_TEXT[currentBatch.pauseReason]}`
-      : '';
-    content = (
+    statusContent = (
       <React.Fragment>
-        <CardStatus large={large} minimized={minimized}>
+        <div>
+          <H2>Paused</H2>
           <P>
-            <Font weight="bold">
-              <Icons.Warning color="warning" /> Batch paused
-              {pauseReasonText}
-            </Font>
+            {currentBatch.pauseReason
+              ? PAUSE_REASON_TEXT[currentBatch.pauseReason]
+              : ' '}
           </P>
-          <SheetCount>
-            <BigCount large={large} minimized={minimized}>
-              {format.count(sheetCount)}
-            </BigCount>{' '}
-            <span>sheets scanned in this batch</span>
-          </SheetCount>
-        </CardStatus>
-        <CardActions large={large} minimized={minimized}>
-          <Button
-            variant="primary"
-            onPress={() => continueBatchMutation.mutate()}
-            disabled={isActing || statusIsStale}
-          >
-            Continue Scanning
-          </Button>
-          <Button
-            onPress={() => saveBatchMutation.mutate()}
-            disabled={isActing}
-          >
-            Save Batch
-          </Button>
-          <Button
-            color="danger"
-            fill="outlined"
-            onPress={() => setIsConfirmingCancel(true)}
-            disabled={isActing}
-          >
-            Cancel
-          </Button>
-        </CardActions>
+        </div>
+        <PageIllustration>{format.count(sheetCount)}</PageIllustration>
+        <PageCaption>sheets scanned in this batch</PageCaption>
+      </React.Fragment>
+    );
+    actions = (
+      <React.Fragment>
+        <Button
+          variant="primary"
+          onPress={() => continueBatchMutation.mutate()}
+          disabled={isActing || statusIsStale}
+        >
+          Continue Scanning
+        </Button>
+        <Button onPress={() => setIsConfirmingSave(true)} disabled={isActing}>
+          Save Batch
+        </Button>
+        <Button
+          color="danger"
+          fill="outlined"
+          onPress={() => setIsConfirmingCancel(true)}
+          disabled={isActing}
+        >
+          Discard Batch
+        </Button>
       </React.Fragment>
     );
   }
 
   return (
     <React.Fragment>
-      <Card large={large} minimized={minimized}>
-        {content}
+      <Card>
+        <StatusPane>{statusContent}</StatusPane>
+        <ActionsPane>
+          {batch && <H2>{batch.label}</H2>}
+          {notice}
+          {actions}
+          {actionsFooter && <ActionsFooter>{actionsFooter}</ActionsFooter>}
+        </ActionsPane>
       </Card>
-      {isConfirmingCancel && (
+      {isConfirmingSave && (
         <Modal
-          title="Cancel Batch"
+          title="Save Batch"
           content={
             <P>
               All {format.count(sheetCount)} sheets scanned in this batch will
-              be permanently deleted.
+              be saved and sent to VxAdmin.
+            </P>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                variant="primary"
+                icon="Done"
+                onPress={() =>
+                  saveBatchMutation.mutate(undefined, {
+                    onSuccess: () => setIsConfirmingSave(false),
+                  })
+                }
+                disabled={saveBatchMutation.isLoading}
+              >
+                Save Batch
+              </Button>
+              <Button onPress={() => setIsConfirmingSave(false)}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setIsConfirmingSave(false)}
+        />
+      )}
+      {isConfirmingStop && (
+        <Modal
+          title="Stop Scanning"
+          content={
+            <P>
+              Scanning will be stopped and all {format.count(sheetCount)} sheets
+              scanned in this batch will be discarded.
+            </P>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                variant="danger"
+                icon="Delete"
+                onPress={stopAndCancelBatch}
+                disabled={cancelBatchMutation.isLoading}
+              >
+                Stop and Discard
+              </Button>
+              <Button onPress={() => setIsConfirmingStop(false)}>Close</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={() => setIsConfirmingStop(false)}
+        />
+      )}
+      {isConfirmingCancel && (
+        <Modal
+          title="Discard Batch"
+          content={
+            <P>
+              All {format.count(sheetCount)} sheets scanned in this batch will
+              be permanently discarded.
             </P>
           }
           actions={
@@ -262,7 +339,7 @@ export function BatchControlCard({
                 }
                 disabled={cancelBatchMutation.isLoading}
               >
-                Cancel Batch
+                Discard Batch
               </Button>
               <Button onPress={() => setIsConfirmingCancel(false)}>
                 Close
@@ -274,7 +351,7 @@ export function BatchControlCard({
       )}
       {isShowingBatchCanceledInfo && (
         <Modal
-          title="Batch Canceled"
+          title="Batch Discarded"
           content={
             <P>
               Scanning was stopped and all sheets scanned in this batch were

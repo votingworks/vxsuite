@@ -31,6 +31,7 @@ import { ejectUsbDrive, logOut } from './api';
 interface Props {
   children: React.ReactNode;
   title?: React.ReactNode;
+  noPadding?: boolean;
 }
 
 export const Header = styled(MainHeader)`
@@ -69,12 +70,14 @@ const SYSTEM_ADMIN_NAV_ITEMS = [
 
 const ELECTION_MANAGER_NAV_ITEMS = [
   { label: 'Scan Ballots', routerPath: '/scan' },
+  { label: 'Batch History', routerPath: '/batch-history' },
   { label: 'Settings', routerPath: '/settings' },
   { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
 ] as const;
 
 const POLL_WORKER_NAV_ITEMS = [
   { label: 'Scan Ballots', routerPath: '/scan' },
+  { label: 'Batch History', routerPath: '/batch-history' },
 ] as const;
 
 function getNavItems(
@@ -96,7 +99,11 @@ function getNavItems(
   return [];
 }
 
-export function NavigationScreen({ children, title }: Props): JSX.Element {
+export function NavigationScreen({
+  children,
+  title,
+  noPadding,
+}: Props): JSX.Element {
   const {
     electionDefinition,
     electionPackageHash,
@@ -168,7 +175,9 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
             )}
           </HeaderActions>
         </Header>
-        <MainContent>{children}</MainContent>
+        <MainContent style={noPadding ? { padding: 0 } : undefined}>
+          {children}
+        </MainContent>
       </Main>
     </Screen>
   );

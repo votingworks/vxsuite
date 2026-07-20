@@ -116,8 +116,8 @@ test('clicking Scan Batch will scan a batch', async () => {
   await authenticateAsElectionManager(electionDefinition);
 
   apiMock.expectScanBatch();
-  userEvent.click(screen.getButton('Scan New Batch'));
-  await screen.findByText('Scan New Batch'); // wait for button to reset
+  userEvent.click(screen.getButton('Start Batch 1'));
+  await screen.findByText('Start Batch 1'); // wait for button to reset
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
@@ -133,15 +133,16 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  // wait for the config to load
-  const saveButton = screen.getButton('Save CVRs');
+  // the Save CVRs button lives on the batch history page
+  userEvent.click(screen.getByText('Batch History'));
+  const saveButton = await screen.findButton('Save CVRs');
   await vi.waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   await screen.findByRole('alertdialog');
   apiMock.expectExportCastVoteRecords();
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
-  userEvent.click(screen.getByText('Close'));
+  userEvent.click(screen.getButton('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });

@@ -22,6 +22,7 @@ import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
 import { PollWorkerScanBallotsScreen } from './screens/poll_worker_scan_ballots_screen';
+import { BatchHistoryScreen } from './screens/batch_history_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { SettingsScreen } from './screens/settings_screen';
 
@@ -213,6 +214,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
               isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
             />
           </Route>
+          <Route path="/batch-history">
+            <BatchHistoryScreen status={status} />
+          </Route>
           <Redirect to="/scan" />
         </Switch>
       </AppContext.Provider>
@@ -229,6 +233,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             statusIsStale={statusQuery.isStale}
             isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
           />
+        </Route>
+        <Route path="/batch-history">
+          <BatchHistoryScreen status={status} canDeleteBatches />
         </Route>
         <Route path="/settings">
           <SettingsScreen
