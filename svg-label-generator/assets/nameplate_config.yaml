@@ -26,12 +26,12 @@ products:
       company_name: VotingWorks
       product_line:
         label: VxScan
-        value: v4.0.3
+        value: v4.0.4
         label_bold: true
         value_bold: false
       serial_line:
         label: 'S/N:'
-        value: SC-14-XXX
+        value: SC-16-XXX
         label_bold: true
         value_bold: false
       rating_line:
@@ -109,12 +109,12 @@ products:
       company_name: VotingWorks
       product_line:
         label: VxMark
-        value: v4.0.4
+        value: v4.1.1
         label_bold: true
         value_bold: false
       serial_line:
         label: 'S/N:'
-        value: MK-14-XXX
+        value: MK-15-XXX
         label_bold: true
         value_bold: false
       rating_line:
@@ -156,7 +156,7 @@ products:
         value_bold: false
       serial_line:
         label: 'S/N:'
-        value: BB-05-XXX
+        value: BB-06-XXX
         label_bold: true
         value_bold: false
       warning_text: Review all user manuals and receive training on this device before
