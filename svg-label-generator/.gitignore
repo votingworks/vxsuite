@@ -36,10 +36,13 @@ Thumbs.db
 
 # Output directories
 generated_labels/
-output/
+outputs/
+assets/templates/
+assets/ids/
+
 
 # Logs
 *.log
 
 #live yaml
-nameplate_config.yaml
+assets/nameplate_config.yaml
