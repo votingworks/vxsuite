@@ -95,13 +95,6 @@ export type Phoneme = TtsPhoneme;
 
 type Alphabet = 'ipa' | 'vx';
 
-const DEFAULT_CONSONANT_MODIFIER = 'ə';
-
-const CONSONANT_MODIFIER: Partial<Record<LanguageCode, string>> = {
-  [LanguageCode.ENGLISH]: DEFAULT_CONSONANT_MODIFIER,
-  [LanguageCode.KOREAN]: 'ɯ',
-};
-
 export function Keyboard(props: {
   alphabet: Alphabet;
   disabled?: boolean;
@@ -143,8 +136,10 @@ export function Keyboard(props: {
       audioTimer.current = window.setTimeout(() => {
         let sound = phoneme[alphabetForAudio];
         if (!isVowel(phoneme.ipa)) {
-          sound +=
-            CONSONANT_MODIFIER[languageCode] || DEFAULT_CONSONANT_MODIFIER;
+          sound += phonemes[languageCode].consonantModifier;
+        } else {
+          const mod = phonemes[languageCode].vowelModifier || '';
+          sound = mod + sound;
         }
 
         setCurrentSsml(
@@ -155,7 +150,7 @@ export function Keyboard(props: {
             `</speak>`
         );
         setPlayingSample(true);
-      }, 250);
+      }, 300);
     },
     [languageCode]
   );
@@ -317,12 +312,19 @@ function Key(props: {
 }) {
   const { alphabet, disabled, onMouseOut, onMouseOver, onPress, phoneme } =
     props;
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
   return (
     <KeyContainer
       onBlur={onMouseOut}
-      onFocus={() => onMouseOver(phoneme)}
-      onMouseOut={onMouseOut}
-      onMouseOver={() => onMouseOver(phoneme)}
+      onFocus={(e) => {
+        if (!e.target?.matches(':focus-visible')) return;
+        onMouseOver(phoneme);
+      }}
+      onMouseLeave={onMouseOut}
+      onMouseEnter={() => onMouseOver(phoneme)}
+      ref={containerRef}
     >
       <Button disabled={disabled} onPress={onPress} value={phoneme}>
         {phoneme[alphabet]}

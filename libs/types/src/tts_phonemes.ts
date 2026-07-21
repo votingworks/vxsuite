@@ -6,7 +6,7 @@ export const ALL_VOWELS_ARR = [// [TODO] Incomplete - fill out;
   'æ', 'ɑː', 'ɔː', 'eɪ', 'aɪ', 'ɪː', 'ɛ', 'ɪ', 'ɚ', 'oʊ', 'ɔɪ', 'uː', 'aʊ', 'ʊ',
   'ʌ', 'ə', 'a', 'ai', 'au', 'e', 'ei', 'eu', 'i', 'o', 'oi', 'ou', 'u', 'ə',
   'ɯ', 'ø', 'a:', 'ãː', 'ə̃', 'ẽː', 'ɛ̃ː', 'ɪ', 'ɪː', 'ɪ̃ː', 'ɪ̃', 'ɔː', 'ɔ̃ː',
-  'õː', 'ʊ', 'ʊ̃', 'ũː', 'oː',
+  'õː', 'ʊ', 'ʊ̃', 'ũː', 'oː', 'ui', 'iu',
 ] as const;
 
 export const ALL_VOWELS = new Set<IpaPhoneme>(ALL_VOWELS_ARR);
@@ -59,8 +59,6 @@ const ENGLISH_BY_IPA = {
   'z':  { ipa: 'z',  vx: 'z',   sampleWord: 'zoom',      sampleIpa: 'ˈzuːm',        sampleVx: 'ˈzoom',               shortcut: 'z' },
 } as const;
 
-const ALL_ENGLISH = Object.values(ENGLISH_BY_IPA);
-
 /**
  * Original mapping and examples pulled from
  * https://cloud.google.com/text-to-speech/docs/phonemes.
@@ -106,8 +104,6 @@ const SPANISH_BY_IPA = {
   'j':  { ipa: 'j',  vx: 'y',   sampleWord: 'yo',          sampleIpa: 'ˈjo',          sampleVx: 'ˈyo' },
   'z':  { ipa: 'z',  vx: 'z',   sampleWord: 'president',   sampleIpa: 'ˈpɹezidənt',   sampleVx: 'ˈpReziduhnt' },
 } as const;
-
-const ALL_SPANISH = Object.values(SPANISH_BY_IPA);
 
 /**
  * Original mapping and examples pulled from
@@ -170,7 +166,6 @@ const HINDI_BY_IPA = {
   'z':   { ipa: 'z',   vx: 'z',     sampleWord: 'ज़हर',        sampleIpa: 'ˈzɛːhɛːr',         sampleVx: 'ˈzɛːhɛːr' },
 } as const;
 
-const ALL_HINDI = Object.values(HINDI_BY_IPA);
 /**
  * Original mapping and examples pulled from
  * https://cloud.google.com/text-to-speech/docs/phonemes.
@@ -210,7 +205,42 @@ const KOREAN_BY_IPA = {
   'ɛ':   { ipa: 'ɛ',   vx: 'ɛ',   sampleWord: '태양',  sampleIpa: 'tʰɛjaŋ',  sampleVx: 'tʰɛjaŋ' },
 } as const;
 
-const ALL_KOREAN = Object.values(KOREAN_BY_IPA);
+/**
+ * Original mapping and examples pulled from
+ * https://cloud.google.com/text-to-speech/docs/phonemes.
+ */
+// prettier-ignore
+const TAGALOG_BY_IPA = {
+  'a':  { ipa: 'a',  vx: 'a',  sampleWord: 'aso',       sampleIpa: 'ˈʔasʊ',     sampleVx: 'ˈʔasʊ' },
+  'ai': { ipa: 'ai', vx: 'ai', sampleWord: 'bahay',     sampleIpa: 'ˈbahai',    sampleVx: 'ˈbahai' },
+  'au': { ipa: 'au', vx: 'au', sampleWord: 'galaw',     sampleIpa: 'gaˈlau',    sampleVx: 'gaˈlau' },
+  'b':  { ipa: 'b',  vx: 'b',  sampleWord: 'buto',      sampleIpa: 'ˈbʊtʊ',     sampleVx: 'ˈbʊtʊ' },
+  'd':  { ipa: 'd',  vx: 'd',  sampleWord: 'adya',      sampleIpa: 'ʔadˈjaʔ',   sampleVx: 'ʔadˈjaʔ' },
+  'dʒ': { ipa: 'dʒ', vx: 'dʒ', sampleWord: 'Diego',     sampleIpa: 'ˈdʒɛgo',    sampleVx: 'ˈdʒɛgo' },
+  'ɛ':  { ipa: 'ɛ',  vx: 'ɛ',  sampleWord: 'ewan',      sampleIpa: 'ˈʔɛwan',    sampleVx: 'ˈʔɛwan' },
+  'g':  { ipa: 'g',  vx: 'g',  sampleWord: 'gata',      sampleIpa: 'gaˈtaʔ',    sampleVx: 'gaˈtaʔ' },
+  'h':  { ipa: 'h',  vx: 'h',  sampleWord: 'haba',      sampleIpa: 'ˈhabaʔ',    sampleVx: 'ˈhabaʔ' },
+  'i':  { ipa: 'i',  vx: 'i',  sampleWord: 'iwan',      sampleIpa: 'ˈʔiwan',    sampleVx: 'ˈʔiwan' },
+  'iu': { ipa: 'iu', vx: 'iu', sampleWord: 'baliw',     sampleIpa: 'baˈliu',    sampleVx: 'baˈliu' },
+  'j':  { ipa: 'j',  vx: 'j',  sampleWord: 'yanig',     sampleIpa: 'ˈjanig',    sampleVx: 'ˈjanig' },
+  'k':  { ipa: 'k',  vx: 'k',  sampleWord: 'kapit',     sampleIpa: 'ˈkapit',    sampleVx: 'ˈkapit' },
+  'l':  { ipa: 'l',  vx: 'l',  sampleWord: 'lamay',     sampleIpa: 'ˈlamai',    sampleVx: 'ˈlamai' },
+  'm':  { ipa: 'm',  vx: 'm',  sampleWord: 'mata',      sampleIpa: 'maˈta',     sampleVx: 'maˈta' },
+  'n':  { ipa: 'n',  vx: 'n',  sampleWord: 'niya',      sampleIpa: 'niˈja',     sampleVx: 'niˈja' },
+  'ɲ':  { ipa: 'ɲ',  vx: 'ɲ',  sampleWord: 'kolonya',   sampleIpa: 'koˈloɲa',   sampleVx: 'koˈloɲa' },
+  'ŋ':  { ipa: 'ŋ',  vx: 'ŋ',  sampleWord: 'ngipin',    sampleIpa: 'ˈŋipin',    sampleVx: 'ˈŋipin' },
+  'o':  { ipa: 'o',  vx: 'o',  sampleWord: 'oyayi',     sampleIpa: 'ʔoˈjaji',   sampleVx: 'ʔoˈjaji' },
+  'p':  { ipa: 'p',  vx: 'p',  sampleWord: 'pito',      sampleIpa: 'ˈpitʊ',     sampleVx: 'ˈpitʊ' },
+  'ɾ':  { ipa: 'ɾ',  vx: 'ɾ',  sampleWord: 'rurok',     sampleIpa: 'ˈɾʊɾʊk',    sampleVx: 'ˈɾʊɾʊk' },
+  's':  { ipa: 's',  vx: 's',  sampleWord: 'siyam',     sampleIpa: 'siˈjam',    sampleVx: 'siˈjam' },
+  'ʃ':  { ipa: 'ʃ',  vx: 'ʃ',  sampleWord: 'konsensya', sampleIpa: 'konˈsɛnʃa', sampleVx: 'konˈsɛnʃa' },
+  't':  { ipa: 't',  vx: 't',  sampleWord: 'tiyan',     sampleIpa: 'tiˈjan',    sampleVx: 'tiˈjan' },
+  'ʧ':  { ipa: 'ʧ',  vx: 'ʧ',  sampleWord: 'tsaka',     sampleIpa: 'tʃaˈka',    sampleVx: 'tʃaˈka' },
+  'ʊ':  { ipa: 'ʊ',  vx: 'ʊ',  sampleWord: 'upuan',     sampleIpa: 'ʔʊpʊˈʔan',  sampleVx: 'ʔʊpʊˈʔan' },
+  'ui': { ipa: 'ui', vx: 'ui', sampleWord: 'abuloy',    sampleIpa: 'ʔaˈbʊlui',  sampleVx: 'ʔaˈbʊlui' },
+  'w':  { ipa: 'w',  vx: 'w',  sampleWord: 'wala',      sampleIpa: 'waˈlaʔ',    sampleVx: 'waˈlaʔ' },
+  'ʔ':  { ipa: 'ʔ',  vx: 'ʔ',  sampleWord: 'ilaw',      sampleIpa: 'ˈʔilau',    sampleVx: 'ˈʔilau' },
+} as const;
 
 /**
  * Represents a phonetic sound in IPA format. Used for speech synthesis via the
@@ -222,13 +252,15 @@ export type IpaPhoneme =
   | keyof typeof ENGLISH_BY_IPA
   | keyof typeof HINDI_BY_IPA
   | keyof typeof KOREAN_BY_IPA
-  | keyof typeof SPANISH_BY_IPA;
+  | keyof typeof SPANISH_BY_IPA
+  | keyof typeof TAGALOG_BY_IPA;
 
 const IPA_PHONEMES = new Set([
   ...(Object.keys(ENGLISH_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(HINDI_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(KOREAN_BY_IPA) as IpaPhoneme[]),
   ...(Object.keys(SPANISH_BY_IPA) as IpaPhoneme[]),
+  ...(Object.keys(TAGALOG_BY_IPA) as IpaPhoneme[]),
 ]);
 
 /** @see {@link IpaPhoneme} */
@@ -286,6 +318,17 @@ export interface TtsPhonemes {
    */
   consonants: TtsPhoneme[];
 
+  /**
+   * Trailing consonant modifier sound used for phoneme sound previews in the
+   * phonetic editor keyboard. Consonants cannot be synthesized on their own, so
+   * this enables synthesis and can be overridden per language to provide a more
+   * natural consonant sound for that language.
+   *
+   * For example, the schwa (`ə`) is appropriate for English and some other
+   * languages, but isn't a valid sound in all languages.
+   */
+  consonantModifier: IpaPhoneme;
+
   /** `true` if stresses are not applicable for the language. */
   // [TODO] Clean up.
   noStress?: boolean;
@@ -309,6 +352,16 @@ export interface TtsPhonemes {
    * split consonant/vowel layouts for the on-screen phonetic keyboard.
    */
   vowels: TtsPhoneme[];
+
+  /**
+   * Leading modifier for vowels. Used in the phonetic editor keyboard for
+   * phoneme sound previews. Vowels in some languages sound odd on their own
+   * without, for example, a glottal stop (`ʔ`) before the vowel for emphasis.
+   *
+   * [TODO] We may need to distinguish between leading and trailing modifiers,
+   * if some languages require the latter.
+   */
+  vowelModifier?: IpaPhoneme;
 }
 
 export const PhoneticSyllableStressSchema = z.enum(['primary', 'secondary']);
@@ -322,6 +375,14 @@ const STANDARD_STRESSES: TtsPhonemes['stresses'] = {
   secondary: { ipa: 'ˌ', vx: 'ˌ' },
 };
 
+const ALL_ENGLISH = Object.values(ENGLISH_BY_IPA);
+const ALL_SPANISH = Object.values(SPANISH_BY_IPA);
+const ALL_HINDI = Object.values(HINDI_BY_IPA);
+const ALL_KOREAN = Object.values(KOREAN_BY_IPA);
+const ALL_TAGALOG = Object.values(TAGALOG_BY_IPA);
+
+export const DEFAULT_CONSONANT_MODIFIER = 'ə';
+
 /**
  * Language-specific phonemes for speech synthesis.
  * [TODO] Actually configure phonemes for the non-English languages.
@@ -330,54 +391,63 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
   [LanguageCode.ENGLISH]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.ARABIC]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.BENGALI]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_SIMPLIFIED]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_TRADITIONAL]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.HINDI]: {
     allByIpa: HINDI_BY_IPA,
     consonants: ALL_HINDI.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_HINDI.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.JAPANESE]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.KHMER]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.KOREAN]: {
     allByIpa: KOREAN_BY_IPA,
     consonants: ALL_KOREAN.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: 'ɯ',
     noStress: true,
     stresses: {
       primary: { ipa: '.', vx: '.' },
@@ -388,18 +458,22 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
   [LanguageCode.SPANISH]: {
     allByIpa: SPANISH_BY_IPA,
     consonants: ALL_SPANISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_SPANISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.TAGALOG]: {
-    allByIpa: ENGLISH_BY_IPA,
-    consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    allByIpa: TAGALOG_BY_IPA,
+    consonants: ALL_TAGALOG.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: 'a',
     stresses: STANDARD_STRESSES,
-    vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
+    vowels: ALL_TAGALOG.filter((p) => ALL_VOWELS.has(p.ipa)),
+    vowelModifier: 'ʔ',
   },
   [LanguageCode.VIETNAMESE]: {
     allByIpa: ENGLISH_BY_IPA,
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
+    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
