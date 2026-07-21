@@ -90,7 +90,7 @@ const SPANISH_BY_IPA = {
   'p':  { ipa: 'p',  vx: 'p',   sampleWord: 'pelo',        sampleIpa: 'ˈpelo',        sampleVx: 'ˈpelo' },
   'ɹ':  { ipa: 'ɹ',  vx: 'R',   sampleWord: 'car',         sampleIpa: 'ˈkaɹ',         sampleVx: 'ˈkaR' },
   'ɾ':  { ipa: 'ɾ',  vx: 'r',   sampleWord: 'pero',        sampleIpa: 'ˈpeɾo',        sampleVx: 'ˈperro' },
-  'r':  { ipa: 'r',  vx: 'rr',  sampleWord: 'perro',       sampleIpa: 'ˈpero',        sampleVx: 'ˈperro' },
+  'r':  { ipa: 'r',  vx: 'r',   sampleWord: 'perro',       sampleIpa: 'ˈpero',        sampleVx: 'ˈpero' },
   's':  { ipa: 's',  vx: 's',   sampleWord: 'cielo',       sampleIpa: 'ˈsjelo',       sampleVx: 'ˈsyelo' },
   'ʃ':  { ipa: 'ʃ',  vx: 'sh',  sampleWord: 'shopping',    sampleIpa: 'ˈʃopiŋ',       sampleVx: 'ˈshopiN' },
   't':  { ipa: 't',  vx: 't',   sampleWord: 'tela',        sampleIpa: 'ˈtela',        sampleVx: 'ˈtela' },
@@ -347,6 +347,10 @@ export interface TtsPhonemes {
     }
   >;
 
+  supportsPhoneticEdits: boolean;
+
+  supportsTextEdits: boolean;
+
   /**
    * All available vowel phonemes for this language. Broken out to support
    * split consonant/vowel layouts for the on-screen phonetic keyboard.
@@ -393,6 +397,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: true,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.ARABIC]: {
@@ -400,6 +406,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.BENGALI]: {
@@ -407,6 +415,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_SIMPLIFIED]: {
@@ -414,6 +424,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.CHINESE_TRADITIONAL]: {
@@ -421,6 +433,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.HINDI]: {
@@ -428,6 +442,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_HINDI.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: true,
+    supportsTextEdits: true,
     vowels: ALL_HINDI.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.JAPANESE]: {
@@ -435,6 +451,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.KHMER]: {
@@ -442,6 +460,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: false,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.KOREAN]: {
@@ -453,6 +473,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
       primary: { ipa: '.', vx: '.' },
       secondary: { ipa: '.', vx: '.' },
     },
+    supportsPhoneticEdits: true,
+    supportsTextEdits: true,
     vowels: ALL_KOREAN.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.SPANISH]: {
@@ -460,6 +482,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_SPANISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: 'e',
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: true,
+    supportsTextEdits: true,
     vowels: ALL_SPANISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
   [LanguageCode.TAGALOG]: {
@@ -467,6 +491,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_TAGALOG.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: 'a',
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: true,
+    supportsTextEdits: true,
     vowels: ALL_TAGALOG.filter((p) => ALL_VOWELS.has(p.ipa)),
     vowelModifier: 'ʔ',
   },
@@ -475,6 +501,8 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
     consonants: ALL_ENGLISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
     consonantModifier: DEFAULT_CONSONANT_MODIFIER,
     stresses: STANDARD_STRESSES,
+    supportsPhoneticEdits: false,
+    supportsTextEdits: true,
     vowels: ALL_ENGLISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
 };
