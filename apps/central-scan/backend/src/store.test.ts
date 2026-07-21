@@ -196,6 +196,8 @@ test('batch cleanup works correctly', () => {
   expect(batches[0].batchNumber).toEqual(1);
   expect(batches[0].label).toEqual('Batch 1');
 
+  // the cleaned-up batch never consumed its number, so the next batch
+  // reuses it
   const thirdBatchId = store.addBatch();
   store.addBatch();
   store.finishBatch({ batchId: thirdBatchId });
@@ -211,10 +213,41 @@ test('batch cleanup works correctly', () => {
     }),
     expect.objectContaining({
       id: thirdBatchId,
-      batchNumber: 3,
-      label: 'Batch 3',
+      batchNumber: 2,
+      label: 'Batch 2',
     }),
   ]);
+});
+
+test('discarded batches free their numbers; deleted batches consume them', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
+
+  expect(store.getNextBatchNumber()).toEqual(1);
+
+  // discarding a batch frees its number, as if it never existed
+  const discardedBatchId = store.addBatch();
+  expect(store.getBatch(discardedBatchId).batchNumber).toEqual(1);
+  expect(store.getNextBatchNumber()).toEqual(2);
+  store.discardBatch(discardedBatchId);
+  expect(store.getNextBatchNumber()).toEqual(1);
+
+  const keptBatchId = store.addBatch();
+  expect(store.getBatch(keptBatchId).batchNumber).toEqual(1);
+  expect(store.getBatch(keptBatchId).label).toEqual('Batch 1');
+  store.finishBatch({ batchId: keptBatchId });
+
+  // deleting a saved batch keeps its number consumed
+  store.deleteBatch(keptBatchId);
+  expect(store.getNextBatchNumber()).toEqual(2);
+  const nextBatchId = store.addBatch();
+  expect(store.getBatch(nextBatchId).batchNumber).toEqual(2);
+  expect(store.getBatch(nextBatchId).label).toEqual('Batch 2');
 });
 
 test('getBatches', () => {

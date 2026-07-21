@@ -440,6 +440,13 @@ export class Store {
 
   /**
    * Adds a batch and returns its id.
+   *
+   * Batch numbers are assigned explicitly as one more than the highest
+   * existing batch number (rather than relying on sqlite's autoincrement,
+   * which never reuses a number): discarded batches are removed entirely, so
+   * their numbers are reused, matching how operators label batches — a
+   * discarded batch never got a sticker, so its number was never consumed.
+   * Deleted batches are only soft-deleted and keep their numbers consumed.
    */
   addBatch(): string {
     const id = uuid();
@@ -447,7 +454,8 @@ export class Store {
     assert(!!pollingPlaceId, 'polling place required for batch creation');
 
     this.client.run(
-      'insert into batches (id, polling_place_id) values (?, ?)',
+      `insert into batches (batch_number, id, polling_place_id)
+        values ((select coalesce(max(batch_number), 0) + 1 from batches), ?, ?)`,
       id,
       pollingPlaceId
     );
@@ -456,6 +464,16 @@ export class Store {
       id
     );
     return id;
+  }
+
+  /**
+   * Gets the number the next batch will be assigned (see {@link addBatch}).
+   */
+  getNextBatchNumber(): number {
+    const { maxBatchNumber } = this.client.one(
+      'select max(batch_number) as maxBatchNumber from batches'
+    ) as { maxBatchNumber: number | null };
+    return (maxBatchNumber ?? 0) + 1;
   }
 
   /**
@@ -758,6 +776,15 @@ export class Store {
     );
 
     return true;
+  }
+
+  /**
+   * Discards a batch entirely, as if it never existed. Unlike
+   * {@link deleteBatch}, its batch number is freed for the next batch, and
+   * its sheets are removed (the foreign key cascades).
+   */
+  discardBatch(batchId: string): void {
+    this.client.run('delete from batches where id = ?', batchId);
   }
 
   /**

@@ -621,20 +621,11 @@ export class Importer {
 
     this.currentBatch = undefined;
 
-    // A sheet awaiting review belongs to this batch (only one batch can be
-    // open at a time). Discard it explicitly: the adjudication queries filter
-    // on sheet-level deletion, so soft-deleting the batch alone would leave
-    // the sheet pending review.
-    const { store } = this.workspace;
-    for (
-      let sheet = store.getNextAdjudicationSheet();
-      sheet;
-      sheet = store.getNextAdjudicationSheet()
-    ) {
-      store.deleteSheet(sheet.id);
-    }
-
-    store.deleteBatch(currentBatch.batchId);
+    // Discarding removes the batch outright — its sheets (including any
+    // awaiting review) cascade, and its batch number is freed so the next
+    // batch reuses it. A discarded batch never got a label sticker, so its
+    // number was never consumed.
+    this.workspace.store.discardBatch(currentBatch.batchId);
     await fsExtra.remove(currentBatch.directory);
   }
 
@@ -675,6 +666,7 @@ export class Importer {
       },
       adjudicationsRemaining: this.workspace.store.adjudicationsRemaining(),
       batches: this.workspace.store.getBatches(),
+      nextBatchNumber: this.workspace.store.getNextBatchNumber(),
       canUnconfigure: this.workspace.store.getCanUnconfigure(),
     };
   }

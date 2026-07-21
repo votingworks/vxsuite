@@ -80,6 +80,8 @@ export interface ScanStatus {
   currentBatch?: CurrentBatchStatus;
   adjudicationsRemaining: number;
   batches: BatchInfoWithSyncStatus[];
+  /** The number the next batch will be assigned (discards free their number). */
+  nextBatchNumber: number;
   canUnconfigure: boolean;
 }
 
