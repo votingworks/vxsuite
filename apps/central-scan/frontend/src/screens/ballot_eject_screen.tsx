@@ -272,9 +272,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               <React.Fragment>
                 <P>
                   The last scanned ballot was not tabulated because its precinct
-                  does not match the rest of the batch, or the scanner is
-                  configured for a polling place that does not include the
-                  ballot&apos;s precinct.
+                  does not match the rest of the batch.
                 </P>
                 <P>
                   {isDeskProScanner ? (
