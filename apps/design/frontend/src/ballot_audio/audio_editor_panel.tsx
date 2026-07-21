@@ -39,6 +39,17 @@ export function AudioEditorPanel(
   const { electionId, header, languageCode, jurisdictionId, ttsDefault } =
     props;
 
+  // Strings finalized on the proofing screen must be locked here too, since
+  // TTS edits are shared across all audio editing surfaces.
+  const finalizedStrings = api.getFinalizedStrings.useQuery(
+    electionId,
+    languageCode
+  ).data;
+  const finalized = !!finalizedStrings?.some(
+    (s) =>
+      s.stringKey === ttsDefault.key && s.subkey === (ttsDefault.subkey ?? '')
+  );
+
   return (
     <Container>
       <div>{header}</div>
@@ -60,6 +71,7 @@ export function AudioEditorPanel(
         languageCode={languageCode}
         jurisdictionId={jurisdictionId}
         ttsDefault={ttsDefault}
+        finalized={finalized}
       />
     </Container>
   );

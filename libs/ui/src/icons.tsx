@@ -80,6 +80,7 @@ import {
   faSortDown,
   faTowerBroadcast,
   faRotate,
+  faRotateLeft,
   faEnvelope,
   faFlag,
   faSortUp,
@@ -617,6 +618,10 @@ export const Icons = {
 
   Rotate(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faRotate} />;
+  },
+
+  RotateLeft(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateLeft} />;
   },
 
   RotateRight(props) {

@@ -3247,6 +3247,101 @@ export class Store {
     );
   }
 
+  /* istanbul ignore next - DEMO */
+  async finalizedStringsGet(input: {
+    electionId: string;
+    languageCode: string;
+  }): Promise<Array<{ stringKey: string; subkey: string }>> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            string_key as "stringKey",
+            subkey
+          from finalized_strings
+          where election_id = $1 and language_code = $2
+        `,
+        input.electionId,
+        input.languageCode
+      );
+
+      return res.rows.map((row) => ({
+        stringKey: row.stringKey as string,
+        subkey: row.subkey as string,
+      }));
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async stringFinalizedSet(input: {
+    electionId: string;
+    languageCode: string;
+    stringKey: string;
+    subkey?: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          insert into finalized_strings (
+            election_id,
+            language_code,
+            string_key,
+            subkey
+          )
+          values ($1, $2, $3, $4)
+          on conflict (election_id, language_code, string_key, subkey)
+            do nothing
+        `,
+        input.electionId,
+        input.languageCode,
+        input.stringKey,
+        input.subkey ?? ''
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async stringFinalizedDelete(input: {
+    electionId: string;
+    languageCode: string;
+    stringKey: string;
+    subkey?: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from finalized_strings
+          where
+            election_id = $1 and
+            language_code = $2 and
+            string_key = $3 and
+            subkey = $4
+        `,
+        input.electionId,
+        input.languageCode,
+        input.stringKey,
+        input.subkey ?? ''
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async finalizedStringsClearForLanguage(input: {
+    electionId: string;
+    languageCode: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from finalized_strings
+          where election_id = $1 and language_code = $2
+        `,
+        input.electionId,
+        input.languageCode
+      );
+    });
+  }
+
   async electionHasLiveReportData(
     electionId: string,
     ballotHash: string

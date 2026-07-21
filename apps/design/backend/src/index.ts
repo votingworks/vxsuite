@@ -52,7 +52,11 @@ export type {
 } from './features';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
 export type { ConvertMsResultsError } from './convert_ms_results';
-export type { Translation, TranslationKey } from './tts_strings';
+export type {
+  FinalizedStringKey,
+  Translation,
+  TranslationKey,
+} from './tts_strings';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
 
