@@ -9,6 +9,7 @@ export const DEFAULT_STATUS: ScanStatus = {
   adjudicationsRemaining: 0,
   canUnconfigure: true,
   batches: [],
+  nextBatchNumber: 1,
 };
 
 export function mockStatus(status: Partial<ScanStatus> = {}): ScanStatus {

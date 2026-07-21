@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { Button, H2, Modal, P } from '@votingworks/ui';
-import { iter } from '@votingworks/basics';
 import type {
   BatchPauseReason,
   ScanStatus,
@@ -155,8 +154,6 @@ export function BatchControlCard({
   const { currentBatch } = status;
   const batch = status.batches.find((b) => b.id === currentBatch?.batchId);
   const sheetCount = batch?.count ?? 0;
-  const nextBatchNumber =
-    (iter(status.batches).maxBy((b) => b.batchNumber)?.batchNumber ?? 0) + 1;
 
   // Stopping a scanning batch means something went wrong with the batch as
   // scanned, so it discards the batch and informs the operator afterward.
@@ -191,7 +188,7 @@ export function BatchControlCard({
         /* disable scan button while status query is refetching to avoid double clicks */
         disabled={statusIsStale || isPollingPlaceUnconfigured}
         isScannerAttached={status.isScannerAttached}
-        label={`Start Batch ${format.count(nextBatchNumber)}`}
+        label={`Start Batch ${format.count(status.nextBatchNumber)}`}
       />
     );
   } else if (currentBatch.state === 'scanning') {

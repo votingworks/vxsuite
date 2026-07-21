@@ -83,6 +83,7 @@ test('poll worker can open batch history, which has no delete buttons', async ()
           count: 32,
         }),
       ],
+      nextBatchNumber: 3,
     })
   );
   apiMock.expectGetElectionRecord(electionDefinition);
