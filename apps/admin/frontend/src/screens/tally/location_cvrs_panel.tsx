@@ -1,4 +1,6 @@
+import React from 'react';
 import styled, { css } from 'styled-components';
+import { assertDefined } from '@votingworks/basics';
 
 import {
   Button,
@@ -12,17 +14,24 @@ import { format } from '@votingworks/utils';
 import { PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles';
+import { SearchBox } from './search_box';
 
 export interface LocationCvrsPanelProps {
   closePanel: () => void;
   imports: LocationCvrImport[];
   name: string;
+  onDeleteImport?: (cvrImport: LocationCvrImport) => void;
   type: PollingPlaceType;
 }
 
 export type LocationCvrImport = Pick<
   CastVoteRecordFileRecord,
-  'id' | 'exportTimestamp' | 'numCvrsImported' | 'scannerIds'
+  | 'id'
+  | 'exportTimestamp'
+  | 'numCvrsImported'
+  | 'scannerIds'
+  | 'source'
+  | 'batchLabels'
 >;
 
 const CalloutContent = styled(Caption)`
@@ -109,49 +118,114 @@ const Title = styled.div`
   display: grid;
 `;
 
-export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
-  const { closePanel, imports, name, type } = props;
+const TopSection = styled.div`
+  display: grid;
+  gap: ${GAP};
+`;
 
-  function scannerDetails(i: LocationCvrImport) {
-    return i.scannerIds.length === 1
+// Titles an import by its scanner and batch, e.g. "Scanner 0001, Batch 1".
+// Imports from a networked central scanner contain exactly one batch, so the
+// batch label is shown directly; multi-batch (or multi-scanner) USB files are
+// summarized by count instead.
+export function cvrImportTitle(i: LocationCvrImport): string {
+  const scannerPart =
+    i.scannerIds.length === 1
       ? `Scanner ${i.scannerIds[0]}`
-      : `Scanners: ${i.scannerIds.join(', ')}`;
-  }
+      : `${i.scannerIds.length} scanners`;
+  const batchPart =
+    i.batchLabels.length === 1
+      ? assertDefined(i.batchLabels[0])
+      : `${i.batchLabels.length} batches`;
+  return i.batchLabels.length === 0
+    ? scannerPart
+    : `${scannerPart}, ${batchPart}`;
+}
+
+export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
+  const { closePanel, imports, name, onDeleteImport, type } = props;
+  const [query, setQuery] = React.useState('');
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredImports = imports.filter((i) =>
+    [
+      cvrImportTitle(i),
+      format.localeShortDateAndTime(new Date(i.exportTimestamp)),
+      ...i.batchLabels,
+      ...i.scannerIds,
+    ].some((text) => text.toLowerCase().includes(normalizedQuery))
+  );
 
   return (
     <Container>
       <Content>
-        <Header>
-          <Title>
-            <Caption>{pollingPlaceTypeName(type)}</Caption>
-            <Font weight="bold">{name}</Font>
-          </Title>
-          <IconButton
-            aria-label="Close Panel"
-            as={Button}
-            icon="X"
-            onPress={closePanel}
-            color="primary"
-          />
-        </Header>
+        <TopSection>
+          <Header>
+            <Title>
+              <Caption>{pollingPlaceTypeName(type)}</Caption>
+              <Font weight="bold">{name}</Font>
+            </Title>
+            <IconButton
+              aria-label="Close Panel"
+              as={Button}
+              icon="X"
+              onPress={closePanel}
+              color="primary"
+            />
+          </Header>
+
+          {imports.length > 0 && (
+            <SearchBox
+              placeholder="Search Files"
+              query={query}
+              setQuery={setQuery}
+            />
+          )}
+        </TopSection>
 
         <DetailsBody>
-          {imports.map((i) => (
+          {filteredImports.map((i) => (
             <Import key={i.id}>
               <Caption weight="semiBold">
-                {format.localeShortDateAndTime(new Date(i.exportTimestamp))}
+                {cvrImportTitle(i)}
                 <br />
-                <Caption weight="regular">{scannerDetails(i)}</Caption>
+                <Caption weight="regular">
+                  {format.localeShortDateAndTime(new Date(i.exportTimestamp))}
+                  {' • '}
+                  {i.source === 'network' ? (
+                    <React.Fragment>
+                      <Icons.Sitemap /> Network
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Icons.UsbDrive /> USB
+                    </React.Fragment>
+                  )}
+                </Caption>
               </Caption>
 
               <Font weight="bold">{format.count(i.numCvrsImported)}</Font>
 
-              {/*
-               * [TODO](https://github.com/votingworks/vxsuite/issues/4048)
-               * Add single-import delete button.
-               */}
+              {onDeleteImport && (
+                <IconButton
+                  aria-label={`Remove ${cvrImportTitle(i)}`}
+                  as={Button}
+                  icon="Trash"
+                  color="danger"
+                  onPress={() => onDeleteImport(i)}
+                />
+              )}
             </Import>
           ))}
+
+          {imports.length > 0 && filteredImports.length === 0 && (
+            <Callout>
+              <CalloutContent>
+                <Font weight="bold">
+                  <Icons.Info /> No imports match &ldquo;{query.trim()}&rdquo;
+                </Font>
+              </CalloutContent>
+            </Callout>
+          )}
 
           {imports.length === 0 && (
             <Callout>

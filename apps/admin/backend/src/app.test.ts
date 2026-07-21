@@ -130,6 +130,7 @@ test('getNetworkStatus returns offline with no connected clients by default', as
   expect(await apiClient.getNetworkStatus()).toEqual({
     isOnline: false,
     connectedClients: [],
+    connectedScanners: [],
     multipleHostsDetected: false,
   });
 });
@@ -175,6 +176,41 @@ test('getNetworkStatus returns all clients including disconnected', async () => 
     machineId: 'CLIENT-002',
     status: Admin.ClientMachineStatus.Offline,
   });
+});
+
+test('getNetworkStatus returns all scanners including disconnected', async () => {
+  const { apiClient, workspace } = buildTestEnvironment();
+  workspace.store.setNetworkedMachineStatus(
+    'SCANNER-01',
+    'scanner',
+    Admin.ClientMachineStatus.Active,
+    null,
+    'polling-place-1'
+  );
+  workspace.store.setNetworkedMachineStatus(
+    'SCANNER-02',
+    'scanner',
+    Admin.ClientMachineStatus.Offline
+  );
+  const status = await apiClient.getNetworkStatus();
+  expect(status.connectedScanners).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      machineMode: 'scanner',
+      status: Admin.ClientMachineStatus.Active,
+      pollingPlaceId: 'polling-place-1',
+      importedCvrCount: 0,
+      importedBatchCount: 0,
+    }),
+    expect.objectContaining({
+      machineId: 'SCANNER-02',
+      machineMode: 'scanner',
+      status: Admin.ClientMachineStatus.Offline,
+      pollingPlaceId: null,
+      importedCvrCount: 0,
+      importedBatchCount: 0,
+    }),
+  ]);
 });
 
 test('getIsClientAdjudicationEnabled and setIsClientAdjudicationEnabled', async () => {

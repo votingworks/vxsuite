@@ -78,6 +78,7 @@ import { emptyDir } from 'fs-extra';
 import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
+  CastVoteRecordImportSource,
   CvrFileMode,
   ElectionRecord,
   ManualResultsIdentifier,
@@ -1020,20 +1021,26 @@ export class Store implements BaseStore {
     id,
     electionId,
     isTestMode,
+    source,
     filename,
     exportedTimestamp,
     sha256Hash,
     scannerIds,
     pollingPlaceIds,
+    batchLabels,
+    batchIds,
   }: {
     id: Id;
     electionId: Id;
     isTestMode: boolean;
+    source: CastVoteRecordImportSource;
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
     sha256Hash: string;
     scannerIds: Set<string>;
     pollingPlaceIds: Set<string>;
+    batchLabels: string[];
+    batchIds: string[];
   }): void {
     this.client.run(
       `
@@ -1041,24 +1048,30 @@ export class Store implements BaseStore {
           id,
           election_id,
           is_test_mode,
+          source,
           filename,
           export_timestamp,
           precinct_ids,
           scanner_ids,
           polling_place_ids,
+          batch_labels,
+          batch_ids,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
       electionId,
       asSqliteBool(isTestMode),
+      source,
       filename,
       exportedTimestamp,
       JSON.stringify([]),
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
+      JSON.stringify(batchLabels),
+      JSON.stringify(batchIds),
       sha256Hash
     );
   }
@@ -1335,6 +1348,36 @@ export class Store implements BaseStore {
     }));
   }
 
+  /**
+   * Returns, for each scanner that has batches in this election, the number
+   * of batches and cast vote records imported from it, keyed by scanner ID.
+   */
+  getScannerImportCounts(
+    electionId: Id
+  ): Record<string, { cvrCount: number; batchCount: number }> {
+    const rows = this.client.all(
+      `
+        select
+          scanner_batches.scanner_id as scannerId,
+          count(distinct scanner_batches.id) as batchCount,
+          count(cvrs.id) as cvrCount
+        from scanner_batches
+        left join cvrs
+          on cvrs.batch_id = scanner_batches.id
+          and cvrs.election_id = scanner_batches.election_id
+        where scanner_batches.election_id = ?
+        group by scanner_batches.scanner_id
+      `,
+      electionId
+    ) as Array<{ scannerId: string; batchCount: number; cvrCount: number }>;
+    return Object.fromEntries(
+      rows.map((row) => [
+        row.scannerId,
+        { cvrCount: row.cvrCount, batchCount: row.batchCount },
+      ])
+    );
+  }
+
   deleteEmptyScannerBatches(electionId: string): void {
     this.client.run(
       `
@@ -1475,12 +1518,14 @@ export class Store implements BaseStore {
       `
       select
         cvr_files.id as id,
+        source,
         filename,
         export_timestamp as exportTimestamp,
         count(cvr_id) as numCvrsImported,
         polling_place_ids as pollingPlaceIds,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
+        batch_labels as batchLabels,
         sha256_hash as sha256Hash,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
@@ -1500,12 +1545,14 @@ export class Store implements BaseStore {
       electionId
     ) as Array<{
       id: Id;
+      source: CastVoteRecordImportSource;
       filename: string;
       exportTimestamp: string;
       numCvrsImported: number;
       pollingPlaceIds: string;
       precinctIds: string;
       scannerIds: string;
+      batchLabels: string;
       sha256Hash: string;
       createdAt: string;
     }>;
@@ -1516,6 +1563,7 @@ export class Store implements BaseStore {
         safeParse(CastVoteRecordFileRecordSchema, {
           id: result.id,
           electionId,
+          source: result.source,
           sha256Hash: result.sha256Hash,
           filename: result.filename,
           exportTimestamp: convertSqliteTimestampToIso8601(
@@ -1525,6 +1573,7 @@ export class Store implements BaseStore {
           pollingPlaceIds: safeParseJson(result.pollingPlaceIds).unsafeUnwrap(),
           precinctIds: safeParseJson(result.precinctIds).unsafeUnwrap(),
           scannerIds: safeParseJson(result.scannerIds).unsafeUnwrap(),
+          batchLabels: safeParseJson(result.batchLabels).unsafeUnwrap(),
           createdAt: convertSqliteTimestampToIso8601(result.createdAt),
         }).unsafeUnwrap()
       )
@@ -1930,6 +1979,119 @@ export class Store implements BaseStore {
     }
 
     yield* aggregator.values();
+  }
+
+  /**
+   * Deletes a single CVR file (import) for an election. Removes the cast
+   * vote records that appear only in this file — records shared with other
+   * imports (e.g. cumulative USB exports) are preserved — along with their
+   * ballot images, any write-in candidates left without write-ins, and any
+   * of this file's batches left without cast vote records (batches from
+   * other imports, including legitimately empty ones, are untouched).
+   * Returns metadata about the deleted file, or `undefined` if no such file
+   * exists.
+   */
+  deleteCastVoteRecordFile({
+    electionId,
+    fileId,
+  }: {
+    electionId: Id;
+    fileId: Id;
+  }): Optional<{ filename: string; batchLabels: string[] }> {
+    const file = this.client.one(
+      `select filename, batch_labels as batchLabels, batch_ids as batchIds
+       from cvr_files
+       where id = ? and election_id = ?`,
+      fileId,
+      electionId
+    ) as
+      | { filename: string; batchLabels: string; batchIds: string }
+      | undefined;
+    if (!file) return undefined;
+    const batchIds = safeParseJson(file.batchIds).unsafeUnwrap() as string[];
+
+    const { electionDefinitionId } = this.client.one(
+      `select election_data ->> 'id' as electionDefinitionId from elections where id = ?`,
+      electionId
+    ) as { electionDefinitionId: string };
+
+    const exclusiveCvrIds = (
+      this.client.all(
+        `
+          select cvr_id as cvrId from cvr_file_entries
+          where cvr_file_id = ?
+            and not exists (
+              select 1 from cvr_file_entries other
+              where other.cvr_id = cvr_file_entries.cvr_id
+                and other.cvr_file_id != ?
+            )
+        `,
+        fileId,
+        fileId
+      ) as Array<{ cvrId: Id }>
+    ).map((row) => row.cvrId);
+
+    this.client.transaction(() => {
+      this.client.run(
+        `
+          delete from cvrs where id in (
+            select cvr_id from cvr_file_entries
+            where cvr_file_id = ?
+              and not exists (
+                select 1 from cvr_file_entries other
+                where other.cvr_id = cvr_file_entries.cvr_id
+                  and other.cvr_file_id != ?
+              )
+          )
+        `,
+        fileId,
+        fileId
+      );
+      this.client.run('delete from cvr_files where id = ?', fileId);
+      if (!this.getSystemSettings(electionId).areWriteInCandidatesQualified) {
+        this.client.run(
+          `
+            delete from write_in_candidates
+            where election_id = ?
+              and not exists (
+                select 1 from write_ins
+                where write_ins.write_in_candidate_id = write_in_candidates.id
+              )
+          `,
+          electionId
+        );
+      }
+      if (batchIds.length > 0) {
+        const placeholders = batchIds.map(() => '?').join(', ');
+        this.client.run(
+          `
+            delete from scanner_batches
+            where election_id = ?
+              and id in (${placeholders})
+              and not exists (
+                select 1 from cvrs
+                where cvrs.batch_id = scanner_batches.id
+                  and cvrs.election_id = scanner_batches.election_id
+              )
+          `,
+          electionId,
+          ...batchIds
+        );
+      }
+    });
+
+    for (const cvrId of exclusiveCvrIds) {
+      for (const side of ['front', 'back'] as const) {
+        rmSync(this.getBallotImageFilePath(electionDefinitionId, cvrId, side), {
+          force: true,
+        });
+      }
+    }
+
+    return {
+      filename: file.filename,
+      batchLabels: safeParseJson(file.batchLabels).unsafeUnwrap() as string[],
+    };
   }
 
   /**
@@ -3241,20 +3403,23 @@ export class Store implements BaseStore {
     machineId: string,
     machineMode: NetworkedMachineRole,
     status: Admin.ClientMachineStatus,
-    authType: UserRole | null = null
+    authType: UserRole | null = null,
+    pollingPlaceId: string | null = null
   ): void {
     this.client.run(
-      `insert into machines (machine_id, machine_mode, status, auth_type, last_seen_at)
-       values (?, ?, ?, ?, ?)
+      `insert into machines (machine_id, machine_mode, status, auth_type, polling_place_id, last_seen_at)
+       values (?, ?, ?, ?, ?, ?)
        on conflict (machine_id) do update set
          machine_mode = excluded.machine_mode,
          status = excluded.status,
          auth_type = excluded.auth_type,
+         polling_place_id = excluded.polling_place_id,
          last_seen_at = excluded.last_seen_at`,
       machineId,
       machineMode,
       status,
       authType,
+      pollingPlaceId,
       getCurrentTime()
     );
   }
@@ -3266,6 +3431,7 @@ export class Store implements BaseStore {
          machine_mode as machineMode,
          status,
          auth_type as authType,
+         polling_place_id as pollingPlaceId,
          last_seen_at as lastSeenAt
        from machines
        where machine_id = ?`,
@@ -3286,6 +3452,7 @@ export class Store implements BaseStore {
            else machines.status
          end as status,
          auth_type as authType,
+         polling_place_id as pollingPlaceId,
          last_seen_at as lastSeenAt
        from machines`,
       Admin.ClientMachineStatus.Active,

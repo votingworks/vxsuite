@@ -175,6 +175,7 @@ export function startScannerNetworking({
           const hostConfig = await apiClient.registerScanner({
             machineId,
             codeVersion,
+            pollingPlaceId: workspace.store.getPollingPlaceId(),
           });
           setConnectionState(
             {

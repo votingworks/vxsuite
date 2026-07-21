@@ -62,7 +62,17 @@ export interface MachineRecord {
   machineMode: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
+  pollingPlaceId: string | null;
   lastSeenAt: number;
+}
+
+/**
+ * A networked central scanner's machine record along with counts of the data
+ * imported from it for the current election.
+ */
+export interface ScannerMachineRecord extends MachineRecord {
+  importedCvrCount: number;
+  importedBatchCount: number;
 }
 
 /**
@@ -139,17 +149,24 @@ export type CvrFileImportInfo = {
 };
 
 /**
+ * How a cast vote record file arrived on this machine.
+ */
+export type CastVoteRecordImportSource = 'usb' | 'network';
+
+/**
  * A cast vote record file's metadata.
  */
 export interface CastVoteRecordFileRecord {
   readonly id: Id;
   readonly electionId: Id;
+  readonly source: CastVoteRecordImportSource;
   readonly filename: string;
   readonly exportTimestamp: Iso8601Timestamp;
   readonly numCvrsImported: number;
   readonly pollingPlaceIds: string[];
   readonly precinctIds: string[];
   readonly scannerIds: string[];
+  readonly batchLabels: string[];
   readonly sha256Hash: string;
   readonly createdAt: Iso8601Timestamp;
 }
@@ -161,12 +178,14 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
   z.object({
     id: IdSchema,
     electionId: IdSchema,
+    source: z.union([z.literal('usb'), z.literal('network')]),
     filename: z.string().nonempty(),
     exportTimestamp: Iso8601TimestampSchema,
     numCvrsImported: z.number(),
     pollingPlaceIds: z.array(z.string()),
     precinctIds: z.array(z.string()),
     scannerIds: z.array(z.string()),
+    batchLabels: z.array(z.string()),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
   });

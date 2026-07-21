@@ -92,6 +92,7 @@ import {
   AdjudicationError,
   MachineMode,
   MachineRecord,
+  ScannerMachineRecord,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   BallotImages,
@@ -283,6 +284,7 @@ function buildApi({
     getNetworkStatus(): {
       isOnline: boolean;
       connectedClients: MachineRecord[];
+      connectedScanners: ScannerMachineRecord[];
       multipleHostsDetected: boolean;
     } {
       const { machineId } = getMachineConfig();
@@ -290,11 +292,23 @@ function buildApi({
       const hostRecord = machines.find(
         (m) => m.machineMode === 'host' && m.machineId === machineId
       );
+      const electionId = store.getCurrentElectionId();
+      const scannerImportCounts = electionId
+        ? store.getScannerImportCounts(electionId)
+        : {};
       return {
         isOnline:
           hostRecord !== undefined &&
           hostRecord.status !== Admin.ClientMachineStatus.Offline,
         connectedClients: machines.filter((m) => m.machineMode === 'client'),
+        connectedScanners: machines
+          .filter((m) => m.machineMode === 'scanner')
+          .map((m) => ({
+            ...m,
+            importedCvrCount: scannerImportCounts[m.machineId]?.cvrCount ?? 0,
+            importedBatchCount:
+              scannerImportCounts[m.machineId]?.batchCount ?? 0,
+          })),
         multipleHostsDetected: store.getMultipleHostsDetected(machineId),
       };
     },
@@ -744,6 +758,44 @@ function buildApi({
         );
       }
       return importResult;
+    },
+
+    async deleteCastVoteRecordFile(input: {
+      fileId: Id;
+    }): Promise<Result<void, { type: 'file-not-found' }>> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      await logger.logAsCurrentRole(
+        LogEventId.ClearImportedCastVoteRecordsInit,
+        {
+          message: `Removing imported cast vote record file ${input.fileId}...`,
+        }
+      );
+      const deleted = store.deleteCastVoteRecordFile({
+        electionId,
+        fileId: input.fileId,
+      });
+      if (!deleted) {
+        await logger.logAsCurrentRole(
+          LogEventId.ClearImportedCastVoteRecordsComplete,
+          {
+            disposition: 'failure',
+            message: `Failed to remove cast vote record file ${input.fileId}: file not found.`,
+          }
+        );
+        return err({ type: 'file-not-found' });
+      }
+      await logger.logAsCurrentRole(
+        LogEventId.ClearImportedCastVoteRecordsComplete,
+        {
+          disposition: 'success',
+          message: `Removed imported cast vote record file ${deleted.filename}${
+            deleted.batchLabels.length > 0
+              ? ` (${deleted.batchLabels.join(', ')})`
+              : ''
+          }.`,
+        }
+      );
+      return ok();
     },
 
     async clearCastVoteRecordFiles(): Promise<void> {

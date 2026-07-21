@@ -18,6 +18,8 @@ import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
 import { CvrsState, useCvrsState } from './cvrs_state';
 import { LocationList } from './location_list';
 import { CvrImportPanel } from './cvr_import_panel';
+import { LocationCvrImport } from './location_cvrs_panel';
+import { RemoveImportModal } from './remove_import_modal';
 
 const TEST_MODE_CONTAINER_CSS = css`
   grid-template-rows: min-content min-content 1fr;
@@ -153,6 +155,8 @@ export function ViewPanel(props: {
   const { openImportPanel, state } = props;
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [importToDelete, setImportToDelete] =
+    React.useState<LocationCvrImport>();
   const [filter, setFilter] = React.useState<LocationFilter>('all');
   const [query, setQuery] = React.useState('');
 
@@ -199,7 +203,15 @@ export function ViewPanel(props: {
       <LocationList
         locations={filterLocations(state, filter, query)}
         locationCvrs={state.locationCvrs}
+        onDeleteImport={state.isOfficialResults ? undefined : setImportToDelete}
       />
+
+      {importToDelete && (
+        <RemoveImportModal
+          cvrImport={importToDelete}
+          onClose={() => setImportToDelete(undefined)}
+        />
+      )}
     </ViewPanelContainer>
   );
 }

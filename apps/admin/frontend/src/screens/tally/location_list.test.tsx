@@ -20,12 +20,16 @@ const locationCvrs1: LocationCvrs = {
       exportTimestamp: '2020-11-07T08:00:00',
       numCvrsImported: 100,
       scannerIds: ['SCAN-0001'],
+      source: 'usb',
+      batchLabels: [],
     }),
     mockImport({
       id: 'two',
       exportTimestamp: '2020-11-07T09:00:00',
       numCvrsImported: 400,
       scannerIds: ['SCAN-0001', 'SCAN-0002'],
+      source: 'network',
+      batchLabels: [],
     }),
   ],
   scannerIds: new Set(['SCAN-0001', 'SCAN-0002']),
@@ -58,8 +62,8 @@ test('toggles location CVR details on click', () => {
 
   userEvent.click(screen.getButton(/place 1/i));
   expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-    ['11/7/2020, 8:00 AM', 'Scanner SCAN-0001', '100'].join(''),
-    ['11/7/2020, 9:00 AM', 'Scanners: SCAN-0001, SCAN-0002', '400'].join(''),
+    'Scanner SCAN-000111/7/2020, 8:00 AM •  USB100',
+    '2 scanners11/7/2020, 9:00 AM •  Network400',
   ]);
 
   userEvent.click(screen.getButton(/Place 1/i));

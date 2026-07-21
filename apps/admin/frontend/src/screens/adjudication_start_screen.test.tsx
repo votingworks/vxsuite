@@ -207,6 +207,7 @@ describe('multi-station adjudication', () => {
         machineMode: 'client',
         status: Admin.ClientMachineStatus.Active,
         authType: 'election_manager',
+        pollingPlaceId: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
@@ -214,6 +215,7 @@ describe('multi-station adjudication', () => {
         machineMode: 'client',
         status: Admin.ClientMachineStatus.OnlineLocked,
         authType: null,
+        pollingPlaceId: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
@@ -221,6 +223,7 @@ describe('multi-station adjudication', () => {
         machineMode: 'client',
         status: Admin.ClientMachineStatus.Offline,
         authType: null,
+        pollingPlaceId: null,
         lastSeenAt: Date.now() - 60000,
       }),
       typedAs<MachineRecord>({
@@ -228,6 +231,7 @@ describe('multi-station adjudication', () => {
         machineMode: 'client',
         status: Admin.ClientMachineStatus.Adjudicating,
         authType: 'election_manager',
+        pollingPlaceId: null,
         lastSeenAt: Date.now(),
       }),
     ];

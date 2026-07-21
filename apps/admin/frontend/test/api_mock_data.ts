@@ -8,12 +8,14 @@ import type {
 export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   id: '',
   electionId: '',
+  source: 'usb',
   filename: '',
   exportTimestamp: '',
   numCvrsImported: 0,
   pollingPlaceIds: [],
   precinctIds: [],
   scannerIds: [],
+  batchLabels: [],
   sha256Hash: '',
   createdAt: '',
 };
