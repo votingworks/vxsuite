@@ -148,8 +148,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                     <React.Fragment>
                       Clean the scanner before continuing to scan ballots. Check
                       the top 10 sheets in the output stack for the pictured
-                      ballot, and put any sheets that were on top of it back
-                      into the input tray first.
+                      ballot, and put it and any sheets that were on top of it
+                      back into the input tray before continuing.
                     </React.Fragment>
                   ) : (
                     'Clean the scanner before continuing to scan ballots.'
@@ -170,9 +170,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                   {isDeskProScanner ? (
                     <React.Fragment>
                       Ballots must be printed full-scale. Check the top 10
-                      sheets in the output stack for the pictured ballot, and
-                      put any sheets that were on top of it back into the input
-                      tray before continuing.
+                      sheets in the output stack for the pictured ballot, remove
+                      it and put any sheets that were on top of it back into the
+                      input tray before continuing.
                     </React.Fragment>
                   ) : (
                     'Ballots must be printed full-scale.'
@@ -197,9 +197,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                       {isDeskProScanner ? (
                         <React.Fragment>
                           Remove the ballot before continuing. Check the top 10
-                          sheets in the output stack for it as well, and put any
-                          sheets that were on top of it back into the input
-                          tray.
+                          sheets in the output stack for the pictured ballot,
+                          remove it and put any sheets that were on top of it
+                          back into the input tray before continuing.
                         </React.Fragment>
                       ) : (
                         'Remove the ballot before continuing.'
@@ -221,9 +221,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                       {isDeskProScanner ? (
                         <React.Fragment>
                           Remove the ballot before continuing. Check the top 10
-                          sheets in the output stack for it as well, and put any
-                          sheets that were on top of it back into the input
-                          tray.
+                          sheets in the output stack for the pictured ballot,
+                          remove it and put any sheets that were on top of it
+                          back into the input tray before continuing.
                         </React.Fragment>
                       ) : (
                         'Remove the ballot before continuing.'
@@ -252,8 +252,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                   {isDeskProScanner ? (
                     <React.Fragment>
                       Remove the ballot before continuing. Check the top 10
-                      sheets in the output stack for it as well, and put any
-                      sheets that were on top of it back into the input tray.
+                      sheets in the output stack for the pictured ballot, remove
+                      it and put any sheets that were on top of it back into the
+                      input tray before continuing.
                     </React.Fragment>
                   ) : (
                     'Remove the ballot before continuing.'
@@ -279,8 +280,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
                   {isDeskProScanner ? (
                     <React.Fragment>
                       Remove the ballot before continuing. Check the top 10
-                      sheets in the output stack for it as well, and put any
-                      sheets that were on top of it back into the input tray.
+                      sheets in the output stack for the pictured ballot, remove
+                      it and put any sheets that were on top of it back into the
+                      input tray before continuing.
                     </React.Fragment>
                   ) : (
                     'Remove the ballot before continuing.'
@@ -317,7 +319,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             {isDeskProScanner && (
               <P>
                 Check the top 10 sheets in the output stack for the pictured
-                ballot, and put any sheets that were on top of it back into the
+                ballot, put any sheets that were on top of it back into the
                 input tray before continuing.
               </P>
             )}
@@ -339,7 +341,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             {isDeskProScanner && (
               <P>
                 Check the top 10 sheets in the output stack for the pictured
-                ballot, and put any sheets that were on top of it back into the
+                ballot, put any sheets that were on top of it back into the
                 input tray before continuing.
               </P>
             )}
@@ -366,7 +368,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             {isDeskProScanner && (
               <P>
                 Check the top 10 sheets in the output stack for the pictured
-                ballot, and put any sheets that were on top of it back into the
+                ballot, put any sheets that were on top of it back into the
                 input tray before continuing.
               </P>
             )}
@@ -388,7 +390,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             {isDeskProScanner && (
               <P>
                 Check the top 10 sheets in the output stack for the pictured
-                ballot, and put any sheets that were on top of it back into the
+                ballot, put any sheets that were on top of it back into the
                 input tray before continuing.
               </P>
             )}
