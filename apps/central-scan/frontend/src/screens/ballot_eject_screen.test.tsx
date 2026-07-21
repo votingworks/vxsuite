@@ -470,7 +470,7 @@ test('ballot from a precinct not in the selected polling place', async () => {
 
   await screen.findByText('Wrong Precinct');
   screen.getByText(
-    "The last scanned ballot was not tabulated because its precinct does not match the rest of the batch, or the scanner is configured for a polling place that does not include the ballot's precinct."
+    'The last scanned ballot was not tabulated because its precinct does not match the rest of the batch.'
   );
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
 
