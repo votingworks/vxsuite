@@ -41,7 +41,7 @@ export function BatchSummaryStats({
     .map((b) => b.count)
     .sum();
 
-  if (batchCount === 0) {
+  if (batchCount === 0 && callout) {
     return (
       <P>
         <Icons.Info /> No batches have been saved

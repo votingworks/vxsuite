@@ -42,7 +42,8 @@ test('warns and disables scanning when a polling place needs to be selected', ()
 test('null state', () => {
   renderScreen();
   screen.getByText('Ready to Scan');
-  screen.getByText('No batches have been saved');
+  screen.getByText(hasTextAcrossElements('Total Batches: 0'));
+  screen.getByText(hasTextAcrossElements('Total Sheets: 0'));
 });
 
 test('shows saved batch count', () => {

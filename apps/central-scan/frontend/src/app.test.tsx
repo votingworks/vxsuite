@@ -29,6 +29,9 @@ let apiMock: ApiMock;
 beforeEach(() => {
   vi.restoreAllMocks();
 
+  // Reset the URL since navigation in one test persists into the next.
+  window.history.replaceState({}, '', '/');
+
   apiMock = createApiMock();
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -163,7 +166,7 @@ test('configuring election from usb election package works end to end', async ()
   expectConfigureFromElectionPackageOnUsbDrive();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  await screen.findByText('No batches have been saved');
+  await screen.findByText(hasTextAcrossElements('Total Batches: 0'));
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);

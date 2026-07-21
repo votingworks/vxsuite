@@ -162,7 +162,7 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByText(/Configuring VxCentralScan/).waitFor();
   await screenshot('configuring');
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
-  await page.getByText('No batches have been saved').waitFor();
+  await page.getByText('Total Batches: 0').waitFor();
 
   // Scan Ballots screen immediately after configuring, while still in test
   // mode (the switch to official mode happens below). Capture it plain, then
@@ -212,10 +212,10 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
-  await page.getByText('No batches have been saved').waitFor();
+  await page.getByText('Total Batches: 0').waitFor();
   await screenshot('scan-ballots-empty');
   await screenshotWithLocatorHighlight(
-    page.getByText('No batches have been saved'),
+    page.getByText('Total Batches: 0'),
     'scan-ballots-empty-no-ballots-highlight'
   );
   await screenshotWithButtonHighlight(
