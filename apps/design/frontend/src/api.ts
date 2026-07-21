@@ -411,6 +411,59 @@ export const ttsStringDefaults = {
   },
 } as const;
 
+/* istanbul ignore next - DEMO */
+export const bulkTranslationExport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.bulkTranslationExport);
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const bulkTranslationUploadsGet = {
+  queryKey(electionId: string): QueryKey {
+    return ['bulkTranslationUploads', electionId];
+  },
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.bulkTranslationUploadsGet({ electionId })
+    );
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const bulkTranslationClear = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.bulkTranslationClear, {
+      async onSuccess(_data, { electionId }) {
+        await queryClient.invalidateQueries(['translation']);
+        await queryClient.invalidateQueries(
+          bulkTranslationUploadsGet.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const bulkTranslationImport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.bulkTranslationImport, {
+      async onSuccess(_data, { electionId }) {
+        await queryClient.invalidateQueries(['translation']);
+        await queryClient.invalidateQueries(
+          bulkTranslationUploadsGet.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
 export const ttsSynthesizeFromSsml = {
   queryKey(input: { languageCode: string; ssml: string }): QueryKey {
     return ['synthesizedSsml', input.languageCode, input.ssml];
