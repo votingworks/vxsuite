@@ -5,8 +5,8 @@ import { LanguageCode } from './language_code';
 export const ALL_VOWELS_ARR = [// [TODO] Incomplete - fill out;
   'æ', 'ɑː', 'ɔː', 'eɪ', 'aɪ', 'ɪː', 'ɛ', 'ɪ', 'ɚ', 'oʊ', 'ɔɪ', 'uː', 'aʊ', 'ʊ',
   'ʌ', 'ə', 'a', 'ai', 'au', 'e', 'ei', 'eu', 'i', 'o', 'oi', 'ou', 'u', 'ə',
-  'ɯ', 'ø', 'a:', 'ãː', 'ə̃', 'ẽː', 'ɛ̃ː', 'ɪ', 'ɪː', 'ɪ̃ː', 'ɪ̃', 'ɔː', 'ɔ̃ː',
-  'õː', 'ʊ', 'ʊ̃', 'ũː', 'oː', 'ui', 'iu',
+  'ɯ', 'ø', 'ãː', 'ə̃', 'ẽː', 'ɛ̃ː', 'ɪ', 'ɪː', 'ɪ̃ː', 'ɪ̃', 'ɔː', 'ɔ̃ː',
+  'õː', 'ʊ', 'ʊ̃', 'ũː', 'oː', 'ui', 'iu', 'eː', 'aː',
 ] as const;
 
 export const ALL_VOWELS = new Set<IpaPhoneme>(ALL_VOWELS_ARR);
@@ -111,7 +111,7 @@ const SPANISH_BY_IPA = {
  */
 // prettier-ignore
 const HINDI_BY_IPA = {
-  'a:':  { ipa: 'a:',  vx: 'a:',    sampleWord: 'बात',         sampleIpa: 'ˈbaːt̪',           sampleVx: 'ˈbaːt̪' },
+  'aː':  { ipa: 'aː',  vx: 'aː',    sampleWord: 'बात',         sampleIpa: 'ˈbaːt̪',           sampleVx: 'ˈbaːt̪' },
   'ãː':  { ipa: 'ãː',  vx: 'ãː',    sampleWord: 'लड़कियां',     sampleIpa: 'ˈləɽkɪjãː',       sampleVx: 'ˈləɽkɪjãː' },
   'b':   { ipa: 'b',   vx: 'b',     sampleWord: 'बादल',        sampleIpa: 'ˈbaːd̪əl',         sampleVx: 'ˈbaːd̪əl' },
   'bʰ':  { ipa: 'bʰ',  vx: 'bʰ',    sampleWord: 'भारत',        sampleIpa: 'ˈbʰaːrət̪',        sampleVx: 'ˈbʰaːrət̪' },
@@ -121,7 +121,7 @@ const HINDI_BY_IPA = {
   'ʤʰ':  { ipa: 'ʤʰ',  vx: 'ʤʰ',    sampleWord: 'मुझ',         sampleIpa: 'ˈmʊdʒʰ',           sampleVx: 'ˈmʊdʒʰ' },
   'ɖ':   { ipa: 'ɖ',   vx: 'ɖ',     sampleWord: 'डमरू',        sampleIpa: 'ˈɖəmruː',          sampleVx: 'ˈɖəmruː' },
   'ɖʰ':  { ipa: 'ɖʰ',  vx: 'ɖʰ',    sampleWord: 'ढोलक',        sampleIpa: 'ˈɖʰoːlək',         sampleVx: 'ˈɖʰoːlək' },
-  'e':   { ipa: 'e',   vx: 'e',     sampleWord: 'केला',        sampleIpa: 'ˈkeːlaː',          sampleVx: 'ˈkeːlaː' },
+  'eː':  { ipa: 'eː',  vx: 'eː',    sampleWord: 'केला',        sampleIpa: 'ˈkeːlaː',          sampleVx: 'ˈkeːlaː' },
   'ẽː':  { ipa: 'ẽː',  vx: 'ẽː',    sampleWord: 'किताबें',     sampleIpa: 'kɪˈt̪aːbẽː',      sampleVx: 'kɪˈt̪aːbẽː' },
   'ə':   { ipa: 'ə',   vx: 'ə',     sampleWord: 'अलग',         sampleIpa: 'ˈələg',            sampleVx: 'ˈələg' },
   'ə̃':  { ipa: 'ə̃',  vx: 'ə̃',    sampleWord: 'हंसना',       sampleIpa: 'ˈhə̃snaː',         sampleVx: 'ˈhə̃snaː' },
@@ -458,7 +458,7 @@ export const phonemes: Record<LanguageCode, TtsPhonemes> = {
   [LanguageCode.SPANISH]: {
     allByIpa: SPANISH_BY_IPA,
     consonants: ALL_SPANISH.filter((p) => !ALL_VOWELS.has(p.ipa)),
-    consonantModifier: DEFAULT_CONSONANT_MODIFIER,
+    consonantModifier: 'e',
     stresses: STANDARD_STRESSES,
     vowels: ALL_SPANISH.filter((p) => ALL_VOWELS.has(p.ipa)),
   },
