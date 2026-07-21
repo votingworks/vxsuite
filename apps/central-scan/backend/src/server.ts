@@ -26,6 +26,7 @@ import { DeskProScanner } from './deskpro_scanner';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
+import { startCvrSync } from './cvr_sync';
 import { startScannerNetworking } from './networking';
 import { getUserRole } from './util/auth';
 
@@ -102,6 +103,7 @@ export function start({
           'vendor',
           'system_administrator',
           'election_manager',
+          'poll_worker',
         ],
       },
       logger: baseLogger,
@@ -142,7 +144,15 @@ export function start({
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
 
-    const adminHostClient = startScannerNetworking({ logger: baseLogger });
+    const adminHostClient = startScannerNetworking({
+      logger: baseLogger,
+      workspace: resolvedWorkspace,
+    });
+    const cvrSync = startCvrSync({
+      workspace: resolvedWorkspace,
+      adminHostClient,
+      logger,
+    });
 
     resolvedApp = buildCentralScannerApp({
       auth,
@@ -152,6 +162,7 @@ export function start({
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
       adminHostClient,
+      cvrSync,
       isDeskProScanner,
     });
   }

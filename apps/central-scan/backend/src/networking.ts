@@ -15,6 +15,7 @@ import {
 } from './globals';
 import { getMachineConfig } from './machine_config';
 import { HostConnectionInfo } from './types';
+import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:networking');
 
@@ -58,8 +59,10 @@ function createPeerApiClient(address: string): grout.Client<PeerApi> {
  */
 export function startScannerNetworking({
   logger,
+  workspace,
 }: {
   logger: BaseLogger;
+  workspace: Workspace;
 }): AdminHostClient {
   const { machineId, codeVersion } = getMachineConfig();
   debug('Starting scanner networking for machine %s', machineId);
@@ -112,15 +115,23 @@ export function startScannerNetworking({
         }
 
         const existingConnection = hostConnection;
-        const reachableHosts: Array<Omit<HostConnection, 'machineId'>> = [];
+        const reachableHosts: Array<
+          Omit<HostConnection, 'machineId'> & { hostBallotHash?: string }
+        > = [];
         for (const address of candidateAddresses) {
           const apiClient =
             existingConnection?.address === address
               ? existingConnection.apiClient
               : createPeerApiClient(address);
           try {
-            await apiClient.getCurrentElectionMetadata();
-            reachableHosts.push({ address, apiClient });
+            const hostElectionMetadata =
+              await apiClient.getCurrentElectionMetadata();
+            reachableHosts.push({
+              address,
+              apiClient,
+              hostBallotHash:
+                hostElectionMetadata?.electionDefinition.ballotHash,
+            });
           } catch {
             debug('Host at %s unreachable, ignoring', address);
           }
@@ -141,6 +152,25 @@ export function startScannerNetworking({
 
         const [reachableHost] = reachableHosts;
         const { address, apiClient } = reachableHost;
+
+        // Refuse to connect to a host configured for a different election (or
+        // no election at all), so cast vote records are never sent to it.
+        const scannerBallotHash =
+          workspace.store.getElectionRecord()?.electionDefinition.ballotHash;
+        if (
+          scannerBallotHash &&
+          reachableHost.hostBallotHash !== scannerBallotHash
+        ) {
+          debug(
+            'Host at %s is configured for a different election (host: %s, scanner: %s), refusing to connect',
+            address,
+            reachableHost.hostBallotHash ?? 'none',
+            scannerBallotHash
+          );
+          setConnectionState({ status: 'election-mismatch' });
+          return;
+        }
+
         try {
           const hostConfig = await apiClient.registerScanner({
             machineId,

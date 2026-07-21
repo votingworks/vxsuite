@@ -1,23 +1,23 @@
 import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { ScanBallotsLayout } from '../components/scan_ballots_layout';
 
-export interface ScanBallotsScreenProps {
+export interface PollWorkerScanBallotsScreenProps {
   status: ScanStatus;
   statusIsStale: boolean;
   isPollingPlaceUnconfigured: boolean;
 }
 
-export function ScanBallotsScreen({
+export function PollWorkerScanBallotsScreen({
   status,
   statusIsStale,
   isPollingPlaceUnconfigured,
-}: ScanBallotsScreenProps): JSX.Element {
+}: PollWorkerScanBallotsScreenProps): JSX.Element {
   return (
     <ScanBallotsLayout
       status={status}
       statusIsStale={statusIsStale}
       isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
-      pollingPlaceWarning="No polling place selected. Select a polling place on the Settings screen before scanning ballots."
+      pollingPlaceWarning="No polling place selected. Ask an election manager to select a polling place before scanning ballots."
     />
   );
 }

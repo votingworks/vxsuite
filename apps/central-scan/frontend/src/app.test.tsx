@@ -29,6 +29,9 @@ let apiMock: ApiMock;
 beforeEach(() => {
   vi.restoreAllMocks();
 
+  // Reset the URL since navigation in one test persists into the next.
+  window.history.replaceState({}, '', '/');
+
   apiMock = createApiMock();
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -116,8 +119,8 @@ test('clicking Scan Batch will scan a batch', async () => {
   await authenticateAsElectionManager(electionDefinition);
 
   apiMock.expectScanBatch();
-  userEvent.click(screen.getButton('Scan New Batch'));
-  await screen.findByText('Scan New Batch'); // wait for button to reset
+  userEvent.click(screen.getButton('Start Batch 1'));
+  await screen.findByText('Start Batch 1'); // wait for button to reset
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
@@ -133,15 +136,16 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  // wait for the config to load
-  const saveButton = screen.getButton('Save CVRs');
+  // the Save CVRs button lives on the batch history page
+  userEvent.click(screen.getByText('Batch History'));
+  const saveButton = await screen.findButton('Save CVRs');
   await vi.waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   await screen.findByRole('alertdialog');
   apiMock.expectExportCastVoteRecords();
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
-  userEvent.click(screen.getByText('Close'));
+  userEvent.click(screen.getButton('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
@@ -162,7 +166,7 @@ test('configuring election from usb election package works end to end', async ()
   expectConfigureFromElectionPackageOnUsbDrive();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  await screen.findByText('No batches have been saved');
+  await screen.findByText(hasTextAcrossElements('Total Batches: 0'));
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);
@@ -331,7 +335,7 @@ test('election manager cannot auth onto machine with different election', async 
   });
   await screen.findByText(
     'The inserted election manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Use a valid election manager or system administrator card.'
+      'Use a valid poll worker, election manager, or system administrator card.'
   );
 });
 

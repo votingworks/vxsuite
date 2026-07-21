@@ -30,7 +30,7 @@ export function MachineLockedScreen(): JSX.Element {
             <LockedImage src="/locked.svg" alt="Locked Icon" />
             <H1>VxCentralScan Locked</H1>
             <H3 style={{ fontWeight: 'normal' }}>
-              Insert an election manager card to unlock.
+              Insert a poll worker or election manager card to unlock.
             </H3>
           </Font>
         ) : (

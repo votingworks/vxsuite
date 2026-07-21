@@ -6,8 +6,10 @@ import {
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
 import {
+  getCvrSyncStatus,
   getDiskSpaceSummary,
   getElectionRecord,
+  getHostConnectionInfo,
   getMostRecentScannerDiagnostic,
   getMostRecentUpsDiagnostic,
   getStatus,
@@ -17,6 +19,7 @@ import {
   saveReadinessReport,
   systemCallApi,
 } from '../api';
+import { NetworkSection } from '../components/network_section';
 import { TestScanButton } from '../components/test_scan_button';
 
 const PageLayout = styled.div`
@@ -39,6 +42,8 @@ export function DiagnosticsScreen(): JSX.Element {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
+  const hostConnectionInfoQuery = getHostConnectionInfo.useQuery();
+  const cvrSyncStatusQuery = getCvrSyncStatus.useQuery();
 
   if (
     !statusQuery.isSuccess ||
@@ -48,7 +53,9 @@ export function DiagnosticsScreen(): JSX.Element {
     !scannerDiagnosticRecordQuery.isSuccess ||
     !upsDiagnosticRecordQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
-    !systemSettings.isSuccess
+    !systemSettings.isSuccess ||
+    !hostConnectionInfoQuery.isSuccess ||
+    !cvrSyncStatusQuery.isSuccess
   ) {
     return <NavigationScreen title="Diagnostics">{null}</NavigationScreen>;
   }
@@ -85,6 +92,10 @@ export function DiagnosticsScreen(): JSX.Element {
             markThresholds={markThresholds}
           />
           <TestScanButton />
+          <NetworkSection
+            hostConnectionInfo={hostConnectionInfoQuery.data}
+            cvrSyncStatus={cvrSyncStatusQuery.data}
+          />
         </div>
         <SaveReadinessReportButton
           usbDriveStatus={usbDriveStatusQuery.data}

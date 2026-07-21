@@ -2,24 +2,12 @@ import {
   DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
+import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
-  Result,
-  assert,
-  assertDefined,
-  err,
-  iter,
-  ok,
-} from '@votingworks/basics';
-import {
-  AcceptedSheet,
-  buildBatchManifest,
-  buildCastVoteRecordFiles,
   createSystemCallApi,
   readSignedElectionPackageFromDirectory,
   exportCastVoteRecordsToUsbDrive,
   ElectionRecord,
-  ScannerStateUnchangedByExport,
-  VX_MACHINE_ID,
 } from '@votingworks/backend';
 import {
   ElectionPackageConfigurationError,
@@ -38,25 +26,22 @@ import {
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
-import makeDebug from 'debug';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import fetch from 'node-fetch';
 import { loadImageMetadata } from '@votingworks/image-utils';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 import {
   BallotImage,
+  CvrSyncStatus,
   HostConnectionInfo,
   MachineConfig,
   ScanStatus,
-  SendCastVoteRecordsToHostError,
 } from './types';
 import { AdminHostClient } from './networking';
-import { zipFilesToBuffer } from './util/zip';
+import { CvrSync } from './cvr_sync';
 import { getMachineConfig } from './machine_config';
 import { constructAuthMachineState } from './util/auth';
 import {
@@ -69,8 +54,6 @@ import { saveReadinessReport } from './readiness_report';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
 import { BatchScanner } from './fujitsu_scanner';
 
-const debug = makeDebug('scan:send-cvrs');
-
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
   allowedExportPatterns?: string[];
@@ -80,6 +63,7 @@ export interface AppOptions {
   logger: Logger;
   usbDrive: UsbDrive;
   adminHostClient?: AdminHostClient;
+  cvrSync?: CvrSync;
   isDeskProScanner?: boolean;
 }
 
@@ -91,11 +75,10 @@ function buildApi({
   scanner,
   importer,
   adminHostClient,
+  cvrSync,
   isDeskProScanner = false,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
-
-  let sendCvrsProgress: { sent: number; total: number } | undefined;
 
   return grout.createApi({
     getAuthStatus() {
@@ -362,6 +345,9 @@ function buildApi({
       try {
         // `finishBatch` logs batch completion on success.
         await importer.saveBatch();
+        // Send the newly saved batch to a connected VxAdmin host right away
+        // rather than waiting for the next sync polling tick.
+        void cvrSync?.triggerSync();
       } catch (error) {
         assert(error instanceof Error);
         await logger.logAsCurrentRole(LogEventId.ScanBatchComplete, {
@@ -465,164 +451,8 @@ function buildApi({
       return adminHostClient?.getHostConnectionInfo() ?? { status: 'offline' };
     },
 
-    getSendCvrsProgress(): { sent: number; total: number } | null {
-      return sendCvrsProgress ?? null;
-    },
-
-    async sendCastVoteRecordsToHost(): Promise<
-      Result<
-        { newlyAdded: number; alreadyPresent: number },
-        SendCastVoteRecordsToHostError
-      >
-    > {
-      const hostConnection = adminHostClient?.getHostConnection();
-      if (!hostConnection) {
-        return err({ type: 'no-host-connected' });
-      }
-
-      async function logFailure(message: string): Promise<void> {
-        await logger.logAsCurrentRole(
-          LogEventId.ExportCastVoteRecordsComplete,
-          {
-            disposition: 'failure',
-            message: `Error sending cast vote records to VxAdmin host. ${message}`,
-          }
-        );
-      }
-
-      await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
-        message: `Sending cast vote records to VxAdmin host ${hostConnection.machineId}...`,
-      });
-      try {
-        const { electionDefinition } = assertDefined(store.getElectionRecord());
-        const systemSettings = assertDefined(store.getSystemSettings());
-        const scannerState: ScannerStateUnchangedByExport = {
-          batches: store.getBatches(),
-          electionDefinition,
-          systemSettings,
-          inTestMode: store.getTestMode(),
-          markThresholds: systemSettings.markThresholds,
-        };
-        const acceptedSheets = iter(store.forEachSheet())
-          .filter((sheet): sheet is AcceptedSheet => sheet.type === 'accepted')
-          .toArray();
-
-        const startResult = await hostConnection.apiClient.startCvrTransfer({
-          machineId: getMachineConfig().machineId,
-          batchManifest: buildBatchManifest({
-            batches: scannerState.batches,
-            scannerId: VX_MACHINE_ID,
-          }),
-          isTestMode: scannerState.inTestMode,
-        });
-        if (startResult.isErr()) {
-          const message = `Host refused the transfer: ${JSON.stringify(
-            startResult.err()
-          )}`;
-          await logFailure(message);
-          return err({ type: 'upload-failed', message });
-        }
-        const { sessionId } = startResult.ok();
-        const uploadUrl = `${hostConnection.address}/api/cvr-transfer/${sessionId}/cvr`;
-
-        // Build and send each cast vote record individually so that progress
-        // is observable and memory usage stays bounded
-        const transferStartTimeMs = Date.now();
-        let totalBytesSent = 0;
-        let sent = 0;
-        sendCvrsProgress = { sent, total: acceptedSheets.length };
-        for (const sheet of acceptedSheets) {
-          const buildStartTimeMs = Date.now();
-          const buildResult = await buildCastVoteRecordFiles(
-            scannerState,
-            sheet
-          );
-          if (buildResult.isErr()) {
-            await logFailure(
-              `Error building cast vote record: ${JSON.stringify(
-                buildResult.err()
-              )}`
-            );
-            return err({ type: 'export-failed', error: buildResult.err() });
-          }
-          const { castVoteRecordId, files } = buildResult.ok();
-          const zipBuffer = await zipFilesToBuffer(
-            files.map((file) => ({
-              path: join(castVoteRecordId, file.fileName),
-              contents: file.open(),
-            }))
-          );
-          const uploadStartTimeMs = Date.now();
-          const response = await fetch(uploadUrl, {
-            method: 'POST',
-            headers: { 'content-type': 'application/zip' },
-            body: zipBuffer,
-          });
-          if (!response.ok) {
-            const message = `Host responded with status ${
-              response.status
-            }: ${await response.text()}`;
-            await logFailure(message);
-            return err({ type: 'upload-failed', message });
-          }
-          const uploadEndTimeMs = Date.now();
-          totalBytesSent += zipBuffer.byteLength;
-          sent += 1;
-          sendCvrsProgress = { sent, total: acceptedSheets.length };
-          debug(
-            'sent cvr %s (%d/%d): %d bytes, build+zip %dms, upload %dms',
-            castVoteRecordId,
-            sent,
-            acceptedSheets.length,
-            zipBuffer.byteLength,
-            uploadStartTimeMs - buildStartTimeMs,
-            uploadEndTimeMs - uploadStartTimeMs
-          );
-        }
-
-        const finishResult = await hostConnection.apiClient.finishCvrTransfer({
-          sessionId,
-        });
-        if (finishResult.isErr()) {
-          const message = `Host failed to complete the transfer: ${JSON.stringify(
-            finishResult.err()
-          )}`;
-          await logFailure(message);
-          return err({ type: 'upload-failed', message });
-        }
-        const { newlyAdded, alreadyPresent } = finishResult.ok();
-        const transferDurationMs = Date.now() - transferStartTimeMs;
-        const totalMegabytesSent = totalBytesSent / 1024 / 1024;
-        const megabytesPerSecond =
-          transferDurationMs > 0
-            ? totalMegabytesSent / (transferDurationMs / 1000)
-            : 0;
-        debug(
-          'transfer complete: %d cast vote record(s), %s MB in %dms (%s MB/s)',
-          sent,
-          totalMegabytesSent.toFixed(2),
-          transferDurationMs,
-          megabytesPerSecond.toFixed(2)
-        );
-        await logger.logAsCurrentRole(
-          LogEventId.ExportCastVoteRecordsComplete,
-          {
-            disposition: 'success',
-            message: `Successfully sent cast vote records to VxAdmin host ${hostConnection.machineId}. Host imported ${newlyAdded} new cast vote record(s) and ignored ${alreadyPresent} duplicate(s).`,
-            castVoteRecordsSent: sent,
-            totalBytesSent,
-            transferDurationMs,
-            megabytesPerSecond: megabytesPerSecond.toFixed(2),
-          }
-        );
-        return ok({ newlyAdded, alreadyPresent });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : `${error}`;
-        await logFailure(message);
-        return err({ type: 'upload-failed', message });
-      } finally {
-        sendCvrsProgress = undefined;
-      }
+    getCvrSyncStatus(): CvrSyncStatus {
+      return cvrSync?.getStatus() ?? { state: 'idle', unsentBatchCount: 0 };
     },
 
     saveReadinessReport() {
@@ -721,6 +551,7 @@ export function buildCentralScannerApp({
   logger,
   usbDrive,
   adminHostClient,
+  cvrSync,
   isDeskProScanner,
 }: AppOptions): Application {
   const app: Application = express();
@@ -732,6 +563,7 @@ export function buildCentralScannerApp({
     scanner,
     importer,
     adminHostClient,
+    cvrSync,
     isDeskProScanner,
   });
   app.use('/api', grout.buildRouter(api, express));

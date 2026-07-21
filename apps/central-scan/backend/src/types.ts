@@ -2,6 +2,7 @@ import {
   BallotPageLayout,
   BatchInfo,
   ExportCastVoteRecordsToUsbDriveError,
+  Iso8601Timestamp,
   Rect,
 } from '@votingworks/types';
 
@@ -15,7 +16,8 @@ export type HostConnectionStatus =
   | 'offline'
   | 'waiting-for-host'
   | 'connected-to-host'
-  | 'multiple-hosts-detected';
+  | 'multiple-hosts-detected'
+  | 'election-mismatch';
 
 /** Summary of the scanner's connection to a VxAdmin host. */
 export interface HostConnectionInfo {
@@ -28,6 +30,30 @@ export type SendCastVoteRecordsToHostError =
   | { type: 'no-host-connected' }
   | { type: 'export-failed'; error: ExportCastVoteRecordsToUsbDriveError }
   | { type: 'upload-failed'; message: string };
+
+/**
+ * Status of the background sync that sends saved batches to a VxAdmin host.
+ */
+export interface CvrSyncStatus {
+  state: 'idle' | 'syncing';
+  unsentBatchCount: number;
+  /** The batch currently being sent, when `state` is `'syncing'`. */
+  currentBatch?: {
+    batchId: string;
+    label: string;
+    sheetsSent: number;
+    sheetsTotal: number;
+  };
+  lastError?: string;
+}
+
+/**
+ * A batch along with the central-scan-local record of when it was sent to a
+ * VxAdmin host.
+ */
+export interface BatchInfoWithSyncStatus extends BatchInfo {
+  sentToAdminAt?: Iso8601Timestamp;
+}
 
 export type ScanState = 'idle' | 'scanning' | 'adjudication';
 
@@ -53,7 +79,7 @@ export interface ScanStatus {
   isScannerAttached: boolean;
   currentBatch?: CurrentBatchStatus;
   adjudicationsRemaining: number;
-  batches: BatchInfo[];
+  batches: BatchInfoWithSyncStatus[];
   canUnconfigure: boolean;
 }
 

@@ -1,6 +1,6 @@
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Buffer } from 'node:buffer';
-import { err, ok } from '@votingworks/basics';
+import { err, ok, sleep } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -44,6 +44,19 @@ afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
 });
 
+async function waitForCondition(
+  condition: () => boolean,
+  timeoutMs = 15_000
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!condition()) {
+    if (Date.now() > deadline) {
+      throw new Error('timed out waiting for condition');
+    }
+    await sleep(50);
+  }
+}
+
 interface MockHost {
   address: string;
   startInputs: Array<{
@@ -51,7 +64,7 @@ interface MockHost {
     batchManifest: CastVoteRecordExportMetadata['batchManifest'];
     isTestMode: boolean;
   }>;
-  receivedCvrZips: Buffer[];
+  receivedCvrZips: Array<{ sessionId: string; zip: Buffer }>;
   finishedSessionIds: string[];
 }
 
@@ -77,7 +90,10 @@ function startMockHost({
         res.status(400).json({ error: 'invalid-cast-vote-record' });
         return;
       }
-      mockHost.receivedCvrZips.push(Buffer.concat(chunks));
+      mockHost.receivedCvrZips.push({
+        sessionId: req.params.sessionId,
+        zip: Buffer.concat(chunks),
+      });
       res.json({ isNew: true });
     });
   });
@@ -91,12 +107,14 @@ function startMockHost({
       if (refuseTransfer) {
         return err({ type: 'no-election-configured' });
       }
-      return ok({ sessionId: 'test-session' });
+      return ok({ sessionId: `test-session-${mockHost.startInputs.length}` });
     },
     finishCvrTransfer(input: { sessionId: string }) {
       mockHost.finishedSessionIds.push(input.sessionId);
       return ok({
-        newlyAdded: mockHost.receivedCvrZips.length,
+        newlyAdded: mockHost.receivedCvrZips.filter(
+          (received) => received.sessionId === input.sessionId
+        ).length,
         alreadyPresent: 0,
       });
     },
@@ -107,28 +125,42 @@ function startMockHost({
   return { ...mockHost, address: `http://localhost:${port}` };
 }
 
-function mockAdminHostClient(address: string): AdminHostClient {
+interface MockAdminHostClient extends AdminHostClient {
+  setConnected(connected: boolean): void;
+}
+
+function mockAdminHostClient(
+  address: string,
+  { connected: initiallyConnected = true }: { connected?: boolean } = {}
+): MockAdminHostClient {
+  let connected = initiallyConnected;
   return {
-    getHostConnectionInfo: () => ({
-      status: 'connected-to-host',
-      hostMachineId: 'ADMIN-01',
-    }),
-    getHostConnection: () => ({
-      address,
-      machineId: 'ADMIN-01',
-      apiClient: grout.createClient<PeerApi>({ baseUrl: `${address}/api` }),
-    }),
+    getHostConnectionInfo: () =>
+      connected
+        ? { status: 'connected-to-host', hostMachineId: 'ADMIN-01' }
+        : { status: 'offline' },
+    getHostConnection: () =>
+      connected
+        ? {
+            address,
+            machineId: 'ADMIN-01',
+            apiClient: grout.createClient<PeerApi>({
+              baseUrl: `${address}/api`,
+            }),
+          }
+        : undefined,
+    setConnected: (newConnected: boolean) => {
+      connected = newConnected;
+    },
   };
 }
 
 type WithAppContext = Parameters<Parameters<typeof withApp>[0]>[0];
 
-async function configureAndScanOneBallot({
+async function configureApp({
   apiClient,
   auth,
   mockUsbDrive,
-  scanner,
-  importer,
 }: WithAppContext): Promise<void> {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -146,7 +178,13 @@ async function configureAndScanOneBallot({
   );
   mockUsbDrive.removeUsbDrive();
   await apiClient.setTestMode({ testMode: true });
+}
 
+async function scanAndSaveBatch({
+  apiClient,
+  scanner,
+  importer,
+}: WithAppContext): Promise<void> {
   const bmdFixture = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
     front: bmdFixture.sheet[0],
@@ -158,35 +196,27 @@ async function configureAndScanOneBallot({
   await apiClient.saveBatch();
 }
 
-test('sendCastVoteRecordsToHost returns an error when no host is connected', async () => {
-  await withApp(async ({ apiClient }) => {
-    expect(await apiClient.sendCastVoteRecordsToHost()).toEqual(
-      err({ type: 'no-host-connected' })
-    );
-    expect(await apiClient.getSendCvrsProgress()).toEqual(null);
-  });
-});
-
-test('sendCastVoteRecordsToHost sends each cast vote record to the host', async () => {
+test('a batch is automatically sent to the host as its own export when saved', async () => {
   const mockHost = startMockHost();
 
   await withApp(
     async (context) => {
-      await configureAndScanOneBallot(context);
+      await configureApp(context);
+      await scanAndSaveBatch(context);
 
-      expect(await context.apiClient.sendCastVoteRecordsToHost()).toEqual(
-        ok({ newlyAdded: 1, alreadyPresent: 0 })
-      );
+      // Saving the batch triggers the sync without any user action
+      await waitForCondition(() => mockHost.finishedSessionIds.length === 1);
 
-      // The host was told about the scanner's batches and mode
+      // The host was told about just this batch and the scanner's mode
       expect(mockHost.startInputs).toHaveLength(1);
       expect(mockHost.startInputs[0].isTestMode).toEqual(true);
       expect(mockHost.startInputs[0].batchManifest).toHaveLength(1);
-      expect(mockHost.finishedSessionIds).toEqual(['test-session']);
+      expect(mockHost.startInputs[0].batchManifest[0].label).toEqual('Batch 1');
+      expect(mockHost.finishedSessionIds).toEqual(['test-session-1']);
 
       // The uploaded zip contains a complete cast vote record directory
       expect(mockHost.receivedCvrZips).toHaveLength(1);
-      const zipFile = await openZip(mockHost.receivedCvrZips[0]);
+      const zipFile = await openZip(mockHost.receivedCvrZips[0].zip);
       const entryNames = getEntries(zipFile).map((entry) => entry.name);
       expect(entryNames).toContainEqual(
         expect.stringMatching(/^[^/]+\/cast-vote-record-report\.json$/)
@@ -195,51 +225,109 @@ test('sendCastVoteRecordsToHost sends each cast vote record to the host', async 
         2
       );
 
-      // Progress resets after the send completes
-      expect(await context.apiClient.getSendCvrsProgress()).toEqual(null);
+      // The batch is marked as sent and isn't sent again
+      expect(await context.apiClient.getCvrSyncStatus()).toEqual({
+        state: 'idle',
+        unsentBatchCount: 0,
+      });
+      await context.cvrSync?.triggerSync();
+      expect(mockHost.startInputs).toHaveLength(1);
+
+      // A second batch is sent as its own separate export
+      await scanAndSaveBatch(context);
+      await waitForCondition(() => mockHost.finishedSessionIds.length === 2);
+      expect(mockHost.startInputs).toHaveLength(2);
+      expect(mockHost.startInputs[1].batchManifest).toHaveLength(1);
+      expect(mockHost.startInputs[1].batchManifest[0].label).toEqual('Batch 2');
+      expect(mockHost.finishedSessionIds).toEqual([
+        'test-session-1',
+        'test-session-2',
+      ]);
     },
     { adminHostClient: mockAdminHostClient(mockHost.address) }
   );
 });
 
-test('sendCastVoteRecordsToHost returns an error when the host refuses the transfer', async () => {
+test('batches saved while offline are sent automatically once the host connects', async () => {
+  const mockHost = startMockHost();
+  const adminHostClient = mockAdminHostClient(mockHost.address, {
+    connected: false,
+  });
+
+  await withApp(
+    async (context) => {
+      await configureApp(context);
+      await scanAndSaveBatch(context);
+      await scanAndSaveBatch(context);
+
+      // Nothing is sent while offline
+      await context.cvrSync?.triggerSync();
+      expect(mockHost.startInputs).toHaveLength(0);
+      expect(await context.apiClient.getCvrSyncStatus()).toEqual({
+        state: 'idle',
+        unsentBatchCount: 2,
+      });
+
+      // Once the host connects, the polling loop sends each unsent batch as
+      // its own export, oldest first
+      adminHostClient.setConnected(true);
+      await waitForCondition(() => mockHost.finishedSessionIds.length === 2);
+      expect(mockHost.startInputs).toHaveLength(2);
+      expect(mockHost.startInputs[0].batchManifest[0].label).toEqual('Batch 1');
+      expect(mockHost.startInputs[1].batchManifest[0].label).toEqual('Batch 2');
+      expect(await context.apiClient.getCvrSyncStatus()).toEqual({
+        state: 'idle',
+        unsentBatchCount: 0,
+      });
+    },
+    { adminHostClient, cvrSyncPollingIntervalMs: 100 }
+  );
+});
+
+test('a batch stays unsent and the error is surfaced when the host refuses the transfer', async () => {
   const mockHost = startMockHost({ refuseTransfer: true });
 
   await withApp(
     async (context) => {
-      await configureAndScanOneBallot(context);
+      await configureApp(context);
+      await scanAndSaveBatch(context);
 
-      const result = await context.apiClient.sendCastVoteRecordsToHost();
-      expect(result).toEqual(
-        err({
-          type: 'upload-failed',
-          message: expect.stringContaining('Host refused the transfer'),
-        })
-      );
+      await context.cvrSync?.triggerSync();
+      const syncStatus = await context.apiClient.getCvrSyncStatus();
+      expect(syncStatus.unsentBatchCount).toEqual(1);
+      expect(syncStatus.lastError).toContain('Host refused the transfer');
       expect(mockHost.receivedCvrZips).toHaveLength(0);
+      expect(mockHost.finishedSessionIds).toHaveLength(0);
     },
     { adminHostClient: mockAdminHostClient(mockHost.address) }
   );
 });
 
-test('sendCastVoteRecordsToHost returns an error when the host rejects a cast vote record', async () => {
+test('a batch stays unsent and the error is surfaced when the host rejects a cast vote record', async () => {
   const mockHost = startMockHost({ rejectCvrs: true });
 
   await withApp(
     async (context) => {
-      await configureAndScanOneBallot(context);
+      await configureApp(context);
+      await scanAndSaveBatch(context);
 
-      const result = await context.apiClient.sendCastVoteRecordsToHost();
-      expect(result).toEqual(
-        err({
-          type: 'upload-failed',
-          message: expect.stringContaining('400'),
-        })
-      );
+      await context.cvrSync?.triggerSync();
+      const syncStatus = await context.apiClient.getCvrSyncStatus();
+      expect(syncStatus.unsentBatchCount).toEqual(1);
+      expect(syncStatus.lastError).toContain('400');
       expect(mockHost.finishedSessionIds).toHaveLength(0);
     },
     { adminHostClient: mockAdminHostClient(mockHost.address) }
   );
+});
+
+test('getCvrSyncStatus reports idle with no unsent batches when networking is not running', async () => {
+  await withApp(async ({ apiClient }) => {
+    expect(await apiClient.getCvrSyncStatus()).toEqual({
+      state: 'idle',
+      unsentBatchCount: 0,
+    });
+  });
 });
 
 test('getHostConnectionInfo reflects the admin host client state', async () => {

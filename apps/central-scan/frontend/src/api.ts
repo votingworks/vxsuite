@@ -404,23 +404,16 @@ export const getHostConnectionInfo = {
   },
 } as const;
 
-export const sendCastVoteRecordsToHost = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.sendCastVoteRecordsToHost);
-  },
-} as const;
+const CVR_SYNC_STATUS_POLLING_INTERVAL_MS = 500;
 
-const SEND_CVRS_PROGRESS_POLLING_INTERVAL_MS = 500;
-
-export const getSendCvrsProgress = {
+export const getCvrSyncStatus = {
   queryKey(): QueryKey {
-    return ['getSendCvrsProgress'];
+    return ['getCvrSyncStatus'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSendCvrsProgress(), {
-      refetchInterval: SEND_CVRS_PROGRESS_POLLING_INTERVAL_MS,
+    return useQuery(this.queryKey(), () => apiClient.getCvrSyncStatus(), {
+      refetchInterval: CVR_SYNC_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;

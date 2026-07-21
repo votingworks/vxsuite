@@ -21,6 +21,7 @@ import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
 import { Api } from '../../src';
 import { buildCentralScannerApp } from '../../src/app';
+import { CvrSync, startCvrSync } from '../../src/cvr_sync';
 import { AdminHostClient } from '../../src/networking';
 import { start } from '../../src/server';
 import { Store } from '../../src/store';
@@ -49,9 +50,11 @@ export async function withApp(
     apiClient: grout.Client<Api>;
     server: Server;
     store: Store;
+    cvrSync?: CvrSync;
   }) => Promise<void>,
   options: {
     adminHostClient?: AdminHostClient;
+    cvrSyncPollingIntervalMs?: number;
     isDeskProScanner?: boolean;
   } = {}
 ): Promise<void> {
@@ -65,6 +68,14 @@ export async function withApp(
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner, logger });
   const mockUsbDrive = createMockUsbDrive();
+  const cvrSync = options.adminHostClient
+    ? startCvrSync({
+        workspace,
+        adminHostClient: options.adminHostClient,
+        logger,
+        pollingIntervalMs: options.cvrSyncPollingIntervalMs,
+      })
+    : undefined;
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,
@@ -74,6 +85,7 @@ export async function withApp(
     workspace,
     logger,
     adminHostClient: options.adminHostClient,
+    cvrSync,
     isDeskProScanner: options.isDeskProScanner,
   });
   const baseUrl = `http://localhost:${port}/api`;
@@ -99,8 +111,10 @@ export async function withApp(
       logger,
       apiClient,
       server,
+      cvrSync,
     });
   } finally {
+    cvrSync?.stop();
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
