@@ -118,15 +118,18 @@ test('screenshots', async ({ page }, testInfo) => {
   async function scanCountedBatch(paths: string[], pausedScreenshot?: string) {
     await devDockClient.batchScannerClearBallots();
     await devDockClient.batchScannerLoadBallots({ paths });
-    await page.getByRole('button', { name: 'Scan New Batch' }).click();
+    await page.getByRole('button', { name: /Start Batch/ }).click();
     expectedSheets += paths.length;
-    await page
-      .getByText('paused — input tray is empty')
-      .waitFor({ timeout: 60000 });
+    await page.getByText('Input tray empty').waitFor({ timeout: 60000 });
     if (pausedScreenshot) {
       await screenshot(pausedScreenshot);
     }
     await page.getByRole('button', { name: 'Save Batch' }).click();
+    // confirm in the Save Batch modal
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Save Batch' })
+      .click();
     await page
       .getByText(`Total Sheets: ${expectedSheets}`)
       .waitFor({ timeout: 60000 });
@@ -216,7 +219,7 @@ test('screenshots', async ({ page }, testInfo) => {
     'scan-ballots-empty-no-ballots-highlight'
   );
   await screenshotWithButtonHighlight(
-    'Scan New Batch',
+    'Start Batch 1',
     'scan-ballots-empty-scan-new-batch-button'
   );
 
@@ -249,7 +252,7 @@ test('screenshots', async ({ page }, testInfo) => {
       foldedCornerSheet.backPath,
     ],
   });
-  await page.getByRole('button', { name: 'Scan New Batch' }).click();
+  await page.getByRole('button', { name: /Start Batch/ }).click();
 
   const remainingEjectStates = new Map([
     ['Overvote', 'adjudication-overvote'],
@@ -289,16 +292,21 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // The tray is empty after the last problem ballot, so the batch pauses
   // again; save it.
-  await page
-    .getByText('paused — input tray is empty')
-    .waitFor({ timeout: 60000 });
+  await page.getByText('Input tray empty').waitFor({ timeout: 60000 });
   await page.getByRole('button', { name: 'Save Batch' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save Batch' })
+    .click();
   expectedSheets += 1; // the good ballot that led the problem batch
   await page
     .getByText(`Total Sheets: ${expectedSheets}`)
     .waitFor({ timeout: 60000 });
 
-  // Back on Scan Ballots with batches present: highlight Save CVRs.
+  // Batch History page with batches present: highlight Save CVRs.
+  await page.getByRole('button', { name: 'Batch History' }).click();
+  await page.getByRole('heading', { name: 'Batch History' }).waitFor();
+  await screenshot('batch-history');
   await screenshotWithButtonHighlight(
     'Save CVRs',
     'scan-ballots-save-cvrs-button'
