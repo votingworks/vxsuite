@@ -285,7 +285,6 @@ const Editor = styled.div`
 
 export function LanguageProofingScreen(): React.ReactNode {
   const [searchString, setSearchString] = React.useState<string>('');
-  const searchDebounceTimer = React.useRef<number>();
 
   const {
     electionId,
@@ -304,38 +303,23 @@ export function LanguageProofingScreen(): React.ReactNode {
     }
   }, [stringDefaults, stringKey, subkey]);
 
-  const onSearch = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!stringDefaults) return;
-
-      if (searchDebounceTimer.current) {
-        window.clearTimeout(searchDebounceTimer.current);
-        searchDebounceTimer.current = undefined;
-      }
-
-      const newSearchString = (event.target.value || '').trim();
-      if (!newSearchString) return setSearchString('');
-
-      searchDebounceTimer.current = window.setTimeout(() => {
-        setSearchString(newSearchString);
-      }, 50);
-    },
-    [stringDefaults]
-  );
-
   const searchResults: TtsStringDefault[] = React.useMemo(() => {
     if (!stringDefaults) return [];
-    if (!searchString) return stringDefaults;
+
+    // [TODO] We don't yet have a concrete plan for repeated strings - de-duping
+    // them in the UI for now.
+    const seenStrings = new Set<string>();
 
     const results: TtsStringDefault[] = [];
-    let resultCount = 0;
     for (let i = 0; i < stringDefaults.length; i += 1) {
-      results[resultCount] = stringDefaults[i];
-      resultCount += isMatchFuzzy(
-        stringDefaults[i].text,
-        searchString
-      ) as unknown as number;
-      delete results[resultCount];
+      const seen = seenStrings.has(stringDefaults[i].text);
+      seenStrings.add(stringDefaults[i].text);
+
+      if (seen || !isMatchFuzzy(stringDefaults[i].text, searchString)) {
+        continue;
+      }
+
+      results.push(stringDefaults[i]);
     }
 
     return results;
@@ -354,10 +338,13 @@ export function LanguageProofingScreen(): React.ReactNode {
             <input
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
-              onChange={onSearch}
+              onChange={(e) => setSearchString(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setSearchString('');
+              }}
               placeholder="Search ballot contents"
               type="text"
-              defaultValue={searchString}
+              value={searchString}
             />
           </SearchBox>
           <StringSnippets>

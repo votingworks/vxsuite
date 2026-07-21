@@ -377,6 +377,9 @@ export const translationGet = {
       key.subKey,
     ];
   },
+  queryKeyAll(electionId: string): QueryKey {
+    return ['translation', electionId];
+  },
 
   useQuery(key: TranslationKey) {
     const apiClient = useApiClient();
@@ -512,6 +515,7 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(listParties.queryKey(electionId)),
     queryClient.invalidateQueries(listContests.queryKey(electionId)),
     queryClient.invalidateQueries(ttsStringDefaults.queryKey(electionId)),
+    queryClient.invalidateQueries(translationGet.queryKeyAll(electionId)),
   ]);
 }
 
