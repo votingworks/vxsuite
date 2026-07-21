@@ -1,11 +1,7 @@
 /* istanbul ignore file - DEMO */
 
 import { Result, assert, err, ok, unique } from '@votingworks/basics';
-import {
-  ElectionStringKey,
-  LanguageCode,
-  TranslationEditKey,
-} from '@votingworks/types';
+import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import {
   Translator,
   extractElectionStrings,
@@ -100,6 +96,9 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
       language: LanguageCode;
       csvContents: string;
     }): Promise<BulkTranslationImportResult> {
+      const { election } = await ctx.workspace.store.getElection(
+        input.electionId
+      );
       const jurisdiction = await ctx.workspace.store.getElectionJurisdiction(
         input.electionId
       );
@@ -137,24 +136,50 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         );
       }
 
+      // The exported string set for this election, keyed by the CSV ID column.
+      // Uploaded rows are validated against this so a wrong or stale file
+      // (unknown ID, or English source text that no longer matches) is
+      // rejected rather than silently creating edits for arbitrary strings.
+      const expectedEnglishById = new Map(
+        extractElectionStrings(election, {
+          include: TRANSLATABLE_STRING_KEYS,
+        }).map((s) => [stringId(s.stringKey), s.stringInEnglish])
+      );
+
       // Translations are keyed by English source text, so two rows with the
       // same English text must resolve to the same translation. An empty New
       // Translation resets that string to its auto-generated translation.
       const translationsByEnglish = new Map<string, string>();
       const conflicts: string[] = [];
+      const unexpectedRows: string[] = [];
       for (const record of records) {
-        const englishText = stripImagesFromRichText(
-          record[COLUMN_ENGLISH] ?? ''
-        );
+        const id = record[COLUMN_ID] ?? '';
+        const english = record[COLUMN_ENGLISH] ?? '';
+        if (expectedEnglishById.get(id) !== english) {
+          unexpectedRows.push(id || '(missing ID)');
+          continue;
+        }
+
+        const englishText = stripImagesFromRichText(english);
         if (!englishText) continue;
 
         const newTranslation = (record[COLUMN_NEW] ?? '').trim();
         const existing = translationsByEnglish.get(englishText);
         if (existing !== undefined && existing !== newTranslation) {
-          conflicts.push(record[COLUMN_ENGLISH] ?? '');
+          conflicts.push(english);
           continue;
         }
         translationsByEnglish.set(englishText, newTranslation);
+      }
+
+      if (unexpectedRows.length > 0) {
+        const rowList = unique(unexpectedRows)
+          .slice(0, 10)
+          .map((id) => `- ${id}`)
+          .join('\n');
+        return err(
+          `This file does not match the current election. The following rows have an unrecognized ID or an English source that no longer matches the election. Re-download the CSV and try again.\n${rowList}`
+        );
       }
 
       if (conflicts.length > 0) {
@@ -166,25 +191,15 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         );
       }
 
-      for (const [englishText, text] of translationsByEnglish) {
-        const editKey: TranslationEditKey = {
-          jurisdictionId: jurisdiction.id,
-          languageCode: input.language,
+      await ctx.workspace.store.bulkTranslationApply({
+        electionId: input.electionId,
+        jurisdictionId: jurisdiction.id,
+        languageCode: input.language,
+        edits: [...translationsByEnglish].map(([englishText, text]) => ({
           englishText,
-        };
-        if (text) {
-          await ctx.workspace.store.translationEditsSet(editKey, text);
-        } else {
-          // Empty translation: reset to the auto-generated translation by
-          // removing any existing manual edit.
-          await ctx.workspace.store.translationEditsDelete(editKey);
-        }
-      }
-
-      await ctx.workspace.store.bulkTranslationUploadRecord(
-        input.electionId,
-        input.language
-      );
+          text: text || null,
+        })),
+      });
 
       return ok();
     },
