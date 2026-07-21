@@ -8,7 +8,13 @@ import {
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { ElectionDefinition, SheetOf, asSheet } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  PrecinctId,
+  SheetOf,
+  asSheet,
+} from '@votingworks/types';
 import * as fs from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
 
@@ -30,7 +36,9 @@ async function generateSheetFromPdf(
   );
 }
 
-export async function generateBmdBallotFixture(): Promise<{
+export async function generateBmdBallotFixture(
+  opts: { ballotStyleId?: BallotStyleId; precinctId?: PrecinctId } = {}
+): Promise<{
   electionDefinition: ElectionDefinition;
   sheet: SheetOf<string>;
 }> {
@@ -40,8 +48,9 @@ export async function generateBmdBallotFixture(): Promise<{
     sheet: await generateSheetFromPdf(
       await renderBmdBallotFixture({
         electionDefinition,
-        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        ballotStyleId:
+          opts.ballotStyleId ?? DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+        precinctId: opts.precinctId ?? DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         votes: DEFAULT_FAMOUS_NAMES_VOTES,
       })
     ),

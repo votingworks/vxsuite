@@ -415,6 +415,56 @@ test('scanBatch with streaked page', async () => {
   });
 });
 
+test('stops ballots from a different precinct than the rest of the batch', async () => {
+  // Batches are organized by precinct. The 'central-scanning' polling place
+  // covers every precinct, so the polling place check alone cannot catch a
+  // mixed batch: the first ballot (precinct '23') sets the batch's precinct,
+  // and the precinct '20' ballot that follows is stopped for adjudication.
+  const batchPrecinctFixture = await generateBmdBallotFixture();
+  const otherPrecinctFixture = await generateBmdBallotFixture({
+    ballotStyleId: '1-1',
+    precinctId: '20',
+  });
+  const batchPrecinctBallot: ScannedSheetInfo = {
+    front: batchPrecinctFixture.sheet[0],
+    back: batchPrecinctFixture.sheet[1],
+  };
+  const otherPrecinctBallot: ScannedSheetInfo = {
+    front: otherPrecinctFixture.sheet[0],
+    back: otherPrecinctFixture.sheet[1],
+  };
+
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, batchPrecinctFixture.electionDefinition);
+    importer.configure(
+      batchPrecinctFixture.electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    scanner
+      .withNextScannerSession()
+      .sheet(batchPrecinctBallot)
+      .sheet(otherPrecinctBallot)
+      .end();
+
+    await apiClient.scanBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+
+    // the first ballot counted; the second stopped for adjudication
+    const status = await apiClient.getStatus();
+    expect(status.adjudicationsRemaining).toEqual(1);
+    const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
+    expect(nextAdjudicationSheet?.pages[0]).toMatchObject({
+      type: 'InvalidPrecinctPage',
+      metadata: expect.objectContaining({ precinctId: '20' }),
+    });
+  });
+});
+
 test('rejects ballots whose precinct is not in the selected polling place', async () => {
   // The famous names fixture's ballot is for precinct '23'. Select the
   // '20-polling-place' location (which covers only precinct '20') so the
