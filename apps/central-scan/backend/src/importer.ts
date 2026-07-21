@@ -14,6 +14,7 @@ import {
   PageInterpretationWithFiles,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
+  PrecinctId,
   SheetOf,
 } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -89,6 +90,31 @@ interface CurrentBatch {
    * after the in-flight sheet and pauses the batch.
    */
   stopRequested: boolean;
+
+  /**
+   * The precinct of the first readable ballot in the batch. Batches are
+   * organized by precinct, so later ballots from a different precinct are
+   * stopped for adjudication.
+   */
+  expectedPrecinctId?: PrecinctId;
+}
+
+function interpretationPrecinctId(
+  interpretation: PageInterpretation
+): Optional<PrecinctId> {
+  return interpretation.type === 'InterpretedBmdPage' ||
+    interpretation.type === 'InterpretedHmpbPage'
+    ? interpretation.metadata.precinctId
+    : undefined;
+}
+
+function asInvalidPrecinctPage(
+  interpretation: PageInterpretation
+): PageInterpretation {
+  return interpretation.type === 'InterpretedBmdPage' ||
+    interpretation.type === 'InterpretedHmpbPage'
+    ? { type: 'InvalidPrecinctPage', metadata: interpretation.metadata }
+    : interpretation;
 }
 
 /**
@@ -225,6 +251,27 @@ export class Importer {
         type: 'UnreadablePage',
         reason: `invalid CVR: ${errDescription}`,
       };
+    }
+
+    // Batches are organized by precinct: the first readable ballot sets the
+    // batch's precinct, and any later ballot from a different precinct is
+    // stopped for adjudication so the operator can pull it out.
+    const { currentBatch } = this;
+    const precinctId =
+      interpretationPrecinctId(frontInterpretation) ??
+      interpretationPrecinctId(backInterpretation);
+    if (currentBatch?.batchId === batchId && precinctId) {
+      if (!currentBatch.expectedPrecinctId) {
+        currentBatch.expectedPrecinctId = precinctId;
+      } else if (precinctId !== currentBatch.expectedPrecinctId) {
+        debug(
+          'rejecting sheet from precinct %s: batch precinct is %s',
+          precinctId,
+          currentBatch.expectedPrecinctId
+        );
+        frontInterpretation = asInvalidPrecinctPage(frontInterpretation);
+        backInterpretation = asInvalidPrecinctPage(backInterpretation);
+      }
     }
 
     sheetId = await this.addSheet(
