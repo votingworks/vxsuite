@@ -2050,6 +2050,7 @@ test('CRUD contests', async () => {
         middleName: 'M',
         lastName: 'Two',
         name: 'Candidate M Two',
+        designation: 'Justice of Supreme Court',
       },
     ],
   };
