@@ -303,13 +303,19 @@ export const getCastVoteRecordFileMode = {
 } as const;
 
 export const getBallotAdjudicationQueue = {
-  queryKey(): QueryKey {
-    return ['getBallotAdjudicationQueue'];
+  queryKey(input?: { escalatedOnly?: boolean }): QueryKey {
+    return input
+      ? ['getBallotAdjudicationQueue', input]
+      : ['getBallotAdjudicationQueue'];
   },
-  useQuery() {
+  useQuery(input: { escalatedOnly?: boolean } = {}) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getBallotAdjudicationQueue()
+    return useQuery(
+      this.queryKey(input.escalatedOnly ? input : undefined),
+      () =>
+        input.escalatedOnly
+          ? apiClient.getBallotAdjudicationQueue(input)
+          : apiClient.getBallotAdjudicationQueue()
     );
   },
 } as const;
@@ -332,14 +338,19 @@ export const getBallotAdjudicationQueueMetadata = {
 } as const;
 
 export const getNextCvrIdForBallotAdjudication = {
-  queryKey(): QueryKey {
-    return ['getNextCvrIdForBallotAdjudication'];
+  queryKey(input?: { escalatedOnly?: boolean }): QueryKey {
+    return input
+      ? ['getNextCvrIdForBallotAdjudication', input]
+      : ['getNextCvrIdForBallotAdjudication'];
   },
-  useQuery() {
+  useQuery(input: { escalatedOnly?: boolean } = {}) {
     const apiClient = useApiClient();
     return useQuery(
-      this.queryKey(),
-      () => apiClient.getNextCvrIdForBallotAdjudication(),
+      this.queryKey(input.escalatedOnly ? input : undefined),
+      () =>
+        input.escalatedOnly
+          ? apiClient.getNextCvrIdForBallotAdjudication(input)
+          : apiClient.getNextCvrIdForBallotAdjudication(),
       {
         cacheTime: 0,
         staleTime: 0,

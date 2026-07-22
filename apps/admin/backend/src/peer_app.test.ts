@@ -354,6 +354,92 @@ test('releaseBallot frees a claimed CVR', async () => {
   expect(result).toEqual(cvrId);
 });
 
+test('escalateBallot flags the ballot and stops serving it to clients', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  const cvrIds = addTestCvrs(workspace.store, electionId, 2);
+
+  // Escalation requires an active claim on the ballot
+  const noClaimResult = await peerApiClient.escalateBallot({
+    machineId: 'client-001',
+    cvrId: assertDefined(cvrIds[0]),
+  });
+  expect(noClaimResult.err()).toEqual({ type: 'claim-failed' });
+
+  const escalatedCvrId = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-001' })
+  );
+  (
+    await peerApiClient.escalateBallot({
+      machineId: 'client-001',
+      cvrId: escalatedCvrId,
+    })
+  ).unsafeUnwrap();
+
+  // The claim is released and the escalated ballot is no longer served to
+  // clients — the same client gets the other ballot, and a second client
+  // gets nothing
+  const otherCvrId = cvrIds.find((id) => id !== escalatedCvrId);
+  expect(await claimBallot(peerApiClient, { machineId: 'client-001' })).toEqual(
+    otherCvrId
+  );
+  expect(
+    await claimBallot(peerApiClient, { machineId: 'client-002' })
+  ).toBeUndefined();
+
+  // The host keeps the escalated ballot in its main queue, sees it in the
+  // escalated-only queue, and the queue metadata counts it
+  expect(await apiClient.getBallotAdjudicationQueue()).toHaveLength(2);
+  expect(
+    await apiClient.getBallotAdjudicationQueue({ escalatedOnly: true })
+  ).toEqual([escalatedCvrId]);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({ escalatedOnly: true })
+  ).toEqual(escalatedCvrId);
+  expect(await apiClient.getBallotAdjudicationQueueMetadata()).toEqual({
+    totalTally: 2,
+    pendingTally: 2,
+    escalatedTotalTally: 1,
+    escalatedPendingTally: 1,
+  });
+
+  // Ballot data carries the flag so the host UI can show the review banner
+  expect(
+    workspace.store.getBallotAdjudicationData({
+      electionId,
+      cvrId: escalatedCvrId,
+    }).isEscalated
+  ).toEqual(true);
+
+  // Once the host adjudicates the escalated ballot it leaves the escalated
+  // review queue (but stays flagged and stays in the main queue)
+  (
+    await apiClient.adjudicateCvr({ cvrId: escalatedCvrId, contests: [] })
+  ).unsafeUnwrap();
+  expect(
+    await apiClient.getBallotAdjudicationQueue({ escalatedOnly: true })
+  ).toEqual([]);
+  expect(await apiClient.getBallotAdjudicationQueue()).toHaveLength(2);
+  expect(await apiClient.getBallotAdjudicationQueueMetadata()).toEqual({
+    totalTally: 2,
+    pendingTally: 1,
+    escalatedTotalTally: 1,
+    escalatedPendingTally: 0,
+  });
+  expect(
+    workspace.store.getBallotAdjudicationData({
+      electionId,
+      cvrId: escalatedCvrId,
+    }).isEscalated
+  ).toEqual(true);
+});
+
 test("releaseBallot does not release another machine's claim", async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =

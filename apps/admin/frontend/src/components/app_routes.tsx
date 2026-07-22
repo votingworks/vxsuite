@@ -143,6 +143,9 @@ export function AppRoutes(): JSX.Element | null {
       <Route exact path={routerPaths.ballotAdjudication}>
         <BallotAdjudicationScreen />
       </Route>
+      <Route exact path={routerPaths.ballotAdjudicationEscalated}>
+        <BallotAdjudicationScreen escalatedOnly />
+      </Route>
       <Route exact path={routerPaths.adjudicationCandidates}>
         <WriteInCandidatesScreen />
       </Route>

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionCombinedBallotPrimaryFixtures,
   electionStraightPartyFixtures,
@@ -37,7 +37,10 @@ import {
 } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { BallotAdjudicationScreenWrapper } from './ballot_adjudication_screen';
+import {
+  BallotAdjudicationScreen,
+  BallotAdjudicationScreenWrapper,
+} from './ballot_adjudication_screen';
 import { AdjudicationStartScreen } from './adjudication_start_screen';
 import { routerPaths } from '../router_paths';
 
@@ -136,14 +139,16 @@ function makeBallotAdjudicationData(
   {
     tag = { isBlankBallot: false, hasCrossoverVote: false },
     isResolved = false,
+    isEscalated = false,
     adjudicatedContests = [],
   }: {
     tag?: CvrTag;
     isResolved?: boolean;
+    isEscalated?: boolean;
     adjudicatedContests?: AdjudicatedCvrContest[];
   } = {}
 ): BallotAdjudicationData {
-  return { cvrId, contests, tag, isResolved, adjudicatedContests };
+  return { cvrId, contests, tag, isResolved, isEscalated, adjudicatedContests };
 }
 
 function makeAdjudicatedCvrContest(
@@ -398,6 +403,66 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   await waitFor(() =>
     expect(history.location.pathname).toEqual('/adjudication')
   );
+});
+
+test('escalated queue shows only escalated ballots with a review banner', async () => {
+  const contestData = [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+  ];
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, contestData, {
+    isEscalated: true,
+  });
+
+  apiMock.apiClient.getBallotAdjudicationQueue
+    .expectCallWith({ escalatedOnly: true })
+    .resolves([CVR_ID_1]);
+  apiMock.apiClient.getNextCvrIdForBallotAdjudication
+    .expectRepeatedCallsWith({ escalatedOnly: true })
+    .resolves(CVR_ID_1);
+  apiMock.expectGetWriteInCandidates(
+    [],
+    contestData.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings();
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.apiClient.getBallotImages
+    .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves(makeHmpbBallotImages(CVR_ID_1));
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper escalatedOnly />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Escalated for election manager review');
+  screen.getByText('Ballot 1 of 1');
+});
+
+test('escalate skip action renders an Escalate button with a flag instead of Skip', async () => {
+  const contestData = [makeContestAdjudicationData('best-animal-mammal')];
+  renderInAppContext(
+    <BallotAdjudicationScreen
+      cvrId={CVR_ID_1}
+      ballotAdjudicationData={makeBallotAdjudicationData(CVR_ID_1, contestData)}
+      ballotImages={makeHmpbBallotImages(CVR_ID_1)}
+      writeInCandidates={[]}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
+      onAccept={vi.fn()}
+      onAcceptDone={vi.fn()}
+      onSkip={vi.fn()}
+      skipAction="escalate"
+      onExit={vi.fn()}
+    />,
+    { electionDefinition, apiMock }
+  );
+
+  await screen.findByRole('button', { name: 'Escalate' });
+  expect(
+    screen.queryByRole('button', { name: 'Skip' })
+  ).not.toBeInTheDocument();
 });
 
 test('opens to the back side when the only pending contest is on the back', async () => {

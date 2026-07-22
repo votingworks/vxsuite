@@ -124,6 +124,42 @@ test('When ballots need adjudication, shows start button with counts', async () 
   screen.getByText('2 of 5 adjudicated · 40%');
 });
 
+test('shows escalated ballots button when there are escalated ballots', async () => {
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 3,
+    totalTally: 5,
+    escalatedPendingTally: 2,
+    escalatedTotalTally: 2,
+  });
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  renderInAppContext(<AdjudicationStartScreen />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByRole('button', { name: 'Adjudicate' });
+  screen.getByText('2 of 5 adjudicated · 40%');
+  screen.getByText('2 ballots escalated');
+  screen.getByRole('button', { name: 'Adjudicate Escalated Ballots' });
+});
+
+test('hides escalated ballots button when none are escalated', async () => {
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 3,
+    totalTally: 5,
+  });
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  renderInAppContext(<AdjudicationStartScreen />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByRole('button', { name: 'Adjudicate' });
+  expect(
+    screen.queryByRole('button', { name: 'Adjudicate Escalated Ballots' })
+  ).not.toBeInTheDocument();
+});
+
 test('queue progress updates as other stations adjudicate ballots', async () => {
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 3,

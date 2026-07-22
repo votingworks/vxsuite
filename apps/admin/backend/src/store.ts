@@ -2418,7 +2418,13 @@ export class Store implements BaseStore {
     return conditions.join(' or ');
   }
 
-  getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
+  getBallotAdjudicationQueue({
+    electionId,
+    escalatedOnly,
+  }: {
+    electionId: Id;
+    escalatedOnly?: boolean;
+  }): Id[] {
     this.assertElectionExists(electionId);
     debug('querying database for ballot adjudication cvr queue');
     const filter = this.getAdjudicationQueueFilter(electionId);
@@ -2427,11 +2433,35 @@ export class Store implements BaseStore {
         select c.id as cvr_id
         from cvrs c
         where (${filter})
+        ${
+          /* The escalated queue is a review worklist: only ballots still
+           * awaiting adjudication. The main queue keeps adjudicated ballots
+           * so the host can page back through them. */
+          escalatedOnly ? 'and c.is_escalated = 1 and c.is_adjudicated = 0' : ''
+        }
         order by ${adjudicationSortKeyExprs('c').join(', ')}
       `
     ) as Array<{ cvr_id: Id }>;
     debug('queried ballot adjudication queue');
     return rows.map((r) => r.cvr_id);
+  }
+
+  /**
+   * Flags a ballot as escalated for election manager review on the host,
+   * e.g. when a client adjudication station skips it.
+   */
+  escalateCvrBallot({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): void {
+    this.client.run(
+      'update cvrs set is_escalated = 1 where id = ? and election_id = ?',
+      cvrId,
+      electionId
+    );
   }
 
   getBallotAdjudicationQueueMetadata({
@@ -2447,13 +2477,19 @@ export class Store implements BaseStore {
       `
         select
           count(*) as totalTally,
-          count(case when c.is_adjudicated = 0 then 1 end) as pendingTally
+          count(case when c.is_adjudicated = 0 then 1 end) as pendingTally,
+          count(case when c.is_escalated = 1 then 1 end) as escalatedTotalTally,
+          count(
+            case when c.is_escalated = 1 and c.is_adjudicated = 0 then 1 end
+          ) as escalatedPendingTally
         from cvrs c
         where (${filter})
       `
     ) as {
       totalTally: number;
       pendingTally: number;
+      escalatedTotalTally: number;
+      escalatedPendingTally: number;
     };
 
     debug('queried ballot adjudication queue metadata');
@@ -2482,7 +2518,8 @@ export class Store implements BaseStore {
       select
         is_blank as isBlank,
         has_crossover_vote as hasCrossoverVote,
-        is_adjudicated as isResolved
+        is_adjudicated as isResolved,
+        is_escalated as isEscalated
       from cvrs
       where id = ?
       `,
@@ -2491,8 +2528,10 @@ export class Store implements BaseStore {
       isBlank: SqliteBool;
       hasCrossoverVote: SqliteBool;
       isResolved: SqliteBool;
+      isEscalated: SqliteBool;
     };
     const isResolved = fromSqliteBool(cvrRow.isResolved);
+    const isEscalated = fromSqliteBool(cvrRow.isEscalated);
     const cvrTag: CvrTag = {
       isBlankBallot: fromSqliteBool(cvrRow.isBlank),
       hasCrossoverVote: fromSqliteBool(cvrRow.hasCrossoverVote),
@@ -2586,6 +2625,7 @@ export class Store implements BaseStore {
     return {
       cvrId,
       isResolved,
+      isEscalated,
       tag: cvrTag,
       contests,
       adjudicatedContests,
@@ -2596,13 +2636,21 @@ export class Store implements BaseStore {
     electionId,
     machineId,
     afterCvrId,
+    escalatedFilter,
   }: {
     electionId: Id;
     machineId: string;
     afterCvrId?: Id;
+    escalatedFilter?: 'only' | 'exclude';
   }): Optional<Id> {
     this.assertElectionExists(electionId);
     const filter = this.getAdjudicationQueueFilter(electionId);
+    const escalatedCondition =
+      escalatedFilter === 'only'
+        ? 'and c.is_escalated = 1'
+        : escalatedFilter === 'exclude'
+        ? 'and c.is_escalated = 0'
+        : '';
     const sortKeys = adjudicationSortKeyExprs('c');
     const sortKeyList = sortKeys.join(', ');
 
@@ -2631,6 +2679,7 @@ export class Store implements BaseStore {
         where (${filter})
           and c.is_adjudicated = 0
           and mba.cvr_id is null
+          ${escalatedCondition}
         order by ${wrapOrder} ${sortKeyList}
         limit 1
       `,
@@ -3615,11 +3664,13 @@ export class Store implements BaseStore {
     machineId,
     cvrId,
     afterCvrId,
+    excludeEscalated,
   }: {
     electionId: Id;
     machineId: string;
     cvrId?: Id;
     afterCvrId?: Id;
+    excludeEscalated?: boolean;
   }): Result<
     { cvrId: Id; data: BallotAdjudicationData } | undefined,
     AdjudicationError
@@ -3636,6 +3687,7 @@ export class Store implements BaseStore {
           electionId,
           machineId,
           afterCvrId,
+          escalatedFilter: excludeEscalated ? 'exclude' : undefined,
         });
 
       if (!cvrIdToClaim) {

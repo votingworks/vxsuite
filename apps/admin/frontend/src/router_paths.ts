@@ -40,6 +40,7 @@ export const routerPaths = {
   adjudication: '/adjudication',
   adjudicationCandidates: '/adjudication/candidates',
   ballotAdjudication: '/adjudication/ballots',
+  ballotAdjudicationEscalated: '/adjudication/ballots/escalated',
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   backups: '/backups',
