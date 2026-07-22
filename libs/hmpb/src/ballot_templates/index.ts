@@ -1,4 +1,5 @@
 import { BallotPageTemplate } from '../render_ballot';
+import { caBallotTemplate } from './ca_ballot_template';
 import { miBallotTemplate } from './mi_ballot_template';
 import { msBallotTemplate } from './ms_ballot_template';
 import { nhBallotTemplate } from './nh_ballot_template';
@@ -17,6 +18,7 @@ export const ballotTemplates = {
   NhStateBallot: nhStateBallotTemplate,
   MsBallot: msBallotTemplate,
   MiBallot: miBallotTemplate,
+  CaBallot: caBallotTemplate,
 } as const;
 
 /**

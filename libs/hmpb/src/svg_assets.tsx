@@ -242,6 +242,26 @@ export function ArrowDown({
   );
 }
 
+export function ArrowRight({
+  style = {},
+  fill = 'white',
+}: {
+  style?: React.CSSProperties;
+  fill?: string;
+}): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 100 60"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={style}
+    >
+      <path d="M96 30L64 52L64 8L96 30Z" fill={fill} />
+      <rect x="4" y="21" width="60" height="18" fill={fill} />
+    </svg>
+  );
+}
+
 export function ArrowRightCircle({
   style,
 }: {

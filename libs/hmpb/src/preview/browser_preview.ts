@@ -1,7 +1,6 @@
 import './polyfills';
 import {
   BaseBallotProps,
-  HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
   getContests,
@@ -33,7 +32,7 @@ function isBallotTemplateId(id: string): id is BallotTemplateId {
 
 function getTemplate(templateId: string | null) {
   if (!templateId) {
-    return ballotTemplates.VxDefaultBallot;
+    return ballotTemplates.CaBallot;
   }
 
   if (!isBallotTemplateId(templateId)) {
@@ -52,22 +51,46 @@ interface Config {
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   const electionUrl =
     url.searchParams.get('election-url') ??
-    '/hmpb-fixtures/vx-general-election/legal-en/election.json';
-  const paperSize = unsafeParse(
-    HmpbBallotPaperSizeSchema,
-    url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal
-  );
+    '/hmpb-fixtures/ca-general-election/election.json';
+  const paperSizeParam = url.searchParams.get('paper-size');
   const watermark = url.searchParams.get('watermark') ?? undefined;
   const languages = url.searchParams.getAll('lang');
   const template = url.searchParams.get('template');
   const response = await fetch(electionUrl);
   const election = safeParseElection(await response.json()).unsafeUnwrap();
+  // Use the election's own paper size unless overridden by a search param
+  const paperSize = paperSizeParam
+    ? unsafeParse(HmpbBallotPaperSizeSchema, paperSizeParam)
+    : election.ballotLayout.paperSize;
+  // Use the ballot style's own languages when it's already multi-language
+  // (e.g. the CA fixture's Hindi + English style). Otherwise prefer showing
+  // dual-language (es-US + en) when the election has strings for them,
+  // falling back to the ballot style's own languages for elections whose
+  // ballotStrings aren't populated (e.g. the MI fixtures).
+  const defaultStyle = election.ballotStyles[0];
+  const dualLanguages = ['es-US', 'en'].filter(
+    (lang) => lang in election.ballotStrings
+  );
+  const defaultLanguages =
+    defaultStyle.languages.length > 1
+      ? defaultStyle.languages
+      : dualLanguages.length > 0
+      ? dualLanguages
+      : defaultStyle.languages;
   const ballotStyle: BallotStyle = {
-    ...election.ballotStyles[0],
-    languages: languages.length
-      ? languages
-      : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
+    ...defaultStyle,
+    languages: languages.length ? languages : defaultLanguages,
   };
+  for (const language of ballotStyle.languages) {
+    if (language !== 'en' && !(language in election.ballotStrings)) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `No ballot strings for language "${language}" — strings will fall back to English. Available languages: ${Object.keys(
+          election.ballotStrings
+        ).join(', ')}`
+      );
+    }
+  }
   const exampleBallotProps: BaseBallotProps = {
     election: {
       ...election,
