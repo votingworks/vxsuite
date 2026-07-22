@@ -201,6 +201,7 @@ export class DeskProScanner implements BatchScanner {
       let pendingMeta: { side?: string } | undefined;
       let pageCount = 0;
       let ended = false;
+      let doneSeen = false;
 
       function endCapture() {
         if (ended) return;
@@ -222,6 +223,7 @@ export class DeskProScanner implements BatchScanner {
           const text = data.toString();
           if (text.includes('"done"')) {
             debug('deskpro capture done: %s', text);
+            doneSeen = true;
             endCapture();
           } else if (text.includes('"error"')) {
             rejectAll(new Error(`deskpro scanserver error: ${text}`));
@@ -250,7 +252,25 @@ export class DeskProScanner implements BatchScanner {
       });
 
       sock.on('error', (error) => rejectAll(error));
-      sock.on('close', () => endCapture());
+      sock.on('close', () => {
+        // A close is only a natural end-of-batch if the server said "done" (or
+        // we asked it to stop). Anything else -- a watchdog restart, a crashed
+        // scanserver, a dropped connection -- means sheets may remain in the
+        // feeder, so surface an ERROR rather than letting the batch pause as
+        // "tray empty" with paper still in the tray.
+        if (!ended && !stopRequested && !doneSeen) {
+          ended = true;
+          rejectAll(
+            new Error(
+              'capture stream closed unexpectedly mid-batch (scanserver ' +
+                'restarted or connection lost); unscanned sheets may remain ' +
+                'in the feeder'
+            )
+          );
+          return;
+        }
+        endCapture();
+      });
     };
 
     // Send the current capture a `stop` and wait for it to close, so the feed
