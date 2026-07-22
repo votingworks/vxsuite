@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
+import {
+  Button,
+  Icons,
+  Loading,
+  Main,
+  Modal,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import {
   AdjudicationReason,
   ContestId,
@@ -73,6 +81,17 @@ const AdjudicationPanel = styled.div`
   border-left: 4px solid black;
 `;
 
+const EscalatedBanner = styled.div`
+  align-items: center;
+  background-color: ${(p) => p.theme.colors.warningContainer};
+  color: ${(p) => p.theme.colors.onBackground};
+  display: flex;
+  font-size: 0.85rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+`;
+
 const PanelHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -118,6 +137,11 @@ const PrimaryNavButton = styled(Button)`
 
 const SecondaryNavButton = styled(Button)`
   width: 5.5rem;
+`;
+
+// Wider than SecondaryNavButton so the icon + "Escalate" label fits.
+const EscalateNavButton = styled(Button)`
+  min-width: 5.5rem;
 `;
 
 const ModalActions = styled.div`
@@ -166,9 +190,17 @@ function contestListItems(
   }));
 }
 
-export function BallotAdjudicationScreenWrapper(): JSX.Element {
-  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
-  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
+export function BallotAdjudicationScreenWrapper({
+  escalatedOnly,
+}: {
+  escalatedOnly?: boolean;
+} = {}): JSX.Element {
+  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery(
+    escalatedOnly ? { escalatedOnly } : {}
+  );
+  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery(
+    escalatedOnly ? { escalatedOnly } : {}
+  );
 
   if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
@@ -190,6 +222,7 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
     <HostBallotAdjudicationScreen
       queue={queue}
       initialQueueIndex={initialQueueIndex}
+      escalatedOnly={escalatedOnly}
     />
   );
 }
@@ -197,9 +230,11 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 function HostBallotAdjudicationScreen({
   queue,
   initialQueueIndex,
+  escalatedOnly,
 }: {
   queue: Id[];
   initialQueueIndex: number;
+  escalatedOnly?: boolean;
 }): JSX.Element {
   const history = useHistory();
   const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
@@ -247,6 +282,7 @@ function HostBallotAdjudicationScreen({
             contests: [],
             tag: { isBlankBallot: false, hasCrossoverVote: false },
             isResolved: false,
+            isEscalated: false,
             adjudicatedContests: [],
           });
         } else {
@@ -331,9 +367,11 @@ function HostBallotAdjudicationScreen({
   async function navigateAcceptNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication({
-        afterCvrId: currentCvrId,
-      });
+      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication(
+        escalatedOnly
+          ? { afterCvrId: currentCvrId, escalatedOnly: true }
+          : { afterCvrId: currentCvrId }
+      );
       const nextIndex = nextCvrId ? queue.indexOf(nextCvrId) : -1;
       if (nextIndex < 0) {
         // No ballot left, or the next one isn't in our cached queue drop back to the landing screen
@@ -499,6 +537,9 @@ export interface BallotAdjudicationScreenProps {
   }) => Promise<void>;
   onAcceptDone: () => void;
   onSkip?: () => void;
+  // Label the skip action as an escalation (used on client stations, where
+  // skipping escalates the ballot for election manager review on the host).
+  skipAction?: 'skip' | 'escalate';
   onBack?: () => void;
   onExit: () => void;
 }
@@ -601,6 +642,7 @@ function BallotView({
   onAccept,
   onAcceptDone,
   onSkip,
+  skipAction = 'skip',
   onBack,
   onExit,
 }: {
@@ -746,6 +788,12 @@ function BallotView({
               Exit
             </Button>
           </PanelHeader>
+          {ballotAdjudicationData.isEscalated && (
+            <EscalatedBanner>
+              <Icons.Flag color="warning" /> Escalated for election manager
+              review
+            </EscalatedBanner>
+          )}
           {isClaimed ? (
             <ClaimedBallotOverlay>
               <P>
@@ -806,15 +854,24 @@ function BallotView({
                   >
                     Accept
                   </PrimaryNavButton>
-                  {onSkipGuarded && (
-                    <SecondaryNavButton
-                      onPress={onSkipGuarded}
-                      rightIcon="Next"
-                      disabled={isClaimInFlight}
-                    >
-                      Skip
-                    </SecondaryNavButton>
-                  )}
+                  {onSkipGuarded &&
+                    (skipAction === 'escalate' ? (
+                      <EscalateNavButton
+                        onPress={onSkipGuarded}
+                        icon="Flag"
+                        disabled={isClaimInFlight}
+                      >
+                        Escalate
+                      </EscalateNavButton>
+                    ) : (
+                      <SecondaryNavButton
+                        onPress={onSkipGuarded}
+                        rightIcon="Next"
+                        disabled={isClaimInFlight}
+                      >
+                        Skip
+                      </SecondaryNavButton>
+                    ))}
                   {onBackGuarded && (
                     <SecondaryNavButton
                       icon="Previous"

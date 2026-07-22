@@ -891,9 +891,10 @@ function buildApi({
       return result;
     },
 
-    getBallotAdjudicationQueue(): Id[] {
+    getBallotAdjudicationQueue(input: { escalatedOnly?: boolean } = {}): Id[] {
       return store.getBallotAdjudicationQueue({
         electionId: loadCurrentElectionIdOrThrow(workspace),
+        escalatedOnly: input.escalatedOnly,
       });
     },
 
@@ -940,13 +941,14 @@ function buildApi({
     },
 
     getNextCvrIdForBallotAdjudication(
-      input: { afterCvrId?: Id } = {}
+      input: { afterCvrId?: Id; escalatedOnly?: boolean } = {}
     ): Id | null {
       return (
         store.getNextCvrIdForBallotAdjudication({
           electionId: loadCurrentElectionIdOrThrow(workspace),
           machineId: getMachineConfig().machineId,
           afterCvrId: input.afterCvrId,
+          escalatedFilter: input.escalatedOnly ? 'only' : undefined,
         }) ?? null
       );
     },

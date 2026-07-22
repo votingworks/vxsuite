@@ -333,6 +333,9 @@ function buildPeerApi(
         electionId,
         machineId: input.machineId,
         afterCvrId: input.afterCvrId,
+        // Escalated ballots are reserved for election manager review on the
+        // host and are never served to client stations.
+        excludeEscalated: true,
       });
       const value = result.unsafeUnwrap(); // error case is unreachable here.
       logger.log(LogEventId.AdminBallotClaimed, 'system', {
@@ -343,6 +346,39 @@ function buildPeerApi(
         clientMachineId: input.machineId,
       });
       return value;
+    },
+
+    /**
+     * Escalates a ballot for election manager review on the host: flags the
+     * ballot and releases the client's claim so the client can move on. The
+     * ballot stays in the host's queue but is no longer served to clients.
+     */
+    escalateBallot(input: {
+      machineId: string;
+      cvrId: Id;
+    }): Result<void, AdjudicationError> {
+      const electionId = assertDefined(store.getCurrentElectionId());
+      if (
+        !store.hasBallotClaim({
+          electionId,
+          cvrId: input.cvrId,
+          machineId: input.machineId,
+        })
+      ) {
+        return err({ type: 'claim-failed' });
+      }
+      store.escalateCvrBallot({ electionId, cvrId: input.cvrId });
+      store.releaseBallotClaim({
+        electionId,
+        cvrId: input.cvrId,
+        machineId: input.machineId,
+      });
+      logger.log(LogEventId.AdminBallotReleased, 'system', {
+        message: `Client ${input.machineId} skipped ballot ${input.cvrId} and escalated it for election manager review.`,
+        cvrId: input.cvrId,
+        clientMachineId: input.machineId,
+      });
+      return ok();
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {

@@ -1209,6 +1209,8 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   expect(await apiClient.getBallotAdjudicationQueueMetadata()).toEqual({
     pendingTally: 62,
     totalTally: 62,
+    escalatedTotalTally: 0,
+    escalatedPendingTally: 0,
   });
   await expectContestResults({
     type: 'candidate',

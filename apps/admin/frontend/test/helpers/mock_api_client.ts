@@ -388,11 +388,19 @@ export function createApiMock(
     },
 
     expectGetBallotAdjudicationQueueMetadata(
-      metadata: BallotAdjudicationQueueMetadata
+      metadata: Pick<
+        BallotAdjudicationQueueMetadata,
+        'pendingTally' | 'totalTally'
+      > &
+        Partial<BallotAdjudicationQueueMetadata>
     ) {
       return apiClient.getBallotAdjudicationQueueMetadata
         .expectRepeatedCallsWith()
-        .resolves(metadata);
+        .resolves({
+          escalatedPendingTally: 0,
+          escalatedTotalTally: 0,
+          ...metadata,
+        });
     },
 
     expectGetBallotAdjudicationQueue(cvrIds: Id[]) {

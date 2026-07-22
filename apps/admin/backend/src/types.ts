@@ -379,6 +379,8 @@ export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 export interface BallotAdjudicationQueueMetadata {
   pendingTally: number;
   totalTally: number;
+  escalatedPendingTally: number;
+  escalatedTotalTally: number;
 }
 
 /**
@@ -406,6 +408,7 @@ export interface ContestAdjudicationData {
 export interface BallotAdjudicationData {
   cvrId: Id;
   isResolved: boolean;
+  isEscalated: boolean;
   tag: CvrTag;
   contests: ContestAdjudicationData[];
   adjudicatedContests: AdjudicatedCvrContest[];

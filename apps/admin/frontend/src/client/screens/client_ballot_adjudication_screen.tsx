@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Button, Loading, Main, P, Screen } from '@votingworks/ui';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
@@ -13,6 +13,7 @@ import { routerPaths } from '../../router_paths';
 import {
   adjudicateCvr,
   claimAndLoadBallot,
+  escalateBallot,
   getAdjudicationSessionStatus,
   getBallotImages,
   getSystemSettings,
@@ -47,10 +48,12 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
   const adjudicationStatusQuery = getAdjudicationSessionStatus.useQuery();
   const { mutateAsync: claimAndLoadAsync } = claimAndLoadBallot.useMutation();
   const { mutateAsync: releaseBallotAsync } = releaseBallot.useMutation();
+  const { mutateAsync: escalateBallotAsync } = escalateBallot.useMutation();
 
   const [flowState, setFlowState] = useState<FlowState>({
     type: 'initial-load',
   });
+  const [cvrIdToSkip, setCvrIdToSkip] = useState<Id>();
 
   // Navigate back if the host disables adjudication mid-session
   const isAdjudicationEnabled =
@@ -99,12 +102,20 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
     void claimNextBallot();
   }, [claimNextBallot]);
 
-  const skipBallot = useCallback(
+  // Skipping a ballot on a client escalates it for election manager review
+  // on the host: the host flags the ballot and releases our claim, then we
+  // advance past it. Escalated ballots are no longer served to clients.
+  const skipAndEscalateBallot = useCallback(
     async (cvrId: Id): Promise<void> => {
-      await releaseClaim(cvrId);
+      setCvrIdToSkip(undefined);
+      const result = await escalateBallotAsync({ cvrId });
+      if (result.isErr()) {
+        setFlowState({ type: 'error', error: result.err() });
+        return;
+      }
       await claimNextBallot(cvrId);
     },
-    [releaseClaim, claimNextBallot]
+    [escalateBallotAsync, claimNextBallot]
   );
 
   const exitBallot = useCallback(
@@ -149,13 +160,41 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
 
     case 'adjudicating':
       return (
-        <ClientBallotAdjudicationDataLoader
-          cvrId={flowState.cvrId}
-          ballotData={flowState.data}
-          onAcceptDone={() => void claimNextBallot(flowState.cvrId)}
-          onSkip={() => void skipBallot(flowState.cvrId)}
-          onExit={() => void exitBallot(flowState.cvrId)}
-        />
+        <React.Fragment>
+          <ClientBallotAdjudicationDataLoader
+            cvrId={flowState.cvrId}
+            ballotData={flowState.data}
+            onAcceptDone={() => void claimNextBallot(flowState.cvrId)}
+            onSkip={() => setCvrIdToSkip(flowState.cvrId)}
+            onExit={() => void exitBallot(flowState.cvrId)}
+          />
+          {cvrIdToSkip && (
+            <Modal
+              title="Escalate Ballot"
+              content={
+                <P>
+                  Are you sure you want to escalate this ballot for election
+                  manager review and adjudication?
+                </P>
+              }
+              actions={
+                <React.Fragment>
+                  <Button
+                    variant="primary"
+                    icon="Flag"
+                    onPress={() => void skipAndEscalateBallot(cvrIdToSkip)}
+                  >
+                    Escalate
+                  </Button>
+                  <Button onPress={() => setCvrIdToSkip(undefined)}>
+                    Cancel
+                  </Button>
+                </React.Fragment>
+              }
+              onOverlayClick={() => setCvrIdToSkip(undefined)}
+            />
+          )}
+        </React.Fragment>
       );
 
     default:
@@ -239,6 +278,7 @@ function ClientBallotAdjudicationDataLoader({
       }}
       onAcceptDone={onAcceptDone}
       onSkip={onSkip}
+      skipAction="escalate"
       onExit={onExit}
     />
   );

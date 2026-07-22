@@ -244,6 +244,13 @@ export const releaseBallot = {
   },
 } as const;
 
+export const escalateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.escalateBallot);
+  },
+} as const;
+
 export const getBallotImages = {
   queryKey(cvrId: string): QueryKey {
     return ['getBallotImages', cvrId];

@@ -72,6 +72,32 @@ const LargeText = styled.div`
   line-height: 1;
 `;
 
+// Mirrors the reports-screen "Election Results are Official" card: the icon
+// is inline within the heading, and the card's content row centers the
+// heading against the button.
+const EscalatedCallout = styled(UiCard).attrs({ color: 'warning' })`
+  h3 {
+    margin: 0;
+
+    svg {
+      margin-right: 0.5rem;
+    }
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+// A solid warning-colored variant of the filled button (the button system
+// has no built-in warning color). Filled buttons hover via a brightness
+// filter, so overriding only the background keeps hover behavior intact.
+const EscalatedLinkButton = styled(LinkButton)`
+  background-color: ${(p) => p.theme.colors.warningAccent};
+`;
+
 const EmptyTableMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -455,6 +481,35 @@ function MultiStationCard(): JSX.Element {
   );
 }
 
+// Ballots skipped by client adjudication stations are escalated for election
+// manager review on the host, in their own queue.
+function EscalatedBallotsCallout(): JSX.Element | null {
+  const { isOfficialResults } = useContext(AppContext);
+  const queueMetadataQuery = getBallotAdjudicationQueueMetadata.useQuery();
+
+  if (!queueMetadataQuery.isSuccess) return null;
+  const { escalatedPendingTally } = queueMetadataQuery.data;
+  if (escalatedPendingTally === 0) return null;
+
+  return (
+    <EscalatedCallout>
+      <H3>
+        <Icons.Flag color="warning" />
+        {escalatedPendingTally} {pluralize('ballot', escalatedPendingTally)}{' '}
+        escalated
+      </H3>
+      <EscalatedLinkButton
+        variant="primary"
+        icon="PenToSquare"
+        to={routerPaths.ballotAdjudicationEscalated}
+        disabled={isOfficialResults}
+      >
+        Adjudicate Escalated Ballots
+      </EscalatedLinkButton>
+    </EscalatedCallout>
+  );
+}
+
 export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const systemSettingsQuery = getSystemSettings.useQuery();
@@ -476,6 +531,7 @@ export function AdjudicationStartScreen(): JSX.Element {
   return (
     <NavigationScreen title="Adjudication">
       <CardStack>
+        <EscalatedBallotsCallout />
         {areWriteInCandidatesQualified && <WriteInCandidatesCard />}
         <BallotAdjudicationCard showHeader={hasOtherCards} />
         {showMultiStationCard && <MultiStationCard />}
