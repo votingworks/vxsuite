@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import test from '@playwright/test';
+import test, { expect } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
@@ -130,9 +130,10 @@ test('screenshots', async ({ page }, testInfo) => {
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Save Batch' })
       .click();
-    await page
-      .getByText(`Total Sheets: ${expectedSheets}`)
-      .waitFor({ timeout: 60000 });
+    await expect(page.getByTestId('total-sheets')).toHaveText(
+      String(expectedSheets),
+      { timeout: 60000 }
+    );
   }
 
   // Unconfigured: insert election manager card.
@@ -162,7 +163,7 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByText(/Configuring VxCentralScan/).waitFor();
   await screenshot('configuring');
   await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
-  await page.getByText('Total Batches: 0').waitFor();
+  await expect(page.getByTestId('total-batches')).toHaveText('0');
 
   // Scan Ballots screen immediately after configuring, while still in test
   // mode (the switch to official mode happens below). Capture it plain, then
@@ -212,10 +213,10 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
-  await page.getByText('Total Batches: 0').waitFor();
+  await expect(page.getByTestId('total-batches')).toHaveText('0');
   await screenshot('scan-ballots-empty');
   await screenshotWithLocatorHighlight(
-    page.getByText('Total Batches: 0'),
+    page.getByTestId('batch-summary-stats'),
     'scan-ballots-empty-no-ballots-highlight'
   );
   await screenshotWithButtonHighlight(
@@ -277,7 +278,7 @@ test('screenshots', async ({ page }, testInfo) => {
     /* istanbul ignore next */
     if (!shownHeading) throw new Error('Unrecognized adjudication state');
 
-    await screenshot(remainingEjectStates.get(shownHeading) as string);
+    await screenshot(remainingEjectStates.get(shownHeading));
     remainingEjectStates.delete(shownHeading);
 
     await page.getByRole('button', { name: 'Confirm Ballot Removed' }).click();
@@ -299,9 +300,10 @@ test('screenshots', async ({ page }, testInfo) => {
     .getByRole('button', { name: 'Save Batch' })
     .click();
   expectedSheets += 1; // the good ballot that led the problem batch
-  await page
-    .getByText(`Total Sheets: ${expectedSheets}`)
-    .waitFor({ timeout: 60000 });
+  await expect(page.getByTestId('total-sheets')).toHaveText(
+    String(expectedSheets),
+    { timeout: 60000 }
+  );
 
   // Batch History page with batches present: highlight Save CVRs.
   await page.getByRole('button', { name: 'Batch History' }).click();

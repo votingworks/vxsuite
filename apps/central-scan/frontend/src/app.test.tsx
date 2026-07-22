@@ -166,7 +166,8 @@ test('configuring election from usb election package works end to end', async ()
   expectConfigureFromElectionPackageOnUsbDrive();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  await screen.findByText(hasTextAcrossElements('Total Batches: 0'));
+  await screen.findByText('Total Batches');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('0');
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);
