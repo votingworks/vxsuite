@@ -13,7 +13,9 @@ import {
   CandidateContestSchema,
   CandidateId,
   ContestId,
+  ContestNominationType,
   safeParse,
+  safeParseNumber,
   YesNoContestSchema,
   ElectionStringKey,
   StraightPartyContest,
@@ -33,6 +35,7 @@ import {
 
 import {
   getBallotsFinalizedAt,
+  getBallotTemplate,
   getElectionInfo,
   listDistricts,
   listParties,
@@ -135,6 +138,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const createContestMutation = createContest.useMutation();
   const updateContestMutation = updateContest.useMutation();
   const deleteContestMutation = deleteContest.useMutation();
@@ -151,7 +155,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     !listDistrictsQuery.isSuccess ||
     !getBallotsFinalizedAtQuery.isSuccess ||
     !listPartiesQuery.isSuccess ||
-    !getStateFeaturesQuery.isSuccess
+    !getStateFeaturesQuery.isSuccess ||
+    !getBallotTemplateQuery.isSuccess
   ) {
     return null;
   }
@@ -161,6 +166,10 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const isFinalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
   const features = getStateFeaturesQuery.data;
+  // The CA ballot template shows a party preference alongside a designation
+  // for each candidate and supports contest-level nomination type and
+  // multi-column candidate layouts.
+  const isCaBallot = getBallotTemplateQuery.data === 'CaBallot';
 
   function goBackToContestsList() {
     history.replace(contestRoutes.root.path);
@@ -477,6 +486,40 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                 />
               </InputGroup>
             </InputRow>
+            {isCaBallot && (
+              <InputRow>
+                <SegmentedButton
+                  disabled={disabled}
+                  label="Nomination Type"
+                  options={[
+                    { id: 'party-nominated', label: 'Party-Nominated' },
+                    { id: 'voter-nominated', label: 'Voter-Nominated' },
+                    { id: 'nonpartisan', label: 'Nonpartisan' },
+                  ]}
+                  selectedOptionId={contest.nominationType ?? 'voter-nominated'}
+                  onChange={(value) =>
+                    setContest({ ...contest, nominationType: value })
+                  }
+                />
+                <SegmentedButton
+                  disabled={disabled}
+                  label="Candidate Columns"
+                  options={[
+                    { id: '1', label: '1' },
+                    { id: '2', label: '2' },
+                    { id: '3', label: '3' },
+                    { id: '4', label: '4' },
+                  ]}
+                  selectedOptionId={String(contest.candidateColumns ?? 1)}
+                  onChange={(value) =>
+                    setContest({
+                      ...contest,
+                      candidateColumns: safeParseNumber(value).unsafeUnwrap(),
+                    })
+                  }
+                />
+              </InputRow>
+            )}
             <div>
               <P weight="bold">Candidates</P>
               {contest.candidates.length === 0 && (
@@ -492,6 +535,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                       <TH>Middle Name</TH>
                       <TH>Last Name</TH>
                       <TH>Party</TH>
+                      <TH>Designation</TH>
                       <TH />
                     </tr>
                   </thead>
@@ -597,10 +641,58 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                                   {
                                     ...candidate,
                                     partyIds: value ? [value] : undefined,
+                                    // Designation and party are mutually
+                                    // exclusive on the ballot, except in CA
+                                    // where candidates show both
+                                    designation:
+                                      value && !isCaBallot
+                                        ? undefined
+                                        : candidate.designation,
                                   }
                                 ),
                               })
                             }
+                          />
+                        </TD>
+                        <TD>
+                          <input
+                            aria-label={`Candidate ${index + 1} Designation`}
+                            disabled={
+                              disabled ||
+                              hasExternalSource ||
+                              (!isCaBallot &&
+                                (candidate.partyIds?.length ?? 0) > 0)
+                            }
+                            type="text"
+                            value={candidate.designation ?? ''}
+                            onChange={(e) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    designation: e.target.value,
+                                  }
+                                ),
+                              })
+                            }
+                            onBlur={(e) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    designation:
+                                      e.target.value.trim() || undefined,
+                                  }
+                                ),
+                              })
+                            }
+                            autoComplete="off"
                           />
                         </TD>
                         <TD>
@@ -926,6 +1018,7 @@ interface DraftCandidate {
   middleName: string;
   lastName: string;
   partyIds?: PartyId[];
+  designation?: string;
 }
 
 interface DraftCandidateContest {
@@ -938,6 +1031,8 @@ interface DraftCandidateContest {
   allowWriteIns: boolean;
   candidates: DraftCandidate[];
   partyId?: PartyId;
+  nominationType?: ContestNominationType;
+  candidateColumns?: number;
 }
 
 interface DraftOption {
@@ -984,6 +1079,7 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
     middleName,
     lastName,
     partyIds: candidate.partyIds?.slice(),
+    designation: candidate.designation,
   };
 }
 

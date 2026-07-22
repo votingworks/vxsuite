@@ -330,6 +330,7 @@ test('adding a candidate contest (general election)', async () => {
         middleName: undefined,
         lastName: '1',
         partyIds: [election.parties[0].id],
+        designation: undefined,
       },
       {
         id: idFactory.next(),
@@ -338,6 +339,7 @@ test('adding a candidate contest (general election)', async () => {
         middleName: undefined,
         lastName: '2',
         partyIds: [election.parties[1].id],
+        designation: undefined,
       },
       {
         id: idFactory.next(),
@@ -345,6 +347,7 @@ test('adding a candidate contest (general election)', async () => {
         firstName: 'New Candidate',
         middleName: undefined,
         lastName: '3',
+        designation: 'Justice of Supreme Court',
       },
     ],
   };
@@ -399,6 +402,7 @@ test('adding a candidate contest (general election)', async () => {
     screen.getByRole('columnheader', { name: 'First Name' });
     screen.getByRole('columnheader', { name: 'Last Name' });
     screen.getByRole('columnheader', { name: 'Party' });
+    screen.getByRole('columnheader', { name: 'Designation' });
     const row = screen.getAllByRole('row')[i + 1];
 
     // Set name
@@ -411,6 +415,21 @@ test('adding a candidate contest (general election)', async () => {
       `${i + 1}`
     );
 
+    // Set designation (selecting a party below clears and disables it)
+    const designationInput = within(row).getByLabelText(
+      `Candidate ${i + 1} Designation`
+    );
+    expect(designationInput).toBeEnabled();
+    if (candidate.designation || i === 0) {
+      userEvent.paste(
+        designationInput,
+        candidate.designation ?? 'Justice of Supreme Court'
+      );
+    } else {
+      // Focus and leave the input empty (blurred by the party click below)
+      userEvent.click(designationInput);
+    }
+
     // Set party
     const partySelect = within(row).getByLabelText(`Candidate ${i + 1} Party`);
     expect(partySelect).toHaveValue('');
@@ -420,6 +439,8 @@ test('adding a candidate contest (general election)', async () => {
     );
     if (party) {
       userEvent.click(within(row).getByText(party.name));
+      expect(designationInput).toBeDisabled();
+      expect(designationInput).toHaveValue('');
     }
   }
 
@@ -596,8 +617,11 @@ test('editing a candidate contest (primary election)', async () => {
         middleName: 'Candidate',
         lastName: 'Name',
         partyIds: undefined,
+        designation: undefined,
       },
-      ...savedContest.candidates.slice(2),
+      ...savedContest.candidates
+        .slice(2)
+        .map((candidate) => ({ ...candidate, designation: undefined })),
     ],
   };
 
@@ -1482,11 +1506,21 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   await expectViewModeContest(history, electionId, election.contests[0]);
   await navigateToContestEdit(history, electionId, election.contests[1].id);
 
+  // The form always includes a designation key for each candidate
+  const savedContest = election.contests[1] as CandidateContest;
+  const updatedContest: CandidateContest = {
+    ...savedContest,
+    candidates: savedContest.candidates.map((candidate) => ({
+      ...candidate,
+      designation: undefined,
+    })),
+  };
+
   // Mock the duplicate contest error, even though we didn't actually change anything
   apiMock.updateContest
     .expectCallWith({
       electionId,
-      updatedContest: election.contests[1],
+      updatedContest,
     })
     .resolves(err('duplicate-contest'));
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -1499,7 +1533,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   apiMock.updateContest
     .expectCallWith({
       electionId,
-      updatedContest: election.contests[1],
+      updatedContest,
     })
     .resolves(err('duplicate-candidate'));
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
