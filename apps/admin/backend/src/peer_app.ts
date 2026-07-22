@@ -165,6 +165,7 @@ function buildPeerApi(
     registerScanner(input: {
       machineId: string;
       codeVersion: string;
+      pollingPlaceId?: string;
     }): MachineConfig {
       const machineConfig = getMachineConfig();
       const previous = store.getMachine(input.machineId);
@@ -181,7 +182,9 @@ function buildPeerApi(
       store.setNetworkedMachineStatus(
         input.machineId,
         'scanner',
-        Admin.ClientMachineStatus.Active
+        Admin.ClientMachineStatus.Active,
+        null,
+        input.pollingPlaceId ?? null
       );
       return machineConfig;
     },
@@ -222,6 +225,8 @@ function buildPeerApi(
       store.withTransaction(() => {
         const scannerIds = new Set<string>();
         const pollingPlaceIds = new Set<string>();
+        const batchLabels: string[] = [];
+        const batchIds: string[] = [];
         for (const batch of input.batchManifest) {
           store.addScannerBatch({
             batchId: batch.id,
@@ -233,6 +238,8 @@ function buildPeerApi(
           });
           scannerIds.add(batch.scannerId);
           pollingPlaceIds.add(batch.pollingPlaceId);
+          batchLabels.push(batch.label);
+          batchIds.push(batch.id);
         }
         store.addCastVoteRecordFileRecord({
           id: importId,
@@ -240,8 +247,11 @@ function buildPeerApi(
           exportedTimestamp,
           filename,
           isTestMode: input.isTestMode,
+          source: 'network',
           pollingPlaceIds,
           scannerIds,
+          batchLabels,
+          batchIds,
           sha256Hash: sha256(`${importId}-${filename}`),
         });
       });

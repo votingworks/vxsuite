@@ -461,6 +461,8 @@ export async function importCastVoteRecords(
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
     const pollingPlaceIds = new Set<string>();
+    const batchLabels: string[] = [];
+    const batchIds: string[] = [];
 
     for (const batch of batchManifest) {
       store.addScannerBatch({
@@ -474,6 +476,8 @@ export async function importCastVoteRecords(
 
       scannerIds.add(batch.scannerId);
       pollingPlaceIds.add(batch.pollingPlaceId);
+      batchLabels.push(batch.label);
+      batchIds.push(batch.id);
     }
 
     // Create a top-level record for the import
@@ -484,8 +488,11 @@ export async function importCastVoteRecords(
       exportedTimestamp,
       filename: exportDirectoryName,
       isTestMode: isTestReport(castVoteRecordReportMetadata),
+      source: 'usb',
       pollingPlaceIds,
       scannerIds,
+      batchLabels,
+      batchIds,
       sha256Hash: exportHash,
     });
 

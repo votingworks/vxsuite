@@ -5,13 +5,14 @@ import { Id, PollingPlace } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
 import { LocationCvrs } from './cvrs_state';
-import { LocationCvrsPanel } from './location_cvrs_panel';
+import { LocationCvrImport, LocationCvrsPanel } from './location_cvrs_panel';
 import { LocationStatusCard } from './location_status_card';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles';
 
 export interface LocationListProps {
   locationCvrs: Map<Id, LocationCvrs>;
   locations: readonly PollingPlace[];
+  onDeleteImport?: (cvrImport: LocationCvrImport) => void;
 }
 
 const Container = styled.div<{ showingDetails: boolean }>`
@@ -50,7 +51,7 @@ const ListItems = styled.div`
 `;
 
 export function LocationList(props: LocationListProps): React.ReactNode {
-  const { locationCvrs, locations } = props;
+  const { locationCvrs, locations, onDeleteImport } = props;
   const [selectedId, setSelectedId] = React.useState<string>();
 
   function toggleSelected(id: string) {
@@ -78,9 +79,11 @@ export function LocationList(props: LocationListProps): React.ReactNode {
       <Details>
         {selected && (
           <LocationCvrsPanel
+            key={selected.id}
             closePanel={() => setSelectedId(undefined)}
             imports={assertDefined(locationCvrs.get(selected.id)).files}
             name={selected.name}
+            onDeleteImport={onDeleteImport}
             type={selected.type}
           />
         )}

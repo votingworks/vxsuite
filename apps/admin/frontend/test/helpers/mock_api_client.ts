@@ -9,6 +9,7 @@ import type {
   CvrFileMode,
   MachineConfig,
   MachineRecord,
+  ScannerMachineRecord,
   ManualResultsIdentifier,
   WriteInCandidateRecord,
   ScannerBatch,
@@ -826,12 +827,14 @@ export function createApiMock(
       overrides: {
         isOnline?: boolean;
         connectedClients?: MachineRecord[];
+        connectedScanners?: ScannerMachineRecord[];
         multipleHostsDetected?: boolean;
       } = {}
     ): void {
       apiClient.getNetworkStatus.expectRepeatedCallsWith().resolves({
         isOnline: overrides.isOnline ?? true,
         connectedClients: overrides.connectedClients ?? [],
+        connectedScanners: overrides.connectedScanners ?? [],
         multipleHostsDetected: overrides.multipleHostsDetected ?? false,
       });
     },

@@ -72,11 +72,14 @@ export function addMockCvrFileToStore({
     id: cvrFileId,
     electionId,
     isTestMode: true,
+    source: 'usb',
     filename: 'mock-cvr-file',
     exportedTimestamp: new Date().toISOString(),
     sha256Hash: 'mock-hash',
     scannerIds,
     pollingPlaceIds: new Set(pollingPlaceId),
+    batchLabels: [],
+    batchIds: [],
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));

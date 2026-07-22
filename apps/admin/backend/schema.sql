@@ -176,11 +176,15 @@ create table cvr_files (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   is_test_mode boolean not null,
+  source text not null
+    check (source in ('usb', 'network')),
   filename text not null,
   export_timestamp timestamp not null,
   precinct_ids text not null,
   scanner_ids text not null,
   polling_place_ids text not null,
+  batch_labels text not null,
+  batch_ids text not null,
   sha256_hash text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
@@ -257,6 +261,7 @@ create table machines (
   status text not null
     check (status in ('offline', 'online_locked', 'active', 'adjudicating')),
   auth_type text,
+  polling_place_id text,
   last_seen_at integer not null
 );
 

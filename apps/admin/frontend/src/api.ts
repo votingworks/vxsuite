@@ -780,6 +780,21 @@ export const revertResultsToUnofficial = {
   },
 } as const;
 
+export const deleteCastVoteRecordFile = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteCastVoteRecordFile, {
+      async onSuccess() {
+        return Promise.all([
+          invalidateCastVoteRecordQueries(queryClient),
+          invalidateWriteInQueries(queryClient),
+        ]);
+      },
+    });
+  },
+} as const;
+
 export const clearCastVoteRecordFiles = {
   useMutation() {
     const apiClient = useApiClient();

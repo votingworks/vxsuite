@@ -42,6 +42,7 @@ test('has tabs for CVRs and Manual Tallies', async () => {
 
   await waitFor(() => apiMock.assertComplete());
   screen.getByRole('tab', { name: 'Cast Vote Records', selected: true });
+  screen.getByRole('tab', { name: 'Networked Scanners', selected: false });
 
   const locationsCardText = ['Locations', `0 / ${nLocations}`].join('');
   screen.getByText(hasTextAcrossElements(locationsCardText));
