@@ -98,7 +98,13 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
   const election: PartialDeep<Election> = {
     contests: [
       {
-        candidates: [{ id: 'candidate1', name: 'Candidate 1' }],
+        candidates: [
+          {
+            id: 'candidate1',
+            name: 'Candidate 1',
+            designation: 'Barnstormer',
+          },
+        ],
         id: 'contest1',
         title: 'Candidate Contest 1',
         type: 'candidate',
@@ -179,6 +185,7 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     ElectionStringKey,
     Array<{ subkey?: string; text: string }>
   > = {
+    candidateDesignation: [{ subkey: 'candidate1', text: 'Barnstormer' }],
     candidateName: [
       { subkey: 'candidate1', text: 'Candidate 1' },
       { subkey: 'candidate2', text: 'Candidate 2' },
@@ -232,7 +239,6 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     // Currently not exposed for TTS editing:
     ballotLanguage: [],
     ballotStyleId: [],
-    candidateDesignation: [],
     electionDate: [],
   };
 
