@@ -55,6 +55,7 @@ export async function withApp(
   options: {
     adminHostClient?: AdminHostClient;
     cvrSyncPollingIntervalMs?: number;
+    cvrSyncUploadTimeoutMs?: number;
     isDeskProScanner?: boolean;
   } = {}
 ): Promise<void> {
@@ -74,6 +75,7 @@ export async function withApp(
         adminHostClient: options.adminHostClient,
         logger,
         pollingIntervalMs: options.cvrSyncPollingIntervalMs,
+        uploadTimeoutMs: options.cvrSyncUploadTimeoutMs,
       })
     : undefined;
   const app = buildCentralScannerApp({
