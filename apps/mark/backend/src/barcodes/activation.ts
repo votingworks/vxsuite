@@ -3,16 +3,23 @@ import util from 'node:util';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isCardlessVoterAuth } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { find, Result, err, ok } from '@votingworks/basics';
 import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
+  BallotStyle,
+  BallotStyleId,
+  PrecinctId,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
 } from '@votingworks/types';
 
-import { BarcodeReader } from './types';
+import {
+  BarcodeReader,
+  BallotStyleQrCode,
+  BallotStyleQrCodeSchema,
+} from './types';
 import { Workspace } from '../util/workspace';
 import { constructAuthMachineState } from '../util/auth';
 import { Player as AudioPlayer } from '../audio/player';
@@ -39,17 +46,18 @@ function getQrBallotActivationEnabled(
 }
 
 /**
- * [BMD] On any barcode scan event, simulate selecting a ballot style
- * and starting a voter session.
+ * [BMD] On a barcode scan event, parse the scanned QR code for a ballot style
+ * ID, resolve it against the configured polling place, and start a cardless
+ * voter session for that ballot style.
  * This feature is gated behind the `bmdEnableQrBallotActivation` system setting.
  */
 export function setUpBarcodeActivation(ctx: Context): void {
   if (!ctx.barcodeClient) return;
 
-  ctx.barcodeClient.on('error', (err) => {
+  ctx.barcodeClient.on('error', (error) => {
     ctx.logger.log(LogEventId.Info, 'system', {
       message: 'unexpected barcode reader error',
-      error: util.inspect(err),
+      error: util.inspect(error),
     });
   });
 
@@ -72,7 +80,6 @@ export function setUpBarcodeActivation(ctx: Context): void {
     const electionRecord = ctx.workspace.store.getElectionRecord();
     const pollsState = ctx.workspace.store.getPollsState();
     const pollingPlaceId = ctx.workspace.store.getPollingPlaceId();
-
     const locationConfigured = !!pollingPlaceId;
 
     if (!electionRecord || pollsState !== 'polls_open' || !locationConfigured) {
@@ -97,10 +104,31 @@ export function setUpBarcodeActivation(ctx: Context): void {
     }
 
     const { election } = electionRecord.electionDefinition;
-    const { ballotStyle, precinctId } = ballotStyleForPollingPlace(
+
+    const parseResult = parseBallotStyleQrCode(barcode);
+    if (parseResult.isErr()) {
+      return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+        disposition: 'failure',
+        message: `barcode scan could not be parsed as a ballot style QR code - ignoring: ${
+          parseResult.err().message
+        }`,
+      });
+    }
+    const { ballotStyleId: scannedBallotStyleId } = parseResult.ok();
+
+    const resolved = resolveBallotStyleForPollingPlace(
       election,
-      pollingPlaceId
+      pollingPlaceId,
+      scannedBallotStyleId
     );
+    if (!resolved) {
+      return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+        ballotStyleId: scannedBallotStyleId,
+        disposition: 'failure',
+        message: `scanned ballot style is not valid for the configured polling place - ignoring`,
+      });
+    }
+    const { ballotStyle, precinctId } = resolved;
 
     void ctx.logger.logAsCurrentRole(LogEventId.Info, {
       ballotStyleId: ballotStyle.id,
@@ -151,11 +179,44 @@ export function setUpBarcodeActivation(ctx: Context): void {
   });
 }
 
-function ballotStyleForPollingPlace(election: Election, placeId?: string) {
-  assert(!!placeId);
-  const place = pollingPlaceFromElection(election, placeId);
-  const ballotStyle = pollingPlaceBallotStyles(election, place)[0];
-  const precinctId = find(ballotStyle.precincts, (p) => p in place.precincts);
+/**
+ * Parses a scanned barcode string into a {@link BallotStyleQrCode}. The scanner
+ * emits the QR code's textual contents, which we expect to be JSON of the form
+ * `{"ballotStyleId":"<id>"}`.
+ */
+function parseBallotStyleQrCode(
+  barcode: string
+): Result<BallotStyleQrCode, Error> {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(barcode);
+  } catch (error) {
+    return err(new Error(`invalid JSON: ${(error as Error).message}`));
+  }
 
+  const result = BallotStyleQrCodeSchema.safeParse(raw);
+  return result.success
+    ? ok(result.data)
+    : err(new Error(result.error.message));
+}
+
+/**
+ * Resolves a scanned ballot style ID against the machine's configured polling
+ * place. Returns `undefined` when the scanned ballot style is not one that is
+ * valid for this location, so a scan can never activate a ballot the machine
+ * isn't configured to hand out.
+ */
+function resolveBallotStyleForPollingPlace(
+  election: Election,
+  placeId: string,
+  ballotStyleId: BallotStyleId
+): { ballotStyle: BallotStyle; precinctId: PrecinctId } | undefined {
+  const place = pollingPlaceFromElection(election, placeId);
+  const ballotStyle = pollingPlaceBallotStyles(election, place).find(
+    (bs) => bs.id === ballotStyleId
+  );
+  if (!ballotStyle) return undefined;
+
+  const precinctId = find(ballotStyle.precincts, (p) => p in place.precincts);
   return { ballotStyle, precinctId };
 }

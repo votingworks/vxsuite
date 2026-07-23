@@ -1,3 +1,22 @@
+import { z } from 'zod/v4';
+import { BallotStyleId, BallotStyleIdSchema } from '@votingworks/types';
+
+/**
+ * The payload encoded in a QR code (e.g. a VxPollbook check-in receipt) that
+ * identifies which ballot style to activate. Intentionally minimal — it carries
+ * only the ballot style ID, which is resolved against the loaded election
+ * definition.
+ */
+export interface BallotStyleQrCode {
+  ballotStyleId: BallotStyleId;
+}
+
+export const BallotStyleQrCodeSchema: z.ZodSchema<BallotStyleQrCode> = z.object(
+  {
+    ballotStyleId: BallotStyleIdSchema,
+  }
+);
+
 export interface ScanEvent {
   type: 'scan';
   data: Uint8Array;
