@@ -9,6 +9,7 @@ import { Dictionary } from './generic';
 export enum ElectionStringKey {
   BALLOT_LANGUAGE = 'ballotLanguage',
   BALLOT_STYLE_ID = 'ballotStyleId',
+  CANDIDATE_DESIGNATION = 'candidateDesignation',
   CANDIDATE_NAME = 'candidateName',
   CONTEST_DESCRIPTION = 'contestDescription',
   CONTEST_OPTION_LABEL = 'contestOptionLabel',

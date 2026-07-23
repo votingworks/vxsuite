@@ -161,6 +161,11 @@ const extractorFns: Record<
     }
   },
 
+  [ElectionStringKey.CANDIDATE_DESIGNATION]() {
+    // CDF has no field for VxSuite's candidate designation, so there are no
+    // strings to extract.
+  },
+
   [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
     const candidates =
       assertDefined(cdfElection.Election[0]).Candidate ||

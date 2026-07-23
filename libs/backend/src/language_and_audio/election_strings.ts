@@ -51,6 +51,9 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.BALLOT_STYLE_ID]: {
     translatable: false,
   },
+  [ElectionStringKey.CANDIDATE_DESIGNATION]: {
+    translatable: true,
+  },
   [ElectionStringKey.CANDIDATE_NAME]: {
     translatable: false,
   },
@@ -127,6 +130,25 @@ export const electionStringExtractorFns: Record<
       stringKey: [ElectionStringKey.BALLOT_STYLE_ID, ballotStyle.id],
       stringInEnglish: ballotStyle.groupId,
     }));
+  },
+  [ElectionStringKey.CANDIDATE_DESIGNATION](election) {
+    return election.contests
+      .filter(
+        (contest): contest is CandidateContest => contest.type === 'candidate'
+      )
+      .flatMap((contest) =>
+        contest.candidates
+          .filter((candidate) => candidate.designation)
+          .map(
+            (candidate): ElectionString => ({
+              stringKey: [
+                ElectionStringKey.CANDIDATE_DESIGNATION,
+                candidate.id,
+              ],
+              stringInEnglish: assertDefined(candidate.designation),
+            })
+          )
+      );
   },
   [ElectionStringKey.CANDIDATE_NAME](election) {
     return election.contests

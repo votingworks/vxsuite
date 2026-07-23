@@ -116,6 +116,9 @@ export interface Candidate {
   readonly firstName?: string;
   readonly middleName?: string;
   readonly lastName?: string;
+  // Designation subtitle shown under the candidate name on the ballot in
+  // nonpartisan contests, e.g. "Justice of Supreme Court".
+  readonly designation?: string;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
@@ -133,6 +136,10 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
       .transform((s) => s.trim() || undefined)
       .optional(),
     lastName: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
+    designation: z
       .string()
       .transform((s) => s.trim() || undefined)
       .optional(),
@@ -176,6 +183,22 @@ export const ContestBaseSchema = z.object({
   districtId: DistrictIdSchema,
   title: z.string().nonempty(),
 });
+/**
+ * How candidates for an office are nominated. Used by ballot templates (e.g.
+ * the CA ballot template) to group contests into sections and format party
+ * labels (voter-nominated offices show "Party Preference: <party>").
+ */
+export type ContestNominationType =
+  | 'party-nominated'
+  | 'voter-nominated'
+  | 'nonpartisan';
+export const ContestNominationTypeSchema: z.ZodSchema<ContestNominationType> =
+  z.union([
+    z.literal('party-nominated'),
+    z.literal('voter-nominated'),
+    z.literal('nonpartisan'),
+  ]);
+
 export interface CandidateContest extends ContestBase {
   readonly type: 'candidate';
   readonly seats: number;
@@ -183,6 +206,10 @@ export interface CandidateContest extends ContestBase {
   readonly allowWriteIns: boolean;
   readonly partyId?: PartyId;
   readonly termDescription?: string;
+  readonly nominationType?: ContestNominationType;
+  // Number of columns to lay candidate options out in on the ballot, for
+  // templates that support grid contest layouts (e.g. the CA ballot template).
+  readonly candidateColumns?: number;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestBaseSchema.extend({
@@ -192,6 +219,8 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     allowWriteIns: z.boolean(),
     partyId: PartyIdSchema.optional(),
     termDescription: z.string().nonempty().optional(),
+    nominationType: ContestNominationTypeSchema.optional(),
+    candidateColumns: z.number().int().min(1).max(4).optional(),
   }).check((ctx) => {
     const contest = ctx.value;
     for (const [index, id] of findDuplicateIds(contest.candidates)) {

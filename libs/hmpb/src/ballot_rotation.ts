@@ -173,6 +173,7 @@ export function getAllPossibleCandidateOrderings(
       case 'NhStateBallot':
       case 'MsBallot':
       case 'MiBallot':
+      case 'CaBallot':
         return getDefaultCandidateOrdering(params);
       default: {
         /* istanbul ignore next */

@@ -2050,6 +2050,7 @@ test('CRUD contests', async () => {
         middleName: 'M',
         lastName: 'Two',
         name: 'Candidate M Two',
+        designation: 'Justice of Supreme Court',
       },
     ],
   };
@@ -3812,8 +3813,10 @@ test('Election package and ballots export', async () => {
   }
 
   for (const electionStringKey of Object.values(ElectionStringKey)) {
-    // The current election definition doesn't include any yes-no contests, contest terms, or precinct splits
+    // The current election definition doesn't include any yes-no contests,
+    // contest terms, candidate designations, or precinct splits
     if (
+      electionStringKey === ElectionStringKey.CANDIDATE_DESIGNATION ||
       electionStringKey === ElectionStringKey.CONTEST_DESCRIPTION ||
       electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL ||
       electionStringKey === ElectionStringKey.CONTEST_TERM ||
