@@ -71,9 +71,11 @@ interface MockHost {
 function startMockHost({
   refuseTransfer = false,
   rejectCvrs = false,
+  hangCvrs = false,
 }: {
   refuseTransfer?: boolean;
   rejectCvrs?: boolean;
+  hangCvrs?: boolean;
 } = {}): MockHost {
   const mockHost: Omit<MockHost, 'address'> = {
     startInputs: [],
@@ -86,6 +88,10 @@ function startMockHost({
     const chunks: Buffer[] = [];
     req.on('data', (chunk) => chunks.push(chunk));
     req.on('end', () => {
+      if (hangCvrs) {
+        // Never respond, simulating a hung connection
+        return;
+      }
       if (rejectCvrs) {
         res.status(400).json({ error: 'invalid-cast-vote-record' });
         return;
@@ -318,6 +324,29 @@ test('a batch stays unsent and the error is surfaced when the host rejects a cas
       expect(mockHost.finishedSessionIds).toHaveLength(0);
     },
     { adminHostClient: mockAdminHostClient(mockHost.address) }
+  );
+});
+
+test('a batch stays unsent and a timeout error is surfaced when a cast vote record upload hangs', async () => {
+  const mockHost = startMockHost({ hangCvrs: true });
+
+  await withApp(
+    async (context) => {
+      await configureApp(context);
+      await scanAndSaveBatch(context);
+
+      await context.cvrSync?.triggerSync();
+      const syncStatus = await context.apiClient.getCvrSyncStatus();
+      expect(syncStatus.unsentBatchCount).toEqual(1);
+      expect(syncStatus.lastError).toEqual(
+        'Upload timed out after 0.1 seconds.'
+      );
+      expect(mockHost.finishedSessionIds).toHaveLength(0);
+    },
+    {
+      adminHostClient: mockAdminHostClient(mockHost.address),
+      cvrSyncUploadTimeoutMs: 100,
+    }
   );
 });
 
