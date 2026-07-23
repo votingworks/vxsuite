@@ -228,6 +228,9 @@ function expectOtherElectionApiCalls(election: Election) {
   apiMock.getSystemSettings
     .expectOptionalRepeatedCallsWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getBallotTemplate
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves('VxDefaultBallot');
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
@@ -457,7 +460,9 @@ test('adding a candidate contest (general election)', async () => {
 
   await expectViewModeContest(history, electionId, newContest);
   expectContestListItems([newContest]);
-});
+  // Filling out the candidate table exceeds the default timeout when tests
+  // run with coverage instrumentation
+}, 15_000);
 
 test('editing a candidate contest (primary election)', async () => {
   const electionRecord = makeElectionRecord(
@@ -1304,6 +1309,9 @@ test('editing contests is restricted for elections with external source', async 
   apiMock.getSystemSettings
     .expectOptionalRepeatedCallsWith({ electionId })
     .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.getBallotTemplate
+    .expectOptionalRepeatedCallsWith({ electionId })
+    .resolves('VxDefaultBallot');
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);

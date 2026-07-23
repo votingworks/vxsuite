@@ -132,6 +132,18 @@
       "hmpb7WillBeElected": "Seven will be elected",
       "hmpb8WillBeElected": "Eight will be elected",
       "hmpb9WillBeElected": "Nine will be elected",
+      "hmpbCaEndOfContestEnd": "Contest",
+      "hmpbCaEndOfContestStart": "End of",
+      "hmpbCaLargeContestNoticeEnd": "contest appears on the back side of this ballot card so that all candidates can be listed on the same page.",
+      "hmpbCaLargeContestNoticeStart": "Due to the large number of candidates, the",
+      "hmpbCaLargeContestNoticeTurnOver": "Please turn over to begin voting for",
+      "hmpbCaMeasuresTitle": "Measures Submitted to the Voters",
+      "hmpbCaNonpartisanOfficesTitle": "Nonpartisan Offices",
+      "hmpbCaPartyNominatedOfficesText": "Candidates for these offices are the official nominee of the party displayed with their name.",
+      "hmpbCaPartyNominatedOfficesTitle": "Party-Nominated Offices",
+      "hmpbCaVoterNominatedOfficesShortTitle": "Voter-Nominated Offices",
+      "hmpbCaVoterNominatedOfficesText": "Candidates display a party preference (or None) for the information of voters. This is not a party endorsement or approval.",
+      "hmpbCaVoterNominatedOfficesTitle": "Voter-Nominated and Nonpartisan Offices",
       "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
       "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
       "hmpbInstructions": "Instructions",
@@ -139,11 +151,13 @@
       "hmpbInstructionsToVoteTitle": "To Vote:",
       "hmpbInstructionsWriteInText": "To vote for a person whose name is not on the ballot, write the person’s name on the \"Write-in\" line and completely fill in the oval next to the line.",
       "hmpbInstructionsWriteInTitle": "To Vote for a Write-in:",
+      "hmpbNone": "None",
       "hmpbOfficialAbsenteeBallot": "Official Absentee Ballot",
       "hmpbOfficialBallot": "Official Ballot",
       "hmpbOfficialProvisionalBallot": "Official Provisional Ballot",
       "hmpbPage": "Page",
       "hmpbPageIntentionallyBlank": "This page intentionally left blank",
+      "hmpbPartyPreference": "Party Preference",
       "hmpbSampleAbsenteeBallot": "Sample Absentee Ballot",
       "hmpbSampleBallot": "Sample Ballot",
       "hmpbSampleProvisionalBallot": "Sample Provisional Ballot",
@@ -235,6 +249,18 @@
       "hmpb7WillBeElected": "سيتم انتخاب سبعة",
       "hmpb8WillBeElected": "سيتم انتخاب ثمانية",
       "hmpb9WillBeElected": "سيتم انتخاب تسعة",
+      "hmpbCaEndOfContestEnd": "منافسة",
+      "hmpbCaEndOfContestStart": "نهاية",
+      "hmpbCaLargeContestNoticeEnd": "تظهر كلمة \"المسابقة\" على ظهر بطاقة الاقتراع هذه حتى يمكن إدراج جميع المرشحين في نفس الصفحة.",
+      "hmpbCaLargeContestNoticeStart": "نظراً لكثرة عدد المرشحين،",
+      "hmpbCaLargeContestNoticeTurnOver": "يرجى قلب الصفحة لبدء التصويت لـ",
+      "hmpbCaMeasuresTitle": "التدابير المقدمة للناخبين",
+      "hmpbCaNonpartisanOfficesTitle": "مكاتب غير حزبية",
+      "hmpbCaPartyNominatedOfficesText": "المرشحون لهذه المناصب هم المرشحون الرسميون للحزب المعروض أسماؤهم.",
+      "hmpbCaPartyNominatedOfficesTitle": "المناصب التي يرشحها الحزب",
+      "hmpbCaVoterNominatedOfficesShortTitle": "المناصب التي يرشحها الناخبون",
+      "hmpbCaVoterNominatedOfficesText": "يُعلن المرشحون عن انتمائهم الحزبي (أو عدم انتمائهم لأي حزب) لإطلاع الناخبين. هذا لا يُعدّ تأييداً أو موافقةً من الحزب.",
+      "hmpbCaVoterNominatedOfficesTitle": "المناصب التي يرشحها الناخبون والمناصب غير الحزبية",
       "hmpbContinueVotingOnBack": "اقلب ورقة الاقتراع واستمر في التصويت",
       "hmpbContinueVotingOnNextSheet": "استمر في التصويت على ورقة الاقتراع التالية",
       "hmpbInstructions": "تعليمات",
@@ -242,11 +268,13 @@
       "hmpbInstructionsToVoteTitle": "للتصويت:",
       "hmpbInstructionsWriteInText": "للتصويت لشخص لم يرد اسمه في ورقة الاقتراع، اكتب اسم الشخص في خانة \"الكتابة\" وقم بتعبئة الدائرة الموجودة بجوار الخانة بالكامل.",
       "hmpbInstructionsWriteInTitle": "للتصويت لمرشح غير مُدرج اسمه في القائمة:",
+      "hmpbNone": "لا أحد",
       "hmpbOfficialAbsenteeBallot": "بطاقة اقتراع رسمية للغياب",
       "hmpbOfficialBallot": "ورقة الاقتراع الرسمية",
       "hmpbOfficialProvisionalBallot": "ورقة الاقتراع المؤقتة الرسمية",
       "hmpbPage": "صفحة",
       "hmpbPageIntentionallyBlank": "هذه الصفحة تُركت فارغة عمداً",
+      "hmpbPartyPreference": "تفضيل الحزب",
       "hmpbSampleAbsenteeBallot": "نموذج لورقة اقتراع غيابي",
       "hmpbSampleBallot": "نموذج ورقة الاقتراع",
       "hmpbSampleProvisionalBallot": "نموذج اقتراع مؤقت",
@@ -338,6 +366,18 @@
       "hmpb7WillBeElected": "সাতজন নির্বাচিত হবেন",
       "hmpb8WillBeElected": "আটজন নির্বাচিত হবেন",
       "hmpb9WillBeElected": "নয়জন নির্বাচিত হবেন",
+      "hmpbCaEndOfContestEnd": "প্রতিযোগিতা",
+      "hmpbCaEndOfContestStart": "শেষ",
+      "hmpbCaLargeContestNoticeEnd": "এই ব্যালট কার্ডের পিছনের দিকে প্রতিদ্বন্দ্বিতার বিষয়টি উল্লেখ করা থাকে, যাতে সকল প্রার্থীর নাম একই পৃষ্ঠায় তালিকাভুক্ত করা যায়।",
+      "hmpbCaLargeContestNoticeStart": "বিপুল সংখ্যক প্রার্থীর কারণে,",
+      "hmpbCaLargeContestNoticeTurnOver": "ভোট দেওয়া শুরু করতে অনুগ্রহ করে উল্টে দিন।",
+      "hmpbCaMeasuresTitle": "ভোটারদের কাছে পেশ করা পদক্ষেপসমূহ",
+      "hmpbCaNonpartisanOfficesTitle": "নির্দলীয় কার্যালয়",
+      "hmpbCaPartyNominatedOfficesText": "এই পদগুলোর প্রার্থীরা হলেন তাঁদের নামের সাথে প্রদর্শিত দলের আনুষ্ঠানিক মনোনীত প্রার্থী।",
+      "hmpbCaPartyNominatedOfficesTitle": "দলীয়-মনোনীত পদ",
+      "hmpbCaVoterNominatedOfficesShortTitle": "ভোটার-মনোনীত পদ",
+      "hmpbCaVoterNominatedOfficesText": "প্রার্থীরা ভোটারদের অবগতির জন্য দলীয় পছন্দ (অথবা কোনোটিই নয়) প্রদর্শন করেন। এটি কোনো দলের সমর্থন বা অনুমোদন নয়।",
+      "hmpbCaVoterNominatedOfficesTitle": "ভোটার-মনোনীত এবং নির্দলীয় পদ",
       "hmpbContinueVotingOnBack": "ব্যালট উল্টে দিন এবং ভোটদান চালিয়ে যান।",
       "hmpbContinueVotingOnNextSheet": "পরবর্তী ব্যালট পেপারে ভোটদান চালিয়ে যান।",
       "hmpbInstructions": "নির্দেশাবলী",
@@ -345,11 +385,13 @@
       "hmpbInstructionsToVoteTitle": "ভোট দিতে:",
       "hmpbInstructionsWriteInText": "ব্যালটে নাম নেই এমন কোনো ব্যক্তিকে ভোট দেওয়ার জন্য, \"রাইট-ইন\" লাইনে সেই ব্যক্তির নাম লিখুন এবং লাইনের পাশের ডিম্বাকৃতি অংশটি সম্পূর্ণভাবে পূরণ করুন।",
       "hmpbInstructionsWriteInTitle": "রাইট-ইন এর জন্য ভোট দিতে:",
+      "hmpbNone": "কোনোটিই না",
       "hmpbOfficialAbsenteeBallot": "অফিসিয়াল অনুপস্থিত ব্যালট",
       "hmpbOfficialBallot": "অফিসিয়াল ব্যালট",
       "hmpbOfficialProvisionalBallot": "অফিসিয়াল অস্থায়ী ব্যালট",
       "hmpbPage": "পৃষ্ঠা",
       "hmpbPageIntentionallyBlank": "এই পৃষ্ঠাটি ইচ্ছাকৃতভাবে খালি রাখা হয়েছে",
+      "hmpbPartyPreference": "দলীয় পছন্দ",
       "hmpbSampleAbsenteeBallot": "নমুনা অনুপস্থিত ব্যালট",
       "hmpbSampleBallot": "নমুনা ব্যালট",
       "hmpbSampleProvisionalBallot": "নমুনা অস্থায়ী ব্যালট",
@@ -441,6 +483,18 @@
       "hmpb7WillBeElected": "将选出七人。",
       "hmpb8WillBeElected": "将选出八人。",
       "hmpb9WillBeElected": "将选出九人。",
+      "hmpbCaEndOfContestEnd": "竞赛",
+      "hmpbCaEndOfContestStart": "结束",
+      "hmpbCaLargeContestNoticeEnd": "竞选信息印在这张选票的背面，以便所有候选人都能列在同一页上。",
+      "hmpbCaLargeContestNoticeStart": "由于候选人众多，",
+      "hmpbCaLargeContestNoticeTurnOver": "请翻页开始投票",
+      "hmpbCaMeasuresTitle": "提交给选民的提案",
+      "hmpbCaNonpartisanOfficesTitle": "无党派办公室",
+      "hmpbCaPartyNominatedOfficesText": "这些职位的候选人是其姓名旁边显示的政党正式提名人。",
+      "hmpbCaPartyNominatedOfficesTitle": "党内提名职位",
+      "hmpbCaVoterNominatedOfficesShortTitle": "选民提名职位",
+      "hmpbCaVoterNominatedOfficesText": "候选人会显示其党派倾向（或无党派倾向），仅供选民参考。这并不代表任何政党的背书或认可。",
+      "hmpbCaVoterNominatedOfficesTitle": "选民提名和无党派职位",
       "hmpbContinueVotingOnBack": "将选票翻过来，继续投票",
       "hmpbContinueVotingOnNextSheet": "在下一张选票上继续投票",
       "hmpbInstructions": "说明",
@@ -448,11 +502,13 @@
       "hmpbInstructionsToVoteTitle": "投票：",
       "hmpbInstructionsWriteInText": "如果要为未出现在选票上的人进行投票，请在“写入候选人“行中写下此人的姓名，并完整填写该行旁边的椭圆形区域。",
       "hmpbInstructionsWriteInTitle": "投票选举候选人：",
+      "hmpbNone": "没有任何",
       "hmpbOfficialAbsenteeBallot": "正式缺席选票",
       "hmpbOfficialBallot": "正式选票",
       "hmpbOfficialProvisionalBallot": "普通临时选票",
       "hmpbPage": "页码",
       "hmpbPageIntentionallyBlank": "本页为有意留空",
+      "hmpbPartyPreference": "党派偏好",
       "hmpbSampleAbsenteeBallot": "缺席选票样本",
       "hmpbSampleBallot": "选票样本",
       "hmpbSampleProvisionalBallot": "临时选票样本",
@@ -544,6 +600,18 @@
       "hmpb7WillBeElected": "將選出七人。",
       "hmpb8WillBeElected": "將選出八人。",
       "hmpb9WillBeElected": "將選出九人。",
+      "hmpbCaEndOfContestEnd": "競賽",
+      "hmpbCaEndOfContestStart": "結束",
+      "hmpbCaLargeContestNoticeEnd": "競選訊息印在這張選票的背面，以便所有候選人都能列在同一頁上。",
+      "hmpbCaLargeContestNoticeStart": "由於候選人多，",
+      "hmpbCaLargeContestNoticeTurnOver": "請翻頁開始投票",
+      "hmpbCaMeasuresTitle": "提交給選民的提案",
+      "hmpbCaNonpartisanOfficesTitle": "無黨派辦公室",
+      "hmpbCaPartyNominatedOfficesText": "這些職位的候選人是其姓名旁邊顯示的政黨正式提名人。",
+      "hmpbCaPartyNominatedOfficesTitle": "黨內提名職位",
+      "hmpbCaVoterNominatedOfficesShortTitle": "選民提名職位",
+      "hmpbCaVoterNominatedOfficesText": "候選人會顯示其黨派傾向（或無黨派傾向），僅供選民參考。這並不代表任何政黨的背書或認可。",
+      "hmpbCaVoterNominatedOfficesTitle": "選民提名和無黨派職位",
       "hmpbContinueVotingOnBack": "將選票翻過來，繼續投票",
       "hmpbContinueVotingOnNextSheet": "在下一張選票上繼續投票",
       "hmpbInstructions": "說明",
@@ -551,11 +619,13 @@
       "hmpbInstructionsToVoteTitle": "投票：",
       "hmpbInstructionsWriteInText": "如果要為未出現在選票上的人進行投票，請在「寫入候選人「行中寫下此人的姓名，並完整填寫該行旁邊的橢圓形區域。",
       "hmpbInstructionsWriteInTitle": "投票選舉候選人：",
+      "hmpbNone": "沒有任何",
       "hmpbOfficialAbsenteeBallot": "正式缺席選票",
       "hmpbOfficialBallot": "正式選票",
       "hmpbOfficialProvisionalBallot": "普通臨時選票",
       "hmpbPage": "頁碼",
       "hmpbPageIntentionallyBlank": "本頁為有意留空",
+      "hmpbPartyPreference": "黨派偏好",
       "hmpbSampleAbsenteeBallot": "缺席選票樣本",
       "hmpbSampleBallot": "選票樣本",
       "hmpbSampleProvisionalBallot": "臨時選票樣本",
@@ -575,6 +645,474 @@
       "hmpbVoteForNotMoreThan1": "最多只能選1人",
       "hmpbVotingComplete": "您已完成投票。",
       "hmpbWriteIn": "寫入候選人"
+    },
+    "hi": {
+      "contestDescription": {
+        "water-1-fishing": "क्या शहर के स्वामित्व वाली सभी झीलों और नदियों में मछली पकड़ने पर प्रतिबंध लगा देना चाहिए?",
+        "water-2-fishing": "क्या शहर के स्वामित्व वाली सभी झीलों और नदियों में मछली पकड़ने पर प्रतिबंध लगा देना चाहिए?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "हाँ",
+        "water-1-fishing-allow-fishing": "नहीं",
+        "water-2-fishing-ban-fishing": "हाँ",
+        "water-2-fishing-allow-fishing": "नहीं"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "काउंटी नेता स्तनपायी",
+        "county-leader-fish": "काउंटी लीडर मछली",
+        "congressional-1-mammal": "कांग्रेस के प्रथम प्रतिनिधि - स्तनधारी",
+        "congressional-1-fish": "कांग्रेस के प्रथम प्रतिनिधि - मछली",
+        "congressional-2-mammal": "कांग्रेस के दूसरे प्रतिनिधि - स्तनधारी",
+        "congressional-2-fish": "कांग्रेस के दूसरे प्रतिनिधि - मछली",
+        "water-1-fishing": "जल जिला 1 मछली पकड़ना",
+        "water-2-fishing": "जल जिला 2 मछली पकड़ना"
+      },
+      "jurisdictionName": "सैम्पल काउंटी",
+      "districtName": {
+        "county": "काउंटी",
+        "congressional-1": "कांग्रेस जिला 1",
+        "congressional-2": "कांग्रेस जिला 2",
+        "water-1": "जल जिला 1",
+        "water-2": "जल जिला 2"
+      },
+      "electionTitle": "प्राथमिक चुनाव का उदाहरण",
+      "partyFullName": {
+        "0": "स्तनधारी दल",
+        "1": "मछली पार्टी"
+      },
+      "partyName": {
+        "0": "सस्तन प्राणी",
+        "1": "मछली"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "क्षेत्र 1",
+        "precinct-c1-w1-2-polling-place": "वार्ड 2",
+        "precinct-c1-w2-polling-place": "वार्ड 3",
+        "precinct-c2-polling-place": "वार्ड 4"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "क्षेत्र 1",
+        "precinct-c1-w1-2": "वार्ड 2",
+        "precinct-c1-w2": "वार्ड 3",
+        "precinct-c2": "वार्ड 4"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "वार्ड 4 - विभाजन 1",
+        "precinct-c2-split-2": "वार्ड 4 - विभाजन 2"
+      },
+      "stateName": "नमूने की स्थिति",
+      "ballotLanguage": {
+        "zh-Hans": "सरलीकृत चीनी",
+        "zh-Hant": "पारंपरिक चीनी",
+        "en": "अंग्रेज़ी",
+        "es-US": "स्पेनिश (अमेरिका)"
+      },
+      "electionDate": "8 सितंबर 2021",
+      "hmpb10WillBeElected": "दस लोगों का चुनाव होगा",
+      "hmpb2WillBeElected": "दो लोगों का चुनाव होगा",
+      "hmpb3WillBeElected": "तीन लोगों का चुनाव होगा",
+      "hmpb4WillBeElected": "चार चुने जाएंगे",
+      "hmpb5WillBeElected": "पांच चुने जाएंगे",
+      "hmpb6WillBeElected": "छह चुने जाएंगे",
+      "hmpb7WillBeElected": "सात लोगों का चुनाव होगा",
+      "hmpb8WillBeElected": "आठ चुने जाएंगे",
+      "hmpb9WillBeElected": "नौ लोगों का चुनाव होगा",
+      "hmpbCaEndOfContestEnd": "प्रतियोगिता",
+      "hmpbCaEndOfContestStart": "का अंत",
+      "hmpbCaLargeContestNoticeEnd": "इस मतपत्र के पीछे की तरफ प्रतियोगिता का विवरण दिया गया है ताकि सभी उम्मीदवारों को एक ही पृष्ठ पर सूचीबद्ध किया जा सके।",
+      "hmpbCaLargeContestNoticeStart": "उम्मीदवारों की बड़ी संख्या के कारण,",
+      "hmpbCaLargeContestNoticeTurnOver": "मतदान शुरू करने के लिए कृपया पलटें।",
+      "hmpbCaMeasuresTitle": "मतदाताओं के समक्ष प्रस्तुत उपाय",
+      "hmpbCaNonpartisanOfficesTitle": "गैर-पक्षपातपूर्ण कार्यालय",
+      "hmpbCaPartyNominatedOfficesText": "इन पदों के लिए उम्मीदवार उस पार्टी के आधिकारिक नामांकित व्यक्ति होते हैं जिनका नाम उनके नाम के साथ प्रदर्शित होता है।",
+      "hmpbCaPartyNominatedOfficesTitle": "पार्टी द्वारा मनोनीत पद",
+      "hmpbCaVoterNominatedOfficesShortTitle": "मतदाताओं द्वारा मनोनीत पद",
+      "hmpbCaVoterNominatedOfficesText": "उम्मीदवार मतदाताओं की जानकारी के लिए अपनी पार्टी की प्राथमिकता (या कोई नहीं) प्रदर्शित करते हैं। यह किसी पार्टी का समर्थन या अनुमोदन नहीं है।",
+      "hmpbCaVoterNominatedOfficesTitle": "मतदाताओं द्वारा मनोनीत और गैर-पक्षपातपूर्ण पद",
+      "hmpbContinueVotingOnBack": "मतपत्र को पलटें और मतदान जारी रखें",
+      "hmpbContinueVotingOnNextSheet": "अगली मतपत्र पर मतदान जारी रखें",
+      "hmpbInstructions": "निर्देश",
+      "hmpbInstructionsToVoteText": "वोट देने के लिए, अपनी पसंद के आगे बने अंडाकार को पूरी तरह भरें।",
+      "hmpbInstructionsToVoteTitle": "मतदान करना:",
+      "hmpbInstructionsWriteInText": "यदि आप ऐसे व्यक्ति को वोट देना चाहते हैं जिसका नाम मतपत्र पर नहीं है, तो \"राइट-इन\" लाइन पर उस व्यक्ति का नाम लिखें और लाइन के बगल में बने अंडाकार को पूरी तरह से भरें।",
+      "hmpbInstructionsWriteInTitle": "किसी उम्मीदवार को वोट देने के लिए:",
+      "hmpbNone": "कोई नहीं",
+      "hmpbOfficialAbsenteeBallot": "आधिकारिक अनुपस्थित मतपत्र",
+      "hmpbOfficialBallot": "आधिकारिक मतपत्र",
+      "hmpbOfficialProvisionalBallot": "आधिकारिक अनंतिम मतपत्र",
+      "hmpbPage": "पृष्ठ",
+      "hmpbPageIntentionallyBlank": "इस पृष्ठ को जानबूझकर खाली छोड़ दिया गया",
+      "hmpbPartyPreference": "पार्टी प्राथमिकता",
+      "hmpbSampleAbsenteeBallot": "अनुपस्थित मतदाता मतपत्र का नमूना",
+      "hmpbSampleBallot": "नमूना मतपत्र",
+      "hmpbSampleProvisionalBallot": "नमूना अनंतिम मतपत्र",
+      "hmpbTestAbsenteeBallot": "अनुपस्थित मतपत्र का परीक्षण करें",
+      "hmpbTestBallot": "परीक्षण मतपत्र",
+      "hmpbTestProvisionalBallot": "अनंतिम मतपत्र का परीक्षण करें",
+      "hmpbVoteFor1": "1 के लिए वोट करें",
+      "hmpbVoteFor10": "अधिकतम 10 के लिए वोट करें",
+      "hmpbVoteFor2": "अधिकतम 2 के लिए वोट करें",
+      "hmpbVoteFor3": "अधिकतम 3 के लिए वोट करें",
+      "hmpbVoteFor4": "अधिकतम 4 के लिए वोट करें",
+      "hmpbVoteFor5": "अधिकतम 5 के लिए वोट करें",
+      "hmpbVoteFor6": "अधिकतम 6 उम्मीदवारों के लिए वोट करें",
+      "hmpbVoteFor7": "अधिकतम 7 उम्मीदवारों के लिए वोट करें",
+      "hmpbVoteFor8": "अधिकतम 8 उम्मीदवारों के लिए वोट करें",
+      "hmpbVoteFor9": "अधिकतम 9 उम्मीदवारों के लिए वोट करें",
+      "hmpbVoteForNotMoreThan1": "एक से अधिक के लिए वोट न करें",
+      "hmpbVotingComplete": "आपने मतदान पूरा कर लिया है।",
+      "hmpbWriteIn": "लिखकर भेजें"
+    },
+    "ja-JP": {
+      "contestDescription": {
+        "water-1-fishing": "市が所有するすべての湖や河川での釣りは禁止されるべきでしょうか？",
+        "water-2-fishing": "市が所有するすべての湖や河川での釣りは禁止されるべきでしょうか？"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "はい",
+        "water-1-fishing-allow-fishing": "いいえ",
+        "water-2-fishing-ban-fishing": "はい",
+        "water-2-fishing-allow-fishing": "いいえ"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "郡リーダー哺乳類",
+        "county-leader-fish": "カウンティリーダーフィッシュ",
+        "congressional-1-mammal": "議会第1区代表 - 哺乳類",
+        "congressional-1-fish": "連邦議会第1選挙区代表 - 魚類",
+        "congressional-2-mammal": "下院議員2名 - 哺乳類",
+        "congressional-2-fish": "連邦議会第2区代表 - 魚類",
+        "water-1-fishing": "水道区1の釣り",
+        "water-2-fishing": "水道地区2の釣り"
+      },
+      "jurisdictionName": "サンプル郡",
+      "districtName": {
+        "county": "郡",
+        "congressional-1": "第1選挙区",
+        "congressional-2": "第2選挙区",
+        "water-1": "水道地区1",
+        "water-2": "水道地区2"
+      },
+      "electionTitle": "予備選挙の例",
+      "partyFullName": {
+        "0": "哺乳類パーティー",
+        "1": "フィッシュパーティー"
+      },
+      "partyName": {
+        "0": "哺乳類",
+        "1": "魚"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "第1区",
+        "precinct-c1-w1-2-polling-place": "第2区",
+        "precinct-c1-w2-polling-place": "第3区",
+        "precinct-c2-polling-place": "第4区"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "第1区",
+        "precinct-c1-w1-2": "第2区",
+        "precinct-c1-w2": "第3区",
+        "precinct-c2": "第4区"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "第4区 - 分割1",
+        "precinct-c2-split-2": "第4管区 - スプリット2"
+      },
+      "stateName": "サンプルの状態",
+      "ballotLanguage": {
+        "zh-Hans": "簡体中国語",
+        "zh-Hant": "繁体中国語",
+        "en": "英語",
+        "es-US": "スペイン語 (アメリカ)"
+      },
+      "electionDate": "2021年9月8日",
+      "hmpb10WillBeElected": "10人が選出される",
+      "hmpb2WillBeElected": "2人が選出される",
+      "hmpb3WillBeElected": "3人が選出される",
+      "hmpb4WillBeElected": "4人が選出される",
+      "hmpb5WillBeElected": "5人が選出される",
+      "hmpb6WillBeElected": "6人が選出される",
+      "hmpb7WillBeElected": "7人が選出される",
+      "hmpb8WillBeElected": "8人が選出される",
+      "hmpb9WillBeElected": "9人が選出される",
+      "hmpbCaEndOfContestEnd": "コンテスト",
+      "hmpbCaEndOfContestStart": "終了",
+      "hmpbCaLargeContestNoticeEnd": "投票用紙の裏面にコンテストの告知が記載されているため、すべての候補者が同じページに掲載されます。",
+      "hmpbCaLargeContestNoticeStart": "候補者の数が多いため、",
+      "hmpbCaLargeContestNoticeTurnOver": "投票を開始するには裏面をご覧ください。",
+      "hmpbCaMeasuresTitle": "有権者に提出された措置",
+      "hmpbCaNonpartisanOfficesTitle": "無党派の役職",
+      "hmpbCaPartyNominatedOfficesText": "これらの役職の候補者は、氏名とともに表示されている政党の公式候補者です。",
+      "hmpbCaPartyNominatedOfficesTitle": "政党が指名する役職",
+      "hmpbCaVoterNominatedOfficesShortTitle": "有権者が指名する役職",
+      "hmpbCaVoterNominatedOfficesText": "候補者は、有権者への情報提供のため、所属政党（または無所属）を明示します。これは政党による支持表明や承認を意味するものではありません。",
+      "hmpbCaVoterNominatedOfficesTitle": "有権者指名による役職および無党派の役職",
+      "hmpbContinueVotingOnBack": "投票用紙を裏返して投票を続けてください。",
+      "hmpbContinueVotingOnNextSheet": "次の投票用紙で投票を続けてください。",
+      "hmpbInstructions": "説明書",
+      "hmpbInstructionsToVoteText": "投票するには、選択肢の横にある楕円を完全に塗りつぶしてください。",
+      "hmpbInstructionsToVoteTitle": "投票するには：",
+      "hmpbInstructionsWriteInText": "投票用紙に名前が記載されていない人に投票する場合は、「記入欄」にその人の名前を記入し、その横にある楕円を完全に塗りつぶしてください。",
+      "hmpbInstructionsWriteInTitle": "記入投票を行うには：",
+      "hmpbNone": "なし",
+      "hmpbOfficialAbsenteeBallot": "公式不在者投票用紙",
+      "hmpbOfficialBallot": "公式投票用紙",
+      "hmpbOfficialProvisionalBallot": "公式暫定投票用紙",
+      "hmpbPage": "ページ",
+      "hmpbPageIntentionallyBlank": "このページは意図的に空白になっています",
+      "hmpbPartyPreference": "政党支持",
+      "hmpbSampleAbsenteeBallot": "不在者投票用紙の見本",
+      "hmpbSampleBallot": "投票用紙見本",
+      "hmpbSampleProvisionalBallot": "仮投票用紙の見本",
+      "hmpbTestAbsenteeBallot": "不在者投票のテスト",
+      "hmpbTestBallot": "テスト投票用紙",
+      "hmpbTestProvisionalBallot": "テスト用暫定投票用紙",
+      "hmpbVoteFor1": "1に投票してください",
+      "hmpbVoteFor10": "最大10件まで投票できます",
+      "hmpbVoteFor2": "最大2名まで投票できます",
+      "hmpbVoteFor3": "最大3名まで投票できます",
+      "hmpbVoteFor4": "最大4人まで投票できます",
+      "hmpbVoteFor5": "最大5人まで投票できます",
+      "hmpbVoteFor6": "最大6名まで投票できます",
+      "hmpbVoteFor7": "最大7名まで投票できます",
+      "hmpbVoteFor8": "最大8名まで投票できます",
+      "hmpbVoteFor9": "最大9名まで投票できます",
+      "hmpbVoteForNotMoreThan1": "1つまで投票してください",
+      "hmpbVotingComplete": "投票が完了しました。",
+      "hmpbWriteIn": "記入投票"
+    },
+    "km": {
+      "contestDescription": {
+        "water-1-fishing": "តើការនេសាទគួរតែត្រូវបានហាមឃាត់នៅក្នុងបឹង និងទន្លេទាំងអស់ដែលជាកម្មសិទ្ធិរបស់ទីក្រុងដែរឬទេ?",
+        "water-2-fishing": "តើការនេសាទគួរតែត្រូវបានហាមឃាត់នៅក្នុងបឹង និងទន្លេទាំងអស់ដែលជាកម្មសិទ្ធិរបស់ទីក្រុងដែរឬទេ?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "បាទ/ចាស៎",
+        "water-1-fishing-allow-fishing": "ទេ",
+        "water-2-fishing-ban-fishing": "បាទ/ចាស៎",
+        "water-2-fishing-allow-fishing": "ទេ"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "ថនិកសត្វ​ថ្នាក់​ដឹកនាំ​ខោនធី",
+        "county-leader-fish": "ត្រី​មេដឌ័រ​ខោនធី",
+        "congressional-1-mammal": "តំណាងរាស្រ្តទី 1 - ថនិកសត្វ",
+        "congressional-1-fish": "តំណាងរាស្រ្តទី 1 - ត្រី",
+        "congressional-2-mammal": "តំណាងរាស្រ្តទី 2 - ថនិកសត្វ",
+        "congressional-2-fish": "តំណាងរាស្រ្តទី 2 - ត្រី",
+        "water-1-fishing": "នេសាទនៅស្រុកទឹកលេខ ១",
+        "water-2-fishing": "នេសាទនៅស្រុកទឹកលេខ ២"
+      },
+      "jurisdictionName": "ស្រុកគំរូ",
+      "districtName": {
+        "county": "ខេត្ត",
+        "congressional-1": "មណ្ឌលសភាលេខ ១",
+        "congressional-2": "មណ្ឌលសភាលេខ ២",
+        "water-1": "ស្រុកទឹកទី 1",
+        "water-2": "ស្រុកទឹកលេខ ២"
+      },
+      "electionTitle": "ឧទាហរណ៍នៃការបោះឆ្នោតបឋម",
+      "partyFullName": {
+        "0": "ពិធីជប់លៀងថនិកសត្វ",
+        "1": "ពិធីជប់លៀងត្រី"
+      },
+      "partyName": {
+        "0": "ថនិកសត្វ",
+        "1": "ត្រី"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "សង្កាត់លេខ ១",
+        "precinct-c1-w1-2-polling-place": "សង្កាត់លេខ ២",
+        "precinct-c1-w2-polling-place": "សង្កាត់លេខ ៣",
+        "precinct-c2-polling-place": "សង្កាត់លេខ ៤"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "សង្កាត់លេខ ១",
+        "precinct-c1-w1-2": "សង្កាត់លេខ ២",
+        "precinct-c1-w2": "សង្កាត់លេខ ៣",
+        "precinct-c2": "សង្កាត់លេខ ៤"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "សង្កាត់លេខ ៤ - បំបែកលេខ ១",
+        "precinct-c2-split-2": "សង្កាត់លេខ ៤ - បំបែកលេខ ២"
+      },
+      "stateName": "ស្ថានភាពនៃគំរូ",
+      "ballotLanguage": {
+        "zh-Hans": "ចិន​អក្សរ​កាត់",
+        "zh-Hant": "ចិន​អក្សរ​ពេញ",
+        "en": "អង់គ្លេស",
+        "es-US": "អេស្ប៉ាញ (ស.រ.អ)"
+      },
+      "electionDate": "8 កញ្ញា 2021",
+      "hmpb10WillBeElected": "ដប់នាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb2WillBeElected": "ពីរនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb3WillBeElected": "បីនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb4WillBeElected": "បួននាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb5WillBeElected": "ប្រាំនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb6WillBeElected": "ប្រាំមួយនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb7WillBeElected": "ប្រាំពីរនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb8WillBeElected": "ប្រាំបីនាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpb9WillBeElected": "ប្រាំបួននាក់នឹងត្រូវបានជ្រើសរើស",
+      "hmpbCaEndOfContestEnd": "ការប្រកួត",
+      "hmpbCaEndOfContestStart": "ចុងបញ្ចប់នៃ",
+      "hmpbCaLargeContestNoticeEnd": "ការប្រកួតប្រជែងនឹងលេចឡើងនៅផ្នែកខាងក្រោយនៃសន្លឹកឆ្នោតនេះ ដើម្បីឱ្យបេក្ខជនទាំងអស់អាចត្រូវបានចុះបញ្ជីនៅលើទំព័រតែមួយ។",
+      "hmpbCaLargeContestNoticeStart": "ដោយសារតែចំនួនបេក្ខជនច្រើន គណៈកម្មការ",
+      "hmpbCaLargeContestNoticeTurnOver": "សូមបង្វែរដើម្បីចាប់ផ្តើមបោះឆ្នោតឱ្យ",
+      "hmpbCaMeasuresTitle": "វិធានការដែលបានដាក់ជូនអ្នកបោះឆ្នោត",
+      "hmpbCaNonpartisanOfficesTitle": "ការិយាល័យមិនលំអៀង",
+      "hmpbCaPartyNominatedOfficesText": "បេក្ខជនសម្រាប់តំណែងទាំងនេះ គឺជាបេក្ខជនផ្លូវការរបស់គណបក្ស ដែលបង្ហាញជាមួយឈ្មោះរបស់ពួកគេ។",
+      "hmpbCaPartyNominatedOfficesTitle": "ការិយាល័យ​ដែល​ត្រូវ​បាន​តែងតាំង​ដោយ​គណបក្ស",
+      "hmpbCaVoterNominatedOfficesShortTitle": "ការិយាល័យ​ដែល​ត្រូវ​បាន​តែងតាំង​ដោយ​អ្នកបោះឆ្នោត",
+      "hmpbCaVoterNominatedOfficesText": "បេក្ខជនបង្ហាញចំណង់ចំណូលចិត្តរបស់គណបក្ស (ឬ គ្មាន) សម្រាប់ជាព័ត៌មានដល់អ្នកបោះឆ្នោត។ នេះមិនមែនជាការគាំទ្រ ឬការយល់ព្រមពីគណបក្សនោះទេ។",
+      "hmpbCaVoterNominatedOfficesTitle": "ការិយាល័យ​ដែល​តែងតាំង​ដោយ​អ្នកបោះឆ្នោត និង​ការិយាល័យ​មិន​លំអៀង",
+      "hmpbContinueVotingOnBack": "បង្វែរសន្លឹកឆ្នោតហើយបន្តបោះឆ្នោត",
+      "hmpbContinueVotingOnNextSheet": "បន្តបោះឆ្នោតលើសន្លឹកឆ្នោតបន្ទាប់",
+      "hmpbInstructions": "ការណែនាំ",
+      "hmpbInstructionsToVoteText": "ដើម្បីបោះឆ្នោត សូមបំពេញរង្វង់មូលដែលនៅជាប់នឹងជម្រើសរបស់អ្នក។",
+      "hmpbInstructionsToVoteTitle": "ដើម្បីបោះឆ្នោត៖",
+      "hmpbInstructionsWriteInText": "ដើម្បីបោះឆ្នោតឱ្យបុគ្គលដែលមិនមានឈ្មោះនៅលើសន្លឹកឆ្នោត សូមសរសេរឈ្មោះបុគ្គលនោះនៅលើបន្ទាត់ \"សរសេរចូល\" ហើយបំពេញរង្វង់មូលនៅជាប់នឹងបន្ទាត់នោះឲ្យបានពេញលេញ។",
+      "hmpbInstructionsWriteInTitle": "ដើម្បីបោះឆ្នោតសម្រាប់ការសរសេរចូល៖",
+      "hmpbNone": "គ្មាន",
+      "hmpbOfficialAbsenteeBallot": "សន្លឹកឆ្នោតអវត្តមានផ្លូវការ",
+      "hmpbOfficialBallot": "សន្លឹកឆ្នោតផ្លូវការ",
+      "hmpbOfficialProvisionalBallot": "សន្លឹកឆ្នោតបណ្ដោះអាសន្នផ្លូវការ",
+      "hmpbPage": "ទំព័រ",
+      "hmpbPageIntentionallyBlank": "ទំព័រនេះ​ត្រូវបាន​ទុកចោល​ដោយចេតនា",
+      "hmpbPartyPreference": "ចំណូលចិត្តរបស់គណបក្ស",
+      "hmpbSampleAbsenteeBallot": "សន្លឹកឆ្នោតអវត្តមានគំរូ",
+      "hmpbSampleBallot": "សន្លឹកឆ្នោតគំរូ",
+      "hmpbSampleProvisionalBallot": "គំរូសន្លឹកឆ្នោតបណ្ដោះអាសន្ន",
+      "hmpbTestAbsenteeBallot": "សន្លឹកឆ្នោតអវត្តមានសាកល្បង",
+      "hmpbTestBallot": "សន្លឹកឆ្នោតសាកល្បង",
+      "hmpbTestProvisionalBallot": "សាកល្បងសន្លឹកឆ្នោតបណ្ដោះអាសន្ន",
+      "hmpbVoteFor1": "បោះឆ្នោតឱ្យ 1",
+      "hmpbVoteFor10": "បោះឆ្នោតឲ្យរហូតដល់ ១០",
+      "hmpbVoteFor2": "បោះឆ្នោតឲ្យរហូតដល់ ២",
+      "hmpbVoteFor3": "បោះឆ្នោតឲ្យរហូតដល់ ៣",
+      "hmpbVoteFor4": "បោះឆ្នោតឲ្យរហូតដល់ ៤",
+      "hmpbVoteFor5": "បោះឆ្នោតឲ្យរហូតដល់ ៥",
+      "hmpbVoteFor6": "បោះឆ្នោតឲ្យរហូតដល់ ៦",
+      "hmpbVoteFor7": "បោះឆ្នោតឲ្យរហូតដល់ ៧",
+      "hmpbVoteFor8": "បោះឆ្នោតឲ្យរហូតដល់ ៨",
+      "hmpbVoteFor9": "បោះឆ្នោតឲ្យរហូតដល់ ៩",
+      "hmpbVoteForNotMoreThan1": "បោះឆ្នោតមិនឲ្យលើសពី ១",
+      "hmpbVotingComplete": "អ្នកបានបញ្ចប់ការបោះឆ្នោតហើយ។",
+      "hmpbWriteIn": "សរសេរចូល"
+    },
+    "ko": {
+      "contestDescription": {
+        "water-1-fishing": "시 소유의 모든 호수와 강에서 낚시를 금지해야 할까요?",
+        "water-2-fishing": "시 소유의 모든 호수와 강에서 낚시를 금지해야 할까요?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "예",
+        "water-1-fishing-allow-fishing": "아니요",
+        "water-2-fishing-ban-fishing": "예",
+        "water-2-fishing-allow-fishing": "아니요"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "카운티 리더 포유류",
+        "county-leader-fish": "카운티 지도자 피시",
+        "congressional-1-mammal": "제1선거구 하원의원 - 포유류",
+        "congressional-1-fish": "제1선거구 하원의원 - 어업",
+        "congressional-2-mammal": "제2선거구 하원의원 - 포유류",
+        "congressional-2-fish": "제2선거구 하원의원 - 어류",
+        "water-1-fishing": "제1수도구역 낚시",
+        "water-2-fishing": "제2수도구역 낚시"
+      },
+      "jurisdictionName": "샘플 카운티",
+      "districtName": {
+        "county": "군",
+        "congressional-1": "제1선거구",
+        "congressional-2": "제2선거구",
+        "water-1": "수도 구역 1",
+        "water-2": "제2수도구역"
+      },
+      "electionTitle": "예시 예비선거",
+      "partyFullName": {
+        "0": "포유류 파티",
+        "1": "피쉬 파티"
+      },
+      "partyName": {
+        "0": "포유류",
+        "1": "물고기"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "제1구역",
+        "precinct-c1-w1-2-polling-place": "제2구역",
+        "precinct-c1-w2-polling-place": "3구역",
+        "precinct-c2-polling-place": "4번 구역"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "제1구역",
+        "precinct-c1-w1-2": "제2구역",
+        "precinct-c1-w2": "3구역",
+        "precinct-c2": "4번 구역"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "4번 구역 - 1구간",
+        "precinct-c2-split-2": "4번 구역 - 2구간"
+      },
+      "stateName": "샘플 상태",
+      "ballotLanguage": {
+        "zh-Hans": "중국어(간체)",
+        "zh-Hant": "중국어(번체)",
+        "en": "영어",
+        "es-US": "스페인어(미국)"
+      },
+      "electionDate": "2021년 9월 8일",
+      "hmpb10WillBeElected": "10명이 선출될 것입니다.",
+      "hmpb2WillBeElected": "두 명이 선출될 것입니다.",
+      "hmpb3WillBeElected": "세 명이 선출될 것입니다.",
+      "hmpb4WillBeElected": "네 명이 선출될 것입니다.",
+      "hmpb5WillBeElected": "다섯 명이 선출될 것입니다.",
+      "hmpb6WillBeElected": "6명이 선출될 것입니다.",
+      "hmpb7WillBeElected": "7명이 선출될 것입니다.",
+      "hmpb8WillBeElected": "8명이 선출될 것입니다.",
+      "hmpb9WillBeElected": "9명이 선출될 것입니다.",
+      "hmpbCaEndOfContestEnd": "경쟁",
+      "hmpbCaEndOfContestStart": "끝",
+      "hmpbCaLargeContestNoticeEnd": "모든 후보자를 한 페이지에 나열할 수 있도록 투표 용지 뒷면에 경선 정보가 표시됩니다.",
+      "hmpbCaLargeContestNoticeStart": "지원자가 많아,",
+      "hmpbCaLargeContestNoticeTurnOver": "투표를 시작하시려면 페이지를 뒤집어 주십시오.",
+      "hmpbCaMeasuresTitle": "유권자들에게 제출된 안건들",
+      "hmpbCaNonpartisanOfficesTitle": "무소속 사무소",
+      "hmpbCaPartyNominatedOfficesText": "이 직책에 출마하는 후보자는 당의 공식 지명자이며, 지명자 이름이 명시되어 있습니다.",
+      "hmpbCaPartyNominatedOfficesTitle": "정당 지명직",
+      "hmpbCaVoterNominatedOfficesShortTitle": "유권자 지명직",
+      "hmpbCaVoterNominatedOfficesText": "후보자는 유권자 정보 제공을 위해 소속 정당(또는 무소속)을 표시합니다. 이는 특정 정당의 지지 또는 승인을 의미하는 것은 아닙니다.",
+      "hmpbCaVoterNominatedOfficesTitle": "유권자 지명직 및 비당파직",
+      "hmpbContinueVotingOnBack": "투표용지를 뒤집어서 투표를 계속하세요.",
+      "hmpbContinueVotingOnNextSheet": "다음 투표 용지에서 계속 투표하세요.",
+      "hmpbInstructions": "지침",
+      "hmpbInstructionsToVoteText": "투표하시려면 선택하신 항목 옆의 동그라미를 모두 채워주세요.",
+      "hmpbInstructionsToVoteTitle": "투표하려면:",
+      "hmpbInstructionsWriteInText": "투표용지에 이름이 없는 사람에게 투표하려면 \"기명 투표\"란에 그 사람의 이름을 쓰고 옆의 동그라미를 모두 채우십시오.",
+      "hmpbInstructionsWriteInTitle": "기명 투표를 하려면:",
+      "hmpbNone": "없음",
+      "hmpbOfficialAbsenteeBallot": "공식 부재자 투표용지",
+      "hmpbOfficialBallot": "공식 투표용지",
+      "hmpbOfficialProvisionalBallot": "공식 임시 투표용지",
+      "hmpbPage": "페이지",
+      "hmpbPageIntentionallyBlank": "이 페이지는 의도적으로 비워 두었습니다.",
+      "hmpbPartyPreference": "정당 선호도",
+      "hmpbSampleAbsenteeBallot": "부재자 투표 용지 예시",
+      "hmpbSampleBallot": "샘플 투표용지",
+      "hmpbSampleProvisionalBallot": "임시 투표용지 샘플",
+      "hmpbTestAbsenteeBallot": "부재자 투표 용지 테스트",
+      "hmpbTestBallot": "시험 투표용지",
+      "hmpbTestProvisionalBallot": "시험용 임시 투표용지",
+      "hmpbVoteFor1": "1번에게 투표하세요",
+      "hmpbVoteFor10": "최대 10명까지 투표하세요",
+      "hmpbVoteFor2": "최대 2명까지 투표하세요",
+      "hmpbVoteFor3": "최대 3명까지 투표하세요",
+      "hmpbVoteFor4": "최대 4명까지 투표하세요",
+      "hmpbVoteFor5": "최대 5명까지 투표하세요",
+      "hmpbVoteFor6": "최대 6명까지 투표하세요",
+      "hmpbVoteFor7": "최대 7명까지 투표하세요",
+      "hmpbVoteFor8": "최대 8명까지 투표하세요",
+      "hmpbVoteFor9": "최대 9명까지 투표하세요",
+      "hmpbVoteForNotMoreThan1": "1명 이하에게 투표하세요.",
+      "hmpbVotingComplete": "투표가 완료되었습니다.",
+      "hmpbWriteIn": "직접 기입"
     },
     "es-US": {
       "contestDescription": {
@@ -647,6 +1185,18 @@
       "hmpb7WillBeElected": "Se elegirán siete",
       "hmpb8WillBeElected": "Ocho serán elegidos",
       "hmpb9WillBeElected": "Nueve serán elegidos",
+      "hmpbCaEndOfContestEnd": "Concurso",
+      "hmpbCaEndOfContestStart": "Fin de",
+      "hmpbCaLargeContestNoticeEnd": "La palabra \"concurso\" aparece en el reverso de esta papeleta de votación para que todos los candidatos puedan figurar en la misma página.",
+      "hmpbCaLargeContestNoticeStart": "Debido a la gran cantidad de candidatos, el",
+      "hmpbCaLargeContestNoticeTurnOver": "Por favor, dé la vuelta para comenzar a votar por",
+      "hmpbCaMeasuresTitle": "Medidas presentadas a los votantes",
+      "hmpbCaNonpartisanOfficesTitle": "Cargos no partidistas",
+      "hmpbCaPartyNominatedOfficesText": "Los candidatos a estos cargos son los nominados oficialmente por el partido, cuyo nombre se muestra junto al suyo.",
+      "hmpbCaPartyNominatedOfficesTitle": "Cargos designados por el partido",
+      "hmpbCaVoterNominatedOfficesShortTitle": "Cargos designados por los votantes",
+      "hmpbCaVoterNominatedOfficesText": "Los candidatos indican su preferencia partidista (o ninguna) para información de los votantes. Esto no constituye un respaldo ni una aprobación por parte de ningún partido.",
+      "hmpbCaVoterNominatedOfficesTitle": "Cargos designados por los votantes y no partidistas",
       "hmpbContinueVotingOnBack": "Voltea la boleta y continúa votando",
       "hmpbContinueVotingOnNextSheet": "Continúa votando en la siguiente hoja de la boleta",
       "hmpbInstructions": "Instrucciones",
@@ -654,11 +1204,13 @@
       "hmpbInstructionsToVoteTitle": "Para votar:",
       "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escribe el nombre de la persona en la línea \"Candidato por Escrito\" y llena completamente el óvalo junto a la línea.",
       "hmpbInstructionsWriteInTitle": "Para votar por un candidato por escrito:",
+      "hmpbNone": "Ninguno",
       "hmpbOfficialAbsenteeBallot": "Boleta oficial de voto ausente",
       "hmpbOfficialBallot": "Boleta oficial",
       "hmpbOfficialProvisionalBallot": "Boleta oficial provisional",
       "hmpbPage": "Página",
       "hmpbPageIntentionallyBlank": "Esta página está intencionalmente en blanco",
+      "hmpbPartyPreference": "Preferencia de partido",
       "hmpbSampleAbsenteeBallot": "Modelo de boleta de voto ausente",
       "hmpbSampleBallot": "Boleta de muestra",
       "hmpbSampleProvisionalBallot": "Boleta de muestra provisional",
@@ -678,6 +1230,240 @@
       "hmpbVoteForNotMoreThan1": "Vote por no más de 1",
       "hmpbVotingComplete": "Has completado la votación.",
       "hmpbWriteIn": "Candidato por escrito"
+    },
+    "fil": {
+      "contestDescription": {
+        "water-1-fishing": "Dapat bang ipagbawal ang pangingisda sa lahat ng lawa at ilog na pag-aari ng lungsod?",
+        "water-2-fishing": "Dapat bang ipagbawal ang pangingisda sa lahat ng lawa at ilog na pag-aari ng lungsod?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "OO",
+        "water-1-fishing-allow-fishing": "HINDI",
+        "water-2-fishing-ban-fishing": "OO",
+        "water-2-fishing-allow-fishing": "HINDI"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "Mammal na Pinuno ng Kondado",
+        "county-leader-fish": "Isda ng Pinuno ng Kondado",
+        "congressional-1-mammal": "Kinatawan ng Kongreso 1 - Mammal",
+        "congressional-1-fish": "Kinatawan ng Kongreso 1 - Isda",
+        "congressional-2-mammal": "Kinatawan ng Kongreso 2 - Mammal",
+        "congressional-2-fish": "Kinatawan ng Kongreso 2 - Isda",
+        "water-1-fishing": "Pangingisda sa Distrito ng Tubig 1",
+        "water-2-fishing": "Pangingisda sa Distrito ng Tubig 2"
+      },
+      "jurisdictionName": "Kondado ng Sample",
+      "districtName": {
+        "county": "Kondado",
+        "congressional-1": "Distrito ng Kongreso 1",
+        "congressional-2": "Distrito ng Kongreso 2",
+        "water-1": "Distrito ng Tubig 1",
+        "water-2": "Distrito ng Tubig 2"
+      },
+      "electionTitle": "Halimbawa ng Halalan sa Primarya",
+      "partyFullName": {
+        "0": "Partido ng mga Mamalya",
+        "1": "Isda Party"
+      },
+      "partyName": {
+        "0": "Mammal",
+        "1": "Isda"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "Presinto 1",
+        "precinct-c1-w1-2-polling-place": "Presinto 2",
+        "precinct-c1-w2-polling-place": "Presinto 3",
+        "precinct-c2-polling-place": "Presinto 4"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "Presinto 1",
+        "precinct-c1-w1-2": "Presinto 2",
+        "precinct-c1-w2": "Presinto 3",
+        "precinct-c2": "Presinto 4"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "Presinto 4 - Hati 1",
+        "precinct-c2-split-2": "Presinto 4 - Hati 2"
+      },
+      "stateName": "Estado ng Sample",
+      "ballotLanguage": {
+        "zh-Hans": "Pinasimpleng Chinese",
+        "zh-Hant": "Tradisyonal na Chinese",
+        "en": "Ingles",
+        "es-US": "Spanish (U.S.)"
+      },
+      "electionDate": "Setyembre 8, 2021",
+      "hmpb10WillBeElected": "Sampu ang ihahalal",
+      "hmpb2WillBeElected": "Dalawa ang ihahalal",
+      "hmpb3WillBeElected": "Tatlo ang ihahalal",
+      "hmpb4WillBeElected": "Apat ang ihahalal",
+      "hmpb5WillBeElected": "Lima ang ihahalal",
+      "hmpb6WillBeElected": "Anim ang ihahalal",
+      "hmpb7WillBeElected": "Pito ang ihahalal",
+      "hmpb8WillBeElected": "Walo ang ihahalal",
+      "hmpb9WillBeElected": "Siyam ang ihahalal",
+      "hmpbCaEndOfContestEnd": "Paligsahan",
+      "hmpbCaEndOfContestStart": "Katapusan ng",
+      "hmpbCaLargeContestNoticeEnd": "Ang paligsahan ay makikita sa likod na bahagi ng ballot card na ito upang ang lahat ng kandidato ay mailista sa iisang pahina.",
+      "hmpbCaLargeContestNoticeStart": "Dahil sa dami ng mga kandidato, ang",
+      "hmpbCaLargeContestNoticeTurnOver": "Pakibaliktad para simulan ang pagboto para sa",
+      "hmpbCaMeasuresTitle": "Mga Panukalang Isinumite sa mga Botante",
+      "hmpbCaNonpartisanOfficesTitle": "Mga Tanggapan na Walang Partido",
+      "hmpbCaPartyNominatedOfficesText": "Ang mga kandidato para sa mga posisyong ito ang opisyal na nominado ng partido na nakasaad kasama ang kanilang pangalan.",
+      "hmpbCaPartyNominatedOfficesTitle": "Mga Katungkulan na Hinirang ng Partido",
+      "hmpbCaVoterNominatedOfficesShortTitle": "Mga Opisinang Nominado ng Botante",
+      "hmpbCaVoterNominatedOfficesText": "Ang mga kandidato ay nagpapakita ng kinakatigang partido (o Wala) para sa impormasyon ng mga botante. Hindi ito pag-endorso o pagsang-ayon ng partido.",
+      "hmpbCaVoterNominatedOfficesTitle": "Mga Katungkulan na Nominado ng Botante at Walang Partido",
+      "hmpbContinueVotingOnBack": "Baliktarin ang balota at ipagpatuloy ang pagboto",
+      "hmpbContinueVotingOnNextSheet": "Ipagpatuloy ang pagboto sa susunod na balota",
+      "hmpbInstructions": "Mga Tagubilin",
+      "hmpbInstructionsToVoteText": "Para bumoto, punan nang buo ang oval sa tabi ng iyong napili.",
+      "hmpbInstructionsToVoteTitle": "Para Bumoto:",
+      "hmpbInstructionsWriteInText": "Para bumoto para sa isang taong wala ang pangalan sa balota, isulat ang pangalan ng tao sa linyang \"Isulat-sa-ilalim\" at punan nang buo ang oval sa tabi ng linya.",
+      "hmpbInstructionsWriteInTitle": "Para Bumoto para sa isang Write-in:",
+      "hmpbNone": "Wala",
+      "hmpbOfficialAbsenteeBallot": "Opisyal na Balota ng mga Absentee",
+      "hmpbOfficialBallot": "Opisyal na Balota",
+      "hmpbOfficialProvisionalBallot": "Opisyal na Pansamantalang Balota",
+      "hmpbPage": "Pahina",
+      "hmpbPageIntentionallyBlank": "Sinadyang iwang blangko ang pahinang ito",
+      "hmpbPartyPreference": "Kagustuhan ng Partido",
+      "hmpbSampleAbsenteeBallot": "Halimbawang Balota ng mga Absentee",
+      "hmpbSampleBallot": "Halimbawang Balota",
+      "hmpbSampleProvisionalBallot": "Halimbawang Pansamantalang Balota",
+      "hmpbTestAbsenteeBallot": "Balota ng Pagsubok para sa mga Hindi Nagpapadala",
+      "hmpbTestBallot": "Balota ng Pagsusulit",
+      "hmpbTestProvisionalBallot": "Balota ng Pansamantalang Pagsubok",
+      "hmpbVoteFor1": "Bumoto para sa 1",
+      "hmpbVoteFor10": "Bumoto ng hanggang 10",
+      "hmpbVoteFor2": "Bumoto ng hanggang 2",
+      "hmpbVoteFor3": "Bumoto ng hanggang 3",
+      "hmpbVoteFor4": "Bumoto para sa hanggang 4",
+      "hmpbVoteFor5": "Bumoto ng hanggang 5",
+      "hmpbVoteFor6": "Bumoto para sa hanggang 6",
+      "hmpbVoteFor7": "Bumoto para sa hanggang 7",
+      "hmpbVoteFor8": "Bumoto para sa hanggang 8",
+      "hmpbVoteFor9": "Bumoto para sa hanggang 9",
+      "hmpbVoteForNotMoreThan1": "Bumoto ng hindi hihigit sa 1",
+      "hmpbVotingComplete": "Natapos mo na ang pagboto.",
+      "hmpbWriteIn": "Pagsusulat"
+    },
+    "vi": {
+      "contestDescription": {
+        "water-1-fishing": "Liệu có nên cấm đánh bắt cá ở tất cả các hồ và sông thuộc sở hữu của thành phố?",
+        "water-2-fishing": "Liệu có nên cấm đánh bắt cá ở tất cả các hồ và sông thuộc sở hữu của thành phố?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "ĐÚNG",
+        "water-1-fishing-allow-fishing": "KHÔNG",
+        "water-2-fishing-ban-fishing": "ĐÚNG",
+        "water-2-fishing-allow-fishing": "KHÔNG"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "Lãnh đạo Quận Động vật có vú",
+        "county-leader-fish": "Lãnh đạo Quận Cá",
+        "congressional-1-mammal": "Đại diện Quốc hội số 1 - Động vật có vú",
+        "congressional-1-fish": "Đại diện Quốc hội số 1 - Cá",
+        "congressional-2-mammal": "Đại diện Quốc hội khu vực 2 - Động vật có vú",
+        "congressional-2-fish": "Đại diện Quốc hội khu vực 2 - Fish",
+        "water-1-fishing": "Khu vực cấp nước số 1 - Câu cá",
+        "water-2-fishing": "Khu vực cấp nước số 2 - Câu cá"
+      },
+      "jurisdictionName": "Quận mẫu",
+      "districtName": {
+        "county": "Quận",
+        "congressional-1": "Khu vực bầu cử Quốc hội số 1",
+        "congressional-2": "Khu vực bầu cử Quốc hội số 2",
+        "water-1": "Khu vực cấp nước số 1",
+        "water-2": "Khu vực cấp nước số 2"
+      },
+      "electionTitle": "Ví dụ về cuộc bầu cử sơ bộ",
+      "partyFullName": {
+        "0": "Đảng Động vật có vú",
+        "1": "Tiệc Cá"
+      },
+      "partyName": {
+        "0": "Động vật có vú",
+        "1": "Cá"
+      },
+      "pollingPlaceName": {
+        "precinct-c1-w1-1-polling-place": "Khu vực 1",
+        "precinct-c1-w1-2-polling-place": "Khu vực 2",
+        "precinct-c1-w2-polling-place": "Khu vực 3",
+        "precinct-c2-polling-place": "Khu vực 4"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "Khu vực 1",
+        "precinct-c1-w1-2": "Khu vực 2",
+        "precinct-c1-w2": "Khu vực 3",
+        "precinct-c2": "Khu vực 4"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "Khu vực 4 - Phân khu 1",
+        "precinct-c2-split-2": "Khu vực 4 - Phân khu 2"
+      },
+      "stateName": "Trạng thái của mẫu",
+      "ballotLanguage": {
+        "zh-Hans": "Tiếng Trung (Giản thể)",
+        "zh-Hant": "Tiếng Trung (Phồn thể)",
+        "en": "Tiếng Anh",
+        "es-US": "Tiếng Tây Ban Nha (Mỹ)"
+      },
+      "electionDate": "8 tháng 9, 2021",
+      "hmpb10WillBeElected": "Mười người sẽ được bầu chọn",
+      "hmpb2WillBeElected": "Hai người sẽ được bầu chọn.",
+      "hmpb3WillBeElected": "Ba người sẽ được bầu chọn",
+      "hmpb4WillBeElected": "Bốn người sẽ được bầu chọn.",
+      "hmpb5WillBeElected": "Năm người sẽ được bầu chọn",
+      "hmpb6WillBeElected": "Sáu người sẽ được bầu chọn",
+      "hmpb7WillBeElected": "Bảy người sẽ được bầu chọn.",
+      "hmpb8WillBeElected": "Tám người sẽ được bầu chọn.",
+      "hmpb9WillBeElected": "Chín người sẽ được bầu chọn.",
+      "hmpbCaEndOfContestEnd": "Cuộc thi",
+      "hmpbCaEndOfContestStart": "Kết thúc",
+      "hmpbCaLargeContestNoticeEnd": "Thông tin về cuộc tranh cử được in ở mặt sau của phiếu bầu này để tất cả các ứng cử viên có thể được liệt kê trên cùng một trang.",
+      "hmpbCaLargeContestNoticeStart": "Do số lượng ứng viên quá lớn,",
+      "hmpbCaLargeContestNoticeTurnOver": "Vui lòng lật trang để bắt đầu bình chọn cho",
+      "hmpbCaMeasuresTitle": "Các biện pháp được trình lên cử tri",
+      "hmpbCaNonpartisanOfficesTitle": "Văn phòng phi đảng phái",
+      "hmpbCaPartyNominatedOfficesText": "Các ứng cử viên cho các chức vụ này là người được đảng chính thức đề cử, tên của họ được ghi rõ trên phiếu bầu.",
+      "hmpbCaPartyNominatedOfficesTitle": "Các chức vụ do đảng đề cử",
+      "hmpbCaVoterNominatedOfficesShortTitle": "Các chức vụ do cử tri đề cử",
+      "hmpbCaVoterNominatedOfficesText": "Các ứng viên hiển thị đảng phái ưa thích (hoặc Không có đảng phái) để cung cấp thông tin cho cử tri. Điều này không phải là sự ủng hộ hay chấp thuận của đảng.",
+      "hmpbCaVoterNominatedOfficesTitle": "Các chức vụ do cử tri đề cử và không thuộc đảng phái nào",
+      "hmpbContinueVotingOnBack": "Lật phiếu bầu lại và tiếp tục bỏ phiếu",
+      "hmpbContinueVotingOnNextSheet": "Tiếp tục bỏ phiếu trên phiếu bầu tiếp theo.",
+      "hmpbInstructions": "Hướng dẫn",
+      "hmpbInstructionsToVoteText": "Để bình chọn, hãy tô kín hình bầu dục bên cạnh lựa chọn của bạn.",
+      "hmpbInstructionsToVoteTitle": "Để bình chọn:",
+      "hmpbInstructionsWriteInText": "Để bầu cho một người không có tên trên phiếu bầu, hãy viết tên người đó vào dòng \"Viết tên ứng cử viên\" và tô kín hình bầu dục bên cạnh dòng đó.",
+      "hmpbInstructionsWriteInTitle": "Để bỏ phiếu cho ứng cử viên ghi tên:",
+      "hmpbNone": "Không có",
+      "hmpbOfficialAbsenteeBallot": "Phiếu bầu vắng mặt chính thức",
+      "hmpbOfficialBallot": "Phiếu bầu chính thức",
+      "hmpbOfficialProvisionalBallot": "Phiếu bầu tạm thời chính thức",
+      "hmpbPage": "Trang",
+      "hmpbPageIntentionallyBlank": "Trang này được để trống một cách cố ý.",
+      "hmpbPartyPreference": "Sự ưu tiên của đảng",
+      "hmpbSampleAbsenteeBallot": "Mẫu phiếu bầu vắng mặt",
+      "hmpbSampleBallot": "Mẫu phiếu bầu",
+      "hmpbSampleProvisionalBallot": "Mẫu phiếu bầu tạm thời",
+      "hmpbTestAbsenteeBallot": "Kiểm tra phiếu bầu vắng mặt",
+      "hmpbTestBallot": "Phiếu bầu thử nghiệm",
+      "hmpbTestProvisionalBallot": "Kiểm tra phiếu bầu tạm thời",
+      "hmpbVoteFor1": "Bầu chọn số 1",
+      "hmpbVoteFor10": "Bầu chọn tối đa 10",
+      "hmpbVoteFor2": "Bầu chọn tối đa 2",
+      "hmpbVoteFor3": "Bầu chọn tối đa 3",
+      "hmpbVoteFor4": "Bầu chọn tối đa 4 người",
+      "hmpbVoteFor5": "Bầu chọn tối đa 5",
+      "hmpbVoteFor6": "Bầu chọn tối đa 6 người",
+      "hmpbVoteFor7": "Bầu chọn tối đa 7 người",
+      "hmpbVoteFor8": "Bầu chọn tối đa 8 người",
+      "hmpbVoteFor9": "Bầu chọn tối đa 9 người",
+      "hmpbVoteForNotMoreThan1": "Không bầu chọn quá 1",
+      "hmpbVotingComplete": "Bạn đã hoàn tất việc bỏ phiếu.",
+      "hmpbWriteIn": "Viết vào"
     }
   },
   "ballotStyles": [
@@ -765,7 +1551,7 @@
             {
               "contestId": "congressional-1-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -774,11 +1560,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -791,11 +1577,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -808,11 +1594,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -825,11 +1611,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -842,18 +1628,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -864,7 +1650,7 @@
             {
               "contestId": "water-1-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -873,11 +1659,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -887,11 +1673,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -989,7 +1775,7 @@
             {
               "contestId": "congressional-1-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -998,11 +1784,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -1015,11 +1801,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -1032,11 +1818,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -1049,11 +1835,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -1066,18 +1852,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -1088,7 +1874,7 @@
             {
               "contestId": "water-1-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -1097,11 +1883,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -1111,11 +1897,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2266,7 +3052,7 @@
             {
               "contestId": "congressional-1-fish",
               "bounds": {
-                "row": 21.76326129666012,
+                "row": 20.9338163064833,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -2275,11 +3061,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.744965618860512,
+                    "row": 21.915520628683694,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.76326129666012,
+                    "row": 20.9338163064833,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2292,11 +3078,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 24.00970039292731,
+                    "row": 23.180255402750493,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.027996070726918,
+                    "row": 22.1985510805501,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2309,11 +3095,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.274435166994106,
+                    "row": 24.44499017681729,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 24.292730844793713,
+                    "row": 23.463285854616895,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2326,11 +3112,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 26.539169941060905,
+                    "row": 25.709724950884087,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 25.557465618860512,
+                    "row": 24.728020628683694,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2343,18 +3129,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 28.1335952848723,
+                    "row": 27.304150294695482,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 27.151890962671906,
+                    "row": 26.32244597249509,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 27.3335952848723,
+                    "row": 26.50415029469548,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -2490,7 +3276,7 @@
             {
               "contestId": "congressional-1-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -2499,11 +3285,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2516,11 +3302,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2533,11 +3319,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2550,11 +3336,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2567,18 +3353,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -2589,7 +3375,7 @@
             {
               "contestId": "water-2-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -2598,11 +3384,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2612,11 +3398,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2713,7 +3499,7 @@
             {
               "contestId": "congressional-1-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -2722,11 +3508,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2739,11 +3525,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2756,11 +3542,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2773,11 +3559,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2790,18 +3576,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -2812,7 +3598,7 @@
             {
               "contestId": "water-2-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -2821,11 +3607,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -2835,11 +3621,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -3984,7 +4770,7 @@
             {
               "contestId": "congressional-1-fish",
               "bounds": {
-                "row": 21.76326129666012,
+                "row": 20.9338163064833,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -3993,11 +4779,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.744965618860512,
+                    "row": 21.915520628683694,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.76326129666012,
+                    "row": 20.9338163064833,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4010,11 +4796,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 24.00970039292731,
+                    "row": 23.180255402750493,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.027996070726918,
+                    "row": 22.1985510805501,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4027,11 +4813,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.274435166994106,
+                    "row": 24.44499017681729,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 24.292730844793713,
+                    "row": 23.463285854616895,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4044,11 +4830,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 26.539169941060905,
+                    "row": 25.709724950884087,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 25.557465618860512,
+                    "row": 24.728020628683694,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4061,18 +4847,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 28.1335952848723,
+                    "row": 27.304150294695482,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 27.151890962671906,
+                    "row": 26.32244597249509,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 27.3335952848723,
+                    "row": 26.50415029469548,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -4208,7 +4994,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -4217,11 +5003,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4234,11 +5020,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4251,11 +5037,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4268,11 +5054,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4285,18 +5071,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -4307,7 +5093,7 @@
             {
               "contestId": "water-1-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -4316,11 +5102,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4330,11 +5116,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4431,7 +5217,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -4440,11 +5226,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4457,11 +5243,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4474,11 +5260,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4491,11 +5277,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4508,18 +5294,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -4530,7 +5316,7 @@
             {
               "contestId": "water-1-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -4539,11 +5325,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4553,11 +5339,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4877,7 +5663,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 21.76326129666012,
+                "row": 22.592706286836936,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -4886,11 +5672,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.744965618860512,
+                    "row": 23.57441060903733,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.76326129666012,
+                    "row": 22.592706286836936,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4903,11 +5689,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 24.00970039292731,
+                    "row": 24.839145383104125,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.027996070726918,
+                    "row": 23.85744106090373,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4920,11 +5706,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.274435166994106,
+                    "row": 26.103880157170924,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 24.292730844793713,
+                    "row": 25.12217583497053,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4937,11 +5723,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 26.539169941060905,
+                    "row": 27.368614931237722,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 25.557465618860512,
+                    "row": 26.38691060903733,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -4954,18 +5740,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 28.1335952848723,
+                    "row": 28.963040275049117,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 27.151890962671906,
+                    "row": 27.981335952848724,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 27.3335952848723,
+                    "row": 28.163040275049116,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -5926,7 +6712,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -5935,11 +6721,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -5952,11 +6738,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -5969,11 +6755,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -5986,11 +6772,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6003,18 +6789,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -6025,7 +6811,7 @@
             {
               "contestId": "water-2-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -6034,11 +6820,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6048,11 +6834,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6149,7 +6935,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 18.596512770137526,
+                "row": 19.425957760314343,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -6158,11 +6944,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 19.57821709233792,
+                    "row": 20.407662082514737,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 18.596512770137526,
+                    "row": 19.425957760314343,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6175,11 +6961,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.842951866404714,
+                    "row": 21.672396856581532,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 19.86124754420432,
+                    "row": 20.69069253438114,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6192,11 +6978,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.107686640471513,
+                    "row": 22.93713163064833,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.12598231827112,
+                    "row": 21.955427308447938,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6209,11 +6995,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.372421414538312,
+                    "row": 24.20186640471513,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 22.39071709233792,
+                    "row": 23.220162082514737,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6226,18 +7012,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 24.966846758349707,
+                    "row": 25.796291748526524,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.985142436149314,
+                    "row": 24.81458742632613,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 24.166846758349706,
+                    "row": 24.996291748526524,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1
@@ -6248,7 +7034,7 @@
             {
               "contestId": "water-2-fishing",
               "bounds": {
-                "row": 32.00884086444008,
+                "row": 32.8382858546169,
                 "column": 0.954988284622025,
                 "width": 9.958194598594156,
                 "height": 3.4153978388998
@@ -6257,11 +7043,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 32.990545186640475,
+                    "row": 33.81999017681729,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 32.00884086444008,
+                    "row": 32.8382858546169,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6271,11 +7057,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 34.25527996070727,
+                    "row": 35.08472495088409,
                     "column": 1.714638056480454
                   },
                   "bounds": {
-                    "row": 33.27357563850688,
+                    "row": 34.103020628683694,
                     "column": 0.954988284622025,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6595,7 +7381,7 @@
             {
               "contestId": "congressional-2-mammal",
               "bounds": {
-                "row": 21.76326129666012,
+                "row": 22.592706286836936,
                 "column": 11.520902700702923,
                 "width": 9.958194598594158,
                 "height": 7.539292730844792
@@ -6604,11 +7390,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 22.744965618860512,
+                    "row": 23.57441060903733,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 21.76326129666012,
+                    "row": 22.592706286836936,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6621,11 +7407,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 24.00970039292731,
+                    "row": 24.839145383104125,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 23.027996070726918,
+                    "row": 23.85744106090373,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6638,11 +7424,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.274435166994106,
+                    "row": 26.103880157170924,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 24.292730844793713,
+                    "row": 25.12217583497053,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6655,11 +7441,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 26.539169941060905,
+                    "row": 27.368614931237722,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 25.557465618860512,
+                    "row": 26.38691060903733,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
@@ -6672,18 +7458,18 @@
                 {
                   "type": "write-in",
                   "bubbleCenter": {
-                    "row": 28.1335952848723,
+                    "row": 28.963040275049117,
                     "column": 12.280552472561352
                   },
                   "bounds": {
-                    "row": 27.151890962671906,
+                    "row": 27.981335952848724,
                     "column": 11.520902700702923,
                     "width": 9.958194598594156,
                     "height": 2.150663064833006
                   },
                   "writeInIndex": 0,
                   "writeInArea": {
-                    "row": 27.3335952848723,
+                    "row": 28.163040275049116,
                     "column": 13.180552472561352,
                     "width": 7.799999999999999,
                     "height": 1

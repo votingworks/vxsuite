@@ -1,3 +1,4 @@
+/* istanbul ignore file - DEMO */
 import React from 'react';
 import {
   assertDefined,

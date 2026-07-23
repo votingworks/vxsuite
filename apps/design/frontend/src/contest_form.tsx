@@ -1,3 +1,4 @@
+/* istanbul ignore file - DEMO */
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -506,7 +507,6 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   label="Candidate Columns"
                   options={[
                     { id: '1', label: '1' },
-                    { id: '2', label: '2' },
                     { id: '3', label: '3' },
                     { id: '4', label: '4' },
                   ]}

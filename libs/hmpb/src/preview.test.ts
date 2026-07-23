@@ -15,7 +15,12 @@ beforeAll(async () => {
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting)
     // is on by default, but causes fonts to render more awkwardly at higher
     // resolutions, so we disable it.
-    args: ['--font-render-hinting=none'],
+    //
+    // The dev-mode (unminified) React SSR + styled-components render used by
+    // the preview runs close to V8's default stack limit and can throw
+    // "Maximum call stack size exceeded" intermittently, so give the page a
+    // larger stack. The production render pipeline is unaffected.
+    args: ['--font-render-hinting=none', '--js-flags=--stack-size=4000'],
   });
 });
 
