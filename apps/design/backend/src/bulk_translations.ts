@@ -201,6 +201,13 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         })),
       });
 
+      // A bulk upload rewrites this language's translations, so any prior
+      // per-string finalizations for the language no longer apply.
+      await ctx.workspace.store.finalizedStringsClearForLanguage({
+        electionId: input.electionId,
+        languageCode: input.language,
+      });
+
       return ok();
     },
 
@@ -234,6 +241,11 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         input.electionId,
         input.language
       );
+
+      await ctx.workspace.store.finalizedStringsClearForLanguage({
+        electionId: input.electionId,
+        languageCode: input.language,
+      });
     },
 
     bulkTranslationUploadsGet(input: {

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/design-backend';
 import { LanguageCode, phonemes, TtsExportSource } from '@votingworks/types';
 import { H3, RadioGroup, RadioGroupOption } from '@votingworks/ui';
 
@@ -44,11 +44,18 @@ export interface AudioEditorProps {
   languageCode: LanguageCode;
   jurisdictionId: string;
   ttsDefault: TtsStringDefault;
+  finalized: boolean;
 }
 
 export function AudioEditor(props: AudioEditorProps): React.ReactNode {
-  const { electionId, hackyKey, languageCode, jurisdictionId, ttsDefault } =
-    props;
+  const {
+    electionId,
+    hackyKey,
+    languageCode,
+    jurisdictionId,
+    ttsDefault,
+    finalized,
+  } = props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
   const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
@@ -78,7 +85,7 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
   }
 
   const currentMode = mode || defaultMode;
-  const editable = !ballotsFinalizedAt.data;
+  const editable = !ballotsFinalizedAt.data && !finalized;
 
   return (
     <React.Fragment>
