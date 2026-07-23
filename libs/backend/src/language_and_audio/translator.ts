@@ -2,7 +2,7 @@ import {
   TranslationServiceClient as GoogleCloudTranslationClient,
   protos,
 } from '@google-cloud/translate';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 
 import { NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
@@ -69,6 +69,15 @@ export interface Translator {
   ): Promise<string[]>;
 }
 
+function chunk<T>(array: T[], size: number): Array<T[]> {
+  assert(size > 0, 'Size must be greater than 0');
+  const result: Array<T[]> = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}
+
 /**
  * A simple base class that provides a utility function to translate text with google cloud.
  * When used directly this translator implementation will not cache translations.
@@ -107,15 +116,20 @@ export class GoogleCloudTranslator implements Translator {
     // We strip them out in order and replace them after translating.
     const textArrayWithoutImages = textArray.map(stripImagesFromRichText);
 
-    const [response] = await this.translationClient.translateText({
-      contents: textArrayWithoutImages,
-      mimeType: 'text/plain',
-      parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
-      sourceLanguageCode: LanguageCode.ENGLISH,
-      targetLanguageCode,
-    });
+    const textArrayWithoutImagesChunks = chunk(textArrayWithoutImages, 1000);
+    const translations = [];
+    for (const textArrayWithoutImagesChunk of textArrayWithoutImagesChunks) {
+      const [response] = await this.translationClient.translateText({
+        contents: textArrayWithoutImagesChunk,
+        mimeType: 'text/plain',
+        parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
+        sourceLanguageCode: LanguageCode.ENGLISH,
+        targetLanguageCode,
+      });
+      translations.push(...(response.translations ?? []));
+    }
 
-    const translatedTextArrayWithImages = iter(response.translations)
+    const translatedTextArrayWithImages = iter(translations)
       .zip(textArray)
       .map(([{ translatedText }, originalText]) =>
         restoreImagesInTranslation(originalText, assertDefined(translatedText))
