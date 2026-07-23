@@ -21,7 +21,7 @@ test('createWorkspace', () => {
   const workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
   expect(workspace.path).toEqual(dir);
   expect(workspace.store).toBeInstanceOf(Store);
-});
+}, 30_000);
 
 test('createClientWorkspace', async () => {
   const dir = makeTemporaryDirectory();

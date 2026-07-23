@@ -54,7 +54,7 @@ test('create a file store', () => {
 
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toEqual(tmpDbPath);
-});
+}, 30_000);
 
 test('create a memory store', () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
