@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
-import { Button, H2, Modal, P } from '@votingworks/ui';
+import styled from 'styled-components';
+import { Button, H2, Icons, Modal, P } from '@votingworks/ui';
 import type {
   BatchPauseReason,
   ScanStatus,
@@ -17,8 +17,8 @@ const Card = styled.div`
 
 const StatusPane = styled.div`
   background: ${(p) => p.theme.colors.containerLow};
-  padding: 2rem;
-  width: 26rem;
+  padding: 1rem;
+  width: 45%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@ const StatusPane = styled.div`
 `;
 
 const ActionsPane = styled.div`
-  padding: 2rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -42,7 +42,7 @@ const ActionsPane = styled.div`
   flex-grow: 1;
 
   button {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     padding: 0.75rem 2rem;
   }
 `;
@@ -51,10 +51,44 @@ const ActionsFooter = styled.div`
   margin-top: auto;
 `;
 
-const PageWrapper = styled.div`
+const PageWrapper = styled.div<{
+  dashed?: boolean;
+  active?: boolean;
+}>`
   position: relative;
-  width: 12rem;
-  margin: 0 auto;
+  flex: 1 1 0;
+  min-height: 0;
+
+  > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    /* The outline is stroked on the sheet's edges; let it render without being
+     * clipped at the SVG bounds. */
+    overflow: visible;
+  }
+
+  path {
+    fill: none;
+    stroke: ${(p) =>
+      p.active ? p.theme.colors.primary : p.theme.colors.outline};
+
+    /* Match the smart card's border weight exactly: use the same border sizes,
+     * and non-scaling-stroke so the weight stays constant as the sheet scales
+     * to fill its container. */
+    stroke-width: ${(p) =>
+      p.active
+        ? p.theme.sizes.bordersRem.medium
+        : p.theme.sizes.bordersRem.thin}rem;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+    stroke-dasharray: ${(p) => (p.dashed ? '0.3rem 0.25rem' : 'none')};
+  }
+
+  .sheet {
+    fill: ${(p) => (p.dashed ? 'none' : p.theme.colors.background)};
+  }
 `;
 
 const PageCount = styled.div`
@@ -63,19 +97,26 @@ const PageCount = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
+  font-size: 5rem;
   font-weight: 700;
 `;
 
-const PageCaption = styled.p`
-  text-align: center;
+const StatusTitle = styled(H2)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 /**
- * A page with a folded top-right corner, standing in for the batch being
+ * A sheet of paper with a folded-down corner, standing in for the batch being
  * scanned — the batch-control equivalent of the smart card illustration on
- * VxAdmin's card programming screen. Dashed while there is no batch in
- * progress.
+ * VxAdmin's card programming screen, and styled to mirror it: the outline is
+ * dashed while no batch is in progress and solid once scanning, drawn in the
+ * `outline` color (or a thicker `primary` stroke while a batch is active), and
+ * the sheet fills in once it holds a batch. The folded corner is always drawn;
+ * only its line style changes between states. The SVG scales to fill its
+ * container while `non-scaling-stroke` keeps the outline the same weight as the
+ * smart card's border.
  */
 function PageIllustration({
   dashed,
@@ -86,32 +127,18 @@ function PageIllustration({
   active?: boolean;
   children?: React.ReactNode;
 }): JSX.Element {
-  const theme = useTheme();
-  let stroke = theme.colors.onBackground;
-  if (dashed) {
-    stroke = theme.colors.outline;
-  } else if (active) {
-    stroke = theme.colors.primary;
-  }
   return (
-    <PageWrapper>
-      <svg viewBox="0 0 120 156" role="img" aria-hidden="true">
-        <path
-          d="M6 6 H84 L114 36 V150 H6 Z"
-          fill={dashed ? 'none' : theme.colors.background}
-          stroke={stroke}
-          strokeWidth="3"
-          strokeLinejoin="round"
-          strokeDasharray={dashed ? '10 8' : undefined}
-        />
-        <path
-          d="M84 6 V36 H114"
-          fill="none"
-          stroke={stroke}
-          strokeWidth="3"
-          strokeLinejoin="round"
-          strokeDasharray={dashed ? '10 8' : undefined}
-        />
+    <PageWrapper dashed={dashed} active={active}>
+      <svg
+        viewBox="0 0 102 132"
+        preserveAspectRatio="none"
+        role="img"
+        aria-hidden="true"
+      >
+        {/* Sheet outline, with the top-right corner cut away for the fold. */}
+        <path className="sheet" d="M1 1 H79 L101 23 V131 H1 Z" />
+        {/* Folded-down corner: the two edges of the flap lying on the sheet. */}
+        <path d="M79 1 V23 H101" />
       </svg>
       <PageCount>{children}</PageCount>
     </PageWrapper>
@@ -172,22 +199,39 @@ export function BatchControlCard({
     cancelBatchMutation.isLoading;
 
   let statusContent: JSX.Element;
-  let actions: JSX.Element;
-  if (!currentBatch) {
+  let actions: JSX.Element | null;
+  if (!currentBatch && !status.isScannerAttached) {
+    // No scanner is connected, so scanning isn't possible: show a disconnected
+    // status and no scan button rather than a "Ready to Scan" prompt.
     statusContent = (
       <React.Fragment>
         <div>
-          <H2>Ready to Scan</H2>
-          <P>{' '}</P>
+          <StatusTitle>
+            <Icons.Disabled color="danger" />
+            Scanner Disconnected
+          </StatusTitle>
+          <P>Connect the scanner to begin scanning.</P>
         </div>
         <PageIllustration dashed />
+      </React.Fragment>
+    );
+    actions = null;
+  } else if (!currentBatch) {
+    statusContent = (
+      <React.Fragment>
+        <div>
+          <StatusTitle>Ready to Scan</StatusTitle>
+          <P>Place ballots in the input tray</P>
+        </div>
+        <PageIllustration dashed>
+          <Icons.UpCircle style={{ height: '30%' }} />
+        </PageIllustration>
       </React.Fragment>
     );
     actions = (
       <ScanButton
         /* disable scan button while status query is refetching to avoid double clicks */
         disabled={statusIsStale || isPollingPlaceUnconfigured}
-        isScannerAttached={status.isScannerAttached}
         label={`Start Batch ${format.count(status.nextBatchNumber)}`}
       />
     );
@@ -195,11 +239,13 @@ export function BatchControlCard({
     statusContent = (
       <React.Fragment>
         <div>
-          <H2>Scanning</H2>
+          <StatusTitle>
+            <Icons.Loading color="primary" />
+            Scanning
+          </StatusTitle>
           <P>{' '}</P>
         </div>
         <PageIllustration active>{format.count(sheetCount)}</PageIllustration>
-        <PageCaption>sheets scanned in this batch</PageCaption>
       </React.Fragment>
     );
     actions = (
@@ -207,15 +253,19 @@ export function BatchControlCard({
         variant="danger"
         onPress={() => setIsConfirmingStop(true)}
         disabled={cancelBatchMutation.isLoading}
+        icon="Delete"
       >
-        Stop
+        Stop Scanning
       </Button>
     );
   } else {
     statusContent = (
       <React.Fragment>
         <div>
-          <H2>Paused</H2>
+          <StatusTitle>
+            <Icons.Paused color="warning" />
+            Paused
+          </StatusTitle>
           <P>
             {currentBatch.pauseReason
               ? PAUSE_REASON_TEXT[currentBatch.pauseReason]
@@ -223,30 +273,46 @@ export function BatchControlCard({
           </P>
         </div>
         <PageIllustration>{format.count(sheetCount)}</PageIllustration>
-        <PageCaption>sheets scanned in this batch</PageCaption>
       </React.Fragment>
     );
     actions = (
-      <React.Fragment>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {!status.isScannerAttached && (
+          <P>
+            <Icons.Disabled color="danger" /> Connect the scanner to continue
+            scanning.
+          </P>
+        )}
         <Button
           variant="primary"
           onPress={() => continueBatchMutation.mutate()}
-          disabled={isActing || statusIsStale}
+          disabled={isActing || statusIsStale || !status.isScannerAttached}
+          rightIcon="Next"
         >
           Continue Scanning
         </Button>
-        <Button onPress={() => setIsConfirmingSave(true)} disabled={isActing}>
-          Save Batch
-        </Button>
-        <Button
-          color="danger"
-          fill="outlined"
-          onPress={() => setIsConfirmingCancel(true)}
-          disabled={isActing}
-        >
-          Discard Batch
-        </Button>
-      </React.Fragment>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Button
+            color="danger"
+            fill="tinted"
+            onPress={() => setIsConfirmingCancel(true)}
+            disabled={isActing}
+            icon="Trash"
+            style={{ flex: 1, minWidth: 0 }}
+          >
+            Discard Batch
+          </Button>
+          <Button
+            icon="Done"
+            variant="secondary"
+            onPress={() => setIsConfirmingSave(true)}
+            disabled={isActing}
+            style={{ flex: 1, minWidth: 0 }}
+          >
+            Save Batch
+          </Button>
+        </div>
+      </div>
     );
   }
 
@@ -255,7 +321,7 @@ export function BatchControlCard({
       <Card>
         <StatusPane>{statusContent}</StatusPane>
         <ActionsPane>
-          {batch && <H2>{batch.label}</H2>}
+          {batch && <H2 style={{ margin: 0 }}>{batch.label}</H2>}
           {notice}
           {actions}
           {actionsFooter && <ActionsFooter>{actionsFooter}</ActionsFooter>}

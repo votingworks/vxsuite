@@ -60,7 +60,7 @@ export function BatchHistoryScreen({
   return (
     <NavigationScreen title="Batch History">
       <Content>
-        <BatchSummaryStats status={status} callout />
+        <BatchSummaryStats status={status} showEmptyState />
         {batches.length > 0 && (
           <React.Fragment>
             <div>

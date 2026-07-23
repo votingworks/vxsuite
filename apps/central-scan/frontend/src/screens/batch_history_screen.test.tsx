@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
@@ -67,8 +66,9 @@ test('shows summary totals and each batch with its send status', async () => {
   });
   renderScreen({ status });
 
-  await screen.findByText(hasTextAcrossElements('Total Batches: 3'));
-  screen.getByText(hasTextAcrossElements('Total Sheets: 5'));
+  await screen.findByText('Total Batches');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('3');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('5');
 
   await screen.findByText('Sending…');
   const rows = screen.getAllByRole('row');

@@ -3,25 +3,23 @@ import { scanBatch } from '../api';
 
 export interface Props {
   disabled?: boolean;
-  isScannerAttached: boolean;
   label?: string;
 }
 
 export function ScanButton({
   disabled,
-  isScannerAttached,
   label = 'Scan New Batch',
 }: Props): JSX.Element {
   const scanBatchMutation = scanBatch.useMutation();
 
   return (
     <Button
-      icon={isScannerAttached ? 'Add' : 'Closed'}
-      disabled={disabled || !isScannerAttached || scanBatchMutation.isLoading}
+      icon="Add"
+      disabled={disabled || scanBatchMutation.isLoading}
       variant="primary"
       onPress={() => scanBatchMutation.mutate()}
     >
-      {isScannerAttached ? label : 'No Scanner'}
+      {label}
     </Button>
   );
 }
