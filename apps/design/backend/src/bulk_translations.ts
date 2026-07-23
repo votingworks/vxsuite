@@ -20,6 +20,7 @@ export interface BulkTranslationsApiContext {
 // edit. Excludes non-translatable keys (ballot style IDs, candidate names) and
 // auto-computed keys (ballot language names, election date).
 const TRANSLATABLE_STRING_KEYS: ElectionStringKey[] = [
+  ElectionStringKey.CANDIDATE_DESIGNATION,
   ElectionStringKey.CONTEST_DESCRIPTION,
   ElectionStringKey.CONTEST_OPTION_LABEL,
   ElectionStringKey.CONTEST_TERM,

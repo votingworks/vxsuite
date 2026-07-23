@@ -519,11 +519,12 @@ function CandidateContest({
   });
   const gridColumns = contestGridColumns(contest);
   const primaryLanguage = primaryLanguageCode(ballotStyle);
-  // Translated candidate strings, looked up directly from the election's
-  // ballot strings in the ballot's primary language. `candidateName` is the
-  // standard election string key (used here for transliterated names, which
-  // some CA ballot languages require); `candidateDesignation` is a demo
-  // convention until designations get a real election string key.
+  // Transliterated candidate names, looked up directly from the election's
+  // ballot strings in the ballot's primary language. Candidate names are
+  // intentionally non-translatable in the standard string pipeline
+  // (`candidateName` strings are always English), so ballots that display a
+  // transliterated name (e.g. Hindi, Khmer) rely on hand-authored fixture
+  // strings under the same key.
   function translatedCandidateString(
     key: string,
     candidateId: string
@@ -554,7 +555,6 @@ function CandidateContest({
     );
   }
 
-  const isMultiLanguage = ballotStyle.languages.length > 1;
   const numWriteIns = contest.allowWriteIns ? contest.seats : 0;
   const numCells = candidates.length + numWriteIns;
   const numGridRows = Math.ceil(numCells / gridColumns);
@@ -601,10 +601,6 @@ function CandidateContest({
             'candidateName',
             candidate.id
           );
-          const translatedDesignation = translatedCandidateString(
-            'candidateDesignation',
-            candidate.id
-          );
           return (
             <li
               key={candidate.id}
@@ -633,16 +629,11 @@ function CandidateContest({
                   />
                   {candidate.designation && (
                     <OptionSubtitle>
-                      <div>{candidate.designation}</div>
-                      {translatedDesignation && (
-                        <div>{translatedDesignation}</div>
-                      )}
-                      {/* Without a translated designation available, repeat
-                          the English as a placeholder to reserve realistic
-                          layout space on multi-language ballots */}
-                      {!translatedDesignation && isMultiLanguage && (
-                        <div>{candidate.designation}</div>
-                      )}
+                      <DualLanguageText>
+                        <div>
+                          {electionStrings.candidateDesignation(candidate)}
+                        </div>
+                      </DualLanguageText>
                     </OptionSubtitle>
                   )}
                 </div>
