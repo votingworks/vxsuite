@@ -173,4 +173,41 @@ describe('UiRichTextString', () => {
     );
     await screen.findByText('fall back text');
   });
+
+  test('applies transformHtml with the current language code', async () => {
+    const { container } = render(
+      <UiRichTextString
+        uiStringKey="richText"
+        uiStringSubKey="bold"
+        transformHtml={(html, languageCode) => `[${languageCode}] ${html}`}
+      >
+        {'[Untranslated] This is <strong>bold</strong>'}
+      </UiRichTextString>
+    );
+    await screen.findByText(/This is/);
+    expect(container.firstElementChild?.innerHTML).toEqual(
+      '<div>[en] This is <strong>bold</strong></div>'
+    );
+
+    act(() => getLanguageContext()?.setLanguage('es-US'));
+    await waitFor(() => screen.findByText(/Esto es/));
+    expect(container.firstElementChild?.innerHTML).toEqual(
+      '<div>[es-US] Esto es <strong>negrita</strong></div>'
+    );
+  });
+
+  test('applies transformHtml without UiStringContext', () => {
+    const { container } = renderWithoutContext(
+      <UiRichTextString
+        uiStringKey="richText"
+        uiStringSubKey="bold"
+        transformHtml={(html, languageCode) => `[${languageCode}] ${html}`}
+      >
+        {'[Untranslated] This is <strong>bold</strong>'}
+      </UiRichTextString>
+    );
+    expect(container.firstElementChild?.innerHTML).toEqual(
+      '<div>[en] [Untranslated] This is <strong>bold</strong></div>'
+    );
+  });
 });
