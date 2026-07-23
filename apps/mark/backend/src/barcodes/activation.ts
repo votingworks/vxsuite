@@ -3,7 +3,7 @@ import util from 'node:util';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isCardlessVoterAuth } from '@votingworks/utils';
-import { find, Result, err, ok } from '@votingworks/basics';
+import { find, Result, err, ok, throwIllegalValue } from '@votingworks/basics';
 import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
@@ -47,8 +47,11 @@ function getQrBallotActivationEnabled(
 
 /**
  * [BMD] On a barcode scan event, parse the scanned QR code for a ballot style
- * ID, resolve it against the configured polling place, and start a cardless
- * voter session for that ballot style.
+ * ID and resolve it against the configured polling place. What happens next
+ * depends on the `barcode_activation_mode` store setting:
+ * - `voter_session`: start a cardless voter session for that ballot style.
+ * - `ballot_printing`: do nothing here; the raw scan is surfaced to the
+ *   frontend via `getMostRecentBarcodeScan` for the ballot printing screen.
  * This feature is gated behind the `bmdEnableQrBallotActivation` system setting.
  */
 export function setUpBarcodeActivation(ctx: Context): void {
@@ -129,6 +132,22 @@ export function setUpBarcodeActivation(ctx: Context): void {
       });
     }
     const { ballotStyle, precinctId } = resolved;
+
+    const activationMode = ctx.workspace.store.getBarcodeActivationMode();
+    if (activationMode === 'ballot_printing') {
+      // Do not start a voter session. The raw scan is already surfaced via
+      // getMostRecentBarcodeScan (see the diagnostic listener in app.ts), which
+      // the frontend ballot printing screen polls.
+      return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+        ballotStyleId: ballotStyle.id,
+        disposition: 'success',
+        message: 'barcode scan detected - surfacing for ballot printing',
+      });
+    }
+    /* istanbul ignore next */
+    if (activationMode !== 'voter_session') {
+      throwIllegalValue(activationMode);
+    }
 
     void ctx.logger.logAsCurrentRole(LogEventId.Info, {
       ballotStyleId: ballotStyle.id,

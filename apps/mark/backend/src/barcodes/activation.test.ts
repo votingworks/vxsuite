@@ -309,6 +309,7 @@ describe('setUpBarcodeActivation', () => {
     workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPollsState('polls_open');
+    workspace.store.setBarcodeActivationMode('voter_session');
 
     // Mock no current auth session initially, then voter session after start
     let sessionStarted = false;
@@ -367,6 +368,56 @@ describe('setUpBarcodeActivation', () => {
         disposition: 'success',
       })
     );
+  });
+
+  test('surfaces scan without starting a voter session in ballot_printing mode', async () => {
+    const systemSettings: SystemSettings = {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: true,
+    };
+
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-hash',
+    });
+    workspace.store.setSystemSettings(systemSettings);
+    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollsState('polls_open');
+    workspace.store.setBarcodeActivationMode('ballot_printing');
+
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+      status: 'logged_out',
+      reason: 'no_card',
+    });
+
+    const ctx: Context = {
+      auth: mockAuth,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
+      logger,
+      workspace,
+    };
+
+    setUpBarcodeActivation(ctx);
+
+    const [scannedBallotStyle] = pollingPlaceBallotStyles(
+      election,
+      pollingPlace
+    );
+    mockBarcodeClient.emit('scan', qrPayload(scannedBallotStyle.id));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          ballotStyleId: scannedBallotStyle.id,
+          disposition: 'success',
+          message: 'barcode scan detected - surfacing for ballot printing',
+        })
+      );
+    });
+
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
   });
 
   test('logs error when starting voter session fails', async () => {
