@@ -17,6 +17,20 @@ export const BallotStyleQrCodeSchema: z.ZodSchema<BallotStyleQrCode> = z.object(
   }
 );
 
+/**
+ * How a barcode scan should be handled when barcode activation is enabled:
+ * - `voter_session`: start a cardless voter session for the scanned ballot style.
+ * - `ballot_printing`: open the ballot printing screen preset to the scanned
+ *   ballot style and language.
+ */
+export type BarcodeActivationMode = 'voter_session' | 'ballot_printing';
+
+export const BarcodeActivationModeSchema: z.ZodSchema<BarcodeActivationMode> =
+  z.union([z.literal('voter_session'), z.literal('ballot_printing')]);
+
+export const DEFAULT_BARCODE_ACTIVATION_MODE: BarcodeActivationMode =
+  'voter_session';
+
 export interface ScanEvent {
   type: 'scan';
   data: Uint8Array;

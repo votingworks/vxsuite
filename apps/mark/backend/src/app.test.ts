@@ -510,6 +510,26 @@ test('set polling place', async () => {
   );
 });
 
+test('get/set barcode activation mode', async () => {
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.readElectionDefinition()
+  );
+
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+
+  await apiClient.setBarcodeActivationMode({ mode: 'ballot_printing' });
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('ballot_printing');
+
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(LogEventId.Info, {
+    disposition: 'success',
+    message: 'User set the barcode activation mode to ballot_printing',
+  });
+
+  await apiClient.setBarcodeActivationMode({ mode: 'voter_session' });
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
 test('printer status', async () => {
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,

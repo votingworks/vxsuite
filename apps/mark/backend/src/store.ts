@@ -36,6 +36,11 @@ import {
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
 import { DateTime } from 'luxon';
+import {
+  BarcodeActivationMode,
+  BarcodeActivationModeSchema,
+  DEFAULT_BARCODE_ACTIVATION_MODE,
+} from './barcodes/types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -316,6 +321,39 @@ export class Store {
     }
 
     this.client.run('update election set polls_state = ?', pollsState);
+  }
+
+  /**
+   * Gets how barcode scans should be handled (start a voter session vs. open
+   * the ballot printing screen).
+   */
+  getBarcodeActivationMode(): BarcodeActivationMode {
+    const electionRow = this.client.one(
+      'select barcode_activation_mode as rawBarcodeActivationMode from election'
+    ) as { rawBarcodeActivationMode: string } | undefined;
+
+    if (!electionRow) {
+      return DEFAULT_BARCODE_ACTIVATION_MODE;
+    }
+
+    return safeParse(
+      BarcodeActivationModeSchema,
+      electionRow.rawBarcodeActivationMode
+    ).unsafeUnwrap();
+  }
+
+  /**
+   * Sets how barcode scans should be handled.
+   */
+  setBarcodeActivationMode(mode: BarcodeActivationMode): void {
+    /* istanbul ignore next */
+    if (!this.hasElection()) {
+      throw new Error(
+        'Cannot set barcode activation mode without an election.'
+      );
+    }
+
+    this.client.run('update election set barcode_activation_mode = ?', mode);
   }
 
   /**

@@ -192,6 +192,20 @@ export function buildApi(ctx: Context) {
       lastBarcodeScanTimestamp = undefined;
     },
 
+    getBarcodeActivationMode(): barcodes.BarcodeActivationMode {
+      return store.getBarcodeActivationMode();
+    },
+
+    setBarcodeActivationMode(input: {
+      mode: barcodes.BarcodeActivationMode;
+    }): void {
+      store.setBarcodeActivationMode(input.mode);
+      void logger.logAsCurrentRole(LogEventId.Info, {
+        disposition: 'success',
+        message: `User set the barcode activation mode to ${input.mode}`,
+      });
+    },
+
     getAccessibleControllerConnected(): boolean {
       return isAccessibleControllerAttached();
     },
