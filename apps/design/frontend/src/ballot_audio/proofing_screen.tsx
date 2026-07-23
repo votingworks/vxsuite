@@ -24,6 +24,7 @@ import {
   ElectionStringKey,
   LanguageCode,
   IS_RTL,
+  NEEDS_TRANSLITERATED_NAMES,
   StraightPartyContest,
   YesNoContest,
   hasSplits,
@@ -42,6 +43,20 @@ import { RichTextEditor } from '../rich_text_editor';
 import { cssThemedScrollbars } from '../scrollbars';
 
 const { ENGLISH } = LanguageCode;
+
+// Candidate names aren't translated like other election strings: for
+// languages written in a non-Latin script they're phonetically transliterated
+// via the translation API, and for all other languages they're kept in
+// English.
+function stringLanguage(
+  stringKey: ElectionStringKey,
+  language: LanguageCode
+): LanguageCode {
+  return stringKey === ElectionStringKey.CANDIDATE_NAME &&
+    !NEEDS_TRANSLITERATED_NAMES[language]
+    ? ENGLISH
+    : language;
+}
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -407,12 +422,7 @@ export function LanguageProofingScreen(): React.ReactNode {
               <Translation
                 electionId={electionId}
                 key={`${stringKey}-${subkey}-${language}`}
-                language={
-                  // [TODO] Allow languages that support transliterated names.
-                  stringKey === ElectionStringKey.CANDIDATE_NAME
-                    ? ENGLISH
-                    : language
-                }
+                language={stringLanguage(currentString.key, language)}
                 stringKey={currentString.key}
                 subKey={currentString.subkey}
                 lockReason={lockReason}
@@ -422,11 +432,7 @@ export function LanguageProofingScreen(): React.ReactNode {
             <LanguageAudioEditor
               election={election}
               englishDefault={currentString}
-              language={
-                stringKey === ElectionStringKey.CANDIDATE_NAME
-                  ? ENGLISH
-                  : language
-              }
+              language={stringLanguage(currentString.key, language)}
               finalized={currentFinalized}
             />
           </StringPanel>
@@ -463,11 +469,7 @@ function LanguageAudioEditor(props: {
       <AudioEditor
         electionId={election.electionId}
         hackyKey={`${englishDefault.key}-${englishDefault.subkey}`}
-        languageCode={
-          englishDefault.key === ElectionStringKey.CANDIDATE_NAME
-            ? ENGLISH
-            : language
-        }
+        languageCode={language}
         jurisdictionId={election.jurisdictionId}
         ttsDefault={ttsDefault}
         finalized={finalized}
@@ -616,7 +618,10 @@ function Translation(props: {
   const { electionId, language, stringKey, subKey, lockReason } = props;
   const [edit, setEdit] = React.useState<string>();
 
-  const englishOnly = stringKey === ElectionStringKey.CANDIDATE_NAME;
+  // Candidate names are passed through `stringLanguage`, so `language` is
+  // English when the name isn't transliterated for the selected language.
+  const englishOnly =
+    stringKey === ElectionStringKey.CANDIDATE_NAME && language === ENGLISH;
 
   const translation = api.translationGet.useQuery({
     electionId,
