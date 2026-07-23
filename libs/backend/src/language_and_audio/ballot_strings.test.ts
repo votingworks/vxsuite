@@ -71,13 +71,19 @@ describe('translateBallotStrings', () => {
       LanguageCode.CHINESE_TRADITIONAL,
       LanguageCode.SPANISH,
     ]);
-    for (const languageCode of Object.keys(result)) {
-      if (languageCode === LanguageCode.ENGLISH) {
-        continue; // tested above
-      }
+    // Chinese uses a non-Latin script, so it additionally includes
+    // transliterated candidate names; Spanish keeps them in English only.
+    const expectedKeyCounts: Record<string, number> = {
+      [LanguageCode.CHINESE_SIMPLIFIED]: 17,
+      [LanguageCode.CHINESE_TRADITIONAL]: 17,
+      [LanguageCode.SPANISH]: 16,
+    };
+    for (const [languageCode, expectedKeyCount] of Object.entries(
+      expectedKeyCounts
+    )) {
       const subResults = result[languageCode];
       assert(subResults);
-      expect(Object.keys(subResults)).toHaveLength(16);
+      expect(Object.keys(subResults)).toHaveLength(expectedKeyCount);
     }
   });
 });

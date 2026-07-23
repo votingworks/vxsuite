@@ -45,7 +45,7 @@ export interface Translation {
 // Identifies a single finalized string, keyed to match the sidebar/panel
 // identity in the proofing screen. `languageCode` is the selected language,
 // which may differ from a string's audio synthesis language (e.g. candidate
-// names are voiced in English).
+// names are voiced in English for languages that don't transliterate names).
 export interface FinalizedStringKey {
   electionId: string;
   languageCode: LanguageCode;

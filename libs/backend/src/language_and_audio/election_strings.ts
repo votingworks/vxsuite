@@ -8,6 +8,8 @@ import {
   BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
+  NEEDS_TRANSLITERATED_NAMES,
+  NonEnglishLanguageCode,
   hasSplits,
   DEFAULT_LANGUAGE_CODE,
 } from '@votingworks/types';
@@ -27,6 +29,12 @@ interface ElectionStringConfigNotTranslatable {
 
 interface ElectionStringConfigTranslatable {
   translatable: true;
+  /**
+   * When provided, the string is only translated into languages for which
+   * this returns true. The English original is always included, so untranslated
+   * languages fall back to English at display time.
+   */
+  shouldTranslate?: (languageCode: NonEnglishLanguageCode) => boolean;
   customTranslationMethod?: (input: {
     stringKey: ElectionStringKey | [ElectionStringKey, string];
     stringInEnglish: string;
@@ -55,7 +63,12 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
     translatable: true,
   },
   [ElectionStringKey.CANDIDATE_NAME]: {
-    translatable: false,
+    translatable: true,
+    // Candidate names aren't translated, but for languages written in a
+    // non-Latin script they're phonetically transliterated (which is how the
+    // translation API handles proper names). For all other languages they're
+    // kept in English.
+    shouldTranslate: (languageCode) => NEEDS_TRANSLITERATED_NAMES[languageCode],
   },
   [ElectionStringKey.CONTEST_DESCRIPTION]: {
     translatable: true,
@@ -322,10 +335,13 @@ export async function extractAndTranslateElectionStrings(
 ): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);
   const untranslatedElectionStrings = extractElectionStrings(election);
-  const electionStringsNotToTranslate = untranslatedElectionStrings.filter(
+  // Strings that are only translated into some languages (shouldTranslate)
+  // always include their English original, since the other languages fall
+  // back to English at display time.
+  const electionStringsToIncludeInEnglish = untranslatedElectionStrings.filter(
     (electionString) => {
       const config = getElectionStringConfig(electionString);
-      return !config.translatable;
+      return !config.translatable || config.shouldTranslate !== undefined;
     }
   );
   const electionStringsToCloudTranslate = untranslatedElectionStrings.filter(
@@ -343,8 +359,8 @@ export async function extractAndTranslateElectionStrings(
 
   const electionStrings: UiStringsPackage = {};
 
-  // Election strings not to translate
-  for (const electionString of electionStringsNotToTranslate) {
+  // Election strings to include in English
+  for (const electionString of electionStringsToIncludeInEnglish) {
     setUiString(
       electionStrings,
       LanguageCode.ENGLISH,
@@ -354,10 +370,18 @@ export async function extractAndTranslateElectionStrings(
   }
 
   // Election strings to cloud translate
-  const stringsInEnglish = electionStringsToCloudTranslate.map(
-    ({ stringInEnglish }) => stringInEnglish
-  );
   for (const languageCode of languages) {
+    const stringsToInclude =
+      languageCode === LanguageCode.ENGLISH
+        ? electionStringsToCloudTranslate
+        : electionStringsToCloudTranslate.filter((electionString) => {
+            const config = getElectionStringConfig(electionString);
+            assert(config.translatable);
+            return config.shouldTranslate?.(languageCode) ?? true;
+          });
+    const stringsInEnglish = stringsToInclude.map(
+      ({ stringInEnglish }) => stringInEnglish
+    );
     const stringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? stringsInEnglish
@@ -366,14 +390,9 @@ export async function extractAndTranslateElectionStrings(
             languageCode,
             jurisdictionId
           );
-    for (const [
-      i,
-      electionString,
-    ] of electionStringsToCloudTranslate.entries()) {
+    for (const [i, electionString] of stringsToInclude.entries()) {
       const { stringKey } = electionString;
       const stringInLanguage = stringsInLanguage[i];
-      const config = getElectionStringConfig(electionString);
-      assert(config.translatable);
       setUiString(
         electionStrings,
         languageCode,
