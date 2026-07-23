@@ -68,10 +68,14 @@ export const electionStrings = {
     </InEnglish>
   ),
 
-  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
+  [Key.CONTEST_DESCRIPTION]: (
+    contest: ContestWithDescription,
+    options?: { transformHtml?: (html: string, languageCode: string) => string }
+  ) => (
     <UiRichTextString
       uiStringKey={Key.CONTEST_DESCRIPTION}
       uiStringSubKey={contest.id}
+      transformHtml={options?.transformHtml}
     >
       {contest.description}
     </UiRichTextString>

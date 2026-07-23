@@ -19,6 +19,7 @@ import {
   BaseBallotProps,
   CandidateContest as CandidateContestStruct,
   ContestNominationType,
+  DEFAULT_LANGUAGE_CODE,
   District,
   Election,
   PrecinctId,
@@ -717,6 +718,40 @@ function CandidateContest({
   );
 }
 
+// Santa Clara County measure descriptions start with the measure's
+// designation (e.g. the "B" in "B To renew local school funding..."), printed
+// in a larger bold font. We assume the first word of the description is the
+// designation, as long as it looks like one (a short all-caps/numeric token).
+const MEASURE_DESIGNATION_PATTERN = /^[0-9A-Z]{1,3}$/;
+// Any leading tags/whitespace, then the first word, then trailing whitespace
+const LEADING_WORD_PATTERN = /^((?:<[^>]*>|\s)*)([^\s<]+)\s*/;
+
+/**
+ * Emphasizes the measure designation at the start of the English description,
+ * like the official Santa Clara County ballots. In translated descriptions,
+ * drops the designation if the translation kept it (and only if it exactly
+ * matches the English designation), since the emphasized English designation
+ * shown directly above already identifies the measure.
+ */
+function transformMeasureDescription(contest: YesNoContest) {
+  return (html: string, languageCode: string): string => {
+    const designation = contest.description.match(LEADING_WORD_PATTERN)?.[2];
+    if (!designation || !MEASURE_DESIGNATION_PATTERN.test(designation)) {
+      return html;
+    }
+    const match = html.match(LEADING_WORD_PATTERN);
+    if (!match || match[2] !== designation) {
+      return html;
+    }
+    const [matched, leadingTags] = match;
+    const rest = html.slice(matched.length);
+    if (languageCode !== DEFAULT_LANGUAGE_CODE) {
+      return `${leadingTags}${rest}`;
+    }
+    return `${leadingTags}<span style="font-size: 2em; line-height: 1; font-weight: bold;">${designation}</span> ${rest}`;
+  };
+}
+
 function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   return (
     <Box>
@@ -748,7 +783,9 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
               tableBorderColor={Colors.DARKER_GRAY}
               tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
             >
-              {electionStrings.contestDescription(contest)}
+              {electionStrings.contestDescription(contest, {
+                transformHtml: transformMeasureDescription(contest),
+              })}
             </RichText>
           </DualLanguageText>
         </div>
