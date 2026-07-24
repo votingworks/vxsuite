@@ -3,7 +3,13 @@ import util from 'node:util';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isCardlessVoterAuth } from '@votingworks/utils';
-import { find, Result, err, ok, throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  Result,
+  err,
+  ok,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
@@ -11,7 +17,7 @@ import {
   BallotStyle,
   BallotStyleId,
   PrecinctId,
-  pollingPlaceBallotStyles,
+  getBallotStyle,
   pollingPlaceFromElection,
 } from '@votingworks/types';
 
@@ -225,17 +231,47 @@ function parseBallotStyleQrCode(
  * valid for this location, so a scan can never activate a ballot the machine
  * isn't configured to hand out.
  */
+/**
+ * Returns the precincts a ballot style maps to that are also part of the
+ * machine's configured polling place. A scanned QR code carries only a ballot
+ * style ID; this derives the precinct(s) it can be printed/activated for at this
+ * location, so the frontend can auto-fill when there's exactly one or prompt
+ * when there's more than one. An empty result means the ballot style is unknown
+ * or not valid for this polling place.
+ */
+export function resolvePrecinctsForBallotStyle({
+  election,
+  pollingPlaceId,
+  ballotStyleId,
+}: {
+  election: Election;
+  pollingPlaceId: string;
+  ballotStyleId: BallotStyleId;
+}): PrecinctId[] {
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  if (!ballotStyle) return [];
+
+  const place = pollingPlaceFromElection(election, pollingPlaceId);
+  return ballotStyle.precincts.filter(
+    (precinctId) => precinctId in place.precincts
+  );
+}
+
 function resolveBallotStyleForPollingPlace(
   election: Election,
   placeId: string,
   ballotStyleId: BallotStyleId
 ): { ballotStyle: BallotStyle; precinctId: PrecinctId } | undefined {
-  const place = pollingPlaceFromElection(election, placeId);
-  const ballotStyle = pollingPlaceBallotStyles(election, place).find(
-    (bs) => bs.id === ballotStyleId
-  );
-  if (!ballotStyle) return undefined;
+  const [precinctId] = resolvePrecinctsForBallotStyle({
+    election,
+    pollingPlaceId: placeId,
+    ballotStyleId,
+  });
+  // A resolved precinct guarantees the ballot style exists in the election.
+  if (!precinctId) return undefined;
 
-  const precinctId = find(ballotStyle.precincts, (p) => p in place.precincts);
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId, election })
+  );
   return { ballotStyle, precinctId };
 }

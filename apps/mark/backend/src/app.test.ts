@@ -28,6 +28,8 @@ import {
   DEV_MACHINE_ID,
   EncodedBallotEntry,
   BallotType,
+  pollingPlaceBallotStyles,
+  pollingPlacePrecinctIds,
 } from '@votingworks/types';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -528,6 +530,48 @@ test('get/set barcode activation mode', async () => {
 
   await apiClient.setBarcodeActivationMode({ mode: 'voter_session' });
   expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
+test('getPrecinctsForBallotStyle resolves precincts against the polling place', async () => {
+  const electionDef = electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDef;
+  const place = assertDefined(election.pollingPlaces?.[0]);
+  const [ballotStyle] = pollingPlaceBallotStyles(election, place);
+  const expectedPrecinctIds = ballotStyle.precincts.filter((p) =>
+    pollingPlacePrecinctIds(place).has(p)
+  );
+
+  // No election configured yet -> empty.
+  expect(
+    await apiClient.getPrecinctsForBallotStyle({
+      ballotStyleId: ballotStyle.id,
+    })
+  ).toEqual([]);
+
+  await configureMachine(mockUsbDrive, electionDef);
+
+  // Election configured but no polling place selected -> empty.
+  expect(
+    await apiClient.getPrecinctsForBallotStyle({
+      ballotStyleId: ballotStyle.id,
+    })
+  ).toEqual([]);
+
+  await apiClient.setPollingPlaceId({ id: place.id });
+
+  // Valid ballot style resolves to its precincts within the polling place.
+  expect(
+    await apiClient.getPrecinctsForBallotStyle({
+      ballotStyleId: ballotStyle.id,
+    })
+  ).toEqual(expectedPrecinctIds);
+
+  // Unknown ballot style resolves to nothing.
+  expect(
+    await apiClient.getPrecinctsForBallotStyle({
+      ballotStyleId: 'not-a-real-ballot-style',
+    })
+  ).toEqual([]);
 });
 
 test('printer status', async () => {

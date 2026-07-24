@@ -63,7 +63,10 @@ import {
 import { constructAuthMachineState } from './util/auth';
 import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
-import { setUpBarcodeActivation } from './barcodes/activation';
+import {
+  setUpBarcodeActivation,
+  resolvePrecinctsForBallotStyle,
+} from './barcodes/activation';
 import { Player as AudioPlayer, SoundName } from './audio/player';
 import { saveReadinessReport } from './readiness_report';
 import { printTestPage } from './util/print_test_page';
@@ -194,6 +197,27 @@ export function buildApi(ctx: Context) {
 
     getBarcodeActivationMode(): barcodes.BarcodeActivationMode {
       return store.getBarcodeActivationMode();
+    },
+
+    /**
+     * Given a scanned ballot style ID, returns the precincts it maps to within
+     * the configured polling place. The frontend auto-fills when there is
+     * exactly one, prompts when there is more than one, and treats an empty
+     * result as an unknown/invalid ballot style for this location.
+     */
+    getPrecinctsForBallotStyle(input: {
+      ballotStyleId: BallotStyleId;
+    }): PrecinctId[] {
+      const electionRecord = store.getElectionRecord();
+      const pollingPlaceId = store.getPollingPlaceId();
+      if (!electionRecord || !pollingPlaceId) {
+        return [];
+      }
+      return resolvePrecinctsForBallotStyle({
+        election: electionRecord.electionDefinition.election,
+        pollingPlaceId,
+        ballotStyleId: input.ballotStyleId,
+      });
     },
 
     setBarcodeActivationMode(input: {

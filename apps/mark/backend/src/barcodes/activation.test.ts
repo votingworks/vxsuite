@@ -29,7 +29,10 @@ import {
 } from '@votingworks/test-utils';
 
 import { assertDefined, sleep } from '@votingworks/basics';
-import { setUpBarcodeActivation } from './activation';
+import {
+  resolvePrecinctsForBallotStyle,
+  setUpBarcodeActivation,
+} from './activation';
 import { createWorkspace, Workspace } from '../util/workspace';
 import { getUserRole } from '../util/auth';
 import { BarcodeReader } from './types';
@@ -559,5 +562,39 @@ describe('setUpBarcodeActivation', () => {
     });
 
     expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('resolvePrecinctsForBallotStyle', () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  const [pollingPlace] = assertDefined(election.pollingPlaces);
+
+  test('returns the polling place precincts a ballot style maps to', () => {
+    const [ballotStyle] = pollingPlaceBallotStyles(election, pollingPlace);
+    const placePrecinctIds = pollingPlacePrecinctIds(pollingPlace);
+    const expected = ballotStyle.precincts.filter((p) =>
+      placePrecinctIds.has(p)
+    );
+
+    expect(expected.length).toBeGreaterThan(0);
+    expect(
+      resolvePrecinctsForBallotStyle({
+        election,
+        pollingPlaceId: pollingPlace.id,
+        ballotStyleId: ballotStyle.id,
+      })
+    ).toEqual(expected);
+  });
+
+  test('returns [] for an unknown ballot style', () => {
+    expect(
+      resolvePrecinctsForBallotStyle({
+        election,
+        pollingPlaceId: pollingPlace.id,
+        ballotStyleId: 'not-a-real-ballot-style',
+      })
+    ).toEqual([]);
   });
 });
