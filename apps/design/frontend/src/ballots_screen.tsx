@@ -14,7 +14,12 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  ElectionId,
+  hasSplits,
+  LanguageCode,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
@@ -111,7 +116,8 @@ function BallotDesignForm({
         />
       </div>
       {ballotTemplateId !== 'MiBallot' &&
-        ballotTemplateId !== 'NhStateBallot' && (
+        ballotTemplateId !== 'NhStateBallot' &&
+        ballotTemplateId !== 'CaBallot' && (
           <div style={{ maxWidth: '16.5rem' }}>
             <RadioGroup
               label="Density"
@@ -184,6 +190,7 @@ function BallotStylesTab(): JSX.Element | null {
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
   if (
     !(
@@ -191,7 +198,8 @@ function BallotStylesTab(): JSX.Element | null {
       listPrecinctsQuery.isSuccess &&
       listBallotStylesQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getBallotTemplateQuery.isSuccess
     )
   ) {
     return null;
@@ -199,8 +207,20 @@ function BallotStylesTab(): JSX.Element | null {
 
   const electionInfo = getElectionInfoQuery.data;
   const precincts = listPrecinctsQuery.data;
-  const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
+
+  const hideEnglishOnlyBallotStyle =
+    getBallotTemplateQuery.data === 'CaBallot' &&
+    electionInfo.languageCodes.length > 1;
+  const ballotStyles = hideEnglishOnlyBallotStyle
+    ? listBallotStylesQuery.data.filter(
+        (ballotStyle) =>
+          !(
+            ballotStyle.languages.length === 1 &&
+            ballotStyle.languages[0] === LanguageCode.ENGLISH
+          )
+      )
+    : listBallotStylesQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
   const showPartyColumn =
     electionInfo.type === 'primary' && !electionInfo.isMiCombinedBallotPrimary;

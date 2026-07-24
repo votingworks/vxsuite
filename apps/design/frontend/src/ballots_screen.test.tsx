@@ -5,7 +5,10 @@ import {
   ElectionId,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import type { ElectionRecord } from '@votingworks/design-backend';
+import type {
+  BallotTemplateId,
+  ElectionRecord,
+} from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -59,7 +62,10 @@ function renderScreen(electionId: ElectionId) {
   );
 }
 
-function expectElectionApiCalls(electionRecord: ElectionRecord) {
+function expectElectionApiCalls(
+  electionRecord: ElectionRecord,
+  ballotTemplateId: BallotTemplateId = 'VxDefaultBallot'
+) {
   const { id: electionId } = electionRecord.election;
   mockStateFeatures(apiMock, electionId);
   apiMock.listBallotStyles
@@ -77,6 +83,9 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
   apiMock.listParties
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.parties);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves(ballotTemplateId);
 }
 
 describe('Ballot styles tab', () => {
@@ -244,12 +253,13 @@ describe('Ballot layout tab', () => {
   const { election } = electionRecord;
   const electionId = election.id;
 
-  beforeEach(() => {
-    expectElectionApiCalls(electionRecord);
+  function setup(ballotTemplateId: BallotTemplateId = 'VxDefaultBallot') {
+    expectElectionApiCalls(electionRecord, ballotTemplateId);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  });
+  }
 
   test('has form to update paper size and density', async () => {
+    setup();
     mockStateFeatures(apiMock, electionId, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     });
@@ -257,9 +267,6 @@ describe('Ballot layout tab', () => {
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -331,6 +338,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
+    setup();
     mockStateFeatures(apiMock, electionId, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     });
@@ -338,9 +346,6 @@ describe('Ballot layout tab', () => {
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -367,14 +372,12 @@ describe('Ballot layout tab', () => {
   });
 
   test('hides density for MI ballot template', async () => {
+    setup('MiBallot');
     mockStateFeatures(apiMock, electionId, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('MiBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -387,14 +390,12 @@ describe('Ballot layout tab', () => {
   });
 
   test('hides density for NH state ballot template', async () => {
+    setup('NhStateBallot');
     mockStateFeatures(apiMock, electionId, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('NhStateBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -407,15 +408,13 @@ describe('Ballot layout tab', () => {
   });
 
   test('cancelling', async () => {
+    setup();
     mockStateFeatures(apiMock, electionId, {});
     mockUserFeatures(apiMock, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,
     });
-    apiMock.getBallotTemplate
-      .expectCallWith({ electionId })
-      .resolves('VxDefaultBallot');
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
