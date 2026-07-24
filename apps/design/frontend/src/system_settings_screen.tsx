@@ -796,6 +796,17 @@ export function SystemSettingsForm({
               />
             )}
             <CheckboxButton
+              label="Enable QR Code Ballot Activation on VxMark"
+              isChecked={Boolean(systemSettings.bmdEnableQrBallotActivation)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  bmdEnableQrBallotActivation: isChecked ? true : undefined, // Completely omit when unchecked
+                })
+              }
+              disabled={!isEditing}
+            />
+            <CheckboxButton
               label="Include Redundant Metadata in CVRs"
               isChecked={Boolean(
                 systemSettings.castVoteRecordsIncludeRedundantMetadata

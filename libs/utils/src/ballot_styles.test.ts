@@ -17,6 +17,7 @@ import {
   generateBallotStyleId,
   getBallotStyleGroup,
   getBallotStyleGroupsForPrecinctOrSplit,
+  getDefaultLanguageBallotStyleAndLanguage,
   getGroupedBallotStyles,
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
@@ -248,6 +249,38 @@ describe('ballot style groups', () => {
         targetBallotStyleLanguage: 'es-US',
       }).err()
     ).toMatch('not found');
+  });
+
+  test('getDefaultLanguageBallotStyleAndLanguage', () => {
+    const election: Election = {
+      ...electionGeneral,
+      ballotStyles: [style1English, style1Spanish],
+    };
+
+    // A language-specific ID normalizes to the group's default-language ID and
+    // reports its own language.
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: style1Spanish.id,
+      })
+    ).toEqual({ ballotStyleId: style1English.id, languageCode: 'es-US' });
+
+    // The default-language ID normalizes to itself.
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: style1English.id,
+      })
+    ).toEqual({ ballotStyleId: style1English.id, languageCode: 'en' });
+
+    // An unknown ID returns undefined.
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: 'does-not-exist',
+      })
+    ).toBeUndefined();
   });
 });
 

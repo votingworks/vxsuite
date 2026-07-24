@@ -10,6 +10,7 @@ import { parentPort } from 'node:worker_threads';
 import { sleep } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { ScanEvent } from './types';
+import { decodeHidPosScanReport } from './hid_pos';
 
 // Inline udev monitor to avoid importing @votingworks/backend, which
 // transitively loads pcsclite (smart card library) and canvas — both of which
@@ -140,15 +141,15 @@ function connect() {
   if (CONFIGURE_ON_STARTUP) void configure(activeScanner);
 }
 
-const CARRIAGE_RETURN = '\r'.charCodeAt(0);
-
 // [TODO] Figure out why first scan after startup doesn't register.
-function onData(data: Buffer) {
-  // Ignore newline outputs after each real payload.
-  if (data[0] === CARRIAGE_RETURN) return;
+function onData(report: Buffer) {
+  // The scanner sends decoded barcodes as framed HID POS reports; extract just
+  // the payload (non-scan reports and empty payloads are ignored).
+  const payload = decodeHidPosScanReport(report);
+  if (!payload) return;
 
-  const event: ScanEvent = { type: 'scan', data };
-  parentPort?.postMessage(event, [data.buffer as ArrayBuffer]);
+  const event: ScanEvent = { type: 'scan', data: payload };
+  parentPort?.postMessage(event, [payload.buffer as ArrayBuffer]);
 }
 
 function onError(error: unknown) {

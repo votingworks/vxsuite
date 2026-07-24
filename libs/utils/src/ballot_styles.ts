@@ -12,6 +12,7 @@ import {
   BallotStyleGroupId,
   BallotStyleId,
   BallotStyleGroup,
+  LanguageCode,
   Party,
   Election,
   PrecinctOrSplit,
@@ -141,6 +142,31 @@ export function getBallotStyleGroup({
   return getGroupedBallotStyles(election.ballotStyles).find(
     (group) => group.id === ballotStyleGroupId
   );
+}
+
+/**
+ * Normalizes a (possibly language-specific) ballot style ID into the
+ * default-language ballot style ID of its group, along with the language of the
+ * given ballot style. UI that keys on default-language ballot style IDs (e.g.
+ * `BallotStyleSelect`) can use the returned ID for selection while presetting
+ * the language separately. Returns `undefined` if the ballot style isn't found
+ * in the election.
+ */
+export function getDefaultLanguageBallotStyleAndLanguage(params: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+}): { ballotStyleId: BallotStyleId; languageCode: LanguageCode } | undefined {
+  const { election, ballotStyleId } = params;
+  const ballotStyle = election.ballotStyles.find((b) => b.id === ballotStyleId);
+  if (!ballotStyle) return undefined;
+
+  const group = assertDefined(
+    getBallotStyleGroup({ election, ballotStyleGroupId: ballotStyle.groupId })
+  );
+  return {
+    ballotStyleId: group.defaultLanguageBallotStyle.id,
+    languageCode: assertDefined(ballotStyle.languages[0]) as LanguageCode,
+  };
 }
 
 function hasMatchingDistrictIds(

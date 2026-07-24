@@ -44,6 +44,30 @@ test('get/set/has election', () => {
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
+test('get/set barcode activation mode', () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const store = Store.memoryStore();
+
+  // Defaults to voter_session before an election is configured.
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  // Still defaults to voter_session for a freshly configured election.
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+
+  store.setBarcodeActivationMode('ballot_printing');
+  expect(store.getBarcodeActivationMode()).toEqual('ballot_printing');
+
+  store.setBarcodeActivationMode('voter_session');
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
 test('get/set/delete system settings', () => {
   const store = Store.memoryStore();
 
