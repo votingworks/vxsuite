@@ -77,6 +77,22 @@ describe('general election', () => {
     expect(onSelect).toHaveBeenLastCalledWith(precinct.id, ballotStyle1.id);
   });
 
+  test('reflects a preset precinct in the dropdown value', () => {
+    const [p1, p2] = election.precincts;
+    assert(hasSplits(p2));
+
+    renderSelect({
+      election,
+      onSelect: vi.fn(),
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1, p2]),
+      selectedPrecinctOrSplitId: p1.id,
+    });
+
+    // The dropdown shows the preset precinct rather than the placeholder.
+    expect(screen.queryByText('Select ballot style…')).toBeNull();
+    screen.getByText(p1.name);
+  });
+
   test('multiple precincts/splits', () => {
     const [p1, p2] = election.precincts;
     assert(hasSplits(p2));

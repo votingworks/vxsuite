@@ -164,6 +164,7 @@ export function PrintBlankBallotScreen({
             onSelect={onChooseBallotStyle}
             disabled={isSelectionLocked || printStatus !== 'idle'}
             selectedBallotStyleId={selection?.ballotStyleId}
+            selectedPrecinctOrSplitId={selection?.precinctId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
               pollingPlaceId,
