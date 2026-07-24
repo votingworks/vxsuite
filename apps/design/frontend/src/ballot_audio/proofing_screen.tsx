@@ -833,6 +833,9 @@ function StringInfo(props: {
   const { stringKey, subkey, text } = props;
 
   switch (stringKey) {
+    case ElectionStringKey.CANDIDATE_DESIGNATION:
+      return <StringInfoCandidateDesignation id={assertDefined(subkey)} />;
+
     case ElectionStringKey.CANDIDATE_NAME:
       return <StringInfoCandidateName id={assertDefined(subkey)} />;
 
@@ -1272,6 +1275,51 @@ function StringInfoContestDescription(props: { id: string }) {
       </StringHeader>
       {/*  eslint-disable-next-line react/no-danger */}
       <div dangerouslySetInnerHTML={{ __html: contest.description }} />
+    </TranslationContainer>
+  );
+}
+
+function StringInfoCandidateDesignation(props: { id: string }) {
+  const { id } = props;
+  const { language = ENGLISH, electionId } = useParams<BallotAudioPathParams>();
+
+  const contests = api.listContests.useQuery(electionId).data;
+
+  const [contest, candidate] = React.useMemo(() => {
+    for (const con of contests || []) {
+      if (con.type !== 'candidate') continue;
+
+      for (const can of con.candidates) {
+        if (can.id === id) return [con, can];
+      }
+    }
+
+    return [];
+  }, [contests, id]);
+
+  if (!candidate || !contest) return null;
+
+  return (
+    <TranslationContainer>
+      <StringHeader>
+        <div>
+          <SubHeading>
+            <Link
+              to={
+                routes.election(electionId).ballots.languageManage({
+                  language,
+                  stringKey: ElectionStringKey.CANDIDATE_NAME,
+                  subkey: candidate.id,
+                }).path
+              }
+            >
+              {candidate.name}
+            </Link>
+          </SubHeading>
+          <H2>{candidate.designation}</H2>
+        </div>
+        <StringKey>Candidate Designation</StringKey>
+      </StringHeader>
     </TranslationContainer>
   );
 }

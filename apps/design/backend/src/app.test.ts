@@ -160,10 +160,6 @@ import {
   GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
 } from './worker/generate_election_package_and_ballots';
-import {
-  GenerateTestDecksPayload,
-  GenerateTestDecksPayloadSchema,
-} from './worker/generate_test_decks';
 
 vi.setConfig({
   testTimeout: 120_000,
@@ -2743,19 +2739,10 @@ test('Finalize ballots - DEMO state', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: true,
     shouldExportSampleBallots: false,
-    shouldExportTestBallots: true,
+    shouldExportTestBallots: false,
   });
 
-  const testDecks = await apiClient.getTestDecks({ electionId });
-  const testDecksTask = assertDefined(testDecks.task);
-  const testDecksParams = safeParseJson(
-    testDecksTask.payload,
-    GenerateTestDecksPayloadSchema
-  ).unsafeUnwrap();
-  expect(testDecksParams).toEqual<GenerateTestDecksPayload>({
-    electionId,
-    electionSerializationFormat: 'vxf',
-  });
+  expect(await apiClient.getTestDecks({ electionId })).toEqual({});
 
   await apiClient.unfinalizeBallots({ electionId, reason: '' });
 

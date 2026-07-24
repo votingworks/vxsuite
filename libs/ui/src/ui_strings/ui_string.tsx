@@ -2,6 +2,7 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 
 import sanitizeHtml from 'sanitize-html';
+import { DEFAULT_LANGUAGE_CODE } from '@votingworks/types';
 import { ReactUiString } from './types';
 import { useLanguageContext } from './language_context';
 import { WithAudio } from './with_audio';
@@ -56,6 +57,13 @@ interface UiRichTextStringProps {
   children: string;
   uiStringKey: string;
   uiStringSubKey?: string;
+  /**
+   * Optional transform applied to the sanitized HTML before it's rendered
+   * (e.g. to add presentational markup), along with the language code of the
+   * string being rendered. The transform's output is rendered without further
+   * sanitization, so it must only add trusted markup.
+   */
+  transformHtml?: (html: string, languageCode: string) => string;
 }
 
 const sanitizeOptions: sanitizeHtml.IOptions = {
@@ -74,13 +82,20 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
  * tag replacement. Sanitizes the HTML to prevent XSS attacks.
  */
 export function UiRichTextString(props: UiRichTextStringProps): JSX.Element {
-  const { children, uiStringKey, uiStringSubKey } = props;
+  const { children, uiStringKey, uiStringSubKey, transformHtml } = props;
 
   const languageContext = useLanguageContext();
 
   const i18nKey =
     uiStringKey &&
     (uiStringSubKey ? `${uiStringKey}.${uiStringSubKey}` : uiStringKey);
+
+  function toRenderedHtml(html: string, languageCode: string): string {
+    const sanitizedHtml = sanitizeHtml(html, sanitizeOptions);
+    return transformHtml
+      ? transformHtml(sanitizedHtml, languageCode)
+      : sanitizedHtml;
+  }
 
   // Enable tests to run without the need for a UiStringContext
   if (!languageContext) {
@@ -89,7 +104,7 @@ export function UiRichTextString(props: UiRichTextStringProps): JSX.Element {
         <div
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: sanitizeHtml(children, sanitizeOptions),
+            __html: toRenderedHtml(children, DEFAULT_LANGUAGE_CODE),
           }}
         />
       </WithAudio>
@@ -109,7 +124,10 @@ export function UiRichTextString(props: UiRichTextStringProps): JSX.Element {
       <div
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(translatedString, sanitizeOptions),
+          __html: toRenderedHtml(
+            translatedString,
+            languageContext.currentLanguageCode
+          ),
         }}
       />
     </WithAudio>

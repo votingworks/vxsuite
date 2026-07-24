@@ -235,7 +235,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     BALLOT_LANGUAGE_CONFIG: true,
     DELETE_LIVE_REPORTS: true,
     EDIT_POLLING_PLACES: true,
-    EXPORT_TEST_BALLOTS: true,
+    EXPORT_TEST_BALLOTS: false, // true,
   },
 
   MI: {
