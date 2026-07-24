@@ -29,6 +29,10 @@ const spanishBallotStyle = getRelatedBallotStyle({
   targetBallotStyleLanguage: 'es-US',
 }).unsafeUnwrap();
 const precinctId = assertDefined(englishBallotStyle.precincts[0]);
+// A second, distinct precinct for multi-precinct disambiguation tests.
+const otherPrecinctId = assertDefined(
+  election.precincts.find((p) => p.id !== precinctId)
+).id;
 
 const WAITING_TEXT = 'WAITING FOR SCAN';
 
@@ -90,6 +94,37 @@ test('waits when the scanned ballot style does not resolve to one precinct', asy
   apiMock.mockApiClient.getPrecinctsForBallotStyle
     .expectRepeatedCallsWith({ ballotStyleId: englishBallotStyle.id })
     .resolves([]);
+  renderScreen();
+  await screen.findByText(WAITING_TEXT);
+});
+
+test('uses the scanned precinct to disambiguate a multi-precinct ballot style', async () => {
+  apiMock.expectGetMostRecentBarcodeScan({
+    data: JSON.stringify({
+      ballotStyleId: spanishBallotStyle.id,
+      precinctId: otherPrecinctId,
+    }),
+    timestamp: new Date(Date.now() + 10_000),
+  });
+  apiMock.mockApiClient.getPrecinctsForBallotStyle
+    .expectRepeatedCallsWith({ ballotStyleId: englishBallotStyle.id })
+    .resolves([precinctId, otherPrecinctId]);
+  renderScreen();
+
+  await screen.findByText('Blank Ballot Printing');
+});
+
+test('waits when the scanned precinct is not valid for the polling place', async () => {
+  apiMock.expectGetMostRecentBarcodeScan({
+    data: JSON.stringify({
+      ballotStyleId: spanishBallotStyle.id,
+      precinctId: 'not-a-real-precinct',
+    }),
+    timestamp: new Date(Date.now() + 10_000),
+  });
+  apiMock.mockApiClient.getPrecinctsForBallotStyle
+    .expectRepeatedCallsWith({ ballotStyleId: englishBallotStyle.id })
+    .resolves([precinctId, otherPrecinctId]);
   renderScreen();
   await screen.findByText(WAITING_TEXT);
 });

@@ -123,12 +123,16 @@ export function setUpBarcodeActivation(ctx: Context): void {
         }`,
       });
     }
-    const { ballotStyleId: scannedBallotStyleId } = parseResult.ok();
+    const {
+      ballotStyleId: scannedBallotStyleId,
+      precinctId: scannedPrecinctId,
+    } = parseResult.ok();
 
     const resolved = resolveBallotStyleForPollingPlace(
       election,
       pollingPlaceId,
-      scannedBallotStyleId
+      scannedBallotStyleId,
+      scannedPrecinctId
     );
     if (!resolved) {
       return ctx.logger.logAsCurrentRole(LogEventId.Info, {
@@ -260,16 +264,28 @@ export function resolvePrecinctsForBallotStyle({
 function resolveBallotStyleForPollingPlace(
   election: Election,
   placeId: string,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  scannedPrecinctId?: PrecinctId
 ): { ballotStyle: BallotStyle; precinctId: PrecinctId } | undefined {
-  const [precinctId] = resolvePrecinctsForBallotStyle({
+  const validPrecinctIds = resolvePrecinctsForBallotStyle({
     election,
     pollingPlaceId: placeId,
     ballotStyleId,
   });
-  // A resolved precinct guarantees the ballot style exists in the election.
-  if (!precinctId) return undefined;
+  if (validPrecinctIds.length === 0) return undefined;
 
+  // A scanned precinct that isn't valid for this polling place means the scan
+  // is not for this machine's location - ignore it. When no precinct is scanned,
+  // fall back to the sole precinct (callers handle the ambiguous multi case).
+  if (
+    scannedPrecinctId !== undefined &&
+    !validPrecinctIds.includes(scannedPrecinctId)
+  ) {
+    return undefined;
+  }
+  const precinctId = scannedPrecinctId ?? validPrecinctIds[0];
+
+  // A resolved precinct guarantees the ballot style exists in the election.
   const ballotStyle = assertDefined(
     getBallotStyle({ ballotStyleId, election })
   );
