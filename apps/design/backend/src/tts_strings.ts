@@ -250,6 +250,14 @@ export function apiMethods(ctx: TtsApiContext) {
                 subkey: candidate.id,
                 text: candidate.name,
               });
+
+              if (candidate.designation) {
+                strings.push({
+                  key: ElectionStringKey.CANDIDATE_DESIGNATION,
+                  subkey: candidate.id,
+                  text: candidate.designation,
+                });
+              }
             }
 
             break;
