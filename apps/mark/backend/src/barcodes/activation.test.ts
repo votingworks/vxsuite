@@ -171,15 +171,18 @@ describe('setUpBarcodeActivation', () => {
   });
 
   test('ignores scans when QR ballot activation is disabled', async () => {
-    // Configure election but leave system setting disabled
+    // Configure election with the feature explicitly disabled.
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
     });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: false,
+    });
     workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPollsState('polls_open');
-    // System settings default has bmdEnableQrBallotActivation as undefined/false
 
     vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_out',

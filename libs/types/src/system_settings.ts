@@ -373,4 +373,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
 
   maxCumulativeStreakWidth: DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   retryStreakWidthThreshold: DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+
+  bmdEnableQrBallotActivation: true, // SCC demo only
 };
