@@ -63,12 +63,15 @@ import {
   getAccessibleControllerConnected,
   useApiClient,
   getPatInputConnected,
+  getSystemSettings,
+  getBarcodeActivationMode,
 } from './api';
 
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import { BallotContext } from './contexts/ballot_context';
 import { AdminScreen } from './pages/admin_screen';
+import { BarcodeBallotPrintingScreen } from './pages/barcode_ballot_printing_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { SetupPrinterPage } from './pages/setup_printer_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
@@ -232,6 +235,19 @@ export function AppRoot(): JSX.Element | null {
     electionStateQuery.isSuccess
       ? electionStateQuery.data
       : initialElectionState;
+
+  // When QR ballot activation is set to "ballot_printing" mode, a scanned ballot
+  // style QR code opens the blank ballot printing screen instead of starting a
+  // voter session.
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const isQrBallotActivationEnabled = Boolean(
+    systemSettingsQuery.data?.bmdEnableQrBallotActivation
+  );
+  const barcodeActivationModeQuery = getBarcodeActivationMode.useQuery({
+    enabled: isQrBallotActivationEnabled,
+  });
+  const isBallotPrintingScanMode =
+    barcodeActivationModeQuery.data === 'ballot_printing';
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -587,7 +603,7 @@ export function AppRoot(): JSX.Element | null {
     }
 
     if (isPollWorkerAuth(authStatus)) {
-      return (
+      const pollWorkerScreen = (
         <PollWorkerScreen
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
@@ -602,6 +618,19 @@ export function AppRoot(): JSX.Element | null {
           hasVotes={!!votes}
         />
       );
+      if (isBallotPrintingScanMode) {
+        return (
+          <BarcodeBallotPrintingScreen
+            electionDefinition={electionDefinition}
+            electionPackageHash={assertDefined(electionPackageHash)}
+            machineConfig={machineConfig}
+            pollingPlaceId={pollingPlaceId}
+            isLiveMode={!isTestMode}
+            whileWaiting={pollWorkerScreen}
+          />
+        );
+      }
+      return pollWorkerScreen;
     }
     if (pollsState === 'polls_open' && showPostVotingInstructions) {
       return (
@@ -653,7 +682,7 @@ export function AppRoot(): JSX.Element | null {
       }
     }
 
-    return (
+    const insertCardScreen = (
       <InsertCardScreen
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
@@ -662,6 +691,19 @@ export function AppRoot(): JSX.Element | null {
         pollsState={pollsState}
       />
     );
+    if (isBallotPrintingScanMode) {
+      return (
+        <BarcodeBallotPrintingScreen
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
+          machineConfig={machineConfig}
+          pollingPlaceId={pollingPlaceId}
+          isLiveMode={!isTestMode}
+          whileWaiting={insertCardScreen}
+        />
+      );
+    }
+    return insertCardScreen;
   }
   return <UnconfiguredScreen />;
 }

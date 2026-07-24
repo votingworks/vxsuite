@@ -1,6 +1,6 @@
 import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
-import { deepEqual } from '@votingworks/basics';
+import { assertDefined, deepEqual } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -16,7 +16,7 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import { DiagnosticType } from '@votingworks/types';
+import { BallotStyleId, DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
@@ -173,7 +173,7 @@ export const getBarcodeActivationMode = {
   queryKey(): QueryKey {
     return ['getBarcodeActivationMode'];
   },
-  useQuery(options: { enabled: boolean } = { enabled: true }) {
+  useQuery(options: { enabled: boolean }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
@@ -194,6 +194,23 @@ export const setBarcodeActivationMode = {
         );
       },
     });
+  },
+} as const;
+
+export const getPrecinctsForBallotStyle = {
+  queryKey(ballotStyleId?: BallotStyleId): QueryKey {
+    return ['getPrecinctsForBallotStyle', ballotStyleId ?? ''];
+  },
+  useQuery(ballotStyleId?: BallotStyleId) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(ballotStyleId),
+      () =>
+        apiClient.getPrecinctsForBallotStyle({
+          ballotStyleId: assertDefined(ballotStyleId),
+        }),
+      { enabled: ballotStyleId !== undefined }
+    );
   },
 } as const;
 
