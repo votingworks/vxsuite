@@ -681,6 +681,17 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxButton
+              label="Enable QR Code Ballot Activation on VxMark"
+              isChecked={Boolean(systemSettings.bmdEnableQrBallotActivation)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  bmdEnableQrBallotActivation: isChecked ? true : undefined, // Completely omit when unchecked
+                })
+              }
+              disabled={!isEditing}
+            />
             {features.VXSCAN_ALARMS_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Disable Alarms on VxScan"
