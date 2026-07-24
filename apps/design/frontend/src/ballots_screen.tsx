@@ -111,7 +111,8 @@ function BallotDesignForm({
         />
       </div>
       {ballotTemplateId !== 'MiBallot' &&
-        ballotTemplateId !== 'NhStateBallot' && (
+        ballotTemplateId !== 'NhStateBallot' &&
+        ballotTemplateId !== 'CaBallot' && (
           <div style={{ maxWidth: '16.5rem' }}>
             <RadioGroup
               label="Density"
