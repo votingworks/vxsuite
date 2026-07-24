@@ -32,7 +32,16 @@ test('renders editor, along with a preview of the original text', () => {
   };
 
   const mockApi = createMockApiClient();
-  setUpEditorMock({ electionId, languageCode, jurisdictionId, ttsDefault });
+  mockApi.getFinalizedStrings
+    .expectCallWith({ electionId, language: languageCode })
+    .resolves([]);
+  setUpEditorMock({
+    electionId,
+    languageCode,
+    jurisdictionId,
+    ttsDefault,
+    finalized: false,
+  });
 
   const header = <h1>Election Audio: State</h1>;
 
@@ -67,7 +76,16 @@ test('renders contest descriptions using original, unstripped HTML', async () =>
     subkey: mockContest.id,
     text: 'Do you agree?',
   };
-  setUpEditorMock({ electionId, languageCode, jurisdictionId, ttsDefault });
+  mockApi.getFinalizedStrings
+    .expectCallWith({ electionId, language: languageCode })
+    .resolves([]);
+  setUpEditorMock({
+    electionId,
+    languageCode,
+    jurisdictionId,
+    ttsDefault,
+    finalized: false,
+  });
 
   renderPanel(mockApi, {
     electionId,

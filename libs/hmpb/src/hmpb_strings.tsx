@@ -48,6 +48,23 @@ export const hmpbStringsCatalog = {
   hmpbContinueVotingOnNextSheet: 'Continue voting on next ballot sheet',
   hmpbVotingComplete: 'You have completed voting.',
   hmpbPage: 'Page',
+  hmpbPartyPreference: 'Party Preference',
+  hmpbNone: 'None',
+  hmpbCaPartyNominatedOfficesTitle: 'Party-Nominated Offices',
+  hmpbCaPartyNominatedOfficesText:
+    'Candidates for these offices are the official nominee of the party displayed with their name.',
+  hmpbCaVoterNominatedOfficesTitle: 'Voter-Nominated and Nonpartisan Offices',
+  hmpbCaVoterNominatedOfficesText:
+    'Candidates display a party preference (or None) for the information of voters. This is not a party endorsement or approval.',
+  hmpbCaVoterNominatedOfficesShortTitle: 'Voter-Nominated Offices',
+  hmpbCaNonpartisanOfficesTitle: 'Nonpartisan Offices',
+  hmpbCaMeasuresTitle: 'Measures Submitted to the Voters',
+  hmpbCaLargeContestNoticeStart: 'Due to the large number of candidates, the',
+  hmpbCaLargeContestNoticeEnd:
+    'contest appears on the back side of this ballot card so that all candidates can be listed on the same page.',
+  hmpbCaLargeContestNoticeTurnOver: 'Please turn over to begin voting for',
+  hmpbCaEndOfContestStart: 'End of',
+  hmpbCaEndOfContestEnd: 'Contest',
 } satisfies Record<string, string>;
 
 export const hmpbStrings = mapObject(hmpbStringsCatalog, (string, key) => (

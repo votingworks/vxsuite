@@ -22,7 +22,11 @@ import { AdminHostClient, HostConnection } from './networking';
 import { zipFilesToBuffer } from './util/zip';
 import { getMachineConfig } from './machine_config';
 import { CvrSyncStatus, SendCastVoteRecordsToHostError } from './types';
-import { CVR_SYNC_INTERVAL_MS, CVR_SYNC_RETRY_BACKOFF_MS } from './globals';
+import {
+  CVR_SYNC_INTERVAL_MS,
+  CVR_SYNC_RETRY_BACKOFF_MS,
+  CVR_UPLOAD_TIMEOUT_MS,
+} from './globals';
 
 const debug = makeDebug('scan:cvr-sync');
 
@@ -70,12 +74,14 @@ async function sendBatchToHost({
   logger,
   batch,
   onProgress,
+  uploadTimeoutMs,
 }: {
   workspace: Workspace;
   hostConnection: HostConnection;
   logger: Logger;
   batch: BatchInfo;
   onProgress: (sheetsSent: number, sheetsTotal: number) => void;
+  uploadTimeoutMs: number;
 }): Promise<
   Result<
     { newlyAdded: number; alreadyPresent: number },
@@ -148,6 +154,7 @@ async function sendBatchToHost({
         method: 'POST',
         headers: { 'content-type': 'application/zip' },
         body: zipBuffer,
+        signal: AbortSignal.timeout(uploadTimeoutMs),
       });
       if (!response.ok) {
         const message = `Host responded with status ${
@@ -180,7 +187,12 @@ async function sendBatchToHost({
     }
     return ok(finishResult.ok());
   } catch (error) {
-    const message = error instanceof Error ? error.message : `${error}`;
+    const message =
+      error instanceof Error && error.name === 'AbortError'
+        ? `Upload timed out after ${uploadTimeoutMs / 1000} seconds.`
+        : /* istanbul ignore next */ error instanceof Error
+        ? error.message
+        : /* istanbul ignore next */ `${error}`;
     logFailure(message);
     return err({ type: 'upload-failed', message });
   }
@@ -198,11 +210,13 @@ export function startCvrSync({
   adminHostClient,
   logger,
   pollingIntervalMs = CVR_SYNC_INTERVAL_MS,
+  uploadTimeoutMs = CVR_UPLOAD_TIMEOUT_MS,
 }: {
   workspace: Workspace;
   adminHostClient: AdminHostClient;
   logger: Logger;
   pollingIntervalMs?: number;
+  uploadTimeoutMs?: number;
 }): CvrSync {
   const { store } = workspace;
   let state: CvrSyncStatus['state'] = 'idle';
@@ -249,6 +263,7 @@ export function startCvrSync({
               sheetsSent,
               sheetsTotal,
             }),
+          uploadTimeoutMs,
         });
         if (result.isErr()) {
           lastError = describeSendError(result.err());

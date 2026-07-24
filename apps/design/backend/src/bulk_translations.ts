@@ -20,6 +20,7 @@ export interface BulkTranslationsApiContext {
 // edit. Excludes non-translatable keys (ballot style IDs, candidate names) and
 // auto-computed keys (ballot language names, election date).
 const TRANSLATABLE_STRING_KEYS: ElectionStringKey[] = [
+  ElectionStringKey.CANDIDATE_DESIGNATION,
   ElectionStringKey.CONTEST_DESCRIPTION,
   ElectionStringKey.CONTEST_OPTION_LABEL,
   ElectionStringKey.CONTEST_TERM,
@@ -201,6 +202,13 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         })),
       });
 
+      // A bulk upload rewrites this language's translations, so any prior
+      // per-string finalizations for the language no longer apply.
+      await ctx.workspace.store.finalizedStringsClearForLanguage({
+        electionId: input.electionId,
+        languageCode: input.language,
+      });
+
       return ok();
     },
 
@@ -234,6 +242,11 @@ export function apiMethods(ctx: BulkTranslationsApiContext) {
         input.electionId,
         input.language
       );
+
+      await ctx.workspace.store.finalizedStringsClearForLanguage({
+        electionId: input.electionId,
+        languageCode: input.language,
+      });
     },
 
     bulkTranslationUploadsGet(input: {

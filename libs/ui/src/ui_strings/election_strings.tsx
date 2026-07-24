@@ -51,6 +51,15 @@ export const electionStrings = {
     </InEnglish>
   ),
 
+  [Key.CANDIDATE_DESIGNATION]: (candidate: Candidate) => (
+    <UiString
+      uiStringKey={Key.CANDIDATE_DESIGNATION}
+      uiStringSubKey={candidate.id}
+    >
+      {candidate.designation}
+    </UiString>
+  ),
+
   [Key.CANDIDATE_NAME]: (candidate: Candidate) => (
     <InEnglish>
       <UiString uiStringKey={Key.CANDIDATE_NAME} uiStringSubKey={candidate.id}>
@@ -59,10 +68,14 @@ export const electionStrings = {
     </InEnglish>
   ),
 
-  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
+  [Key.CONTEST_DESCRIPTION]: (
+    contest: ContestWithDescription,
+    options?: { transformHtml?: (html: string, languageCode: string) => string }
+  ) => (
     <UiRichTextString
       uiStringKey={Key.CONTEST_DESCRIPTION}
       uiStringSubKey={contest.id}
+      transformHtml={options?.transformHtml}
     >
       {contest.description}
     </UiRichTextString>

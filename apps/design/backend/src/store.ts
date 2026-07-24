@@ -28,6 +28,7 @@ import {
   PrecinctId,
   Party,
   Contest,
+  ContestNominationType,
   HmpbBallotPaperSize,
   NhPrecinctSplitOptions,
   Candidate,
@@ -415,10 +416,12 @@ async function insertContest(
             allow_write_ins,
             party_id,
             term_description,
+            nomination_type,
+            candidate_columns,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${
-            ballotOrder ? '$10' : 'DEFAULT'
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${
+            ballotOrder ? '$12' : 'DEFAULT'
           })
         `,
         contest.id,
@@ -430,6 +433,8 @@ async function insertContest(
         contest.allowWriteIns,
         contest.partyId,
         contest.termDescription,
+        contest.nominationType,
+        contest.candidateColumns,
         ...(ballotOrder ? [ballotOrder] : [])
       );
       for (const candidate of contest.candidates) {
@@ -440,15 +445,17 @@ async function insertContest(
               contest_id,
               first_name,
               middle_name,
-              last_name
+              last_name,
+              designation
             )
-            values ($1, $2, $3, $4, $5)
+            values ($1, $2, $3, $4, $5, $6)
           `,
           candidate.id,
           contest.id,
           candidate.firstName,
           candidate.middleName,
-          candidate.lastName
+          candidate.lastName,
+          candidate.designation
         );
         for (const partyId of candidate.partyIds ?? []) {
           await client.query(
@@ -1053,6 +1060,8 @@ export class Store {
               allow_write_ins as "allowWriteIns",
               party_id as "partyId",
               term_description as "termDescription",
+              nomination_type as "nominationType",
+              candidate_columns as "candidateColumns",
               description,
               yes_option_id as "yesOptionId",
               yes_option_label as "yesOptionLabel",
@@ -1074,6 +1083,8 @@ export class Store {
         allowWriteIns: boolean | null;
         partyId: PartyId | null;
         termDescription: string | null;
+        nominationType: ContestNominationType | null;
+        candidateColumns: number | null;
         description: string | null;
         yesOptionId: string | null;
         yesOptionLabel: string | null;
@@ -1090,6 +1101,7 @@ export class Store {
               first_name as "firstName",
               middle_name as "middleName",
               last_name as "lastName",
+              designation,
               array_remove(array_agg(candidates_parties.party_id ORDER BY candidates_parties.party_id), NULL) as "partyIds"
             from candidates
             join contests on candidates.contest_id = contests.id
@@ -1106,6 +1118,7 @@ export class Store {
         firstName: string | null;
         middleName: string | null;
         lastName: string | null;
+        designation: string | null;
         partyIds: PartyId[];
       }>;
       const contests: Contest[] = contestRows.map((row) => {
@@ -1122,6 +1135,7 @@ export class Store {
                 firstName: candidate.firstName || undefined,
                 middleName: candidate.middleName || undefined,
                 lastName: candidate.lastName || undefined,
+                designation: candidate.designation || undefined,
                 name: [
                   candidate.firstName,
                   candidate.middleName,
@@ -1143,6 +1157,8 @@ export class Store {
               allowWriteIns: assertDefined(row.allowWriteIns),
               partyId: row.partyId ?? undefined,
               termDescription: row.termDescription ?? undefined,
+              nominationType: row.nominationType ?? undefined,
+              candidateColumns: row.candidateColumns ?? undefined,
               candidates,
             });
           }
@@ -3245,6 +3261,101 @@ export class Store {
         return true;
       })
     );
+  }
+
+  /* istanbul ignore next - DEMO */
+  async finalizedStringsGet(input: {
+    electionId: string;
+    languageCode: string;
+  }): Promise<Array<{ stringKey: string; subkey: string }>> {
+    return this.db.withClient(async (client) => {
+      const res = await client.query(
+        `
+          select
+            string_key as "stringKey",
+            subkey
+          from finalized_strings
+          where election_id = $1 and language_code = $2
+        `,
+        input.electionId,
+        input.languageCode
+      );
+
+      return res.rows.map((row) => ({
+        stringKey: row.stringKey as string,
+        subkey: row.subkey as string,
+      }));
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async stringFinalizedSet(input: {
+    electionId: string;
+    languageCode: string;
+    stringKey: string;
+    subkey?: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          insert into finalized_strings (
+            election_id,
+            language_code,
+            string_key,
+            subkey
+          )
+          values ($1, $2, $3, $4)
+          on conflict (election_id, language_code, string_key, subkey)
+            do nothing
+        `,
+        input.electionId,
+        input.languageCode,
+        input.stringKey,
+        input.subkey ?? ''
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async stringFinalizedDelete(input: {
+    electionId: string;
+    languageCode: string;
+    stringKey: string;
+    subkey?: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from finalized_strings
+          where
+            election_id = $1 and
+            language_code = $2 and
+            string_key = $3 and
+            subkey = $4
+        `,
+        input.electionId,
+        input.languageCode,
+        input.stringKey,
+        input.subkey ?? ''
+      );
+    });
+  }
+
+  /* istanbul ignore next - DEMO */
+  async finalizedStringsClearForLanguage(input: {
+    electionId: string;
+    languageCode: string;
+  }): Promise<void> {
+    return this.db.withClient(async (client) => {
+      await client.query(
+        `
+          delete from finalized_strings
+          where election_id = $1 and language_code = $2
+        `,
+        input.electionId,
+        input.languageCode
+      );
+    });
   }
 
   async electionHasLiveReportData(

@@ -428,8 +428,8 @@ export function DualLanguageText({
 
   const text = (
     <React.Fragment>
-      {children}
       <InEnglish>{children}</InEnglish>
+      {children}
     </React.Fragment>
   );
 

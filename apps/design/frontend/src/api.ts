@@ -19,6 +19,7 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
+  LanguageCode,
   PollingPlaceType,
   PrecinctSelection,
   TtsEditKey,
@@ -353,6 +354,33 @@ export const ttsEditsGet = {
   },
 } as const;
 
+/* istanbul ignore next - DEMO */
+export const getFinalizedStrings = {
+  queryKey(electionId: string, language: LanguageCode): QueryKey {
+    return ['finalizedStrings', electionId, language];
+  },
+  useQuery(electionId: string, language: LanguageCode) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId, language), () =>
+      apiClient.getFinalizedStrings({ electionId, language })
+    );
+  },
+} as const;
+
+/* istanbul ignore next - DEMO */
+export const setStringFinalized = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setStringFinalized, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(
+          getFinalizedStrings.queryKey(params.electionId, params.languageCode)
+        ),
+    });
+  },
+} as const;
+
 /* istanbul ignore next - WIP */
 export const ttsEditsSet = {
   useMutation() {
@@ -441,10 +469,13 @@ export const bulkTranslationClear = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.bulkTranslationClear, {
-      async onSuccess(_data, { electionId }) {
+      async onSuccess(_data, { electionId, language }) {
         await queryClient.invalidateQueries(['translation']);
         await queryClient.invalidateQueries(
           bulkTranslationUploadsGet.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(
+          getFinalizedStrings.queryKey(electionId, language)
         );
       },
     });
@@ -457,10 +488,13 @@ export const bulkTranslationImport = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.bulkTranslationImport, {
-      async onSuccess(_data, { electionId }) {
+      async onSuccess(_data, { electionId, language }) {
         await queryClient.invalidateQueries(['translation']);
         await queryClient.invalidateQueries(
           bulkTranslationUploadsGet.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(
+          getFinalizedStrings.queryKey(electionId, language)
         );
       },
     });

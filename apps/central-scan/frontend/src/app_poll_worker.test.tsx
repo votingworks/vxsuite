@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
 import {
-  hasTextAcrossElements,
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
@@ -95,15 +94,16 @@ test('poll worker can open batch history, which has no delete buttons', async ()
 
   // Summary stats are always visible; the line-by-line history lives on its
   // own page
-  await screen.findByText(hasTextAcrossElements('Total Batches: 2'));
-  screen.getByText(hasTextAcrossElements('Total Sheets: 57'));
+  await screen.findByText('Total Batches');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('2');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('57');
 
   userEvent.click(screen.getByText('Batch History'));
   await screen.findByRole('heading', { name: 'Batch History' });
   screen.getByText('Batch 1');
   screen.getByText('Batch 2');
   // totals are shown on the history page too
-  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('2');
   expect(screen.queryByText('Delete')).not.toBeInTheDocument();
   expect(screen.queryByText('Delete All Batches')).not.toBeInTheDocument();
   expect(screen.queryByText('Save CVRs')).not.toBeInTheDocument();

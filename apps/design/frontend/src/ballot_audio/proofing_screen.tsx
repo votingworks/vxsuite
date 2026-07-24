@@ -24,6 +24,7 @@ import {
   ElectionStringKey,
   LanguageCode,
   IS_RTL,
+  NEEDS_TRANSLITERATED_NAMES,
   StraightPartyContest,
   YesNoContest,
   hasSplits,
@@ -42,6 +43,20 @@ import { RichTextEditor } from '../rich_text_editor';
 import { cssThemedScrollbars } from '../scrollbars';
 
 const { ENGLISH } = LanguageCode;
+
+// Candidate names aren't translated like other election strings: for
+// languages written in a non-Latin script they're phonetically transliterated
+// via the translation API, and for all other languages they're kept in
+// English.
+function stringLanguage(
+  stringKey: ElectionStringKey,
+  language: LanguageCode
+): LanguageCode {
+  return stringKey === ElectionStringKey.CANDIDATE_NAME &&
+    !NEEDS_TRANSLITERATED_NAMES[language]
+    ? ENGLISH
+    : language;
+}
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -295,6 +310,12 @@ export function LanguageProofingScreen(): React.ReactNode {
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
   const stringDefaults = api.ttsStringDefaults.useQuery(electionId).data;
+  const finalizedStrings = api.getFinalizedStrings.useQuery(
+    electionId,
+    language
+  ).data;
+  const ballotsFinalized =
+    !!api.getBallotsFinalizedAt.useQuery(electionId).data;
   const currentString = React.useMemo(() => {
     for (const appString of stringDefaults || []) {
       if (appString.key !== stringKey || appString.subkey !== subkey) continue;
@@ -329,6 +350,25 @@ export function LanguageProofingScreen(): React.ReactNode {
 
   const election = getElectionInfoQuery.data;
 
+  const finalizedSet = new Set(
+    (finalizedStrings ?? []).map((f) =>
+      finalizedLookupKey(f.stringKey, f.subkey)
+    )
+  );
+  const currentFinalized =
+    !!currentString &&
+    finalizedSet.has(
+      finalizedLookupKey(currentString.key, currentString.subkey)
+    );
+  // A string is locked from editing when finalized individually or when the
+  // whole election's ballots have been finalized.
+  let lockReason: TranslationLockReason | undefined;
+  if (ballotsFinalized) {
+    lockReason = 'ballotsFinalized';
+  } else if (currentFinalized) {
+    lockReason = 'stringFinalized';
+  }
+
   return (
     <Container>
       <SideBarContainer>
@@ -349,7 +389,13 @@ export function LanguageProofingScreen(): React.ReactNode {
           </SearchBox>
           <StringSnippets>
             {searchResults.map((string) => (
-              <StringSnippet key={joinStringKey(string)} string={string} />
+              <StringSnippet
+                key={joinStringKey(string)}
+                string={string}
+                finalized={finalizedSet.has(
+                  finalizedLookupKey(string.key, string.subkey)
+                )}
+              />
             ))}
           </StringSnippets>
         </SideBar>
@@ -357,6 +403,15 @@ export function LanguageProofingScreen(): React.ReactNode {
       <Body>
         {currentString && (
           <StringPanel>
+            <FinalizeToggle
+              electionId={electionId}
+              language={language}
+              stringKey={currentString.key}
+              subkey={currentString.subkey}
+              finalized={currentFinalized}
+              disabled={ballotsFinalized}
+            />
+
             <StringInfo
               stringKey={currentString.key}
               subkey={currentString.subkey}
@@ -367,25 +422,18 @@ export function LanguageProofingScreen(): React.ReactNode {
               <Translation
                 electionId={electionId}
                 key={`${stringKey}-${subkey}-${language}`}
-                language={
-                  // [TODO] Allow languages that support transliterated names.
-                  stringKey === ElectionStringKey.CANDIDATE_NAME
-                    ? ENGLISH
-                    : language
-                }
+                language={stringLanguage(currentString.key, language)}
                 stringKey={currentString.key}
                 subKey={currentString.subkey}
+                lockReason={lockReason}
               />
             )}
 
             <LanguageAudioEditor
               election={election}
               englishDefault={currentString}
-              language={
-                stringKey === ElectionStringKey.CANDIDATE_NAME
-                  ? ENGLISH
-                  : language
-              }
+              language={stringLanguage(currentString.key, language)}
+              finalized={currentFinalized}
             />
           </StringPanel>
         )}
@@ -398,8 +446,9 @@ function LanguageAudioEditor(props: {
   election: ElectionInfo;
   language: LanguageCode;
   englishDefault: TtsStringDefault;
+  finalized: boolean;
 }) {
-  const { election, englishDefault, language } = props;
+  const { election, englishDefault, language, finalized } = props;
 
   const translation = api.translationGet.useQuery({
     electionId: election.electionId,
@@ -420,13 +469,10 @@ function LanguageAudioEditor(props: {
       <AudioEditor
         electionId={election.electionId}
         hackyKey={`${englishDefault.key}-${englishDefault.subkey}`}
-        languageCode={
-          englishDefault.key === ElectionStringKey.CANDIDATE_NAME
-            ? ENGLISH
-            : language
-        }
+        languageCode={language}
         jurisdictionId={election.jurisdictionId}
         ttsDefault={ttsDefault}
+        finalized={finalized}
       />
     </Card>
   );
@@ -435,6 +481,80 @@ function LanguageAudioEditor(props: {
 // [TODO] Actual fuzzy match?
 function isMatchFuzzy(haystack: string, needle: string) {
   return haystack.toLowerCase().includes(needle.trim().toLowerCase());
+}
+
+// Stable lookup key for a finalized string, matching the backend's
+// (stringKey, subkey) identity. A space separator is safe because string keys
+// (ElectionStringKey values) never contain spaces.
+function finalizedLookupKey(stringKey: string, subkey?: string): string {
+  return `${stringKey} ${subkey ?? ''}`;
+}
+
+const FinalizeBar = styled.div<{ finalized: boolean }>`
+  align-items: center;
+  background: ${(p) =>
+    p.finalized ? DesktopPalette.Purple10 : DesktopPalette.Gray5};
+  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${DesktopPalette.Gray30};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  max-width: 75ch;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+`;
+
+const FinalizeStatus = styled.div`
+  align-items: center;
+  display: flex;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  gap: 0.5rem;
+`;
+
+function FinalizeToggle(props: {
+  electionId: string;
+  language: LanguageCode;
+  stringKey: ElectionStringKey;
+  subkey?: string;
+  finalized: boolean;
+  disabled: boolean;
+}) {
+  const { electionId, language, stringKey, subkey, finalized, disabled } =
+    props;
+  const mutation = api.setStringFinalized.useMutation();
+
+  return (
+    <FinalizeBar finalized={finalized}>
+      <FinalizeStatus>
+        {finalized ? (
+          <React.Fragment>
+            <Icons.Done color="primary" /> Finalized
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Icons.Circle color="warning" /> Not Finalized
+          </React.Fragment>
+        )}
+      </FinalizeStatus>
+      <Button
+        disabled={disabled || mutation.isLoading}
+        icon={finalized ? 'RotateLeft' : 'Done'}
+        color={finalized ? 'neutral' : 'primary'}
+        fill="outlined"
+        onPress={() =>
+          mutation.mutate({
+            electionId,
+            languageCode: language,
+            stringKey,
+            subkey,
+            finalized: !finalized,
+          })
+        }
+      >
+        {finalized ? 'Unfinalize' : 'Finalize'}
+      </Button>
+    </FinalizeBar>
+  );
 }
 
 const TranslationContainer = styled(Card)`
@@ -472,16 +592,36 @@ const StringKey = styled(Caption)`
   white-space: nowrap;
 `;
 
+type TranslationLockReason = 'stringFinalized' | 'ballotsFinalized';
+
+function TranslationLockMessage(props: {
+  lockReason: TranslationLockReason;
+}): JSX.Element {
+  const { lockReason } = props;
+  return (
+    <React.Fragment>
+      <Icons.Lock style={{ marginRight: '0.5rem' }} />
+      {lockReason === 'stringFinalized'
+        ? 'This string is finalized. Unfinalize it to edit the translation.'
+        : 'Ballots are finalized, so the translation may not be edited.'}
+    </React.Fragment>
+  );
+}
+
 function Translation(props: {
   electionId: string;
   stringKey: ElectionStringKey;
   subKey?: string;
   language: LanguageCode;
+  lockReason?: TranslationLockReason;
 }) {
-  const { electionId, language, stringKey, subKey } = props;
+  const { electionId, language, stringKey, subKey, lockReason } = props;
   const [edit, setEdit] = React.useState<string>();
 
-  const englishOnly = stringKey === ElectionStringKey.CANDIDATE_NAME;
+  // Candidate names are passed through `stringLanguage`, so `language` is
+  // English when the name isn't transliterated for the selected language.
+  const englishOnly =
+    stringKey === ElectionStringKey.CANDIDATE_NAME && language === ENGLISH;
 
   const translation = api.translationGet.useQuery({
     electionId,
@@ -511,9 +651,11 @@ function Translation(props: {
     );
   }
 
+  const editable = !englishOnly && !lockReason;
+
   return (
     <TranslationContainer header={<H3>Translation</H3>}>
-      {!englishOnly && (
+      {editable && (
         <div>
           <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
           Edit the following text to change the translation shown on voter
@@ -525,6 +667,12 @@ function Translation(props: {
         <div>
           <Icons.Info style={{ marginRight: '0.5rem' }} />
           Candidate names are displayed in English for ballots in this language.
+        </div>
+      )}
+
+      {lockReason && !englishOnly && (
+        <div>
+          <TranslationLockMessage lockReason={lockReason} />
         </div>
       )}
 
@@ -543,8 +691,8 @@ function Translation(props: {
 
         <TextArea
           dir={IS_RTL[language] ? 'rtl' : undefined}
-          editable={!englishOnly}
-          disabled={saving || englishOnly}
+          editable={editable}
+          disabled={saving || !editable}
           id="ttsTextEditor"
           name="ttsText"
           onChange={(event) => setEdit(event.target.value)}
@@ -556,7 +704,7 @@ function Translation(props: {
           value={edit || translation.forDisplay}
         />
       </Editor>
-      {!englishOnly && (
+      {editable && (
         <FormButtons>
           {changed && (
             <Button
@@ -606,8 +754,11 @@ function RichTextTranslation(props: {
   stringKey: ElectionStringKey;
   subKey?: string;
   translation: Translation;
+  lockReason?: TranslationLockReason;
 }) {
-  const { electionId, language, stringKey, subKey, translation } = props;
+  const { electionId, language, stringKey, subKey, translation, lockReason } =
+    props;
+  const readOnly = !!lockReason;
   const [edit, setEdit] = React.useState<string>();
   const [resets, setResets] = React.useState<number>(0);
 
@@ -621,46 +772,55 @@ function RichTextTranslation(props: {
   return (
     <TranslationContainer header={<H3>Translation</H3>}>
       <div>
-        <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
-        Edit the following text to change the translation shown on voter
-        ballots:
+        {lockReason ? (
+          <TranslationLockMessage lockReason={lockReason} />
+        ) : (
+          <React.Fragment>
+            <Icons.ChevronRight style={{ marginRight: '0.5rem' }} />
+            Edit the following text to change the translation shown on voter
+            ballots:
+          </React.Fragment>
+        )}
       </div>
       <DescriptionEditor
         dir={IS_RTL[language] ? 'rtl' : undefined}
+        disabled={readOnly}
         initialHtmlContent={edit || translation.forDisplay}
         key={`${stringKey}-${subKey}-${language}-${resets}`}
         onChange={setEdit}
       />
-      <FormButtons>
-        {changed && (
+      {!readOnly && (
+        <FormButtons>
+          {changed && (
+            <Button
+              disabled={saving}
+              onPress={() => {
+                setEdit(undefined);
+                setResets(resets + 1);
+              }}
+              type="reset"
+            >
+              Cancel
+            </Button>
+          )}
           <Button
-            disabled={saving}
-            onPress={() => {
-              setEdit(undefined);
-              setResets(resets + 1);
+            disabled={saveDisabled}
+            icon={saving ? 'Loading' : 'Save'}
+            onPress={translationSet}
+            value={{
+              electionId,
+              language,
+              stringKey,
+              subKey,
+              text: edit || '',
             }}
-            type="reset"
+            type="submit"
+            variant={saveDisabled ? 'neutral' : 'primary'}
           >
-            Cancel
+            {saving ? 'Saving...' : 'Save'}
           </Button>
-        )}
-        <Button
-          disabled={saveDisabled}
-          icon={saving ? 'Loading' : 'Save'}
-          onPress={translationSet}
-          value={{
-            electionId,
-            language,
-            stringKey,
-            subKey,
-            text: edit || '',
-          }}
-          type="submit"
-          variant={saveDisabled ? 'neutral' : 'primary'}
-        >
-          {saving ? 'Saving...' : 'Save'}
-        </Button>
-      </FormButtons>
+        </FormButtons>
+      )}
     </TranslationContainer>
   );
 }
@@ -673,6 +833,9 @@ function StringInfo(props: {
   const { stringKey, subkey, text } = props;
 
   switch (stringKey) {
+    case ElectionStringKey.CANDIDATE_DESIGNATION:
+      return <StringInfoCandidateDesignation id={assertDefined(subkey)} />;
+
     case ElectionStringKey.CANDIDATE_NAME:
       return <StringInfoCandidateName id={assertDefined(subkey)} />;
 
@@ -1116,6 +1279,51 @@ function StringInfoContestDescription(props: { id: string }) {
   );
 }
 
+function StringInfoCandidateDesignation(props: { id: string }) {
+  const { id } = props;
+  const { language = ENGLISH, electionId } = useParams<BallotAudioPathParams>();
+
+  const contests = api.listContests.useQuery(electionId).data;
+
+  const [contest, candidate] = React.useMemo(() => {
+    for (const con of contests || []) {
+      if (con.type !== 'candidate') continue;
+
+      for (const can of con.candidates) {
+        if (can.id === id) return [con, can];
+      }
+    }
+
+    return [];
+  }, [contests, id]);
+
+  if (!candidate || !contest) return null;
+
+  return (
+    <TranslationContainer>
+      <StringHeader>
+        <div>
+          <SubHeading>
+            <Link
+              to={
+                routes.election(electionId).ballots.languageManage({
+                  language,
+                  stringKey: ElectionStringKey.CANDIDATE_NAME,
+                  subkey: candidate.id,
+                }).path
+              }
+            >
+              {candidate.name}
+            </Link>
+          </SubHeading>
+          <H2>{candidate.designation}</H2>
+        </div>
+        <StringKey>Candidate Designation</StringKey>
+      </StringHeader>
+    </TranslationContainer>
+  );
+}
+
 function StringInfoCandidateName(props: { id: string }) {
   const { id } = props;
   const { language = ENGLISH, electionId } = useParams<BallotAudioPathParams>();
@@ -1178,11 +1386,13 @@ const StringSnippetContainer = styled(Link)`
   border-bottom: 1px solid #eee;
   box-shadow: inset 0 0 0 ${DesktopPalette.Purple40};
   box-sizing: border-box;
+  align-items: center;
   color: ${(p) => p.theme.colors.onBackground} !important;
   cursor: pointer;
-  display: block;
+  display: flex;
   font-size: 1rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular} !important;
+  gap: 0.5rem;
   margin: 0;
   min-height: max-content;
   overflow-x: hidden;
@@ -1190,11 +1400,9 @@ const StringSnippetContainer = styled(Link)`
   padding: 0.75rem;
   text-align: left;
   text-decoration: none;
-  text-overflow: ellipsis;
   transition-duration: 120ms;
   transition-property: background-color, border, color;
   transition-timing-function: ease-out;
-  white-space: nowrap;
 
   :focus,
   :hover {
@@ -1214,8 +1422,19 @@ const StringSnippetContainer = styled(Link)`
   }
 `;
 
-function StringSnippet(props: { string: TtsStringDefault }) {
-  const { string } = props;
+const SnippetText = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+function StringSnippet(props: {
+  string: TtsStringDefault;
+  finalized: boolean;
+}) {
+  const { string, finalized } = props;
   const {
     electionId,
     stringKey,
@@ -1235,7 +1454,12 @@ function StringSnippet(props: { string: TtsStringDefault }) {
       }
       role="option"
     >
-      {string.text}
+      <SnippetText>{string.text}</SnippetText>
+      {finalized ? (
+        <Icons.Done color="primary" style={{ flexShrink: 0 }} />
+      ) : (
+        <Icons.Circle color="warning" style={{ flexShrink: 0 }} />
+      )}
     </StringSnippetContainer>
   );
 }

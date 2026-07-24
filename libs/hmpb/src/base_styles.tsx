@@ -3,6 +3,7 @@ import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,
 } from '@votingworks/ui';
+import { NOTO_SANS_KHMER_FONT_DECLARATIONS } from './fonts/noto_sans_khmer';
 
 export interface BaseStylesProps {
   compact?: boolean;
@@ -24,7 +25,7 @@ function baseStyles(params: BaseStylesProps) {
 
   html {
     box-sizing: border-box;
-    font-family: Vx Roboto;
+    font-family: 'Vx Roboto', 'Noto Sans Khmer';
     font-variant-ligatures: none;
     /*
      * 12pt is the Center for Civic Design's recommended default font size, and
@@ -76,6 +77,7 @@ export function BaseStyles(props: BaseStylesProps): JSX.Element {
           __html: [
             ROBOTO_REGULAR_FONT_DECLARATIONS,
             ROBOTO_ITALIC_FONT_DECLARATIONS,
+            NOTO_SANS_KHMER_FONT_DECLARATIONS,
           ].join('\n'),
         }}
       />

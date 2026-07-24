@@ -34,7 +34,7 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
 
   /**
    * Translates text using the following order of precedence:
-   * - Customer-provided translations (not yet implemented)
+   * - User edits (explicit per-jurisdiction overrides)
    * - Vendored translations
    * - Cached cloud translations
    * - New cloud translations
@@ -51,17 +51,11 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     const counts = new TranslationSourceCounts();
     const cacheMisses: Array<{ index: number; text: string }> = [];
     for (const [index, text] of textArray.entries()) {
-      const vendoredTranslation =
-        this.vendoredTranslations[targetLanguageCode]?.[text];
-      if (vendoredTranslation) {
-        translatedTextArray[index] = vendoredTranslation;
-        counts.increment('Vendored translations');
-        continue;
-      }
-
       // Check caches using the stripped text as the key
       const strippedText = stripImagesFromRichText(text);
 
+      // User edits are explicit overrides and take precedence over everything,
+      // including vendored translations.
       // [TODO] Require jurisdiction ID, post-demo.
       if (jurisdictionId) {
         const userEdit = await this.store.translationEditsGet({
@@ -74,6 +68,14 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
           counts.increment('User translations');
           continue;
         }
+      }
+
+      const vendoredTranslation =
+        this.vendoredTranslations[targetLanguageCode]?.[text];
+      if (vendoredTranslation) {
+        translatedTextArray[index] = vendoredTranslation;
+        counts.increment('Vendored translations');
+        continue;
       }
 
       const translatedTextFromCache =

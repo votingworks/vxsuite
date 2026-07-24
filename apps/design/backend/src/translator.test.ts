@@ -9,6 +9,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { TestStore } from '../test/test_store';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
+import { nonVxJurisdiction, nonVxOrganization } from '../test/mocks';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -267,4 +268,53 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
     })
   );
   translationClient.translateText.mockClear();
+});
+
+test('GoogleCloudTranslatorWithDbCache user edits take precedence over vendored translations', async () => {
+  // "Yes" has a vendored Chinese translation; a jurisdiction may still want to
+  // override it (e.g. the incorrect vendored "是" for a ballot "Yes"/"No").
+  const vendoredTranslations: VendoredTranslations = {
+    [LanguageCode.ARABIC]: {},
+    [LanguageCode.BENGALI]: {},
+    [LanguageCode.CHINESE_SIMPLIFIED]: { Yes: '是' },
+    [LanguageCode.CHINESE_TRADITIONAL]: {},
+    [LanguageCode.SPANISH]: {},
+  };
+  const store = testStore.getStore();
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: vi.fn,
+  });
+  const translator = new GoogleCloudTranslatorWithDbCache({
+    store,
+    translationClient,
+    vendoredTranslations,
+  });
+
+  await store.createOrganization(nonVxOrganization);
+  await store.createJurisdiction(nonVxJurisdiction);
+  await store.translationEditsSet(
+    {
+      englishText: 'Yes',
+      jurisdictionId: nonVxJurisdiction.id,
+      languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+    },
+    '贊成'
+  );
+
+  // With the jurisdiction's edit, the edit wins over the vendored translation.
+  expect(
+    await translator.translateText(
+      ['Yes'],
+      LanguageCode.CHINESE_SIMPLIFIED,
+      nonVxJurisdiction.id
+    )
+  ).toEqual(['贊成']);
+
+  // Without a jurisdiction (e.g. contexts that don't scope edits), the vendored
+  // translation is still used.
+  expect(
+    await translator.translateText(['Yes'], LanguageCode.CHINESE_SIMPLIFIED)
+  ).toEqual(['是']);
+
+  expect(translationClient.translateText).not.toHaveBeenCalled();
 });

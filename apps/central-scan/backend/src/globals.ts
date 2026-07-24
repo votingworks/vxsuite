@@ -39,7 +39,7 @@ export const NETWORK_POLLING_INTERVAL_MS = 2000;
 /**
  * Timeout for requests to a VxAdmin host's peer API.
  */
-export const NETWORK_REQUEST_TIMEOUT_MS = 1000;
+export const NETWORK_REQUEST_TIMEOUT_MS = 3000;
 
 /**
  * How often the background sync checks for saved batches that haven't been
@@ -53,6 +53,14 @@ export const CVR_SYNC_INTERVAL_MS = 2000;
  * sessions every polling tick.
  */
 export const CVR_SYNC_RETRY_BACKOFF_MS = 15_000;
+
+/**
+ * Timeout for uploading a single cast vote record to a VxAdmin host. Generous
+ * relative to {@link NETWORK_REQUEST_TIMEOUT_MS} since uploads carry ballot
+ * images. Without a timeout, a hung connection would stall the sync loop
+ * indefinitely.
+ */
+export const CVR_UPLOAD_TIMEOUT_MS = 30_000;
 
 /**
  * Dev override for the VxAdmin host peer API address, e.g.

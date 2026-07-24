@@ -47,6 +47,7 @@ test('defaults to plain text editor if no saved edits exist', async () => {
     languageCode,
     jurisdictionId,
     ttsDefault,
+    finalized: false,
   });
 
   await screen.findByTestId(TEXT_EDITOR_TEST_ID);
@@ -83,6 +84,7 @@ test.skip('picks initial editor based on saved edits', async () => {
     languageCode,
     jurisdictionId,
     ttsDefault,
+    finalized: false,
   });
 
   await screen.findByText(PHONETIC_EDITOR_CONTENT);
@@ -120,6 +122,7 @@ test.skip('supports switching between text and phonetic editing', async () => {
     languageCode,
     jurisdictionId,
     ttsDefault,
+    finalized: false,
   });
 
   // Start with phonetic:
@@ -163,6 +166,7 @@ test('text mode - not editable after ballots are finalized', async () => {
     languageCode,
     jurisdictionId,
     ttsDefault,
+    finalized: false,
   });
 
   await screen.findByTestId(TEXT_EDITOR_TEST_ID);
@@ -196,6 +200,7 @@ test.skip('phonetic mode - not editable after ballots are finalized', async () =
     languageCode,
     jurisdictionId,
     ttsDefault,
+    finalized: false,
   });
 
   await screen.findByText(PHONETIC_EDITOR_CONTENT);

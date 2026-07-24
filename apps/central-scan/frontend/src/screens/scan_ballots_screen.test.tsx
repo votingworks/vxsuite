@@ -42,8 +42,10 @@ test('warns and disables scanning when a polling place needs to be selected', ()
 test('null state', () => {
   renderScreen();
   screen.getByText('Ready to Scan');
-  screen.getByText(hasTextAcrossElements('Total Batches: 0'));
-  screen.getByText(hasTextAcrossElements('Total Sheets: 0'));
+  screen.getByText('Total Batches');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('0');
+  screen.getByText('Total Sheets');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('0');
 });
 
 test('shows saved batch count', () => {
@@ -60,8 +62,8 @@ test('shows saved batch count', () => {
     ],
   });
   renderScreen({ status });
-  screen.getByText(hasTextAcrossElements('Total Sheets: 4'));
-  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('4');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('2');
 });
 
 test('shows the scanning batch in the control card, not the saved list', () => {
@@ -84,11 +86,10 @@ test('shows the scanning batch in the control card, not the saved list', () => {
   screen.getByText('Scanning');
   screen.getByText('Batch 1');
   screen.getByText('5');
-  screen.getByText('sheets scanned in this batch');
-  expect(screen.getButton('Stop')).toBeEnabled();
+  expect(screen.getButton('Stop Scanning')).toBeEnabled();
 
   // only the saved batch is counted in the summary
-  screen.getByText(hasTextAcrossElements('Total Batches: 1'));
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('1');
 });
 
 test('stop button confirms, cancels the batch, and shows an info modal', async () => {
@@ -97,7 +98,7 @@ test('stop button confirms, cancels the batch, and shows an info modal', async (
     batches: [mockBatch({ id: 'a', count: 5, endedAt: undefined })],
   });
   renderScreen({ status });
-  userEvent.click(screen.getButton('Stop'));
+  userEvent.click(screen.getButton('Stop Scanning'));
 
   const confirmModal = await screen.findByRole('alertdialog');
   within(confirmModal).getByRole('heading', { name: 'Stop Scanning' });
@@ -133,7 +134,6 @@ describe('paused batch', () => {
     screen.getByText('Batch 1');
     screen.getByText('Input tray empty');
     screen.getByText('7');
-    screen.getByText('sheets scanned in this batch');
   });
 
   test('shows other pause reasons', () => {
@@ -159,6 +159,17 @@ describe('paused batch', () => {
     renderScreen({ status: pausedStatus });
     apiMock.expectContinueBatch();
     userEvent.click(screen.getButton('Continue Scanning'));
+  });
+
+  test('continue scanning is disabled when the scanner is disconnected', () => {
+    renderScreen({
+      status: { ...pausedStatus, isScannerAttached: false },
+    });
+    screen.getByText('Paused');
+    screen.getByText(/Connect the scanner to continue scanning/);
+    expect(screen.getButton('Continue Scanning')).toBeDisabled();
+    expect(screen.getButton('Save Batch')).toBeEnabled();
+    expect(screen.getButton('Discard Batch')).toBeEnabled();
   });
 
   test('save batch requires confirmation', async () => {
@@ -229,9 +240,16 @@ test('there is no manual Send CVRs button; batches are sent automatically', () =
 });
 
 describe('Scan Ballots Button', () => {
-  test('disabled when no scanner is attached', () => {
+  test('hidden and shows a disconnected status when no scanner is attached', () => {
     renderScreen({ status: mockStatus({ isScannerAttached: false }) });
-    expect(screen.getButton('No Scanner')).toBeDisabled();
+    screen.getByText('Scanner Disconnected');
+    expect(screen.queryByText('Ready to Scan')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Start Batch/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'No Scanner' })
+    ).not.toBeInTheDocument();
   });
 
   test('replaced by batch controls when there is an ongoing batch', () => {
@@ -244,7 +262,7 @@ describe('Scan Ballots Button', () => {
     expect(
       screen.queryByRole('button', { name: /Start Batch/ })
     ).not.toBeInTheDocument();
-    screen.getButton('Stop');
+    screen.getButton('Stop Scanning');
   });
 
   test('disabled when scan status is stale', () => {

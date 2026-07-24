@@ -42,6 +42,17 @@ export interface Translation {
   forAudio: string;
 }
 
+// Identifies a single finalized string, keyed to match the sidebar/panel
+// identity in the proofing screen. `languageCode` is the selected language,
+// which may differ from a string's audio synthesis language (e.g. candidate
+// names are voiced in English for languages that don't transliterate names).
+export interface FinalizedStringKey {
+  electionId: string;
+  languageCode: LanguageCode;
+  stringKey: string;
+  subkey?: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function apiMethods(ctx: TtsApiContext) {
   return {
@@ -114,6 +125,27 @@ export function apiMethods(ctx: TtsApiContext) {
 
     ttsEditsSet(input: TtsEditKey & { data: TtsEdit }): Promise<void> {
       return ctx.workspace.store.ttsEditsSet(input, input.data);
+    },
+
+    /* istanbul ignore next - DEMO */
+    async getFinalizedStrings(input: {
+      electionId: string;
+      language: LanguageCode;
+    }): Promise<Array<{ stringKey: string; subkey: string }>> {
+      return ctx.workspace.store.finalizedStringsGet({
+        electionId: input.electionId,
+        languageCode: input.language,
+      });
+    },
+
+    /* istanbul ignore next - DEMO */
+    async setStringFinalized(
+      input: FinalizedStringKey & { finalized: boolean }
+    ): Promise<void> {
+      const { finalized, ...key } = input;
+      return finalized
+        ? ctx.workspace.store.stringFinalizedSet(key)
+        : ctx.workspace.store.stringFinalizedDelete(key);
     },
 
     async ttsStringDefaults(input: {
@@ -218,6 +250,14 @@ export function apiMethods(ctx: TtsApiContext) {
                 subkey: candidate.id,
                 text: candidate.name,
               });
+
+              if (candidate.designation) {
+                strings.push({
+                  key: ElectionStringKey.CANDIDATE_DESIGNATION,
+                  subkey: candidate.id,
+                  text: candidate.designation,
+                });
+              }
             }
 
             break;

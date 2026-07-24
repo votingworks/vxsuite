@@ -31,6 +31,26 @@ export function isLanguageCode(value: string): value is LanguageCode {
   return Object.values(LanguageCode).includes(value as LanguageCode);
 }
 
+/**
+ * Languages for which proper names (e.g. candidate names) should be
+ * phonetically transliterated into the language's script rather than kept in
+ * English.
+ */
+export const NEEDS_TRANSLITERATED_NAMES: Record<LanguageCode, boolean> = {
+  [LanguageCode.ARABIC]: false,
+  [LanguageCode.BENGALI]: false,
+  [LanguageCode.CHINESE_SIMPLIFIED]: true,
+  [LanguageCode.CHINESE_TRADITIONAL]: true,
+  [LanguageCode.ENGLISH]: false,
+  [LanguageCode.HINDI]: true,
+  [LanguageCode.JAPANESE]: true,
+  [LanguageCode.KHMER]: true,
+  [LanguageCode.KOREAN]: true,
+  [LanguageCode.SPANISH]: false,
+  [LanguageCode.TAGALOG]: false,
+  [LanguageCode.VIETNAMESE]: false,
+};
+
 export const IS_RTL: Record<LanguageCode, boolean> = {
   [LanguageCode.ARABIC]: true,
   [LanguageCode.BENGALI]: false,

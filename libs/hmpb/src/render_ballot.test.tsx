@@ -297,6 +297,7 @@ const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps[]> = {
   ],
   MsBallot: [msGeneralElectionFixtures.allBallotProps[0]],
   MiBallot: [miClosedPrimaryElectionFixtures.allBallotProps[0]],
+  CaBallot: [vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0]],
 };
 const templateSpecificTestCases = Object.entries(
   templateSpecificTestProps

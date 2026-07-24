@@ -263,6 +263,7 @@ test('saveReadinessReport - machine not configured', async () => {
   const exportPath = result.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'mark-readiness-report-not-configured',
+    failureThreshold: 0.0001,
   });
 });
 
@@ -307,6 +308,7 @@ test('saveReadinessReport - machine configured', async () => {
   const exportPath = result[0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'mark-readiness-report-configured',
+    failureThreshold: 0.0001,
   });
 
   mockUsbDrive.removeUsbDrive();

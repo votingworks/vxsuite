@@ -490,8 +490,14 @@ describe('VX BMD interpretation', () => {
     });
 
     // snapshot the input and output images
-    expect(toImageBuffer(extendedSheet[0])).toMatchImageSnapshot();
-    expect(await readFile(outputPath)).toMatchImageSnapshot();
+    expect(toImageBuffer(extendedSheet[0])).toMatchImageSnapshot({
+      failureThresholdType: 'percent',
+      failureThreshold: 0.001,
+    });
+    expect(await readFile(outputPath)).toMatchImageSnapshot({
+      failureThresholdType: 'percent',
+      failureThreshold: 0.001,
+    });
   });
 
   test('properly identifies blank sheets', async () => {

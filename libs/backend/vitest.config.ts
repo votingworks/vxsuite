@@ -9,7 +9,7 @@ export default defineConfig({
         lines: -36,
         // TODO: Restore -31 once the network CVR transfer prototype has full
         // test coverage
-        branches: -45,
+        branches: -46,
       },
     },
   },

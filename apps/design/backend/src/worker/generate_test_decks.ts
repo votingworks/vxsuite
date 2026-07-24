@@ -84,7 +84,8 @@ export async function generateTestDecks(
     translator,
     election,
     hmpbStringsCatalog,
-    ballotLanguageConfigs
+    ballotLanguageConfigs,
+    jurisdictionId
   );
   const formattedElection = formatElectionForExport(election, ballotStrings);
   const allBallotProps = createBallotPropsForTemplate(
