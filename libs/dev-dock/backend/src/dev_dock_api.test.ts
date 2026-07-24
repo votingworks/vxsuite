@@ -440,6 +440,7 @@ test('mock spec', async () => {
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
+    hasBarcodeScanMock: false,
     hasPatInputMock: false,
   });
 
@@ -449,6 +450,7 @@ test('mock spec', async () => {
     setAccessibleControllerConnected: vi.fn(),
     getBarcodeConnected: vi.fn(),
     setBarcodeConnected: vi.fn(),
+    emitBarcodeScan: vi.fn(),
     getPatInputConnected: vi.fn(),
     setPatInputConnected: vi.fn(),
   });
@@ -458,8 +460,17 @@ test('mock spec', async () => {
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
+    hasBarcodeScanMock: true,
     hasPatInputMock: true,
   });
+});
+
+test('emitBarcodeScan forwards the payload to the host app', async () => {
+  const emitBarcodeScan = vi.fn();
+  const { apiClient } = setup({ printerConfig: 'fujitsu', emitBarcodeScan });
+
+  await apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' });
+  expect(emitBarcodeScan).toHaveBeenCalledWith('{"ballotStyleId":"1_en"}');
 });
 
 test('hardware mock status endpoints for barcode, accessible controller, and pat', async () => {

@@ -84,6 +84,11 @@ export async function start({
         barcodeClient.setConnected(connected);
       }
     },
+    emitBarcodeScan: (payload: string) => {
+      if (barcodeClient instanceof MockBarcodeClient) {
+        barcodeClient.emitScan(new TextEncoder().encode(payload));
+      }
+    },
     getAccessibleControllerConnected: () =>
       getMockAccessibleControllerConnected(),
     setAccessibleControllerConnected: (connected: boolean) =>

@@ -549,6 +549,36 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
   await waitFor(() => mockApiClient.assertComplete());
 });
 
+test('barcode scan mock control emits a scan payload', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({
+    hasBarcodeScanMock: true,
+  });
+
+  renderDock(mockApiClient);
+
+  const emitButton = await screen.findByRole('button', {
+    name: 'Emit Barcode Scan',
+  });
+  userEvent.click(emitButton);
+
+  const payloadInput = await screen.findByRole('textbox', {
+    name: 'Barcode Payload',
+  });
+  userEvent.clear(payloadInput);
+  userEvent.type(payloadInput, '{{"ballotStyleId":"1_en"}');
+
+  mockApiClient.emitBarcodeScan
+    .expectCallWith({ payload: '{"ballotStyleId":"1_en"}' })
+    .resolves();
+  userEvent.click(screen.getByRole('button', { name: 'Emit' }));
+  await waitFor(() => mockApiClient.assertComplete());
+});
+
 test('hardware mock controls disabled when feature flags disabled', async () => {
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
