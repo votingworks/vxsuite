@@ -50,6 +50,16 @@ export interface PrintBlankBallotScreenProps {
   machineConfig: MachineConfig;
   pollingPlaceId: string;
   onBackButtonPress: () => void;
+  /**
+   * When set, locks the screen to this ballot style: the ballot style and
+   * language dropdowns are preset to it and rendered disabled, so the user can
+   * only print the given ballot. Used when the ballot style is chosen upstream
+   * (e.g. from a scanned QR code) rather than selected on this screen.
+   */
+  lockedBallotStyle?: {
+    precinctId: PrecinctId;
+    ballotStyleId: BallotStyleId;
+  };
 }
 
 export function PrintBlankBallotScreen({
@@ -60,22 +70,12 @@ export function PrintBlankBallotScreen({
   machineConfig,
   pollingPlaceId,
   onBackButtonPress,
+  lockedBallotStyle,
 }: PrintBlankBallotScreenProps): JSX.Element {
   const { BallotStyleSelect } = pollWorkerComponents;
   const printBlankBallotMutation = printBlankBallot.useMutation();
 
-  const [printStatus, setPrintStatus] = React.useState<
-    'idle' | 'printing' | 'printed'
-  >('idle');
-  const [selection, setSelection] = React.useState<{
-    precinctId: PrecinctId;
-    ballotStyleId: BallotStyleId;
-  }>();
-  const [selectedLanguage, setSelectedLanguage] =
-    React.useState<LanguageCode>();
-  const printTimer = React.useRef(0);
-
-  React.useEffect(() => () => clearTimeout(printTimer.current), []);
+  const isSelectionLocked = lockedBallotStyle !== undefined;
 
   // Language is encoded in the ballot style ID, so the languages a ballot style
   // is available in are the ones whose language-specific variant exists in its
@@ -91,6 +91,27 @@ export function PrintBlankBallotScreen({
       ),
     [election]
   );
+
+  const [printStatus, setPrintStatus] = React.useState<
+    'idle' | 'printing' | 'printed'
+  >('idle');
+  const [selection, setSelection] = React.useState<
+    | {
+        precinctId: PrecinctId;
+        ballotStyleId: BallotStyleId;
+      }
+    | undefined
+  >(lockedBallotStyle);
+  const [selectedLanguage, setSelectedLanguage] = React.useState<
+    LanguageCode | undefined
+  >(
+    () =>
+      lockedBallotStyle &&
+      availableLanguagesFor(lockedBallotStyle.ballotStyleId)[0]
+  );
+  const printTimer = React.useRef(0);
+
+  React.useEffect(() => () => clearTimeout(printTimer.current), []);
 
   const startPrint = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
@@ -141,7 +162,7 @@ export function PrintBlankBallotScreen({
           <BallotStyleSelect
             election={election}
             onSelect={onChooseBallotStyle}
-            disabled={printStatus !== 'idle'}
+            disabled={isSelectionLocked || printStatus !== 'idle'}
             selectedBallotStyleId={selection?.ballotStyleId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
@@ -164,7 +185,7 @@ export function PrintBlankBallotScreen({
                   }
                 }}
                 style={{ width: '100%' }}
-                disabled={printStatus !== 'idle'}
+                disabled={isSelectionLocked || printStatus !== 'idle'}
               />
             </React.Fragment>
           )}
