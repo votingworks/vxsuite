@@ -169,6 +169,34 @@ export const clearLastBarcodeScan = {
   },
 } as const;
 
+export const getBarcodeActivationMode = {
+  queryKey(): QueryKey {
+    return ['getBarcodeActivationMode'];
+  },
+  useQuery(options: { enabled: boolean } = { enabled: true }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getBarcodeActivationMode(),
+      options
+    );
+  },
+} as const;
+
+export const setBarcodeActivationMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setBarcodeActivationMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getBarcodeActivationMode.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const getMachineConfig = {
   queryKey(): QueryKey {
     return ['getMachineConfig'];

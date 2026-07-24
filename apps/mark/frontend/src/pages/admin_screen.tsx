@@ -80,6 +80,14 @@ export function AdminScreen({
   const selectPollingPlace = api.setPollingPlaceId.useMutation().mutateAsync;
   const setTestModeMutation = setTestMode.useMutation();
   const systemSettingsQuery = api.getSystemSettings.useQuery();
+  const isQrBallotActivationEnabled = Boolean(
+    systemSettingsQuery.data?.bmdEnableQrBallotActivation
+  );
+  const barcodeActivationModeQuery = api.getBarcodeActivationMode.useQuery({
+    enabled: isQrBallotActivationEnabled,
+  });
+  const setBarcodeActivationModeMutation =
+    api.setBarcodeActivationMode.useMutation();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
   const [isTestDeckScreenOpen, setIsTestDeckScreenOpen] = useState(false);
@@ -146,6 +154,22 @@ export function AdminScreen({
             selectedOptionId={isTestMode ? 'test' : 'official'}
           />
         </P>
+        {isQrBallotActivationEnabled &&
+          barcodeActivationModeQuery.isSuccess && (
+            <P>
+              <SegmentedButton
+                label="Barcode Activation Mode"
+                onChange={(mode) =>
+                  setBarcodeActivationModeMutation.mutate({ mode })
+                }
+                options={[
+                  { id: 'voter_session', label: 'Voting Session' },
+                  { id: 'ballot_printing', label: 'Blank Ballot' },
+                ]}
+                selectedOptionId={barcodeActivationModeQuery.data}
+              />
+            </P>
+          )}
         <P>
           <UnconfigureMachineButton
             isMachineConfigured
