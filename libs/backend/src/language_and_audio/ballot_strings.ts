@@ -114,14 +114,19 @@ export async function translateElectionAndHmpbStrings(
  * Includes all election strings and app strings needed for HMPB rendering.
  */
 export async function translateBallotStrings(
-  ...args: [
-    GoogleCloudTranslator,
-    Election,
-    Record<string, string>,
-    BallotLanguageConfigs,
-  ]
+  translator: GoogleCloudTranslator,
+  election: Election,
+  hmpbStringsCatalog: Record<string, string>,
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  jurisdictionId?: string
 ): Promise<UiStringsPackage> {
   const { electionStrings, hmpbStrings } =
-    await translateElectionAndHmpbStrings(...args);
+    await translateElectionAndHmpbStrings(
+      translator,
+      election,
+      hmpbStringsCatalog,
+      ballotLanguageConfigs,
+      jurisdictionId
+    );
   return mergeUiStrings(electionStrings, hmpbStrings);
 }
