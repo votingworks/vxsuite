@@ -240,8 +240,7 @@ test('adjudication reasons', async () => {
     if (
       option.textContent === 'Overvote' ||
       option.textContent === 'Disallow Casting Overvotes' ||
-      option.textContent === 'Enable Summary Ballot Scanning on VxScan' ||
-      option.textContent === 'Enable QR Code Ballot Activation on VxMark'
+      option.textContent === 'Enable Summary Ballot Scanning on VxScan'
     ) {
       expect(option).toBeChecked();
     } else {
@@ -441,12 +440,9 @@ test('setting auth settings', async () => {
 });
 
 test('setting "other" system settings', async () => {
-  apiMock.getSystemSettings.expectCallWith({ electionId }).resolves({
-    ...electionRecord.systemSettings,
-    // Start unchecked so the unchecked -> checked flow below exercises the
-    // toggle (the default is force-enabled true for the SCC demo).
-    bmdEnableQrBallotActivation: false,
-  });
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
   await screen.findByRole('button', { name: 'Edit' });

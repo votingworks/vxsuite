@@ -272,10 +272,7 @@ export function buildApi(ctx: Context) {
     },
 
     getSystemSettings(): SystemSettings {
-      const settings =
-        workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-      // Hardcode BMD QR ballot activation for SCC demo
-      return { ...settings, bmdEnableQrBallotActivation: true };
+      return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
     async unconfigureMachine() {
