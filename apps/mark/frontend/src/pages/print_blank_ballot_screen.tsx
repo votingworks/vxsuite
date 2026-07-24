@@ -55,10 +55,15 @@ export interface PrintBlankBallotScreenProps {
    * language dropdowns are preset to it and rendered disabled, so the user can
    * only print the given ballot. Used when the ballot style is chosen upstream
    * (e.g. from a scanned QR code) rather than selected on this screen.
+   *
+   * `ballotStyleId` should be the default-language ballot style ID of its group;
+   * `languageCode`, when provided, presets the language (otherwise the first
+   * available language is used).
    */
   lockedBallotStyle?: {
     precinctId: PrecinctId;
     ballotStyleId: BallotStyleId;
+    languageCode?: LanguageCode;
   };
 }
 
@@ -107,7 +112,8 @@ export function PrintBlankBallotScreen({
   >(
     () =>
       lockedBallotStyle &&
-      availableLanguagesFor(lockedBallotStyle.ballotStyleId)[0]
+      (lockedBallotStyle.languageCode ??
+        availableLanguagesFor(lockedBallotStyle.ballotStyleId)[0])
   );
   const printTimer = React.useRef(0);
 

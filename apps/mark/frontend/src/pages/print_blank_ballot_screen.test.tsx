@@ -1,8 +1,16 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { anyPollingPlace, BallotStyleId, PrecinctId } from '@votingworks/types';
-import { getMockMultiLanguageElectionDefinition } from '@votingworks/utils';
+import {
+  anyPollingPlace,
+  BallotStyleId,
+  LanguageCode,
+  PrecinctId,
+} from '@votingworks/types';
+import {
+  getMockMultiLanguageElectionDefinition,
+  getRelatedBallotStyle,
+} from '@votingworks/utils';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import { act, fireEvent, screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
@@ -51,6 +59,7 @@ afterEach(() => {
 function renderScreen(lockedBallotStyle?: {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
+  languageCode?: LanguageCode;
 }) {
   return render(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
@@ -92,6 +101,34 @@ test('locks and disables the dropdowns when a ballot style is preset', async () 
   expect(screen.getByLabelText('Ballot language')).toBeDisabled();
 
   // The preset ballot can still be printed.
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Printing Ballot');
+  act(() => {
+    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+  });
+  await screen.findByText('Ballot Printed');
+});
+
+test('presets the language when a locked language is provided', async () => {
+  const spanishBallotStyle = getRelatedBallotStyle({
+    ballotStyles: multiLanguageElection.ballotStyles,
+    sourceBallotStyleId: englishBallotStyle.id,
+    targetBallotStyleLanguage: LanguageCode.SPANISH,
+  }).unsafeUnwrap();
+
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: lockedPrecinctId,
+      ballotStyleId: spanishBallotStyle.id,
+    })
+    .resolves();
+
+  renderScreen({
+    precinctId: lockedPrecinctId,
+    ballotStyleId: englishBallotStyle.id,
+    languageCode: LanguageCode.SPANISH,
+  });
+
   fireEvent.click(screen.getByText('Print Ballot'));
   await screen.findByText('Printing Ballot');
   act(() => {
