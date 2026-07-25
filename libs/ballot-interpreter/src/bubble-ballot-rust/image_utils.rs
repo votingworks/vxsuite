@@ -2,7 +2,7 @@ use std::io::Cursor;
 use std::mem::swap;
 use std::ops::RangeInclusive;
 
-use image::{GrayImage, ImageEncoder, Luma, Rgb};
+use image::{GrayImage, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit};
@@ -142,25 +142,54 @@ pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
 pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
     let mut counted = CountedPixels::default();
     let bounds = shape.bounds();
-    for x in bounds.left()..bounds.right() {
-        if x < 0 || x >= ballot_image.width() as i32 {
-            continue;
-        }
-
-        for y in bounds.top()..bounds.bottom() {
-            if y < 0 || y >= ballot_image.height() as i32 {
-                continue;
-            }
-
+    let width = ballot_image.width() as usize;
+    let raw = ballot_image.image().as_raw();
+    let thresh = ballot_image.threshold();
+    let x_range = bounds.left().max(0)..bounds.right().min(ballot_image.width() as i32);
+    let y_range = bounds.top().max(0)..bounds.bottom().min(ballot_image.height() as i32);
+    // Iterate rows in the outer loop since the image data is stored row-major.
+    for y in y_range {
+        let row = &raw[y as usize * width..(y as usize + 1) * width];
+        for x in x_range.clone() {
             if shape.contains_subpixel(x as f32 + 0.5, y as f32 + 0.5) {
                 counted.examined += 1;
-                if ballot_image.get_pixel(x as u32, y as u32).is_foreground() {
+                if row[x as usize] <= thresh {
                     counted.matched += 1;
                 }
             }
         }
     }
     counted
+}
+
+/// Copies a rectangular region of the given image into a new image.
+///
+/// Equivalent to `image.view(x, y, width, height).to_image()`, but copies
+/// whole rows at a time rather than pixel by pixel, which measures about an
+/// order of magnitude faster.
+///
+/// # Panics
+///
+/// Panics if the region extends beyond the image bounds.
+pub(crate) fn crop_to_image(
+    image: &GrayImage,
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+) -> GrayImage {
+    assert!(
+        x + width <= image.width() && y + height <= image.height(),
+        "crop region must be within the image bounds"
+    );
+    let src_stride = image.width() as usize;
+    let raw = image.as_raw();
+    let mut out = Vec::with_capacity(width as usize * height as usize);
+    for row in 0..height as usize {
+        let start = (y as usize + row) * src_stride + x as usize;
+        out.extend_from_slice(&raw[start..start + width as usize]);
+    }
+    GrayImage::from_vec(width, height, out).expect("buffer length matches dimensions")
 }
 
 /// Finds the inset of a scanned document in an image such that each side of the
@@ -172,33 +201,49 @@ pub fn find_scanned_document_inset(
     threshold: u8,
     min_ratio_above_threshold: UnitIntervalValue,
 ) -> Option<Inset> {
+    // Determines whether more than `required` of the pixels yielded by the
+    // given iterator are above the threshold, stopping as soon as the answer
+    // is known rather than counting every pixel.
+    fn has_enough_above_threshold(
+        pixels: impl Iterator<Item = u8>,
+        threshold: u8,
+        required: usize,
+    ) -> bool {
+        let mut count = 0;
+        for luma in pixels {
+            if luma > threshold {
+                count += 1;
+                if count > required {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
     let (width, height) = image.dimensions();
     let (max_x, max_y) = (width - 1, height - 1);
+    let raw = image.as_raw();
 
-    let min_y_above_threshold = (0..height).find(|y| {
-        (0..width)
-            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (width as f32 * min_ratio_above_threshold) as usize
-    });
-    let max_y_above_threshold = (0..height).rev().find(|y| {
-        (0..width)
-            .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (width as f32 * min_ratio_above_threshold) as usize
-    });
-    let min_x_above_threshold = (0..width).find(|x| {
-        (0..height)
-            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (height as f32 * min_ratio_above_threshold) as usize
-    });
-    let max_x_above_threshold = (0..width).rev().find(|x| {
-        (0..height)
-            .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
-            .count()
-            > (height as f32 * min_ratio_above_threshold) as usize
-    });
+    let row_pixels = |y: u32| {
+        let row_start = y as usize * width as usize;
+        raw[row_start..row_start + width as usize].iter().copied()
+    };
+    let column_pixels = |x: u32| raw[x as usize..].iter().step_by(width as usize).copied();
+
+    let required_per_row = (width as f32 * min_ratio_above_threshold) as usize;
+    let required_per_column = (height as f32 * min_ratio_above_threshold) as usize;
+
+    let min_y_above_threshold = (0..height)
+        .find(|y| has_enough_above_threshold(row_pixels(*y), threshold, required_per_row));
+    let max_y_above_threshold = (0..height)
+        .rev()
+        .find(|y| has_enough_above_threshold(row_pixels(*y), threshold, required_per_row));
+    let min_x_above_threshold = (0..width)
+        .find(|x| has_enough_above_threshold(column_pixels(*x), threshold, required_per_column));
+    let max_x_above_threshold = (0..width)
+        .rev()
+        .find(|x| has_enough_above_threshold(column_pixels(*x), threshold, required_per_column));
 
     match (
         min_x_above_threshold,
@@ -311,9 +356,19 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     let raw = ballot_image.image().as_raw();
     let thresh = ballot_image.threshold();
 
-    // Two reusable buffers for binarized column data, swapped each iteration
-    // to avoid per-column Vec allocations and re-computing single-column streak
-    // data for each column.
+    // Count the black pixels in every column in a single row-major pass (the
+    // image data is stored row-major, so walking columns directly would miss
+    // cache on nearly every access). Only columns whose count clears
+    // MIN_ONE_COLUMN_STREAK_SCORE — usually none — need the detailed
+    // two-column analysis below, which reads just those columns.
+    let mut column_black_counts = vec![0u32; width_usize];
+    for row in raw.chunks_exact(width_usize) {
+        for (count, &p) in column_black_counts.iter_mut().zip(row.iter()) {
+            *count += u32::from(p <= thresh);
+        }
+    }
+
+    // Two reusable buffers for binarized column data of candidate columns.
     let mut cur_col = vec![false; height_usize];
     let mut next_col = vec![false; height_usize];
 
@@ -325,17 +380,16 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
         }
     };
 
-    fill_column(&mut cur_col, x_range.start as usize);
-    let mut cur_black_count: usize = cur_col.iter().filter(|&&b| b).count();
-
     let mut uncoalesced: Vec<VerticalStreak> = Vec::new();
     for x in x_range.start..=x_range.end - 2 {
         debug_assert!(x_range.contains(&(x + 1)));
-        fill_column(&mut next_col, (x + 1) as usize);
-        let next_black_count: usize = next_col.iter().filter(|&&b| b).count();
+        let cur_black_count = column_black_counts[x as usize];
 
         let column_streak_score = UnitIntervalScore(cur_black_count as f32 / height as f32);
         if column_streak_score >= MIN_ONE_COLUMN_STREAK_SCORE {
+            fill_column(&mut cur_col, x as usize);
+            fill_column(&mut next_col, (x + 1) as usize);
+
             // Compute two-column stats inline without allocating.
             let mut num_two_column_black = 0u32;
             let mut longest_white_gap: PixelUnit = 0;
@@ -358,6 +412,7 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
             if two_column_streak_score >= MIN_TWO_COLUMN_STREAK_SCORE
                 && longest_white_gap <= MAX_WHITE_GAP_PIXELS
             {
+                let next_black_count = column_black_counts[(x + 1) as usize];
                 let next_column_streak_score =
                     UnitIntervalScore(next_black_count as f32 / height as f32);
                 if next_column_streak_score < MIN_ONE_COLUMN_STREAK_SCORE {
@@ -375,9 +430,6 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
                 }
             }
         }
-
-        swap(&mut cur_col, &mut next_col);
-        cur_black_count = next_black_count;
     }
 
     let streaks = uncoalesced
@@ -397,12 +449,43 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     streaks
 }
 
+/// Builds a luma histogram of the given pixels.
+///
+/// Accumulates into several interleaved shard histograms and sums them at the
+/// end. Scanned ballots contain long runs of identical pixel values (blank
+/// paper, black borders), and with a single histogram every increment in such
+/// a run depends on the store of the previous one, so the CPU executes them
+/// serially. Sharding gives each of the `HISTOGRAM_SHARDS` consecutive pixels
+/// an independent histogram to increment, breaking the dependency chain. This
+/// measured about twice as fast as a single histogram on real ballot scans.
+/// The result is identical to a single histogram since the counts commute.
+pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
+    const HISTOGRAM_SHARDS: usize = 8;
+
+    let mut shards = [[0u32; 256]; HISTOGRAM_SHARDS];
+    let chunks = pixels.chunks_exact(HISTOGRAM_SHARDS);
+    let remainder = chunks.remainder();
+    for chunk in chunks {
+        for (shard, &p) in shards.iter_mut().zip(chunk.iter()) {
+            shard[p as usize] += 1;
+        }
+    }
+    for &p in remainder {
+        shards[0][p as usize] += 1;
+    }
+
+    let mut hist = [0u32; 256];
+    for shard in &shards {
+        for (total, &count) in hist.iter_mut().zip(shard.iter()) {
+            *total += count;
+        }
+    }
+    hist
+}
+
 /// Computes Otsu's threshold for a grayscale image.
 pub(crate) fn otsu_level(image: &GrayImage) -> u8 {
-    let mut hist = [0u32; 256];
-    for &p in image.as_raw() {
-        hist[p as usize] += 1;
-    }
+    let hist = histogram(image.as_raw());
     let total = f64::from(image.width()) * f64::from(image.height());
     let sum: f64 = hist
         .iter()
@@ -444,26 +527,52 @@ pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
     })
 }
 
-/// Applies a binary threshold and encodes the result as PNG bytes in one step.
-/// Returns both the thresholded image and its PNG encoding.
-pub(crate) fn threshold_and_encode_png(
+/// Binarizes a grayscale image with the given threshold and encodes it as a
+/// 1-bit grayscale PNG in memory, in a single pass over the image.
+///
+/// Pixels with luma `<= thresh` become black and others white, exactly like
+/// [`threshold`], but the bits are packed directly from the source image
+/// rather than materializing an intermediate 8-bit binarized image. The
+/// 1-bit representation gives the DEFLATE step an eighth of the data an
+/// 8-bit encoding would, making encoding faster and files smaller: the `Up`
+/// filter with fast compression measured smaller *and* faster than an 8-bit
+/// encoding with the `image` crate's defaults on a corpus of real ballot
+/// scans.
+pub(crate) fn binarize_and_encode_png(
     image: &GrayImage,
     thresh: u8,
-) -> (GrayImage, image::ImageResult<Vec<u8>>) {
-    let normalized = threshold(image, thresh);
-    let encoded = encode_png(&normalized);
-    (normalized, encoded)
-}
+) -> image::ImageResult<Vec<u8>> {
+    let (width, height) = image.dimensions();
+    let row_bytes = (width as usize).div_ceil(8);
+    let mut packed = vec![0u8; row_bytes * height as usize];
+    for (pixel_row, packed_row) in image
+        .as_raw()
+        .chunks_exact(width as usize)
+        .zip(packed.chunks_exact_mut(row_bytes))
+    {
+        for (pixels, packed_byte) in pixel_row.chunks(8).zip(packed_row.iter_mut()) {
+            let mut byte = 0u8;
+            for (bit, &pixel) in pixels.iter().enumerate() {
+                byte |= u8::from(pixel > thresh) << (7 - bit);
+            }
+            *packed_byte = byte;
+        }
+    }
 
-/// Encodes a grayscale image as PNG bytes in memory.
-pub(crate) fn encode_png(image: &GrayImage) -> image::ImageResult<Vec<u8>> {
-    let mut buf = Vec::new();
-    image::codecs::png::PngEncoder::new(Cursor::new(&mut buf)).write_image(
-        image.as_raw(),
-        image.width(),
-        image.height(),
-        image::ExtendedColorType::L8,
-    )?;
+    let to_image_error =
+        |e: png::EncodingError| image::ImageError::IoError(std::io::Error::other(e));
+
+    // Pre-size for the compressed output; binarized ballot images compress
+    // to well under half of the packed size.
+    let mut buf = Vec::with_capacity(packed.len() / 2);
+    let mut encoder = png::Encoder::new(Cursor::new(&mut buf), width, height);
+    encoder.set_color(png::ColorType::Grayscale);
+    encoder.set_depth(png::BitDepth::One);
+    encoder.set_compression(png::Compression::Fast);
+    encoder.set_filter(png::Filter::Up);
+    let mut writer = encoder.write_header().map_err(to_image_error)?;
+    writer.write_image_data(&packed).map_err(to_image_error)?;
+    writer.finish().map_err(to_image_error)?;
     Ok(buf)
 }
 
@@ -575,6 +684,56 @@ mod test {
                     assert!(gap > 1, "adjacent/overlapping streaks should coalesce");
                 }
             }
+        }
+    }
+
+    proptest::proptest! {
+        #[test]
+        fn crop_to_image_matches_view_to_image(
+            img_w in 1u32..50,
+            img_h in 1u32..50,
+            crop in proptest::num::u32::ANY,
+            seed in proptest::collection::vec(proptest::num::u8::ANY, 50 * 50),
+        ) {
+            use image::GenericImageView;
+            let image = GrayImage::from_fn(img_w, img_h, |x, y| {
+                Luma([seed[(y * img_w + x) as usize]])
+            });
+            let x = crop % img_w;
+            let y = (crop >> 8) % img_h;
+            let width = (crop >> 16) % (img_w - x) + 1;
+            let height = (crop >> 24) % (img_h - y) + 1;
+            let expected = image.view(x, y, width, height).to_image();
+            let actual = crop_to_image(&image, x, y, width, height);
+            assert_eq!(actual.as_raw(), expected.as_raw());
+        }
+
+        // Covers all `len % 8` remainder cases via the arbitrary length.
+        #[test]
+        fn histogram_matches_naive_single_histogram(
+            pixels in proptest::collection::vec(proptest::num::u8::ANY, 0..2048),
+        ) {
+            let mut expected = [0u32; 256];
+            for &p in &pixels {
+                expected[p as usize] += 1;
+            }
+            assert_eq!(histogram(&pixels), expected);
+        }
+
+        // Arbitrary widths cover the row padding cases (width % 8 != 0).
+        #[test]
+        fn binarize_and_encode_png_matches_threshold_exactly(
+            width in 1u32..40,
+            height in 1u32..40,
+            thresh in proptest::num::u8::ANY,
+            seed in proptest::collection::vec(proptest::num::u8::ANY, 40 * 40),
+        ) {
+            let image = GrayImage::from_fn(width, height, |x, y| {
+                Luma([seed[(y * width + x) as usize]])
+            });
+            let encoded = binarize_and_encode_png(&image, thresh).unwrap();
+            let decoded = image::load_from_memory(&encoded).unwrap().to_luma8();
+            assert_eq!(decoded.as_raw(), threshold(&image, thresh).as_raw());
         }
     }
 

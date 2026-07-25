@@ -21,7 +21,7 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::debug::draw_timing_mark_debug_image_mut;
-use crate::image_utils::threshold_and_encode_png;
+use crate::image_utils::binarize_and_encode_png;
 use crate::image_utils::Inset;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
@@ -133,10 +133,9 @@ pub struct InterpretedBallotPage {
     pub metadata: BallotPageMetadata,
     pub marks: ScoredBubbleMarks,
     pub write_ins: ScoredPositionAreas,
-    #[serde(skip_serializing)] // `normalized_image` is returned separately.
-    pub normalized_image: GrayImage,
-    /// Pre-encoded PNG bytes of the normalized image. Produced in parallel with
-    /// scoring so that callers can write to disk without re-encoding.
+    /// PNG bytes of the normalized (binarized) ballot image. Produced in
+    /// parallel with scoring so that callers can write to disk without
+    /// re-encoding.
     #[serde(skip_serializing)]
     pub encoded_normalized_image: image::ImageResult<Vec<u8>>,
     pub contest_layouts: Vec<InterpretedContestLayout>,
@@ -503,7 +502,7 @@ pub fn ballot_card(
 
     // Run scoring and image normalization+encoding in parallel. The PNG
     // encoding is CPU-heavy and overlaps well with bubble-mark scoring.
-    let (scoring_result, normalized_and_encoded) = rayon::join(
+    let (scoring_result, encoded_images) = rayon::join(
         || -> Result<ScoringPairs> {
             let scored_bubble_marks = ballot_card.score_bubble_marks(
                 &timing_marks,
@@ -527,7 +526,7 @@ pub fn ballot_card(
         },
         || {
             ballot_card.as_pair().par_map(|ballot_page| {
-                threshold_and_encode_png(
+                binarize_and_encode_png(
                     ballot_page.ballot_image().image(),
                     ballot_page.ballot_image().threshold(),
                 )
@@ -536,20 +535,12 @@ pub fn ballot_card(
     );
 
     let (scored_bubble_marks, contest_layouts, write_in_area_scores) = scoring_result?;
-    let (normalized_images, encoded_images): (Pair<_>, Pair<_>) = {
-        let ((front_norm, front_enc), (back_norm, back_enc)) = normalized_and_encoded.into();
-        (
-            Pair::new(front_norm, back_norm),
-            Pair::new(front_enc, back_enc),
-        )
-    };
 
     Pair::from((
         timing_marks,
         decoded_qr_codes,
         scored_bubble_marks,
         write_in_area_scores,
-        normalized_images,
         encoded_images,
         contest_layouts,
     ))
@@ -559,7 +550,6 @@ pub fn ballot_card(
             (metadata, _),
             marks,
             write_ins,
-            normalized_image,
             encoded_normalized_image,
             contest_layouts,
         )| {
@@ -568,7 +558,6 @@ pub fn ballot_card(
                 metadata: BallotPageMetadata::QrCode(metadata),
                 marks,
                 write_ins,
-                normalized_image,
                 encoded_normalized_image,
                 contest_layouts,
             }
@@ -747,8 +736,11 @@ mod test {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter-en", 1);
         let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        assert!(is_binary_image(&card.front.normalized_image));
-        assert!(is_binary_image(&card.back.normalized_image));
+        for page in [&card.front, &card.back] {
+            let encoded = page.encoded_normalized_image.as_ref().unwrap();
+            let decoded = image::load_from_memory(encoded).unwrap().into_luma8();
+            assert!(is_binary_image(&decoded));
+        }
     }
 
     #[test]

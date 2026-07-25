@@ -46,6 +46,7 @@ image = { version = "0.25.0", default-features = false, features = [
   "rayon",
 ] }
 log = "0.4.17"
+png = "0.18.1"
 napi = { version = "3.8.0", default-features = false, features = [
   "napi4",
   "async",
@@ -77,3 +78,7 @@ tempfile = "3.3.0"
 
 [lints]
 workspace = true
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

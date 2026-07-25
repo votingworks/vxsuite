@@ -6,7 +6,7 @@ use super::detect::{Detected, DetectionArea, Detector, Error, Result};
 
 /// Uses the `zedbar` QR code library to detect a QR code in the given
 /// detection areas.
-pub fn detect_in_areas(detection_areas: &[DetectionArea]) -> Result {
+pub fn detect_in_areas(detection_areas: &[DetectionArea<'_>]) -> Result {
     let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
     for area in detection_areas {
         match scan_image_for_qr_codes(area.image()) {
@@ -41,7 +41,13 @@ pub fn detect_in_areas(detection_areas: &[DetectionArea]) -> Result {
 fn scan_image_for_qr_codes(
     image: &GrayImage,
 ) -> std::result::Result<Vec<(Vec<u8>, Rect)>, zedbar::Error> {
-    let config = DecoderConfig::new().enable(config::QrCode);
+    // Scan every other row and column rather than every one. The ballot QR
+    // codes are ~118px with ~25px finder patterns at scan resolution, so a
+    // density of 2 still crosses each finder pattern many times; it measured
+    // 41% faster with identical detections across a corpus of real scans.
+    let config = DecoderConfig::new()
+        .enable(config::QrCode)
+        .scan_density(2, 2);
     let mut scanner = Scanner::with_config(config);
     let mut img = Image::from_gray(image.as_bytes(), image.width(), image.height())?;
     let symbols = scanner.scan(&mut img);
