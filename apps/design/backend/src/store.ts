@@ -3856,7 +3856,7 @@ export class Store {
           select
             id,
             name,
-            array_remove(array_agg(precinct_id), NULL) as "precinct_ids",
+            array_remove(array_agg(precinct_id ORDER BY precinct_id), NULL) as "precinct_ids",
             type
           from polling_places
           left join polling_places_precincts as precincts on
@@ -3864,7 +3864,7 @@ export class Store {
           where
             election_id = $1
           group by id
-          order by name collate natural_sort
+          order by name collate natural_sort, id
       `,
         electionId
       )) as {

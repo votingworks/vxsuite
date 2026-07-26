@@ -166,6 +166,58 @@ test('polling places CRUD', async () => {
   ]);
 }, 20_000);
 
+// The order of a polling place's precincts ends up in the exported
+// election.json, which is hashed to produce the ballot hash. It must not vary
+// between exports of an unchanged election.
+test('polling place precincts are returned sorted by id', async () => {
+  const user = nonVxUser;
+  const jurisdiction = user.jurisdictions[0];
+
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions: user.jurisdictions,
+    users: [user],
+  });
+
+  auth0.setLoggedInUser(user);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: jurisdiction.id,
+      id: 'election1',
+    })
+  ).unsafeUnwrap();
+
+  const precincts: Precinct[] = [
+    { id: 'cPrecinct', name: 'Precinct 1', districtIds: [] },
+    { id: 'aPrecinct', name: 'Precinct 2', districtIds: [] },
+    { id: 'bPrecinct', name: 'Precinct 3', districtIds: [] },
+  ];
+  for (const newPrecinct of precincts) {
+    (
+      await apiClient.createPrecinct({ electionId, newPrecinct })
+    ).unsafeUnwrap();
+  }
+
+  const place: PollingPlace = {
+    id: 'place1',
+    name: 'Place 1',
+    precincts: {
+      cPrecinct: { type: 'whole' },
+      aPrecinct: { type: 'whole' },
+      bPrecinct: { type: 'whole' },
+    },
+    type: 'election_day',
+  };
+  expect(await apiClient.setPollingPlace({ electionId, place })).toEqual(ok());
+
+  const [savedPlace] = await apiClient.listPollingPlaces({ electionId });
+  expect(Object.keys(savedPlace.precincts)).toEqual([
+    'aPrecinct',
+    'bPrecinct',
+    'cPrecinct',
+  ]);
+}, 20_000);
+
 test('polling place updates on precinct creation/update/deletion', async () => {
   const user = nonVxUser;
   const jurisdiction = user.jurisdictions[1];
