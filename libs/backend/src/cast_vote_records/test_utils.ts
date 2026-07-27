@@ -271,7 +271,7 @@ export async function writeCastVoteRecordExport({
     castVoteRecordRootHash:
       await computeCastVoteRecordRootHashFromScratch(exportDirectoryPath),
     batchManifest: batchesByScannerId.flatMap((batchScanner) =>
-      buildBatchManifest(batchScanner)
+      buildBatchManifest({ ...batchScanner, scannerMachineType: 'precinct' })
     ),
   };
   const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);

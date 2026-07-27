@@ -501,6 +501,7 @@ test('precinct scanner continuous export', async () => {
     id: batch1.id,
     label: batch1.label,
     startTime: batch1.startedAt,
+    scannerMachineType: 'precinct',
   });
 });
 
@@ -1375,6 +1376,10 @@ test('ballot_casting_mode is not exported for central scanners', async () => {
     assertDefined(castVoteRecordExportMetadata.batchManifest[0])
       .ballotCastingMode
   ).toBeUndefined();
+  expect(
+    assertDefined(castVoteRecordExportMetadata.batchManifest[0])
+      .scannerMachineType
+  ).toEqual('central');
 });
 
 test('ballot_casting_mode is exported per batch for precinct scanners - continuous export', async () => {
