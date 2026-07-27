@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
-import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
+import {
+  BallotType,
+  CandidateContest,
+  LanguageCode,
+  YesNoContest,
+} from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
@@ -93,7 +98,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen() {
+function renderScreen(ballotStyleId = ballotStyle.id) {
   render(
     provideApi(
       apiMock,
@@ -103,7 +108,7 @@ function renderScreen() {
           .ballots.viewBallot(':ballotStyleId', ':precinctId').path,
         path: routes
           .election(electionId)
-          .ballots.viewBallot(ballotStyle.id, precinct.id).path,
+          .ballots.viewBallot(ballotStyleId, precinct.id).path,
       })
     )
   );
@@ -279,6 +284,82 @@ test('changes tabulation mode', async () => {
   userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });
+});
+
+test('CaBallot template: language picker switches between language variants', async () => {
+  const ballotStylesWithVariants = electionRecord.election.ballotStyles.flatMap(
+    (style) => [
+      style,
+      {
+        ...style,
+        id: style.id.replace('_en', '_es-US'),
+        languages: [LanguageCode.SPANISH],
+      },
+      {
+        ...style,
+        id: style.id.replace('_en', '_zh-Hans'),
+        languages: [LanguageCode.CHINESE_SIMPLIFIED],
+      },
+    ]
+  );
+  const spanishBallotStyleId = ballotStyle.id.replace('_en', '_es-US');
+  const chineseBallotStyleId = ballotStyle.id.replace('_en', '_zh-Hans');
+  apiMock.getBallotTemplate.reset();
+  apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('CaBallot');
+  apiMock.listBallotStyles.reset();
+  apiMock.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves(ballotStylesWithVariants);
+  apiMock.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: spanishBallotStyleId,
+      precinctId: precinct.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
+    })
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock spanish ballot pdf'),
+        fileName: 'mock spanish ballot.pdf',
+      })
+    );
+  renderScreen(spanishBallotStyleId);
+
+  await screen.findByRole('heading', { name: 'View Ballot' });
+  await screen.findByText('mock spanish ballot pdf');
+
+  // Shows the ballot style group ID rather than the language-specific ID
+  screen.getByText(ballotStyle.groupId);
+  expect(screen.queryByText(spanishBallotStyleId)).not.toBeInTheDocument();
+
+  const languageSelect = screen.getByLabelText('Language');
+  screen.getByText('Spanish');
+
+  // The English-only variant is not offered
+  userEvent.click(languageSelect);
+  expect(screen.queryByText('English')).not.toBeInTheDocument();
+
+  apiMock.getBallotPreviewPdf
+    .expectCallWith({
+      electionId,
+      ballotStyleId: chineseBallotStyleId,
+      precinctId: precinct.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      isFederalOfficeOnly: undefined,
+    })
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock chinese ballot pdf'),
+        fileName: 'mock chinese ballot.pdf',
+      })
+    );
+  userEvent.click(screen.getByText('Chinese (Simplified)'));
+  await screen.findByText('mock chinese ballot pdf');
+  screen.getByText('Chinese (Simplified)');
+  screen.getByText(ballotStyle.groupId);
 });
 
 test('NhStateBallot template: Federal Office Only option locks mode to Official', async () => {

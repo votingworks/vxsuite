@@ -1,6 +1,29 @@
 import { assert } from '@votingworks/basics';
+import { BallotStyle, LanguageCode } from '@votingworks/types';
+import { ORDERED_LANGUAGES } from '@votingworks/utils';
 import { customAlphabet } from 'nanoid';
 import useSoundLib from 'use-sound';
+
+/**
+ * The languages available for viewing the ballot styles in a CA template
+ * ballot style group. The CA template generates a separate ballot style per
+ * language, with non-English ballots rendered bilingually (English alongside
+ * the translated language), so the English-only variant is omitted whenever
+ * translated variants exist.
+ */
+export function caBallotStyleLanguages(
+  groupBallotStyles: ReadonlyArray<Pick<BallotStyle, 'languages'>>
+): LanguageCode[] {
+  const languages = ORDERED_LANGUAGES.filter((language) =>
+    groupBallotStyles.some((ballotStyle) =>
+      ballotStyle.languages.includes(language)
+    )
+  );
+  const translatedLanguages = languages.filter(
+    (language) => language !== LanguageCode.ENGLISH
+  );
+  return translatedLanguages.length > 0 ? translatedLanguages : languages;
+}
 
 const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 
