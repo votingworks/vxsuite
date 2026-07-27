@@ -56,7 +56,7 @@ function createMockBarcodeClient(): MockBarcodeClient {
 // Builds the bytes a scanner emits for a ballot style QR code.
 function qrPayload(ballotStyleId: string, precinctId?: string): Uint8Array {
   return new TextEncoder().encode(
-    JSON.stringify({ ballotStyleId, precinctId })
+    JSON.stringify({ bsId: ballotStyleId, pId: precinctId })
   );
 }
 

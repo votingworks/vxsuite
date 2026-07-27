@@ -570,10 +570,10 @@ test('barcode scan mock control emits a scan payload', async () => {
     name: 'Barcode Payload',
   });
   userEvent.clear(payloadInput);
-  userEvent.type(payloadInput, '{{"ballotStyleId":"1_en"}');
+  userEvent.type(payloadInput, '{{"bsId":"1_en"}');
 
   mockApiClient.emitBarcodeScan
-    .expectCallWith({ payload: '{"ballotStyleId":"1_en"}' })
+    .expectCallWith({ payload: '{"bsId":"1_en"}' })
     .resolves();
   userEvent.click(screen.getByRole('button', { name: 'Emit' }));
   await waitFor(() => mockApiClient.assertComplete());

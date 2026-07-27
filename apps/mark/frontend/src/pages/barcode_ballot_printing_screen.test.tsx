@@ -70,7 +70,7 @@ test('waits when there is no scan', async () => {
 
 test('ignores a stale scan from before the screen opened', async () => {
   apiMock.expectGetMostRecentBarcodeScan({
-    data: JSON.stringify({ ballotStyleId: spanishBallotStyle.id }),
+    data: JSON.stringify({ bsId: spanishBallotStyle.id }),
     timestamp: new Date(Date.now() - 10_000),
   });
   renderScreen();
@@ -88,7 +88,7 @@ test('ignores a scan that is not a valid ballot style QR code', async () => {
 
 test('waits when the scanned ballot style does not resolve to one precinct', async () => {
   apiMock.expectGetMostRecentBarcodeScan({
-    data: JSON.stringify({ ballotStyleId: spanishBallotStyle.id }),
+    data: JSON.stringify({ bsId: spanishBallotStyle.id }),
     timestamp: new Date(Date.now() + 10_000),
   });
   apiMock.mockApiClient.getPrecinctsForBallotStyle
@@ -101,8 +101,8 @@ test('waits when the scanned ballot style does not resolve to one precinct', asy
 test('uses the scanned precinct to disambiguate a multi-precinct ballot style', async () => {
   apiMock.expectGetMostRecentBarcodeScan({
     data: JSON.stringify({
-      ballotStyleId: spanishBallotStyle.id,
-      precinctId: otherPrecinctId,
+      bsId: spanishBallotStyle.id,
+      pId: otherPrecinctId,
     }),
     timestamp: new Date(Date.now() + 10_000),
   });
@@ -117,8 +117,8 @@ test('uses the scanned precinct to disambiguate a multi-precinct ballot style', 
 test('waits when the scanned precinct is not valid for the polling place', async () => {
   apiMock.expectGetMostRecentBarcodeScan({
     data: JSON.stringify({
-      ballotStyleId: spanishBallotStyle.id,
-      precinctId: 'not-a-real-precinct',
+      bsId: spanishBallotStyle.id,
+      pId: 'not-a-real-precinct',
     }),
     timestamp: new Date(Date.now() + 10_000),
   });
@@ -131,7 +131,7 @@ test('waits when the scanned precinct is not valid for the polling place', async
 
 test('opens the locked print screen for a fresh single-precinct scan', async () => {
   apiMock.expectGetMostRecentBarcodeScan({
-    data: JSON.stringify({ ballotStyleId: spanishBallotStyle.id }),
+    data: JSON.stringify({ bsId: spanishBallotStyle.id }),
     timestamp: new Date(Date.now() + 10_000),
   });
   apiMock.mockApiClient.getPrecinctsForBallotStyle

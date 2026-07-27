@@ -11,7 +11,7 @@ function decodeToString(report: Uint8Array): string | undefined {
 }
 
 test('extracts the payload from a framed HID POS report, dropping AIM id and padding', () => {
-  const json = '{"ballotStyleId":"1_en","precinctId":"xkd0mbksmae2"}';
+  const json = '{"bsId":"1_en","pId":"xkd0mbksmae2"}';
   const jsonBytes = new TextEncoder().encode(json);
   const report = Uint8Array.from([
     REPORT_ID,

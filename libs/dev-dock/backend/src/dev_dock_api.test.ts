@@ -469,8 +469,8 @@ test('emitBarcodeScan forwards the payload to the host app', async () => {
   const emitBarcodeScan = vi.fn();
   const { apiClient } = setup({ printerConfig: 'fujitsu', emitBarcodeScan });
 
-  await apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' });
-  expect(emitBarcodeScan).toHaveBeenCalledWith('{"ballotStyleId":"1_en"}');
+  await apiClient.emitBarcodeScan({ payload: '{"bsId":"1_en"}' });
+  expect(emitBarcodeScan).toHaveBeenCalledWith('{"bsId":"1_en"}');
 });
 
 test('hardware mock status endpoints for barcode, accessible controller, and pat', async () => {
