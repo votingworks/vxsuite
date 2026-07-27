@@ -479,9 +479,11 @@ export function WriteInLabel(): React.ReactElement {
 export function Instructions({
   languageCode,
   bubbleSide = 'left',
+  showWriteInInstructions = true,
 }: {
   languageCode?: string;
   bubbleSide?: 'left' | 'right';
+  showWriteInInstructions?: boolean;
 }): React.ReactElement {
   // To minimize vertical space used, we do a slightly different layout for
   // English-only vs bilingual ballots.
@@ -493,7 +495,9 @@ export function Instructions({
           padding: '0.5rem 0.5rem',
           display: 'grid',
           gap: '0.125rem 0.75rem',
-          gridTemplateColumns: '1fr 7rem 1.9fr 7.5rem',
+          gridTemplateColumns: showWriteInInstructions
+            ? '1fr 7rem 1.9fr 7.5rem'
+            : '1fr 7rem',
         }}
       >
         <div>
@@ -505,16 +509,20 @@ export function Instructions({
           <InstructionsDiagramFillBubble bubbleSide={bubbleSide} />
         </div>
 
-        <div>
-          <h4>{hmpbStrings.hmpbInstructionsWriteInTitle}</h4>
-          <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
-        </div>
-        <div style={{ alignSelf: 'center' }}>
-          <InstructionsDiagramWriteIn
-            writeInLabel={<WriteInLabel />}
-            bubbleSide={bubbleSide}
-          />
-        </div>
+        {showWriteInInstructions && (
+          <React.Fragment>
+            <div>
+              <h4>{hmpbStrings.hmpbInstructionsWriteInTitle}</h4>
+              <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
+            </div>
+            <div style={{ alignSelf: 'center' }}>
+              <InstructionsDiagramWriteIn
+                writeInLabel={<WriteInLabel />}
+                bubbleSide={bubbleSide}
+              />
+            </div>
+          </React.Fragment>
+        )}
       </Box>
     );
   }
@@ -547,18 +555,22 @@ export function Instructions({
       </DualLanguageText>
 
       {/* Row 3 */}
-      <div style={{ alignSelf: 'center' }}>
-        <InstructionsDiagramWriteIn
-          writeInLabel={<WriteInLabel />}
-          bubbleSide={bubbleSide}
-        />
-      </div>
-      <DualLanguageText>
-        <div>
-          <b>{hmpbStrings.hmpbInstructionsWriteInTitle}</b>
-          <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
-        </div>
-      </DualLanguageText>
+      {showWriteInInstructions && (
+        <React.Fragment>
+          <div style={{ alignSelf: 'center' }}>
+            <InstructionsDiagramWriteIn
+              writeInLabel={<WriteInLabel />}
+              bubbleSide={bubbleSide}
+            />
+          </div>
+          <DualLanguageText>
+            <div>
+              <b>{hmpbStrings.hmpbInstructionsWriteInTitle}</b>
+              <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
+            </div>
+          </DualLanguageText>
+        </React.Fragment>
+      )}
     </Box>
   );
 }

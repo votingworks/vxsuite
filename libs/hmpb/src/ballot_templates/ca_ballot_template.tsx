@@ -58,10 +58,15 @@ import {
   WriteInLabel,
   BlankPageMessage,
   AlignedBubble,
+  Bubble,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
 import { PixelDimensions, PixelMeasurements } from '../types';
+import {
+  RCV_DEMO_CONTEST_ID_PREFIX,
+  RCV_DEMO_STRINGS,
+} from '../rcv_demo_ballot_election';
 import { Section, layOutSectionsInColumns } from '../layout_in_columns';
 import { hmpbStrings } from '../hmpb_strings';
 import { ArrowRight } from '../svg_assets';
@@ -405,7 +410,13 @@ function BallotPageFrame({
                     bottom of the instructions box, like the official Santa
                     Clara County ballots */}
                 <div style={{ margin: '0.5rem 0 0' }}>
-                  <Instructions languageCode={languageCode} />
+                  <Instructions
+                    languageCode={languageCode}
+                    showWriteInInstructions={election.contests.some(
+                      (contest) =>
+                        contest.type === 'candidate' && contest.allowWriteIns
+                    )}
+                  />
                 </div>
               </>
             )}
@@ -718,6 +729,157 @@ function CandidateContest({
   );
 }
 
+// Demo-only ranked-choice contest support: contests whose ids share the
+// hardcoded RCV_DEMO_CONTEST_ID_PREFIX are vote-for-1 contests representing
+// the ranks of a single RCV contest. They render together as one contest box
+// with a grid of candidate rows and rank columns; each bubble belongs to its
+// rank's underlying contest, so the ballot scans with no interpreter changes.
+function isRcvDemoRankContest(
+  contest: ContestStruct
+): contest is CandidateContestStruct {
+  return (
+    contest.type === 'candidate' &&
+    contest.id.startsWith(RCV_DEMO_CONTEST_ID_PREFIX)
+  );
+}
+
+// Rank column width in timing mark grid units (4 units/inch)
+const RCV_RANK_COLUMN_GRID_UNITS = 3;
+
+const RcvGrid = styled.div<{ numRanks: number }>`
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    repeat(${(p) => p.numRanks}, ${RCV_RANK_COLUMN_GRID_UNITS * 0.25}in);
+
+  /* Break within words as a last resort rather than overflowing the cell */
+  overflow-wrap: break-word;
+
+  > div {
+    border-top: 1px solid ${Colors.DARK_GRAY};
+  }
+
+  /* First row of cells sits directly below the instructions row */
+  > div:nth-child(-n + ${(p) => p.numRanks + 1}) {
+    border-top: none;
+  }
+
+  /* Vertical rules between grid columns */
+  > div:not(:nth-child(${(p) => p.numRanks + 1}n + 1)) {
+    border-left: 1px solid ${Colors.DARK_GRAY};
+  }
+`;
+
+const RankHeaderCell = styled.div`
+  background: ${Colors.LIGHT_GRAY};
+  font-weight: bold;
+  font-size: 7.5pt;
+  text-align: center;
+  padding: 0.125rem 0.25rem;
+`;
+
+const RankBubbleCell = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+`;
+
+// Matches the option text styles of the regular contest cells (OptionRow)
+const RcvNameCell = styled.div`
+  font-size: 9pt;
+  line-height: 1.1;
+  padding: 0.125rem 0.375rem 0.1875rem;
+`;
+
+function RcvContest({
+  election,
+  contests,
+  ballotStyle,
+}: {
+  election: Election;
+  contests: CandidateContestStruct[];
+  ballotStyle: BallotStyle;
+}) {
+  const [firstContest] = contests;
+  const candidates = getOrderedCandidatesForContestInBallotStyle({
+    contest: firstContest,
+    ballotStyle,
+  });
+  // The ranked-choice grid strings aren't expressible with the standard
+  // contest strings (electionStrings/hmpbStrings), so they're hardcoded per
+  // language and rendered English-first like DualLanguageText.
+  const languageContext = useLanguageContext();
+  const primaryLanguageCodeValue = languageContext?.currentLanguageCode ?? 'en';
+  const englishStrings = RCV_DEMO_STRINGS['en'];
+  const translatedStrings =
+    primaryLanguageCodeValue === 'en'
+      ? undefined
+      : RCV_DEMO_STRINGS[primaryLanguageCodeValue];
+  return (
+    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+      <ContestHeader>
+        <div>
+          {englishStrings.contestTitle}
+          {translatedStrings && ` / ${translatedStrings.contestTitle}`}
+        </div>
+      </ContestHeader>
+      {/* Match the candidate cells' horizontal padding so the instructions
+          text lines up with the candidate names below */}
+      <VoteForRow
+        style={{ textAlign: 'left', padding: '0.125rem 0.375rem 0.1875rem' }}
+      >
+        <div>{englishStrings.instructions}</div>
+        {translatedStrings && <div>{translatedStrings.instructions}</div>}
+      </VoteForRow>
+      <RcvGrid numRanks={contests.length}>
+        <RankHeaderCell />
+        {contests.map((contest, i) => (
+          <RankHeaderCell key={contest.id}>
+            <div>{englishStrings.rankLabels[i]}</div>
+            {translatedStrings && <div>{translatedStrings.rankLabels[i]}</div>}
+          </RankHeaderCell>
+        ))}
+        {candidates.map((candidate) => (
+          <React.Fragment key={candidate.id}>
+            <RcvNameCell>
+              <OptionLabel>
+                {electionStrings.candidateName(candidate)}
+              </OptionLabel>
+              <CandidatePartyPreference
+                election={election}
+                contest={firstContest}
+                candidate={candidate}
+              />
+              {candidate.designation && (
+                <OptionSubtitle>
+                  <DualLanguageText>
+                    <div>{electionStrings.candidateDesignation(candidate)}</div>
+                  </DualLanguageText>
+                </OptionSubtitle>
+              )}
+            </RcvNameCell>
+            {contests.map((contest) => (
+              <RankBubbleCell
+                key={contest.id}
+                className={CANDIDATE_OPTION_CLASS}
+              >
+                <Bubble
+                  optionInfo={{
+                    type: 'option',
+                    contestId: contest.id,
+                    optionId: candidate.id,
+                  }}
+                />
+              </RankBubbleCell>
+            ))}
+          </React.Fragment>
+        ))}
+      </RcvGrid>
+    </Box>
+  );
+}
+
 // Santa Clara County measure descriptions start with the measure's
 // designation (e.g. the "B" in "B To renew local school funding..."), printed
 // in a larger bold font. We assume the first word of the description is the
@@ -970,7 +1132,11 @@ type Band =
       introKey?: string;
       sectionHeader?: JSX.Element;
       subsectionHeader?: JSX.Element;
-      contestElement: ContestElement;
+      // A single grid contest, or several rank contests merged into one
+      // ranked-choice grid. The band places/defers atomically, so all of its
+      // contests travel together during pagination.
+      contests: ContestStruct[];
+      element: JSX.Element;
     };
 
 type SectionKey =
@@ -1088,8 +1254,9 @@ function buildBands(
   }
 
   type Run =
-    | { grid: false; contests: ContestStruct[] }
-    | { grid: true; contest: ContestStruct };
+    | { kind: 'columns'; contests: ContestStruct[] }
+    | { kind: 'grid'; contest: ContestStruct }
+    | { kind: 'rcv'; contests: CandidateContestStruct[] };
 
   const bands: Band[] = [];
   // Intros presented by an earlier section during this same page build (the
@@ -1123,17 +1290,23 @@ function buildBands(
       const runs: Run[] = [];
       for (const contest of districtContests) {
         const lastRun = runs.at(-1);
-        if (contestGridColumns(contest) > 1) {
-          runs.push({ grid: true, contest });
-        } else if (lastRun && !lastRun.grid) {
+        if (isRcvDemoRankContest(contest)) {
+          if (lastRun?.kind === 'rcv') {
+            lastRun.contests.push(contest);
+          } else {
+            runs.push({ kind: 'rcv', contests: [contest] });
+          }
+        } else if (contestGridColumns(contest) > 1) {
+          runs.push({ kind: 'grid', contest });
+        } else if (lastRun?.kind === 'columns') {
           lastRun.contests.push(contest);
         } else {
-          runs.push({ grid: false, contests: [contest] });
+          runs.push({ kind: 'columns', contests: [contest] });
         }
       }
 
       for (const run of runs) {
-        if (run.grid) {
+        if (run.kind !== 'columns') {
           bands.push({
             kind: 'grid',
             introKey:
@@ -1149,7 +1322,21 @@ function buildBands(
                 inline
               />
             ) : undefined,
-            contestElement: contestElement(run.contest),
+            ...(run.kind === 'grid'
+              ? {
+                  contests: [run.contest],
+                  element: contestElement(run.contest).element,
+                }
+              : {
+                  contests: run.contests,
+                  element: (
+                    <RcvContest
+                      election={election}
+                      contests={run.contests}
+                      ballotStyle={ballotStyle}
+                    />
+                  ),
+                }),
           });
         } else {
           const runSection: ContestSection = {
@@ -1262,9 +1449,7 @@ function sectionContests<Element extends { contest: ContestStruct }>(
 
 function bandContests(bands: Band[]): ContestStruct[] {
   return bands.flatMap((band) =>
-    band.kind === 'columns'
-      ? sectionContests(band.sections)
-      : [band.contestElement.contest]
+    band.kind === 'columns' ? sectionContests(band.sections) : band.contests
   );
 }
 
@@ -1321,7 +1506,7 @@ async function BallotPageContent(
         <div key={`band-${bandIndex}`}>
           {band.sectionHeader}
           {band.subsectionHeader}
-          {band.contestElement.element}
+          {band.element}
         </div>
       );
       const [measurements] = await scratchpad.measureElements(
@@ -1383,14 +1568,11 @@ async function BallotPageContent(
                 justifyContent: 'center',
               }}
             >
-              <LargeContestNotice contest={band.contestElement.contest} />
+              <LargeContestNotice contest={band.contests[0]} />
             </div>
           );
         }
-        leftoverContests = [
-          band.contestElement.contest,
-          ...bandContests(remainingBands),
-        ];
+        leftoverContests = [...band.contests, ...bandContests(remainingBands)];
         break;
       }
       pageBandElements.push(bandElement);

@@ -6,6 +6,7 @@ export * from './hmpb_strings';
 export * from './mark_ballot';
 export * from './marking';
 export * from './playwright_renderer';
+export * from './rcv_demo_ballot_election';
 export * from './render_ballot';
 export * from './renderer';
 export * from './ballot_templates';

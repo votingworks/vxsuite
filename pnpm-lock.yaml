@@ -4728,6 +4728,9 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
+      jszip:
+        specifier: ^3.9.1
+        version: 3.9.1
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13

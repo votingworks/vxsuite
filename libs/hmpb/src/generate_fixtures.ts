@@ -13,6 +13,7 @@ import {
   miGeneralElectionFixtures,
   miCombinedBallotPrimaryElectionFixtures,
   msGeneralElectionFixtures,
+  rcvDemoBallotFixtures,
   nhGeneralElectionFixtures,
   nhStateGeneralElectionFixtures,
   nhStatePrimaryElectionFixtures,
@@ -252,6 +253,19 @@ async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
+async function generateRcvDemoBallotFixtures(rendererPool: RendererPool) {
+  const fixtures = rcvDemoBallotFixtures;
+  const generated = await fixtures.generate(rendererPool);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.electionPackagePath, generated.electionPackageZip);
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+}
+
 async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
   paperSize: HmpbBallotPaperSize,
@@ -299,6 +313,7 @@ type Fixture =
   | 'mi-general-election'
   | 'mi-combined-ballot-primary-election'
   | 'ms-general-election'
+  | 'rcv-demo-ballot'
   | 'calibration-sheet';
 
 export async function main(): Promise<number> {
@@ -372,6 +387,11 @@ export async function main(): Promise<number> {
 
       case '--ms-general-election': {
         fixtures.add('ms-general-election');
+        break;
+      }
+
+      case '--rcv-demo-ballot': {
+        fixtures.add('rcv-demo-ballot');
         break;
       }
 
@@ -473,6 +493,14 @@ export async function main(): Promise<number> {
       force: true,
     });
     await generateMsGeneralElectionFixtures(rendererPool);
+  }
+
+  if (fixtures.size === 0 || fixtures.has('rcv-demo-ballot')) {
+    await rm(rcvDemoBallotFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateRcvDemoBallotFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {

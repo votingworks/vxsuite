@@ -21,13 +21,16 @@ import {
   HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
   Election,
   getBallotStyle,
   getContests,
   LanguageCode,
+  LATEST_METADATA,
   LATEST_SOFTWARE_VERSION,
   VotesDict,
 } from '@votingworks/types';
+import JsZip from 'jszip';
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
@@ -48,8 +51,10 @@ import {
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
 import { generateBallotStyles } from './ballot_styles';
+import { caBallotTemplate } from './ballot_templates/ca_ballot_template';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
+import { createRcvDemoElection } from './rcv_demo_ballot_election';
 import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template';
 import { NhStateBallotProps } from './ballot_templates/nh_state_ballot_components';
 
@@ -1296,6 +1301,116 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
 
       return {
         electionDefinition,
+        blankBallotPath,
+        markedBallotPath,
+        blankBallotPdf,
+        markedBallotPdf,
+      };
+    },
+  };
+});
+
+export const rcvDemoBallotFixtures = lazyFixtures(() => {
+  const dir = join(fixturesDir, 'rcv-demo-ballot');
+  const electionPath = join(dir, 'election.json');
+  const electionPackagePath = join(dir, 'election-package.zip');
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  const markedBallotPath = join(dir, 'marked-ballot.pdf');
+
+  const election = createRcvDemoElection();
+  const [englishBallotProps, spanishBallotProps] = election.ballotStyles.map(
+    (ballotStyle): BaseBallotProps => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId: election.precincts[0].id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+    })
+  );
+  // The Spanish style renders as the dual-language Spanish/English ballot,
+  // which is the ballot used for the demo. The English style exists because
+  // the machines require one per ballot style group.
+  const blankBallotProps = spanishBallotProps;
+  const allBallotProps = [spanishBallotProps, englishBallotProps];
+
+  // Rank the candidates in ballot order (every rank contest lists the same
+  // candidates).
+  const rankContests = election.contests as CandidateContest[];
+  const votes: VotesDict = Object.fromEntries(
+    rankContests.map((contest, i) => [contest.id, [contest.candidates[i]]])
+  );
+
+  return {
+    dir,
+    electionPath,
+    electionPackagePath,
+    blankBallotPath,
+    markedBallotPath,
+    allBallotProps,
+    ...blankBallotProps,
+    votes,
+
+    async generate(rendererPool: RendererPool) {
+      debug(`Generating: ${blankBallotPath}`);
+      const { ballotContents, electionDefinition } =
+        await layOutBallotsAndCreateElectionDefinition(
+          rendererPool,
+          caBallotTemplate,
+          allBallotProps,
+          serializationOptions
+        );
+
+      // A minimal election package loadable on the machines, mirroring the
+      // required files of a VxDesign export (election.json, metadata.json,
+      // systemSettings.json, appStrings.json). The election's ballot strings
+      // double as the package uiStrings so voter-facing election content is
+      // available in both languages; app UI strings fall back to English.
+      debug(`Generating: ${electionPackagePath}`);
+      const zip = new JsZip();
+      const zipEntries: Record<string, string> = {
+        'election.json': electionDefinition.electionData,
+        'metadata.json': JSON.stringify(LATEST_METADATA, null, 2),
+        'systemSettings.json': JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2),
+        'appStrings.json': JSON.stringify(
+          electionDefinition.election.ballotStrings,
+          null,
+          2
+        ),
+      };
+      for (const [name, data] of Object.entries(zipEntries)) {
+        // Use a fixed date to make the zip byte-stable across regenerations
+        zip.file(name, data, { date: new Date('2024-01-29T00:00:00Z') });
+      }
+      const electionPackageZip = await zip.generateAsync({
+        type: 'nodebuffer',
+        streamFiles: true,
+      });
+
+      const blankBallotContents = ballotContents[0];
+      const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+        async (renderer) => {
+          const ballotDocument =
+            await renderer.loadDocumentFromContent(blankBallotContents);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+            blankBallotProps,
+            ballotDocument,
+            electionDefinition,
+            LATEST_SOFTWARE_VERSION
+          );
+
+          debug(`Generating: ${markedBallotPath}`);
+          await markBallotDocument(ballotDocument, votes);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const markedBallotPdf = await ballotDocument.renderToPdf();
+
+          return { blankBallotPdf, markedBallotPdf };
+        }
+      );
+
+      return {
+        electionDefinition,
+        electionPackageZip,
         blankBallotPath,
         markedBallotPath,
         blankBallotPdf,
