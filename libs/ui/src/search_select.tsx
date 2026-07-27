@@ -11,27 +11,30 @@ import { useTheme } from 'styled-components';
 import React from 'react';
 import { Button } from './button';
 
-function DropdownIndicator(
-  props: DropdownIndicatorProps<unknown, true>
-): JSX.Element {
-  return (
-    <components.DropdownIndicator {...props}>
-      <Button
-        fill="transparent"
-        icon="CaretDown"
-        // The react-select DropdownIndicator component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
-        onPress={() => {}}
-        style={{
-          padding: '0.25rem',
-          // Turn off inset shadow on press (:active) for touchscreen themes
-          boxShadow: 'none',
-        }}
-        tabIndex={-1}
-      />
-    </components.DropdownIndicator>
-  );
+function makeDropdownIndicator(inverse?: boolean) {
+  return function DropdownIndicator(
+    props: DropdownIndicatorProps<unknown, true>
+  ): JSX.Element {
+    return (
+      <components.DropdownIndicator {...props}>
+        <Button
+          fill="transparent"
+          color={inverse ? 'inverseNeutral' : 'neutral'}
+          icon="CaretDown"
+          // The react-select DropdownIndicator component has its own click
+          // handler. It seems to work fine with the button inside it, so we just
+          // put a dummy handler on the button itself.
+          onPress={() => {}}
+          style={{
+            padding: '0.25rem',
+            // Turn off inset shadow on press (:active) for touchscreen themes
+            boxShadow: 'none',
+          }}
+          tabIndex={-1}
+        />
+      </components.DropdownIndicator>
+    );
+  };
 }
 
 function MultiValueRemove(
@@ -107,6 +110,8 @@ interface SearchSelectBaseProps<T = string> {
   onInputChange?: (value?: T) => void;
   menuPortalTarget?: HTMLElement;
   menuShadow?: boolean;
+  /** Style the select for display on an inverse (dark) background. */
+  inverse?: boolean;
   minMenuHeight?: number;
   maxMenuHeight?: number;
   noOptionsMessage?: () => React.ReactNode;
@@ -153,6 +158,7 @@ export function SearchSelect<T = string>({
   required,
   menuPortalTarget,
   menuShadow,
+  inverse,
   minMenuHeight,
   noOptionsMessage,
   maxMenuHeight = 600, // in px, 1/2 admin's vh
@@ -160,6 +166,10 @@ export function SearchSelect<T = string>({
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
   const borderRadius = `${theme.sizes.borderRadiusRem}rem`;
+  const DropdownIndicator = React.useMemo(
+    () => makeDropdownIndicator(inverse),
+    [inverse]
+  );
 
   return (
     <Select
@@ -206,11 +216,15 @@ export function SearchSelect<T = string>({
         }),
         control: (baseStyles, state) => ({
           ...baseStyles,
+          // Match the border color RadioGroup uses in both regular and
+          // inverse modes.
           border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
           borderRadius: style?.borderRadius ?? borderRadius,
           backgroundColor: style?.backgroundColor
             ? style.backgroundColor
+            : inverse
+            ? theme.colors.inverseContainer
             : state.isDisabled
             ? theme.colors.container
             : state.isFocused
@@ -218,6 +232,10 @@ export function SearchSelect<T = string>({
             : theme.colors.containerLow,
           padding: '0.25rem',
           outline: state.isFocused ? `var(--focus-outline)` : undefined,
+        }),
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: inverse ? theme.colors.onInverse : baseStyles.color,
         }),
         valueContainer: (baseStyles, state) => ({
           ...baseStyles,

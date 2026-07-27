@@ -1,5 +1,22 @@
 import { expect, test } from 'vitest';
-import { downloadFile, reorderElement } from './utils';
+import { LanguageCode } from '@votingworks/types';
+import { caBallotStyleLanguages, downloadFile, reorderElement } from './utils';
+
+test('caBallotStyleLanguages omits English when translated variants exist', () => {
+  expect(
+    caBallotStyleLanguages([
+      { languages: [LanguageCode.SPANISH] },
+      { languages: [LanguageCode.ENGLISH] },
+      { languages: [LanguageCode.CHINESE_SIMPLIFIED] },
+    ])
+  ).toEqual([LanguageCode.CHINESE_SIMPLIFIED, LanguageCode.SPANISH]);
+});
+
+test('caBallotStyleLanguages keeps English when it is the only language', () => {
+  expect(
+    caBallotStyleLanguages([{ languages: [LanguageCode.ENGLISH] }])
+  ).toEqual([LanguageCode.ENGLISH]);
+});
 
 test('downloadFile cleans up temporary anchor tag', () => {
   downloadFile('http://localhost:1234/file.zip');

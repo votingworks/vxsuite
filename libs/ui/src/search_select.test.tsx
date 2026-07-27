@@ -115,6 +115,22 @@ test('single and not searchable', () => {
   screen.getByText('Banana');
 });
 
+test('single with inverse styling', () => {
+  render(
+    <ControlledSingleSelect
+      options={options}
+      aria-label="Choose Fruit"
+      value="apple"
+      inverse
+    />
+  );
+
+  const select = screen.getByLabelText('Choose Fruit');
+  screen.getByText('Apple');
+  userEvent.click(select);
+  screen.getByRole('option', { name: 'Banana' });
+});
+
 test('single and searchable', async () => {
   render(
     <ControlledSingleSelect
