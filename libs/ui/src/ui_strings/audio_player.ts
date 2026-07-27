@@ -40,7 +40,15 @@ export function newAudioPlayer(params: AudioPlayerParams): AudioPlayer {
   async function play() {
     audio.onended ??= () => deferredEnd.resolve();
 
-    pendingPlay = audio.play();
+    pendingPlay = audio.play().catch((error) => {
+      // Playback can fail when the clip has no playable audio data (e.g. a
+      // configured language with no audio provided). End playback so that
+      // consumers proceed without audio instead of crashing the app on an
+      // unhandled rejection.
+      // eslint-disable-next-line no-console
+      console.error(`Unable to play audio clip ${clip.id}:`, error);
+      deferredEnd.resolve();
+    });
     await pendingPlay;
 
     await deferredEnd.promise;
