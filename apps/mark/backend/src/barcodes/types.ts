@@ -8,21 +8,24 @@ import {
 
 /**
  * The payload encoded in a QR code (e.g. a VxPollbook check-in receipt) that
- * identifies which ballot style to activate. Carries the ballot style ID, which
- * is resolved against the loaded election definition. An optional precinct ID
- * disambiguates when the ballot style maps to more than one precinct in the
- * machine's configured polling place; when omitted, the precinct is derived
- * (used directly when there is only one).
+ * identifies which ballot style to activate, e.g.
+ * `{"bsId":"<ballotStyleId>","pId":"<precinctId>"}`. Keys are abbreviated to
+ * keep the encoded payload small enough to fit in a single scanner report.
+ *
+ * `bsId` (ballot style ID) is resolved against the loaded election definition.
+ * `pId` (precinct ID) is optional and disambiguates when the ballot style maps
+ * to more than one precinct in the machine's configured polling place; when
+ * omitted, the precinct is derived (used directly when there is only one).
  */
 export interface BallotStyleQrCode {
-  ballotStyleId: BallotStyleId;
-  precinctId?: PrecinctId;
+  bsId: BallotStyleId;
+  pId?: PrecinctId;
 }
 
 export const BallotStyleQrCodeSchema: z.ZodSchema<BallotStyleQrCode> = z.object(
   {
-    ballotStyleId: BallotStyleIdSchema,
-    precinctId: PrecinctIdSchema.optional(),
+    bsId: BallotStyleIdSchema,
+    pId: PrecinctIdSchema.optional(),
   }
 );
 

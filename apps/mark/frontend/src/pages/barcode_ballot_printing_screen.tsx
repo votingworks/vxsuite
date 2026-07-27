@@ -16,12 +16,14 @@ import { PrintBlankBallotScreen } from './print_blank_ballot_screen';
 function parseScannedQrCode(
   data: string
 ): { ballotStyleId: string; precinctId?: string } | undefined {
+  // Wire keys are abbreviated (`bsId`/`pId`) to keep the payload small; map them
+  // to descriptive names here so the rest of the screen stays readable.
   const parsed = safeParseJson(data).ok() as
-    | { ballotStyleId?: unknown; precinctId?: unknown }
+    | { bsId?: unknown; pId?: unknown }
     | undefined;
-  const ballotStyleId = parsed?.ballotStyleId;
+  const ballotStyleId = parsed?.bsId;
   if (typeof ballotStyleId !== 'string') return undefined;
-  const precinctId = parsed?.precinctId;
+  const precinctId = parsed?.pId;
   return {
     ballotStyleId,
     precinctId: typeof precinctId === 'string' ? precinctId : undefined,

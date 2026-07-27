@@ -755,7 +755,7 @@ function BarcodeScanMockControl() {
   const apiClient = useApiClient();
   const emitBarcodeScanMutation = useMutation(apiClient.emitBarcodeScan);
   const [isOpen, setIsOpen] = useState(false);
-  const [payload, setPayload] = useState('{"ballotStyleId":""}');
+  const [payload, setPayload] = useState('{"bsId":""}');
   const isBarcodeMockEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
   );

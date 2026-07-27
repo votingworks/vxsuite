@@ -123,10 +123,8 @@ export function setUpBarcodeActivation(ctx: Context): void {
         }`,
       });
     }
-    const {
-      ballotStyleId: scannedBallotStyleId,
-      precinctId: scannedPrecinctId,
-    } = parseResult.ok();
+    const { bsId: scannedBallotStyleId, pId: scannedPrecinctId } =
+      parseResult.ok();
 
     const resolved = resolveBallotStyleForPollingPlace(
       election,
@@ -211,7 +209,7 @@ export function setUpBarcodeActivation(ctx: Context): void {
 /**
  * Parses a scanned barcode string into a {@link BallotStyleQrCode}. The scanner
  * emits the QR code's textual contents, which we expect to be JSON of the form
- * `{"ballotStyleId":"<id>"}`.
+ * `{"bsId":"<id>","pId":"<id>"}`.
  */
 function parseBallotStyleQrCode(
   barcode: string
