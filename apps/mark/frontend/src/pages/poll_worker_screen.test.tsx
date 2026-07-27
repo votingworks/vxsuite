@@ -280,6 +280,14 @@ test('hides the Print Blank Ballot button when the setting is disabled', () => {
   expect(screen.queryByText('Print Blank Ballot')).toBeNull();
 });
 
+test('hides the Print Blank Ballot button when polls are not open', () => {
+  expectSystemSettings(true);
+  renderScreen({ pollsState: 'polls_closed_initial' });
+
+  screen.getByText('Poll Worker Menu');
+  expect(screen.queryByText('Print Blank Ballot')).toBeNull();
+});
+
 const multiLanguageDefinition = getMockMultiLanguageElectionDefinition(
   electionGeneralDefinition,
   ['en', 'es-US']

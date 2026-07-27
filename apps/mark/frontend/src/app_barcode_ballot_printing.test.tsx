@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { anyPollingPlace, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -50,4 +50,28 @@ test('poll worker still sees the poll worker screen until a ballot style is scan
   buildApp(apiMock).renderApp();
 
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
+});
+
+test('ignores scans while polls are closed', async () => {
+  // Same setup as ballot-printing mode, but polls are not open. The frontend
+  // never even polls for the most recent scan (no expectGetMostRecentBarcodeScan
+  // below), so a scanned ballot style cannot open the printing screen.
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    bmdEnableQrBallotActivation: true,
+  });
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    pollingPlaceId: pollingPlace.id,
+    pollsState: 'polls_closed_initial',
+  });
+  apiMock.mockApiClient.getBarcodeActivationMode
+    .expectRepeatedCallsWith()
+    .resolves('ballot_printing');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  buildApp(apiMock).renderApp();
+
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  expect(screen.queryByText('Blank Ballot Printing')).toBeNull();
 });
