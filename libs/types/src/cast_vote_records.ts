@@ -13,6 +13,8 @@ import {
   ElectionDefinition,
   HmpbBallotPageMetadata,
   Precinct,
+  ScannerMachineType,
+  ScannerMachineTypeSchema,
 } from './election';
 import { ExportDataError } from './errors';
 import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic';
@@ -32,9 +34,6 @@ export enum CastVoteRecordExportFileName {
   METADATA = 'metadata.json',
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
-
-export const ScannerMachineTypeSchema = z.enum(['central', 'precinct']);
-export type ScannerMachineType = z.infer<typeof ScannerMachineTypeSchema>;
 
 export interface CastVoteRecordBatchMetadata {
   readonly id: string;

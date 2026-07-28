@@ -165,6 +165,7 @@ create table scanner_batches (
   label text not null,
   scanner_id text not null,
   election_id varchar(36) not null,
+  scanner_machine_type text check (scanner_machine_type is null or scanner_machine_type = 'central' or scanner_machine_type = 'precinct'),
   polling_place_id text,
   ballot_casting_mode text check (ballot_casting_mode is null or ballot_casting_mode = 'early_voting' or ballot_casting_mode = 'election_day'),
   started_at datetime not null,
