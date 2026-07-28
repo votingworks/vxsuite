@@ -216,6 +216,7 @@ export function BallotPageFrame({
   watermark,
   isHandCount,
   isFederalOfficeOnly,
+  isUocava,
 }: NhStateBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -244,7 +245,10 @@ export function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           hideTimingMarks={
-            ballotMode === 'sample' || isHandCount || isFederalOfficeOnly
+            ballotMode === 'sample' ||
+            isHandCount ||
+            isFederalOfficeOnly ||
+            isUocava
           }
         >
           <div
@@ -288,8 +292,10 @@ export function BallotPageFrame({
             <Footer
               pageNumber={pageNumber}
               totalPages={totalPages}
+              ballotMode={ballotMode}
               isHandCount={isHandCount}
               isFederalOfficeOnly={isFederalOfficeOnly}
+              isUocava={isUocava}
             />
           </div>
         </TimingMarkGrid>
@@ -548,9 +554,9 @@ function CandidateContest({
                 contestId: contest.id,
                 writeInIndex,
                 writeInArea: {
-                  top: 0.8,
+                  top: 0.75,
                   left: 4.9,
-                  bottom: 0.2,
+                  bottom: 0.15,
                   right: -0.6,
                 },
               };

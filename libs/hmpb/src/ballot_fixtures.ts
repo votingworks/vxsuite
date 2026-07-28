@@ -47,6 +47,7 @@ import {
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template';
 import { convertPdfToCmyk } from './pdf_conversion';
+import { reducePdfToFirstPage } from './reduce_pdf_to_first_page';
 import { generateBallotStyles } from './ballot_styles';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
@@ -807,6 +808,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     dir,
     'federal-office-only-blank-ballot.pdf'
   );
+  const uocavaBlankBallotPath = join(dir, 'uocava-blank-ballot.pdf');
 
   const baseElection = readElectionGeneral();
   // Rename contests so the NH state template's isFederalOfficeContest matcher
@@ -900,10 +902,18 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       isFederalOfficeOnly: true,
     })
   );
+  const uocavaBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      isUocava: true,
+    })
+  );
   const combinedBallotProps: NhStateBallotProps[] = [
     ...allBallotProps,
     ...handCountBallotProps,
     ...federalOfficeOnlyBallotProps,
+    ...uocavaBallotProps,
   ];
 
   return {
@@ -913,6 +923,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     markedBallotPath,
     handCountBlankBallotPath,
     federalOfficeOnlyBlankBallotPath,
+    uocavaBlankBallotPath,
     allBallotProps: combinedBallotProps,
     precinctId,
     ballotStyleId: ballotStyle.id,
@@ -929,7 +940,11 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
 
       async function renderBallotPdf(
         match: (props: NhStateBallotProps) => boolean,
-        paths: { blankPath: string; markedPath?: string }
+        paths: {
+          blankPath: string;
+          markedPath?: string;
+          reduceToFirstPage?: boolean;
+        }
       ) {
         const [contents, chosenProps] = assertDefined(
           iter(layout.ballotContents)
@@ -939,12 +954,15 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         return rendererPool.runTask(async (renderer) => {
           const doc = await renderer.loadDocumentFromContent(contents);
           debug(`Generating: ${paths.blankPath}`);
-          const blankPdf = await renderBallotPdfWithMetadataQrCode(
+          const fullPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
             doc,
             layout.electionDefinition,
             LATEST_SOFTWARE_VERSION
           );
+          const blankPdf = paths.reduceToFirstPage
+            ? await reducePdfToFirstPage(fullPdf)
+            : fullPdf;
           if (!paths.markedPath) {
             return { blankPdf };
           }
@@ -975,7 +993,17 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
           props.ballotStyleId === ballotStyle.id &&
           props.precinctId === precinctId &&
           Boolean(props.isFederalOfficeOnly),
-        { blankPath: federalOfficeOnlyBlankBallotPath }
+        {
+          blankPath: federalOfficeOnlyBlankBallotPath,
+          reduceToFirstPage: true,
+        }
+      );
+      const uocavaResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          Boolean(props.isUocava),
+        { blankPath: uocavaBlankBallotPath, reduceToFirstPage: true }
       );
 
       return {
@@ -984,6 +1012,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         markedBallotPdf: assertDefined(defaultResult.markedPdf),
         handCountBlankBallotPdf: handCountResult.blankPdf,
         federalOfficeOnlyBlankBallotPdf: federalOfficeOnlyResult.blankPdf,
+        uocavaBlankBallotPdf: uocavaResult.blankPdf,
       };
     },
   };
@@ -1108,15 +1137,25 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     ballotMode: 'official',
     isFederalOfficeOnly: true,
   };
+  const demUocavaBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    isUocava: true,
+  };
   const combinedBallotProps: NhStateBallotProps[] = [
     ...allBallotProps,
     demHandCountBallotProps,
     demFederalOfficeOnlyBallotProps,
+    demUocavaBallotProps,
   ];
   const demFederalOfficeOnlyBlankBallotPath = join(
     dir,
     'dem-federal-office-only-blank-ballot.pdf'
   );
+  const demUocavaBlankBallotPath = join(dir, 'dem-uocava-blank-ballot.pdf');
 
   return {
     dir,
@@ -1126,6 +1165,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     repParty,
     demHandCountBlankBallotPath,
     demFederalOfficeOnlyBlankBallotPath,
+    demUocavaBlankBallotPath,
 
     async generate(rendererPool: RendererPool) {
       const layout = await layOutBallotsAndCreateElectionDefinition(
@@ -1139,6 +1179,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         match: (props: NhStateBallotProps) => boolean;
         blankPath: string;
         markedPath?: string;
+        reduceToFirstPage?: boolean;
         votes?: ReturnType<typeof createTestVotes>['votes'];
         unmarkedWriteIns?: ReturnType<
           typeof createTestVotes
@@ -1152,12 +1193,15 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         return rendererPool.runTask(async (renderer) => {
           const doc = await renderer.loadDocumentFromContent(contents);
           debug(`Generating: ${spec.blankPath}`);
-          const blankPdf = await renderBallotPdfWithMetadataQrCode(
+          const fullPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
             doc,
             layout.electionDefinition,
             LATEST_SOFTWARE_VERSION
           );
+          const blankPdf = spec.reduceToFirstPage
+            ? await reducePdfToFirstPage(fullPdf)
+            : fullPdf;
           if (!spec.markedPath) {
             return { blankPdf };
           }
@@ -1207,6 +1251,15 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           props.precinctId === demParty.precinctId &&
           Boolean(props.isFederalOfficeOnly),
         blankPath: demFederalOfficeOnlyBlankBallotPath,
+        reduceToFirstPage: true,
+      });
+      const demUocavaResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          Boolean(props.isUocava),
+        blankPath: demUocavaBlankBallotPath,
+        reduceToFirstPage: true,
       });
 
       return {
@@ -1223,6 +1276,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         },
         demHandCountBlankBallotPdf: demHandCountResult.blankPdf,
         demFederalOfficeOnlyBlankBallotPdf: demFederalOfficeOnlyResult.blankPdf,
+        demUocavaBlankBallotPdf: demUocavaResult.blankPdf,
       };
     },
   };

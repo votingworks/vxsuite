@@ -172,6 +172,10 @@ async function generateNhStateGeneralElectionFixtures(
     fixtures.federalOfficeOnlyBlankBallotPath,
     generated.federalOfficeOnlyBlankBallotPdf
   );
+  await writeFile(
+    fixtures.uocavaBlankBallotPath,
+    generated.uocavaBlankBallotPdf
+  );
 }
 
 async function generateNhStatePrimaryElectionFixtures(
@@ -195,6 +199,10 @@ async function generateNhStatePrimaryElectionFixtures(
   await writeFile(
     fixtures.demFederalOfficeOnlyBlankBallotPath,
     generated.demFederalOfficeOnlyBlankBallotPdf
+  );
+  await writeFile(
+    fixtures.demUocavaBlankBallotPath,
+    generated.demUocavaBlankBallotPdf
   );
 }
 

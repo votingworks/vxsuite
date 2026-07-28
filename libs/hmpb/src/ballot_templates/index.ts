@@ -25,6 +25,11 @@ export const ballotTemplates = {
 export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBallot } from './nh_ballot_template';
 
 /**
+ * Renders the NH Return of Votes (ROV) form for an election.
+ */
+export { render as renderNhRovForm } from './nh_rov_form';
+
+/**
  * The ID of a ballot template.
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;

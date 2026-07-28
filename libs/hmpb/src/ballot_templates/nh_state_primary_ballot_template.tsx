@@ -12,6 +12,7 @@ import {
   Contest as ContestStruct,
   BallotMode,
   BallotType,
+  BallotStyle,
   CandidateContest as CandidateContestStruct,
   Election,
   Party,
@@ -19,7 +20,9 @@ import {
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
+  getOrderedCandidatesForContestInBallotStyle,
   getPartyForBallotStyle,
+  getPrecinctById,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
@@ -94,12 +97,14 @@ function Header({
   ballotType,
   ballotMode,
   party,
+  wardName,
   isFederalOfficeOnly,
 }: {
   election: Election;
   ballotType: BallotType;
   ballotMode: BallotMode;
   party: Party;
+  wardName?: string;
   isFederalOfficeOnly?: boolean;
 }): JSX.Element {
   const isAbsentee = ballotType === 'absentee';
@@ -137,7 +142,7 @@ function Header({
           flexDirection: 'column',
           justifyContent: 'space-between',
           alignSelf: 'stretch',
-          padding: '0 3rem',
+          padding: '0 0.5rem',
         }}
       >
         <h3 style={{ visibility: isFederalOfficeOnly ? 'visible' : 'hidden' }}>
@@ -155,7 +160,10 @@ function Header({
           {ballotTitle} For
         </h5>
         <div style={{ lineHeight: '1.3' }}>
-          <h1>{electionStrings.jurisdictionName(election.jurisdiction)}</h1>
+          <h1 style={{ lineHeight: 1 }}>
+            {electionStrings.jurisdictionName(election.jurisdiction)}
+            {wardName ? ` ${wardName}` : ''}
+          </h1>
           {<h1>{electionStrings.partyName(party)}</h1>}
         </div>
         <h5 style={{ lineHeight: 1 }}>
@@ -242,6 +250,7 @@ function Header({
 export function BallotPageFrame({
   election,
   ballotStyleId,
+  precinctId,
   ballotType,
   ballotMode,
   pageNumber,
@@ -250,6 +259,7 @@ export function BallotPageFrame({
   watermark,
   isHandCount,
   isFederalOfficeOnly,
+  isUocava,
 }: NhStateBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -267,6 +277,14 @@ export function BallotPageFrame({
     getPartyForBallotStyle({ election, ballotStyleId })
   );
   const colorTint = colorTintForParty(party);
+  // For warded jurisdictions, the precinct is a ward whose name differs from
+  // the jurisdiction; show it in the header. Unwarded towns use the town name
+  // as the precinct name, so there's nothing extra to show.
+  const precinct = getPrecinctById({ election, precinctId });
+  const wardName =
+    precinct && precinct.name !== election.jurisdiction.name
+      ? precinct.name
+      : undefined;
   return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -282,7 +300,10 @@ export function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           hideTimingMarks={
-            ballotMode === 'sample' || isHandCount || isFederalOfficeOnly
+            ballotMode === 'sample' ||
+            isHandCount ||
+            isFederalOfficeOnly ||
+            isUocava
           }
         >
           <div
@@ -307,6 +328,7 @@ export function BallotPageFrame({
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                   party={party}
+                  wardName={wardName}
                   isFederalOfficeOnly={isFederalOfficeOnly}
                 />
               </div>
@@ -336,8 +358,10 @@ export function BallotPageFrame({
             <Footer
               pageNumber={pageNumber}
               totalPages={totalPages}
+              ballotMode={ballotMode}
               isHandCount={isHandCount}
               isFederalOfficeOnly={isFederalOfficeOnly}
+              isUocava={isUocava}
             />
           </div>
         </TimingMarkGrid>
@@ -360,9 +384,11 @@ const ContestTitle = styled.h2`
 function CandidateContest({
   contest,
   colorTint,
+  ballotStyle,
 }: {
   contest: CandidateContestStruct;
   colorTint: ColorTint;
+  ballotStyle: BallotStyle;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -418,7 +444,10 @@ function CandidateContest({
           borderBottom: '1px solid black',
         }}
       >
-        {contest.candidates.map((candidate, i) => {
+        {getOrderedCandidatesForContestInBallotStyle({
+          contest,
+          ballotStyle,
+        }).map((candidate, i) => {
           const optionInfo: OptionInfo = {
             type: 'option',
             contestId: contest.id,
@@ -454,9 +483,9 @@ function CandidateContest({
               contestId: contest.id,
               writeInIndex,
               writeInArea: {
-                top: 0.4,
+                top: 0.35,
                 right: -0.5,
-                bottom: 0.4,
+                bottom: 0.35,
                 left: 7.7,
               },
             };
@@ -574,10 +603,12 @@ function BallotMeasureContest({
 function Contest({
   contest,
   colorTint,
+  ballotStyle,
 }: {
   contest: ContestStruct;
   election: Election;
   colorTint: ColorTint;
+  ballotStyle: BallotStyle;
 }) {
   /* istanbul ignore next */
   if (contest.type === 'straight-party') {
@@ -585,7 +616,13 @@ function Contest({
   }
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest contest={contest} colorTint={colorTint} />;
+      return (
+        <CandidateContest
+          contest={contest}
+          colorTint={colorTint}
+          ballotStyle={ballotStyle}
+        />
+      );
     case 'yesno':
       return <BallotMeasureContest contest={contest} colorTint={colorTint} />;
     default:
@@ -631,6 +668,7 @@ export async function BallotPageContent(
         contest={contest}
         election={election}
         colorTint={colorTint}
+        ballotStyle={ballotStyle}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
