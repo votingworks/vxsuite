@@ -14,7 +14,12 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  ElectionId,
+  hasSplits,
+  safeParseNumber,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -54,6 +59,7 @@ function BallotDesignForm({
   savedLayoutSettings: {
     paperSize: HmpbBallotPaperSize;
     compact: boolean;
+    largeContestCandidateColumns?: number;
   };
   ballotsFinalizedAt: Date | null;
   ballotTemplateId: BallotTemplateId;
@@ -114,6 +120,26 @@ function BallotDesignForm({
           disabled={!isEditing}
         />
       </div>
+      {ballotTemplateId === 'CaBallot' && (
+        <div style={{ maxWidth: '16.5rem' }}>
+          <RadioGroup
+            label="Large Contest Candidate Columns"
+            options={[
+              { value: '3', label: '3' },
+              { value: '4', label: '4' },
+            ]}
+            value={String(layoutSettings.largeContestCandidateColumns ?? 4)}
+            onChange={(value) =>
+              setLayoutSettings({
+                ...layoutSettings,
+                largeContestCandidateColumns:
+                  safeParseNumber(value).unsafeUnwrap(),
+              })
+            }
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       {ballotTemplateId !== 'MiBallot' &&
         ballotTemplateId !== 'NhStateBallot' &&
         ballotTemplateId !== 'CaBallot' && (

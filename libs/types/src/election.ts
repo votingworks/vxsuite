@@ -207,9 +207,6 @@ export interface CandidateContest extends ContestBase {
   readonly partyId?: PartyId;
   readonly termDescription?: string;
   readonly nominationType?: ContestNominationType;
-  // Number of columns to lay candidate options out in on the ballot, for
-  // templates that support grid contest layouts (e.g. the CA ballot template).
-  readonly candidateColumns?: number;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestBaseSchema.extend({
@@ -220,7 +217,6 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     partyId: PartyIdSchema.optional(),
     termDescription: z.string().nonempty().optional(),
     nominationType: ContestNominationTypeSchema.optional(),
-    candidateColumns: z.number().int().min(1).max(4).optional(),
   }).check((ctx) => {
     const contest = ctx.value;
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
@@ -722,10 +718,14 @@ export type BallotPaperSize = HmpbBallotPaperSize | BmdBallotPaperSize;
 export interface BallotLayout {
   paperSize: HmpbBallotPaperSize;
   metadataEncoding: 'qr-code';
+  // Number of columns to lay out candidate options in for large contests, for
+  // templates that support grid contest layouts (e.g. the CA ballot template).
+  largeContestCandidateColumns?: number;
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: HmpbBallotPaperSizeSchema,
   metadataEncoding: z.enum(['qr-code']),
+  largeContestCandidateColumns: z.number().int().min(2).max(4).optional(),
 });
 
 // Hand-marked paper & adjudication
