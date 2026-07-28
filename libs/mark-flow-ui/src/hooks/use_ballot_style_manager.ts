@@ -1,5 +1,10 @@
-import { BallotStyleId, ElectionDefinition } from '@votingworks/types';
-import { useCurrentLanguage } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  getBallotStyle,
+} from '@votingworks/types';
+import { useCurrentLanguage, useLanguageControls } from '@votingworks/ui';
 import { getRelatedBallotStyle } from '@votingworks/utils';
 import React from 'react';
 
@@ -19,9 +24,31 @@ export function useBallotStyleManager(params: BallotStyleManagerParams): void {
   } = params;
 
   const currentLanguage = useCurrentLanguage();
+  const { setLanguage } = useLanguageControls();
+
+  const isSessionInProgress = React.useRef(false);
+
   React.useEffect(() => {
     if (!currentBallotStyleId || !electionDefinition) {
+      isSessionInProgress.current = false;
       return;
+    }
+
+    const isSessionStart = !isSessionInProgress.current;
+    isSessionInProgress.current = true;
+
+    if (isSessionStart) {
+      const sessionLanguage = assertDefined(
+        getBallotStyle({
+          ballotStyleId: currentBallotStyleId,
+          election: electionDefinition.election,
+        })
+      ).languages[0];
+
+      if (sessionLanguage !== currentLanguage) {
+        setLanguage(sessionLanguage);
+        return;
+      }
     }
 
     const ballotStyleForCurrentLanguage = getRelatedBallotStyle({
@@ -41,6 +68,7 @@ export function useBallotStyleManager(params: BallotStyleManagerParams): void {
     currentBallotStyleId,
     currentLanguage,
     electionDefinition,
+    setLanguage,
     updateCardlessVoterBallotStyle,
   ]);
 }
