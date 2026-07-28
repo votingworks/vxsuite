@@ -108,8 +108,13 @@ test('overvote', async () => {
   expect(isButtonVariantPrimary(reviewButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Returning the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    true
+  );
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
@@ -171,8 +176,13 @@ test('crossover voting (cast ballot)', async () => {
   expect(isButtonVariantPrimary(reviewButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Returning the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    true
+  );
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
@@ -203,8 +213,13 @@ test('blank ballot', async () => {
   expect(isButtonVariantPrimary(reviewButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Returning the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    true
+  );
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
@@ -243,8 +258,13 @@ test('undervote no votes', async () => {
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Casting the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    false
+  );
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
@@ -285,8 +305,13 @@ test('undervote by 1', async () => {
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Casting the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    false
+  );
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
@@ -323,8 +348,13 @@ test('multiple undervotes', async () => {
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
   userEvent.click(reviewButton);
 
-  // On the ballot review screen, cast the ballot.
+  // Casting the ballot stays the primary action on the ballot review screen.
   const castBallotButton = await screen.findButton('Cast Ballot');
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    false
+  );
+
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
 });
