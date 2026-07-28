@@ -238,7 +238,8 @@ export function AppRoot(): JSX.Element | null {
 
   // When QR ballot activation is set to "ballot_printing" mode, a scanned ballot
   // style QR code opens the blank ballot printing screen instead of starting a
-  // voter session.
+  // voter session. Like starting a voter session, this is only available while
+  // polls are open; scans are ignored when polls are closed.
   const systemSettingsQuery = getSystemSettings.useQuery();
   const isQrBallotActivationEnabled = Boolean(
     systemSettingsQuery.data?.bmdEnableQrBallotActivation
@@ -247,7 +248,8 @@ export function AppRoot(): JSX.Element | null {
     enabled: isQrBallotActivationEnabled,
   });
   const isBallotPrintingScanMode =
-    barcodeActivationModeQuery.data === 'ballot_printing';
+    barcodeActivationModeQuery.data === 'ballot_printing' &&
+    pollsState === 'polls_open';
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
