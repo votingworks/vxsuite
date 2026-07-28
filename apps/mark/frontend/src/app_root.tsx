@@ -92,6 +92,7 @@ export const blankBallotVotes: VotesDict = {};
 export const initialElectionState: Readonly<ElectionState> = {
   ballotsPrintedCount: 0,
   isTestMode: true,
+  isTestModeAvailable: true,
   pollsState: 'polls_closed_initial',
 };
 
@@ -228,10 +229,15 @@ export function AppRoot(): JSX.Element | null {
     getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
-  const { pollingPlaceId, ballotsPrintedCount, isTestMode, pollsState } =
-    electionStateQuery.isSuccess
-      ? electionStateQuery.data
-      : initialElectionState;
+  const {
+    pollingPlaceId,
+    ballotsPrintedCount,
+    isTestMode,
+    isTestModeAvailable,
+    pollsState,
+  } = electionStateQuery.isSuccess
+    ? electionStateQuery.data
+    : initialElectionState;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -557,6 +563,7 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
         isTestMode={isTestMode}
+        isTestModeAvailable={isTestModeAvailable}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         pollingPlaceId={pollingPlaceId}

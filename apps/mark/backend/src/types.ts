@@ -10,6 +10,7 @@ export interface ElectionState {
   pollingPlaceId?: string;
   ballotsPrintedCount: number;
   isTestMode: boolean;
+  isTestModeAvailable: boolean;
   pollsState: PollsState;
 }
 

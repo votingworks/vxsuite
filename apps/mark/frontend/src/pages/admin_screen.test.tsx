@@ -51,6 +51,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         electionDefinition={asElectionDefinition(election)}
         electionPackageHash="test-election-package-hash"
         isTestMode
+        isTestModeAvailable
         unconfigure={vi.fn()}
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
@@ -268,6 +269,26 @@ test('switching to test ballot mode without ballots printed', () => {
   userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
 });
 
+test('ballot mode toggle is disabled when test mode is unavailable', () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: false,
+    isTestModeAvailable: false,
+  });
+
+  const testOption = screen.getByRole('option', { name: 'Test Ballot Mode' });
+  expect(testOption).toBeDisabled();
+  expect(
+    screen.getByRole('option', { name: 'Official Ballot Mode' })
+  ).toBeDisabled();
+
+  // Clicking the disabled option must not switch modes. The absence of an
+  // expected setTestMode mutation is verified by assertComplete() in afterEach.
+  userEvent.click(testOption);
+});
+
 test('navigates to diagnostics screen and back', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
@@ -277,6 +298,7 @@ test('navigates to diagnostics screen and back', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,

@@ -54,6 +54,7 @@ export interface AdminScreenProps {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   isTestMode: boolean;
+  isTestModeAvailable: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   pollingPlaceId?: string;
@@ -66,6 +67,7 @@ export function AdminScreen({
   electionDefinition,
   electionPackageHash,
   isTestMode,
+  isTestModeAvailable,
   unconfigure,
   machineConfig,
   pollingPlaceId,
@@ -132,6 +134,7 @@ export function AdminScreen({
           <SegmentedButton
             label="Ballot Mode"
             hideLabel
+            disabled={!isTestModeAvailable}
             onChange={() => {
               if (ballotsPrintedCount > 0) {
                 setIsConfirmingModeSwitch(true);
