@@ -56,7 +56,7 @@ function makeDefinition(pollingPlaces: PollingPlace[]) {
   return safeParseElectionDefinition(JSON.stringify(election)).unsafeUnwrap();
 }
 
-test('getMatchingAbsenteePollingPlaces and getLiveResultsReportingUrl', async () => {
+test('getLiveReportsPollingPlaces and getLiveResultsReportingUrl', async () => {
   const electionDefinition = makeDefinition([COUNTY_ABSENTEE]);
   const { apiClient, auth, workspace } = buildTestEnvironment();
   const electionId = await configureMachine(
@@ -72,11 +72,12 @@ test('getMatchingAbsenteePollingPlaces and getLiveResultsReportingUrl', async ()
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   // No CVRs loaded yet.
-  expect((await apiClient.getMatchingAbsenteePollingPlaces()).err()).toEqual(
+  expect((await apiClient.getLiveReportsPollingPlaces()).err()).toEqual(
     'no-cvrs-loaded'
   );
 
-  // Load some mock CVRs covering the absentee polling place's precincts.
+  // Load some mock CVRs from central scanner batches associated with the
+  // absentee polling place.
   addMockCvrFileToStore({
     electionId,
     store: workspace.store,
@@ -90,13 +91,14 @@ test('getMatchingAbsenteePollingPlaces and getLiveResultsReportingUrl', async ()
         votes: { fishing: ['ban-fishing'] },
         card: { type: 'bmd' },
         multiplier: 2,
+        pollingPlaceId: COUNTY_ABSENTEE.id,
       },
     ],
-    pollingPlaceId: 'polling-place-1',
+    pollingPlaceId: COUNTY_ABSENTEE.id,
   });
 
   const matching = (
-    await apiClient.getMatchingAbsenteePollingPlaces()
+    await apiClient.getLiveReportsPollingPlaces()
   ).unsafeUnwrap();
   expect(matching.map((p) => p.id)).toEqual([COUNTY_ABSENTEE.id]);
 

@@ -15,14 +15,13 @@ import {
 } from '@votingworks/utils';
 import { Store } from './store';
 import { tabulateElectionResults } from './tabulation/full_results';
-import { tabulateFullCardCounts } from './tabulation/card_counts';
 
 /**
- * Returns the absentee polling places whose precinct coverage is a superset
- * of the precincts that have at least one loaded CVR (or manual tally).
- * Returns `err('no-cvrs-loaded')` if no precinct has any ballots.
+ * Returns the polling places that the loaded CVRs are associated with via
+ * their batches, in election definition order. Returns
+ * `err('no-cvrs-loaded')` if there are no CVRs.
  */
-export function getMatchingAbsenteePollingPlaces({
+export function getLiveReportsPollingPlaces({
   electionId,
   store,
 }: {
@@ -32,49 +31,29 @@ export function getMatchingAbsenteePollingPlaces({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
 
-  const cardCountsByPrecinct = groupMapToGroupList(
-    tabulateFullCardCounts({
-      electionId,
-      election,
-      store,
-      groupBy: { groupByPrecinct: true },
-    })
-  );
-
-  const precinctsWithBallots = new Set<PrecinctId>();
-  for (const group of cardCountsByPrecinct) {
-    assert(group.precinctId !== undefined);
-    if (getBallotCount(group) > 0) {
-      precinctsWithBallots.add(group.precinctId);
-    }
-  }
-
-  if (precinctsWithBallots.size === 0) {
+  const pollingPlaceIds = new Set(store.getCvrPollingPlaceIds(electionId));
+  if (pollingPlaceIds.size === 0) {
     return err('no-cvrs-loaded');
   }
 
-  const absenteePollingPlaces = (
+  const pollingPlaces = (
     election.pollingPlaces ?? /* istanbul ignore next */ []
-  ).filter((place) => place.type === 'absentee');
-  const matches = absenteePollingPlaces.filter((place) => {
-    const placePrecinctIds = pollingPlacePrecinctIds(place);
-    for (const precinctId of precinctsWithBallots) {
-      if (!placePrecinctIds.has(precinctId)) {
-        return false;
-      }
-    }
-    return true;
-  });
-
-  return ok(matches);
+  ).filter((place) => pollingPlaceIds.has(place.id));
+  assert(
+    pollingPlaces.length === pollingPlaceIds.size,
+    'CVR batches reference polling places not in the election definition'
+  );
+  return ok(pollingPlaces);
 }
 
 /**
- * Tabulates per-precinct results for the given absentee polling place and
- * returns signed live results reporting URLs for QR code display. Callers
- * are expected to pass a polling place returned from
- * {@link getMatchingAbsenteePollingPlaces}; the screen that triggers this
- * function is gated on `systemSettings.quickResultsReportingUrl` being set.
+ * Tabulates per-precinct results from the scanner batches associated with the
+ * given polling place and returns signed live results reporting URLs for QR
+ * code display. Results from batches for other polling places and manual
+ * tallies are excluded since they cannot be attributed to this polling place.
+ * Callers are expected to pass a polling place returned from
+ * {@link getLiveReportsPollingPlaces}; the screen that triggers this function
+ * is gated on `systemSettings.quickResultsReportingUrl` being set.
  */
 export async function generateAdminLiveResultsReportingUrls({
   electionId,
@@ -98,15 +77,24 @@ export async function generateAdminLiveResultsReportingUrls({
   );
 
   const pollingPlace = pollingPlaceFromElection(election, pollingPlaceId);
-  assert(pollingPlace.type === 'absentee');
+
+  const batchIds = store
+    .getScannerBatches(electionId)
+    .filter((batch) => batch.pollingPlaceId === pollingPlaceId)
+    .map((batch) => batch.batchId);
+  assert(
+    batchIds.length > 0,
+    `No scanner batches found for polling place ${pollingPlaceId}`
+  );
 
   const groupedResults = groupMapToGroupList(
     await tabulateElectionResults({
       electionId,
       store,
+      filter: { batchIds },
       groupBy: { groupByPrecinct: true },
       includeWriteInAdjudicationResults: true,
-      includeManualResults: true,
+      includeManualResults: false,
     })
   );
 

@@ -18,6 +18,7 @@ import {
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
     multiplier?: number;
+    pollingPlaceId?: string;
   }
 >;
 
@@ -62,6 +63,7 @@ export function addMockCvrFileToStore({
       scannerId: mockCastVoteRecord.scannerId,
       label: `Batch ${mockCastVoteRecord.batchId}`,
       ballotCastingMode: mockCastVoteRecord.ballotCastingMode,
+      pollingPlaceId: mockCastVoteRecord.pollingPlaceId ?? pollingPlaceId,
       startedAt: new Date().toISOString(),
     });
 

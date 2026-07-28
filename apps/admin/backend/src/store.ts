@@ -1298,9 +1298,10 @@ export class Store implements BaseStore {
         scanner_id,
         election_id,
         ballot_casting_mode,
+        polling_place_id,
         started_at
       ) values (
-        ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?
       )
     `,
       scannerBatch.batchId,
@@ -1308,8 +1309,34 @@ export class Store implements BaseStore {
       scannerBatch.scannerId,
       scannerBatch.electionId,
       scannerBatch.ballotCastingMode ?? null,
+      scannerBatch.pollingPlaceId ?? null,
       scannerBatch.startedAt
     );
+  }
+
+  /**
+   * Gets the distinct polling place IDs associated with scanner batches that
+   * contain at least one cast vote record. Used for live reports.
+   */
+  getCvrPollingPlaceIds(electionId: string): string[] {
+    return (
+      this.client.all(
+        `
+        select distinct polling_place_id as pollingPlaceId
+        from scanner_batches
+        where
+          election_id = ? and
+          polling_place_id is not null and
+          exists (
+            select 1 from cvrs
+            where cvrs.election_id = scanner_batches.election_id
+              and cvrs.batch_id = scanner_batches.id
+          )
+        order by polling_place_id
+      `,
+        electionId
+      ) as Array<{ pollingPlaceId: string }>
+    ).map((row) => row.pollingPlaceId);
   }
 
   getScannerBatches(electionId: string): ScannerBatch[] {
@@ -1322,6 +1349,7 @@ export class Store implements BaseStore {
           scanner_id as scannerId,
           election_id as electionId,
           ballot_casting_mode as ballotCastingMode,
+          polling_place_id as pollingPlaceId,
           started_at as startedAt
         from scanner_batches
         where
@@ -1332,6 +1360,7 @@ export class Store implements BaseStore {
     ).map((row) => ({
       ...row,
       ballotCastingMode: row.ballotCastingMode ?? undefined,
+      pollingPlaceId: row.pollingPlaceId ?? undefined,
     }));
   }
 

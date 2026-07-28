@@ -17,7 +17,7 @@ import {
   ReportScreenContainer,
 } from '../../components/reporting/shared';
 import {
-  getMatchingAbsenteePollingPlaces,
+  getLiveReportsPollingPlaces,
   getLiveResultsReportingUrl,
 } from '../../api';
 
@@ -147,16 +147,15 @@ function PollingPlaceSelector({
           <SearchSelect
             isMulti={false}
             isSearchable
-            disabled={!!pollingPlaceId}
             value={pollingPlaceId}
             options={pollingPlaces.map((p) => ({
               value: p.id,
               label: p.name,
             }))}
             onChange={(value) => setPollingPlaceId(value)}
-            aria-label="Select absentee polling place"
+            aria-label="Select polling place"
             style={{ width: '30rem' }}
-            placeholder="Select an absentee polling place."
+            placeholder="Select a polling place..."
           />
         </SelectPollingPlaceContainer>
       )}
@@ -173,7 +172,7 @@ function PollingPlaceSelector({
 }
 
 export function SendTallyReportsScreen(): JSX.Element {
-  const matchesQuery = getMatchingAbsenteePollingPlaces.useQuery();
+  const matchesQuery = getLiveReportsPollingPlaces.useQuery();
 
   if (!matchesQuery.isSuccess) {
     return (
@@ -199,18 +198,6 @@ export function SendTallyReportsScreen(): JSX.Element {
   }
 
   const pollingPlaces = matchesQuery.data.ok();
-
-  if (pollingPlaces.length === 0) {
-    return (
-      <ScreenWrapper>
-        <FullPageMessage>
-          <Callout icon="Warning" color="warning">
-            No absentee polling place covers the precincts in the loaded CVRs.
-          </Callout>
-        </FullPageMessage>
-      </ScreenWrapper>
-    );
-  }
 
   return (
     <ScreenWrapper>

@@ -269,6 +269,7 @@ export async function importCastVoteRecords(
         label: batch.label,
         scannerId: batch.scannerId,
         ballotCastingMode: batch.ballotCastingMode,
+        pollingPlaceId: batch.pollingPlaceId,
         startedAt: batch.startTime,
       });
 
