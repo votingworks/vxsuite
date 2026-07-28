@@ -6,6 +6,7 @@ import {
   BallotType,
   getContests,
   safeParseElection,
+  safeParseNumber,
   Election,
   unsafeParse,
   HmpbBallotPaperSizeSchema,
@@ -20,7 +21,11 @@ import {
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 import { createTestVotes, markBallotDocument } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
-import { BallotTemplateId, ballotTemplates } from '../ballot_templates';
+import {
+  BallotTemplateId,
+  ballotTemplates,
+  renderNhRovForm,
+} from '../ballot_templates';
 
 /**
  * The ID of the element that marks the document as done for the test.
@@ -92,14 +97,61 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   };
 }
 
+function appendDoneMarker(): void {
+  const doneMarkerElement = window.document.createElement('div');
+  doneMarkerElement.style.display = 'none';
+  doneMarkerElement.id = DONE_MARKER_ID;
+  window.document.body.appendChild(doneMarkerElement);
+}
+
+/**
+ * Previews the NH ROV form (not a ballot template — it has its own render
+ * entry point and props). Election JSON files for this mode are dumped by
+ * apps/design/backend/scripts/_dump_rov_elections.ts into this package's
+ * preview public dir. The dumped elections keep only the target ballot style,
+ * so we always render ballotStyles[0].
+ *
+ * Supported search params: election-url, paper-size, slots (write-in blank
+ * slots per contest), slot-style ('split' | 'open').
+ */
+async function renderNhRovPreview(url: URL): Promise<void> {
+  const electionUrl =
+    url.searchParams.get('election-url') ?? '/nh-rov/tamworth-rep.json';
+  const response = await fetch(electionUrl);
+  const election = safeParseElection(await response.json()).unsafeUnwrap();
+  const paperSize = url.searchParams.get('paper-size');
+  const slots = url.searchParams.get('slots');
+  const slotStyle = url.searchParams.get('slot-style');
+
+  const renderer = createBrowserPreviewRenderer();
+  await renderNhRovForm(renderer, {
+    election,
+    ballotStyle: election.ballotStyles[0],
+    ...(paperSize
+      ? { paperSize: unsafeParse(HmpbBallotPaperSizeSchema, paperSize) }
+      : {}),
+    ...(slots
+      ? { writeInBlankRows: safeParseNumber(slots).unsafeUnwrap() }
+      : {}),
+    ...(slotStyle ? { writeInSlotStyle: slotStyle as 'split' | 'open' } : {}),
+  });
+
+  appendDoneMarker();
+}
+
 /**
  * This preview script can be edited to preview ballot templates in a browser
  * while they are being developed. It allows you to use the browser's developer
  * tools to inspect the DOM and debug any rendering/layout issues.
  */
 export async function main(): Promise<void> {
+  const url = new URL(location.href);
+  if (url.searchParams.get('template') === 'NhRovForm') {
+    return renderNhRovPreview(url);
+  }
+
   const { election, ballotStyle, baseBallotProps, template } =
-    await loadConfigFromSearchParams(new URL(location.href));
+    await loadConfigFromSearchParams(url);
 
   const renderer = createBrowserPreviewRenderer();
   const document = (
@@ -163,8 +215,5 @@ export async function main(): Promise<void> {
     }
   }
 
-  const doneMarkerElement = window.document.createElement('div');
-  doneMarkerElement.style.display = 'none';
-  doneMarkerElement.id = DONE_MARKER_ID;
-  window.document.body.appendChild(doneMarkerElement);
+  appendDoneMarker();
 }
