@@ -30,6 +30,15 @@ export { getCandidateOrderingSetsForNhBallot as getAllOrderedContestSetsForNhBal
 export { render as renderNhRovForm } from './nh_rov_form';
 
 /**
+ * The spot (Pantone) inks used to print NH state ballot party tints, and the
+ * mapping from a party to its ink.
+ */
+export {
+  NhStateSpotColors,
+  spotColorForParty,
+} from './nh_state_primary_ballot_template';
+
+/**
  * The ID of a ballot template.
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;

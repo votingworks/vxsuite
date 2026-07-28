@@ -34,6 +34,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { BallotLayoutError, ContentComponentResult } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
+import { SpotColor } from '../pdf_conversion';
 import {
   OptionInfo,
   Page,
@@ -90,6 +91,38 @@ function colorTintForParty(party: Party): ColorTint {
   if (isDemocraticParty(party)) return 'BLUE';
   if (isRepublicanParty(party)) return 'RED';
   return 'GRAY';
+}
+
+/**
+ * The spot (Pantone) inks the NH printer prints the party tints with. Each
+ * ballot is a two-ink job: the party's spot plate plus a single black plate.
+ *
+ * `alternateCmyk` is only the on-screen preview color — the press uses the real
+ * named ink regardless. The BLUE values reproduce the printer-approved DEM PDF;
+ * the RED values are the design recipe, pending a printer-approved REP proof.
+ */
+export const NhStateSpotColors: Record<'BLUE' | 'RED', SpotColor> = {
+  // sourceRgb values are ColorTints.BLUE (#8FD0F1) and ColorTints.RED (#F4C3CC).
+  BLUE: {
+    name: 'PMS 293',
+    sourceRgb: [0x8f / 255, 0xd0 / 255, 0xf1 / 255],
+    alternateCmyk: [0.45, 0.01, 0.01, 0],
+  },
+  RED: {
+    name: 'PMS 699',
+    sourceRgb: [0xf4 / 255, 0xc3 / 255, 0xcc / 255],
+    alternateCmyk: [0.02, 0.28, 0.09, 0],
+  },
+};
+
+/**
+ * The spot ink for a partisan ballot's party tint, or `undefined` for a
+ * non-partisan ballot (which has no party tint to convert).
+ */
+export function spotColorForParty(party: Party): SpotColor | undefined {
+  if (isDemocraticParty(party)) return NhStateSpotColors.BLUE;
+  if (isRepublicanParty(party)) return NhStateSpotColors.RED;
+  return undefined;
 }
 
 function Header({
