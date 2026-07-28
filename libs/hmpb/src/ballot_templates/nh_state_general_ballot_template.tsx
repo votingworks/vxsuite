@@ -548,9 +548,9 @@ function CandidateContest({
                 contestId: contest.id,
                 writeInIndex,
                 writeInArea: {
-                  top: 0.8,
+                  top: 0.75,
                   left: 4.9,
-                  bottom: 0.2,
+                  bottom: 0.15,
                   right: -0.6,
                 },
               };

@@ -282,6 +282,8 @@ export function HandCountInsignia({
           fontFamily: 'Times New Roman',
           fontSize: '18pt',
           fontWeight: 'bold',
+          textAlign: 'center',
+          lineHeight: 1,
         }}
       >
         {electionStrings.jurisdictionName(election.jurisdiction)}
