@@ -488,9 +488,9 @@ test('"test" mode', async () => {
   await expectElectionState({ isTestMode: true });
 });
 
-test('isTestModeAvailable is true when the print flow does not need preprinted ballots', async () => {
+test('isTestModeAvailable is true when the print flow does not need pre-rendered ballots', async () => {
   // Summary mode (the default) renders ballots on the fly, so test mode is
-  // available even without preprinted test ballots.
+  // available even without pre-rendered test ballots.
   await configureMachine(
     mockUsbDrive,
     electionFamousNames2021Fixtures.readElectionDefinition()
@@ -498,7 +498,7 @@ test('isTestModeAvailable is true when the print flow does not need preprinted b
   await expectElectionState({ isTestMode: true, isTestModeAvailable: true });
 });
 
-test('forces official mode and marks test mode unavailable when a preprinted flow lacks test ballots', async () => {
+test('forces official mode and marks test mode unavailable when a pre-rendered flow lacks test ballots', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const officialOnlyBallots: EncodedBallotEntry[] = [
@@ -530,11 +530,11 @@ test('forces official mode and marks test mode unavailable when a preprinted flo
   mockNoCard();
 
   // The machine defaults to test mode, but since test ballots are missing for
-  // a preprinted flow, it's forced into official mode and the toggle disabled.
+  // a pre-rendered flow, it's forced into official mode and the toggle disabled.
   await expectElectionState({ isTestMode: false, isTestModeAvailable: false });
 });
 
-test('isTestModeAvailable is true when a preprinted flow has test ballots', async () => {
+test('isTestModeAvailable is true when a pre-rendered flow has test ballots', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const ballots: EncodedBallotEntry[] = [

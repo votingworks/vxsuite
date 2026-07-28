@@ -93,19 +93,19 @@ let lastBarcodeScanTimestamp: Date | undefined;
 
 /**
  * Whether the machine can be put into test mode. Test mode requires test mode
- * ballot PDFs only for flows that print from the preprinted ballots in the
+ * ballot PDFs only for flows that print from the pre-rendered ballots in the
  * election package: `bubble_ballot` printing and blank ballot printing. In
  * those flows, entering test mode without test ballots present would fail at
  * print time, so test mode is unavailable. Other print modes render ballots on
- * the fly and don't need preprinted test ballots.
+ * the fly and don't need pre-rendered test ballots.
  *
  */
 function isTestModeAvailable(store: Store): boolean {
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  const requiresPreprintedTestBallots =
+  const requiresPreRenderedTestBallots =
     systemSettings.bmdPrintMode === 'bubble_ballot' ||
     systemSettings.allowPrintingBlankBallotsFromVxMark;
-  return !requiresPreprintedTestBallots || store.hasTestBallots();
+  return !requiresPreRenderedTestBallots || store.hasTestBallots();
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
