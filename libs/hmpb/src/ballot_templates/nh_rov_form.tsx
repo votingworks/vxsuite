@@ -18,7 +18,12 @@ import styled from 'styled-components';
 import { CandidatePartyList } from '@votingworks/ui';
 import { RenderDocument, Renderer } from '../renderer';
 import { BaseStyles } from '../base_styles';
-import { Colors, Page, pageMarginsInches } from '../ballot_components';
+import {
+  Colors,
+  Page,
+  PAGE_CLASS,
+  pageMarginsInches,
+} from '../ballot_components';
 import { ColorTints } from './nh_state_primary_ballot_template';
 
 const Header = styled.div`
@@ -151,11 +156,15 @@ function PageFooter({
   pageNumber: number;
   totalPages: number;
 }): JSX.Element {
+  // Pinned to the page's bottom-right rather than flowing after the content, so
+  // the page number always renders even when a dense party ballot fills the
+  // tally page to the bottom (otherwise the trailing footer gets clipped off).
   return (
     <div
       style={{
-        marginTop: 'auto',
-        textAlign: 'right',
+        position: 'absolute',
+        bottom: '0.375rem',
+        right: '0.375rem',
         fontSize: '0.8rem',
       }}
     >
@@ -167,6 +176,24 @@ function PageFooter({
 interface NhRovFormProps {
   election: Election;
   ballotStyle: BallotStyle;
+  /**
+   * Sheet size for both the tally and write-in pages. Defaults to 8.5x17,
+   * the smallest sheet on which every NH ballot style's tally fits without
+   * clipping a contest (Legal drops a contest on the densest ~9 forms).
+   */
+  paperSize?: HmpbBallotPaperSize;
+  /**
+   * Blank write-in slots per contest on the write-in page, laid out in two
+   * columns. Defaults to 8 (the most that fits on 8.5x17).
+   */
+  writeInBlankRows?: number;
+  /**
+   * Write-in slot layout:
+   * - 'split' (default): two slots per row, each split into a name box (3/4)
+   *   and a count box (1/4).
+   * - 'open': one big empty slot per row, no internal divisions.
+   */
+  writeInSlotStyle?: 'split' | 'open';
 }
 
 // Ward name for warded jurisdictions (the precinct differs from the town);
@@ -263,6 +290,7 @@ export function NhRovForm({
   election,
   ballotStyle,
   totalPages,
+  paperSize = HmpbBallotPaperSize.Custom17,
 }: NhRovFormProps & { totalPages: number }): JSX.Element {
   const { partyId } = ballotStyle;
   const party = partyId
@@ -273,7 +301,7 @@ export function NhRovForm({
   const electionDate = format.localeLongDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
-  const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
+  const dimensions = ballotPaperDimensions(paperSize);
   const colorTint = party ? partyColorTint(party.fullName) : undefined;
   const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
   const instructions = partyId ? PRIMARY_INSTRUCTIONS : GENERAL_INSTRUCTIONS;
@@ -287,6 +315,7 @@ export function NhRovForm({
           gap: '0.375rem',
           padding: '0.375rem',
           height: '100%',
+          position: 'relative',
         }}
       >
         <div
@@ -409,6 +438,7 @@ export function NhRovForm({
           {contests.map((contest) => (
             <div
               key={contest.id}
+              data-rov-contest="tally"
               style={{
                 marginBottom: '0.375rem',
                 border: `1px solid ${Colors.DARKER_GRAY}`,
@@ -502,11 +532,11 @@ export function NhRovForm({
   );
 }
 
-// Write-in page constants. Four blank rows per contest keeps the whole write-in
-// summary on a single page (one sheet, front and back with the tally form) even
-// for the largest NH ballot styles; clerks can attach additional sheets per the
-// instructions if a race needs more room.
-const WRITE_IN_BLANK_ROWS = 4;
+// Write-in page constants. Eight blank slots per contest (in two columns) keeps
+// the whole write-in summary on a single page (one sheet, front and back with
+// the tally form) even for the largest NH ballot styles on 8.5x17; clerks can
+// attach additional sheets per the instructions if a race needs more room.
+const WRITE_IN_BLANK_ROWS = 8;
 
 function primaryWriteInInstructions(partyName: string): JSX.Element {
   const upperParty = partyName.toUpperCase();
@@ -548,7 +578,61 @@ const GENERAL_WRITE_IN_INSTRUCTIONS = (
   </span>
 );
 
+// Write-in slots are laid out in two columns within each contest (a 4-column
+// grid: name/count, name/count) so each contest box is about half as tall as a
+// single stacked column of slots. Border hierarchy: a darker border outlines
+// the contest, divides the two slot columns, and stacks the slots; a lighter
+// border separates the number box from the name box within each slot.
 const WriteInContestTable = styled.table`
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  break-inside: avoid;
+
+  th {
+    text-align: left;
+    font-weight: bold;
+    padding: 0.25rem 0.375rem;
+    background-color: ${Colors.LIGHT_GRAY};
+    font-size: 0.9rem;
+  }
+
+  tr {
+    height: 1.35rem;
+  }
+
+  td {
+    padding: 0.125rem 0.375rem;
+    /* Dark separator between stacked slots, matching the contest outline.
+       'double' (not 'solid') so this border wins border-collapse conflict
+       resolution against the lighter vertical dividers and renders unbroken
+       through the intersections. At 1px it still draws as a single line. */
+    border-top: 1px double ${Colors.DARKER_GRAY};
+  }
+
+  /* The vote-count box: the only light border -- it separates the count box
+     from its name box within a slot. Its width (one quarter of each slot) is
+     set on the <colgroup>. */
+  td.count {
+    border-left: 1px solid ${Colors.DARK_GRAY};
+  }
+
+  /* The second slot column: a dark divider separates the two slot columns,
+     matching the contest outline. */
+  td.slot-divider {
+    border-left: 1px solid ${Colors.DARKER_GRAY};
+  }
+
+  tr.total td {
+    font-weight: bold;
+    font-size: 0.8rem;
+    background-color: ${Colors.LIGHT_GRAY};
+  }
+`;
+
+// 'open' slot layout: one big empty slot per row, no internal divisions -- just
+// dark row separators matching the contest outline.
+const OpenWriteInContestTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   break-inside: avoid;
@@ -563,31 +647,14 @@ const WriteInContestTable = styled.table`
 
   tr {
     height: 1.35rem;
-
-    &:nth-child(2) td {
-      border-top: none;
-    }
-
-    &:last-child td {
-      border-bottom: none;
-    }
   }
 
   td {
-    border: 1px solid ${Colors.DARK_GRAY};
     padding: 0.125rem 0.375rem;
+    border-top: 1px solid ${Colors.INVERSE_GRAY};
   }
 
-  td:first-child {
-    border-left: none;
-  }
-
-  td:last-child {
-    width: 4rem;
-    border-right: none;
-  }
-
-  tr:last-child td {
+  tr.total td {
     font-weight: bold;
     font-size: 0.8rem;
     background-color: ${Colors.LIGHT_GRAY};
@@ -597,39 +664,69 @@ const WriteInContestTable = styled.table`
 function WriteInContest({
   title,
   headerColor,
+  blankRows,
+  slotStyle,
 }: {
   title: string;
   headerColor?: string;
+  blankRows: number;
+  slotStyle: 'split' | 'open';
 }): JSX.Element {
+  const titleText = contestTitleWithForPrefix(title);
+  const headerBg = headerColor ? { backgroundColor: headerColor } : undefined;
   return (
     <div
+      data-rov-contest="write-in"
       style={{
         marginBottom: '0.375rem',
         border: `1px solid ${Colors.DARKER_GRAY}`,
       }}
     >
-      <WriteInContestTable>
-        <tbody>
-          <tr>
-            <th
-              colSpan={2}
-              style={headerColor ? { backgroundColor: headerColor } : undefined}
-            >
-              {contestTitleWithForPrefix(title)}
-            </th>
-          </tr>
-          {Array.from({ length: WRITE_IN_BLANK_ROWS }, (_, i) => (
-            <tr key={`row-${i}`}>
-              <td />
-              <td />
+      {slotStyle === 'open' ? (
+        <OpenWriteInContestTable>
+          <tbody>
+            <tr>
+              <th style={headerBg}>{titleText}</th>
             </tr>
-          ))}
-          <tr>
-            <td style={{ textAlign: 'right' }}>Total Write-In Votes</td>
-            <td />
-          </tr>
-        </tbody>
-      </WriteInContestTable>
+            {Array.from({ length: blankRows }, (_, r) => (
+              <tr key={`row-${r}`}>
+                <td />
+              </tr>
+            ))}
+            <tr className="total">
+              <td>Total Write-In Votes:</td>
+            </tr>
+          </tbody>
+        </OpenWriteInContestTable>
+      ) : (
+        <WriteInContestTable>
+          {/* Each slot: name box (3/4) + count box (1/4); two slots per row. */}
+          <colgroup>
+            <col style={{ width: '37.5%' }} />
+            <col style={{ width: '12.5%' }} />
+            <col style={{ width: '37.5%' }} />
+            <col style={{ width: '12.5%' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th colSpan={4} style={headerBg}>
+                {titleText}
+              </th>
+            </tr>
+            {Array.from({ length: Math.ceil(blankRows / 2) }, (_, r) => (
+              <tr key={`row-${r}`}>
+                <td />
+                <td className="count" />
+                <td className="slot-divider" />
+                <td className="count" />
+              </tr>
+            ))}
+            <tr className="total">
+              <td colSpan={4}>Total Write-In Votes:</td>
+            </tr>
+          </tbody>
+        </WriteInContestTable>
+      )}
     </div>
   );
 }
@@ -678,6 +775,9 @@ function NhWriteInPages({
   election,
   ballotStyle,
   totalPages,
+  paperSize = HmpbBallotPaperSize.Custom17,
+  writeInBlankRows = WRITE_IN_BLANK_ROWS,
+  writeInSlotStyle = 'split',
 }: NhRovFormProps & { totalPages: number }): JSX.Element | null {
   const { partyId } = ballotStyle;
   const party = partyId
@@ -687,7 +787,7 @@ function NhWriteInPages({
   const electionDate = format.localeLongDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
-  const dimensions = ballotPaperDimensions(HmpbBallotPaperSize.Legal);
+  const dimensions = ballotPaperDimensions(paperSize);
 
   const writeInContests = getWriteInContests(election, ballotStyle);
 
@@ -718,6 +818,7 @@ function NhWriteInPages({
                 flexDirection: 'column',
                 height: '100%',
                 padding: '0.375rem',
+                position: 'relative',
               }}
             >
               {/* Header + Instructions box (matches ROV form structure) */}
@@ -820,11 +921,10 @@ function NhWriteInPages({
                 </div>
               )}
 
-              {/* Contests in 3-column layout (matches the tally form's density
-                  so the whole write-in summary fits on one page). */}
+              {/* Contests in a 2-column layout. */}
               <div
                 style={{
-                  columns: 3,
+                  columns: 2,
                   columnGap: '0.5rem',
                   flex: 1,
                 }}
@@ -834,6 +934,8 @@ function NhWriteInPages({
                     key={contest.id}
                     title={contest.title}
                     headerColor={colorTint ? ColorTints[colorTint] : undefined}
+                    blankRows={writeInBlankRows}
+                    slotStyle={writeInSlotStyle}
                   />
                 ))}
               </div>
@@ -844,6 +946,47 @@ function NhWriteInPages({
       })}
     </React.Fragment>
   );
+}
+
+// Guard against silent clipping: the tally and write-in contest boxes must all
+// lie within a page's bounds. When a form is too dense for the chosen paper size
+// (or write-in slot count), the fixed-height layout clips overflowing contests
+// -- dropping a race from the form without any error. This check fails loudly
+// instead, so a bad paper-size/slot combination can never ship.
+async function assertContestsFit(
+  document: RenderDocument,
+  props: NhRovFormProps
+): Promise<void> {
+  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+  const boxes = await document.inspectElements('[data-rov-contest]');
+  const tolerance = 2; // px, for sub-pixel layout rounding
+  for (const box of boxes) {
+    const page = pages.find(
+      (p) => box.y >= p.y - tolerance && box.y < p.y + p.height - tolerance
+    );
+    const fits =
+      page !== undefined &&
+      box.x + box.width <= page.x + page.width + tolerance &&
+      box.y + box.height <= page.y + page.height + tolerance;
+    if (!fits) {
+      const party = props.ballotStyle.partyId
+        ? find(
+            props.election.parties,
+            (p) => p.id === props.ballotStyle.partyId
+          ).abbrev
+        : '';
+      const wardName = getWardName(props.election, props.ballotStyle);
+      const where = `${props.election.jurisdiction.name}${
+        wardName ? ` ${wardName}` : ''
+      }${party ? ` ${party}` : ''}`;
+      throw new Error(
+        `NH ROV form does not fit for ${where}: a ${
+          box.data.rovContest ?? 'contest'
+        } contest overflows its page and would be clipped. ` +
+          `Use a larger paperSize or fewer writeInBlankRows.`
+      );
+    }
+  }
 }
 
 export async function render(
@@ -865,5 +1008,6 @@ export async function render(
       <NhWriteInPages {...props} totalPages={totalPages} />
     </React.Fragment>
   );
+  await assertContestsFit(document, props);
   return document;
 }
