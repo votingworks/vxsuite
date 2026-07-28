@@ -86,6 +86,7 @@ test('getLiveReportsPollingPlaces and getLiveResultsReportingUrl', async () => {
         ballotStyleGroupId: '1M',
         batchId: 'batch-1',
         scannerId: 'scanner-1',
+        scannerMachineType: 'central',
         precinctId: 'precinct-1',
         votingMethod: 'absentee',
         votes: { fishing: ['ban-fishing'] },

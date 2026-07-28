@@ -1317,10 +1317,10 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Gets the distinct polling place IDs associated with scanner batches that
-   * contain at least one cast vote record. Used for live reports.
+   * Gets the distinct polling place IDs associated with central scanner
+   * batches that contain at least one cast vote record. Used for live reports.
    */
-  getCvrPollingPlaceIds(electionId: string): string[] {
+  getCentralScanPollingPlaceIds(electionId: string): string[] {
     return (
       this.client.all(
         `
@@ -1328,6 +1328,7 @@ export class Store implements BaseStore {
         from scanner_batches
         where
           election_id = ? and
+          scanner_machine_type = 'central' and
           polling_place_id is not null and
           exists (
             select 1 from cvrs

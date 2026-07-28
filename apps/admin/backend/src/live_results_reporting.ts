@@ -17,9 +17,9 @@ import { Store } from './store';
 import { tabulateElectionResults } from './tabulation/full_results';
 
 /**
- * Returns the polling places that the loaded CVRs are associated with via
- * their batches, in election definition order. Returns
- * `err('no-cvrs-loaded')` if there are no CVRs.
+ * Returns the polling places that the loaded central scanner CVRs are
+ * associated with via their batches, in election definition order. Returns
+ * `err('no-cvrs-loaded')` if there are no central scanner CVRs.
  */
 export function getLiveReportsPollingPlaces({
   electionId,
@@ -31,7 +31,9 @@ export function getLiveReportsPollingPlaces({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
 
-  const pollingPlaceIds = new Set(store.getCvrPollingPlaceIds(electionId));
+  const pollingPlaceIds = new Set(
+    store.getCentralScanPollingPlaceIds(electionId)
+  );
   if (pollingPlaceIds.size === 0) {
     return err('no-cvrs-loaded');
   }
@@ -47,13 +49,14 @@ export function getLiveReportsPollingPlaces({
 }
 
 /**
- * Tabulates per-precinct results from the scanner batches associated with the
- * given polling place and returns signed live results reporting URLs for QR
- * code display. Results from batches for other polling places and manual
- * tallies are excluded since they cannot be attributed to this polling place.
- * Callers are expected to pass a polling place returned from
- * {@link getLiveReportsPollingPlaces}; the screen that triggers this function
- * is gated on `systemSettings.quickResultsReportingUrl` being set.
+ * Tabulates per-precinct results from the central scanner batches associated
+ * with the given polling place and returns signed live results reporting URLs
+ * for QR code display. Results from precinct scanners, central scanner
+ * batches for other polling places, and manual tallies are excluded since
+ * they cannot be attributed to this polling place. Callers are expected to
+ * pass a polling place returned from {@link getLiveReportsPollingPlaces}; the
+ * screen that triggers this function is gated on
+ * `systemSettings.quickResultsReportingUrl` being set.
  */
 export async function generateAdminLiveResultsReportingUrls({
   electionId,
@@ -80,11 +83,15 @@ export async function generateAdminLiveResultsReportingUrls({
 
   const batchIds = store
     .getScannerBatches(electionId)
-    .filter((batch) => batch.pollingPlaceId === pollingPlaceId)
+    .filter(
+      (batch) =>
+        batch.scannerMachineType === 'central' &&
+        batch.pollingPlaceId === pollingPlaceId
+    )
     .map((batch) => batch.batchId);
   assert(
     batchIds.length > 0,
-    `No scanner batches found for polling place ${pollingPlaceId}`
+    `No central scanner batches found for polling place ${pollingPlaceId}`
   );
 
   const groupedResults = groupMapToGroupList(
