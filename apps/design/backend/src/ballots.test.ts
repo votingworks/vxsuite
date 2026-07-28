@@ -72,20 +72,27 @@ test('createBallotPropsForTemplate', () => {
     election,
     false
   );
-  const [allFooProps, allRegularProps] = iter(nhStateBallotProps).partition(
-    (props) => props.isFederalOfficeOnly
+  // Each official absentee ballot gets two field-distributed derived variants
+  // (federal-office-only and UOCAVA); all other ballots get none.
+  const [allDerivedProps, allRegularProps] = iter(nhStateBallotProps).partition(
+    (props) => props.isFederalOfficeOnly || props.isUocava
   );
   for (const regularProps of allRegularProps) {
-    const matchingFooProps = allFooProps.find((fooProps) =>
-      deepEqual(fooProps, { ...regularProps, isFederalOfficeOnly: true })
+    const matchingFooProps = allDerivedProps.find((derivedProps) =>
+      deepEqual(derivedProps, { ...regularProps, isFederalOfficeOnly: true })
+    );
+    const matchingUocavaProps = allDerivedProps.find((derivedProps) =>
+      deepEqual(derivedProps, { ...regularProps, isUocava: true })
     );
     if (
       regularProps.ballotMode === 'official' &&
       regularProps.ballotType === BallotType.Absentee
     ) {
       expect(matchingFooProps).toBeDefined();
+      expect(matchingUocavaProps).toBeDefined();
     } else {
       expect(matchingFooProps).toBeUndefined();
+      expect(matchingUocavaProps).toBeUndefined();
     }
   }
 });

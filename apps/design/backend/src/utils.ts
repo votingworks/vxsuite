@@ -31,6 +31,7 @@ export function getBallotPdfFileName(props: AnyBallotProps): string {
     props.ballotStyleId,
     props.ballotAuditId,
     'isFederalOfficeOnly' in props && props.isFederalOfficeOnly && 'foo',
+    'isUocava' in props && props.isUocava && 'uocava',
   ]
     .filter(Boolean)
     .join('-');
