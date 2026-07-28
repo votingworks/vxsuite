@@ -6,6 +6,7 @@ import {
   CastVoteRecordBatchMetadata,
   CVR,
   Election,
+  ScannerMachineType,
   YesNoContest,
   StraightPartyContest,
 } from '@votingworks/types';
@@ -245,6 +246,7 @@ export function buildCastVoteRecordReportMetadata({
 export function buildBatchManifest(p: {
   batches: BatchInfo[];
   scannerId: string;
+  scannerMachineType: ScannerMachineType;
 }): CastVoteRecordBatchMetadata[] {
   return p.batches.map((batch) => ({
     id: batch.id,
@@ -254,6 +256,7 @@ export function buildBatchManifest(p: {
     endTime: batch.endedAt,
     sheetCount: batch.count,
     scannerId: p.scannerId,
+    scannerMachineType: p.scannerMachineType,
     ballotCastingMode: batch.ballotCastingMode,
     pollingPlaceId: batch.pollingPlaceId,
   }));

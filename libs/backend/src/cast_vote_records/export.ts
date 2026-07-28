@@ -34,6 +34,7 @@ import {
   MarkThresholds,
   PageInterpretation,
   PollsState,
+  ScannerMachineType,
   SheetOf,
   SystemSettings,
   unsafeParse,
@@ -91,14 +92,14 @@ export interface ScannerStoreBase {
  * The subset of central scanner store methods relevant to exporting cast vote records
  */
 export interface CentralScannerStore extends ScannerStoreBase {
-  scannerType: 'central';
+  scannerType: Extract<ScannerMachineType, 'central'>;
 }
 
 /**
  * The subset of precinct scanner store methods relevant to exporting cast vote records
  */
 export interface PrecinctScannerStore extends ScannerStoreBase {
-  scannerType: 'precinct';
+  scannerType: Extract<ScannerMachineType, 'precinct'>;
 
   deleteAllPendingContinuousExportOperations(): void;
   deletePendingContinuousExportOperation(sheetId: string): void;
@@ -130,11 +131,11 @@ interface ScannerStateUnchangedByExport {
 }
 
 interface CentralScannerOptions {
-  scannerType: 'central';
+  scannerType: Extract<ScannerMachineType, 'central'>;
 }
 
 interface PrecinctScannerOptions {
-  scannerType: 'precinct';
+  scannerType: Extract<ScannerMachineType, 'precinct'>;
   arePollsClosing?: boolean;
   /**
    * Precinct scanners export continuously as ballots are cast, but also still support full exports
@@ -542,6 +543,7 @@ async function exportMetadataFileToUsbDrive(
     batchManifest: buildBatchManifest({
       batches: exportContext.scannerState.batches,
       scannerId: VX_MACHINE_ID,
+      scannerMachineType: exportOptions.scannerType,
     }),
   };
   const metadataFileContents = JSON.stringify(metadata);

@@ -341,6 +341,7 @@ test('buildBatchManifest', () => {
         },
       ],
       scannerId,
+      scannerMachineType: 'precinct',
     })
   ).toEqual<CastVoteRecordBatchMetadata[]>([
     {
@@ -351,6 +352,7 @@ test('buildBatchManifest', () => {
       endTime: new Date(1989, 11, 14).toISOString(),
       sheetCount: 2,
       scannerId,
+      scannerMachineType: 'precinct',
       ballotCastingMode: 'early_voting',
       pollingPlaceId: 'polling-place-1',
     },
@@ -371,6 +373,7 @@ test('buildBatchManifest - optional fields omitted', () => {
         },
       ],
       scannerId,
+      scannerMachineType: 'central',
     })
   ).toEqual<CastVoteRecordBatchMetadata[]>([
     {
@@ -380,6 +383,7 @@ test('buildBatchManifest - optional fields omitted', () => {
       startTime: new Date(1989, 11, 13).toISOString(),
       sheetCount: 2,
       scannerId,
+      scannerMachineType: 'central',
       pollingPlaceId,
     },
   ]);

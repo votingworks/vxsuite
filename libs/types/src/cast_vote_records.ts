@@ -33,6 +33,9 @@ export enum CastVoteRecordExportFileName {
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
 
+export const ScannerMachineTypeSchema = z.enum(['central', 'precinct']);
+export type ScannerMachineType = z.infer<typeof ScannerMachineTypeSchema>;
+
 export interface CastVoteRecordBatchMetadata {
   readonly id: string;
   readonly label: string;
@@ -53,6 +56,7 @@ export interface CastVoteRecordBatchMetadata {
 
   readonly sheetCount: number;
   readonly scannerId: string;
+  readonly scannerMachineType?: ScannerMachineType;
   readonly ballotCastingMode?: BallotCastingMode;
   readonly pollingPlaceId: string;
 }
@@ -66,6 +70,7 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
     endTime: Iso8601TimestampSchema.optional(),
     sheetCount: z.number(),
     scannerId: z.string(),
+    scannerMachineType: ScannerMachineTypeSchema.optional(),
     ballotCastingMode: z.enum(['early_voting', 'election_day']).optional(),
     pollingPlaceId: z.string(),
   });

@@ -292,7 +292,11 @@ export async function generateCastVoteRecordExport(
     castVoteRecordReportMetadata: reportMetadata,
     castVoteRecordRootHash:
       await computeCastVoteRecordRootHashFromScratch(exportDirectory),
-    batchManifest: buildBatchManifest({ scannerId, batches }),
+    batchManifest: buildBatchManifest({
+      scannerId,
+      scannerMachineType: 'precinct',
+      batches,
+    }),
   };
   const metadataFileContents = JSON.stringify(metadata);
   await fs.writeFile(
