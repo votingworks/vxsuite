@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { discoverBallotStyleFiles, resolveLatestVersions } from './nh_delivery';
 import { NhBallotStyleSchema } from './convert_nh_election';
+import { readNhBallotStyleFile } from './nh_xml';
 
 // Report every contest in the delivery that has no named candidates -- only the
 // write-in option. Helps NH spot-check for phantom contests. Some empty
@@ -22,9 +22,7 @@ function candidateName(info: { Name: string | string[] }): string {
 }
 
 function findEmptyContests(path: string): EmptyContest[] {
-  const ballotStyle = NhBallotStyleSchema.parse(
-    JSON.parse(readFileSync(path, 'utf-8'))
-  );
+  const ballotStyle = NhBallotStyleSchema.parse(readNhBallotStyleFile(path));
   const { HeaderInfo, Candidates } = ballotStyle.AVSInterface;
   const empty: EmptyContest[] = [];
   for (const contest of Candidates) {

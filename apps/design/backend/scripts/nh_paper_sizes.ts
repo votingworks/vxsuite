@@ -1,6 +1,5 @@
 import { Election, HmpbBallotPaperSize } from '@votingworks/types';
 import { createPlaywrightRendererPool, Renderer } from '@votingworks/hmpb';
-import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
@@ -10,6 +9,7 @@ import {
   resolveLatestVersions,
   TownGroup,
 } from './nh_delivery';
+import { readNhBallotStyleFile } from './nh_xml';
 import { autoFitPaperSize } from './render_nh_batch';
 
 // Human-readable paper dimensions. The enum value already encodes the size
@@ -38,7 +38,7 @@ async function sizeTown(
   town: TownGroup
 ): Promise<TownSize> {
   const nhBallotStyles = town.files.map((file) =>
-    NhBallotStyleSchema.parse(JSON.parse(readFileSync(file.path, 'utf-8')))
+    NhBallotStyleSchema.parse(readNhBallotStyleFile(file.path))
   );
   const election: Election = convertNhElection(nhBallotStyles);
   const { paperSize, overflowedAtMax } = await autoFitPaperSize(

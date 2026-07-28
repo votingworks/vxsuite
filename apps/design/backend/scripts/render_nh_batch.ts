@@ -17,7 +17,6 @@ import {
 } from '@votingworks/hmpb';
 import type { NhStateBallotProps } from '@votingworks/hmpb';
 import { assertDefined } from '@votingworks/basics';
-import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
@@ -32,6 +31,7 @@ import {
   deliverableRovPath,
   deliverableType,
 } from './nh_deliverable_layout';
+import { readNhBallotStyleFile } from './nh_xml';
 
 // Paper sizes tried in ascending height order for auto-fit. NH ballots are
 // single-sided, so a size "fits" when no contests spill onto the back page.
@@ -228,7 +228,7 @@ async function renderTown(
   outDir: string
 ): Promise<TownResult> {
   const nhBallotStyles = town.files.map((file) =>
-    NhBallotStyleSchema.parse(JSON.parse(readFileSync(file.path, 'utf-8')))
+    NhBallotStyleSchema.parse(readNhBallotStyleFile(file.path))
   );
   const isHandCount = town.variant === 'HandCount';
   const baseElection = convertNhElection(nhBallotStyles);

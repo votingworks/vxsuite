@@ -6,10 +6,10 @@ import {
   renderNhRovForm,
 } from '@votingworks/hmpb';
 import { assertDefined } from '@votingworks/basics';
-import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { convertNhElection, NhBallotStyleSchema } from './convert_nh_election';
+import { readNhBallotStyleFile } from './nh_xml';
 
 const USAGE = `Usage: render_nh_proofs <out-dir> <nh-ballot-style.json>...
 
@@ -26,13 +26,13 @@ export async function main(args: readonly string[]): Promise<number> {
     console.error(USAGE);
     return 1;
   }
-  const [outDir, ...jsonPaths] = args;
+  const [outDir, ...stylePaths] = args;
   await mkdir(outDir, { recursive: true });
 
-  const nhBallotStyles = jsonPaths.map((jsonPath) =>
+  const nhBallotStyles = stylePaths.map((stylePath) =>
     safeParse(
       NhBallotStyleSchema,
-      JSON.parse(readFileSync(jsonPath, 'utf-8'))
+      readNhBallotStyleFile(stylePath)
     ).unsafeUnwrap()
   );
   const election = convertNhElection(nhBallotStyles);

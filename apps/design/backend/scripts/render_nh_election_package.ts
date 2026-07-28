@@ -32,7 +32,6 @@ import { assertDefined } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import JsZip from 'jszip';
 import { Buffer } from 'node:buffer';
-import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import {
@@ -54,6 +53,7 @@ import {
   deliverableRovPath,
   deliverableType,
 } from './nh_deliverable_layout';
+import { readNhBallotStyleFile } from './nh_xml';
 
 // NH elections serialize at software version v4.0. cdf is asserted incompatible
 // with v4.0, so the format must be vxf.
@@ -177,7 +177,7 @@ async function renderTownPackage(
   outDir: string
 ): Promise<TownResult> {
   const nhBallotStyles = town.files.map((file) =>
-    NhBallotStyleSchema.parse(JSON.parse(readFileSync(file.path, 'utf-8')))
+    NhBallotStyleSchema.parse(readNhBallotStyleFile(file.path))
   );
   const isHandCount = town.variant === 'HandCount';
   const baseElection = convertNhElection(nhBallotStyles);

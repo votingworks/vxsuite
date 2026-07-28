@@ -1,6 +1,7 @@
 import { safeParseNumber } from '@votingworks/types';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { readNhBallotStyleFile } from './nh_xml';
 
 export type Variant = 'VotingWorks' | 'HandCount';
 export type Party = 'DEM' | 'REP';
@@ -24,7 +25,8 @@ export interface TownGroup {
   files: BallotStyleFile[];
 }
 
-const BALLOT_STYLE_FILENAME = /^(\d{5}) (DEM|REP) (.*)\.json$/;
+// NH exports ballot styles as JSON or as the equivalent AVSInterface XML.
+const BALLOT_STYLE_FILENAME = /^(\d{5}) (DEM|REP) (.*)\.(json|xml)$/;
 
 function variantFromPath(path: string): Variant | undefined {
   // NH drops have used a few folder namings for the two sets: "VotingWorks
@@ -40,15 +42,15 @@ function variantFromPath(path: string): Variant | undefined {
   return undefined;
 }
 
-function walkJsonFiles(dir: string): string[] {
+function walkBallotStyleFiles(dir: string): string[] {
   const results: string[] = [];
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry);
     // Skip archives and hidden files; recurse into directories.
     if (entry.startsWith('.') || entry.endsWith('.7z')) continue;
     if (statSync(path).isDirectory()) {
-      results.push(...walkJsonFiles(path));
-    } else if (entry.endsWith('.json')) {
+      results.push(...walkBallotStyleFiles(path));
+    } else if (entry.endsWith('.json') || entry.endsWith('.xml')) {
       results.push(path);
     }
   }
@@ -57,7 +59,7 @@ function walkJsonFiles(dir: string): string[] {
 
 export function discoverBallotStyleFiles(root: string): BallotStyleFile[] {
   const files: BallotStyleFile[] = [];
-  for (const path of walkJsonFiles(root)) {
+  for (const path of walkBallotStyleFiles(root)) {
     const match = basename(path).match(BALLOT_STYLE_FILENAME);
     if (!match) continue;
     const [, code, party, rest] = match;
@@ -111,7 +113,10 @@ function buildVariantMapByTown(files: BallotStyleFile[]): Map<string, Variant> {
 }
 
 function readTownName(path: string): string {
-  const data = JSON.parse(readFileSync(path, 'utf-8'));
+  const data = readNhBallotStyleFile(path) as {
+    // eslint-disable-next-line vx/gts-identifiers
+    AVSInterface: { HeaderInfo: { TownName: string } };
+  };
   return data.AVSInterface.HeaderInfo.TownName;
 }
 
