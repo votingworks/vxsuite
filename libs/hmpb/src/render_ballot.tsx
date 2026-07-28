@@ -655,14 +655,16 @@ export async function layOutBallotsAndCreateElectionDefinition<
     // NH state ballots have variants that aren't tabulated by machine and so
     // don't need to share bubble positions with the scanned ballots: the
     // "federal office only" variant includes only federal offices (fewer
-    // bubbles), and hand-count ballots collapse their footer (shifting
-    // bubbles) and never get an election package. Filter them all out.
+    // bubbles), and hand-count and UOCAVA ballots collapse their footer
+    // (shifting bubbles) and never get an election package. Filter them all out.
     .filter(
       (ballot) =>
         !(
           'isFederalOfficeOnly' in ballot.props &&
           ballot.props.isFederalOfficeOnly
-        ) && !('isHandCount' in ballot.props && ballot.props.isHandCount)
+        ) &&
+        !('isHandCount' in ballot.props && ballot.props.isHandCount) &&
+        !('isUocava' in ballot.props && ballot.props.isUocava)
     )
     .map((ballot) => ballot.ballotStylePositions)
     .toMap((positions) => positions.ballotStyleId);

@@ -35,3 +35,13 @@ test('getBallotPdfFileName appends -foo when isFederalOfficeOnly is true', () =>
     'official-precinct-ballot-Center_Springfield-12-foo.pdf'
   );
 });
+
+test('getBallotPdfFileName appends -uocava when isUocava is true', () => {
+  const props: NhStateBallotProps = {
+    ...baseProps,
+    isUocava: true,
+  };
+  expect(getBallotPdfFileName(props)).toEqual(
+    'official-precinct-ballot-Center_Springfield-12-uocava.pdf'
+  );
+});
