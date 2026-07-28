@@ -323,7 +323,9 @@ test.each(templateSpecificTestCases)(
       title: 'Oversized Contest',
       seats: 1,
       allowWriteIns: false,
-      candidates: range(0, 100).map((i) => ({
+      // Large enough that it can't fit on a page even for templates that lay
+      // out large contests as a multi-column grid (e.g. the CA template)
+      candidates: range(0, 300).map((i) => ({
         id: `candidate-${i}`,
         name: `Candidate ${i}`,
       })),

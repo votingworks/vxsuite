@@ -16,7 +16,6 @@ import {
   ContestId,
   ContestNominationType,
   safeParse,
-  safeParseNumber,
   YesNoContestSchema,
   ElectionStringKey,
   StraightPartyContest,
@@ -500,22 +499,6 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   selectedOptionId={contest.nominationType ?? 'voter-nominated'}
                   onChange={(value) =>
                     setContest({ ...contest, nominationType: value })
-                  }
-                />
-                <SegmentedButton
-                  disabled={disabled}
-                  label="Candidate Columns"
-                  options={[
-                    { id: '1', label: '1' },
-                    { id: '3', label: '3' },
-                    { id: '4', label: '4' },
-                  ]}
-                  selectedOptionId={String(contest.candidateColumns ?? 1)}
-                  onChange={(value) =>
-                    setContest({
-                      ...contest,
-                      candidateColumns: safeParseNumber(value).unsafeUnwrap(),
-                    })
                   }
                 />
               </InputRow>
@@ -1032,7 +1015,6 @@ interface DraftCandidateContest {
   candidates: DraftCandidate[];
   partyId?: PartyId;
   nominationType?: ContestNominationType;
-  candidateColumns?: number;
 }
 
 interface DraftOption {
