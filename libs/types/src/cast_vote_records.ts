@@ -33,10 +33,6 @@ export enum CastVoteRecordExportFileName {
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
 
-/**
- * The type of scanning machine that produced a cast vote record export, i.e. a central scanner
- * (VxCentralScan) or a precinct scanner (VxScan)
- */
 export const ScannerMachineTypeSchema = z.enum(['central', 'precinct']);
 export type ScannerMachineType = z.infer<typeof ScannerMachineTypeSchema>;
 
