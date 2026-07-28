@@ -289,6 +289,25 @@ test('ballot mode toggle is disabled when test mode is unavailable', () => {
   userEvent.click(testOption);
 });
 
+test('ballot mode toggle is enabled and switches modes when test mode is available', () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: false,
+    isTestModeAvailable: true,
+  });
+
+  const testOption = screen.getByRole('option', { name: 'Test Ballot Mode' });
+  expect(testOption).toBeEnabled();
+  expect(
+    screen.getByRole('option', { name: 'Official Ballot Mode' })
+  ).toBeEnabled();
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(testOption);
+});
+
 test('navigates to diagnostics screen and back', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
