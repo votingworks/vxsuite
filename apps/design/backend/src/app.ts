@@ -671,9 +671,11 @@ export function buildApi(ctx: AppContext) {
       await store.deleteContest(input.electionId, input.contestId);
     },
 
-    async getBallotLayoutSettings(input: {
-      electionId: ElectionId;
-    }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+    async getBallotLayoutSettings(input: { electionId: ElectionId }): Promise<{
+      paperSize: HmpbBallotPaperSize;
+      compact: boolean;
+      largeContestCandidateColumns?: number;
+    }> {
       return store.getBallotLayoutSettings(input.electionId);
     },
 
@@ -681,12 +683,14 @@ export function buildApi(ctx: AppContext) {
       electionId: ElectionId;
       paperSize: HmpbBallotPaperSize;
       compact: boolean;
+      largeContestCandidateColumns?: number;
     }): Promise<void> {
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
       await store.updateBallotLayoutSettings(
         input.electionId,
         paperSize,
-        input.compact
+        input.compact,
+        input.largeContestCandidateColumns
       );
     },
 

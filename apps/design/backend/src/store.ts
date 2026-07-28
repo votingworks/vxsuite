@@ -417,11 +417,10 @@ async function insertContest(
             party_id,
             term_description,
             nomination_type,
-            candidate_columns,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, ${
-            ballotOrder ? '$12' : 'DEFAULT'
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${
+            ballotOrder ? '$11' : 'DEFAULT'
           })
         `,
         contest.id,
@@ -434,7 +433,6 @@ async function insertContest(
         contest.partyId,
         contest.termDescription,
         contest.nominationType,
-        contest.candidateColumns,
         ...(ballotOrder ? [ballotOrder] : [])
       );
       for (const candidate of contest.candidates) {
@@ -923,6 +921,7 @@ export class Store {
               signature,
               system_settings_data as "systemSettingsData",
               ballot_paper_size as "ballotPaperSize",
+              large_contest_candidate_columns as "largeContestCandidateColumns",
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
@@ -949,6 +948,7 @@ export class Store {
         signature: Signature | null;
         systemSettingsData: string;
         ballotPaperSize: HmpbBallotPaperSize;
+        largeContestCandidateColumns: number | null;
         ballotTemplateId: BallotTemplateId;
         ballotsFinalizedAt: Date | null;
         createdAt: Date;
@@ -1061,7 +1061,6 @@ export class Store {
               party_id as "partyId",
               term_description as "termDescription",
               nomination_type as "nominationType",
-              candidate_columns as "candidateColumns",
               description,
               yes_option_id as "yesOptionId",
               yes_option_label as "yesOptionLabel",
@@ -1084,7 +1083,6 @@ export class Store {
         partyId: PartyId | null;
         termDescription: string | null;
         nominationType: ContestNominationType | null;
-        candidateColumns: number | null;
         description: string | null;
         yesOptionId: string | null;
         yesOptionLabel: string | null;
@@ -1158,7 +1156,6 @@ export class Store {
               partyId: row.partyId ?? undefined,
               termDescription: row.termDescription ?? undefined,
               nominationType: row.nominationType ?? undefined,
-              candidateColumns: row.candidateColumns ?? undefined,
               candidates,
             });
           }
@@ -1257,6 +1254,8 @@ export class Store {
         ballotLayout: {
           paperSize: electionRow.ballotPaperSize,
           metadataEncoding: 'qr-code',
+          largeContestCandidateColumns:
+            electionRow.largeContestCandidateColumns ?? undefined,
         },
         ballotStrings: {},
       };
@@ -2223,16 +2222,19 @@ export class Store {
     assert(rowCount === 1, 'Contest not found');
   }
 
-  async getBallotLayoutSettings(
-    electionId: ElectionId
-  ): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+  async getBallotLayoutSettings(electionId: ElectionId): Promise<{
+    paperSize: HmpbBallotPaperSize;
+    compact: boolean;
+    largeContestCandidateColumns?: number;
+  }> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
           `
             select
               ballot_paper_size as "paperSize",
-              ballot_compact as "compact"
+              ballot_compact as "compact",
+              large_contest_candidate_columns as "largeContestCandidateColumns"
             from elections
             where id = $1
           `,
@@ -2241,13 +2243,18 @@ export class Store {
       )
     ).rows[0];
     assert(row, 'Election not found');
-    return row;
+    return {
+      ...row,
+      largeContestCandidateColumns:
+        row.largeContestCandidateColumns ?? undefined,
+    };
   }
 
   async updateBallotLayoutSettings(
     electionId: ElectionId,
     paperSize: HmpbBallotPaperSize,
-    compact: boolean
+    compact: boolean,
+    largeContestCandidateColumns?: number
   ): Promise<void> {
     const { rowCount } = await this.db.withClient((client) =>
       client.query(
@@ -2255,11 +2262,13 @@ export class Store {
           update elections
           set
             ballot_paper_size = $1,
-            ballot_compact = $2
-          where id = $3
+            ballot_compact = $2,
+            large_contest_candidate_columns = $3
+          where id = $4
         `,
         paperSize,
         compact,
+        largeContestCandidateColumns ?? null,
         electionId
       )
     );
@@ -3856,7 +3865,7 @@ export class Store {
           select
             id,
             name,
-            array_remove(array_agg(precinct_id), NULL) as "precinct_ids",
+            array_remove(array_agg(precinct_id ORDER BY precinct_id), NULL) as "precinct_ids",
             type
           from polling_places
           left join polling_places_precincts as precincts on
@@ -3864,7 +3873,7 @@ export class Store {
           where
             election_id = $1
           group by id
-          order by name collate natural_sort
+          order by name collate natural_sort, id
       `,
         electionId
       )) as {

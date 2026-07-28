@@ -18,11 +18,14 @@ import {
   HmpbBallotPaperSize,
   ElectionId,
   hasSplits,
-  LanguageCode,
+  safeParseNumber,
 } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
+import {
+  ballotStyleHasPrecinctOrSplit,
+  getGroupedBallotStyles,
+} from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   getBallotsFinalizedAt,
@@ -39,6 +42,7 @@ import { Column, Form, FormActionsRow, NestedTr } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
+import { caBallotStyleLanguages } from './utils';
 import { useTitle } from './hooks/use_title';
 import { BallotsStatus } from './ballots_status';
 import { LanguageProofingScreen } from './ballot_audio/proofing_screen';
@@ -55,6 +59,7 @@ function BallotDesignForm({
   savedLayoutSettings: {
     paperSize: HmpbBallotPaperSize;
     compact: boolean;
+    largeContestCandidateColumns?: number;
   };
   ballotsFinalizedAt: Date | null;
   ballotTemplateId: BallotTemplateId;
@@ -115,6 +120,26 @@ function BallotDesignForm({
           disabled={!isEditing}
         />
       </div>
+      {ballotTemplateId === 'CaBallot' && (
+        <div style={{ maxWidth: '16.5rem' }}>
+          <RadioGroup
+            label="Large Contest Candidate Columns"
+            options={[
+              { value: '3', label: '3' },
+              { value: '4', label: '4' },
+            ]}
+            value={String(layoutSettings.largeContestCandidateColumns ?? 4)}
+            onChange={(value) =>
+              setLayoutSettings({
+                ...layoutSettings,
+                largeContestCandidateColumns:
+                  safeParseNumber(value).unsafeUnwrap(),
+              })
+            }
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       {ballotTemplateId !== 'MiBallot' &&
         ballotTemplateId !== 'NhStateBallot' &&
         ballotTemplateId !== 'CaBallot' && (
@@ -209,18 +234,25 @@ function BallotStylesTab(): JSX.Element | null {
   const precincts = listPrecinctsQuery.data;
   const parties = listPartiesQuery.data;
 
-  const hideEnglishOnlyBallotStyle =
-    getBallotTemplateQuery.data === 'CaBallot' &&
-    electionInfo.languageCodes.length > 1;
-  const ballotStyles = hideEnglishOnlyBallotStyle
-    ? listBallotStylesQuery.data.filter(
-        (ballotStyle) =>
-          !(
-            ballotStyle.languages.length === 1 &&
-            ballotStyle.languages[0] === LanguageCode.ENGLISH
-          )
-      )
-    : listBallotStylesQuery.data;
+  // The CA ballot template generates a separate ballot style per language.
+  // Rather than a row per language variant, show one row per ballot style
+  // group that links to the group's default language variant, and let users
+  // switch languages on the ballot preview screen.
+  const ballotStyles =
+    getBallotTemplateQuery.data === 'CaBallot'
+      ? getGroupedBallotStyles(listBallotStylesQuery.data).map((group) => {
+          const defaultLanguage = caBallotStyleLanguages(group.ballotStyles)[0];
+          return {
+            ...find(group.ballotStyles, (ballotStyle) =>
+              ballotStyle.languages.includes(defaultLanguage)
+            ),
+            displayId: group.id,
+          };
+        })
+      : listBallotStylesQuery.data.map((ballotStyle) => ({
+          ...ballotStyle,
+          displayId: ballotStyle.id,
+        }));
   const ballotRoutes = routes.election(electionId).ballots;
   const showPartyColumn =
     electionInfo.type === 'primary' && !electionInfo.isMiCombinedBallotPrimary;
@@ -266,7 +298,7 @@ function BallotStylesTab(): JSX.Element | null {
                   return precinctBallotStyles.map((ballotStyle) => (
                     <tr key={precinct.id + ballotStyle.id}>
                       <TD>{precinct.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
+                      <TD>{ballotStyle.displayId}</TD>
                       {showPartyColumn && (
                         <TD>
                           {
@@ -327,7 +359,7 @@ function BallotStylesTab(): JSX.Element | null {
                   return splitBallotStyles.map((ballotStyle) => (
                     <NestedTr key={split.id + ballotStyle.id}>
                       <TD>{split.name}</TD>
-                      <TD>{ballotStyle.id}</TD>
+                      <TD>{ballotStyle.displayId}</TD>
                       {showPartyColumn && (
                         <TD>
                           {

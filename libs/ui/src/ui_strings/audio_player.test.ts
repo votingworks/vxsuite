@@ -24,7 +24,7 @@ function audioMocks() {
     typedAs<Partial<typeof Audio.prototype>>({
       onended: null,
       pause: vi.fn(),
-      play: vi.fn(),
+      play: vi.fn(async () => {}),
       playbackRate: null,
       volume: null,
     }) as unknown as typeof Audio.prototype
@@ -75,6 +75,36 @@ test('play()', async () => {
 
   await waitFor(() => expect(onDone1).toHaveBeenCalledTimes(1));
   expect(onDone2).toHaveBeenCalledTimes(1);
+});
+
+test('play() completes without crashing when playback fails', async () => {
+  const { mockAudio, mockAudioCtor, mockCtx, mockGain } = audioMocks();
+  const consoleError = vi
+    .spyOn(console, 'error')
+    .mockImplementation(() => undefined);
+
+  const player = newAudioPlayer({
+    AudioCtor: mockAudioCtor,
+    clip: { dataBase64: 'AAAB', id: 'clip-1', languageCode: ENGLISH },
+    output: mockGain,
+    webAudioContext: mockCtx,
+  });
+
+  const playbackError = new Error(
+    'NotSupportedError: Failed to load because no supported source was found.'
+  );
+  mockAudio.play.mockRejectedValue(playbackError);
+
+  await player.play();
+  expect(consoleError).toHaveBeenCalledWith(
+    'Unable to play audio clip clip-1:',
+    playbackError
+  );
+
+  await player.stop();
+  expect(mockAudio.pause).toHaveBeenCalledTimes(1);
+
+  consoleError.mockRestore();
 });
 
 test('stop()', async () => {

@@ -1,6 +1,11 @@
 import fileDownload from 'js-file-download';
-import { Link, useParams } from 'react-router-dom';
-import { find, range, throwIllegalValue } from '@votingworks/basics';
+import { Link, useHistory, useParams } from 'react-router-dom';
+import {
+  assertDefined,
+  find,
+  range,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
   BallotMode,
@@ -10,6 +15,7 @@ import {
   BallotStyleIdSchema,
   PrecinctIdSchema,
   Contest,
+  LanguageCode,
 } from '@votingworks/types';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -21,13 +27,14 @@ import {
   Icons,
   LinkButton,
   RadioGroup,
+  SearchSelect,
   TaskContent,
   TaskControls,
   TaskHeader,
   TaskScreen,
 } from '@votingworks/ui';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { format } from '@votingworks/utils';
+import { format, getRelatedBallotStyle } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   getBallotPreviewPdf,
@@ -40,6 +47,7 @@ import {
 } from './api';
 import { routes } from './routes';
 import { FieldName as BaseFieldName, Row } from './layout';
+import { caBallotStyleLanguages } from './utils';
 
 // Worker file must be copied from pdfjs-dist into public directory
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
@@ -277,6 +285,7 @@ export function BallotScreen(): JSX.Element | null {
     params
   );
 
+  const history = useHistory();
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
@@ -344,6 +353,26 @@ export function BallotScreen(): JSX.Element | null {
 
   const ballotRoutes = routes.election(electionId).ballots;
   const { title } = ballotRoutes.viewBallot(ballotStyle.id, precinct.id);
+
+  // The CA ballot template generates a separate ballot style per language, so
+  // we show a language picker that switches between the language variants in
+  // the ballot style's group.
+  const isCaBallot = ballotTemplateId === 'CaBallot';
+  const groupLanguages = caBallotStyleLanguages(
+    ballotStyles.filter((bs) => bs.groupId === ballotStyle.groupId)
+  );
+  const showLanguagePicker = isCaBallot && groupLanguages.length > 1;
+
+  function onLanguageChange(language?: LanguageCode) {
+    const targetBallotStyle = getRelatedBallotStyle({
+      ballotStyles,
+      sourceBallotStyleId: ballotStyle.id,
+      targetBallotStyleLanguage: assertDefined(language),
+    }).unsafeUnwrap();
+    history.replace(
+      ballotRoutes.viewBallot(targetBallotStyle.id, precinct.id).path
+    );
+  }
 
   return (
     <TaskScreen>
@@ -421,7 +450,7 @@ export function BallotScreen(): JSX.Element | null {
         <Controls>
           <div>
             <FieldName>Ballot Style</FieldName>
-            {ballotStyle.id}
+            {isCaBallot ? ballotStyle.groupId : ballotStyle.id}
           </div>
 
           <div>
@@ -441,6 +470,27 @@ export function BallotScreen(): JSX.Element | null {
             <FieldName>Page Size</FieldName>
             {paperSizeLabels[paperSize]}{' '}
           </div>
+
+          {showLanguagePicker && (
+            <div>
+              <FieldName>Language</FieldName>
+              <SearchSelect
+                aria-label="Language"
+                isSearchable={false}
+                inverse
+                value={ballotStyle.languages[0] as LanguageCode}
+                options={groupLanguages.map((language) => ({
+                  value: language,
+                  label: format.languageDisplayName2({
+                    languageCode: language,
+                    displayLanguageCode: LanguageCode.ENGLISH,
+                  }),
+                }))}
+                onChange={onLanguageChange}
+                style={{ width: '100%' }}
+              />
+            </div>
+          )}
 
           {enableFederalOfficeOnly ? (
             <RadioGroup

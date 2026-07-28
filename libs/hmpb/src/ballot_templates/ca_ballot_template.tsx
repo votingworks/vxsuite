@@ -271,8 +271,21 @@ function nominationTypeOf(
   return contest.nominationType ?? 'voter-nominated';
 }
 
-function contestGridColumns(contest: ContestStruct): number {
-  return contest.type === 'candidate' ? contest.candidateColumns ?? 1 : 1;
+// Contests with more candidates than this render as a full-width grid of
+// candidate options (using the election's configured column count) instead of
+// flowing in a single page column.
+const LARGE_CONTEST_CANDIDATE_THRESHOLD = 20;
+const DEFAULT_LARGE_CONTEST_CANDIDATE_COLUMNS = 4;
+
+function contestGridColumns(
+  election: Election,
+  contest: ContestStruct
+): number {
+  return contest.type === 'candidate' &&
+    contest.candidates.length > LARGE_CONTEST_CANDIDATE_THRESHOLD
+    ? election.ballotLayout.largeContestCandidateColumns ??
+        DEFAULT_LARGE_CONTEST_CANDIDATE_COLUMNS
+    : 1;
 }
 
 function Header({
@@ -519,7 +532,7 @@ function CandidateContest({
     contest,
     ballotStyle,
   });
-  const gridColumns = contestGridColumns(contest);
+  const gridColumns = contestGridColumns(election, contest);
   const primaryLanguage = primaryLanguageCode(ballotStyle);
   // Transliterated candidate names, looked up directly from the election's
   // ballot strings in the ballot's primary language. Candidate names are
@@ -1123,7 +1136,7 @@ function buildBands(
       const runs: Run[] = [];
       for (const contest of districtContests) {
         const lastRun = runs.at(-1);
-        if (contestGridColumns(contest) > 1) {
+        if (contestGridColumns(election, contest) > 1) {
           runs.push({ grid: true, contest });
         } else if (lastRun && !lastRun.grid) {
           lastRun.contests.push(contest);

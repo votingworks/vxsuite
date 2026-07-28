@@ -751,6 +751,83 @@ function HardwareMockControls() {
   );
 }
 
+function BarcodeScanMockControl() {
+  const apiClient = useApiClient();
+  const emitBarcodeScanMutation = useMutation(apiClient.emitBarcodeScan);
+  const [isOpen, setIsOpen] = useState(false);
+  const [payload, setPayload] = useState('{"bsId":""}');
+  const isBarcodeMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+
+  function onEmit() {
+    emitBarcodeScanMutation.mutate({ payload });
+    setIsOpen(false);
+  }
+
+  return (
+    <>
+      <HardwareIconButton
+        isConnected={false}
+        disabled={!isBarcodeMockEnabled}
+        onClick={() => setIsOpen(true)}
+        aria-label="Emit Barcode Scan"
+      >
+        <FontAwesomeIcon icon={faQrcode} size="2xl" />
+        <span style={{ fontSize: '10px' }}>Scan</span>
+        {!isBarcodeMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </HardwareIconButton>
+      {isOpen && (
+        <Modal
+          title="Emit Barcode Scan"
+          onOverlayClick={() => setIsOpen(false)}
+          content={
+            <>
+              <P>Enter the barcode payload to emit:</P>
+              <input
+                type="text"
+                value={payload}
+                aria-label="Barcode Payload"
+                onChange={(e) => setPayload(e.target.value)}
+                // Keep keystrokes (esp. "1"/"2") from reaching the app's global
+                // accessible-navigation handler, which would otherwise treat
+                // them as PAT focus/select inputs instead of text.
+                onKeyDown={(e) => e.stopPropagation()}
+                autoComplete="off"
+                style={{ width: '100%' }}
+              />
+            </>
+          }
+          actions={
+            <>
+              <Button
+                autoFocus
+                onPress={onEmit}
+                style={{
+                  backgroundColor: Colors.ACTIVE,
+                  color: Colors.BACKGROUND,
+                }}
+              >
+                Emit
+              </Button>
+              <Button
+                onPress={() => setIsOpen(false)}
+                style={{ backgroundColor: 'white' }}
+              >
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      )}
+    </>
+  );
+}
+
 const ScannerButton = styled.button`
   background-color: white;
   padding: 8px 22px;
@@ -1056,6 +1133,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
                 <HardwareMockControls />
               )}
+              {mockSpec.hasBarcodeScanMock && <BarcodeScanMockControl />}
             </IconsGrid>
           </Column>
         </Row>

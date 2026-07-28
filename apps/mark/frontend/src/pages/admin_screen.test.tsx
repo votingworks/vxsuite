@@ -244,6 +244,52 @@ test('switching to test ballot mode with ballots printed', async () => {
   userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
 });
 
+test('does not show the barcode activation mode toggle when QR ballot activation is disabled', async () => {
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbPortStatus();
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(screen.queryByRole('option', { name: 'Voting Session' })).toBeNull();
+});
+
+test('toggles the barcode activation mode when QR ballot activation is enabled', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    bmdEnableQrBallotActivation: true,
+  });
+  apiMock.expectGetUsbPortStatus();
+  apiMock.mockApiClient.getBarcodeActivationMode
+    .expectCallWith()
+    .resolves('voter_session');
+
+  renderScreen();
+
+  const votingSession = await screen.findByRole('option', {
+    name: 'Voting Session',
+  });
+  expect(votingSession).toHaveAttribute('aria-selected', 'true');
+  expect(screen.getByRole('option', { name: 'Blank Ballot' })).toHaveAttribute(
+    'aria-selected',
+    'false'
+  );
+
+  apiMock.mockApiClient.setBarcodeActivationMode
+    .expectCallWith({ mode: 'ballot_printing' })
+    .resolves();
+  apiMock.mockApiClient.getBarcodeActivationMode
+    .expectCallWith()
+    .resolves('ballot_printing');
+
+  userEvent.click(screen.getByRole('option', { name: 'Blank Ballot' }));
+
+  await vi.waitFor(() => {
+    expect(
+      screen.getByRole('option', { name: 'Blank Ballot' })
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+});
+
 test('switching to official ballot mode without ballots printed', () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();

@@ -184,6 +184,12 @@ export interface BallotReviewScreenProps {
   hasCastBallot: boolean;
   onCastBallot: () => void;
   overvoteContestIds?: ReadonlySet<ContestId>;
+  /**
+   * Whether returning the ballot, rather than casting it, is the primary
+   * action. Should match the primary action on the screen the voter came from,
+   * so that the emphasized action doesn't change as they review their votes.
+   */
+  returnBallotIsPrimary?: boolean;
 }
 
 /**
@@ -199,6 +205,7 @@ export function BallotReviewScreen({
   hasCastBallot,
   onCastBallot,
   overvoteContestIds = new Set(),
+  returnBallotIsPrimary = false,
 }: BallotReviewScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
 
@@ -214,6 +221,7 @@ export function BallotReviewScreen({
         <React.Fragment>
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
+            variant={returnBallotIsPrimary ? 'primary' : undefined}
             onPress={() => returnBallotMutation.mutate()}
             disabled={hasCastBallot}
           >
@@ -221,7 +229,7 @@ export function BallotReviewScreen({
           </Button>
           <Button
             id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            variant="primary"
+            variant={returnBallotIsPrimary ? undefined : 'primary'}
             onPress={onCastBallot}
             disabled={hasCastBallot}
           >

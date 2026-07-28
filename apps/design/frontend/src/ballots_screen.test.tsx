@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import {
+  BallotType,
   HmpbBallotPaperSize,
   ElectionId,
   DEFAULT_SYSTEM_SETTINGS,
+  LanguageCode,
 } from '@votingworks/types';
 import type {
   BallotTemplateId,
@@ -50,13 +53,19 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(electionId: ElectionId) {
+function renderScreen(
+  electionId: ElectionId,
+  history = createMemoryHistory({
+    initialEntries: [routes.election(electionId).ballots.root.path],
+  })
+) {
   render(
     provideApi(
       apiMock,
       withRoute(<BallotsScreen />, {
         paramPath: routes.election(':electionId').ballots.root.path,
         path: routes.election(electionId).ballots.root.path,
+        history,
       })
     )
   );
@@ -122,6 +131,83 @@ describe('Ballot styles tab', () => {
       ['North Springfield - Split 2', '1_en', 'View Ballot'],
       ['South Springfield', 'No contests assigned', ''],
     ]);
+  });
+
+  test('CA ballot template shows one row per ballot style group', async () => {
+    const record = generalElectionRecord(jurisdiction.id);
+    const electionRecord: ElectionRecord = {
+      ...record,
+      election: {
+        ...record.election,
+        ballotStyles: record.election.ballotStyles.flatMap((ballotStyle) => [
+          ballotStyle,
+          {
+            ...ballotStyle,
+            id: ballotStyle.id.replace('_en', '_es-US'),
+            languages: [LanguageCode.SPANISH],
+          },
+          {
+            ...ballotStyle,
+            id: ballotStyle.id.replace('_en', '_zh-Hans'),
+            languages: [LanguageCode.CHINESE_SIMPLIFIED],
+          },
+        ]),
+      },
+    };
+    const electionId = electionRecord.election.id;
+    expectElectionApiCalls(electionRecord, 'CaBallot');
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    const history = createMemoryHistory({
+      initialEntries: [routes.election(electionId).ballots.root.path],
+    });
+    renderScreen(electionId, history);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    const table = screen.getByRole('table');
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) =>
+          within(row)
+            .getAllByRole('cell')
+            .map((cell) => cell.textContent)
+        )
+    ).toEqual([
+      ['Center Springfield', '1', 'View Ballot'],
+      ['North Springfield', '', ''],
+      ['North Springfield - Split 1', '2', 'View Ballot'],
+      ['North Springfield - Split 2', '1', 'View Ballot'],
+      ['South Springfield', 'No contests assigned', ''],
+    ]);
+
+    // Viewing a ballot opens the group's first translated variant (the
+    // English-only variant is not shown for the CA template)
+    const centerSpringfield = electionRecord.election.precincts[0];
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: electionRecord.election.ballotLayout.paperSize,
+      compact: false,
+    });
+    apiMock.getBallotPreviewPdf
+      .expectCallWith({
+        electionId,
+        ballotStyleId: '1_zh-Hans',
+        precinctId: centerSpringfield.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+        isFederalOfficeOnly: undefined,
+      })
+      .returns(new Promise(() => {}));
+    const firstRow = within(table).getAllByRole('row')[1];
+    userEvent.click(
+      within(firstRow).getByRole('button', { name: 'View Ballot' })
+    );
+    await screen.findByRole('heading', { name: 'View Ballot' });
+    expect(history.location.pathname).toEqual(
+      routes
+        .election(electionId)
+        .ballots.viewBallot('1_zh-Hans', centerSpringfield.id).path
+    );
   });
 
   test('Primary election with splits', async () => {
