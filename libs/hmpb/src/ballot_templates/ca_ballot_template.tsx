@@ -620,7 +620,7 @@ function CandidateContest({
             <li
               key={candidate.id}
               className={CANDIDATE_OPTION_CLASS}
-              style={{ padding: '0.125rem 0.375rem 0.1875rem' }}
+              style={{ padding: '0.5px 0.375rem 1.5px' }}
             >
               <OptionRow>
                 <AlignedBubble compact optionInfo={optionInfo} />
@@ -668,7 +668,7 @@ function CandidateContest({
               key={`write-in-${writeInIndex}`}
               className={WRITE_IN_OPTION_CLASS}
               style={{
-                padding: '0.125rem 0.5rem 0.1875rem',
+                padding: '0.5px 0.5rem 1.5px',
                 display: 'flex',
               }}
             >
