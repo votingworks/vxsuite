@@ -37,6 +37,7 @@ interface MisvoteWarningScreenProps {
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
   isTestMode: boolean;
+  returnBallotIsPrimary: boolean;
   onReview: () => void;
 }
 
@@ -46,6 +47,7 @@ function MisvoteWarningScreen({
   overvotes,
   undervotes,
   isTestMode,
+  returnBallotIsPrimary,
   onReview,
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
@@ -99,19 +101,13 @@ function MisvoteWarningScreen({
     }
   }
 
-  // If there are overvotes, we nudge the voter toward returning the ballot.
-  // Given that undervotes are often intentional, we don't discourage casting
-  // the ballot in that case. Note that completely blank ballots are handled
-  // by another component.
-  const returnBallotButtonIsPrimary = overvoteContests.length > 0;
-
   return (
     <Screen
       actionButtons={
         <React.Fragment>
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
-            variant={returnBallotButtonIsPrimary ? 'primary' : undefined}
+            variant={returnBallotIsPrimary ? 'primary' : undefined}
             onPress={onReturnBallot}
             disabled={hasReturnedBallot}
           >
@@ -121,7 +117,7 @@ function MisvoteWarningScreen({
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button
               id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-              variant={returnBallotButtonIsPrimary ? undefined : 'primary'}
+              variant={returnBallotIsPrimary ? undefined : 'primary'}
               onPress={onReview}
               disabled={hasReturnedBallot}
             >
@@ -371,6 +367,16 @@ export function ScanWarningScreen({
     }
   }
 
+  // We nudge the voter toward returning the ballot for every warning except
+  // undervotes alone, since undervotes are often intentional. Whichever action
+  // is primary here stays primary on the ballot review screen.
+  const isUndervoteOnlyWarning =
+    !isBlank &&
+    !isCrossover &&
+    overvoteReasons.length === 0 &&
+    undervoteReasons.length > 0;
+  const returnBallotIsPrimary = !isUndervoteOnlyWarning;
+
   // Once the voter chooses to review, show the detailed ballot review screen
   // (with over/undervote and blank-contest warnings) where they cast or return.
   if (showBallotReviewScreen) {
@@ -386,6 +392,7 @@ export function ScanWarningScreen({
         hasCastBallot={hasCastBallot}
         onCastBallot={onCastBallot}
         overvoteContestIds={overvoteContestIds}
+        returnBallotIsPrimary={returnBallotIsPrimary}
       />
     );
   }
@@ -413,6 +420,7 @@ export function ScanWarningScreen({
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
         isTestMode={isTestMode}
+        returnBallotIsPrimary={returnBallotIsPrimary}
         onReview={onReview}
       />
     );
