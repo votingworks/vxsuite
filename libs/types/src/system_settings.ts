@@ -91,6 +91,14 @@ export const SystemSettingsSchema = z
     markThresholds: MarkThresholdsSchema,
     bitonalThreshold: z.number().min(0).max(100).optional(),
     adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
+
+    /**
+     * When enabled, ballot adjudication in VxAdmin only shows and allows
+     * editing contests that were flagged for adjudication rather than
+     * allowing edits to any contest on the ballot.
+     */
+    limitAdminAdjudicationToFlaggedContests: z.boolean().optional(),
+
     centralScanAdjudicationReasons: z.array(
       z.lazy(() => AdjudicationReasonSchema)
     ),

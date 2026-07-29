@@ -4,9 +4,11 @@ import type {
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   CvrContestTag,
+  CvrTag,
 } from '@votingworks/admin-backend';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {
+  AdjudicationReason,
   Contest,
   BallotPageContestOptionLayout,
   ContestId,
@@ -83,6 +85,22 @@ export function isContestCrossoverVoted(
     )
   );
   return hasVote;
+}
+
+export function isContestFlaggedForAdjudication(
+  contestItem: {
+    contest: Contest;
+    adjudicationData: ContestAdjudicationData;
+  },
+  cvrTag: CvrTag,
+  adminAdjudicationReasons: readonly AdjudicationReason[]
+): boolean {
+  return (
+    contestItem.adjudicationData.tag !== undefined ||
+    (cvrTag.isBlankBallot &&
+      adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot)) ||
+    isContestCrossoverVoted(cvrTag.hasCrossoverVote, contestItem)
+  );
 }
 
 export function adjudicatedVotes(

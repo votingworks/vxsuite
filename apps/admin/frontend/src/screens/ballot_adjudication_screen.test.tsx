@@ -10,7 +10,11 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
 } from '@votingworks/types';
-import type { BallotPageLayout, Rect } from '@votingworks/types';
+import type {
+  BallotPageLayout,
+  Rect,
+  SystemSettings,
+} from '@votingworks/types';
 import type {
   AdjudicatedCvrContest,
   AdjudicatedContestOptions,
@@ -206,11 +210,13 @@ function setupBasicMocks({
   nextCvrId = CVR_ID_1,
   adjudicationData,
   isBmd = true,
+  systemSettings,
 }: {
   queue?: string[];
   nextCvrId?: string | null;
   adjudicationData: BallotAdjudicationData;
   isBmd?: boolean;
+  systemSettings?: SystemSettings;
 }) {
   apiMock.expectGetBallotAdjudicationQueue(queue);
   apiMock.expectGetNextCvrIdForBallotAdjudication(nextCvrId);
@@ -223,7 +229,7 @@ function setupBasicMocks({
     [],
     adjudicationData.contests.map((c) => c.contestId)
   );
-  apiMock.expectGetSystemSettings();
+  apiMock.expectGetSystemSettings(systemSettings);
 }
 
 function makeHmpbPageLayout(contestIds: string[]): BallotPageLayout {
@@ -1666,6 +1672,154 @@ test('contest list only shows overvote/undervote/marginal status lines present i
   bestAnimal.getByText('1 write-in to adjudicate');
   expect(bestAnimal.queryByText('Overvote to adjudicate')).toBeNull();
   expect(bestAnimal.queryByText(/marginal mark/)).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('contest list only shows flagged contests when limiting adjudication to flagged contests', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasWriteIn: true })
+    ),
+    makeContestAdjudicationData('best-animal-mammal'),
+  ]);
+  setupBasicMocks({
+    adjudicationData: adjData,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      limitAdminAdjudicationToFlaggedContests: true,
+    },
+  });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Zoo Council');
+  expect(screen.queryByText('Best Animal')).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('all contests on a blank ballot stay listed when limiting adjudication to flagged contests', async () => {
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [
+      makeContestAdjudicationData('zoo-council-mammal'),
+      makeContestAdjudicationData('best-animal-mammal'),
+    ],
+    { tag: { isBlankBallot: true, hasCrossoverVote: false } }
+  );
+  setupBasicMocks({
+    adjudicationData: adjData,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      adminAdjudicationReasons: [AdjudicationReason.BlankBallot],
+      limitAdminAdjudicationToFlaggedContests: true,
+    },
+  });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Blank Ballot Detected');
+  screen.getByText('Zoo Council');
+  screen.getByText('Best Animal');
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('blank ballot without the blank ballot adjudication reason only lists tagged contests', async () => {
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [
+      makeContestAdjudicationData(
+        'zoo-council-mammal',
+        makeContestTag({ hasWriteIn: false, hasUnmarkedWriteIn: true })
+      ),
+      makeContestAdjudicationData('best-animal-mammal'),
+    ],
+    { tag: { isBlankBallot: true, hasCrossoverVote: false } }
+  );
+  setupBasicMocks({
+    adjudicationData: adjData,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      limitAdminAdjudicationToFlaggedContests: true,
+    },
+  });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Zoo Council');
+  expect(screen.queryByText('Best Animal')).toBeNull();
+
+  apiMock.apiClient.releaseBallotAdjudicationClaim
+    .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
+    .resolves();
+});
+
+test('crossover voted contests stay listed when limiting adjudication to flagged contests', async () => {
+  const demContest = makeContestAdjudicationData(
+    'governor-democratic',
+    undefined,
+    combinedBallotPrimaryElection
+  );
+  demContest.options[0].scannedVote = true;
+  const repContest = makeContestAdjudicationData(
+    'governor-republican',
+    undefined,
+    combinedBallotPrimaryElection
+  );
+  repContest.options[0].scannedVote = true;
+  // Partisan contest without a vote and nonpartisan contest with a vote are
+  // not implicated in the crossover, so neither is listed
+  const unvotedPartisanContest = makeContestAdjudicationData(
+    'secretary-of-state-democratic',
+    undefined,
+    combinedBallotPrimaryElection
+  );
+  const nonpartisanContest = makeContestAdjudicationData(
+    'circuit-court-judge',
+    undefined,
+    combinedBallotPrimaryElection
+  );
+  nonpartisanContest.options[0].scannedVote = true;
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [demContest, repContest, unvotedPartisanContest, nonpartisanContest],
+    { tag: { isBlankBallot: false, hasCrossoverVote: true } }
+  );
+  setupBasicMocks({
+    adjudicationData: adjData,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      limitAdminAdjudicationToFlaggedContests: true,
+    },
+  });
+
+  renderInAppContext(<BallotAdjudicationScreenWrapper />, {
+    electionDefinition: combinedBallotPrimaryDefinition,
+    apiMock,
+  });
+
+  await screen.findByText('Crossover Voting Detected');
+  expect(screen.getAllByText('Governor')).toHaveLength(2);
+  expect(screen.queryByText('Secretary of State')).toBeNull();
+  expect(screen.queryByText('Circuit Court Judge')).toBeNull();
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })

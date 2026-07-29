@@ -44,6 +44,7 @@ import {
   adjudicatedVotes,
   ContestListItem,
   deriveCrossoverVoteStatus,
+  isContestFlaggedForAdjudication,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
@@ -617,6 +618,17 @@ function BallotView({
       ? undefined
       : contestItems.find((contest) => !contest.isResolved);
 
+  const visibleContestItems =
+    systemSettings.limitAdminAdjudicationToFlaggedContests
+      ? contestItems.filter((item) =>
+          isContestFlaggedForAdjudication(
+            item,
+            cvrTag,
+            systemSettings.adminAdjudicationReasons
+          )
+        )
+      : contestItems;
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
     action: () => void;
@@ -757,7 +769,7 @@ function BallotView({
               key={cvrId}
               adjudicatedContests={adjudicatedContests}
               firstUnresolvedContestId={firstUnresolvedContest?.contest.id}
-              contestItems={contestItems}
+              contestItems={visibleContestItems}
               cvrTag={cvrTag}
               election={election}
               isBallotResolved={ballotAdjudicationData.isResolved}

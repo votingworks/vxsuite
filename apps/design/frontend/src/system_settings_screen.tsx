@@ -297,6 +297,21 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxButton
+              label="Limit Adjudication to Flagged Contests"
+              isChecked={
+                systemSettings.limitAdminAdjudicationToFlaggedContests ?? false
+              }
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  limitAdminAdjudicationToFlaggedContests: isChecked
+                    ? true
+                    : undefined, // Completely omit when unchecked
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
         <Card style={{ minWidth: '16rem' }}>
