@@ -141,6 +141,16 @@ export function buildApi(ctx: Context) {
     });
   }
 
+  const systemCallApi = createSystemCallApi({
+    usbDrive,
+    logger,
+    machineId: getMachineConfig().machineId,
+    codeVersion: getMachineConfig().codeVersion,
+    workspacePath: workspace.path,
+    getAuthStatus: /* istanbul ignore next */ () =>
+      auth.getAuthStatus(constructAuthMachineState(workspace)),
+  });
+
   return grout.createApi({
     getMachineConfig,
 
@@ -239,6 +249,14 @@ export function buildApi(ctx: Context) {
 
     async unconfigureMachine() {
       workspace.store.reset();
+      // Re-enable USB ports in case they were auto-disabled while an alarm was
+      // active (see setup_printer_page). Otherwise they remain silently
+      // disabled, preventing the machine from recognizing a new election
+      // package.
+      const { enabled } = await systemCallApi.getUsbPortStatus();
+      if (!enabled) {
+        await systemCallApi.toggleUsbPorts({ action: 'enable' });
+      }
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
@@ -316,15 +334,7 @@ export function buildApi(ctx: Context) {
       store: workspace.store.getUiStringsStore(),
     }),
 
-    ...createSystemCallApi({
-      usbDrive,
-      logger,
-      machineId: getMachineConfig().machineId,
-      codeVersion: getMachineConfig().codeVersion,
-      workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
-        auth.getAuthStatus(constructAuthMachineState(workspace)),
-    }),
+    ...systemCallApi,
 
     async printBallot(input: PrintBallotProps) {
       await printBallot({
