@@ -7,6 +7,7 @@ import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 
 export type { NhBallotProps } from './nh_ballot_template';
 export type { NhStateBallotProps } from './nh_state_ballot_template';
+export { NhStateSpotColors } from './nh_state_primary_ballot_template';
 
 /**
  * All ballot templates, indexed by ID.

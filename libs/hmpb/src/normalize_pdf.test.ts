@@ -187,6 +187,22 @@ describe('normalizePdf', () => {
     );
   });
 
+  test('zeroes /ID arrays with whitespace between entries (pdf-lib form)', () => {
+    const pdf = makePdf({
+      objects: [
+        {
+          num: 1,
+          content:
+            '/ID [ <AE62F4165DB0622FD2E57DED09838D47> <AE62F4165DB0622FD2E57DED09838D47> ]',
+        },
+      ],
+    });
+    const result = fromBytes(normalizePdf(toBuffer(pdf)));
+    expect(result).toContain(
+      '/ID [<00000000000000000000000000000000><00000000000000000000000000000000>]'
+    );
+  });
+
   test('renumbers objects sequentially', () => {
     const pdf = makePdf({
       objects: [
