@@ -151,10 +151,11 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
 
   // Ghostscript generates unique /ID pairs per run. These are used for PDF
   // document identification (e.g. by viewers to detect the same document) — no
-  // effect on content. Handles both hex form (/ID [<hex><hex>]) and string
-  // literal form (/ID [(...)(...)]).
+  // effect on content. Handles the hex form (/ID [<hex><hex>], with optional
+  // whitespace as emitted by pdf-lib) and the string literal form
+  // (/ID [(...)(...)]).
   str = str.replace(
-    /\/ID \[<[0-9A-Fa-f]{32}><[0-9A-Fa-f]{32}>\]/g,
+    /\/ID \[\s*<[0-9A-Fa-f]{32}>\s*<[0-9A-Fa-f]{32}>\s*\]/g,
     `/ID [<${ZERO_HEX_ID}><${ZERO_HEX_ID}>]`
   );
   str = str.replace(

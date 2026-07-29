@@ -31,6 +31,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { BallotLayoutError, ContentComponentResult } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
+import { SpotColor } from '../pdf_conversion';
 import {
   OptionInfo,
   Page,
@@ -60,12 +61,31 @@ import {
 } from './nh_state_ballot_components';
 
 export const ColorTints = {
-  // sRGB equivalents of NH's specified CMYK values, converted via a standard
-  // CMYK profile: Blue PMS 297U / CMYK 41-4-1-0; Red PMS 699U / CMYK 2-28-9-0.
   BLUE: '#8FD0F1',
   RED: '#F4C3CC',
   GRAY: Colors.LIGHT_GRAY,
 } as const;
+
+/**
+ * The spot (Pantone) inks the NH printer prints the party tints with. Each
+ * partisan ballot is a two-ink job: the party's spot plate plus a single black
+ * plate.
+ *
+ * The `grayscaleTint` values are verified against Ghostscript's actual
+ * conversion in pdf_conversion.test.ts.
+ */
+export const NhStateSpotColors: Record<'BLUE' | 'RED', SpotColor> = {
+  BLUE: {
+    name: 'PMS 293',
+    sourceColor: ColorTints.BLUE,
+    grayscaleTint: '0.776',
+  },
+  RED: {
+    name: 'PMS 699',
+    sourceColor: ColorTints.RED,
+    grayscaleTint: '0.812',
+  },
+};
 
 export type ColorTint = keyof typeof ColorTints;
 
