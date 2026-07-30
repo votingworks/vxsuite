@@ -61,6 +61,7 @@ test('configureElectionPackageFromUsb', async () => {
 
 test('unconfigureMachine', async () => {
   vi.mocked(mockBackendApi).unconfigureMachine.mockResolvedValueOnce();
+  const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
 
   const { result } = renderHook(() => unconfigureMachine.useMutation(), {
     wrapper: QueryWrapper,
@@ -72,4 +73,7 @@ test('unconfigureMachine', async () => {
   await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockOnConfigurationChange).toHaveBeenCalled();
+  // USB ports may have been re-enabled on the backend, so the cached status
+  // must be invalidated for the UI to reflect it.
+  expect(invalidateQueries).toHaveBeenCalledWith(['getUsbPortStatus']);
 });
