@@ -67,9 +67,9 @@ export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
 ) => Result<JSX.Element, BallotLayoutError>;
 
-export interface PaginatedContent<P> {
+export interface PaginatedContent {
   currentPageElement: JSX.Element;
-  nextPageProps?: P;
+  leftoverContests: readonly Contest[];
 }
 
 interface ContestTooLongError {
@@ -83,30 +83,34 @@ interface MissingSignatureError {
 
 export type BallotLayoutError = ContestTooLongError | MissingSignatureError;
 
-export type ContentComponentResult<P> = Result<
-  PaginatedContent<P>,
+export type ContentComponentResult = Result<
+  PaginatedContent,
   BallotLayoutError
 >;
 
 export type ContentComponent<P> = (
-  props: (P & { dimensions: PixelDimensions }) | undefined,
+  props: P & { dimensions: PixelDimensions },
+  contests: readonly Contest[],
   // The content component is passed the scratchpad so that it can measure
   // elements in order to determine how much content fits on each page.
   scratchpad: RenderScratchpad
-) => Promise<ContentComponentResult<P>>;
+) => Promise<ContentComponentResult>;
 
 /**
- * A page template consists of two interlocking pieces:
+ * A page template consists of interlocking pieces:
  * - A styles component that defines the root styles to add to the page's head (e.g. fonts, sizes)
  * - A frame component (imagine it like a picture frame) that is rendered on each page
- * - A content component that knows how to render a page at a time of content
- * within the frame. Given a set of props (e.g. list of contests) the content component returns two items:
+ * - A function that determines which contests should be laid out for a given
+ * ballot (e.g. filtering by ballot style)
+ * - A content component that knows how to render a page of contests within the frame.
+ * Given the ballot props and the contests left to lay out, it returns two items:
  *     - The content element for the current page (e.g. the contest boxes for this page)
- *     - The props for the next page (e.g. the contests that didn't fit on this page)
+ *     - The contests that didn't fit on this page
  */
 export interface BallotPageTemplate<P extends object> {
   stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
+  contestsForBallot: (props: P) => readonly Contest[];
   contentComponent: ContentComponent<P>;
   isAllBubbleBallot?: boolean;
 }
@@ -128,15 +132,13 @@ async function paginateBallotContent<P extends object>(
   props: P,
   scratchpad: RenderScratchpad
 ): Promise<Result<JSX.Element[], BallotLayoutError>> {
-  const pages: Array<PaginatedContent<P>> = [];
-
   const { frameComponent, contentComponent } = pageTemplate;
-  do {
+  async function layOutPage(
+    pageProps: P & { pageNumber: number; totalPages?: number },
+    contests: readonly Contest[]
+  ) {
     const pageFrameResult = frameComponent({
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...props,
-      pageNumber: pages.length + 1,
-      totalPages: 0,
+      ...pageProps,
       children: <ContentSlot />,
     });
     if (pageFrameResult.isErr()) {
@@ -148,34 +150,44 @@ async function paginateBallotContent<P extends object>(
       pageFrame,
       `.${CONTENT_SLOT_CLASS}`
     );
-    const currentPageProps: P = pages.at(-1)?.nextPageProps ?? props;
+    const dimensions: PixelDimensions = {
+      width: contentSlotMeasurements.width,
+      height: contentSlotMeasurements.height,
+    };
 
-    // If the props are the same as the last page, we're in an infinite loop.
-    // This can happen if the content is too tall to fit on a page. We expect
-    // the contentComponent to handle this case and throw a meaningful error
-    // that points out which contest is too tall, so this is just a backup
-    // safeguard.
-    assert(
-      !deepEqual(currentPageProps, pages[pages.length - 2]?.nextPageProps),
-      'Contest is too tall to fit on page'
-    );
+    return contentComponent({ ...pageProps, dimensions }, contests, scratchpad);
+  }
 
-    const pageResult = await contentComponent(
+  const pages: PaginatedContent[] = [];
+  let contestsToPaginate = pageTemplate.contestsForBallot(props);
+  assert(contestsToPaginate.length > 0, 'No contests assigned to this ballot');
+
+  do {
+    const pageResult = await layOutPage(
       {
         // eslint-disable-next-line vx/gts-spread-like-types
-        ...currentPageProps,
-        dimensions: {
-          width: contentSlotMeasurements.width,
-          height: contentSlotMeasurements.height,
-        },
+        ...props,
+        pageNumber: pages.length + 1,
+        totalPages: 0,
       },
-      scratchpad
+      contestsToPaginate
     );
     if (pageResult.isErr()) {
       return pageResult;
     }
-    pages.push(pageResult.ok());
-  } while (pages.at(-1)?.nextPageProps);
+    const page = pageResult.ok();
+    // If the leftover contests are the same as the given contests, we're in an
+    // infinite loop.  This can happen if the content is too tall to fit on a
+    // page. We expect the contentComponent to handle this case and throw a
+    // meaningful error that points out which contest is too tall, so this is
+    // just a backup safeguard.
+    assert(
+      !deepEqual(page.leftoverContests, contestsToPaginate),
+      'Contest is too tall to fit on page'
+    );
+    pages.push(page);
+    contestsToPaginate = page.leftoverContests;
+  } while (contestsToPaginate.length > 0);
 
   // Frame pages first so the page numbering and footer voting progress
   // instructions reflect only pages with content.
@@ -194,17 +206,22 @@ async function paginateBallotContent<P extends object>(
     framedPages.push(frameResult.ok());
   }
 
+  // Then add a blank page if the number of pages is odd.
   if (pages.length % 2 === 1) {
-    const lastPageResult = await contentComponent(undefined, scratchpad);
-    if (lastPageResult.isErr()) {
-      return lastPageResult;
+    const blankPageResult = await layOutPage(
+      // eslint-disable-next-line vx/gts-spread-like-types
+      { ...props, pageNumber: pages.length + 1 },
+      []
+    );
+    if (blankPageResult.isErr()) {
+      return blankPageResult;
     }
-    const page = lastPageResult.ok();
+    const blankPage = blankPageResult.ok();
     const lastFrameResult = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
       ...props,
       pageNumber: pages.length + 1,
-      children: page.currentPageElement,
+      children: blankPage.currentPageElement,
     });
     if (lastFrameResult.isErr()) {
       return lastFrameResult;

@@ -891,27 +891,25 @@ async function splitLongBallotMeasureAcrossPages(
   });
 }
 
-async function BallotPageContent(
-  props: (NhBallotProps & { dimensions: PixelDimensions }) | undefined,
-  scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<NhBallotProps>> {
-  if (!props) {
-    return ok({
-      currentPageElement: <BlankPageMessage />,
-      nextPageProps: undefined,
-    });
-  }
+function contestsForBallot(props: NhBallotProps): readonly ContestStruct[] {
+  const { election, ballotStyleId } = props;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
+  return getContests({ election, ballotStyle });
+}
 
-  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
+async function BallotPageContent(
+  props: NhBallotProps & { dimensions: PixelDimensions },
+  contests: readonly ContestStruct[],
+  scratchpad: RenderScratchpad
+): Promise<ContentComponentResult> {
+  const { compact, election, ballotStyleId, dimensions } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
-  const contests = getContests({ election, ballotStyle });
-  if (contests.length === 0) {
-    throw new Error('No contests assigned to this precinct.');
-  }
   const contestSections = iter(contests)
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
@@ -1035,7 +1033,7 @@ async function BallotPageContent(
     else if (heightUsed === 0 || splitResult.err().error !== 'contestTooLong') {
       return splitResult;
     }
-  } else if (heightUsed === 0) {
+  } else if (contests.length > 0 && heightUsed === 0) {
     return err({
       error: 'contestTooLong',
       contest: nextContest,
@@ -1067,22 +1065,9 @@ async function BallotPageContent(
     ) : (
       <BlankPageMessage />
     );
-  const nextPageProps =
-    contestsLeftToLayout.length > 0
-      ? {
-          ...restProps,
-          compact,
-          ballotStyleId,
-          election: {
-            ...election,
-            contests: contestsLeftToLayout,
-          },
-        }
-      : undefined;
-
   return ok({
     currentPageElement,
-    nextPageProps,
+    leftoverContests: contestsLeftToLayout,
   });
 }
 
@@ -1091,5 +1076,6 @@ export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
+  contestsForBallot,
   contentComponent: BallotPageContent,
 };
