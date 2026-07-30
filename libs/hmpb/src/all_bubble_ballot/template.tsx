@@ -2,9 +2,10 @@ import React from 'react';
 import {
   ballotPaperDimensions,
   BaseBallotProps,
+  Contest,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
-import { assertDefined, ok, range, Result } from '@votingworks/basics';
+import { assert, ok, range, Result } from '@votingworks/basics';
 import {
   BallotPageTemplate,
   ContentComponentResult,
@@ -75,11 +76,12 @@ export function allBubbleBallotTemplate(
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async function BallotPageContent(
-    props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
+    _props: BaseBallotProps & { dimensions: PixelDimensions },
+    contests: readonly Contest[],
     _scratchpad: RenderScratchpad
-  ): Promise<ContentComponentResult<BaseBallotProps>> {
-    const { election, ...restProps } = assertDefined(props);
-    const pageNumber = numPages - election.contests.length + 1;
+  ): Promise<ContentComponentResult> {
+    assert(contests.length > 0);
+    const pageNumber = numPages - contests.length + 1;
     const bubbles = (
       <div
         style={{
@@ -110,25 +112,16 @@ export function allBubbleBallotTemplate(
         ))}
       </div>
     );
-    const contestsLeft = election.contests.slice(1);
     return ok({
       currentPageElement: bubbles,
-      nextPageProps:
-        contestsLeft.length === 0
-          ? undefined
-          : {
-              ...restProps,
-              election: {
-                ...election,
-                contests: contestsLeft,
-              },
-            },
+      leftoverContests: contests.slice(1),
     });
   }
 
   return {
     stylesComponent: BaseStyles,
     frameComponent: BallotPageFrame,
+    contestsForBallot: (props) => props.election.contests,
     contentComponent: BallotPageContent,
     isAllBubbleBallot: true,
   };
