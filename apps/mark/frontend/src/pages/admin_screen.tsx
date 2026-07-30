@@ -17,6 +17,7 @@ import {
   PowerDownButton,
   Button,
   ToggleUsbPortsButton,
+  Icons,
 } from '@votingworks/ui';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -149,6 +150,12 @@ export function AdminScreen({
             selectedOptionId={isTestMode ? 'test' : 'official'}
           />
         </P>
+        {!isTestModeAvailable && (
+          <P>
+            <Icons.Info /> Election package does not contain test ballots
+            required for test mode.
+          </P>
+        )}
         <P>
           <UnconfigureMachineButton
             isMachineConfigured
