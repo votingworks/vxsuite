@@ -290,6 +290,15 @@ test('unconfigureMachine deletes system settings and election definition', async
   expect(electionRecord).toBeNull();
 });
 
+test('unconfigureMachine re-enables USB ports', async () => {
+  await apiClient.toggleUsbPorts({ action: 'disable' });
+  expect(await apiClient.getUsbPortStatus()).toEqual({ enabled: false });
+
+  await apiClient.unconfigureMachine();
+
+  expect(await apiClient.getUsbPortStatus()).toEqual({ enabled: true });
+});
+
 test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();

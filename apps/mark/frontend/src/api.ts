@@ -357,6 +357,7 @@ export const unconfigureMachine = {
         await queryClient.invalidateQueries(getElectionRecord.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries(['getUsbPortStatus']);
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
