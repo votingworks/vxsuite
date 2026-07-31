@@ -148,7 +148,7 @@ export function PollWorkerScreen({
               pollingPlaceId={pollingPlaceId}
             />
           )}
-          {allowPrintingBlankBallots && (
+          {allowPrintingBlankBallots && pollsState === 'polls_open' && (
             <Button onPress={onPressPrintBlankBallot}>
               Print Blank Ballot
             </Button>
