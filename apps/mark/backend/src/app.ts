@@ -61,7 +61,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
-import { ElectionRecord } from './store';
+import { ElectionRecord, Store } from './store';
 import * as barcodes from './barcodes';
 import { setUpBarcodeActivation } from './barcodes/activation';
 import { Player as AudioPlayer, SoundName } from './audio/player';
@@ -90,6 +90,23 @@ interface TestDeckError {
 // Track last barcode scan for diagnostics
 let lastBarcodeScanData: string | undefined;
 let lastBarcodeScanTimestamp: Date | undefined;
+
+/**
+ * Whether the machine can be put into test mode. Test mode requires test mode
+ * ballot PDFs only for flows that print from the pre-rendered ballots in the
+ * election package: `bubble_ballot` printing and blank ballot printing. In
+ * those flows, entering test mode without test ballots present would fail at
+ * print time, so test mode is unavailable. Other print modes render ballots on
+ * the fly and don't need pre-rendered test ballots.
+ *
+ */
+function isTestModeAvailable(store: Store): boolean {
+  const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+  const requiresPreRenderedTestBallots =
+    systemSettings.bmdPrintMode === 'bubble_ballot' ||
+    systemSettings.allowPrintingBlankBallotsFromVxMark;
+  return !requiresPreRenderedTestBallots || store.hasTestBallots();
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: Context) {
@@ -307,6 +324,14 @@ export function buildApi(ctx: Context) {
           workspace.store.setBallots(ballots);
         }
 
+        // The machine defaults to test mode, but if test mode isn't available
+        // for this election package (no test ballots for a print flow that
+        // needs them), start in official mode to avoid footgun of allowing
+        // users to try to print test mode ballots that don't exist.
+        if (!isTestModeAvailable(workspace.store)) {
+          workspace.store.setTestMode(false);
+        }
+
         if (electionDefinition.election.pollingPlaces?.length === 1) {
           workspace.store.setPollingPlaceId(
             electionDefinition.election.pollingPlaces[0].id
@@ -505,6 +530,7 @@ export function buildApi(ctx: Context) {
         pollingPlaceId: store.getPollingPlaceId(),
         ballotsPrintedCount: store.getBallotsPrintedCount(),
         isTestMode: store.getTestMode(),
+        isTestModeAvailable: isTestModeAvailable(store),
         pollsState: store.getPollsState(),
       };
     },

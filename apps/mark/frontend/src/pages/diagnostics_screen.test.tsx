@@ -66,6 +66,7 @@ test('renders diagnostics screen with all sections', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -100,6 +101,7 @@ test('navigating to and from system audio diagnostic - pass', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -136,6 +138,7 @@ test('navigating to and from system audio diagnostic - fail', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -172,6 +175,7 @@ test('navigating to and from system audio diagnostic - cancel', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -197,6 +201,7 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -233,6 +238,7 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -269,6 +275,7 @@ test('navigating to and from headphone input diagnostic - cancel', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -294,6 +301,7 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -343,6 +351,7 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -380,6 +389,7 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -422,6 +432,7 @@ test('navigating to and from barcode reader diagnostic - cancel', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -450,6 +461,7 @@ test('UPS diagnostic - pass', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,
@@ -486,6 +498,7 @@ test('UPS diagnostic - fail', async () => {
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
+    isTestModeAvailable: true,
   });
   apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
     available: 1_000_000_000,

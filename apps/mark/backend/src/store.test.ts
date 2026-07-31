@@ -187,6 +187,37 @@ test('get/set/delete ballots', () => {
   expect(deletedBallot).toBeUndefined();
 });
 
+test('hasTestBallots', () => {
+  const store = Store.memoryStore();
+
+  // No ballots at all.
+  expect(store.hasTestBallots()).toEqual(false);
+
+  // Only official ballots.
+  store.setBallots([
+    {
+      ballotStyleId: '1M',
+      precinctId: 'precinct-1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: Buffer.from('official-pdf').toString('base64'),
+    },
+  ]);
+  expect(store.hasTestBallots()).toEqual(false);
+
+  // Test ballots present.
+  store.setBallots([
+    {
+      ballotStyleId: '1M',
+      precinctId: 'precinct-1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      encodedBallot: Buffer.from('test-pdf').toString('base64'),
+    },
+  ]);
+  expect(store.hasTestBallots()).toEqual(true);
+});
+
 test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage', () => {
   const store = Store.memoryStore();
 

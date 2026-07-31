@@ -497,6 +497,86 @@ test('"test" mode', async () => {
   await expectElectionState({ isTestMode: true });
 });
 
+test('isTestModeAvailable is true when the print flow does not need pre-rendered ballots', async () => {
+  // Summary mode (the default) renders ballots on the fly, so test mode is
+  // available even without pre-rendered test ballots.
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.readElectionDefinition()
+  );
+  await expectElectionState({ isTestMode: true, isTestModeAvailable: true });
+});
+
+test('forces official mode and marks test mode unavailable when a pre-rendered flow lacks test ballots', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const officialOnlyBallots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: Buffer.from('official-pdf').toString('base64'),
+    },
+  ];
+
+  mockElectionManagerAuth(electionDefinition);
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree({
+      electionDefinition,
+      systemSettings: {
+        ...safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        bmdPrintMode: 'bubble_ballot',
+      },
+      ballots: officialOnlyBallots,
+    })
+  );
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+  mockUsbDrive.removeUsbDrive();
+  mockNoCard();
+
+  // The machine defaults to test mode, but since test ballots are missing for
+  // a pre-rendered flow, it's forced into official mode and the toggle disabled.
+  await expectElectionState({ isTestMode: false, isTestModeAvailable: false });
+});
+
+test('isTestModeAvailable is true when a pre-rendered flow has test ballots', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      encodedBallot: Buffer.from('test-pdf').toString('base64'),
+    },
+  ];
+
+  mockElectionManagerAuth(electionDefinition);
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree({
+      electionDefinition,
+      systemSettings: {
+        ...safeParseJson(
+          systemSettings.asText(),
+          SystemSettingsSchema
+        ).unsafeUnwrap(),
+        bmdPrintMode: 'bubble_ballot',
+      },
+      ballots,
+    })
+  );
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
+  mockUsbDrive.removeUsbDrive();
+  mockNoCard();
+
+  await expectElectionState({ isTestMode: true, isTestModeAvailable: true });
+});
+
 test('set polling place', async () => {
   expect((await apiClient.getElectionState()).pollingPlaceId).toBeUndefined();
 
