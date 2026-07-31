@@ -198,7 +198,7 @@ test('disables printing and explains why when the printer is not connected', asy
   renderScreen();
 
   await screen.findByText(
-    'No printer detected. Connect the printer to print test decks.'
+    'No printer detected. Connect it to print test decks.'
   );
   expect(
     screen.getByRole('button', { name: 'Print All Test Decks' })
