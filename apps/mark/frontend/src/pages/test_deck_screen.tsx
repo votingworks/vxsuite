@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   Button,
+  Callout,
   H1,
   Icons,
   Loading,
@@ -10,7 +11,7 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { PrecinctId } from '@votingworks/types';
-import { getElectionRecord, printTestDeck } from '../api';
+import { getElectionRecord, getPrinterStatus, printTestDeck } from '../api';
 
 export interface TestDeckScreenProps {
   onBackButtonPress: () => void;
@@ -25,9 +26,10 @@ export function TestDeckScreen({
   >();
 
   const electionRecordQuery = getElectionRecord.useQuery();
+  const printerStatusQuery = getPrinterStatus.useQuery();
   const printTestDeckMutation = printTestDeck.useMutation();
 
-  if (!electionRecordQuery.isSuccess) {
+  if (!electionRecordQuery.isSuccess || !printerStatusQuery.isSuccess) {
     return (
       <Screen>
         <Main padded>
@@ -41,7 +43,9 @@ export function TestDeckScreen({
   const { electionDefinition } = electionRecordQuery.data ?? {};
   const precincts = electionDefinition?.election.precincts ?? [];
 
+  const isPrinterConnected = printerStatusQuery.data.connected;
   const printingInProgress = printTestDeckMutation.isLoading;
+  const printingDisabled = printingInProgress || !isPrinterConnected;
 
   const printingProgressIndicator = (
     <span>
@@ -58,9 +62,16 @@ export function TestDeckScreen({
             Back
           </Button>
         </P>
+        {!isPrinterConnected && (
+          <P>
+            <Callout icon="Warning" color="warning">
+              No printer detected. Connect it to print test decks.
+            </Callout>
+          </P>
+        )}
         <P>
           <Button
-            disabled={printingInProgress}
+            disabled={printingDisabled}
             onPress={() => {
               setPrintingTestDeckType('all');
               printTestDeckMutation.mutate(
@@ -87,12 +98,12 @@ export function TestDeckScreen({
             value={selectedPrecinctId}
             onChange={setSelectedPrecinctId}
             style={{ width: '100%' }}
-            disabled={printingInProgress}
+            disabled={printingInProgress || !isPrinterConnected}
           />
         </P>
         <P>
           <Button
-            disabled={!selectedPrecinctId || printingInProgress}
+            disabled={!selectedPrecinctId || printingDisabled}
             onPress={() => {
               setPrintingTestDeckType('precinct');
               printTestDeckMutation.mutate(
