@@ -45,7 +45,7 @@ export function TestDeckScreen({
 
   const isPrinterConnected = printerStatusQuery.data.connected;
   const printingInProgress = printTestDeckMutation.isLoading;
-  const printingDisabled = printingInProgress || !isPrinterConnected;
+  const isPrintingDisabled = printingInProgress || !isPrinterConnected;
 
   const printingProgressIndicator = (
     <span>
@@ -71,7 +71,7 @@ export function TestDeckScreen({
         )}
         <P>
           <Button
-            disabled={printingDisabled}
+            disabled={isPrintingDisabled}
             onPress={() => {
               setPrintingTestDeckType('all');
               printTestDeckMutation.mutate(
@@ -98,12 +98,12 @@ export function TestDeckScreen({
             value={selectedPrecinctId}
             onChange={setSelectedPrecinctId}
             style={{ width: '100%' }}
-            disabled={printingInProgress || !isPrinterConnected}
+            disabled={isPrintingDisabled}
           />
         </P>
         <P>
           <Button
-            disabled={!selectedPrecinctId || printingDisabled}
+            disabled={!selectedPrecinctId || isPrintingDisabled}
             onPress={() => {
               setPrintingTestDeckType('precinct');
               printTestDeckMutation.mutate(
