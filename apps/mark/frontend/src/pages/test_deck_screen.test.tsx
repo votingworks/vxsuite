@@ -192,6 +192,38 @@ test('shows "Printing..." only on the precinct button and reverts after settling
   ).not.toBeInTheDocument();
 });
 
+test('disables printing and explains why when the printer is not connected', async () => {
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setPrinterStatus({ connected: false });
+  renderScreen();
+
+  await screen.findByText(
+    'No printer detected. Connect it to print test decks.'
+  );
+  expect(
+    screen.getByRole('button', { name: 'Print All Test Decks' })
+  ).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Print Precinct Test Deck' })
+  ).toBeDisabled();
+});
+
+test('enables printing again once the printer reconnects', async () => {
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setPrinterStatus({ connected: false });
+  renderScreen();
+
+  const printAllButton = await screen.findByRole('button', {
+    name: 'Print All Test Decks',
+  });
+  expect(printAllButton).toBeDisabled();
+
+  apiMock.setPrinterStatus({ connected: true });
+
+  await vi.waitFor(() => expect(printAllButton).toBeEnabled());
+  expect(screen.queryByText(/No printer detected/)).not.toBeInTheDocument();
+});
+
 test('renders without precincts when no election is configured', async () => {
   apiMock.expectGetElectionRecord(null);
   renderScreen();
