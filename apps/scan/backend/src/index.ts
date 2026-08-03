@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { assert } from '@votingworks/basics';
 import {
   BaseLogger,
@@ -114,7 +115,7 @@ async function main(): Promise<number> {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .then((code) => {
       process.exitCode = code;

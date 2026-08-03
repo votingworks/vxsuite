@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -16,8 +17,7 @@ import {
 } from '@votingworks/utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, expect, test, vi } from 'vitest';
-import waitForExpect from 'wait-for-expect';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import {
   MockPdiScannerClient,
   POLLING_PLACE_ID_COMPLETE_HMPB,
@@ -35,6 +35,11 @@ import {
 } from '../test/helpers/shared_helpers.js';
 import { createWorkspace } from './util/workspace.js';
 import { createPrecinctScannerStateMachine, delays } from './scanner.js';
+// `wait-for-expect` is CJS with an ESM `export default` in its types, which node16
+// can't bind to the callable; load it via require.
+const waitForExpect = createRequire(import.meta.url)(
+  'wait-for-expect'
+) as typeof import('wait-for-expect').default;
 
 vi.setConfig({ testTimeout: 20_000 });
 

@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { Mocked, expect, vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
@@ -23,7 +24,6 @@ import {
   constructElectionKey,
   pollingPlaceFromElection,
 } from '@votingworks/types';
-import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
@@ -36,6 +36,11 @@ import {
 import { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
 import { Workspace } from '../../src/util/workspace.js';
+// `wait-for-expect` is CJS with an ESM `export default` in its types, which node16
+// can't bind to the callable; load it via require.
+const waitForExpect = createRequire(import.meta.url)(
+  'wait-for-expect'
+) as typeof import('wait-for-expect').default;
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
