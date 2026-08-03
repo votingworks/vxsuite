@@ -1,14 +1,16 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { ElectionPackage } from '@votingworks/types';
 import { BaseLogger } from '@votingworks/logging';
+import {
+  ParsedElectionPackage,
+  streamElectionPackageAudioClips,
+} from '../election_package/election_package_io';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Input for {@link configureUiStrings}. */
 export interface ElectionPackageProcessorInput {
-  electionPackage: ElectionPackage;
+  electionPackage: ParsedElectionPackage;
   logger: BaseLogger;
-  noAudio?: boolean;
   store: UiStringsStore;
 }
 
@@ -23,23 +25,6 @@ function loadStrings(input: ElectionPackageProcessorInput): void {
     electionPackage.uiStrings
   )) {
     store.setUiStrings({ languageCode, data });
-  }
-}
-
-function loadAudioClips(input: ElectionPackageProcessorInput): void {
-  const { electionPackage, store } = input;
-
-  if (!electionPackage.uiStringAudioClips) {
-    return;
-  }
-
-  const configuredLanguages = new Set(store.getLanguages());
-  for (const clip of electionPackage.uiStringAudioClips) {
-    if (!configuredLanguages.has(clip.languageCode)) {
-      continue;
-    }
-
-    store.setAudioClip(clip);
   }
 }
 
@@ -66,6 +51,34 @@ function loadAudioIds(input: ElectionPackageProcessorInput): void {
  */
 export function configureUiStrings(input: ElectionPackageProcessorInput): void {
   loadStrings(input);
-  loadAudioClips(input);
   loadAudioIds(input);
+}
+
+/**
+ * Streams the audio clips in the election package zip at
+ * `electionPackageFilePath` into the provided store in size-capped batches,
+ * so that the full set (potentially GBs) is never held in memory. Only clips
+ * for languages already configured in the store (see
+ * {@link configureUiStrings}) are loaded, and each batch is inserted within
+ * `withTransaction`.
+ */
+export async function configureUiStringAudioClipsStreaming({
+  electionPackageFilePath,
+  store,
+  withTransaction,
+}: {
+  electionPackageFilePath: string;
+  store: UiStringsStore;
+  withTransaction: (fn: () => void) => void;
+}): Promise<void> {
+  const configuredLanguages = new Set(store.getLanguages());
+  await streamElectionPackageAudioClips(electionPackageFilePath, (clips) =>
+    withTransaction(() => {
+      for (const clip of clips) {
+        if (configuredLanguages.has(clip.languageCode)) {
+          store.setAudioClip(clip);
+        }
+      }
+    })
+  );
 }

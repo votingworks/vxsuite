@@ -16,11 +16,12 @@ import {
   readElectionGeneralDefinition,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
   generateMockVotes,
   getMockMultiLanguageElectionDefinition,
@@ -36,7 +37,9 @@ import {
   Election,
   ElectionDefinition,
   ElectionStringKey,
+  ElectionPackageFileName,
   HmpbBallotPaperSize,
+  LATEST_METADATA,
   UiStringsPackage,
   VotesDict,
   anyPollingPlace,
@@ -312,6 +315,32 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
       disposition: 'failure',
     })
   );
+});
+
+test('configureElectionPackageFromUsb cleans up when audio clip streaming fails', async () => {
+  const electionDefinition = readElectionGeneralDefinition();
+  mockElectionManagerAuth(mockAuth, electionDefinition);
+  mockUsbDrive.insertUsbDrive({
+    [generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.ballotHash
+    )]: {
+      [ELECTION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': await zipFile({
+          [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+          [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+          [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+            DEFAULT_SYSTEM_SETTINGS
+          ),
+          [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+          [ElectionPackageFileName.AUDIO_CLIPS]: 'not a valid audio clip line',
+        }),
+      },
+    },
+  });
+
+  await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow();
+  expect(await apiClient.getElectionRecord()).toBeNull();
 });
 
 test('configure with CDF election', async () => {

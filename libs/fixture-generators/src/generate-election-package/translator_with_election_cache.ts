@@ -2,12 +2,12 @@ import makeDebug from 'debug';
 import {
   GoogleCloudTranslator,
   MinimalGoogleCloudTranslationClient,
+  ParsedElectionPackage,
   parseVendoredTranslations,
   VendoredTranslations,
 } from '@votingworks/backend';
 import {
   Dictionary,
-  ElectionPackage,
   LanguageCode,
   mergeUiStrings,
   NonEnglishLanguageCode,
@@ -73,7 +73,7 @@ export class GoogleCloudTranslatorWithElectionCache extends GoogleCloudTranslato
     translationClient?: MinimalGoogleCloudTranslationClient;
     // Support providing custom overrides for tests
     vendoredTranslations?: VendoredTranslations;
-    priorElectionPackage?: ElectionPackage;
+    priorElectionPackage?: ParsedElectionPackage;
   }) {
     super({ translationClient: input.translationClient });
     this.vendoredTranslations =
