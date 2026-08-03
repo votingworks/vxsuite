@@ -4,6 +4,7 @@ import {
   ContestId,
   ContestOptionId,
   Id,
+  ScannerMachineType,
   Tabulation,
 } from '@votingworks/types';
 import { randomUUID as uuid } from 'node:crypto';
@@ -18,6 +19,8 @@ import {
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {
     multiplier?: number;
+    scannerMachineType?: ScannerMachineType;
+    pollingPlaceId?: string;
   }
 >;
 
@@ -61,7 +64,9 @@ export function addMockCvrFileToStore({
       batchId: mockCastVoteRecord.batchId,
       scannerId: mockCastVoteRecord.scannerId,
       label: `Batch ${mockCastVoteRecord.batchId}`,
+      scannerMachineType: mockCastVoteRecord.scannerMachineType,
       ballotCastingMode: mockCastVoteRecord.ballotCastingMode,
+      pollingPlaceId: mockCastVoteRecord.pollingPlaceId ?? pollingPlaceId,
       startedAt: new Date().toISOString(),
     });
 

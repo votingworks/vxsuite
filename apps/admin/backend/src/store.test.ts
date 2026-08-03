@@ -247,6 +247,8 @@ test('scanner batches', async () => {
     batchId: 'batch-1',
     label: 'Batch 1',
     scannerId: 'VX-00-001',
+    scannerMachineType: 'precinct',
+    pollingPlaceId: 'polling-place-1',
     startedAt: '2024-11-05T08:00:00.000Z',
   };
   store.addScannerBatch(scannerBatch);
@@ -275,6 +277,7 @@ test('delete empty scanner batches', async () => {
     batchId: '1',
     label: 'Batch 1',
     scannerId: 'scanner-1',
+    pollingPlaceId: 'polling-place-1',
     startedAt: expect.any(String),
   };
 

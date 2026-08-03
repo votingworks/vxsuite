@@ -5,7 +5,7 @@ import { err, ok } from '@votingworks/basics';
 import { PollingPlace } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, within } from '../../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { SendTallyReportsScreen, TITLE } from './send_tally_reports_screen';
 
 let apiMock: ApiMock;
@@ -30,10 +30,11 @@ const COUNTY_ABSENTEE: PollingPlace = {
   },
 };
 
-const REGIONAL_ABSENTEE: PollingPlace = {
-  id: 'absentee-regional',
-  name: 'Regional Absentee',
-  type: 'absentee',
+// Live reports polling places can be of any type, not just absentee
+const DOWNTOWN_ELECTION_DAY: PollingPlace = {
+  id: 'election-day-downtown',
+  name: 'Downtown Election Day',
+  type: 'election_day',
   precincts: {
     'precinct-1': { type: 'whole' },
     'precinct-2': { type: 'whole' },
@@ -41,7 +42,7 @@ const REGIONAL_ABSENTEE: PollingPlace = {
 };
 
 test('renders title and parent route link', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(err('no-cvrs-loaded'));
+  apiMock.expectGetLiveReportsPollingPlaces(err('no-cvrs-loaded'));
 
   renderInAppContext(<SendTallyReportsScreen />, {
     electionDefinition,
@@ -57,7 +58,7 @@ test('renders title and parent route link', async () => {
 });
 
 test('shows info callout when no CVRs are loaded', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(err('no-cvrs-loaded'));
+  apiMock.expectGetLiveReportsPollingPlaces(err('no-cvrs-loaded'));
 
   renderInAppContext(<SendTallyReportsScreen />, {
     electionDefinition,
@@ -67,21 +68,8 @@ test('shows info callout when no CVRs are loaded', async () => {
   await screen.findByText('Load CVRs to send results.');
 });
 
-test('shows warning when no absentee polling place matches the loaded CVRs', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(ok([]));
-
-  renderInAppContext(<SendTallyReportsScreen />, {
-    electionDefinition,
-    apiMock,
-  });
-
-  await screen.findByText(
-    'No absentee polling place covers the precincts in the loaded CVRs.'
-  );
-});
-
 test('auto-generates QR code when exactly one polling place matches', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(ok([COUNTY_ABSENTEE]));
+  apiMock.expectGetLiveReportsPollingPlaces(ok([COUNTY_ABSENTEE]));
   apiMock.expectGetLiveResultsReportingUrls(COUNTY_ABSENTEE.id, [
     'https://example.com/results?p=AAA',
   ]);
@@ -97,12 +85,12 @@ test('auto-generates QR code when exactly one polling place matches', async () =
     'https://example.com/results?p=AAA'
   );
   expect(
-    screen.queryByLabelText('Select absentee polling place')
+    screen.queryByLabelText('Select polling place')
   ).not.toBeInTheDocument();
 });
 
 test('shows danger callout when the QR code cannot be generated', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(ok([COUNTY_ABSENTEE]));
+  apiMock.expectGetLiveReportsPollingPlaces(ok([COUNTY_ABSENTEE]));
   apiMock.expectGetLiveResultsReportingUrlsError(
     COUNTY_ABSENTEE.id,
     new Error('Unable to fit signed URL within QR size limits')
@@ -117,9 +105,9 @@ test('shows danger callout when the QR code cannot be generated', async () => {
   expect(screen.queryByTestId('live-results-code')).not.toBeInTheDocument();
 });
 
-test('shows dropdown when multiple polling places match and locks after selection', async () => {
-  apiMock.expectGetMatchingAbsenteePollingPlaces(
-    ok([COUNTY_ABSENTEE, REGIONAL_ABSENTEE])
+test('shows dropdown when multiple polling places match and allows changing the selection', async () => {
+  apiMock.expectGetLiveReportsPollingPlaces(
+    ok([COUNTY_ABSENTEE, DOWNTOWN_ELECTION_DAY])
   );
   apiMock.expectGetLiveResultsReportingUrls(COUNTY_ABSENTEE.id, [
     'https://example.com/results?p=AAA',
@@ -131,15 +119,12 @@ test('shows dropdown when multiple polling places match and locks after selectio
     apiMock,
   });
 
-  const select = await screen.findByLabelText('Select absentee polling place');
+  const select = await screen.findByLabelText('Select polling place');
   userEvent.click(select);
   userEvent.click(await screen.findByText('County Absentee'));
 
   const qrContainer = await screen.findByTestId('live-results-code');
   expect(within(qrContainer).getByText('1 / 2')).toBeInTheDocument();
-
-  // The dropdown is now locked.
-  expect(screen.getByLabelText('Select absentee polling place')).toBeDisabled();
 
   userEvent.click(screen.getButton('Next'));
   await within(qrContainer).findByText('2 / 2');
@@ -153,5 +138,20 @@ test('shows dropdown when multiple polling places match and locks after selectio
   expect(qrContainer.querySelector('[data-value]')).toHaveAttribute(
     'data-value',
     'https://example.com/results?p=AAA'
+  );
+
+  // The polling place can be changed after the initial selection
+  apiMock.expectGetLiveResultsReportingUrls(DOWNTOWN_ELECTION_DAY.id, [
+    'https://example.com/results?p=CCC',
+  ]);
+  userEvent.click(screen.getByLabelText('Select polling place'));
+  userEvent.click(await screen.findByText('Downtown Election Day'));
+
+  const newQrContainer = await screen.findByTestId('live-results-code');
+  await waitFor(() =>
+    expect(newQrContainer.querySelector('[data-value]')).toHaveAttribute(
+      'data-value',
+      'https://example.com/results?p=CCC'
+    )
   );
 });

@@ -3,6 +3,8 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
+import { assert, assertDefined } from '@votingworks/basics';
+import { decodeQuickResultsMessage } from '@votingworks/auth';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -12,13 +14,14 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
+  decodeAndReadPerPrecinctCompressedTally,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import { Store } from './store';
 import {
   generateAdminLiveResultsReportingUrls,
-  getMatchingAbsenteePollingPlaces,
+  getLiveReportsPollingPlaces,
 } from './live_results_reporting';
 import {
   addMockCvrFileToStore,
@@ -100,18 +103,20 @@ async function setupStore(
       electionId,
       mockCastVoteRecordFile: cvrs,
       store,
-      pollingPlaceId: 'polling-place-1',
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
     });
   }
   return { store, electionId, electionDefinition };
 }
 
-test('returns signed QR URLs when results match polling place', async () => {
+test('returns signed QR URLs for the polling place associated with the CVRs', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
       precinctId: 'precinct-1',
       votingMethod: 'absentee',
       votes: { fishing: ['ban-fishing'] },
@@ -122,6 +127,8 @@ test('returns signed QR URLs when results match polling place', async () => {
       ballotStyleGroupId: '2F',
       batchId: 'batch-2',
       scannerId: 'scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
       precinctId: 'precinct-2',
       votingMethod: 'absentee',
       votes: { fishing: ['ban-fishing'] },
@@ -154,26 +161,28 @@ test('returns signed QR URLs when results match polling place', async () => {
   }
 });
 
-test('getMatchingAbsenteePollingPlaces returns no-cvrs-loaded when no ballots', async () => {
+test('getLiveReportsPollingPlaces returns no-cvrs-loaded when no ballots', async () => {
   const { store, electionId } = await setupStore([
     ABSENTEE_PLACE_ALL,
     ABSENTEE_PLACE_PRECINCT_1,
     ELECTION_DAY_PLACE,
   ]);
 
-  expect(getMatchingAbsenteePollingPlaces({ electionId, store }).err()).toEqual(
+  expect(getLiveReportsPollingPlaces({ electionId, store }).err()).toEqual(
     'no-cvrs-loaded'
   );
 });
 
-test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CVR precincts', async () => {
+test('getLiveReportsPollingPlaces returns no-cvrs-loaded when only precinct scanner CVRs are loaded', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
+      scannerMachineType: 'precinct',
+      pollingPlaceId: ELECTION_DAY_PLACE.id,
       precinctId: 'precinct-1',
-      votingMethod: 'absentee',
+      votingMethod: 'precinct',
       votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 2,
@@ -185,23 +194,119 @@ test('getMatchingAbsenteePollingPlaces returns absentee places that cover all CV
     cvrs
   );
 
-  const matches = getMatchingAbsenteePollingPlaces({
+  expect(getLiveReportsPollingPlaces({ electionId, store }).err()).toEqual(
+    'no-cvrs-loaded'
+  );
+});
+
+test('getLiveReportsPollingPlaces returns the polling places, of any type, associated with central scanner CVRs', async () => {
+  const cvrs: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'central-scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_PRECINCT_1.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 2,
+    },
+    // A central scanner batch associated with a non-absentee polling place
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-2',
+      scannerId: 'central-scanner-2',
+      scannerMachineType: 'central',
+      pollingPlaceId: ELECTION_DAY_PLACE.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 3,
+    },
+    // Precinct scanner batches never contribute polling places
+    {
+      ballotStyleGroupId: '2F',
+      batchId: 'batch-3',
+      scannerId: 'precinct-scanner-1',
+      scannerMachineType: 'precinct',
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
+      precinctId: 'precinct-2',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 4,
+    },
+  ];
+  const { store, electionId } = await setupStore(
+    [ELECTION_DAY_PLACE, ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1],
+    DEFAULT_SYSTEM_SETTINGS,
+    cvrs
+  );
+
+  const places = getLiveReportsPollingPlaces({
     electionId,
     store,
   }).unsafeUnwrap();
-  expect(matches.map((p) => p.id).sort()).toEqual([
-    ABSENTEE_PLACE_ALL.id,
+  // In election definition order
+  expect(places.map((p) => p.id)).toEqual([
+    ELECTION_DAY_PLACE.id,
     ABSENTEE_PLACE_PRECINCT_1.id,
   ]);
 });
 
-test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee place covers the CVR precincts', async () => {
+test('getLiveReportsPollingPlaces ignores central scanner batches with no CVRs', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '2F',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
-      scannerId: 'scanner-1',
-      precinctId: 'precinct-2',
+      scannerId: 'central-scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_PRECINCT_1.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 2,
+    },
+    // A batch record with no CVRs
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-2',
+      scannerId: 'central-scanner-2',
+      scannerMachineType: 'central',
+      pollingPlaceId: ELECTION_DAY_PLACE.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 0,
+    },
+  ];
+  const { store, electionId } = await setupStore(
+    [ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
+    DEFAULT_SYSTEM_SETTINGS,
+    cvrs
+  );
+
+  const places = getLiveReportsPollingPlaces({
+    electionId,
+    store,
+  }).unsafeUnwrap();
+  expect(places.map((p) => p.id)).toEqual([ABSENTEE_PLACE_PRECINCT_1.id]);
+});
+
+test('generateAdminLiveResultsReportingUrls throws for a polling place with no central scanner batches', async () => {
+  const cvrs: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'central-scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_PRECINCT_1.id,
+      precinctId: 'precinct-1',
       votingMethod: 'absentee',
       votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
@@ -209,50 +314,108 @@ test('getMatchingAbsenteePollingPlaces returns an empty list when no absentee pl
     },
   ];
   const { store, electionId } = await setupStore(
-    [ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
-    DEFAULT_SYSTEM_SETTINGS,
+    [ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1],
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      quickResultsReportingUrl: 'https://results.example.com/submit',
+    },
     cvrs
   );
 
-  const matches = getMatchingAbsenteePollingPlaces({
-    electionId,
-    store,
-  }).unsafeUnwrap();
-  expect(matches).toEqual([]);
+  await expect(
+    generateAdminLiveResultsReportingUrls({
+      electionId,
+      store,
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
+      signingMachineId: 'admin-machine-1',
+      pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
+    })
+  ).rejects.toThrow(
+    `No central scanner batches found for polling place ${ABSENTEE_PLACE_ALL.id}`
+  );
 });
 
-test('getMatchingAbsenteePollingPlaces excludes absentee places missing CVR precincts', async () => {
+test('reported tally includes only the results of central scanner batches associated with the polling place', async () => {
   const cvrs: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M',
       batchId: 'batch-1',
-      scannerId: 'scanner-1',
+      scannerId: 'central-scanner-1',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_PRECINCT_1.id,
       precinctId: 'precinct-1',
-      votingMethod: 'absentee',
-      votes: { fishing: ['ban-fishing'] },
-      card: { type: 'bmd' },
-      multiplier: 2,
-    },
-    {
-      ballotStyleGroupId: '2F',
-      batchId: 'batch-2',
-      scannerId: 'scanner-1',
-      precinctId: 'precinct-2',
       votingMethod: 'absentee',
       votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 3,
     },
+    // Precinct scanner ballots in the same precinct. These must not leak into
+    // the reported tally.
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-2',
+      scannerId: 'precinct-scanner-1',
+      scannerMachineType: 'precinct',
+      pollingPlaceId: ELECTION_DAY_PLACE.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['allow-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 4,
+    },
+    // Central scanner ballots for a different polling place, also in the same
+    // precinct. These must not leak into the reported tally either.
+    {
+      ballotStyleGroupId: '1M',
+      batchId: 'batch-3',
+      scannerId: 'central-scanner-2',
+      scannerMachineType: 'central',
+      pollingPlaceId: ABSENTEE_PLACE_ALL.id,
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['regulate-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
   ];
-  const { store, electionId } = await setupStore(
+  const { store, electionId, electionDefinition } = await setupStore(
     [ABSENTEE_PLACE_ALL, ABSENTEE_PLACE_PRECINCT_1, ELECTION_DAY_PLACE],
-    DEFAULT_SYSTEM_SETTINGS,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      quickResultsReportingUrl: 'https://results.example.com/submit',
+    },
     cvrs
   );
 
-  const matches = getMatchingAbsenteePollingPlaces({
+  const urls = await generateAdminLiveResultsReportingUrls({
     electionId,
     store,
-  }).unsafeUnwrap();
-  expect(matches.map((p) => p.id)).toEqual([ABSENTEE_PLACE_ALL.id]);
+    pollingPlaceId: ABSENTEE_PLACE_PRECINCT_1.id,
+    signingMachineId: 'admin-machine-1',
+    pollsTransitionTimestamp: new Date('2024-11-05T20:00:00Z').getTime(),
+  });
+  expect(urls).toHaveLength(1);
+
+  // Decode the URL payload the same way the live reports receiver does
+  const payload = assertDefined(
+    new URL(assertDefined(urls[0])).searchParams.get('p')
+  );
+  const decoded = decodeQuickResultsMessage(payload);
+  expect(decoded.numPages).toEqual(1);
+  expect(decoded.ballotCount).toEqual(3);
+
+  const contestResultsByPrecinct = decodeAndReadPerPrecinctCompressedTally({
+    election: electionDefinition.election,
+    encodedTally: decoded.encodedCompressedTally,
+  });
+  const fishingResults = assertDefined(contestResultsByPrecinct['precinct-1'])[
+    'fishing'
+  ];
+  assert(
+    fishingResults !== undefined && fishingResults.contestType === 'yesno'
+  );
+  expect(fishingResults.ballots).toEqual(3);
+  expect(fishingResults.tallies['ban-fishing']).toEqual(3);
+  expect(fishingResults.tallies['allow-fishing']).toEqual(0);
+  expect(fishingResults.tallies['regulate-fishing']).toEqual(0);
 });

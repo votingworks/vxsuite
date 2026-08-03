@@ -1425,6 +1425,9 @@ export interface BatchInfo {
 export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);
 export type BallotCastingMode = z.infer<typeof BallotCastingModeSchema>;
 
+export const ScannerMachineTypeSchema = z.enum(['central', 'precinct']);
+export type ScannerMachineType = z.infer<typeof ScannerMachineTypeSchema>;
+
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   id: IdSchema,
   batchNumber: z.number().int().positive(),

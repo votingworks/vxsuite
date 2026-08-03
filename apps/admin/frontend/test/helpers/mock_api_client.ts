@@ -374,12 +374,10 @@ export function createApiMock(
         .throws(error);
     },
 
-    expectGetMatchingAbsenteePollingPlaces(
+    expectGetLiveReportsPollingPlaces(
       result: Result<PollingPlace[], 'no-cvrs-loaded'>
     ) {
-      apiClient.getMatchingAbsenteePollingPlaces
-        .expectCallWith()
-        .resolves(result);
+      apiClient.getLiveReportsPollingPlaces.expectCallWith().resolves(result);
     },
 
     expectGetCastVoteRecordFileMode(fileMode: CvrFileMode) {

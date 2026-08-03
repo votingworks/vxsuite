@@ -21,6 +21,7 @@ import {
   BallotStyleGroupId,
   BallotCastingMode,
   ContestOption,
+  ScannerMachineType,
   UserRole,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
@@ -86,7 +87,9 @@ export interface CastVoteRecordFileMetadata {
 export interface ScannerBatch extends Tabulation.ScannerBatch {
   label: string;
   electionId: string;
+  scannerMachineType?: ScannerMachineType;
   ballotCastingMode?: BallotCastingMode;
+  pollingPlaceId?: string;
   startedAt: string;
 }
 

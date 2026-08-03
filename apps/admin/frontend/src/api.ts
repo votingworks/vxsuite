@@ -483,14 +483,14 @@ export const getLiveResultsReportingUrl = {
   },
 } as const;
 
-export const getMatchingAbsenteePollingPlaces = {
+export const getLiveReportsPollingPlaces = {
   queryKey(): QueryKey {
-    return ['getMatchingAbsenteePollingPlaces'];
+    return ['getLiveReportsPollingPlaces'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
-      apiClient.getMatchingAbsenteePollingPlaces()
+      apiClient.getLiveReportsPollingPlaces()
     );
   },
 } as const;
@@ -673,9 +673,9 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // total ballot count may be affected
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
-    // matching absentee polling places and any signed live-results URLs
-    // depend on which precincts have CVRs
-    queryClient.resetQueries(getMatchingAbsenteePollingPlaces.queryKey()),
+    // live reports polling places and any signed live-results URLs depend
+    // on the loaded CVR batches
+    queryClient.resetQueries(getLiveReportsPollingPlaces.queryKey()),
     queryClient.resetQueries(getLiveResultsReportingUrl.queryKey()),
 
     // ballot adjudication queues
@@ -705,9 +705,9 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
     // total ballot count may be affected
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
-    // matching absentee polling places and any signed live-results URLs
-    // depend on which precincts have ballots
-    queryClient.resetQueries(getMatchingAbsenteePollingPlaces.queryKey()),
+    // live reports polling places and any signed live-results URLs depend
+    // on the loaded CVR batches
+    queryClient.resetQueries(getLiveReportsPollingPlaces.queryKey()),
     queryClient.resetQueries(getLiveResultsReportingUrl.queryKey()),
   ]);
 }

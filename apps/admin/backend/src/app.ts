@@ -126,7 +126,7 @@ import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import {
   generateAdminLiveResultsReportingUrls,
-  getMatchingAbsenteePollingPlaces,
+  getLiveReportsPollingPlaces,
 } from './live_results_reporting';
 import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals';
 import {
@@ -1513,12 +1513,9 @@ function buildApi({
       });
     },
 
-    getMatchingAbsenteePollingPlaces(): Result<
-      PollingPlace[],
-      'no-cvrs-loaded'
-    > {
+    getLiveReportsPollingPlaces(): Result<PollingPlace[], 'no-cvrs-loaded'> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return getMatchingAbsenteePollingPlaces({ electionId, store });
+      return getLiveReportsPollingPlaces({ electionId, store });
     },
 
     async getLiveResultsReportingUrl(input: {
