@@ -121,8 +121,8 @@ test('polling places CRUD', async () => {
   ).toEqual(ok());
 
   expect(await apiClient.listPollingPlaces({ electionId })).toEqual([
-    updatedPlace1,
     place1EarlyVoting,
+    updatedPlace1,
   ]);
 
   // Add new place, get updated list:
@@ -148,10 +148,10 @@ test('polling places CRUD', async () => {
   ).toEqual(ok());
 
   expect(await apiClient.listPollingPlaces({ electionId })).toEqual([
-    updatedPlace1,
-    place1EarlyVoting,
     place2,
+    place1EarlyVoting,
     place3,
+    updatedPlace1,
   ]);
 
   // Delete existing place, get updated list:
@@ -160,11 +160,86 @@ test('polling places CRUD', async () => {
   await apiClient.deletePollingPlace({ electionId, id: place2.id }); // no-op
 
   expect(await apiClient.listPollingPlaces({ electionId })).toEqual([
-    updatedPlace1,
     place1EarlyVoting,
     place3,
+    updatedPlace1,
   ]);
 }, 20_000);
+
+test('polling place precinct order is stable regardless of save order - necessary for guaranteeing a consistent ballot hash', async () => {
+  const user = nonVxUser;
+  const jurisdiction = user.jurisdictions[0];
+
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users: [user],
+  });
+  auth0.setLoggedInUser(user);
+
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: jurisdiction.id,
+      id: 'election1',
+    })
+  ).unsafeUnwrap();
+
+  const precincts: Precinct[] = [
+    { id: 'precinct1', name: 'Precinct 1', districtIds: [] },
+    { id: 'precinct2', name: 'Precinct 2', districtIds: [] },
+    { id: 'precinct3', name: 'Precinct 3', districtIds: [] },
+  ];
+  for (const newPrecinct of precincts) {
+    (
+      await apiClient.createPrecinct({ electionId, newPrecinct })
+    ).unsafeUnwrap();
+  }
+
+  const place: PollingPlace = {
+    id: 'place1',
+    name: 'Place 1',
+    precincts: {
+      precinct1: { type: 'whole' },
+      precinct2: { type: 'whole' },
+      precinct3: { type: 'whole' },
+    },
+    type: 'election_day',
+  };
+  (await apiClient.setPollingPlace({ electionId, place })).unsafeUnwrap();
+
+  async function savedPrecinctIds() {
+    const [savedPlace] = await apiClient.listPollingPlaces({ electionId });
+    return Object.keys(savedPlace.precincts);
+  }
+
+  expect(await savedPrecinctIds()).toEqual([
+    'precinct1',
+    'precinct2',
+    'precinct3',
+  ]);
+
+  // Unchecking and re-checking a precinct in the UI might move it to the end
+  // of the list, so the same set of precincts gets saved in a different order.
+  (
+    await apiClient.setPollingPlace({
+      electionId,
+      place: {
+        ...place,
+        precincts: {
+          precinct2: { type: 'whole' },
+          precinct3: { type: 'whole' },
+          precinct1: { type: 'whole' },
+        },
+      },
+    })
+  ).unsafeUnwrap();
+
+  expect(await savedPrecinctIds()).toEqual([
+    'precinct1',
+    'precinct2',
+    'precinct3',
+  ]);
+});
 
 test('polling place updates on precinct creation/update/deletion', async () => {
   const user = nonVxUser;
@@ -370,17 +445,17 @@ describe('loadElection', () => {
       });
       expect(await api.listPollingPlaces({ electionId })).toEqual([
         {
-          ...place1,
-          id: expect.not.stringMatching(place1.id),
-          precincts: { [precinctCopy1.id]: { type: 'whole' } },
-        },
-        {
           ...place2,
           id: expect.not.stringMatching(place2.id),
           precincts: {
             [precinctCopy1.id]: { type: 'whole' },
             [precinctCopy2.id]: { type: 'whole' },
           },
+        },
+        {
+          ...place1,
+          id: expect.not.stringMatching(place1.id),
+          precincts: { [precinctCopy1.id]: { type: 'whole' } },
         },
       ]);
     });
@@ -509,17 +584,17 @@ describe('cloneElection', () => {
         await api.listPollingPlaces({ electionId: clonedElectionId })
       ).toEqual([
         {
-          ...place1,
-          id: expect.not.stringMatching(place1.id),
-          precincts: { [precinctCopy1.id]: { type: 'whole' } },
-        },
-        {
           ...place2,
           id: expect.not.stringMatching(place2.id),
           precincts: {
             [precinctCopy1.id]: { type: 'whole' },
             [precinctCopy2.id]: { type: 'whole' },
           },
+        },
+        {
+          ...place1,
+          id: expect.not.stringMatching(place1.id),
+          precincts: { [precinctCopy1.id]: { type: 'whole' } },
         },
       ]);
     });
