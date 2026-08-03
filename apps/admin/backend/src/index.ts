@@ -1,4 +1,5 @@
 // Import the rest of our application.
+import { fileURLToPath } from 'node:url';
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import {
   handleUncaughtExceptions,
@@ -29,7 +30,7 @@ async function main(): Promise<number> {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       logger.log(LogEventId.ApplicationStartup, 'system', {

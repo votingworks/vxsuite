@@ -1,4 +1,4 @@
-import { isMatch } from 'micromatch';
+import micromatch from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
@@ -549,7 +549,7 @@ function buildApi({
       // A check for defense-in-depth
       assert(
         NODE_ENV === 'production' && !isIntegrationTest()
-          ? isMatch(input.electionFilePath, REAL_USB_DRIVE_GLOB_PATTERN)
+          ? micromatch.isMatch(input.electionFilePath, REAL_USB_DRIVE_GLOB_PATTERN)
           : true,
         'Can only import election packages from removable media in production'
       );
