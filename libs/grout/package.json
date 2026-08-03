@@ -32,7 +32,6 @@
     "@types/debug": "4.1.12",
     "@types/express": "4.17.14",
     "@types/luxon": "^3.0.0",
-    "@types/node-fetch": "^2.6.0",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "expect-type": "^0.15.0",

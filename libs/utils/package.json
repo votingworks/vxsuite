@@ -55,7 +55,6 @@
     "fast-check": "2.23.2",
     "fetch-mock": "9.11.0",
     "is-ci-cli": "2.2.0",
-    "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"
   },
