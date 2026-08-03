@@ -55,7 +55,7 @@ import {
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
-import { Clock } from 'xstate/lib/interpreter';
+import type { Clock } from 'xstate/lib/interpreter.js';
 import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import { Workspace } from '../util/workspace.js';
 import { SimpleServerStatus } from './types.js';

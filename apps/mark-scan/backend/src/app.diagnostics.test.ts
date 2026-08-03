@@ -21,7 +21,7 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';
 import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { Api } from './app.js';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader.js';
 import {

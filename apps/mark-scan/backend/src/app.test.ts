@@ -48,7 +48,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { AddressInfo } from 'node:net';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import * as backendLib from '@votingworks/backend';
 import {
