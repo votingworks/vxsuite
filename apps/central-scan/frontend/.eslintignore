@@ -6,3 +6,4 @@ types
 /*.config.js
 /scripts
 /config
+/prodserver

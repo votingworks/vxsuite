@@ -1,39 +1,21 @@
-// This file sets up React's proxy in development mode.
-//
-// Currently, non-native Node languages (e.g. typescript) are explicitly not supported:
-// https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-development#configuring-the-proxy-manually
-//
+// Production proxy middleware. The route list and backend target are shared with
+// the dev server (vite.config.ts) via ./proxy.js so they stay in sync.
 /* eslint-disable */
 /* istanbul ignore file */
 
 // @ts-check
 
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
+const { PROXY_PATHS, backendTarget } = require('./proxy');
 
 /**
  * @param {import('connect').Server} app
  */
 module.exports = function (app) {
-  const backendPort = Number(process.env.FRONTEND_PORT || 3000) + 1;
-
-  app.use('/machine-config', (req, res, next) => {
-    if (req.method === 'GET') {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(
-        JSON.stringify({
-          machineId: process.env['VX_MACHINE_ID'] || '0000',
-          codeVersion: process.env['VX_CODE_VERSION'] || 'dev',
-        })
-      );
-    } else {
-      next();
-    }
-  });
-
   app.use(
     proxy({
-      target: `http://localhost:${backendPort}/`,
-      pathFilter: ['/api', '/dock', '/central-scanner'],
+      pathFilter: PROXY_PATHS,
+      target: backendTarget(),
     })
   );
 };

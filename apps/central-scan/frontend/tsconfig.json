@@ -6,15 +6,15 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "node16",
-    "moduleResolution": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false
   },
-  "exclude": ["src/setupProxy.js"],
+  "exclude": [],
   "include": ["src", "prodserver", "script", "test", "types"],
   "references": [
     { "path": "../../../libs/basics/tsconfig.build.json" },
