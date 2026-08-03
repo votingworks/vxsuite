@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { join } from 'node:path';
 import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
-import setupProxy from './prodserver/setupProxy';
+import { PROXY_PATHS, backendTarget } from './prodserver/proxy';
 
 export default defineConfig((env) => {
   const workspacePackages = getWorkspacePackageInfo(join(__dirname, '../..'));
@@ -113,21 +113,17 @@ export default defineConfig((env) => {
       ],
     },
 
-    plugins: [
-      react(),
-
-      // Setup the proxy to local services.
-      {
-        name: 'development-proxy',
-        configureServer: (app) => {
-          setupProxy(app.middlewares);
-        },
-      },
-    ],
+    plugins: [react()],
 
     server: {
       port: Number(process.env.FRONTEND_PORT || 3000),
       strictPort: true,
+
+      // Proxy backend requests to the local backend (dev only), using the same
+      // route list and target as the production server (see ./prodserver/proxy).
+      proxy: Object.fromEntries(
+        PROXY_PATHS.map((proxyPath) => [proxyPath, backendTarget()])
+      ),
     },
 
     // Pass some environment variables to the client in `import.meta.env`.
