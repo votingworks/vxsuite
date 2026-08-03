@@ -29,7 +29,6 @@ function mockQueries({
   testBallotsPresent = true,
   totalPrintCount = 0,
 } = {}) {
-  // The setTestMode mutation invalidates these queries, so they may refetch.
   apiMock.getTestMode.expectRepeatedCallsWith().resolves(isTestMode);
   apiMock.hasTestBallots.expectRepeatedCallsWith().resolves(testBallotsPresent);
   apiMock.getBallotPrintCounts.expectRepeatedCallsWith().resolves(
@@ -105,7 +104,6 @@ test('Cancel closes the confirmation without toggling', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(screen.queryByText(confirmPrompt)).not.toBeInTheDocument();
-  // The absence of a setTestMode call is verified by assertComplete().
 });
 
 test('disables the toggle and explains why when the election package has no test ballots', async () => {
