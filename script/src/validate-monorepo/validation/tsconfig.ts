@@ -244,7 +244,11 @@ export async function* checkConfig(
       continue;
     }
 
-    if (!packageJson.devDependencies?.['typescript']) {
+    // The monorepo migrated to a root-level `@typescript/native` compiler, so
+    // individual packages no longer declare a `typescript` devDependency. Gate on
+    // the presence of a tsconfig.json instead — a robust signal that a package
+    // uses TypeScript, independent of how the compiler is provided.
+    if (!ts.sys.fileExists(join(pkg.path, 'tsconfig.json'))) {
       continue;
     }
 
