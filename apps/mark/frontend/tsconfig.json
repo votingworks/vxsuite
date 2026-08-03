@@ -1,15 +1,15 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "include": ["src", "test"],
-  "exclude": ["src/setupProxy.js"],
+  "exclude": [],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "node16",
-    "moduleResolution": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
