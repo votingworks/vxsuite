@@ -1,10 +1,10 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import { readdirSync, readFileSync } from 'node:fs';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   Admin,
@@ -75,7 +75,9 @@ test('add an election', async () => {
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData,
-    electionPackageFileContents,
+    electionPackageSourceFilePath: makeTemporaryFile({
+      content: electionPackageFileContents,
+    }),
     electionPackageHash,
   });
 
@@ -97,6 +99,21 @@ test('add an election', async () => {
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
 });
 
+test('addElection surfaces the copy error when the package source is missing', async () => {
+  const tempDirectory = makeTemporaryDirectory();
+  const store = Store.memoryStore(tempDirectory);
+  await expect(
+    store.addElection({
+      electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageSourceFilePath: join(tempDirectory, 'does-not-exist.zip'),
+      electionPackageHash: 'test-hash',
+    })
+  ).rejects.toThrow(/ENOENT/);
+
+  expect(readdirSync(join(tempDirectory, 'election-packages'))).toEqual([]);
+});
+
 test('addElection cleanup in case of failure', async () => {
   const tempDirectory = makeTemporaryDirectory();
   const store = Store.memoryStore(tempDirectory);
@@ -104,7 +121,7 @@ test('addElection cleanup in case of failure', async () => {
     store.addElection({
       electionData: `${electionTwoPartyPrimaryFixtures.electionJson.asText()}!UH-OH-CORRUPTED`,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-hash',
     })
   ).rejects.toThrow();
@@ -118,7 +135,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with precinct-only c
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-hash',
   });
 
@@ -138,7 +155,7 @@ test('setRegisteredVoterCounts and getRegisteredVoterCounts with split precinct 
   const electionId = await store.addElection({
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-hash',
   });
 
@@ -169,7 +186,7 @@ test('setElectionResultsOfficial', async () => {
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
 
@@ -207,7 +224,7 @@ test('current election id', async () => {
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
 
@@ -225,7 +242,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   const retrievedSystemSettings = store.getSystemSettings(electionId);
@@ -237,7 +254,7 @@ test('scanner batches', async () => {
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   expect(store.getScannerBatches(electionId)).toEqual([]);
@@ -268,7 +285,7 @@ test('delete empty scanner batches', async () => {
   const electionId = await store.addElection({
     electionData: fixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
 
@@ -327,7 +344,7 @@ test('getWriteInCandidates returns no candidates for an empty contestIds filter'
   const electionId = await store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
 
@@ -352,7 +369,7 @@ test('manual results', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   const contestId = 'zoo-council-mammal';
@@ -482,7 +499,7 @@ test('manual results - early_voting is a valid votingMethod', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
 
@@ -546,7 +563,7 @@ describe('getTabulationGroups', () => {
     electionId = await store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
       systemSettingsData,
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
     });
     election = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -749,7 +766,7 @@ describe('getFilteredContests', () => {
     electionId = await store.addElection({
       electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
       systemSettingsData,
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
     });
     election = electionPrimaryPrecinctSplitsFixtures.readElection();
@@ -902,7 +919,7 @@ describe('machine ballot adjudication assignments', () => {
     electionId = await store.addElection({
       electionData: electionDefinition.electionData,
       systemSettingsData,
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-hash',
     });
     store.setCurrentElectionId(electionId);

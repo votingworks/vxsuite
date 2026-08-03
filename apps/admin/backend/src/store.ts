@@ -54,7 +54,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
@@ -266,17 +266,20 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Creates an election record and returns its ID.
+   * Creates an election record and returns its ID. The raw election package
+   * is archived to the file system with a copy of
+   * `electionPackageSourceFilePath`, so that the whole zip is never held in
+   * memory.
    */
   async addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents,
+    electionPackageSourceFilePath,
     electionPackageHash,
   }: {
     electionData: string;
     systemSettingsData: string;
-    electionPackageFileContents: Buffer;
+    electionPackageSourceFilePath: string;
     electionPackageHash: string;
   }): Promise<Id> {
     const id = uuid();
@@ -288,7 +291,7 @@ export class Store implements BaseStore {
     await mkdir(dirname(electionPackageFilePath), { recursive: true });
 
     try {
-      await writeFile(electionPackageFilePath, electionPackageFileContents);
+      await copyFile(electionPackageSourceFilePath, electionPackageFilePath);
       this.withTransaction(() => {
         this.client.run(
           `
@@ -307,8 +310,11 @@ export class Store implements BaseStore {
         this.createElectionMetadataRecords(id);
       });
     } catch (error) {
-      // Be sure to clean up the election package file in case of failure
-      await unlink(electionPackageFilePath);
+      // Be sure to clean up the election package file in case of failure.
+      // The file may not exist if the copy itself failed (e.g. the source
+      // was missing), so ignore missing-file errors rather than masking the
+      // original error.
+      await rm(electionPackageFilePath, { force: true });
       throw error;
     }
 

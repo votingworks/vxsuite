@@ -5,6 +5,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
+  ElectionPackageWithHash,
+  ElectionRegisteredVoterCounts,
   EncodedBallotEntry,
   InsertedSmartCardAuth,
   LATEST_METADATA,
@@ -54,7 +56,6 @@ import {
   mockElectionPackageFileTree,
 } from './test_utils';
 import {
-  ElectionPackageWithFileContents,
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
   readSignedElectionPackageFromDirectory,
@@ -127,7 +128,7 @@ test('readElectionPackageFromFile reads an election package without system setti
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -138,7 +139,6 @@ test('readElectionPackageFromFile reads an election package without system setti
       ballots: [],
     },
     electionPackageHash: sha256(fileContents),
-    fileContents,
   });
 });
 
@@ -155,7 +155,7 @@ test('readElectionPackageFromFile reads an election package with system settings
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -166,7 +166,6 @@ test('readElectionPackageFromFile reads an election package with system settings
       ballots: [],
     },
     electionPackageHash: sha256(fileContents),
-    fileContents,
   });
 });
 
@@ -209,7 +208,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -220,7 +219,6 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
       ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -236,7 +234,7 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
   ).unsafeUnwrap().ballotStrings;
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition:
         safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
@@ -248,7 +246,6 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
       ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -285,7 +282,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -296,7 +293,6 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
       ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -320,7 +316,7 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -331,7 +327,6 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
       ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -362,12 +357,14 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
     [ElectionPackageFileName.BALLOTS]: ballots
       .map((ballot) => JSON.stringify(ballot))
       .join('\n'),
+    // Directory entries (created for the nested path) should be ignored
+    'nested/extra.txt': 'not an election package file',
   });
   const file = makeTemporaryFile({ content: pkg });
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
@@ -378,8 +375,69 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
       ballots,
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
+});
+
+test('readElectionPackageFromBuffer parses ballots, audio clips, and registered voter counts', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+
+  const audioClips: UiStringAudioClips = [
+    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: 'en' },
+  ];
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'ABC==',
+    },
+  ];
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
+    precinct_1: 100,
+  };
+
+  const pkg = await electionPackageZip({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
+      .map((clip) => JSON.stringify(clip))
+      .join('\n'),
+    [ElectionPackageFileName.BALLOTS]: ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n'),
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
+      registeredVoterCounts
+    ),
+  });
+
+  expect(
+    (await readElectionPackageFromBuffer(pkg)).unsafeUnwrap()
+  ).toEqual<ElectionPackageWithHash>({
+    electionPackage: {
+      electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStrings: electionDefinition.election.ballotStrings,
+      uiStringAudioClips: audioClips,
+      registeredVoterCounts,
+      ballots,
+    },
+    electionPackageHash: sha256(pkg),
+  });
+});
+
+test('readElectionPackageFromBuffer errors when given an invalid zip', async () => {
+  expect(
+    await readElectionPackageFromBuffer(Buffer.from('not a zip file'))
+  ).toEqual(
+    err({
+      type: 'invalid-zip',
+      message: expect.stringContaining('central directory'),
+    })
+  );
 });
 
 test('readElectionPackageFromFile reads metadata', async () => {
@@ -396,7 +454,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata,
@@ -407,7 +465,6 @@ test('readElectionPackageFromFile reads metadata', async () => {
       ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -428,8 +485,7 @@ test('readElectionPackageFromFile errors throws when given an invalid zip file',
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-zip',
-      message:
-        "Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html",
+      message: expect.stringContaining('Error'),
     })
   );
 });

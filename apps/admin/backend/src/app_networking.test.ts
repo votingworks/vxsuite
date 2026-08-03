@@ -6,6 +6,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   Admin,
@@ -309,7 +310,7 @@ test('client receives and caches election data from configured host', async () =
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -349,7 +350,7 @@ test('client logs out when host election is unconfigured', async () => {
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -384,7 +385,7 @@ async function addElectionWithAdjudicableCvrs(
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: globalThis.Buffer.from('test'),
+    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
