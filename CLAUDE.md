@@ -45,7 +45,7 @@ Each app typically has `frontend/`, `backend/`, and optionally
   @tanstack/react-query v4
 - **Backend:** Express 4, better-sqlite3, zod for validation
 - **API Layer:** @votingworks/grout (custom type-safe RPC)
-- **Package Manager:** pnpm 9.15 (workspaces)
+- **Package Manager:** pnpm 10.34.5 (workspaces)
 - **Build:** tsc (TypeScript 7 native compiler), esbuild, Vite (frontends)
 - **Node:** 20.19.0
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
