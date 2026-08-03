@@ -46,7 +46,7 @@ import {
   sendParent,
   spawn,
 } from 'xstate';
-import { Clock } from 'xstate/lib/interpreter';
+import type { Clock } from 'xstate/lib/interpreter.js';
 import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
 import { writeImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';

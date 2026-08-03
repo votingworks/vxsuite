@@ -39,7 +39,7 @@ import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app.js';
 import { Player as AudioPlayer } from '../../src/audio/player.js';
