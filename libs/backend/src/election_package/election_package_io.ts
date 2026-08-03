@@ -45,7 +45,6 @@ import {
   UiStringAudioIdsPackage,
   safeParseElectionDefinition,
   constructElectionKey,
-  ElectionPackageWithHash,
   EncodedBallotEntry,
   EncodedBallotEntrySchema,
   SystemLimitViolation,
@@ -77,6 +76,27 @@ interface ReadElectionPackageOptions {
   checkMarkScanSystemLimits?: boolean;
   checkMarkSystemLimits?: boolean;
   systemLimitsOverride?: SystemLimits;
+}
+
+/**
+ * An election package as parsed by the read functions in this module: the
+ * bounded metadata only. The unbounded entries (serialized ballots, audio
+ * clips) are never parsed into memory; consume them with
+ * {@link streamElectionPackageBallots} /
+ * {@link streamElectionPackageAudioClips} instead.
+ */
+export type ParsedElectionPackage = Omit<
+  ElectionPackage,
+  'ballots' | 'uiStringAudioClips'
+>;
+
+/**
+ * A {@link ParsedElectionPackage} along with the hash of the raw zip contents
+ * it was parsed from.
+ */
+export interface ParsedElectionPackageWithHash {
+  electionPackage: ParsedElectionPackage;
+  electionPackageHash: string;
 }
 
 const ZIP_NAME = 'election package';
@@ -188,7 +208,7 @@ async function sha256File(path: string): Promise<string> {
 async function parseElectionPackage(
   zip: ElectionPackageZip,
   options?: ReadElectionPackageOptions
-): Promise<Result<ElectionPackage, ElectionPackageError>> {
+): Promise<Result<ParsedElectionPackage, ElectionPackageError>> {
   // The election entry is required; check it first so that its missing-file
   // error takes precedence over the other entries'.
   if (!zip.hasEntry(ElectionPackageFileName.ELECTION)) {
@@ -263,22 +283,6 @@ async function parseElectionPackage(
     ).unsafeUnwrap();
   }
 
-  // UI String Clips:
-
-  const uiStringAudioClips: UiStringAudioClip[] = [];
-  if (zip.hasEntry(ElectionPackageFileName.AUDIO_CLIPS)) {
-    const audioClipsFileLines = readline.createInterface(
-      await zip.openEntryStream(ElectionPackageFileName.AUDIO_CLIPS)
-    );
-    for await (const line of audioClipsFileLines) {
-      // Skip blank lines (an empty audioClips.jsonl has no clips).
-      if (line.trim().length === 0) continue;
-      uiStringAudioClips.push(
-        safeParseJson(line, UiStringAudioClipSchema).unsafeUnwrap()
-      );
-    }
-  }
-
   // Registered Voter Counts:
   let registeredVoterCounts: ElectionRegisteredVoterCounts | undefined;
   if (zip.hasEntry(ElectionPackageFileName.REGISTERED_VOTER_COUNTS)) {
@@ -288,32 +292,15 @@ async function parseElectionPackage(
     ).unsafeUnwrap();
   }
 
-  // Ballots:
-  // "Entry" in EncodedBallotEntry refers to a line as an entry in a JSONL file.
-  const ballots: EncodedBallotEntry[] = [];
-  if (zip.hasEntry(ElectionPackageFileName.BALLOTS)) {
-    const ballotsFileLines = readline.createInterface(
-      await zip.openEntryStream(ElectionPackageFileName.BALLOTS)
-    );
-
-    for await (const line of ballotsFileLines) {
-      ballots.push(
-        safeParseJson(line, EncodedBallotEntrySchema).unsafeUnwrap()
-      );
-    }
-  }
-
   // TODO(kofi): Verify package version matches machine build version.
 
-  const electionPackage: ElectionPackage = {
-    ballots,
+  const electionPackage: ParsedElectionPackage = {
     electionDefinition,
     metadata,
     registeredVoterCounts,
     systemSettings,
     uiStrings,
     uiStringAudioIds,
-    uiStringAudioClips,
   };
 
   if (!systemSettings.disableSystemLimitChecks) {
@@ -338,7 +325,7 @@ async function parseElectionPackage(
 export async function readElectionPackageFromBuffer(
   fileContents: Buffer,
   options?: ReadElectionPackageOptions
-): Promise<Result<ElectionPackageWithHash, ElectionPackageError>> {
+): Promise<Result<ParsedElectionPackageWithHash, ElectionPackageError>> {
   try {
     const zipFile = await openZip(fileContents);
     const result = await parseElectionPackage(
@@ -367,7 +354,7 @@ export async function readElectionPackageFromBuffer(
 export async function readElectionPackageFromFile(
   path: string,
   options?: ReadElectionPackageOptions
-): Promise<Result<ElectionPackageWithHash, ElectionPackageError>> {
+): Promise<Result<ParsedElectionPackageWithHash, ElectionPackageError>> {
   let close: (() => void) | undefined;
   try {
     const fileBackedZip = await openFileBackedZip(path);
@@ -388,6 +375,98 @@ export async function readElectionPackageFromFile(
   } finally {
     close?.();
   }
+}
+
+// JSONL entries can be MBs each, so batches are capped by size rather than
+// count — the peak memory of streaming is roughly one batch
+const STREAM_BATCH_MAX_CHARS = 8 * 1024 * 1024;
+
+/**
+ * Streams a JSONL entry in an election package zip from disk, delivering
+ * parsed lines to `onBatch` in batches capped at roughly
+ * {@link STREAM_BATCH_MAX_CHARS} of JSONL, so that the full entry contents
+ * are never held in memory. Blank lines are skipped. Returns the total number
+ * of items streamed (0 if the package has no such entry).
+ */
+async function streamElectionPackageJsonlEntry<T>(
+  path: string,
+  entryName: string,
+  parseLine: (line: string) => T,
+  onBatch: (items: T[]) => void | Promise<void>
+): Promise<number> {
+  const { zip, close } = await openFileBackedZip(path);
+  try {
+    if (!zip.hasEntry(entryName)) {
+      return 0;
+    }
+
+    const fileLines = readline.createInterface(
+      await zip.openEntryStream(entryName)
+    );
+    let batch: T[] = [];
+    let batchChars = 0;
+    let count = 0;
+    for await (const line of fileLines) {
+      if (line.trim().length === 0) continue;
+      batch.push(parseLine(line));
+      batchChars += line.length;
+      count += 1;
+      if (batchChars >= STREAM_BATCH_MAX_CHARS) {
+        await onBatch(batch);
+        batch = [];
+        batchChars = 0;
+      }
+    }
+    if (batch.length > 0) {
+      await onBatch(batch);
+    }
+    return count;
+  } finally {
+    close();
+  }
+}
+
+/**
+ * Streams the serialized ballots in an election package zip from disk in
+ * size-capped batches, so that the full set is never held in memory. Returns
+ * the total number of ballots streamed (0 if the package has no ballots
+ * file).
+ *
+ * Intended as a second pass after the package has been read and validated;
+ * parse errors are unexpected at that point and throw.
+ */
+export function streamElectionPackageBallots(
+  path: string,
+  onBatch: (ballots: EncodedBallotEntry[]) => void | Promise<void>
+): Promise<number> {
+  return streamElectionPackageJsonlEntry(
+    path,
+    ElectionPackageFileName.BALLOTS,
+    (line) => safeParseJson(line, EncodedBallotEntrySchema).unsafeUnwrap(),
+    onBatch
+  );
+}
+
+/**
+ * Streams the UI string audio clips in an election package zip from disk in
+ * size-capped batches, so that the full set is never held in memory. Returns
+ * the total number of clips streamed (0 if the package has no audio clips
+ * file). Clips are not filtered by language; callers should filter against
+ * their configured languages.
+ *
+ * Intended as a second pass after the package has been read and validated;
+ * parse errors are unexpected at that point and throw.
+ */
+export function streamElectionPackageAudioClips(
+  path: string,
+  onBatch: (clips: UiStringAudioClip[]) => void | Promise<void>
+): Promise<number> {
+  return streamElectionPackageJsonlEntry(
+    path,
+    ElectionPackageFileName.AUDIO_CLIPS,
+    (line) => safeParseJson(line, UiStringAudioClipSchema).unsafeUnwrap(),
+    onBatch
+  );
 }
 
 /**
@@ -453,6 +532,18 @@ export async function getMostRecentElectionPackageFilepath(
 }
 
 /**
+ * An election package as read from a signed zip on a USB drive: the bounded
+ * metadata only, along with the path of the zip file it was read from. The
+ * unbounded entries (serialized ballots, audio clips) are never parsed into
+ * memory; consume them with {@link streamElectionPackageBallots} /
+ * {@link streamElectionPackageAudioClips} using the file path.
+ */
+export type ParsedElectionPackageWithFilePath =
+  ParsedElectionPackageWithHash & {
+    filePath: string;
+  };
+
+/**
  * Validates desired auth and returns the election package from a directory if
  * possible, or an error if not possible.
  *
@@ -465,7 +556,9 @@ export async function readSignedElectionPackageFromDirectory(
   directory: string,
   logger: BaseLogger,
   options?: ReadElectionPackageOptions
-): Promise<Result<ElectionPackageWithHash, ElectionPackageConfigurationError>> {
+): Promise<
+  Result<ParsedElectionPackageWithFilePath, ElectionPackageConfigurationError>
+> {
   // The frontend tries to prevent election package configuration attempts until an election
   // manager has authed. But we may reach this state if a user removes their card immediately
   // after inserting it, but after the election package configuration attempt has started
@@ -537,5 +630,5 @@ export async function readSignedElectionPackageFromDirectory(
     return err({ type: 'election_key_mismatch' });
   }
 
-  return ok(electionPackageWithHash);
+  return ok({ ...electionPackageWithHash, filePath: filepathResult.ok() });
 }

@@ -7,6 +7,8 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
+  ELECTION_PACKAGE_FOLDER,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assertDefined, err, ok } from '@votingworks/basics';
@@ -14,14 +16,18 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   suppressingConsoleOutput,
+  zipFile,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
+  DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   ElectionDefinition,
+  ElectionPackageFileName,
+  LATEST_METADATA,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
@@ -114,6 +120,37 @@ test("fails to configure if there's no election package on the usb drive", async
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err({ type: 'no_election_package' })
     );
+  });
+});
+
+test('cleans up when audio clip streaming fails during configure', async () => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
+    mockElectionManager(mockAuth, electionGeneralDefinition);
+    mockUsbDrive.insertUsbDrive({
+      [generateElectionBasedSubfolderName(
+        electionGeneral,
+        electionGeneralDefinition.ballotHash
+      )]: {
+        [ELECTION_PACKAGE_FOLDER]: {
+          'test-election-package.zip': await zipFile({
+            [ElectionPackageFileName.ELECTION]:
+              electionGeneralDefinition.electionData,
+            [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+            [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+              DEFAULT_SYSTEM_SETTINGS
+            ),
+            [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+            [ElectionPackageFileName.AUDIO_CLIPS]:
+              'not a valid audio clip line',
+          }),
+        },
+      },
+    });
+
+    await expect(
+      apiClient.configureFromElectionPackageOnUsbDrive()
+    ).rejects.toThrow();
+    expect((await apiClient.getConfig()).electionDefinition).toBeUndefined();
   });
 });
 

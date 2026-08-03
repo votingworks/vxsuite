@@ -380,9 +380,9 @@ export class Store {
   }
 
   /**
-   * Stores encoded ballots for printing.
+   * Appends encoded ballots for printing.
    */
-  setBallots(ballots: EncodedBallotEntry[]): void {
+  addBallots(ballots: EncodedBallotEntry[]): void {
     const insert = this.client.prepare(
       `
       insert into ballots (
@@ -395,16 +395,18 @@ export class Store {
       `
     );
 
-    for (const ballot of ballots) {
-      this.client.run(
-        insert,
-        ballot.ballotStyleId,
-        ballot.precinctId,
-        ballot.ballotType,
-        ballot.ballotMode,
-        ballot.encodedBallot
-      );
-    }
+    this.withTransaction(() => {
+      for (const ballot of ballots) {
+        this.client.run(
+          insert,
+          ballot.ballotStyleId,
+          ballot.precinctId,
+          ballot.ballotType,
+          ballot.ballotMode,
+          ballot.encodedBallot
+        );
+      }
+    });
   }
 
   /**

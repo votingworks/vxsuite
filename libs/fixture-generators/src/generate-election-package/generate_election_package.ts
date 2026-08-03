@@ -1,4 +1,7 @@
-import { getAllStringsForElectionPackage } from '@votingworks/backend';
+import {
+  getAllStringsForElectionPackage,
+  ParsedElectionPackage,
+} from '@votingworks/backend';
 import {
   allBaseBallotProps,
   ballotTemplates,
@@ -9,7 +12,6 @@ import {
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  ElectionPackage,
   ElectionPackageFileName,
   ElectionPackageMetadata,
   getBallotLanguageConfigs,
@@ -35,7 +37,7 @@ export async function generateElectionPackage(
   election: Election,
   assetDirectoryPath: string,
   isMultiLanguage: boolean,
-  priorElectionPackage?: ElectionPackage
+  priorElectionPackage?: ParsedElectionPackage
 ): Promise<[string, string]> {
   const zip = new JsZip();
 

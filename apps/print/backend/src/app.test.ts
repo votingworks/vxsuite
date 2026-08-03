@@ -14,8 +14,10 @@ import {
   DEV_MACHINE_ID,
   EncodedBallotEntry,
   ElectionDefinition,
+  ElectionPackageFileName,
   HmpbBallotPaperSize,
   LanguageCode,
+  LATEST_METADATA,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
@@ -30,9 +32,12 @@ import {
 import { LogEventId, MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
+  ELECTION_PACKAGE_FOLDER,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
+import { zipFile } from '@votingworks/test-utils';
 import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
@@ -321,6 +326,33 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
     expect.anything(),
     expect.objectContaining({ disposition: 'failure' })
   );
+});
+
+test('configureElectionPackageFromUsb cleans up when ballot streaming fails', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  mockElectionManagerAuth(auth, electionDefinition);
+  mockUsbDrive.insertUsbDrive({
+    [generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.ballotHash
+    )]: {
+      [ELECTION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': await zipFile({
+          [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+          [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+          [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+            DEFAULT_SYSTEM_SETTINGS
+          ),
+          [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+          [ElectionPackageFileName.BALLOTS]: 'not a valid ballot line',
+        }),
+      },
+    },
+  });
+
+  await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow();
+  expect(await apiClient.getElectionRecord()).toBeNull();
 });
 
 test('configureElectionPackageFromUsb auto-selects polling place for single-location election', async () => {
