@@ -378,7 +378,7 @@ importers:
         version: 3.3.0
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0(node-fetch@2.7.0)
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
@@ -403,9 +403,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1761,13 +1758,10 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0(node-fetch@2.7.0)
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -2148,16 +2142,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0(node-fetch@2.7.0)
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2315,9 +2306,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -2352,9 +2340,6 @@ importers:
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2680,9 +2665,6 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.7.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2714,9 +2696,6 @@ importers:
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.4
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3480,9 +3459,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       pcsclite:
         specifier: ^1.0.1
         version: 1.0.1
@@ -3505,9 +3481,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4610,9 +4583,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/node-fetch':
-        specifier: ^2.6.0
-        version: 2.6.2
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -6156,13 +6126,10 @@ importers:
         version: 2.23.2
       fetch-mock:
         specifier: 9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
+        version: 9.11.0(node-fetch@2.7.0)
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      node-fetch:
-        specifier: ^2.6.0
-        version: 2.6.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -10190,9 +10157,6 @@ packages:
 
   '@types/mysql@2.15.26':
     resolution: {integrity: sha512-DSLCOXhkvfS5WNNPbfn2KdICAmk8lLc+/PNvnPnF7gOdMZCxopXduqv0OQ13y/yA/zXTSikZZqVgybUxOEg6YQ==}
-
-  '@types/node-fetch@2.6.2':
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
 
   '@types/node-fetch@2.6.4':
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
@@ -21902,11 +21866,6 @@ snapshots:
     dependencies:
       '@types/node': 20.17.31
 
-  '@types/node-fetch@2.6.2':
-    dependencies:
-      '@types/node': 20.17.31
-      form-data: 3.0.1
-
   '@types/node-fetch@2.6.4':
     dependencies:
       '@types/node': 20.17.31
@@ -24445,7 +24404,7 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.4
 
-  fetch-mock@9.11.0(node-fetch@2.6.7):
+  fetch-mock@9.11.0(node-fetch@2.7.0):
     dependencies:
       '@babel/core': 7.22.9
       '@babel/runtime': 7.22.6
@@ -24458,7 +24417,7 @@ snapshots:
       querystring: 0.2.1
       whatwg-url: 6.5.0
     optionalDependencies:
-      node-fetch: 2.6.7
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - supports-color
 
