@@ -27,6 +27,7 @@
     { "path": "../../../libs/types/tsconfig.build.json" },
     { "path": "../../../libs/ui/tsconfig.build.json" },
     { "path": "../../../libs/usb-drive/tsconfig.build.json" },
-    { "path": "../../../libs/utils/tsconfig.build.json" }
+    { "path": "../../../libs/utils/tsconfig.build.json" },
+    { "path": "../../../libs/bmd-ballot-fixtures/tsconfig.build.json" }
   ]
 }

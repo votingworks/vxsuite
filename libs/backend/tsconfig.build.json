@@ -19,6 +19,7 @@
     { "path": "../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/usb-drive/tsconfig.build.json" },
-    { "path": "../../libs/utils/tsconfig.build.json" }
+    { "path": "../../libs/utils/tsconfig.build.json" },
+    { "path": "../db/tsconfig.build.json" }
   ]
 }

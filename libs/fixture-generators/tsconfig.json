@@ -20,6 +20,7 @@
     { "path": "../types/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" },
     { "path": "../hmpb/tsconfig.build.json" },
-    { "path": "../backend/tsconfig.build.json" }
+    { "path": "../backend/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" }
   ]
 }
