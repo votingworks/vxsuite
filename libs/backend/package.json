@@ -54,6 +54,7 @@
     "stream-json": "^1.7.5",
     "tmp": "^0.2.6",
     "usb": "2.15.0",
+    "yauzl": "3.4.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -67,6 +68,7 @@
     "@types/stream-chopper": "workspace:*",
     "@types/stream-json": "^1.7.3",
     "@types/tmp": "0.2.4",
+    "@types/yauzl": "2.10.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",

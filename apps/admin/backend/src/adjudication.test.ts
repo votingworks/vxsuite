@@ -1,5 +1,4 @@
 import { expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import {
   AdjudicationReason,
   ContestOptionId,
@@ -11,6 +10,7 @@ import {
   electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -30,7 +30,7 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -136,7 +136,7 @@ test('adjudicateCvr write-in logging and candidate cleanup', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -316,7 +316,7 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -452,7 +452,7 @@ test('adjudicateCvr adjudicates contest and resolves tags', async () => {
         adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
       })
     ),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -714,7 +714,7 @@ test('blank ballot appears in adjudication queue when BlankBallot reason is enab
         adminAdjudicationReasons: [AdjudicationReason.BlankBallot],
       })
     ),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -760,7 +760,7 @@ test('blank ballot does not appear in adjudication queue when BlankBallot reason
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -803,7 +803,7 @@ test('marginal mark CVR does not appear in adjudication queue when MarginalMark 
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -841,7 +841,7 @@ test('CVR with only an unmarked write-in appears in adjudication queue', async (
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -881,7 +881,7 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -964,7 +964,7 @@ test('combined ballot primary crossover vote', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

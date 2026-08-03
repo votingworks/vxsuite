@@ -6,6 +6,7 @@ import {
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -121,7 +122,7 @@ test('tabulateCastVoteRecords', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -338,7 +339,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -373,7 +374,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -785,7 +786,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -1090,7 +1091,7 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
       adminAdjudicationReasons: [AdjudicationReason.Overvote],
       enableEarlyVoting: true,
     }),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

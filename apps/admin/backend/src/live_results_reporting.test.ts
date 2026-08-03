@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { assert, assertDefined } from '@votingworks/basics';
 import { decodeQuickResultsMessage } from '@votingworks/auth';
@@ -17,7 +18,6 @@ import {
   decodeAndReadPerPrecinctCompressedTally,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { Buffer } from 'node:buffer';
 import { Store } from './store';
 import {
   generateAdminLiveResultsReportingUrls,
@@ -94,7 +94,7 @@ async function setupStore(
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(systemSettings),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
