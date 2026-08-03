@@ -31,7 +31,7 @@ import {
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { Api, buildApp } from '../src/app.js';
 import { createWorkspace, Workspace } from '../src/util/workspace.js';
 import {

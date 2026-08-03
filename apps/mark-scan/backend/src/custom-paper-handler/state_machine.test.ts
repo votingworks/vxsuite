@@ -58,7 +58,7 @@ import {
   writeImageData,
 } from '@votingworks/image-utils';
 import { join } from 'node:path';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   ACCEPTED_PAPER_TYPES,
