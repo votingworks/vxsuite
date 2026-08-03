@@ -392,7 +392,7 @@ test('mode toggling', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const ballots = await buildBallotsForElection({
     electionDefinition,
-    ballotModes: ['official'],
+    ballotModes: ['official', 'test'],
   });
   await configureMachine({
     electionDefinition,
@@ -403,11 +403,12 @@ test('mode toggling', async () => {
   });
 
   expect(await apiClient.getTestMode()).toEqual(false);
+  expect(await apiClient.hasTestBallots()).toEqual(true);
 
   await apiClient.setTestMode({ testMode: true });
   expect(await apiClient.getTestMode()).toEqual(true);
-  expect(await apiClient.getBallots({})).toHaveLength(0);
-  expect(await apiClient.getBallotPrintCounts()).toHaveLength(0);
+  expect(await apiClient.getBallots({})).not.toHaveLength(0);
+  expect(await apiClient.getBallotPrintCounts()).not.toHaveLength(0);
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ToggledTestMode,
     expect.objectContaining({ disposition: 'success' })
@@ -421,6 +422,46 @@ test('mode toggling', async () => {
   );
 });
 
+test('cannot switch to test mode when the election package has no test ballots', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+
+  expect(await apiClient.hasTestBallots()).toEqual(false);
+  expect(await apiClient.getTestMode()).toEqual(false);
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  await apiClient.printBallot({
+    precinctId: electionDefinition.election.ballotStyles[0].precincts[0],
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 1,
+  });
+  const printCounts = await apiClient.getBallotPrintCounts();
+  expect(printCounts.some((count) => count.totalCount > 0)).toEqual(true);
+
+  await expect(apiClient.setTestMode({ testMode: true })).rejects.toThrow(
+    'Cannot switch to test ballot mode: the election package does not contain test ballots.'
+  );
+  expect(await apiClient.getTestMode()).toEqual(false);
+  // The rejected switch must not have reset the print counts.
+  expect(await apiClient.getBallotPrintCounts()).toEqual(printCounts);
+
+  // Switching to official mode is always allowed.
+  await apiClient.setTestMode({ testMode: false });
+  expect(await apiClient.getTestMode()).toEqual(false);
+});
+
 test('unconfigureMachine clears election configuration', async () => {
   // Test with a cdf election for coverage
   const electionDefinition = safeParseElectionDefinition(
@@ -428,7 +469,7 @@ test('unconfigureMachine clears election configuration', async () => {
   ).unsafeUnwrap();
   const ballots = await buildBallotsForElection({
     electionDefinition,
-    ballotModes: ['official'],
+    ballotModes: ['official', 'test'],
   });
   await configureMachine({
     electionDefinition,
@@ -457,45 +498,6 @@ test('unconfigureMachine clears election configuration', async () => {
     LogEventId.ElectionUnconfigured,
     expect.anything(),
     expect.objectContaining({ disposition: 'success' })
-  );
-});
-
-test('printBallot logs when ballot is not found', async () => {
-  const {
-    famousNamesMultiLangElectionDefinition: electionDefinition,
-    famousNamesMultiLangOfficialBallots,
-  } = sharedFixtures;
-
-  // Only configure official ballots so that printing in test mode will result in ballot not found
-  await configureMachine({
-    electionDefinition,
-    ballots: famousNamesMultiLangOfficialBallots,
-    apiClient,
-    auth,
-    mockUsbDrive,
-    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
-  });
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  await apiClient.setTestMode({ testMode: true });
-
-  const precinctId = electionDefinition.election.precincts[0].id;
-
-  // Try to print a ballot - the precinct exists but no test mode ballot is stored
-  await apiClient.printBallot({
-    precinctId,
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copies: 1,
-  });
-
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
-    LogEventId.PrinterPrintRequest,
-    expect.objectContaining({
-      disposition: 'failure',
-      message: 'No ballot found',
-    })
   );
 });
 

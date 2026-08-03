@@ -448,13 +448,14 @@ export class Store {
   }
 
   /**
-   * Whether any test-mode ballot PDFs were included in the election package.
+   * Whether any test ballot PDFs are present in the election package.
    */
   hasTestBallots(): boolean {
-    const row = this.client.one(
-      `select 1 as present from ballots where ballot_mode = 'test' limit 1`
-    ) as { present: number } | undefined;
-    return row !== undefined;
+    return (
+      this.client.one(
+        `select 1 from ballots where ballot_mode = 'test' limit 1`
+      ) !== undefined
+    );
   }
 
   /**

@@ -392,6 +392,17 @@ export class Store {
     ) || null) as BallotPrintEntry | null;
   }
 
+  /**
+   * Whether any test ballot PDFs are present in the election package.
+   */
+  hasTestBallots(): boolean {
+    return (
+      this.client.one(
+        `select 1 from ballots where ballot_mode = 'test' limit 1`
+      ) !== undefined
+    );
+  }
+
   getDistinctBallotStylesCount({
     ballotMode,
     ballotType,

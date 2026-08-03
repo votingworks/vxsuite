@@ -28,7 +28,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function mockBaseQueries({ printerConnected = true } = {}) {
+const NO_TEST_BALLOTS_MESSAGE =
+  'Election package does not contain test ballots required to print test decks.';
+
+function mockBaseQueries({
+  printerConnected = true,
+  testBallotsPresent = true,
+} = {}) {
   apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
     usbDrive: { status: 'no_drive' },
     printer: printerConnected
@@ -49,6 +55,7 @@ function mockBaseQueries({ printerConnected = true } = {}) {
     enableTestDeckPrinting: true,
   });
   apiMock.getTestMode.expectCallWith().resolves(true);
+  apiMock.hasTestBallots.expectCallWith().resolves(testBallotsPresent);
 }
 
 function renderScreen() {
@@ -217,4 +224,37 @@ test('disables all print buttons when the printer is not connected', async () =>
   expect(getButton('Print Overall Tally Report')).toBeDisabled();
   expect(getButton('Print All Test Decks')).toBeDisabled();
   expect(getButton('Print Precinct Test Deck')).toBeDisabled();
+  expect(screen.queryByText(NO_TEST_BALLOTS_MESSAGE)).not.toBeInTheDocument();
+});
+
+test('disables test deck ballot printing and explains why when the election package has no test ballots', async () => {
+  mockBaseQueries({ testBallotsPresent: false });
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Test Decks' });
+  await screen.findByText(NO_TEST_BALLOTS_MESSAGE);
+  expect(getButton('Print All Test Decks')).toBeDisabled();
+  expect(getButton('Print Precinct Test Deck')).toBeDisabled();
+});
+
+test('prints the overall tally report when there are no test deck ballots', async () => {
+  // The overall tally report does not rely on prerendered test ballots
+  mockBaseQueries({ testBallotsPresent: false });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+
+  apiMock.getTestDeckBallotCount
+    .expectRepeatedCallsWith({ precinctId: undefined })
+    .resolves(0);
+  userEvent.click(getButton('Print Overall Tally Report'));
+
+  await screen.findByText('Print the overall tally report?');
+  expect(getButton('Print')).toBeEnabled();
+
+  apiMock.printTestDeck
+    .expectCallWith({ overallTallyReportOnly: true })
+    .resolves();
+  userEvent.click(getButton('Print'));
+
+  await screen.findByText('Printing');
 });

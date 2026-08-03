@@ -1,4 +1,5 @@
 import { test, expect } from 'vitest';
+import { Buffer } from 'node:buffer';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BallotType, LanguageCode } from '@votingworks/types';
 import { Store } from './store';
@@ -56,4 +57,34 @@ test('unconfigured machine early returns or errors for relevant API calls', () =
       precinctId: 'precinct-1',
     })
   ).toBeNull();
+
+  expect(store.hasTestBallots()).toEqual(false);
+});
+
+test('hasTestBallots', () => {
+  const store = Store.memoryStore();
+
+  expect(store.hasTestBallots()).toEqual(false);
+
+  store.setBallots([
+    {
+      ballotStyleId: '1M',
+      precinctId: 'precinct-1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: Buffer.from('official-pdf').toString('base64'),
+    },
+  ]);
+  expect(store.hasTestBallots()).toEqual(false);
+
+  store.setBallots([
+    {
+      ballotStyleId: '1M',
+      precinctId: 'precinct-1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      encodedBallot: Buffer.from('test-pdf').toString('base64'),
+    },
+  ]);
+  expect(store.hasTestBallots()).toEqual(true);
 });
