@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { EventEmitter } from 'node:stream';
+import { EventEmitter } from 'node:events';
 import {
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
