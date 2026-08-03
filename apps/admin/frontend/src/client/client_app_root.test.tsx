@@ -125,9 +125,7 @@ test('shows election info when connected to a configured host', async () => {
   apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   renderClientApp({ withElection: true });
   await screen.findByText('Adjudication Station Locked');
-  await screen.findByText(
-    'Insert system administrator, election manager, or poll worker card to unlock.'
-  );
+  await screen.findByText('Insert card to unlock.');
   const electionInfo = await screen.findByTestId('electionInfoBar');
   within(electionInfo).getByText(electionDefinition.election.title);
   within(electionInfo).getByText(DEV_MACHINE_ID);

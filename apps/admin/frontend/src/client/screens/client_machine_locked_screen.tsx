@@ -63,7 +63,7 @@ export function ClientMachineLockedScreen(): JSX.Element {
           <H1 align="center">Adjudication Station Locked</H1>
           <H3 style={{ fontWeight: 'normal' }}>
             {electionDefinition
-              ? 'Insert system administrator, election manager, or poll worker card to unlock.'
+              ? 'Insert card to unlock.'
               : 'Insert system administrator card to unlock.'}
           </H3>
         </div>
