@@ -3,9 +3,9 @@ import util from 'node:util';
 import { assertDefined } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Auth0Client } from '../src/auth0_client';
-import { createWorkspace } from '../src/workspace';
-import { WORKSPACE } from '../src/globals';
+import { Auth0Client } from '../src/auth0_client.js';
+import { createWorkspace } from '../src/workspace.js';
+import { WORKSPACE } from '../src/globals.js';
 
 const USAGE = `Usage: pnpm create-jurisdiction-user --jurisdictionId=<string> <email address>`;
 

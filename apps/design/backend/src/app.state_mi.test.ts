@@ -7,14 +7,14 @@ import {
   exportElectionPackage,
   getExportedFile,
   testSetupHelpers,
-} from '../test/helpers';
+} from '../test/helpers.js';
 import {
   jurisdictions,
   miJurisdiction,
   organizations,
   users,
-} from '../test/mocks';
-import { JurisdictionUser } from './types';
+} from '../test/mocks.js';
+import { JurisdictionUser } from './types.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

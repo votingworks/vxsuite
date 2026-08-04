@@ -6,7 +6,7 @@ import {
 } from 'auth0';
 import { assertDefined } from '@votingworks/basics';
 import crypto from 'node:crypto';
-import { auth0ClientDomain, auth0ClientId, auth0Secret } from './globals';
+import { auth0ClientDomain, auth0ClientId, auth0Secret } from './globals.js';
 
 export type ConnectionType =
   | 'Username-Password-Authentication'

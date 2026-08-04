@@ -16,18 +16,18 @@ import {
   jurisdiction,
   provideApi,
   user,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   electionInfoFromElection,
   generalElectionRecord,
-} from '../test/fixtures';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { act, render, screen, waitFor } from '../test/react_testing_library';
-import { PollingPlacesScreen } from './polling_places_screen';
-import { PollingPlaceList, PollingPlaceListProps } from './polling_place_list';
-import { PollingPlaceAudioPanel } from './polling_place_audio_panel';
-import { PollingPlaceForm, PollingPlaceFormProps } from './polling_place_form';
+} from '../test/fixtures.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { act, render, screen, waitFor } from '../test/react_testing_library.js';
+import { PollingPlacesScreen } from './polling_places_screen.js';
+import { PollingPlaceList, PollingPlaceListProps } from './polling_place_list.js';
+import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
+import { PollingPlaceForm, PollingPlaceFormProps } from './polling_place_form.js';
 
 vi.mock('./polling_place_list.js');
 const MockList = vi.mocked(PollingPlaceList);

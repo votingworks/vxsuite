@@ -22,8 +22,8 @@ import {
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import { getStateFeaturesConfig } from './features';
-import { Jurisdiction } from './types';
+import { getStateFeaturesConfig } from './features.js';
+import { Jurisdiction } from './types.js';
 
 export function defaultBallotTemplate(
   jurisdiction: Jurisdiction

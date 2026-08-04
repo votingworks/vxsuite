@@ -3,8 +3,8 @@
 import { assertDefined, extractErrorMessage, sleep } from '@votingworks/basics';
 import * as Sentry from '@sentry/node';
 
-import { WorkerContext } from './context';
-import { processBackgroundTask } from './tasks';
+import { WorkerContext } from './context.js';
+import { processBackgroundTask } from './tasks.js';
 
 export async function processNextBackgroundTaskIfAny(
   context: WorkerContext

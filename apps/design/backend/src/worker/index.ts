@@ -1,19 +1,19 @@
-import '../configure_sentry'; // Must be imported first to instrument code
+import '../configure_sentry.js'; // Must be imported first to instrument code
 
 import path from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
-import { WORKSPACE } from '../globals';
-import { createWorkspace } from '../workspace';
-import * as worker from './worker';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer';
-import { GoogleCloudTranslatorWithDbCache } from '../translator';
+import { WORKSPACE } from '../globals.js';
+import { createWorkspace } from '../workspace.js';
+import * as worker from './worker.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer.js';
+import { GoogleCloudTranslatorWithDbCache } from '../translator.js';
 import {
   LocalFileStorageClient,
   S3FileStorageClient,
-} from '../file_storage_client';
+} from '../file_storage_client.js';
 
 loadEnvVarsFromDotenvFiles();
 

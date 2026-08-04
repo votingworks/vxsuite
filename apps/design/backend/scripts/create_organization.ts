@@ -3,10 +3,10 @@ import util from 'node:util';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
-import { createWorkspace } from '../src/workspace';
-import { WORKSPACE } from '../src/globals';
-import { generateId } from '../src/utils';
-import { Organization } from '../src/types';
+import { createWorkspace } from '../src/workspace.js';
+import { WORKSPACE } from '../src/globals.js';
+import { generateId } from '../src/utils.js';
+import { Organization } from '../src/types.js';
 
 const USAGE = `Usage: pnpm create-organization "<name>"`;
 

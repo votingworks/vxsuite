@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Callout } from '@votingworks/ui';
 import { PollingPlace, pollingPlaceGroups } from '@votingworks/types';
 
-import { Column } from './layout';
-import { EntityList } from './entity_list';
+import { Column } from './layout.js';
+import { EntityList } from './entity_list.js';
 
 const NoPollingPlaces = styled.div`
   padding: 1rem;

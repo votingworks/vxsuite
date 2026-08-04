@@ -13,17 +13,17 @@ import {
   jurisdiction2,
   provideApi,
   user,
-} from '../test/api_helpers';
+} from '../test/api_helpers.js';
 import {
   blankElectionRecord,
   electionListing,
   generalElectionRecord,
   primaryElectionRecord,
-} from '../test/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { ElectionsScreen } from './elections_screen';
-import { routes } from './routes';
+} from '../test/fixtures.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { ElectionsScreen } from './elections_screen.js';
+import { routes } from './routes.js';
 
 // Pin all IDs to a known value for deterministic tests.
 const ID = 'ID';

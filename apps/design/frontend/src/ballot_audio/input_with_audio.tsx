@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TooltipProps } from '../tooltip';
-import { AudioLinkButton } from './audio_link_button';
+import { TooltipProps } from '../tooltip.js';
+import { AudioLinkButton } from './audio_link_button.js';
 
 export type InputWithAudioProps = {
   audioScreenUrl: string;

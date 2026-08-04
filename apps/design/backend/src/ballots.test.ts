@@ -28,8 +28,8 @@ import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from './ballots';
-import { miJurisdiction, msJurisdiction, nhJurisdiction } from '../test/mocks';
+} from './ballots.js';
+import { miJurisdiction, msJurisdiction, nhJurisdiction } from '../test/mocks.js';
 
 const election = readElectionGeneral();
 

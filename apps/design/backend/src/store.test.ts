@@ -22,12 +22,12 @@ import {
   Store,
   TaskName,
   TestDecksTaskMetadata,
-} from './store';
-import { TestStore } from '../test/test_store';
+} from './store.js';
+import { TestStore } from '../test/test_store.js';
 import {
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
-} from '../test/helpers';
+} from '../test/helpers.js';
 import {
   jurisdictions,
   nonVxJurisdiction,
@@ -37,7 +37,7 @@ import {
   supportUser,
   users,
   vxJurisdiction,
-} from '../test/mocks';
+} from '../test/mocks.js';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

@@ -18,13 +18,13 @@ import {
   jurisdiction,
   MockApiClient,
   provideApi,
-} from '../test/api_helpers';
-import { electionInfoFromElection, makeElectionRecord } from '../test/fixtures';
-import { render, screen, waitFor } from '../test/react_testing_library';
+} from '../test/api_helpers.js';
+import { electionInfoFromElection, makeElectionRecord } from '../test/fixtures.js';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   reorderContestsByDistrict,
   ReorderContestsByDistrictButton,
-} from './reorder_contests_by_district_button';
+} from './reorder_contests_by_district_button.js';
 
 let apiMock: MockApiClient;
 

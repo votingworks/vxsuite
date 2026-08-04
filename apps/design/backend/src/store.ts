@@ -86,12 +86,12 @@ import {
   UserType,
   ElectionStatus,
   ElectionInfoUpdate,
-} from './types';
-import { Db } from './db/db';
-import { Bindable, Client } from './db/client';
-import { generateId } from './utils';
-import { getStateFeaturesConfig } from './features';
-import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
+} from './types.js';
+import { Db } from './db/db.js';
+import { Bindable, Client } from './db/client.js';
+import { generateId } from './utils.js';
+import { getStateFeaturesConfig } from './features.js';
+import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 
 export interface ElectionRecord {
   jurisdictionId: string;

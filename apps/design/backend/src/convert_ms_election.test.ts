@@ -5,13 +5,13 @@ import {
   LATEST_SOFTWARE_VERSION,
   safeParseElection,
 } from '@votingworks/types';
-import { convertMsElection } from './convert_ms_election';
-import { TestStore } from '../test/test_store';
-import { Jurisdiction } from './types';
-import { readFixture } from '../test/helpers';
-import { vxOrganization } from '../test/mocks';
-import { defaultSystemSettings } from './system_settings';
-import { addPollingPlacesForExport } from './ballots';
+import { convertMsElection } from './convert_ms_election.js';
+import { TestStore } from '../test/test_store.js';
+import { Jurisdiction } from './types.js';
+import { readFixture } from '../test/helpers.js';
+import { vxOrganization } from '../test/mocks.js';
+import { defaultSystemSettings } from './system_settings.js';
+import { addPollingPlacesForExport } from './ballots.js';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);

@@ -15,12 +15,12 @@ import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../test/api_helpers';
-import { makeIdFactory } from '../test/id_helpers';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { PollingPlaceForm } from './polling_place_form';
-import { AudioLinkButton } from './ballot_audio/audio_link_button';
-import { routes } from './routes';
+} from '../test/api_helpers.js';
+import { makeIdFactory } from '../test/id_helpers.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { PollingPlaceForm } from './polling_place_form.js';
+import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
+import { routes } from './routes.js';
 
 vi.mock('./ballot_audio/audio_link_button.js');
 

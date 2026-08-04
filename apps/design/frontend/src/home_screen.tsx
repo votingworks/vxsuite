@@ -1,8 +1,8 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
-import { getUser } from './api';
-import { ElectionsScreen } from './elections_screen';
-import { SupportHomeScreen } from './support/support_home_screen';
+import { getUser } from './api.js';
+import { ElectionsScreen } from './elections_screen.js';
+import { SupportHomeScreen } from './support/support_home_screen.js';
 
 export function HomeScreen({
   electionsFilterText,

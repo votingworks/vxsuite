@@ -12,18 +12,18 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { ElectionListing, ElectionStatus } from '@votingworks/design-backend';
 import { useMemo } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import * as api from '../api';
-import { Header, NavScreen } from '../nav_screen';
-import { CloneElectionButton } from '../clone_election_button';
-import { Column, Row } from '../layout';
+import * as api from '../api.js';
+import { Header, NavScreen } from '../nav_screen.js';
+import { CloneElectionButton } from '../clone_election_button.js';
+import { Column, Row } from '../layout.js';
 import {
   ActionIconButtonCell,
   ElectionRow,
   LinkCell,
-} from '../elections_screen';
-import { CreateElectionButton } from '../create_election_button';
-import { LoadElectionButton } from '../load_election_button';
-import { FilterInput } from '../filter_input';
+} from '../elections_screen.js';
+import { CreateElectionButton } from '../create_election_button.js';
+import { LoadElectionButton } from '../load_election_button.js';
+import { FilterInput } from '../filter_input.js';
 
 const SupportHeader = styled(Header)`
   background-color: ${(p) => p.theme.colors.warningContainer};

@@ -9,7 +9,7 @@ import {
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import React, { useEffect, useRef, useState } from 'react';
-import { NormalizeParams, normalizeImageToSvg } from './image_normalization';
+import { NormalizeParams, normalizeImageToSvg } from './image_normalization.js';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 

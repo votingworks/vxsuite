@@ -16,15 +16,15 @@ import {
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
-import { adminElectionNavRoutes, electionNavRoutes } from './routes';
+import { adminElectionNavRoutes, electionNavRoutes } from './routes.js';
 import {
   getElectionInfo,
   getStateFeatures,
   getSystemSettings,
   getUser,
   getUserFeatures,
-} from './api';
-import { Row } from './layout';
+} from './api.js';
+import { Row } from './layout.js';
 
 const UserInfo = styled.div`
   display: flex;

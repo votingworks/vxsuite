@@ -15,21 +15,21 @@ import { District, ElectionStringKey } from '@votingworks/types';
 
 import { DuplicateDistrictError } from '@votingworks/design-backend';
 import { assertDefined } from '@votingworks/basics';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { FixedViewport, ListActionsRow } from './layout';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
   listDistricts,
   updateDistricts,
-} from './api';
-import { generateId } from './utils';
-import { useTitle } from './hooks/use_title';
-import { InputWithAudio } from './ballot_audio/input_with_audio';
-import { DistrictAudioPanel } from './district_audio_panel';
-import { FormFixed, FormBody, FormFooter } from './form_fixed';
-import { TooltipContainer, Tooltip } from './tooltip';
+} from './api.js';
+import { generateId } from './utils.js';
+import { useTitle } from './hooks/use_title.js';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { DistrictAudioPanel } from './district_audio_panel.js';
+import { FormFixed, FormBody, FormFooter } from './form_fixed.js';
+import { TooltipContainer, Tooltip } from './tooltip.js';
 
 export function DistrictsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();

@@ -2,7 +2,7 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import { BallotType } from '@votingworks/types';
 import { expect, test } from 'vitest';
 import { NhStateBallotProps } from '@votingworks/hmpb';
-import { getBallotPdfFileName } from './utils';
+import { getBallotPdfFileName } from './utils.js';
 
 const election = readElectionGeneral();
 

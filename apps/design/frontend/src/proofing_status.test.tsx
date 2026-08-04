@@ -10,11 +10,11 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
-} from '../test/api_helpers';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { ProofingStatus } from './proofing_status';
+} from '../test/api_helpers.js';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { ProofingStatus } from './proofing_status.js';
 
 const electionId = 'election-1';
 const finalizedAt = new Date('1/21/2026, 2:00 PM');

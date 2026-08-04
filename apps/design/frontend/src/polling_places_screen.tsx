@@ -10,14 +10,14 @@ import {
 
 import { H1, LinkButton } from '@votingworks/ui';
 
-import * as api from './api';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { useTitle } from './hooks/use_title';
-import { PollingPlaceForm } from './polling_place_form';
-import { PollingPlaceList } from './polling_place_list';
-import { FixedViewport, ListActionsRow } from './layout';
-import { PollingPlaceAudioPanel } from './polling_place_audio_panel';
+import * as api from './api.js';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import { useTitle } from './hooks/use_title.js';
+import { PollingPlaceForm } from './polling_place_form.js';
+import { PollingPlaceList } from './polling_place_list.js';
+import { FixedViewport, ListActionsRow } from './layout.js';
+import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
 
 export function PollingPlacesScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();

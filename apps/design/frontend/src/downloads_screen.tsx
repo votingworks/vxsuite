@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 
 import { H1, MainContent } from '@votingworks/ui';
 
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
-import { useTitle } from './hooks/use_title';
-import { Downloads } from './downloads';
-import * as api from './api';
-import { BallotsStatus } from './ballots_status';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
+import { useTitle } from './hooks/use_title.js';
+import { Downloads } from './downloads.js';
+import * as api from './api.js';
+import { BallotsStatus } from './ballots_status.js';
 
 export function DownloadsScreen(): React.ReactNode {
   const { electionId } = useParams<ElectionIdParams>();
