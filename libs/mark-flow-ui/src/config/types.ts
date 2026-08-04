@@ -18,7 +18,7 @@ import {
 import {
   ContestsWithMsEitherNeither,
   MsEitherNeitherContest,
-} from '../utils/ms_either_neither_contests';
+} from '../utils/ms_either_neither_contests.js';
 
 // Ballot
 export type UpdateVoteFunction = (

@@ -3,8 +3,8 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import { getContestDistrict } from '@votingworks/types';
 import { FOCUSABLE_AUDIO_CLASS_NAME } from '@votingworks/ui';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen, render } from '../../test/react_testing_library';
-import { Breadcrumbs, ContestHeader } from './contest_header';
+import { screen, render } from '../../test/react_testing_library.js';
+import { Breadcrumbs, ContestHeader } from './contest_header.js';
 
 const electionGeneral = readElectionGeneral();
 const contest = electionGeneral.contests[0];

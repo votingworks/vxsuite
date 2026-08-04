@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { execFile } from '@votingworks/backend';
-import { rootDebug } from './debug';
-import { intermediateScript } from './intermediate_scripts';
+import { rootDebug } from './debug.js';
+import { intermediateScript } from './intermediate_scripts.js';
 
 const debug = rootDebug;
 

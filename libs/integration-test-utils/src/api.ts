@@ -1,6 +1,6 @@
 import type { APIResponse, Page } from '@playwright/test';
 import { methodUrl } from '@votingworks/grout';
-import { BASE_URL } from './constants';
+import { BASE_URL } from './constants.js';
 
 const API_URL = `${BASE_URL}/api`;
 

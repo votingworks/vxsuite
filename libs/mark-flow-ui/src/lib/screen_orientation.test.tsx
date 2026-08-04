@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { MachineConfig } from '../config/types';
-import { screenOrientation } from './screen_orientation';
+import { MachineConfig } from '../config/types.js';
+import { screenOrientation } from './screen_orientation.js';
 
 test('Portrait orientation booleans', () => {
   const machineConfig: MachineConfig = {

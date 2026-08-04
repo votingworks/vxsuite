@@ -9,11 +9,11 @@ import { hasSplits, Precinct, PrecinctOrSplit } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
 import { assert } from '@votingworks/basics';
-import { render, screen } from '../../../test/react_testing_library';
+import { render, screen } from '../../../test/react_testing_library.js';
 import {
   BallotStyleSelect,
   BallotStyleSelectProps,
-} from './ballot_style_select';
+} from './ballot_style_select.js';
 
 describe('general election', () => {
   const electionGeneralDefinition = readElectionGeneralDefinition();
