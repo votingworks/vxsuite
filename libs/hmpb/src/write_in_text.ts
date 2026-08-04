@@ -74,6 +74,16 @@ function breakIntoSegments(text: string): Segment[] {
  * Splits text into lines that each fit within {@link maxWidth}. A segment too
  * long to fit on a line of its own is broken across lines mid-segment, so every
  * returned line is guaranteed to fit.
+ *
+ * We wrap by hand rather than using pdf-lib's `layoutMultilineText` because that
+ * function only breaks at whitespace, and when a single word is too wide for the
+ * line it gives up and returns the word whole - which is the overflow we're
+ * fixing here. A 40-character name with no spaces in our narrowest write-in area
+ * comes back from it 2.8x wider than the area. It's also more conservative than
+ * it needs to be on names it can wrap, since it reserves a full line's ascent and
+ * descent plus 20% leading per line: it drops a long hyphenated name to its 4pt
+ * floor and leaves 40% of the area's height unused, where we fit the same name at
+ * 6pt.
  */
 function wrapText(
   text: string,
