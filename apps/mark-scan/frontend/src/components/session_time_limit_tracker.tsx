@@ -5,7 +5,7 @@ import {
   getSystemSettings,
   logOut,
   updateSessionExpiry,
-} from '../api';
+} from '../api.js';
 
 export function SessionTimeLimitTracker(): JSX.Element {
   const authStatusQuery = getAuthStatus.useQuery();

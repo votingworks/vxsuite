@@ -1,8 +1,8 @@
 import { InsertedSmartCardAuth } from '@votingworks/types';
 
 import { P, appStrings } from '@votingworks/ui';
-import { AskPollWorkerPage } from './ask_poll_worker_page';
-import { RemoveInvalidatedBallotPage } from './remove_invalidated_ballot_page';
+import { AskPollWorkerPage } from './ask_poll_worker_page.js';
+import { RemoveInvalidatedBallotPage } from './remove_invalidated_ballot_page.js';
 
 interface Props {
   authStatus:

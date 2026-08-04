@@ -1,9 +1,9 @@
 import React from 'react';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { assert } from '@votingworks/basics';
-import { ReinsertedInvalidBallotScreen } from './pages/reinserted_invalid_ballot_screen';
-import { WaitingForBallotReinsertionBallotScreen } from './pages/waiting_for_ballot_reinsertion_screen';
-import { LoadingReinsertedBallotScreen } from './pages/loading_reinserted_ballot_screen';
+import { ReinsertedInvalidBallotScreen } from './pages/reinserted_invalid_ballot_screen.js';
+import { WaitingForBallotReinsertionBallotScreen } from './pages/waiting_for_ballot_reinsertion_screen.js';
+import { LoadingReinsertedBallotScreen } from './pages/loading_reinserted_ballot_screen.js';
 
 export const BALLOT_REINSERTION_SCREENS: Readonly<
   Partial<Record<SimpleServerStatus, JSX.Element>>

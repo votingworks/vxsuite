@@ -1,4 +1,4 @@
-import './polyfills';
+import './polyfills.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { DevDock } from '@votingworks/dev-dock-frontend';
@@ -7,8 +7,8 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { App } from './app';
-import { ElectricalTestingApp } from './electrical_testing';
+import { App } from './app.js';
+import { ElectricalTestingApp } from './electrical_testing/index.js';
 
 const rootElement = document.getElementById('root');
 assert(rootElement);

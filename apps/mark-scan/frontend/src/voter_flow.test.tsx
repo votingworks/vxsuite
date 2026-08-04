@@ -6,13 +6,13 @@ import {
 import React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { act, render, screen } from '../test/react_testing_library';
-import { VoterFlow, VoterFlowProps } from './voter_flow';
-import { mockMachineConfig } from '../test/helpers/mock_machine_config';
-import { Ballot } from './components/ballot';
-import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper';
-import { createApiMock } from '../test/helpers/mock_api_client';
-import { ApiProvider } from './api_provider';
+import { act, render, screen } from '../test/react_testing_library.js';
+import { VoterFlow, VoterFlowProps } from './voter_flow.js';
+import { mockMachineConfig } from '../test/helpers/mock_machine_config.js';
+import { Ballot } from './components/ballot.js';
+import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper.js';
+import { createApiMock } from '../test/helpers/mock_api_client.js';
+import { ApiProvider } from './api_provider.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

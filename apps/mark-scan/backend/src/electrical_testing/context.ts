@@ -2,7 +2,7 @@ import { Card } from '@votingworks/auth';
 import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Workspace } from '../util/workspace';
+import { Workspace } from '../util/workspace.js';
 
 export interface ServerContext {
   card: Card;

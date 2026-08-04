@@ -9,13 +9,13 @@ import {
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { Workspace } from './util/workspace';
-import { getCurrentTime } from './util/get_current_time';
+import { Workspace } from './util/workspace.js';
+import { getCurrentTime } from './util/get_current_time.js';
 import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
-} from './util/hardware';
-import { PaperHandlerStateMachine } from './custom-paper-handler';
+} from './util/hardware.js';
+import { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
 /**
  * Saves the VxMarkScan hardware readiness report to the USB drive.

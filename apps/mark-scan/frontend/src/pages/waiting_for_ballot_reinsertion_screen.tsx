@@ -1,8 +1,8 @@
 import { appStrings, Caption, Icons, P } from '@votingworks/ui';
 
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { useIsVoterAuth } from '../hooks/use_is_voter_auth';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+import { useIsVoterAuth } from '../hooks/use_is_voter_auth.js';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
 
 export function WaitingForBallotReinsertionBallotScreen(): JSX.Element {
   const isVoterAuth = useIsVoterAuth();

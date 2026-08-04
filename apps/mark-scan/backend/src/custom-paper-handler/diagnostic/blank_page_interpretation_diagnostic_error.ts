@@ -1,4 +1,4 @@
-import { DiagnosticError } from './diagnostic_error';
+import { DiagnosticError } from './diagnostic_error.js';
 
 export class BlankPageInterpretationDiagnosticError extends DiagnosticError {
   constructor() {

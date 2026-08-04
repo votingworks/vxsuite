@@ -2,13 +2,13 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
 import { DiagnosticRecord } from '@votingworks/types';
-import { render, screen } from '../../../test/react_testing_library';
+import { render, screen } from '../../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../../test/helpers/mock_api_client';
-import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
+} from '../../../test/helpers/mock_api_client.js';
+import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen.js';
 
 let apiMock: ApiMock;
 let onClose: () => void;

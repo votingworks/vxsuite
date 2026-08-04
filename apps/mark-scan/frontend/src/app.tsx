@@ -6,11 +6,11 @@ import {
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
-import { ApiClient, createApiClient, createQueryClient } from './api';
-import { ApiProvider } from './api_provider';
-import { AppRoot } from './app_root';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { MarkScanAppBase } from './mark_scan_app_base';
+import { ApiClient, createApiClient, createQueryClient } from './api.js';
+import { ApiProvider } from './api_provider.js';
+import { AppRoot } from './app_root.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
+import { MarkScanAppBase } from './mark_scan_app_base.js';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();

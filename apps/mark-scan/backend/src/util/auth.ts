@@ -13,7 +13,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { Workspace } from './workspace';
+import { Workspace } from './workspace.js';
 
 export function getDefaultAuth(logger: BaseLogger): {
   auth: InsertedSmartCardAuth;

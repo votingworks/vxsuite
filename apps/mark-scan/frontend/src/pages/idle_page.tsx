@@ -1,6 +1,6 @@
 import { IdlePage as MarkFlowIdlePage } from '@votingworks/mark-flow-ui';
 import { useContext } from 'react';
-import { BallotContext } from '../contexts/ballot_context';
+import { BallotContext } from '../contexts/ballot_context.js';
 
 export function IdlePage(): JSX.Element {
   const { endVoterSession, resetBallot } = useContext(BallotContext);

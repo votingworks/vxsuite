@@ -20,8 +20,8 @@ import {
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
-} from './application_driver';
-import { getDefaultPaperHandlerStatus } from './test_utils';
+} from './application_driver.js';
+import { getDefaultPaperHandlerStatus } from './test_utils/index.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

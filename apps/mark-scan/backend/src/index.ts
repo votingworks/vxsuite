@@ -15,16 +15,16 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { startElectricalTestingServer } from './electrical_testing/server';
-import { MARK_SCAN_WORKSPACE, PORT } from './globals';
-import * as server from './server';
-import { getDefaultAuth, getUserRole } from './util/auth';
-import { createWorkspace, Workspace } from './util/workspace';
+import { startElectricalTestingServer } from './electrical_testing/server.js';
+import { MARK_SCAN_WORKSPACE, PORT } from './globals.js';
+import * as server from './server.js';
+import { getDefaultAuth, getUserRole } from './util/auth.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
 
-export type { Api, MockPaperHandlerStatus } from './app';
-export * from './custom-paper-handler';
-export type { ElectricalTestingApi } from './electrical_testing/app';
-export * from './types';
+export type { Api, MockPaperHandlerStatus } from './app.js';
+export * from './custom-paper-handler/index.js';
+export type { ElectricalTestingApi } from './electrical_testing/app.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 

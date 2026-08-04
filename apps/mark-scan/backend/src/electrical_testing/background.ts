@@ -24,9 +24,9 @@ import {
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
-} from '../custom-paper-handler/application_driver';
-import { ServerContext } from './context';
-import { getNodeEnv } from '../globals';
+} from '../custom-paper-handler/application_driver.js';
+import { ServerContext } from './context.js';
+import { getNodeEnv } from '../globals.js';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
@@ -133,7 +133,7 @@ export async function runPrintAndScanTask({
   });
 
   const testPdf = await fs.readFile(
-    join(__dirname, '../../electrical-testing-print-page.pdf')
+    join(import.meta.dirname, '../../electrical-testing-print-page.pdf')
   );
   const outputDir = join(workspace.path, 'electrical-testing-output');
   await fs.mkdir(outputDir, { recursive: true });

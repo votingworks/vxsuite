@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
-import { render, screen } from '../../test/react_testing_library';
-import { JamClearedPage } from './jam_cleared_page';
-import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen';
+import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { JamClearedPage } from './jam_cleared_page.js';
+import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen.js';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/mock_auth';
+} from '../../test/helpers/mock_auth.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

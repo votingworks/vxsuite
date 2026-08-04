@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { readFile } from '@votingworks/fs';
 import { safeParseInt } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { BmdModelNumber } from '../types';
+import { BmdModelNumber } from '../types.js';
 
 export const PID_FILENAME = 'vx_accessible_controller_daemon.pid';
 const MAX_FILE_SIZE_BYTES = 50 * 1024;
