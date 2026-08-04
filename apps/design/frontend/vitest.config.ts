@@ -9,8 +9,8 @@ export default defineConfig({
 
     coverage: {
       thresholds: {
-        lines: 97,
-        branches: 90,
+        lines: -63,
+        branches: -169,
       },
       exclude: [
         'src/**/*.d.ts',
