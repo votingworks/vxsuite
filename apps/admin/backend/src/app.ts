@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import { isMatch } from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -37,8 +36,10 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Printer } from '@votingworks/printing';
-import { createReadStream } from 'node:fs';
-import { rm, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { rm } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import path, { join } from 'node:path';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -576,15 +577,19 @@ function buildApi({
         const electionDefinition = electionDefinitionResult.ok();
         const systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
+        // Unique per request so that concurrent configure calls can't
+        // clobber each other's files. (A zip can't be piped through memory
+        // instead: reading one requires random access to seek the central
+        // directory at the end of the file.)
+        electionPackageFilePath = join(
+          workspace.path,
+          `imported-election-package-${randomUUID()}.zip`
+        );
         const zipStream = new ZipStream();
-        const zipPromise = deferred<void>();
-        const chunks: Buffer[] = [];
-        zipStream.on('error', zipPromise.reject);
-        zipStream.on('end', zipPromise.resolve);
-        zipStream.on('data', (chunk) => {
-          assert(Buffer.isBuffer(chunk));
-          chunks.push(chunk);
-        });
+        const writePromise = pipeline(
+          zipStream,
+          createWriteStream(electionPackageFilePath)
+        );
         await addFileToZipStream(zipStream, {
           path: ElectionPackageFileName.ELECTION,
           contents: electionDefinition.electionData,
@@ -605,12 +610,7 @@ function buildApi({
           contents: JSON.stringify({}, null, 2),
         });
         zipStream.finish();
-        await zipPromise.promise;
-        electionPackageFilePath = join(
-          workspace.path,
-          'imported-election-package.zip'
-        );
-        await writeFile(electionPackageFilePath, Buffer.concat(chunks));
+        await writePromise;
       }
 
       try {

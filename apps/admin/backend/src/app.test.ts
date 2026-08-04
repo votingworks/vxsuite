@@ -7,8 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { readdirSync } from 'node:fs';
 import {
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
@@ -360,8 +359,10 @@ test('configuring with an election.json file', async () => {
 
   // The temporary package built from the election.json is cleaned up
   expect(
-    existsSync(join(workspace.path, 'imported-election-package.zip'))
-  ).toEqual(false);
+    readdirSync(workspace.path).filter((entry) =>
+      entry.startsWith('imported-election-package')
+    )
+  ).toEqual([]);
 
   const badConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile('bad json file', '.json'),
