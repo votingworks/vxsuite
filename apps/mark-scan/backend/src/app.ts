@@ -33,6 +33,7 @@ import {
   createSystemCallApi,
   ExportDataResult,
   configureUiStringAudioClipsStreaming,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -206,11 +207,13 @@ export function buildApi(
       });
 
       try {
-        await configureUiStringAudioClipsStreaming({
-          electionPackageFilePath: filePath,
-          store: workspace.store.getUiStringsStore(),
-          withTransaction: (fn) => workspace.store.withTransaction(fn),
-        });
+        await withElectionPackageZip(filePath, (electionPackageZip) =>
+          configureUiStringAudioClipsStreaming({
+            electionPackageZip,
+            store: workspace.store.getUiStringsStore(),
+            withTransaction: (fn) => workspace.store.withTransaction(fn),
+          })
+        );
       } catch (error) {
         workspace.store.reset();
         throw error;

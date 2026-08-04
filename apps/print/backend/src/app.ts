@@ -26,6 +26,7 @@ import {
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
   streamElectionPackageBallots,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   electionHasBallotPositions,
@@ -200,9 +201,14 @@ export function buildApi(ctx: AppContext) {
       store.deleteBallots();
       let ballotCount = 0;
       try {
-        ballotCount = await streamElectionPackageBallots(filePath, (ballots) =>
-          store.addBallots(ballots)
-        );
+        await withElectionPackageZip(filePath, async (electionPackageZip) => {
+          for await (const ballots of streamElectionPackageBallots(
+            electionPackageZip
+          )) {
+            store.addBallots(ballots);
+            ballotCount += ballots.length;
+          }
+        });
       } catch (error) {
         store.deleteBallots();
         throw error;

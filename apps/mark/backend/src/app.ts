@@ -38,6 +38,7 @@ import {
   ExportDataResult,
   configureUiStringAudioClipsStreaming,
   streamElectionPackageBallots,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -313,59 +314,65 @@ export function buildApi(ctx: Context) {
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      // Stream the serialized ballots (potentially GBs, and optional in the
-      // package) into the store in batches rather than holding them all in
-      // memory. The ballots table is independent of the election record, so
-      // a failed import is cleaned up without leaving the machine configured.
-      workspace.store.deleteBallots();
-      try {
-        await streamElectionPackageBallots(filePath, (ballots) =>
-          workspace.store.addBallots(ballots)
-        );
-      } catch (error) {
+      // Ballots and audio clips are both streamed from the package, so open it
+      // once and stream both entries over the same open file.
+      await withElectionPackageZip(filePath, async (electionPackageZip) => {
+        // Stream the serialized ballots (potentially GBs, and optional in the
+        // package) into the store in batches rather than holding them all in
+        // memory. The ballots table is independent of the election record, so
+        // a failed import is cleaned up without leaving the machine configured.
         workspace.store.deleteBallots();
-        throw error;
-      }
-
-      workspace.store.withTransaction(() => {
-        workspace.store.setElectionAndJurisdiction({
-          electionData: electionDefinition.electionData,
-          jurisdiction: authStatus.user.jurisdiction,
-          electionPackageHash,
-        });
-        workspace.store.setSystemSettings(systemSettings);
-
-        // The machine defaults to test mode, but if test mode isn't available
-        // for this election package (no test ballots for a print flow that
-        // needs them), start in official mode to avoid footgun of allowing
-        // users to try to print test mode ballots that don't exist.
-        if (!isTestModeAvailable(workspace.store)) {
-          workspace.store.setTestMode(false);
+        try {
+          for await (const ballots of streamElectionPackageBallots(
+            electionPackageZip
+          )) {
+            workspace.store.addBallots(ballots);
+          }
+        } catch (error) {
+          workspace.store.deleteBallots();
+          throw error;
         }
 
-        if (electionDefinition.election.pollingPlaces?.length === 1) {
-          workspace.store.setPollingPlaceId(
-            electionDefinition.election.pollingPlaces[0].id
-          );
-        }
+        workspace.store.withTransaction(() => {
+          workspace.store.setElectionAndJurisdiction({
+            electionData: electionDefinition.electionData,
+            jurisdiction: authStatus.user.jurisdiction,
+            electionPackageHash,
+          });
+          workspace.store.setSystemSettings(systemSettings);
 
-        configureUiStrings({
-          electionPackage,
-          logger,
-          store: workspace.store.getUiStringsStore(),
+          // The machine defaults to test mode, but if test mode isn't available
+          // for this election package (no test ballots for a print flow that
+          // needs them), start in official mode to avoid footgun of allowing
+          // users to try to print test mode ballots that don't exist.
+          if (!isTestModeAvailable(workspace.store)) {
+            workspace.store.setTestMode(false);
+          }
+
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
+
+          configureUiStrings({
+            electionPackage,
+            logger,
+            store: workspace.store.getUiStringsStore(),
+          });
         });
+
+        try {
+          await configureUiStringAudioClipsStreaming({
+            electionPackageZip,
+            store: workspace.store.getUiStringsStore(),
+            withTransaction: (fn) => workspace.store.withTransaction(fn),
+          });
+        } catch (error) {
+          workspace.store.reset();
+          throw error;
+        }
       });
-
-      try {
-        await configureUiStringAudioClipsStreaming({
-          electionPackageFilePath: filePath,
-          store: workspace.store.getUiStringsStore(),
-          withTransaction: (fn) => workspace.store.withTransaction(fn),
-        });
-      } catch (error) {
-        workspace.store.reset();
-        throw error;
-      }
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,

@@ -2,6 +2,7 @@
 
 import { BaseLogger } from '@votingworks/logging';
 import {
+  ElectionPackageZip,
   ParsedElectionPackage,
   streamElectionPackageAudioClips,
 } from '../election_package/election_package_io';
@@ -55,30 +56,31 @@ export function configureUiStrings(input: ElectionPackageProcessorInput): void {
 }
 
 /**
- * Streams the audio clips in the election package zip at
- * `electionPackageFilePath` into the provided store in size-capped batches,
- * so that the full set (potentially GBs) is never held in memory. Only clips
- * for languages already configured in the store (see
- * {@link configureUiStrings}) are loaded, and each batch is inserted within
- * `withTransaction`.
+ * Streams the audio clips in the given election package zip into the provided
+ * store in size-capped batches, so that the full set (potentially GBs) is
+ * never held in memory. Only clips for languages already configured in the
+ * store (see {@link configureUiStrings}) are loaded, and each batch is
+ * inserted within `withTransaction`.
  */
 export async function configureUiStringAudioClipsStreaming({
-  electionPackageFilePath,
+  electionPackageZip,
   store,
   withTransaction,
 }: {
-  electionPackageFilePath: string;
+  electionPackageZip: ElectionPackageZip;
   store: UiStringsStore;
   withTransaction: (fn: () => void) => void;
 }): Promise<void> {
   const configuredLanguages = new Set(store.getLanguages());
-  await streamElectionPackageAudioClips(electionPackageFilePath, (clips) =>
+  for await (const clips of streamElectionPackageAudioClips(
+    electionPackageZip
+  )) {
     withTransaction(() => {
       for (const clip of clips) {
         if (configuredLanguages.has(clip.languageCode)) {
           store.setAudioClip(clip);
         }
       }
-    })
-  );
+    });
+  }
 }
