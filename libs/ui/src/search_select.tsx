@@ -7,29 +7,37 @@ import Select, {
   OptionProps,
   StylesConfig,
 } from 'react-select';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import React from 'react';
-import { Button } from './button';
+import { Button, buttonStyles, StyledButtonProps } from './button';
+import { Icons } from './icons';
+
+// The react-select DropdownIndicator component toggles the menu from its own
+// mousedown/touchend handlers, so this has to be a plain button rather than our
+// Button component, which stops touch events from propagating (and so would
+// swallow taps on touchscreens).
+const DropdownIndicatorButton = styled.button.attrs({
+  type: 'button',
+  tabIndex: -1,
+})<StyledButtonProps>`
+  ${buttonStyles}
+
+  padding: 0.25rem;
+
+  /* Turn off inset shadow on press (:active) for touchscreen themes */
+  &:active:enabled {
+    box-shadow: none;
+  }
+`;
 
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
   return (
     <components.DropdownIndicator {...props}>
-      <Button
-        fill="transparent"
-        icon="CaretDown"
-        // The react-select DropdownIndicator component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
-        onPress={() => {}}
-        style={{
-          padding: '0.25rem',
-          // Turn off inset shadow on press (:active) for touchscreen themes
-          boxShadow: 'none',
-        }}
-        tabIndex={-1}
-      />
+      <DropdownIndicatorButton fill="transparent">
+        <Icons.CaretDown />
+      </DropdownIndicatorButton>
     </components.DropdownIndicator>
   );
 }
@@ -44,9 +52,10 @@ function MultiValueRemove(
         fill={selectProps.isDisabled ? 'transparent' : 'tinted'}
         color={selectProps.isDisabled ? 'neutral' : 'primary'}
         icon="X"
-        // The react-select MultiValueRemove component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
+        // Unlike the DropdownIndicator above, the react-select
+        // MultiValueRemove component removes the value from its own click
+        // handler, which Button triggers for both mouse and touch input, so we
+        // just put a dummy handler on the button itself.
         onPress={() => {}}
         style={{
           padding: '0 0.5rem',

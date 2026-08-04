@@ -1,7 +1,12 @@
 import { expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render, screen, within } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import {
   SearchSelect,
   SearchSelectProps,
@@ -313,6 +318,38 @@ test('complex value type uses deep equality', () => {
   userEvent.click(screen.getByText('Green Apple'));
   screen.getByText('Green Apple');
   expect(screen.queryByText('Red Apple')).not.toBeInTheDocument();
+});
+
+test('dropdown arrow opens and closes the menu on touchscreens', () => {
+  render(
+    <ControlledSingleSelect options={options} aria-label="Choose Fruit" />,
+    {
+      vxTheme: makeTheme({
+        sizeMode: 'touchSmall',
+        colorMode: 'contrastMedium',
+      }),
+    }
+  );
+
+  const arrow = screen.getByRole('button', { hidden: true });
+
+  function tap(element: HTMLElement) {
+    fireEvent.touchEnd(element, {
+      changedTouches: [{ clientX: 0, clientY: 0 }],
+    });
+  }
+
+  // open dropdown
+  tap(arrow);
+  for (const option of options) {
+    screen.getByRole('option', { name: option.label });
+  }
+
+  // close dropdown
+  tap(arrow);
+  for (const option of options) {
+    expect(screen.queryByText(option.label)).not.toBeInTheDocument();
+  }
 });
 
 test('a11y', () => {
