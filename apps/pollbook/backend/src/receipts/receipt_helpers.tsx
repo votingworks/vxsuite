@@ -1,9 +1,16 @@
-import styled from 'styled-components';
+import { createRequire } from 'node:module';
 import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { DivBreakWord, IconName, Icons, SpanBreakWord } from '@votingworks/ui';
 import { Election, Voter, VoterCheckIn } from '@votingworks/types';
 import React from 'react';
+
+// styled-components is CJS with an ESM `export default`. Its default-import shape
+// differs between native node (the namespace) and vitest (the callable), so load it
+// via require for consistent behavior across both.
+const styled = createRequire(import.meta.url)(
+  'styled-components'
+).default as typeof import('styled-components').default;
 
 export const StyledReceipt = styled.div``;
 

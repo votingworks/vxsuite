@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
@@ -109,7 +110,7 @@ process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Promise Rejection:', reason);
 });
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console

@@ -1,6 +1,6 @@
 import { sleep } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import yargs, { config } from 'yargs';
+import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {
   CheckInBallotParty,
