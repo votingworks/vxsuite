@@ -18,9 +18,9 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { deepEqual } from '@votingworks/basics';
-import { Store } from '../store';
-import { makeHmpbSheet } from '../../test/helpers/shared_helpers';
-import { getScannerResultsMemoized, isBmdPage, isHmpbPage } from './results';
+import { Store } from '../store.js';
+import { makeHmpbSheet } from '../../test/helpers/shared_helpers.js';
+import { getScannerResultsMemoized, isBmdPage, isHmpbPage } from './results.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';

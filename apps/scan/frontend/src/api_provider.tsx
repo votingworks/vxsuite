@@ -11,7 +11,7 @@ import {
   getConfig,
   systemCallApi,
   uiStringsApi,
-} from './api';
+} from './api.js';
 
 function UiStringsContextProvider({
   children,

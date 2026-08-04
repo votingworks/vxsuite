@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   statusNoPaper,
-} from '../test/helpers/mock_api_client';
-import { App, AppProps } from './app';
-import { useSessionSettingsManager } from './utils/use_session_settings_manager';
+} from '../test/helpers/mock_api_client.js';
+import { App, AppProps } from './app.js';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager.js';
 
 vi.mock('./utils/use_session_settings_manager');
 

@@ -15,8 +15,8 @@ import {
   createApiClient,
   createQueryClient,
   systemCallApi,
-} from './api';
-import { AppRoot } from './app_root';
+} from './api.js';
+import { AppRoot } from './app_root.js';
 
 export interface AppBaseProps {
   children: React.ReactNode;

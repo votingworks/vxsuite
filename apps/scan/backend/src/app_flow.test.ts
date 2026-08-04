@@ -11,8 +11,8 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
-import { isReadyToScan } from './app_flow';
-import { Store } from './store';
+import { isReadyToScan } from './app_flow.js';
+import { Store } from './store.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);

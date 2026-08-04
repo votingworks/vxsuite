@@ -13,8 +13,8 @@ import {
   Screen,
 } from '@votingworks/ui';
 import React from 'react';
-import { endImageSensorCalibration, getScannerStatus } from '../api';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
+import { endImageSensorCalibration, getScannerStatus } from '../api.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 
 function CalibrationScreen({ children }: { children: React.ReactNode }) {
   return (

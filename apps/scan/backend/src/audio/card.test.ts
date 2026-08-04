@@ -15,8 +15,8 @@ import {
   DEFAULT_HEADPHONE_VOLUME,
   DEFAULT_SPEAKER_VOLUME,
   MAX_CARD_DETECTION_RETRIES,
-} from './card';
-import { NODE_ENV } from '../globals';
+} from './card.js';
+import { NODE_ENV } from '../globals.js';
 
 vi.mock('@votingworks/backend');
 const mockGetCardName = vi.mocked(getAudioCardName);

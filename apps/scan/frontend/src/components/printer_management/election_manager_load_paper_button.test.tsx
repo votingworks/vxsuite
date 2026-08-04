@@ -5,12 +5,12 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../../test/helpers/mock_api_client';
-import { render, screen, waitFor } from '../../../test/react_testing_library';
+} from '../../../test/helpers/mock_api_client.js';
+import { render, screen, waitFor } from '../../../test/react_testing_library.js';
 import {
   ElectionManagerLoadPaperButton,
   ElectionManagerLoadPaperButtonProps,
-} from './election_manager_load_paper_button';
+} from './election_manager_load_paper_button.js';
 
 let apiMock: ApiMock;
 

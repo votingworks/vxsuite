@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Modal, P } from '@votingworks/ui';
-import { saveBallotAuditIdSecretKey } from '../api';
+import { saveBallotAuditIdSecretKey } from '../api.js';
 
 export function SaveBallotAuditIdSecretKeyButton(): JSX.Element {
   const saveBallotAuditIdSecretKeyMutation =

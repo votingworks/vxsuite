@@ -2,13 +2,13 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { startCpuMetricsLogging } from '@votingworks/backend';
-import { NODE_ENV, PORT } from '../globals';
-import { buildApp } from './app';
-import { runPrintAndScanTask } from './tasks/print_and_scan_task';
-import { ServerContext } from './context';
-import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
-import { Player as AudioPlayer } from '../audio/player';
-import { AudioCard } from '../audio/card';
+import { NODE_ENV, PORT } from '../globals.js';
+import { buildApp } from './app.js';
+import { runPrintAndScanTask } from './tasks/print_and_scan_task.js';
+import { ServerContext } from './context.js';
+import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task.js';
+import { Player as AudioPlayer } from '../audio/player.js';
+import { AudioCard } from '../audio/card.js';
 
 export async function startElectricalTestingServer(
   context: ServerContext

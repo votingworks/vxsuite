@@ -1,5 +1,5 @@
 import { H1, P } from '@votingworks/ui';
-import { CenteredText, ScreenMainCenterChild } from '../components/layout';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout.js';
 
 export function UnconfiguredPollingPlaceScreen(): JSX.Element {
   return (

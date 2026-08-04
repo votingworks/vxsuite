@@ -4,8 +4,8 @@ import {
   PrecinctScannerState,
 } from '@votingworks/types';
 import { SoundName } from '@votingworks/scan-backend';
-import { renderHook } from '../../test/react_testing_library';
-import { useScanFeedbackAudio } from './use_scan_feedback_audio';
+import { renderHook } from '../../test/react_testing_library.js';
+import { useScanFeedbackAudio } from './use_scan_feedback_audio.js';
 
 const playSound = vi.fn<(params: { name: SoundName }) => void>();
 

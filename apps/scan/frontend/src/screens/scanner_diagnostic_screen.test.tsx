@@ -1,7 +1,7 @@
 import { test, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
-import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen.js';
 
 test('scanner diagnostic prompt - insert blank sheet', () => {
   render(

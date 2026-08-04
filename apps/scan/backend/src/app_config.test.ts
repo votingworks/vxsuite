@@ -30,9 +30,9 @@ import {
   LATEST_METADATA,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { configureApp } from '../test/helpers/shared_helpers';
-import { withApp } from '../test/helpers/scanner_helpers';
-import { PrecinctScannerPollsInfo } from '.';
+import { configureApp } from '../test/helpers/shared_helpers.js';
+import { withApp } from '../test/helpers/scanner_helpers.js';
+import { PrecinctScannerPollsInfo } from './index.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

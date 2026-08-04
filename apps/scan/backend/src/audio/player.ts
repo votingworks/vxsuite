@@ -3,7 +3,7 @@ import {
   AudioPlayer as SharedAudioPlayer,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
-import { AudioCard } from './card';
+import { AudioCard } from './card.js';
 
 export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
 
@@ -42,7 +42,7 @@ export class Player implements PlayerInterface {
       nodeEnv: this.nodeEnv,
       logger: this.logger,
       outputName: AUDIO_DEVICE_DEFAULT_SINK,
-      soundsDirectory: __dirname,
+      soundsDirectory: import.meta.dirname,
     });
   }
 

@@ -55,20 +55,20 @@ import {
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { getCurrentTime } from './util/get_current_time';
-import { rootDebug } from './util/debug';
-import { isHmpbPage, isPageWithVotes } from './util/results';
+import { getCurrentTime } from './util/get_current_time.js';
+import { rootDebug } from './util/debug.js';
+import { isHmpbPage, isPageWithVotes } from './util/results.js';
 import {
   extractHmpbWriteIns,
   extractSummaryWriteIns,
   extractWriteInCandidates,
   getOvervotedContestIds,
-} from './util/write_in_report';
-import { PollsTransition } from './types';
+} from './util/write_in_report.js';
+import { PollsTransition } from './types.js';
 
 const debug = rootDebug.extend('store');
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 const getSheetsBaseQuery = `
   select

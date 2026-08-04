@@ -18,15 +18,15 @@ import {
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
-import { buildApp } from './app';
-import { NODE_ENV, PORT } from './globals';
-import { Workspace } from './util/workspace';
-import * as scanner from './scanner';
+import { buildApp } from './app.js';
+import { NODE_ENV, PORT } from './globals.js';
+import { Workspace } from './util/workspace.js';
+import * as scanner from './scanner.js';
 import {
   Player as AudioPlayer,
   PlayerInterface as AudioPlayerInterface,
-} from './audio/player';
-import { AudioCard } from './audio/card';
+} from './audio/player.js';
+import { AudioCard } from './audio/card.js';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;

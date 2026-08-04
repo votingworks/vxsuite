@@ -9,11 +9,11 @@ import {
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import React from 'react';
-import { AppRoot } from './app_root';
-import { ApiClient, createApiClient, createQueryClient } from './api';
-import { ScanAppBase } from './scan_app_base';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { ApiProvider } from './api_provider';
+import { AppRoot } from './app_root.js';
+import { ApiClient, createApiClient, createQueryClient } from './api.js';
+import { ScanAppBase } from './scan_app_base.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
+import { ApiProvider } from './api_provider.js';
 
 export interface AppProps {
   logger?: BaseLogger;

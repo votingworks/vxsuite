@@ -4,8 +4,8 @@ import {
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
-import { Store } from '../store';
-import { Workspace } from './workspace';
+import { Store } from '../store.js';
+import { Workspace } from './workspace.js';
 
 export function constructAuthMachineState(
   store: Store

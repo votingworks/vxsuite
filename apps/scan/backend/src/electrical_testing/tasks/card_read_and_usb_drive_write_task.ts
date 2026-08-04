@@ -3,8 +3,8 @@ import * as path from 'node:path';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 
 import { LogEventId } from '@votingworks/logging';
-import { ServerContext } from '../context';
-import { resultToString } from '../utils';
+import { ServerContext } from '../context.js';
+import { resultToString } from '../utils.js';
 
 export const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 export const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
