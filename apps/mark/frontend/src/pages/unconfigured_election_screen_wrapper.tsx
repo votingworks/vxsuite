@@ -5,7 +5,7 @@ import {
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api';
+import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api.js';
 
 /**
  * UnconfiguredElectionScreenWrapper wraps the shared UnconfiguredElectionScreen component

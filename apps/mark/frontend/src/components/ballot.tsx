@@ -7,13 +7,13 @@ import {
 } from 'react-idle-timer';
 
 import { IDLE_TIMEOUT_SECONDS } from '@votingworks/mark-flow-ui';
-import { ContestScreen } from '../pages/contest_screen';
-import { IdlePage } from '../pages/idle_page';
-import { NotFoundPage } from '../pages/not_found_page';
-import { PartySelectionScreen } from '../pages/party_selection_screen';
-import { PrintPage } from '../pages/print_page';
-import { ReviewScreen } from '../pages/review_screen';
-import { StartScreen } from '../pages/start_screen';
+import { ContestScreen } from '../pages/contest_screen.js';
+import { IdlePage } from '../pages/idle_page.js';
+import { NotFoundPage } from '../pages/not_found_page.js';
+import { PartySelectionScreen } from '../pages/party_selection_screen.js';
+import { PrintPage } from '../pages/print_page.js';
+import { ReviewScreen } from '../pages/review_screen.js';
+import { StartScreen } from '../pages/start_screen.js';
 
 const USER_ACTIVITY_EVENT_TYPES: EventsType[] = (() => {
   const allEvents = new Set(DEFAULT_EVENTS);

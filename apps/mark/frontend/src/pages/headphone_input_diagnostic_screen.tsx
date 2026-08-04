@@ -1,6 +1,6 @@
 import { Button, ButtonBar, H2, Main, P, Screen } from '@votingworks/ui';
 import { useRef, useState } from 'react';
-import { addDiagnosticRecord } from '../api';
+import { addDiagnosticRecord } from '../api.js';
 
 interface HeadphoneInputDiagnosticScreenProps {
   onComplete: () => void;

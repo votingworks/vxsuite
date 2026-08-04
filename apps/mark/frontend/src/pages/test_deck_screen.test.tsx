@@ -3,13 +3,13 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { deferred } from '@votingworks/basics';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
-import { TestDeckScreen, TestDeckScreenProps } from './test_deck_screen';
+} from '../../test/helpers/mock_api_client.js';
+import { TestDeckScreen, TestDeckScreenProps } from './test_deck_screen.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 

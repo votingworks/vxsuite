@@ -24,12 +24,12 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
 import { LocationPicker } from '@votingworks/mark-flow-ui';
-import { ejectUsbDrive, logOut, setTestMode, useApiClient } from '../api';
-import * as api from '../api';
-import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
-import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
-import { DiagnosticsScreen } from './diagnostics_screen';
-import { TestDeckScreen } from './test_deck_screen';
+import { ejectUsbDrive, logOut, setTestMode, useApiClient } from '../api.js';
+import * as api from '../api.js';
+import { BubbleMarkCalibration } from '../components/bubble_mark_calibration.js';
+import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal.js';
+import { DiagnosticsScreen } from './diagnostics_screen.js';
+import { TestDeckScreen } from './test_deck_screen.js';
 
 const Section = styled.div`
   &:not(:last-child) {

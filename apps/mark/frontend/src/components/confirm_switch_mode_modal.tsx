@@ -1,6 +1,6 @@
 import { Button, Modal, P } from '@votingworks/ui';
 import React from 'react';
-import { setTestMode } from '../api';
+import { setTestMode } from '../api.js';
 
 export interface ConfirmSwitchModeModalProps {
   isTestMode: boolean;

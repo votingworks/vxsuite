@@ -1,5 +1,5 @@
 import { Button, ButtonBar, H2, Main, P, Screen } from '@votingworks/ui';
-import { addDiagnosticRecord, playSound } from '../api';
+import { addDiagnosticRecord, playSound } from '../api.js';
 
 interface SystemAudioDiagnosticScreenProps {
   onComplete: () => void;

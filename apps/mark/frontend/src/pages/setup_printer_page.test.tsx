@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useAudioEnabled } from '@votingworks/ui';
-import { render, screen } from '../../test/react_testing_library';
-import { SetupPrinterPage } from './setup_printer_page';
+import { render, screen } from '../../test/react_testing_library.js';
+import { SetupPrinterPage } from './setup_printer_page.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 

@@ -8,8 +8,8 @@ import {
 } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { cleanup, configure } from '../test/react_testing_library';
-import './polyfills';
+import { cleanup, configure } from '../test/react_testing_library.js';
+import './polyfills.js';
 
 expect.extend(matchers);
 configure({ asyncUtilTimeout: 5_000 });
