@@ -340,7 +340,7 @@ export async function withElectionPackageZip<T>(
 }
 
 /**
- * Parses an package from the given buffer and hashes the raw contents.
+ * Parses a package from the given buffer and hashes the raw contents.
  */
 export async function readElectionPackageFromBuffer(
   fileContents: Buffer,
