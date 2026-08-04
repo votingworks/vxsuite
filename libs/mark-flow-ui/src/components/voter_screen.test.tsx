@@ -7,9 +7,9 @@ import {
   VoterSettings,
 } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
-import { VoterScreen } from './voter_screen';
-import { VoterSettingsButton } from './voter_settings_button';
+import { render, screen } from '../../test/react_testing_library.js';
+import { VoterScreen } from './voter_screen.js';
+import { VoterSettingsButton } from './voter_settings_button.js';
 
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),

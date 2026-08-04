@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Election, PollsState } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { LocationPicker } from './location_picker';
-import { render, screen } from '../../test/react_testing_library';
+import { LocationPicker } from './location_picker.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 vi.mock('@votingworks/ui', async (importActual) => ({
   ...(await importActual()),

@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
-import { capturePdfScreenshots } from './pdf';
-import type { ScreenshotNamer } from './screenshots';
+import { capturePdfScreenshots } from './pdf.js';
+import type { ScreenshotNamer } from './screenshots.js';
 
 /** Recursively collects all file paths under `dir`, or none if it doesn't exist. */
 function listFilesRecursive(dir: string): string[] {

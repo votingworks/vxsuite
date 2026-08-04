@@ -4,7 +4,13 @@
   "description": "Interface for the Custom 'Paper Handler' (print-scan unit)",
   "keywords": [],
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
   "scripts": {
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",

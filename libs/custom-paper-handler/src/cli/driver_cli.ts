@@ -4,9 +4,9 @@ import { createInterface } from 'node:readline';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { getPaperHandlerDriver } from '../driver/helpers';
-import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver';
-import { ScanDirection, scanDirections } from '../driver/scanner_config';
+import { getPaperHandlerDriver } from '../driver/helpers.js';
+import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver/index.js';
+import { ScanDirection, scanDirections } from '../driver/scanner_config.js';
 
 /**
  * Command line interface for interacting with the paper handler driver.

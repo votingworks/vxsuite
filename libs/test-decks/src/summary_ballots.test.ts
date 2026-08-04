@@ -12,8 +12,8 @@ import {
   createTestElection,
   mockConstructor,
 } from '@votingworks/test-utils';
-import { createSummaryBallotTestDeck } from './summary_ballots';
-import { generateTestDeckBallots } from './test_decks';
+import { createSummaryBallotTestDeck } from './summary_ballots.js';
+import { generateTestDeckBallots } from './test_decks.js';
 
 vi.setConfig({
   testTimeout: 90_000,
