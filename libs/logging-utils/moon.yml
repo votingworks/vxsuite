@@ -1,0 +1,36 @@
+# logging-utils is fundamentally a Rust (napi) package; its only TypeScript is
+# esbuild-run tests. Its real toolchain tasks are cargo-based, so the inherited
+# TS-oriented tasks are remapped:
+#   build      -> napi build (emits the .node addon at the package root)
+#   type-check -> no-op: there is no tsc type-check upstream (no @types/node; the
+#                 TS test files are only ever run through esbuild/vitest)
+#   lint       -> cargo clippy (the package's actual lint script)
+#   test       -> inherited `vitest run`, but add its own `build` as a dep so the
+#                 .node addon exists when the tests load it
+# `--offline` is used for cargo so the orchestrated build never reaches the network
+# (deps are already vendored/cached).
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace
+      mergeOutputs: replace
+    inputs:
+      - 'Cargo.toml'
+      - 'build.rs'
+    outputs:
+      - '*.node'
+
+  type-check:
+    command: 'true'
+    options:
+      mergeArgs: replace
+
+  lint:
+    command: 'cargo clippy --offline'
+    options:
+      mergeArgs: replace
+
+  test:
+    deps:
+      - 'build'

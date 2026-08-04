@@ -1,0 +1,13 @@
+# Two-stage build: `cargo build --release` produces a standalone Rust binary in
+# the (gitignored) `target/` dir, then `tsc` builds `build/`. moon caches only
+# `build/` (the inherited output); the Rust binary is left to cargo's own target
+# cache — caching `target/` via moon is impractical and it isn't a clean output.
+# Rust sources are added as inputs so a crate change re-runs the build.
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace
+    inputs:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
