@@ -1,4 +1,4 @@
-import { PDFFont } from 'pdf-lib';
+import { PDFFont, PDFPage } from 'pdf-lib';
 import { assertDefined } from '@votingworks/basics';
 
 /**
@@ -7,11 +7,18 @@ import { assertDefined } from '@votingworks/basics';
 export const WRITE_IN_FONT_SIZE_MAX = 12;
 
 /**
- * Smallest font size used to print a write-in name, in `pt`. A name that still
- * doesn't fit its write-in area at this size is truncated rather than shrunk
- * further, since smaller text can't be reliably read by a write-in adjudicator.
+ * Smallest font size used to print a write-in name, in `pt`.
+ *
+ * This is a floor on shrinking, not a legibility threshold. Printing the voter's
+ * whole name matters more than printing it at any particular size, since an
+ * adjudicator reviewing the scanned write-in can zoom in but can't recover
+ * characters we never printed, so we keep shrinking to fit rather than dropping
+ * characters.
+ *
+ * The floor exists only so that the search terminates; a name that doesn't fit
+ * even here means the write-in layout failed - see {@link fitWriteInText}.
  */
-export const WRITE_IN_FONT_SIZE_MIN = 6;
+export const WRITE_IN_FONT_SIZE_MIN = 3;
 
 /**
  * Distance between the baselines of consecutive lines of a wrapped write-in
@@ -20,6 +27,11 @@ export const WRITE_IN_FONT_SIZE_MIN = 6;
  */
 const LINE_SPACING = 1.05;
 
+/**
+ * Appended to the last line of a name that had to be truncated. Seeing this on a
+ * ballot means the write-in layout failed - see {@link fitWriteInText} - so it's
+ * deliberately conspicuous.
+ */
 const TRUNCATION_SUFFIX = '...';
 
 /**
@@ -130,6 +142,15 @@ function maxLineCount(areaHeight: number, fontSize: number): number {
  * characters, so it's important that a long name be contained: text spilling
  * out of the area could obscure a neighboring contest's options and be read as
  * a mark there.
+ *
+ * Truncation is a failure mode, not a layout option. Every write-in area on the
+ * ballots we generate fits the longest name a voter can enter, far above
+ * {@link WRITE_IN_FONT_SIZE_MIN} - there's a test asserting exactly that - so
+ * reaching the truncation path below means a ballot template declared a write-in
+ * area too small for a name we let the voter enter. We print what fits instead of
+ * throwing, because failing here would leave the voter with no ballot at all, and
+ * mark the dropped characters with {@link TRUNCATION_SUFFIX} so that the failure
+ * is visible on the ballot rather than silently losing part of the vote.
  */
 export function fitWriteInText(
   name: string,
@@ -151,9 +172,9 @@ export function fitWriteInText(
     }
   }
 
-  // The name doesn't fit even at the smallest font size, so truncate it. Shrink
-  // below the minimum font size only if the area is too short to fit even a
-  // single line, so that the text is always contained.
+  // The layout failed: the name doesn't fit even at the smallest font size. Keep
+  // as much of it as we can. Shrink below the minimum font size only if the area
+  // is too short to fit even a single line, so that the text stays contained.
   const fontSize = Math.min(WRITE_IN_FONT_SIZE_MIN, areaHeight);
   const lines = wrapText(name, areaWidth, fontSize, font).slice(
     0,
@@ -194,4 +215,39 @@ export function writeInLineBaselineOffset(
     fontSize +
     lineIndex * fontSize * LINE_SPACING
   );
+}
+
+/**
+ * A write-in area on a page, in PDF user space `pt`, with (x, y) at its
+ * bottom-left corner.
+ */
+export interface WriteInArea {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Draws a write-in name into the given write-in area, laid out by
+ * {@link fitWriteInText} so that it stays within the area. Lines are aligned to
+ * the left edge of the area and centered vertically within it.
+ */
+export function drawWriteInText(
+  page: PDFPage,
+  font: PDFFont,
+  name: string,
+  area: WriteInArea
+): void {
+  const text = fitWriteInText(name, area.width, area.height, font);
+  const areaTop = area.y + area.height;
+
+  for (const [lineIndex, line] of text.lines.entries()) {
+    page.drawText(line, {
+      font,
+      size: text.fontSize,
+      x: area.x,
+      y: areaTop - writeInLineBaselineOffset(text, lineIndex, area.height),
+    });
+  }
 }

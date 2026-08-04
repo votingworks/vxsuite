@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
+  HmpbBallotPaperSize,
   Candidate,
   Contest,
   Election,
@@ -32,7 +33,7 @@ import {
 } from './ballot_components';
 import { PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
-import { fitWriteInText, writeInLineBaselineOffset } from './write_in_text';
+import { drawWriteInText } from './write_in_text';
 
 const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
 
@@ -58,6 +59,26 @@ const bubbleSize = [BUBBLE_WIDTH_PX * PX, BUBBLE_HEIGHT_PX * PX] as const;
 const markSize = [bubbleSize[0] * 1.2, bubbleSize[1] * 1.2] as const;
 const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
+
+/**
+ * Size of one cell of the timing mark grid, in `pt`. Grid coordinates in ballot
+ * positions - including write-in area dimensions - are in these units.
+ */
+export function gridCellSize(paperSize: HmpbBallotPaperSize): {
+  width: number;
+  height: number;
+} {
+  const pageSizeIn = ballotPaperDimensions(paperSize);
+  const timingMarkCount = timingMarkCounts(pageSizeIn);
+  return {
+    width:
+      (pageSizeIn.width * IN - 2 * pageMargins[0] - timingMarkSize[0]) /
+      (timingMarkCount.x - 1),
+    height:
+      (pageSizeIn.height * IN - 2 * pageMargins[1] - timingMarkSize[1]) /
+      (timingMarkCount.y - 1),
+  };
+}
 
 /**
  * Generates a PDF with bubble marks in the expected positions for the given
@@ -166,24 +187,18 @@ export async function generateMarkOverlay(
       gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount.x - 1)),
       gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount.y - 1)),
     ];
+    const gridCell = gridCellSize(election.ballotLayout.paperSize);
     const areaSize = [
-      area.width * (gridSize[0] / (timingMarkCount.x - 1)),
-      area.height * (gridSize[1] / (timingMarkCount.y - 1)),
+      area.width * gridCell.width,
+      area.height * gridCell.height,
     ];
 
-    const text = fitWriteInText(name, areaSize[0], areaSize[1], fontRobotoBold);
-
-    for (const [lineIndex, line] of text.lines.entries()) {
-      page.drawText(line, {
-        font: fontRobotoBold,
-        size: text.fontSize,
-        x: origin[0],
-        y:
-          pageSize[1] -
-          origin[1] -
-          writeInLineBaselineOffset(text, lineIndex, areaSize[1]),
-      });
-    }
+    drawWriteInText(page, fontRobotoBold, name, {
+      x: origin[0],
+      y: pageSize[1] - origin[1] - areaSize[1],
+      width: areaSize[0],
+      height: areaSize[1],
+    });
   }
 
   // Make sure we have an even number of pages, to match print order of the base
