@@ -22,8 +22,8 @@ import {
   setPollsState,
   setTestMode,
   useApiClient,
-} from '../api';
-import { PrintBlankBallotScreen } from './print_blank_ballot_screen';
+} from '../api.js';
+import { PrintBlankBallotScreen } from './print_blank_ballot_screen.js';
 
 export interface PollworkerScreenProps {
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;

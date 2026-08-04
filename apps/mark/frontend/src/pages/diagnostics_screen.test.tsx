@@ -10,16 +10,16 @@ import {
   render,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
-} from './diagnostics_screen';
+} from './diagnostics_screen.js';
 
 let apiMock: ApiMock;
 

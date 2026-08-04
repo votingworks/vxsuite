@@ -51,26 +51,26 @@ import {
   getTallyReportResults,
 } from '@votingworks/test-decks';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { getMachineConfig } from './machine_config.js';
+import { Workspace } from './util/workspace.js';
 import {
   ElectionState,
   PrintBallotProps,
   PrintBlankBallotProps,
-} from './types';
-import { printBallot, printBlankBallot } from './util/print_ballot';
+} from './types.js';
+import { printBallot, printBlankBallot } from './util/print_ballot.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
-} from './util/accessible_controller';
-import { constructAuthMachineState } from './util/auth';
-import { ElectionRecord, Store } from './store';
-import * as barcodes from './barcodes';
-import { setUpBarcodeActivation } from './barcodes/activation';
-import { Player as AudioPlayer, SoundName } from './audio/player';
-import { saveReadinessReport } from './readiness_report';
-import { printTestPage } from './util/print_test_page';
-import { getCurrentTime } from './util/get_current_time';
+} from './util/accessible_controller.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { ElectionRecord, Store } from './store.js';
+import * as barcodes from './barcodes/index.js';
+import { setUpBarcodeActivation } from './barcodes/activation.js';
+import { Player as AudioPlayer, SoundName } from './audio/player.js';
+import { saveReadinessReport } from './readiness_report.js';
+import { printTestPage } from './util/print_test_page.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
 const TEST_UPS_USER_FAIL_REASON =

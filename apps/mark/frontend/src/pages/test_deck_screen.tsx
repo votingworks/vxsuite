@@ -11,7 +11,7 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { PrecinctId } from '@votingworks/types';
-import { getElectionRecord, getPrinterStatus, printTestDeck } from '../api';
+import { getElectionRecord, getPrinterStatus, printTestDeck } from '../api.js';
 
 export interface TestDeckScreenProps {
   onBackButtonPress: () => void;

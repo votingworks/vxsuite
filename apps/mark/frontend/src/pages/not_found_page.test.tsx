@@ -2,11 +2,11 @@ import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library.js';
 
-import { render } from '../../test/test_utils';
+import { render } from '../../test/test_utils.js';
 
-import { NotFoundPage } from './not_found_page';
+import { NotFoundPage } from './not_found_page.js';
 
 test('renders NotFoundPage', () => {
   const resetBallot = vi.fn();

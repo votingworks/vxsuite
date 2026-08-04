@@ -1,6 +1,6 @@
 import { PatDeviceCalibrationPage } from '@votingworks/ui';
 import { VoterScreen } from '@votingworks/mark-flow-ui';
-import { addDiagnosticRecord } from '../api';
+import { addDiagnosticRecord } from '../api.js';
 
 interface PatInputDiagnosticScreenProps {
   onComplete: () => void;

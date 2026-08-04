@@ -29,10 +29,10 @@ import {
 } from '@votingworks/test-utils';
 
 import { assertDefined, sleep } from '@votingworks/basics';
-import { setUpBarcodeActivation } from './activation';
-import { createWorkspace, Workspace } from '../util/workspace';
-import { getUserRole } from '../util/auth';
-import { BarcodeReader } from './types';
+import { setUpBarcodeActivation } from './activation.js';
+import { createWorkspace, Workspace } from '../util/workspace.js';
+import { getUserRole } from '../util/auth.js';
+import { BarcodeReader } from './types.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({

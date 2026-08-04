@@ -32,15 +32,15 @@ import {
   fireEvent,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
+} from '../../test/react_testing_library.js';
 
-import { render } from '../../test/test_utils';
+import { render } from '../../test/test_utils.js';
 
-import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiProvider } from '../api_provider';
+import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen.js';
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { ApiProvider } from '../api_provider.js';
 
 const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
 const MockSectionSessionStart = vi.spyOn(

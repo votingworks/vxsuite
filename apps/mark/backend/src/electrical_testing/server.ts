@@ -2,14 +2,14 @@ import { LogEventId } from '@votingworks/logging';
 
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { extractErrorMessage } from '@votingworks/basics';
-import { PORT } from '../globals';
-import { buildApp } from './app';
+import { PORT } from '../globals.js';
+import { buildApp } from './app.js';
 import {
   runCardReadAndUsbDriveWriteTask,
   runPrinterTestTask,
-} from './background';
-import { ServerContext } from './context';
-import { initializeAudio } from '../audio/initialize';
+} from './background.js';
+import { ServerContext } from './context.js';
+import { initializeAudio } from '../audio/initialize.js';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger, barcodeClient } = context;

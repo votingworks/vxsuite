@@ -23,12 +23,12 @@ import {
   getUsbDriveStatus,
   saveReadinessReport,
   logUpsDiagnosticOutcome,
-} from '../api';
-import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
-import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen';
-import { PatInputDiagnosticScreen } from './pat_input_diagnostic_screen';
-import { PrintTestPageButton } from '../components/print_test_page_button';
-import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen';
+} from '../api.js';
+import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen.js';
+import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen.js';
+import { PatInputDiagnosticScreen } from './pat_input_diagnostic_screen.js';
+import { PrintTestPageButton } from '../components/print_test_page_button.js';
+import { SystemAudioDiagnosticScreen } from './system_audio_diagnostic_screen.js';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;
