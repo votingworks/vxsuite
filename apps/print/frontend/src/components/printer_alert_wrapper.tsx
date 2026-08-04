@@ -1,5 +1,5 @@
 import { PrinterAlert } from '@votingworks/ui';
-import { getDeviceStatuses } from '../api';
+import { getDeviceStatuses } from '../api.js';
 
 export function PrinterAlertWrapper(): JSX.Element | null {
   const deviceStatusesQuery = getDeviceStatuses.useQuery();

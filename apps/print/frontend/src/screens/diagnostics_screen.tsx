@@ -4,8 +4,8 @@ import {
   Loading,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { ScreenWrapper } from '../components/screen_wrapper';
-import { TitleBar } from '../components/title_bar';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
+import { TitleBar } from '../components/title_bar.js';
 import {
   getMostRecentPrinterDiagnostic,
   getDeviceStatuses,
@@ -13,8 +13,8 @@ import {
   saveReadinessReport,
   getElectionRecord,
   getPollingPlaceId,
-} from '../api';
-import { PrintTestPageButton } from '../components/print_test_page_button';
+} from '../api.js';
+import { PrintTestPageButton } from '../components/print_test_page_button.js';
 
 const PageLayout = styled.div`
   display: flex;

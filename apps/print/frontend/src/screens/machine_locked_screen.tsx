@@ -8,7 +8,7 @@ import {
   Main,
   Screen,
 } from '@votingworks/ui';
-import { getElectionRecord, getMachineConfig, getPollingPlaceId } from '../api';
+import { getElectionRecord, getMachineConfig, getPollingPlaceId } from '../api.js';
 
 const LockedImage = styled.img`
   margin-right: auto;

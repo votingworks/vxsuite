@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import { BaseLogger } from '@votingworks/logging';
 import { DiskSpaceSummary } from '@votingworks/utils';
 import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
-import { Store } from '../store';
+import { Store } from '../store.js';
 
 export interface Workspace {
   /**

@@ -19,10 +19,10 @@ import {
   unconfigureMachine,
   getDeviceStatuses,
   ejectUsbDrive,
-} from '../api';
-import { TitleBar } from '../components/title_bar';
-import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
-import { ScreenWrapper } from '../components/screen_wrapper';
+} from '../api.js';
+import { TitleBar } from '../components/title_bar.js';
+import { ToggleTestModeButton } from '../components/toggle_test_mode_button.js';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 const Content = styled.div`
   padding: 1rem;

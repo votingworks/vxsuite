@@ -13,14 +13,14 @@ import {
   PrintButton,
   ScreenWrapper,
   TitleBar,
-} from '../components';
+} from '../components/index.js';
 import {
   getDeviceStatuses,
   getElectionRecord,
   getTestDeckBallotCount,
   hasTestBallots,
   printTestDeck,
-} from '../api';
+} from '../api.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

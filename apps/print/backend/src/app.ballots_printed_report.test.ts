@@ -27,14 +27,14 @@ import {
   buildTestEnvironment,
   configureMachine,
   buildBallotsForElection,
-} from '../test/app';
+} from '../test/app.js';
 import {
   exportBallotsPrintedReportPdf,
   generateReportsDirectoryPath,
   printBallotsPrintedReport,
-} from './reports/ballots_printed_report';
-import { Api } from './app';
-import { Workspace } from './util/workspace';
+} from './reports/ballots_printed_report.js';
+import { Api } from './app.js';
+import { Workspace } from './util/workspace.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

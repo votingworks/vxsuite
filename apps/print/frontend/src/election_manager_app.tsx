@@ -1,15 +1,15 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import { PrintScreen } from './screens/print_screen';
-import { TestDeckScreen } from './screens/test_deck_screen';
-import { SettingsScreen } from './screens/settings_screen';
-import { ReportScreen } from './screens/report_screen';
-import { ElectionScreen } from './screens/election_screen';
-import { DiagnosticsScreen } from './screens/diagnostics_screen';
-import { electionManagerRoutes } from './routes';
-import { PrinterAlertWrapper } from './components/printer_alert_wrapper';
-import { getElectionRecord, getPollingPlaceId } from './api';
+import { PrintScreen } from './screens/print_screen.js';
+import { TestDeckScreen } from './screens/test_deck_screen.js';
+import { SettingsScreen } from './screens/settings_screen.js';
+import { ReportScreen } from './screens/report_screen.js';
+import { ElectionScreen } from './screens/election_screen.js';
+import { DiagnosticsScreen } from './screens/diagnostics_screen.js';
+import { electionManagerRoutes } from './routes.js';
+import { PrinterAlertWrapper } from './components/printer_alert_wrapper.js';
+import { getElectionRecord, getPollingPlaceId } from './api.js';
 
 export function ElectionManagerApp(): JSX.Element | null {
   const electionRecordQuery = getElectionRecord.useQuery();

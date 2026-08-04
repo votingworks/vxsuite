@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
-import { getDeviceStatuses, exportBallotsPrintedReportPdf } from '../api';
+import { getDeviceStatuses, exportBallotsPrintedReportPdf } from '../api.js';
 
 export function ExportReportModal({
   onClose,
