@@ -12,12 +12,12 @@ import {
 } from '@votingworks/ui';
 import { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
-import { NoNavScreen } from './nav_screen';
-import { TitledCard, VoterName } from './shared_components';
-import { Column, Row } from './layout';
-import { changeVoterName } from './api';
-import { NameInputGroup } from './name_input_group';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+import { NoNavScreen } from './nav_screen.js';
+import { TitledCard, VoterName } from './shared_components.js';
+import { Column, Row } from './layout.js';
+import { changeVoterName } from './api.js';
+import { NameInputGroup } from './name_input_group.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateNameFlowState =
   | { step: 'update' }

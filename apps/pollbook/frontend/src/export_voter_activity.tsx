@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
-import { getDeviceStatuses, exportVoterActivity } from './api';
+import { getDeviceStatuses, exportVoterActivity } from './api.js';
 
 export function ExportVoterActivityModal({
   onClose,

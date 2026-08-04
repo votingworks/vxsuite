@@ -7,11 +7,11 @@ import {
 } from '@votingworks/pollbook-backend';
 import { within } from '@testing-library/react';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
-import { screen } from '../test/react_testing_library';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
-import { SystemAdministratorScreen } from './system_administrator_screen';
-import { renderInAppContext } from '../test/render_in_app_context';
-import { getMockSystemAdministratorAuth } from '../test/auth';
+import { screen } from '../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { SystemAdministratorScreen } from './system_administrator_screen.js';
+import { renderInAppContext } from '../test/render_in_app_context.js';
+import { getMockSystemAdministratorAuth } from '../test/auth.js';
 
 const nonbreakingHyphen = '‑';
 

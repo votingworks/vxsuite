@@ -1,17 +1,17 @@
 import { SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import { VOTER_INPUT_FIELD_LIMITS } from '@votingworks/types';
-import { Row, FieldName } from './layout';
+import { Row, FieldName } from './layout.js';
 import {
   RequiredStaticInput,
   TextField,
   RequiredExpandableInput,
   StaticInput,
   ExpandableInput,
-} from './shared_components';
-import { usJurisdictions } from './us_states';
-import type { VoterMailingAddressChangeRequest } from './update_mailing_address_flow';
-import { splitStreetNumberDetails } from './address_input_group';
+} from './shared_components.js';
+import { usJurisdictions } from './us_states.js';
+import type { VoterMailingAddressChangeRequest } from './update_mailing_address_flow.js';
+import { splitStreetNumberDetails } from './address_input_group.js';
 
 export function MailingAddressInputGroup({
   mailingAddress,

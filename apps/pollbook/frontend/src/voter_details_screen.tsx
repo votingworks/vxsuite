@@ -20,7 +20,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { assertDefined, sleep, assert } from '@votingworks/basics';
 import { PrinterStatus, Voter } from '@votingworks/types';
 import { DateTime } from 'luxon';
-import { electionManagerRoutes, NoNavScreen } from './nav_screen';
+import { electionManagerRoutes, NoNavScreen } from './nav_screen.js';
 import {
   getDeviceStatuses,
   getVoter,
@@ -30,8 +30,8 @@ import {
   undoVoterCheckIn,
   getPollbookConfigurationInformation,
   getElection,
-} from './api';
-import { Column, Row } from './layout';
+} from './api.js';
+import { Column, Row } from './layout.js';
 import {
   AddressChange,
   PartyName,
@@ -42,14 +42,14 @@ import {
   hasMailingAddress,
   MailingAddressChange,
   VoterStatusLabel,
-} from './shared_components';
-import { UpdateAddressFlow } from './update_address_flow';
-import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
-import { UpdateNameFlow } from './update_name_flow';
-import { CheckInDetails } from './voter_search_screen';
-import { PRINTING_INDICATOR_DELAY_MS } from './globals';
-import { getVoterPrecinct } from './types';
-import { partyAbbreviationToString } from './strings';
+} from './shared_components.js';
+import { UpdateAddressFlow } from './update_address_flow.js';
+import { UpdateMailingAddressFlow } from './update_mailing_address_flow.js';
+import { UpdateNameFlow } from './update_name_flow.js';
+import { CheckInDetails } from './voter_search_screen.js';
+import { PRINTING_INDICATOR_DELAY_MS } from './globals.js';
+import { getVoterPrecinct } from './types.js';
+import { partyAbbreviationToString } from './strings.js';
 
 interface Params {
   voterId: string;

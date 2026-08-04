@@ -3,10 +3,10 @@ import { join } from 'node:path';
 
 import { BaseLogger } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { PeerWorkspace, LocalWorkspace } from './types';
-import { LocalStore } from './local_store';
-import { PeerStore } from './peer_store';
-import { PeerApi } from './peer_app';
+import { PeerWorkspace, LocalWorkspace } from './types.js';
+import { LocalStore } from './local_store.js';
+import { PeerStore } from './peer_store.js';
+import { PeerApi } from './peer_app.js';
 
 export function createLocalWorkspace(
   workspacePath: string,

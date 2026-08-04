@@ -18,11 +18,11 @@ import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { Printer } from '@votingworks/printing';
 import { BaseLogger } from '@votingworks/logging';
-import type { PeerApi } from './peer_app';
-import { HlcTimestamp } from './hybrid_logical_clock';
-import type { LocalStore } from './local_store';
-import type { PeerStore } from './peer_store';
-import { getCurrentTime } from './get_current_time';
+import type { PeerApi } from './peer_app.js';
+import { HlcTimestamp } from './hybrid_logical_clock.js';
+import type { LocalStore } from './local_store.js';
+import type { PeerStore } from './peer_store.js';
+import { getCurrentTime } from './get_current_time.js';
 
 export interface MachineConfig {
   machineId: string;

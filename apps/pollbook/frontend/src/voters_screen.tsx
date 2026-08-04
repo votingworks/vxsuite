@@ -4,15 +4,15 @@ import type { VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import { Voter } from '@votingworks/types';
-import { getDeviceStatuses, getElection } from './api';
-import { Column, Row } from './layout';
-import { ElectionManagerNavScreen } from './nav_screen';
+import { getDeviceStatuses, getElection } from './api.js';
+import { Column, Row } from './layout.js';
+import { ElectionManagerNavScreen } from './nav_screen.js';
 import {
   CheckInDetails,
   VoterSearch,
   createEmptySearchParams,
-} from './voter_search_screen';
-import { ExportVoterActivityButton } from './export_voter_activity';
+} from './voter_search_screen.js';
+import { ExportVoterActivityButton } from './export_voter_activity.js';
 
 function getDetailsPageUrl(voter: Voter): string {
   return `/voters/${voter.voterId}`;

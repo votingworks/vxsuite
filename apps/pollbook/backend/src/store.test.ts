@@ -1,20 +1,20 @@
 import { describe, expect, test, vi } from 'vitest';
 import { assert, sleep } from '@votingworks/basics';
 import { mockBaseLogger } from '@votingworks/logging';
-import { HybridLogicalClock } from './hybrid_logical_clock';
+import { HybridLogicalClock } from './hybrid_logical_clock.js';
 import {
   createTestPeerStore,
   createUndoCheckInEvent,
   createVoter,
   createVoterCheckInEvent,
   getTestElectionDefinition,
-} from '../test/test_helpers';
-import { PeerStore } from './peer_store';
+} from '../test/test_helpers.js';
+import { PeerStore } from './peer_store.js';
 import {
   sortedByVoterName,
   sortedByVoterNameAndMatchingPrecinct,
-} from './store';
-import { DuplicateCheckInDetailsDb } from './types';
+} from './store.js';
+import { DuplicateCheckInDetailsDb } from './types.js';
 
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';

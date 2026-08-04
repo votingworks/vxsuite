@@ -2,13 +2,13 @@ import {
   VoterNameChangeRequest,
   VOTER_INPUT_FIELD_LIMITS,
 } from '@votingworks/types';
-import { Row, FieldName } from './layout';
+import { Row, FieldName } from './layout.js';
 import {
   RequiredExpandableInput,
   TextField,
   ExpandableInput,
   StaticInput,
-} from './shared_components';
+} from './shared_components.js';
 
 export function NameInputGroup({
   name,

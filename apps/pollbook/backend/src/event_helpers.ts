@@ -9,7 +9,7 @@ import {
   VoterRegistration,
   VoterRegistrationSchema,
 } from '@votingworks/types';
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 import {
   EventDbRow,
   EventType,
@@ -23,7 +23,7 @@ import {
   VoterNameChangeEvent,
   PollbookEventBase,
   VoterInactivatedEvent,
-} from './types';
+} from './types.js';
 
 const debug = rootDebug.extend('store');
 

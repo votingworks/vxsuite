@@ -39,10 +39,10 @@ import {
   printGeneralStatisticsSummaryReceipt,
   printPrimaryStatisticsSummaryReceipt,
   getDeviceStatuses,
-} from './api';
-import { Row, Column } from './layout';
-import { ElectionManagerNavScreen } from './nav_screen';
-import { TitledCard } from './shared_components';
+} from './api.js';
+import { Row, Column } from './layout.js';
+import { ElectionManagerNavScreen } from './nav_screen.js';
+import { TitledCard } from './shared_components.js';
 
 ChartJS.register(TimeScale, LinearScale, BarElement, Title, Tooltip, Legend);
 ChartJS.defaults.font.size = 16;

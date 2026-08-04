@@ -30,10 +30,10 @@ import {
   VoterIdentificationMethod,
 } from '@votingworks/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { usJurisdictions } from './us_states';
-import { Column, Form, Row, InputGroup } from './layout';
-import { NavScreen } from './nav_screen';
-import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
+import { usJurisdictions } from './us_states.js';
+import { Column, Form, Row, InputGroup } from './layout.js';
+import { NavScreen } from './nav_screen.js';
+import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api.js';
 import {
   AbsenteeModeCallout,
   AddressChange,
@@ -42,8 +42,8 @@ import {
   VoterAddress,
   VoterName,
   VoterStatusLabel,
-} from './shared_components';
-import { getVoterPrecinct } from './types';
+} from './shared_components.js';
+import { getVoterPrecinct } from './types.js';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
