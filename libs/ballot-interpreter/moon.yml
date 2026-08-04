@@ -8,6 +8,10 @@ tasks:
     command: 'pnpm build:self'
     options:
       mergeArgs: replace
+    # cargo/napi saturate every core internally; bound the job count so overlapping
+    # native builds don't collectively demand cores x N. Tune down further on CI.
+    env:
+      CARGO_BUILD_JOBS: '6'
     inputs:
       - 'Cargo.toml'
       - 'Cargo.lock'
