@@ -4,8 +4,8 @@ import { expect, test, vi } from 'vitest';
 import { pollingPlaceTypeName } from '@votingworks/types/src';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test/react_testing_library';
-import { LocationImportCard } from './location_import_card';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { LocationImportCard } from './location_import_card.js';
 
 test('official import with single-scanner batches', () => {
   render(

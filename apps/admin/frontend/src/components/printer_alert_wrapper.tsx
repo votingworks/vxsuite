@@ -1,6 +1,6 @@
 import { PrinterAlert } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { getAuthStatus, getPrinterStatus } from '../api';
+import { getAuthStatus, getPrinterStatus } from '../api.js';
 
 export function PrinterAlertWrapper(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();

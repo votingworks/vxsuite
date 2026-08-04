@@ -35,15 +35,15 @@ import {
   configureMachine,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
-} from '../test/app';
-import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
+} from '../test/app.js';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
   BallotAdjudicationData,
   ContestAdjudicationData,
-} from './types';
-import { getCurrentTime } from './get_current_time';
+} from './types.js';
+import { getCurrentTime } from './get_current_time.js';
 
 vi.mock('./get_current_time');
 

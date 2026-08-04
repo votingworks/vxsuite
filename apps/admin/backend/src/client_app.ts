@@ -28,9 +28,9 @@ import {
   Side,
   SystemSettings,
 } from '@votingworks/types';
-import { getMachineConfig } from './machine_config';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config';
-import { readMachineMode, writeMachineMode } from './machine_mode';
+import { getMachineConfig } from './machine_config.js';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
+import { readMachineMode, writeMachineMode } from './machine_mode.js';
 import {
   type MachineMode,
   BallotPageImage,
@@ -41,11 +41,11 @@ import {
   BallotImages,
   AdjudicationError,
   WriteInCandidateRecord,
-} from './types';
-import { type HostConnection } from './client_store';
-import type { PeerApi } from './peer_app';
-import { type ClientWorkspace } from './util/workspace';
-import { constructAuthMachineState } from './util/auth';
+} from './types.js';
+import { type HostConnection } from './client_store.js';
+import type { PeerApi } from './peer_app.js';
+import { type ClientWorkspace } from './util/workspace.js';
+import { constructAuthMachineState } from './util/auth.js';
 
 /**
  * Network connection status as returned to the frontend.

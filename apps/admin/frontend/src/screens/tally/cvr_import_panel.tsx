@@ -9,9 +9,9 @@ import type {
   CvrFileMode,
 } from '@votingworks/admin-backend';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CvrImporter, useCvrImporter } from './cvr_importer';
-import { CvrUsbExports } from './cvr_usb_exports';
-import { BORDER_LIGHT, GAP } from './styles';
+import { CvrImporter, useCvrImporter } from './cvr_importer.js';
+import { CvrUsbExports } from './cvr_usb_exports.js';
+import { BORDER_LIGHT, GAP } from './styles.js';
 
 export interface Props {
   className?: string;

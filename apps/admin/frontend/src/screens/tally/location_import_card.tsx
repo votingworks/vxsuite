@@ -5,8 +5,8 @@ import { DateTime } from 'luxon';
 import { Font, Icons } from '@votingworks/ui';
 import { PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
 
-import { TIME_FORMAT } from '../../config/globals';
-import { LocationCvrCard } from './location_cvr_card';
+import { TIME_FORMAT } from '../../config/globals.js';
+import { LocationCvrCard } from './location_cvr_card.js';
 
 export type LocationImportCardProps = Props;
 interface Props {

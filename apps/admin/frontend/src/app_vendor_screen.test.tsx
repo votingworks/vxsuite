@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { screen, waitFor, within } from '../test/react_testing_library';
-import { buildApp } from '../test/helpers/build_app';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { screen, waitFor, within } from '../test/react_testing_library.js';
+import { buildApp } from '../test/helpers/build_app.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

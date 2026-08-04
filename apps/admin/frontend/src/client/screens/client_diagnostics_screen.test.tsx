@@ -4,13 +4,13 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { screen } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library.js';
 import {
   ClientApiMock,
   createClientApiMock,
-} from '../../../test/helpers/mock_client_api_client';
-import { renderInClientContext } from '../../../test/render_in_client_context';
-import { ClientDiagnosticsScreen } from './client_diagnostics_screen';
+} from '../../../test/helpers/mock_client_api_client.js';
+import { renderInClientContext } from '../../../test/render_in_client_context.js';
+import { ClientDiagnosticsScreen } from './client_diagnostics_screen.js';
 
 let apiMock: ClientApiMock;
 

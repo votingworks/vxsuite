@@ -6,10 +6,10 @@ import {
 
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen, waitFor } from '../../../test/react_testing_library';
-import { TallyScreen } from './tally_screen';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { screen, waitFor } from '../../../test/react_testing_library.js';
+import { TallyScreen } from './tally_screen.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

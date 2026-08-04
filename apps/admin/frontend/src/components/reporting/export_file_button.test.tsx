@@ -6,11 +6,11 @@ import { ok } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { act } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, within } from '../../../test/react_testing_library';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { ExportFileButton } from './export_file_button';
-import { generateReportFilename } from '../../utils/reporting';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { screen, within } from '../../../test/react_testing_library.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { ExportFileButton } from './export_file_button.js';
+import { generateReportFilename } from '../../utils/reporting.js';
 
 let apiMock: ApiMock;
 

@@ -12,7 +12,7 @@ import {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
   WriteInRecord,
-} from '../types';
+} from '../types.js';
 
 /**
  * Returns the number of allowed votes for the contest

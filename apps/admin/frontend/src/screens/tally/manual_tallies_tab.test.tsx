@@ -11,14 +11,14 @@ import { Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { screen, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library.js';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualTalliesTab,
-} from './manual_tallies_tab';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { mockManualResultsMetadata } from '../../../test/api_mock_data';
+} from './manual_tallies_tab.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { mockManualResultsMetadata } from '../../../test/api_mock_data.js';
 
 let apiMock: ApiMock;
 

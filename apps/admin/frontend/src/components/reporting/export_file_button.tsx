@@ -4,9 +4,9 @@ import { assert } from '@votingworks/basics';
 import { UseMutationResult } from '@tanstack/react-query';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { Election } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
-import { getCastVoteRecordFileMode } from '../../api';
-import { SaveBackendFileModal } from '../save_backend_file_modal';
+import { AppContext } from '../../contexts/app_context.js';
+import { getCastVoteRecordFileMode } from '../../api.js';
+import { SaveBackendFileModal } from '../save_backend_file_modal.js';
 
 export function ExportFileButton<T extends { [key: string]: unknown }>({
   buttonText,

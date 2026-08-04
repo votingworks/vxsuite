@@ -7,8 +7,8 @@ import {
   AdjudicatedCvrContest,
   WriteInAdjudicationAction,
   WriteInRecord,
-} from './types';
-import { type Store } from './store';
+} from './types.js';
+import { type Store } from './store.js';
 
 /**
  * Builds an adjudicated contest option for a given option.

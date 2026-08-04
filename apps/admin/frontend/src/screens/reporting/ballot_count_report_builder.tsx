@@ -7,28 +7,28 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { Admin, Tabulation } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   FilterEditor,
   FilterType,
-} from '../../components/reporting/filter_editor';
+} from '../../components/reporting/filter_editor.js';
 import {
   GroupByEditor,
   GroupByEditorOption,
-} from '../../components/reporting/group_by_editor';
+} from '../../components/reporting/group_by_editor.js';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
   isFilterEmpty,
-} from '../../utils/reporting';
-import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
+} from '../../utils/reporting.js';
+import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer.js';
 import {
   ControlLabel,
   ReportBuilderControls,
   reportParentRoutes,
   ReportScreenContainer,
-} from '../../components/reporting/shared';
+} from '../../components/reporting/shared.js';
 
 export const TITLE = 'Ballot Count Report Builder';
 

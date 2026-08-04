@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { pollingPlaceTypeName } from '@votingworks/types/src';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { LocationCvrsPanel } from './location_cvrs_panel';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { LocationCvrsPanel } from './location_cvrs_panel.js';
 
 test('renders empty state note when open with no imports available', () => {
   render(

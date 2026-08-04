@@ -6,9 +6,9 @@ import {
   getSystemSettings,
   markResultsOfficial,
   revertResultsToUnofficial,
-} from '../api';
-import { AppContext } from '../contexts/app_context';
-import { areClosedPollsActionsBlocked } from '../utils/closed_polls_actions';
+} from '../api.js';
+import { AppContext } from '../contexts/app_context.js';
+import { areClosedPollsActionsBlocked } from '../utils/closed_polls_actions.js';
 
 export const MARK_RESULTS_OFFICIAL_BUTTON_TEXT =
   'Mark Election Results as Official';

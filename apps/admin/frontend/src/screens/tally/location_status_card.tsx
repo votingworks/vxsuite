@@ -3,7 +3,7 @@ import React from 'react';
 import { Icons } from '@votingworks/ui';
 import { PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
 
-import { LocationCvrCard } from './location_cvr_card';
+import { LocationCvrCard } from './location_cvr_card.js';
 
 export interface LocationStatusCardProps {
   cvrCount: number;

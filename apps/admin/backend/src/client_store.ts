@@ -2,12 +2,12 @@ import * as grout from '@votingworks/grout';
 import { assert, Optional } from '@votingworks/basics';
 import type { ElectionKey, Id, SystemSettings } from '@votingworks/types';
 import { constructElectionKey } from '@votingworks/types';
-import type { PeerApi } from './peer_app';
+import type { PeerApi } from './peer_app.js';
 import {
   ClientConnectionStatus,
   ElectionRecord,
   type BaseStore,
-} from './types';
+} from './types.js';
 
 /**
  * Active connection to a host machine, including the API client for

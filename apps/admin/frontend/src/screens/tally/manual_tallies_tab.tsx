@@ -30,20 +30,20 @@ import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
 } from '@votingworks/admin-backend';
-import { routerPaths } from '../../router_paths';
+import { routerPaths } from '../../router_paths.js';
 
-import { AppContext } from '../../contexts/app_context';
-import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
+import { AppContext } from '../../contexts/app_context.js';
+import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal.js';
 import {
   deleteManualResults,
   getManualResultsMetadata,
   getSystemSettings,
-} from '../../api';
-import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
+} from '../../api.js';
+import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal.js';
 import {
   BallotStyleLabel,
   VotingMethodLabel,
-} from './manual_tallies_shared_components';
+} from './manual_tallies_shared_components.js';
 
 export const TITLE = 'Manual Tallies';
 

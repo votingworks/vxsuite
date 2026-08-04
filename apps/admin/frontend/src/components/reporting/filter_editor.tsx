@@ -20,11 +20,11 @@ import {
 } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { getScannerBatches, getSystemSettings } from '../../api';
+import { getScannerBatches, getSystemSettings } from '../../api.js';
 import {
   getPartiesWithPrimaryElections,
   getValidDistricts,
-} from '../../utils/election';
+} from '../../utils/election.js';
 
 const FilterEditorContainer = styled.div`
   width: 100%;

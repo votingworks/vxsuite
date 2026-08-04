@@ -12,7 +12,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   createSystemCallApi,
 } from '@votingworks/ui';
-import { getAuthStatus, getUsbDriveStatus } from './api';
+import { getAuthStatus, getUsbDriveStatus } from './api.js';
 
 /**
  * Methods shared between host (Api) and client (ClientApi) backends.

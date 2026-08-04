@@ -1,6 +1,6 @@
 import { Exporter } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals';
+import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals.js';
 
 /**
  * Builds an exporter suitable for saving data to a file or USB drive.

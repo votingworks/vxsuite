@@ -1,5 +1,5 @@
 import { PrintTestPageButton as SharedPrintTestPageButton } from '@votingworks/ui';
-import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api';
+import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api.js';
 
 export { TEST_PAGE_PRINT_DELAY_SECONDS } from '@votingworks/ui';
 

@@ -5,8 +5,8 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
-import { generateTitleForReport } from './titles';
-import { ScannerBatch } from '../types';
+import { generateTitleForReport } from './titles.js';
+import { ScannerBatch } from '../types.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

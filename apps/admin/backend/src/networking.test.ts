@@ -20,16 +20,16 @@ import {
   getHostServiceName,
   startHostNetworking,
   startClientNetworking,
-} from './networking';
-import type { PeerApi } from './peer_app';
-import { Store } from './store';
-import { ClientConnectionStatus } from './types';
-import { ClientStore } from './client_store';
-import { getCurrentTime } from './get_current_time';
+} from './networking.js';
+import type { PeerApi } from './peer_app.js';
+import { Store } from './store.js';
+import { ClientConnectionStatus } from './types.js';
+import { ClientStore } from './client_store.js';
+import { getCurrentTime } from './get_current_time.js';
 import {
   NETWORK_POLLING_INTERVAL_MS,
   STALE_MACHINE_THRESHOLD_MS,
-} from './globals';
+} from './globals.js';
 
 vi.mock('./get_current_time');
 vi.mock('@votingworks/networking');

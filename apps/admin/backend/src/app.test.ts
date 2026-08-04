@@ -35,9 +35,9 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
-} from '../test/app';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config';
-import { ManualResultsIdentifier, ManualResultsRecord } from './types';
+} from '../test/app.js';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
+import { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -46,7 +46,7 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 
 vi.mock(
   './globals.js',
-  async (importActual): Promise<typeof import('./globals')> => ({
+  async (importActual): Promise<typeof import('./globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'production' | 'test' {
       return mockNodeEnv;

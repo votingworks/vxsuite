@@ -29,16 +29,16 @@ import type { MachineMode } from '@votingworks/admin-backend';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
-import { routerPaths } from '../router_paths';
+import { AppContext } from '../contexts/app_context.js';
+import { routerPaths } from '../router_paths.js';
 import {
   isMultiStationAdjudicationEnabled,
   sharedEjectUsbDrive,
   sharedLogOut,
   systemCallApi,
-} from '../shared_api';
-import { getNetworkStatus } from '../api';
-import { NavItem, Sidebar } from './sidebar';
+} from '../shared_api.js';
+import { getNetworkStatus } from '../api.js';
+import { NavItem, Sidebar } from './sidebar.js';
 
 const Row = styled.div`
   display: flex;

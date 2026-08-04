@@ -12,14 +12,14 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
 import { Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { screen, waitFor } from '../../../test/react_testing_library';
+import { screen, waitFor } from '../../../test/react_testing_library.js';
 import {
   ClientApiMock,
   createClientApiMock,
-} from '../../../test/helpers/mock_client_api_client';
-import { renderInClientContext } from '../../../test/render_in_client_context';
-import { ClientBallotAdjudicationScreen } from './client_ballot_adjudication_screen';
-import { routerPaths } from '../../router_paths';
+} from '../../../test/helpers/mock_client_api_client.js';
+import { renderInClientContext } from '../../../test/render_in_client_context.js';
+import { ClientBallotAdjudicationScreen } from './client_ballot_adjudication_screen.js';
+import { routerPaths } from '../../router_paths.js';
 
 // Mock BallotAdjudicationScreen to capture and expose all callbacks.
 let capturedProps: Record<string, unknown> = {};

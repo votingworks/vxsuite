@@ -16,10 +16,10 @@ import { buildManualResultsFixture } from '@votingworks/utils';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../../test/mock_cvr_file';
-import { iterableToString, mockFileName, parseCsv } from '../../test/csv';
-import { Store } from '../store';
-import { generateBallotCountReportCsv } from './csv_ballot_count_report';
+} from '../../test/mock_cvr_file.js';
+import { iterableToString, mockFileName, parseCsv } from '../../test/csv.js';
+import { Store } from '../store.js';
+import { generateBallotCountReportCsv } from './csv_ballot_count_report.js';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());

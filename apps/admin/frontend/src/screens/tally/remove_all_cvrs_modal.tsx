@@ -6,7 +6,7 @@ import {
   getCastVoteRecordFileMode,
   clearCastVoteRecordFiles,
   deleteAllManualResults,
-} from '../../api';
+} from '../../api.js';
 
 /**
  * `RemoveAllCvrsModal` gives the user to option to remove all CVRs or cancel.

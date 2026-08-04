@@ -21,11 +21,11 @@ import {
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
-import { start } from './server';
-import { createWorkspace } from './util/workspace';
-import { importCastVoteRecords } from './cast_vote_records';
-import { writeMachineMode } from './machine_mode';
-import { startHostNetworking, startClientNetworking } from './networking';
+import { start } from './server.js';
+import { createWorkspace } from './util/workspace.js';
+import { importCastVoteRecords } from './cast_vote_records.js';
+import { writeMachineMode } from './machine_mode.js';
+import { startHostNetworking, startClientNetworking } from './networking.js';
 
 // Mock modules that start() creates or calls internally
 const featureFlagMock = getFeatureFlagMock();

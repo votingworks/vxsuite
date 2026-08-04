@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Caption } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 
-import { BORDER_LIGHT, GAP, INSET_FOCUS_OUTLINE } from './styles';
+import { BORDER_LIGHT, GAP, INSET_FOCUS_OUTLINE } from './styles.js';
 
 interface LocationCvrCardProps {
   caption: React.ReactNode;

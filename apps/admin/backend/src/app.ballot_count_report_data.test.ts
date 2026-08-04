@@ -13,8 +13,8 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
-import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
+} from '../test/app.js';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 
 vi.setConfig({
   testTimeout: 60_000,

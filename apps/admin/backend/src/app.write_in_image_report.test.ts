@@ -21,15 +21,15 @@ import {
   configureMachine,
   devsdb,
   mockElectionManagerAuth,
-} from '../test/app';
-import { mockFileName } from '../test/csv';
+} from '../test/app.js';
+import { mockFileName } from '../test/csv.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../test/mock_cvr_file';
-import { Store } from './store';
-import { buildAdminContestWriteIns } from './reports/write_in_image_report';
-import { generateReportPath } from './util/filenames';
+} from '../test/mock_cvr_file.js';
+import { Store } from './store.js';
+import { buildAdminContestWriteIns } from './reports/write_in_image_report.js';
+import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

@@ -12,7 +12,7 @@ import {
   generateBallotCountReportPdfFilename,
   generateTallyReportPdfFilename,
   isFilterEmpty,
-} from './reporting';
+} from './reporting.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

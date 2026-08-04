@@ -20,11 +20,11 @@ import {
   UsbPartitionInfo,
 } from '@votingworks/usb-drive';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { buildClientApp, ClientApi } from './client_app';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config';
-import type { PeerApi } from './peer_app';
-import { createClientWorkspace } from './util/workspace';
-import { ClientConnectionStatus, ElectionRecord } from './types';
+import { buildClientApp, ClientApi } from './client_app.js';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
+import type { PeerApi } from './peer_app.js';
+import { createClientWorkspace } from './util/workspace.js';
+import { ClientConnectionStatus, ElectionRecord } from './types.js';
 
 import {
   attachUsbDrive,
@@ -32,7 +32,7 @@ import {
   mockSystemAdministratorAuth,
   buildMockLogger,
   devsdb,
-} from '../test/app';
+} from '../test/app.js';
 
 vi.mock('./multi_station_config', () => ({
   isMultiStationAdjudicationEnabled: vi.fn(() => false),
