@@ -1,6 +1,6 @@
 import { Button, Icons, Modal, P } from '@votingworks/ui';
 import React from 'react';
-import * as api from '../api';
+import * as api from '../api.js';
 
 export interface Props {
   batchId: string;

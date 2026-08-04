@@ -9,8 +9,8 @@ import { LogEventId } from '@votingworks/logging';
 import { join } from 'node:path';
 import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { mockSystemAdministratorAuth } from '../test/helpers/auth';
-import { withApp } from '../test/helpers/setup_app';
+import { mockSystemAdministratorAuth } from '../test/helpers/auth.js';
+import { withApp } from '../test/helpers/setup_app.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -90,8 +90,8 @@ test('save readiness report', async () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -144,8 +144,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
 
@@ -183,8 +183,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
-          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(import.meta.dirname, '../test/fixtures/streaked-page.jpg'),
+          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -214,8 +214,8 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
+          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(import.meta.dirname, '../test/fixtures/streaked-page.jpg'),
         })
         .end();
       await apiClient.performScanDiagnostic();

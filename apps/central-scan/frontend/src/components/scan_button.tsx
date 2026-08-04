@@ -1,5 +1,5 @@
 import { Button } from '@votingworks/ui';
-import { scanBatch } from '../api';
+import { scanBatch } from '../api.js';
 
 export interface Props {
   disabled?: boolean;

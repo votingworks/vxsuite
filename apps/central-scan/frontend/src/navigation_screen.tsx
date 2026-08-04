@@ -24,8 +24,8 @@ import {
 } from '@votingworks/utils';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
-import { AppContext } from './contexts/app_context';
-import { ejectUsbDrive, logOut } from './api';
+import { AppContext } from './contexts/app_context.js';
+import { ejectUsbDrive, logOut } from './api.js';
 
 interface Props {
   children: React.ReactNode;

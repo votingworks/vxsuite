@@ -14,7 +14,7 @@ import {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
-} from '../../src/fujitsu_scanner';
+} from '../../src/fujitsu_scanner.js';
 
 export function makeMock<T>(Cls: new (...args: never[]) => T): Mocked<T> {
   if (!vi.isMockFunction(Cls)) {

@@ -20,13 +20,13 @@ import {
 import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
-import { Header } from '../navigation_screen';
+import { AppContext } from '../contexts/app_context.js';
+import { Header } from '../navigation_screen.js';
 import {
   continueScanning,
   getNextReviewSheet,
   getSystemSettings,
-} from '../api';
+} from '../api.js';
 
 const AdjudicationHeader = styled(Header)`
   position: static;

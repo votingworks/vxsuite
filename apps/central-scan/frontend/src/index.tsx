@@ -1,10 +1,10 @@
-import './polyfills';
+import './polyfills.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { DevDock } from '@votingworks/dev-dock-frontend';
 import { assert } from '@votingworks/basics';
-import { App } from './app';
-import { focusVisible } from './util/focus_visible';
+import { App } from './app.js';
+import { focusVisible } from './util/focus_visible.js';
 
 const rootElement = document.getElementById('root');
 assert(rootElement);
