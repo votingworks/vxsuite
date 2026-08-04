@@ -10,14 +10,14 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
-import { Store } from '../store';
+import { Store } from '../store.js';
 import {
   extractWriteInSummary,
   isFilterCompatibleWithManualResults,
   tabulateManualBallotCounts,
   tabulateManualResults,
-} from './manual_results';
-import { ManualResultsFilter } from '../types';
+} from './manual_results.js';
+import { ManualResultsFilter } from '../types.js';
 
 test('isFilterCompatibleWithManualResults', () => {
   expect(

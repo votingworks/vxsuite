@@ -17,10 +17,10 @@ import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../test/mock_cvr_file';
-import { Store } from './store';
-import { adjudicateCvr } from './adjudication';
-import { AdjudicatedContestOption, WriteInRecord } from '.';
+} from '../test/mock_cvr_file.js';
+import { Store } from './store.js';
+import { adjudicateCvr } from './adjudication.js';
+import { AdjudicatedContestOption, WriteInRecord } from './index.js';
 
 const contestId = 'zoo-council-mammal';
 

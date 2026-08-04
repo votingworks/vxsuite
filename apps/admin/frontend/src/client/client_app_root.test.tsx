@@ -10,14 +10,14 @@ import { constructElectionKey, DEV_MACHINE_ID } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { QueryClient } from '@tanstack/react-query';
 import { SystemCallContextProvider } from '@votingworks/ui';
-import { screen, render } from '../../test/react_testing_library';
+import { screen, render } from '../../test/react_testing_library.js';
 import {
   ClientApiMock,
   createClientApiMock,
-} from '../../test/helpers/mock_client_api_client';
-import { ClientApp } from './client_app';
-import { createQueryClient, type ApiClient } from './api';
-import { SharedApiClientContext, systemCallApi } from '../shared_api';
+} from '../../test/helpers/mock_client_api_client.js';
+import { ClientApp } from './client_app.js';
+import { createQueryClient, type ApiClient } from './api.js';
+import { SharedApiClientContext, systemCallApi } from '../shared_api.js';
 
 // Stub the ballot adjudication screen so the URL-clearing test doesn't have to
 // wire up its data-loader queries — the behavior under test lives in

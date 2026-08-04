@@ -18,7 +18,7 @@ import { find, iter } from '@votingworks/basics';
 import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { contestOptionName } from '@votingworks/utils';
-import { EntityList } from './entity_list';
+import { EntityList } from './entity_list.js';
 import {
   AdjudicatedContests,
   ContestListItem,
@@ -26,7 +26,7 @@ import {
   BallotCrossoverVoteStatus,
   getCurrentVote,
   isContestTagOnlyUndervote,
-} from '../utils/adjudication';
+} from '../utils/adjudication.js';
 
 const Column = styled.div`
   display: flex;

@@ -9,14 +9,14 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { Button, Callout, Modal, P, useCurrentTheme } from '@votingworks/ui';
 import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend';
-import { AppContext } from '../contexts/app_context';
-import { EntityList } from '../components/entity_list';
+import { AppContext } from '../contexts/app_context.js';
+import { EntityList } from '../components/entity_list.js';
 import {
   getQualifiedWriteInCandidates,
   updateQualifiedWriteInCandidates,
-} from '../api';
-import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
+} from '../api.js';
+import { NavigationScreen } from '../components/navigation_screen.js';
+import { routerPaths } from '../router_paths.js';
 
 const Container = styled.div`
   display: flex;

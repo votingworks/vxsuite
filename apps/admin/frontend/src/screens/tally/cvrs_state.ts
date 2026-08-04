@@ -4,8 +4,8 @@ import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import { Id, PollingPlace } from '@votingworks/types/src';
 import { assertDefined } from '@votingworks/basics';
 
-import * as api from '../../api';
-import { AppContext } from '../../contexts/app_context';
+import * as api from '../../api.js';
+import { AppContext } from '../../contexts/app_context.js';
 
 export interface CvrsState {
   files: CastVoteRecordFileRecord[];

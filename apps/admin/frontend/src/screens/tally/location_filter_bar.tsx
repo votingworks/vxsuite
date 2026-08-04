@@ -1,7 +1,7 @@
 import { DesktopPalette, Icons, SegmentedButton } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
-import { BORDER_LIGHT, BOX_SHADOW, INSET_FOCUS_OUTLINE } from './styles';
+import { BORDER_LIGHT, BOX_SHADOW, INSET_FOCUS_OUTLINE } from './styles.js';
 
 const IconContainer = styled.div`
   align-items: center;

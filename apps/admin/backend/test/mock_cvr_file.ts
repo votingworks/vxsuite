@@ -10,11 +10,11 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
-import { Store } from '../src/store';
+import { Store } from '../src/store.js';
 import {
   doesCvrNeedAdjudication,
   getCastVoteRecordAdjudicationFlags,
-} from '../src/util/cast_vote_records';
+} from '../src/util/cast_vote_records.js';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & {

@@ -4,10 +4,10 @@ import { PollingPlace } from '@votingworks/types/src';
 import { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test/react_testing_library';
-import { LocationList } from './location_list';
-import { LocationCvrs } from './cvrs_state';
-import { LocationCvrImport } from './location_cvrs_panel';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { LocationList } from './location_list.js';
+import { LocationCvrs } from './cvrs_state.js';
+import { LocationCvrImport } from './location_cvrs_panel.js';
 
 const place1 = mockPlace({ id: 'place1', name: 'Place 1', type: 'absentee' });
 const place2 = mockPlace({ id: 'place2', name: 'Place 2', type: 'absentee' });

@@ -13,17 +13,17 @@ import {
   type UserRole,
 } from '@votingworks/types';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
-import type { PeerApi } from './peer_app';
-import type { Store } from './store';
-import type { ClientStore, HostConnection } from './client_store';
-import { ClientConnectionStatus } from './types';
-import { getMachineConfig } from './machine_config';
-import { constructAuthMachineState } from './util/auth';
-import { rootDebug } from './util/debug';
+import type { PeerApi } from './peer_app.js';
+import type { Store } from './store.js';
+import type { ClientStore, HostConnection } from './client_store.js';
+import { ClientConnectionStatus } from './types.js';
+import { getMachineConfig } from './machine_config.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { rootDebug } from './util/debug.js';
 import {
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
-} from './globals';
+} from './globals.js';
 
 const debug = rootDebug.extend('networking');
 

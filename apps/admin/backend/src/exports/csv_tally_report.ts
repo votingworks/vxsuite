@@ -14,8 +14,8 @@ import {
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { Store } from '../store';
-import { tabulateElectionResults } from '../tabulation/full_results';
+import { Store } from '../store.js';
+import { tabulateElectionResults } from '../tabulation/full_results.js';
 import {
   CsvMetadataStructure,
   determineCsvMetadataStructure,
@@ -23,8 +23,8 @@ import {
   generateCsvMetadataHeaders,
   generateCsvTitleRow,
   getCsvMetadataRowValues,
-} from './csv_shared';
-import { tabulateManualResults } from '../tabulation/manual_results';
+} from './csv_shared.js';
+import { tabulateManualResults } from '../tabulation/manual_results.js';
 
 /**
  * Filter by party is not supported for tally report CSV exports.

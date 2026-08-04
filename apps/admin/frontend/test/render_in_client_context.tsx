@@ -12,15 +12,15 @@ import {
   TestErrorBoundary,
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { render as testRender, RenderResult } from './react_testing_library';
-import { AppContext, AppContextInterface } from '../src/contexts/app_context';
+import { render as testRender, RenderResult } from './react_testing_library.js';
+import { AppContext, AppContextInterface } from '../src/contexts/app_context.js';
 import {
   ApiClient as ClientApiClient,
   ApiClientContext as ClientApiClientContext,
   createQueryClient,
-} from '../src/client/api';
-import { SharedApiClientContext, systemCallApi } from '../src/shared_api';
-import { ClientApiMock } from './helpers/mock_client_api_client';
+} from '../src/client/api.js';
+import { SharedApiClientContext, systemCallApi } from '../src/shared_api.js';
+import { ClientApiMock } from './helpers/mock_client_api_client.js';
 
 export interface RenderInClientContextParams {
   route?: string;

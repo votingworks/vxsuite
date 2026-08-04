@@ -38,12 +38,12 @@ import {
   devsdb,
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   ListCastVoteRecordExportsInDirectory,
   listCastVoteRecordExportsInDirectory,
-} from './cast_vote_records';
-import { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types';
+} from './cast_vote_records.js';
+import { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types.js';
 
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

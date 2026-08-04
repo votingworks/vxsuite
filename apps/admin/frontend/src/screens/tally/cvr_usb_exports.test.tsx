@@ -7,16 +7,16 @@ import type {
 
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { CvrImporter } from './cvr_importer';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { CvrImporter } from './cvr_importer.js';
 import {
   electionDefinition,
   location1,
   location1Export,
   location2,
   location2Export,
-} from '../../../test/helpers/cvrs';
-import { CvrUsbExports } from './cvr_usb_exports';
+} from '../../../test/helpers/cvrs.js';
+import { CvrUsbExports } from './cvr_usb_exports.js';
 
 test('shows "no CVRs" callout when no exports are found', () => {
   const importer: CvrImporter = {

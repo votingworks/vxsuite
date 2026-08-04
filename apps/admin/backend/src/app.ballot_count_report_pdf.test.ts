@@ -23,12 +23,12 @@ import {
   configureMachine,
   devsdb,
   mockElectionManagerAuth,
-} from '../test/app';
-import { Api } from './app';
-import { BallotCountReportSpec } from './reports/ballot_count_report';
-import { mockFileName } from '../test/csv';
-import { generateReportPath } from './util/filenames';
-import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
+} from '../test/app.js';
+import { Api } from './app.js';
+import { BallotCountReportSpec } from './reports/ballot_count_report.js';
+import { mockFileName } from '../test/csv.js';
+import { generateReportPath } from './util/filenames.js';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 
 vi.setConfig({
   testTimeout: 60_000,

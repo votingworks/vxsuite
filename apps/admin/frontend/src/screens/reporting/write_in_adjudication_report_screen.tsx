@@ -1,19 +1,19 @@
-import { NavigationScreen } from '../../components/navigation_screen';
+import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   exportWriteInAdjudicationReportPdf,
   getWriteInAdjudicationReportPreview,
   printWriteInAdjudicationReport,
-} from '../../api';
+} from '../../api.js';
 import {
   ExportActions,
   reportParentRoutes,
   ReportScreenContainer,
   ReportWarning,
-} from '../../components/reporting/shared';
-import { PrintButton } from '../../components/print_button';
-import { PdfViewer } from '../../components/reporting/pdf_viewer';
-import { ExportFileButton } from '../../components/reporting/export_file_button';
-import { generateReportFilename } from '../../utils/reporting';
+} from '../../components/reporting/shared.js';
+import { PrintButton } from '../../components/print_button.js';
+import { PdfViewer } from '../../components/reporting/pdf_viewer.js';
+import { ExportFileButton } from '../../components/reporting/export_file_button.js';
+import { generateReportFilename } from '../../utils/reporting.js';
 
 export const TITLE = 'Write-In Adjudication Report';
 

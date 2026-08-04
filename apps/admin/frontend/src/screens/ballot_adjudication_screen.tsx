@@ -30,15 +30,15 @@ import {
   getWriteInCandidates,
   releaseBallotAdjudicationClaim,
   useApiClient,
-} from '../api';
-import { routerPaths } from '../router_paths';
+} from '../api.js';
+import { routerPaths } from '../router_paths.js';
 import {
   BallotStaticImageViewer,
   UnableToLoadImageCallout,
-} from '../components/adjudication_ballot_image_viewer';
-import { AdjudicationContestList } from '../components/adjudication_contest_list';
-import { AppContext } from '../contexts/app_context';
-import { ContestAdjudicationScreen } from './contest_adjudication_screen';
+} from '../components/adjudication_ballot_image_viewer.js';
+import { AdjudicationContestList } from '../components/adjudication_contest_list.js';
+import { AppContext } from '../contexts/app_context.js';
+import { ContestAdjudicationScreen } from './contest_adjudication_screen.js';
 import {
   AdjudicatedContests,
   adjudicatedVotes,
@@ -46,8 +46,8 @@ import {
   deriveCrossoverVoteStatus,
   isContestFlaggedForAdjudication,
   isContestTagOnlyUndervote,
-} from '../utils/adjudication';
-import { DiscardChangesModal } from '../components/discard_changes_modal';
+} from '../utils/adjudication.js';
+import { DiscardChangesModal } from '../components/discard_changes_modal.js';
 
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 const DEFAULT_PADDING = '0.75rem';

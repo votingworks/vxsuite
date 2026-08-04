@@ -95,79 +95,79 @@ import {
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   BallotImages,
-} from './types';
-import { Workspace } from './util/workspace';
-import { getMachineConfig } from './machine_config';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config';
-import { readMachineMode, writeMachineMode } from './machine_mode';
-import { getBallotImages } from './util/adjudication';
+} from './types.js';
+import { Workspace } from './util/workspace.js';
+import { getMachineConfig } from './machine_config.js';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
+import { readMachineMode, writeMachineMode } from './machine_mode.js';
+import { getBallotImages } from './util/adjudication.js';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
-} from './util/manual_results';
-import { addFileToZipStream } from './util/zip';
+} from './util/manual_results.js';
+import { addFileToZipStream } from './util/zip.js';
 
-import { generateTallyReportCsv } from './exports/csv_tally_report';
-import { tabulateFullCardCounts } from './tabulation/card_counts';
-import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
-import { rootDebug } from './util/debug';
-import { tabulateTallyReportResults } from './tabulation/tally_reports';
-import { buildExporter } from './util/exporter';
+import { generateTallyReportCsv } from './exports/csv_tally_report.js';
+import { tabulateFullCardCounts } from './tabulation/card_counts.js';
+import { getOverallElectionWriteInSummary } from './tabulation/write_ins.js';
+import { rootDebug } from './util/debug.js';
+import { tabulateTallyReportResults } from './tabulation/tally_reports.js';
+import { buildExporter } from './util/exporter.js';
 import {
   getCastVoteRecordsPath,
   importCastVoteRecords,
   ListCastVoteRecordExportsInDirectory,
   listCastVoteRecordExportsInDirectory,
-} from './cast_vote_records';
-import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvr } from './adjudication';
-import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
-import { buildElectionResultsReport } from './util/cdf_results';
-import { tabulateElectionResults } from './tabulation/full_results';
+} from './cast_vote_records.js';
+import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report.js';
+import { adjudicateCvr } from './adjudication.js';
+import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters.js';
+import { buildElectionResultsReport } from './util/cdf_results.js';
+import { tabulateElectionResults } from './tabulation/full_results.js';
 import {
   generateAdminLiveResultsReportingUrls,
   getLiveReportsPollingPlaces,
-} from './live_results_reporting';
-import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals';
+} from './live_results_reporting.js';
+import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals.js';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
   printWriteInAdjudicationReport,
   WriteInAdjudicationReportPreview,
-} from './reports/write_in_adjudication_report';
+} from './reports/write_in_adjudication_report.js';
 import {
   exportWriteInImageReportPdf,
   generateWriteInImageReportPreview,
   printWriteInImageReport,
   WriteInImageReportPreview,
-} from './reports/write_in_image_report';
+} from './reports/write_in_image_report.js';
 import {
   exportVoterTurnoutReportPdf,
   generateVoterTurnoutReportPreview,
   printVoterTurnoutReport,
   VoterTurnoutReportPreview,
-} from './reports/voter_turnout_report';
+} from './reports/voter_turnout_report.js';
 import {
   BallotCountReportPreview,
   BallotCountReportSpec,
   exportBallotCountReportPdf,
   generateBallotCountReportPreview,
   printBallotCountReport,
-} from './reports/ballot_count_report';
+} from './reports/ballot_count_report.js';
 import {
   TallyReportSpec,
   TallyReportPreview,
   generateTallyReportPreview,
   printTallyReport,
   exportTallyReportPdf,
-} from './reports/tally_report';
-import { printTestPage } from './reports/test_print';
-import { saveReadinessReport } from './reports/readiness';
-import { constructAuthMachineState } from './util/auth';
-import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
-import { generateReportsDirectoryPath } from './util/filenames';
-import { getHostServiceName } from './networking';
-import { timeout } from './util/timeout';
+} from './reports/tally_report.js';
+import { printTestPage } from './reports/test_print.js';
+import { saveReadinessReport } from './reports/readiness.js';
+import { constructAuthMachineState } from './util/auth.js';
+import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting.js';
+import { generateReportsDirectoryPath } from './util/filenames.js';
+import { getHostServiceName } from './networking.js';
+import { timeout } from './util/timeout.js';
 
 const debug = rootDebug.extend('app');
 

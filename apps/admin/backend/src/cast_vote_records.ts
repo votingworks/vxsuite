@@ -37,21 +37,21 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { Store } from './store';
+import { Store } from './store.js';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
-} from './types';
+} from './types.js';
 import {
   doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
-} from './util/cast_vote_records';
+} from './util/cast_vote_records.js';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond

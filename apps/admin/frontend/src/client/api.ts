@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<ClientApi>;
 

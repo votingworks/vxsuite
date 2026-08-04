@@ -22,14 +22,14 @@ import {
   getUsbDriveStatus,
   logOut,
   useApiClient,
-} from './api';
-import { AppContext, AppContextInterface } from '../contexts/app_context';
-import { routerPaths } from '../router_paths';
-import { ClientMachineLockedScreen } from './screens/client_machine_locked_screen';
-import { ClientSettingsScreen } from './screens/client_settings_screen';
-import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen';
-import { ClientAdjudicationScreen } from './screens/client_adjudication_screen';
-import { ClientBallotAdjudicationScreen } from './screens/client_ballot_adjudication_screen';
+} from './api.js';
+import { AppContext, AppContextInterface } from '../contexts/app_context.js';
+import { routerPaths } from '../router_paths.js';
+import { ClientMachineLockedScreen } from './screens/client_machine_locked_screen.js';
+import { ClientSettingsScreen } from './screens/client_settings_screen.js';
+import { ClientDiagnosticsScreen } from './screens/client_diagnostics_screen.js';
+import { ClientAdjudicationScreen } from './screens/client_adjudication_screen.js';
+import { ClientBallotAdjudicationScreen } from './screens/client_ballot_adjudication_screen.js';
 
 export function ClientAppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();

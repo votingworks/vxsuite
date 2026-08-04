@@ -11,15 +11,15 @@ import {
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import { PollingPlace } from '@votingworks/types';
-import { NavigationScreen } from '../../components/navigation_screen';
+import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   reportParentRoutes,
   ReportScreenContainer,
-} from '../../components/reporting/shared';
+} from '../../components/reporting/shared.js';
 import {
   getLiveReportsPollingPlaces,
   getLiveResultsReportingUrl,
-} from '../../api';
+} from '../../api.js';
 
 export const TITLE = 'Send Tally Reports';
 

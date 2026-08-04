@@ -4,12 +4,12 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import matchers from '@testing-library/jest-dom/matchers';
-import { cleanup, configure } from '../test/react_testing_library';
+import { cleanup, configure } from '../test/react_testing_library.js';
 import {
   MockDocument,
   MockPage,
   setMockPdfNumPages,
-} from '../test/react_pdf_mocks';
+} from '../test/react_pdf_mocks.js';
 
 expect.extend(matchers);
 

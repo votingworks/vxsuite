@@ -1,8 +1,8 @@
 import { useHistory } from 'react-router-dom';
 import { Button, P } from '@votingworks/ui';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { getAdjudicationSessionStatus } from '../api';
-import { routerPaths } from '../../router_paths';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { getAdjudicationSessionStatus } from '../api.js';
+import { routerPaths } from '../../router_paths.js';
 
 export function ClientAdjudicationScreen(): JSX.Element {
   const history = useHistory();

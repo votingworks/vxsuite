@@ -38,12 +38,12 @@ import {
   screen,
   waitFor,
   within,
-} from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { BallotAdjudicationScreenWrapper } from './ballot_adjudication_screen';
-import { AdjudicationStartScreen } from './adjudication_start_screen';
-import { routerPaths } from '../router_paths';
+} from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { BallotAdjudicationScreenWrapper } from './ballot_adjudication_screen.js';
+import { AdjudicationStartScreen } from './adjudication_start_screen.js';
+import { routerPaths } from '../router_paths.js';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election: primaryElection } = electionDefinition;

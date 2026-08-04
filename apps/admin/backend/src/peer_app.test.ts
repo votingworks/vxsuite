@@ -13,12 +13,12 @@ import {
 import { assertDefined, err, range } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import type { Result } from '@votingworks/basics';
-import { buildTestEnvironment, configureMachine } from '../test/app';
-import { getCurrentTime } from './get_current_time';
+import { buildTestEnvironment, configureMachine } from '../test/app.js';
+import { getCurrentTime } from './get_current_time.js';
 import {
   addMockCvrFileToStore,
   MockCastVoteRecordFile,
-} from '../test/mock_cvr_file';
+} from '../test/mock_cvr_file.js';
 
 vi.mock('./get_current_time');
 

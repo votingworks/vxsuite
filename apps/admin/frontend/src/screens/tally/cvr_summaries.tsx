@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { Card, ProgressBar } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { BORDER_LIGHT, GAP } from './styles';
+import { BORDER_LIGHT, GAP } from './styles.js';
 
 const Container = styled.div`
   display: grid;

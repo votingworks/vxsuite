@@ -1,12 +1,12 @@
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { AppContext } from './contexts/app_context';
-import { AppRoutes } from './components/app_routes';
+import { AppContext } from './contexts/app_context.js';
+import { AppRoutes } from './components/app_routes.js';
 import {
   getAuthStatus,
   getCurrentElectionMetadata,
   getMachineConfig,
-} from './api';
-import { useWatchUsbDriveStatus } from './hooks/use_watch_usb_drive_status';
+} from './api.js';
+import { useWatchUsbDriveStatus } from './hooks/use_watch_usb_drive_status.js';
 
 export function AppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();

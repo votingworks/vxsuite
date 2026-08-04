@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { deferred } from '@votingworks/basics';
-import { timeout } from './timeout';
+import { timeout } from './timeout.js';
 
 beforeEach(() => {
   vi.useFakeTimers();

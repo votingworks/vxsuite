@@ -2,7 +2,7 @@ import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { deferred, sleep } from '@votingworks/basics';
 import { useEffect } from 'react';
-import { getUsbDriveStatus, useApiClient } from '../api';
+import { getUsbDriveStatus, useApiClient } from '../api.js';
 
 const WATCH_RETRY_BACKOFF_MS = 1000;
 

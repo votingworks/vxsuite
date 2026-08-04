@@ -1,9 +1,9 @@
 import { AdminClientReadinessReportContents } from '@votingworks/ui';
 import { useContext } from 'react';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { systemCallApi } from '../../shared_api';
-import { Loading } from '../../components/loading';
-import { AppContext } from '../../contexts/app_context';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { systemCallApi } from '../../shared_api.js';
+import { Loading } from '../../components/loading.js';
+import { AppContext } from '../../contexts/app_context.js';
 
 export function ClientDiagnosticsScreen(): JSX.Element {
   const { electionDefinition, electionPackageHash } = useContext(AppContext);

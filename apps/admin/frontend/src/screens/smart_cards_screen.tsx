@@ -3,9 +3,9 @@ import { SmartCardsScreen as SmartCardsScreenComponent } from '@votingworks/ui';
 
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { useContext } from 'react';
-import { NavigationScreen } from '../components/navigation_screen';
-import { getSystemSettings, getAuthStatus, useApiClient } from '../api';
-import { AppContext } from '../contexts/app_context';
+import { NavigationScreen } from '../components/navigation_screen.js';
+import { getSystemSettings, getAuthStatus, useApiClient } from '../api.js';
+import { AppContext } from '../contexts/app_context.js';
 
 export function SmartCardsScreen(): JSX.Element | null {
   const authQuery = getAuthStatus.useQuery();

@@ -16,7 +16,7 @@ import { act, renderHook } from '@testing-library/react';
 import {
   isWriteInPending,
   useContestAdjudicationState,
-} from './use_contest_adjudication_state';
+} from './use_contest_adjudication_state.js';
 
 const candidateContest: CandidateContest = {
   id: 'contest',

@@ -8,9 +8,9 @@ import type {
   CvrFileMode,
 } from '@votingworks/admin-backend';
 
-import { CvrImporter } from './cvr_importer';
-import { GAP } from './styles';
-import { LocationImportCard, Status } from './location_import_card';
+import { CvrImporter } from './cvr_importer.js';
+import { GAP } from './styles.js';
+import { LocationImportCard, Status } from './location_import_card.js';
 
 const Container = styled.div`
   display: grid;

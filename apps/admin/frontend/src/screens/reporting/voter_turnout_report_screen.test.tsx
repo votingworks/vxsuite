@@ -3,10 +3,10 @@ import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { TITLE, VoterTurnoutReportScreen } from './voter_turnout_report_screen';
-import { screen, within } from '../../../test/react_testing_library';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { TITLE, VoterTurnoutReportScreen } from './voter_turnout_report_screen.js';
+import { screen, within } from '../../../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 

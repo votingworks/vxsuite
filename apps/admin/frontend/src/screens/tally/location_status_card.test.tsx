@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { pollingPlaceTypeName } from '@votingworks/types/src';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { LocationStatusCard } from './location_status_card';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { LocationStatusCard } from './location_status_card.js';
 
 test('location with no imports', () => {
   render(

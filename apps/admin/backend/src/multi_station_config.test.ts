@@ -5,7 +5,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config';
+import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

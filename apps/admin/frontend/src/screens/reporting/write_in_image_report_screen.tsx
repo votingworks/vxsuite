@@ -9,22 +9,22 @@ import {
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   ExportActions,
   reportParentRoutes,
   ReportScreenContainer,
   ReportWarning,
-} from '../../components/reporting/shared';
-import { PdfViewer } from '../../components/reporting/pdf_viewer';
-import { PrintButton } from '../../components/print_button';
-import { ExportFileButton } from '../../components/reporting/export_file_button';
+} from '../../components/reporting/shared.js';
+import { PdfViewer } from '../../components/reporting/pdf_viewer.js';
+import { PrintButton } from '../../components/print_button.js';
+import { ExportFileButton } from '../../components/reporting/export_file_button.js';
 import {
   exportWriteInImageReportPdf,
   getWriteInImageReportPreview,
   printWriteInImageReport,
-} from '../../api';
+} from '../../api.js';
 
 export const TITLE = 'Single Contest Write-In Image Report';
 

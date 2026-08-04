@@ -7,9 +7,9 @@ import type {
   AdjudicationError,
   BallotAdjudicationData,
 } from '@votingworks/admin-backend';
-import { BallotAdjudicationScreen } from '../../screens/ballot_adjudication_screen';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
+import { BallotAdjudicationScreen } from '../../screens/ballot_adjudication_screen.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { routerPaths } from '../../router_paths.js';
 import {
   adjudicateCvr,
   claimAndLoadBallot,
@@ -18,7 +18,7 @@ import {
   getSystemSettings,
   getWriteInCandidates,
   releaseBallot,
-} from '../api';
+} from '../api.js';
 
 function proxyErrorMessage(error: AdjudicationError): string {
   switch (error.type) {
