@@ -1,0 +1,51 @@
+inheritedBy:
+  toolchains:
+    or: ['javascript', 'typescript']
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+    - 'tsconfig.json'
+    - 'tsconfig.build.json'
+    - '/tsconfig.shared.json'
+
+tasks:
+  build:
+    command: 'tsc --build tsconfig.build.json'
+    inputs:
+      - '@group(sources)'
+    outputs:
+      - 'build'
+    deps:
+      - '^:build'
+
+  test:
+    command: 'vitest run'
+    env:
+      TZ: America/Anchorage
+    inputs:
+      - '@group(sources)'
+      - 'test/**/*'
+    outputs: []
+    deps:
+      - '^:build'
+
+  type-check:
+    command: 'tsc --build tsconfig.json'
+    inputs:
+      - '@group(sources)'
+      - 'test/**/*'
+    outputs: []
+    deps:
+      - '^:build'
+
+  lint:
+    command: 'eslint .'
+    inputs:
+      - '@group(sources)'
+      - 'test/**/*'
+      - '.eslintignore'
+      - '.eslintrc.json'
+    outputs: []
+    deps:
+      - 'type-check'

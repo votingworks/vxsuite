@@ -1,0 +1,9 @@
+# This package's own `lint` script is a no-op ("linting temporarily disabled") —
+# eslint can't lint the plugin's own rule sources cleanly (self-referential rules,
+# a CJS `.eslintrc.js`, bitwise/fixture code). Override the inherited `eslint .`
+# lint task to match that upstream opt-out rather than fail the graph.
+tasks:
+  lint:
+    command: 'echo eslint-plugin-vx linting disabled'
+    options:
+      mergeArgs: replace
