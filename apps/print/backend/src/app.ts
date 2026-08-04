@@ -261,8 +261,23 @@ export function buildApi(ctx: AppContext) {
       return store.getTestMode();
     },
 
+    /**
+     * Whether the election package contains test mode ballot PDFs. Every ballot
+     * VxPrint prints (including test decks, which are always test mode) comes
+     * from a pre-rendered PDF in the election package, so without test ballots
+     * neither test ballot mode nor test deck printing are possible.
+     */
+    hasTestBallots(): boolean {
+      return store.hasTestBallots();
+    },
+
     async setTestMode(input: { testMode: boolean }): Promise<void> {
       const { testMode } = input;
+      // Frontend should prevent this but we assert as a failsafe
+      assert(
+        !testMode || store.hasTestBallots(),
+        'Cannot switch to test ballot mode: the election package does not contain test ballots.'
+      );
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
@@ -372,27 +387,14 @@ export function buildApi(ctx: AppContext) {
       const isTestMode = store.getTestMode();
       const ballotMode = isTestMode ? 'test' : 'official';
 
-      const ballot = store.getBallot({
-        ballotStyleId,
-        precinctId: input.precinctId,
-        ballotType: input.ballotType,
-        ballotMode,
-      });
-      if (!ballot) {
-        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-          message: 'No ballot found',
-          ballotProps: JSON.stringify({
-            precinctId: input.precinctId,
-            splitId: input.splitId,
-            partyId: input.partyId,
-            languageCode: input.languageCode,
-            ballotType: input.ballotType,
-            ballotMode,
-          }),
-          disposition: 'failure',
-        });
-        return;
-      }
+      const ballot = assertDefined(
+        store.getBallot({
+          ballotStyleId,
+          precinctId: input.precinctId,
+          ballotType: input.ballotType,
+          ballotMode,
+        })
+      );
 
       await printBallots(electionDefinition, {
         data: Buffer.from(ballot.encodedBallot, 'base64'),

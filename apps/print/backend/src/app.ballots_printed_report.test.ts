@@ -77,7 +77,7 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
 beforeAll(async () => {
   ballots = await buildBallotsForElection({
     electionDefinition,
-    ballotModes: ['official'],
+    ballotModes: ['official', 'test'],
   });
 });
 

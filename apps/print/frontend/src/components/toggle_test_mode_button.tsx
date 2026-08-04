@@ -1,6 +1,11 @@
-import { Button, Modal, P, SegmentedButton } from '@votingworks/ui';
+import { Button, Icons, Modal, P, SegmentedButton } from '@votingworks/ui';
 import React, { useState } from 'react';
-import { getTestMode, setTestMode, getBallotPrintCounts } from '../api';
+import {
+  getTestMode,
+  setTestMode,
+  getBallotPrintCounts,
+  hasTestBallots,
+} from '../api';
 
 /**
  * Presents a button to toggle between test & official modes with a confirmation.
@@ -8,6 +13,7 @@ import { getTestMode, setTestMode, getBallotPrintCounts } from '../api';
 export function ToggleTestModeButton(): JSX.Element | null {
   const testModeQuery = getTestMode.useQuery();
   const ballotPrintCountsQuery = getBallotPrintCounts.useQuery();
+  const hasTestBallotsQuery = hasTestBallots.useQuery();
   const setTestModeMutation = setTestMode.useMutation();
 
   const [flowState, setFlowState] = useState<'none' | 'confirmation'>('none');
@@ -15,8 +21,10 @@ export function ToggleTestModeButton(): JSX.Element | null {
   const disabled =
     testModeQuery.isLoading ||
     ballotPrintCountsQuery.isLoading ||
+    hasTestBallotsQuery.isLoading ||
     setTestModeMutation.isLoading;
   const isTestMode = testModeQuery.data ?? false;
+  const isTestModeAvailable = hasTestBallotsQuery.data ?? false;
 
   function toggleTestMode() {
     setTestModeMutation.mutate(
@@ -37,23 +45,31 @@ export function ToggleTestModeButton(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <SegmentedButton
-        disabled={setTestModeMutation.isLoading}
-        label="Ballot Mode"
-        hideLabel
-        onChange={() => {
-          if (totalPrintCount > 0) {
-            setFlowState('confirmation');
-          } else {
-            toggleTestMode();
-          }
-        }}
-        options={[
-          { id: 'test', label: 'Test Ballot Mode' },
-          { id: 'official', label: 'Official Ballot Mode' },
-        ]}
-        selectedOptionId={isTestMode ? 'test' : 'official'}
-      />
+      <P>
+        <SegmentedButton
+          disabled={disabled || !isTestModeAvailable}
+          label="Ballot Mode"
+          hideLabel
+          onChange={() => {
+            if (totalPrintCount > 0) {
+              setFlowState('confirmation');
+            } else {
+              toggleTestMode();
+            }
+          }}
+          options={[
+            { id: 'test', label: 'Test Ballot Mode' },
+            { id: 'official', label: 'Official Ballot Mode' },
+          ]}
+          selectedOptionId={isTestMode ? 'test' : 'official'}
+        />
+      </P>
+      {hasTestBallotsQuery.isSuccess && !isTestModeAvailable && (
+        <P>
+          <Icons.Info /> Election package does not contain test ballots required
+          for test mode.
+        </P>
+      )}
       {flowState === 'confirmation' && (
         <Modal
           title={

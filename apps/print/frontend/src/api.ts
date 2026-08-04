@@ -98,6 +98,16 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const hasTestBallots = {
+  queryKey(): QueryKey {
+    return ['hasTestBallots'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.hasTestBallots());
+  },
+} as const;
+
 export const configureElectionPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
@@ -106,6 +116,7 @@ export const configureElectionPackageFromUsb = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionRecord.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(hasTestBallots.queryKey());
       },
     });
   },

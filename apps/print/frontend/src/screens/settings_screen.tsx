@@ -80,9 +80,7 @@ export function SettingsScreen({
         ) : (
           <React.Fragment>
             <H2>Ballot Mode</H2>
-            <P>
-              <ToggleTestModeButton />
-            </P>
+            <ToggleTestModeButton />
           </React.Fragment>
         )}
 

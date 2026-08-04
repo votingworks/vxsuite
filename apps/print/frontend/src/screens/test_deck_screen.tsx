@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Election, Id } from '@votingworks/types';
-import { Button, Modal, Loading, P } from '@votingworks/ui';
+import { Button, Callout, Modal, Loading, P } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import {
   Column,
@@ -18,6 +18,7 @@ import {
   getDeviceStatuses,
   getElectionRecord,
   getTestDeckBallotCount,
+  hasTestBallots,
   printTestDeck,
 } from '../api';
 
@@ -33,6 +34,10 @@ const FormSection = styled.div`
   > strong {
     padding-left: 0.25rem;
   }
+`;
+
+const CalloutRow = styled.div`
+  padding: 1rem 1rem 0;
 `;
 
 function PrintTestDeckModal({
@@ -117,7 +122,9 @@ function PrintTestDeckModal({
             icon="Print"
             variant="primary"
             onPress={handlePrint}
-            disabled={ballotCount === 0}
+            // The overall tally report is rendered on the fly and needs no
+            // ballots; the ballot decks do.
+            disabled={!overallTallyReportOnly && ballotCount === 0}
           >
             {buttonText}
           </Button>
@@ -138,8 +145,13 @@ export function TestDeckScreen(): JSX.Element | null {
 
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const hasTestBallotsQuery = hasTestBallots.useQuery();
 
-  if (!getElectionRecordQuery.isSuccess || !getDeviceStatusesQuery.isSuccess) {
+  if (
+    !getElectionRecordQuery.isSuccess ||
+    !getDeviceStatusesQuery.isSuccess ||
+    !hasTestBallotsQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -147,6 +159,9 @@ export function TestDeckScreen(): JSX.Element | null {
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
   const { printer } = getDeviceStatusesQuery.data;
+  // Test decks are always printed from the election package's test ballots,
+  // regardless of the machine's current ballot mode.
+  const canPrintTestDecks = hasTestBallotsQuery.data;
 
   return (
     <ScreenWrapper authType="election_manager">
@@ -166,7 +181,7 @@ export function TestDeckScreen(): JSX.Element | null {
                 Print Overall Tally Report
               </Button>
               <Button
-                disabled={!printer.connected}
+                disabled={!printer.connected || !canPrintTestDecks}
                 color="neutral"
                 fill="outlined"
                 onPress={() => {
@@ -178,6 +193,14 @@ export function TestDeckScreen(): JSX.Element | null {
             </React.Fragment>
           }
         />
+        {!canPrintTestDecks && (
+          <CalloutRow>
+            <Callout icon="Warning" color="warning">
+              Election package does not contain test ballots required to print
+              test decks.
+            </Callout>
+          </CalloutRow>
+        )}
         <Form>
           <Column>
             <FormSection>
@@ -199,7 +222,9 @@ export function TestDeckScreen(): JSX.Element | null {
             onPress={() =>
               setPrintTestDeckTarget({ precinctId: selectedPrecinctId })
             }
-            disabled={!selectedPrecinctId || !printer.connected}
+            disabled={
+              !selectedPrecinctId || !printer.connected || !canPrintTestDecks
+            }
           >
             Print Precinct Test Deck
           </PrintButton>
