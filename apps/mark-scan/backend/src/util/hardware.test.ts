@@ -12,7 +12,7 @@ import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
   PID_FILENAME,
-} from './hardware';
+} from './hardware.js';
 
 vi.mock(import('@votingworks/backend'));
 const featureFlagMock = getFeatureFlagMock();
@@ -123,7 +123,7 @@ test('unknown error', async () => {
 test('when PID file does not exist', async () => {
   expect(
     await isAccessibleControllerDaemonRunning(
-      join(__dirname, 'not-a-real-dir'),
+      join(import.meta.dirname, 'not-a-real-dir'),
       logger
     )
   ).toEqual(false);

@@ -20,7 +20,7 @@ import {
   ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
   STATE_MACHINE_POLLING_INTERVAL_MS,
-} from './constants';
+} from './constants.js';
 
 export type ApiClient = grout.Client<Api>;
 

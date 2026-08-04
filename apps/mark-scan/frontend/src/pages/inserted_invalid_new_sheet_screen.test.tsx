@@ -7,9 +7,9 @@ import {
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
-import { render, screen } from '../../test/react_testing_library';
-import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
-import * as api from '../api';
+import { render, screen } from '../../test/react_testing_library.js';
+import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen.js';
+import * as api from '../api.js';
 
 vi.mock(import('../api.js'));
 

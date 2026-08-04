@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
-import { useIsVoterAuth } from '../hooks/use_is_voter_auth';
-import { WaitingForBallotReinsertionBallotScreen } from './waiting_for_ballot_reinsertion_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button.js';
+import { useIsVoterAuth } from '../hooks/use_is_voter_auth.js';
+import { WaitingForBallotReinsertionBallotScreen } from './waiting_for_ballot_reinsertion_screen.js';
 
 vi.mock(import('../api.js'));
 vi.mock(import('../hooks/use_is_voter_auth.js'));

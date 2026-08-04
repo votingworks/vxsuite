@@ -12,8 +12,8 @@ import {
   GPIO_PATH_PREFIX,
   PAT_CONNECTION_STATUS_PIN,
   PAT_GPIO_OFFSET,
-} from './constants';
-import { BmdModelNumber } from '../types';
+} from './constants.js';
+import { BmdModelNumber } from '../types.js';
 
 export const CONNECTION_TIMEOUT_MS = 5000;
 export const CONNECTION_RETRY_INTERVAL_MS = 500;

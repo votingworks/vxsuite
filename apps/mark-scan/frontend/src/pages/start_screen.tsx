@@ -5,8 +5,8 @@ import { StartPage } from '@votingworks/mark-flow-ui';
 import { AssistiveTechInstructions, appStrings } from '@votingworks/ui';
 import { isCombinedBallotPrimary } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { BallotContext } from '../contexts/ballot_context';
-import { useVoterHelpScreen } from './use_voter_help_screen';
+import { BallotContext } from '../contexts/ballot_context.js';
+import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();

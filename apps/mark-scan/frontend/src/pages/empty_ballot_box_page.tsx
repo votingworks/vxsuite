@@ -2,8 +2,8 @@ import { InsertedSmartCardAuth } from '@votingworks/types';
 
 import { Button, Icons, P, appStrings } from '@votingworks/ui';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { AskPollWorkerPage } from './ask_poll_worker_page';
-import { confirmBallotBoxEmptied } from '../api';
+import { AskPollWorkerPage } from './ask_poll_worker_page.js';
+import { confirmBallotBoxEmptied } from '../api.js';
 
 interface Props {
   authStatus: InsertedSmartCardAuth.AuthStatus;

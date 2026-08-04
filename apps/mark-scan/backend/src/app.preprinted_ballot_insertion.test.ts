@@ -6,11 +6,11 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { typedAs } from '@votingworks/basics';
 
 import { mockBaseLogger } from '@votingworks/logging';
-import { Store } from './store';
-import { createWorkspace } from './util/workspace';
-import { buildApi } from './app';
-import { buildMockLogger } from '../test/app_helpers';
-import { PaperHandlerStateMachine } from './custom-paper-handler';
+import { Store } from './store.js';
+import { createWorkspace } from './util/workspace.js';
+import { buildApi } from './app.js';
+import { buildMockLogger } from '../test/app_helpers.js';
+import { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
 function getMockStateMachine() {
   return typedAs<Partial<PaperHandlerStateMachine>>({

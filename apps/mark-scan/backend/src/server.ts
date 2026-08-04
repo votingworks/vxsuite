@@ -19,16 +19,16 @@ import {
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { buildApp } from './app';
-import { Workspace } from './util/workspace';
-import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
-import { getDefaultAuth, getUserRole } from './util/auth';
+import { buildApp } from './app.js';
+import { Workspace } from './util/workspace.js';
+import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine.js';
+import { getDefaultAuth, getUserRole } from './util/auth.js';
 import {
   PatConnectionStatusReader,
   PatConnectionStatusReaderInterface,
-} from './pat-input/connection_status_reader';
-import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
-import { getMarkScanBmdModel } from './util/hardware';
+} from './pat-input/connection_status_reader.js';
+import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader.js';
+import { getMarkScanBmdModel } from './util/hardware.js';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;

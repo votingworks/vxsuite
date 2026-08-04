@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useAudioEnabled } from '@votingworks/ui';
-import { render } from '../../test/react_testing_library';
-import { ScannerOpenAlarmScreen } from './scanner_open_alarm_screen';
+import { render } from '../../test/react_testing_library.js';
+import { ScannerOpenAlarmScreen } from './scanner_open_alarm_screen.js';
 
 const audioControlsMock = mockUseAudioControls(vi.fn);
 vi.mock(import('@votingworks/ui'), async (importActual) => ({

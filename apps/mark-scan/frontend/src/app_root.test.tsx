@@ -5,17 +5,17 @@ import { anyPollingPlace, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 
 import React from 'react';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
-import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { VoterFlow } from './voter_flow';
-import { AppRoot, POLL_WORKER_AUTH_REQUIRED_STATES } from './app_root';
-import { render } from '../test/test_utils';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { PollWorkerScreen } from './pages/poll_worker_screen.js';
+import { VoterFlow } from './voter_flow.js';
+import { AppRoot, POLL_WORKER_AUTH_REQUIRED_STATES } from './app_root.js';
+import { render } from '../test/test_utils.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../test/helpers/mock_auth';
-import { screen } from '../test/react_testing_library';
-import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
+} from '../test/helpers/mock_auth.js';
+import { screen } from '../test/react_testing_library.js';
+import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

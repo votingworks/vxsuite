@@ -1,14 +1,14 @@
 import { afterAll, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { renderHook, waitFor } from '../test/react_testing_library';
+import { renderHook, waitFor } from '../test/react_testing_library.js';
 import {
   ApiClient,
   configureElectionPackageFromUsb,
   createApiClient,
   uiStringsApi,
-} from './api';
-import { ApiProvider } from './api_provider';
+} from './api.js';
+import { ApiProvider } from './api_provider.js';
 
 const mockBackendApi: ApiClient = {
   ...createApiClient(),

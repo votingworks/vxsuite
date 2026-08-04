@@ -10,7 +10,7 @@ import {
   UninterruptiblePowerSupplyScreen,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
-import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
+import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen.js';
 import {
   getDiskSpaceSummary,
   getElectionRecord,
@@ -25,10 +25,10 @@ import {
   addDiagnosticRecord,
   getMarkScanBmdModel,
   stopPaperHandlerDiagnostic,
-} from '../../api';
-import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
-import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
-import { PatDeviceCalibrationPageWrapper } from '../pat_device_calibration_page_wrapper';
+} from '../../api.js';
+import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen.js';
+import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen.js';
+import { PatDeviceCalibrationPageWrapper } from '../pat_device_calibration_page_wrapper.js';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;

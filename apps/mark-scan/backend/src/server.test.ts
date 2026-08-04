@@ -8,8 +8,8 @@ import {
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { initializeSystemAudio, testDetectDevices } from '@votingworks/backend';
-import { resolveDriver, start } from './server';
-import { createWorkspace } from './util/workspace';
+import { resolveDriver, start } from './server.js';
+import { createWorkspace } from './util/workspace.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
