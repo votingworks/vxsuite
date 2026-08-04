@@ -1,0 +1,10 @@
+# hmpb's build is more than `tsc`: it also copies `src/fonts` into `build/`
+# (binary assets tsc won't emit). Override the inherited build command to run the
+# package's full `build:self`; the inherited inputs/outputs (`build`) and
+# `deps: ['^:build']` still apply, and the copied fonts land inside `build/`.
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      # Replace the inherited `tsc --build …` args rather than appending to them.
+      mergeArgs: replace

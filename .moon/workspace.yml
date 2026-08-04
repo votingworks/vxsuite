@@ -1,25 +1,45 @@
 projects:
-  # TS-only libs whose full production dependency closure is also TS-only, so
-  # their `tsc` build is hermetic. Libs downstream of a native lib (e.g. anything
-  # depending on `backend`, which depends on the native `logging-utils`) are
-  # deferred to the native-libs batch so moon can build/hash the native dep first.
+  # Native libs (Rust/napi). Their build task is overridden per-project (see each
+  # libs/<name>/moon.yml) to run the full napi/cargo + tsc build. `types-rs` is
+  # NOT wired: it is a pure Rust crate with no package.json, invisible to the node
+  # graph; it is folded in as a build input to ballot-interpreter instead.
+  ballot-interpreter: libs/ballot-interpreter
+  logging-utils: libs/logging-utils
+  pdi-scanner: libs/pdi-scanner
+
+  # TS-only libs. The first group's production closure is entirely TS (hermetic
+  # tsc build); the second group sits downstream of a native lib (e.g. via
+  # `backend` -> `logging-utils`) and is wired here now that the native deps
+  # above are in the graph, so moon builds/hashes the native dep first.
   auth: libs/auth
+  backend: libs/backend
   ballot-encoder: libs/ballot-encoder
   basics: libs/basics
+  bmd-ballot-fixtures: libs/bmd-ballot-fixtures
   cdf-schema-builder: libs/cdf-schema-builder
   custom-paper-handler: libs/custom-paper-handler
   db: libs/db
+  dev-dock-backend: libs/dev-dock/backend
+  dev-dock-frontend: libs/dev-dock/frontend
   eslint-plugin-vx: libs/eslint-plugin-vx
+  fixture-generators: libs/fixture-generators
   fixtures: libs/fixtures
   fs: libs/fs
   fujitsu-thermal-printer: libs/fujitsu-thermal-printer
   grout: libs/grout
+  hmpb: libs/hmpb
   image-utils: libs/image-utils
+  integration-test-utils: libs/integration-test-utils
   logging: libs/logging
+  mark-flow-ui: libs/mark-flow-ui
   message-coder: libs/message-coder
   monorepo-utils: libs/monorepo-utils
+  networking: libs/networking
+  printing: libs/printing
+  test-decks: libs/test-decks
   test-utils: libs/test-utils
   types: libs/types
+  ui: libs/ui
   usb-drive: libs/usb-drive
   utils: libs/utils
 

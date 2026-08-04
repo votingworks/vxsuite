@@ -1,0 +1,18 @@
+# Two-stage build: `napi build --platform --release` emits
+# `ballot-interpreter.<platform>.node` at the package root, then `tsc` builds
+# `build/`. Keep the inherited `build` output and add the .node artifact. The
+# Rust crate depends on the `types-rs` crate (Cargo path dep), so its sources are
+# build inputs too — a change there must bust this cache.
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace
+    inputs:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'build.rs'
+      - '/libs/types-rs/src/**/*'
+      - '/libs/types-rs/Cargo.toml'
+    outputs:
+      - '*.node'
