@@ -1,8 +1,4 @@
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
-const {
-  sliOrganizationId,
-  votingWorksOrganizationId,
-} = require('../build/globals');
 
 loadEnvVarsFromDotenvFiles();
 
@@ -14,9 +10,14 @@ exports.shorthands =
 /**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
- * @returns {Promise<void> | void}
+ * @returns {Promise<void>}
  */
-exports.up = (pgm) => {
+exports.up = async (pgm) => {
+  // Loaded via dynamic import: the built globals module is ESM, and this
+  // migration is CommonJS (node-pg-migrate loads migrations with require).
+  const { sliOrganizationId, votingWorksOrganizationId } = await import(
+    '../build/globals.js'
+  );
   pgm.createType('user_type', ['organization_user', 'jurisdiction_user']);
   pgm.addColumn('users', {
     type: { type: 'user_type' },
