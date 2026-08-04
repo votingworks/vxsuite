@@ -65,6 +65,7 @@ export interface MockBatchScannerApi {
   addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
   getStatus(): { sheetCount: number };
   clearSheets(): void;
+  setCopies(copies: number): void;
   readonly imageDir: string;
 }
 
@@ -525,6 +526,11 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     batchScannerGetStatus(): { sheetCount: number } {
       return assertDefined(mockSpec.mockBatchScanner).getStatus();
+    },
+
+    batchScannerSetCopies(input: { copies: number }): void {
+      assert(Number.isInteger(input.copies) && input.copies >= 1);
+      assertDefined(mockSpec.mockBatchScanner).setCopies(input.copies);
     },
 
     async batchScannerLoadBallots(input: { paths: string[] }): Promise<void> {

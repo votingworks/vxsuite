@@ -10,6 +10,7 @@ import {
 } from 'vitest';
 import {
   cleanup,
+  fireEvent,
   render as renderWithoutTheme,
   screen,
   waitFor,
@@ -853,6 +854,7 @@ describe('batch scanner mock', () => {
     await waitFor(() => {
       expect(screen.queryByText(/sheet\(s\) queued/)).not.toBeInTheDocument();
     });
+    expect(clearButton).toBeDisabled();
   });
 
   test('ignores canceled open file dialog', async () => {
@@ -878,6 +880,41 @@ describe('batch scanner mock', () => {
       expect(kiosk.showOpenDialog).toHaveBeenCalled();
       mockApiClient.assertComplete();
     });
+  });
+
+  test('changing copies updates the queued sheet count', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockBatchScanner: true });
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 2 });
+
+    renderDock(mockApiClient);
+    await screen.findByText(/2 sheet\(s\) queued/);
+    const copiesInput = screen.getByRole('spinbutton', { name: 'Copies' });
+
+    mockApiClient.batchScannerSetCopies
+      .expectCallWith({ copies: 3 })
+      .resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 6 });
+    fireEvent.change(copiesInput, { target: { value: '3' } });
+
+    await screen.findByText(/6 sheet\(s\) queued/);
+
+    // Blanking the input falls back to a single copy
+    mockApiClient.batchScannerSetCopies
+      .expectCallWith({ copies: 1 })
+      .resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 2 });
+    fireEvent.change(copiesInput, { target: { value: '' } });
+
+    await screen.findByText(/2 sheet\(s\) queued/);
   });
 });
 

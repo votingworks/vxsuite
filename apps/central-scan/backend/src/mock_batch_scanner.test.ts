@@ -107,6 +107,27 @@ test('addSheets appends to existing queue for next scan', async () => {
   expect(await batch2.scanSheet()).toBeUndefined();
 });
 
+test('setCopies scales the queued sheets', async () => {
+  const scanner = createScanner();
+  scanner.addSheets([sheet(1), sheet(2)]);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 2 });
+
+  scanner.setCopies(3);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 6 });
+
+  const batch = scanner.scanSheets();
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(await batch.scanSheet()).toBeUndefined();
+
+  scanner.setCopies(1);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 2 });
+});
+
 test('clearSheets resets so next scan returns nothing', async () => {
   const scanner = createScanner();
   const testFile = join(scanner.imageDir, 'test.jpg');

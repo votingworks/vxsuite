@@ -833,16 +833,20 @@ test('mock PDI scanner - odd-page PDF gets blank back', async () => {
 
 function createMockBatchScanner(imageDir: string): MockBatchScannerApi {
   let sheets: Array<{ frontPath: string; backPath: string }> = [];
+  let copies = 1;
   return {
     imageDir,
     addSheets(newSheets) {
       sheets.push(...newSheets);
     },
     getStatus() {
-      return { sheetCount: sheets.length };
+      return { sheetCount: sheets.length * copies };
     },
     clearSheets() {
       sheets = [];
+    },
+    setCopies(newCopies) {
+      copies = newCopies;
     },
   };
 }
@@ -852,6 +856,29 @@ test('mock batch scanner - get status', async () => {
   const mockBatchScanner = createMockBatchScanner(devDockDir);
   const { apiClient } = setup({ mockBatchScanner }, devDockDir);
   expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+});
+
+test('mock batch scanner - set copies scales the queued sheets', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+  const { sheetCount: singleCopySheetCount } =
+    await apiClient.batchScannerGetStatus();
+  expect(singleCopySheetCount).toBeGreaterThan(0);
+
+  await apiClient.batchScannerSetCopies({ copies: 3 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: singleCopySheetCount * 3,
+  });
+
+  await apiClient.batchScannerSetCopies({ copies: 1 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: singleCopySheetCount,
+  });
 });
 
 test('mock batch scanner - load ballots from PDF', async () => {
