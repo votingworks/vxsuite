@@ -19,6 +19,19 @@ packages:
   # code exercises
   - 'docs/exercises'
 
+# typescript-eslint runs against the classic compiler API from the
+# `@typescript/typescript6` alias (see CLAUDE.md), which satisfies its
+# `typescript` peer range. But peer *resolution* can instead find the
+# `@typescript/native` alias (real package name `typescript`, v7.x) hoisted at
+# the workspace root and warn about an unmet peer, even though typescript-eslint
+# never loads that copy. Allow any version to silence that false positive.
+peerDependencyRules:
+  allowedVersions:
+    '@typescript-eslint/parser>typescript': '*'
+    '@typescript-eslint/typescript-estree>typescript': '*'
+    '@typescript-eslint/project-service>typescript': '*'
+    '@typescript-eslint/tsconfig-utils>typescript': '*'
+
 # Supply-chain and safety settings. These all match pnpm v11's defaults; we
 # adopt them early while on v10 so the v11 upgrade is a no-op here.
 

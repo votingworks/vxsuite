@@ -16,7 +16,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*",

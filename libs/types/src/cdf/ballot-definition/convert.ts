@@ -13,7 +13,6 @@ import {
   unique,
   wrapException,
 } from '@votingworks/basics';
-import setWith from 'lodash.setwith';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
 import {
@@ -74,6 +73,24 @@ function termDescriptionForContest(
 type StringKey = ElectionStringKey | [ElectionStringKey, string];
 
 /**
+ * Sets the value at the given key path within the given UI strings package,
+ * creating intermediate objects as needed.
+ */
+function setUiStringValue(
+  uiStrings: UiStringsPackage,
+  path: string[],
+  value: string
+): void {
+  const lastKey = assertDefined(path[path.length - 1]);
+  let node: Record<string, unknown> = uiStrings;
+  for (const key of path.slice(0, -1)) {
+    node[key] = node[key] ?? {};
+    node = node[key] as Record<string, unknown>;
+  }
+  node[lastKey] = value;
+}
+
+/**
  * Sets the appropriate language strings in supported languages for the given
  * internationalized CDF ballot content text.
  */
@@ -87,7 +104,7 @@ function setInternationalizedUiStrings(params: {
   for (const value of values) {
     const languageCode = value.Language;
     const valuePath = [languageCode, stringKey].flat();
-    setWith(uiStrings, valuePath, value.Content, Object);
+    setUiStringValue(uiStrings, valuePath, value.Content);
   }
 }
 
@@ -103,7 +120,7 @@ function setStaticUiString(params: {
   const { stringKey, uiStrings, value } = params;
 
   const valuePath = [DEFAULT_LANGUAGE_CODE, stringKey].flat();
-  setWith(uiStrings, valuePath, value, Object);
+  setUiStringValue(uiStrings, valuePath, value);
 }
 
 /**

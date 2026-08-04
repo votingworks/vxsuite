@@ -101,10 +101,8 @@ export const mkdtempSync = __stubFnDoNotCall;
 export const open = __stubFnDoNotCall;
 /** Stub for openSync */
 export const openSync = __stubFnDoNotCall;
-/** Stub for opendir */
-export const opendir = __stubFnDoNotCall;
-/** Stub for opendirSync */
-export const opendirSync = __stubFnDoNotCall;
+/** Stub for openAsBlob */
+export const openAsBlob = __stubFnDoNotCall;
 /** Stub for readdir */
 export const readdir = __stubFnDoNotCall;
 /** Stub for readdirSync */
@@ -143,8 +141,12 @@ export const rmdir = __stubFnDoNotCall;
 export const rmdirSync = __stubFnDoNotCall;
 /** Stub for stat */
 export const stat = __stubFnDoNotCall;
+/** Stub for statfs */
+export const statfs = __stubFnDoNotCall;
 /** Stub for statSync */
 export const statSync = __stubFnDoNotCall;
+/** Stub for statfsSync */
+export const statfsSync = __stubFnDoNotCall;
 /** Stub for symlink */
 export const symlink = __stubFnDoNotCall;
 /** Stub for symlinkSync */
@@ -179,8 +181,6 @@ export const writeSync = __stubFnDoNotCall;
 export const writev = __stubFnDoNotCall;
 /** Stub for writevSync */
 export const writevSync = __stubFnDoNotCall;
-/** Stub for Dir */
-export const Dir = __stubFnDoNotCall;
 /** Stub for Dirent */
 export const Dirent = __stubFnDoNotCall;
 /** Stub for Stats */
@@ -195,6 +195,12 @@ export const FileReadStream = __stubFnDoNotCall;
 export const FileWriteStream = __stubFnDoNotCall;
 /** Stub for _toUnixTimestamp */
 export const _toUnixTimestamp = __stubFnDoNotCall;
+/** Stub for Dir */
+export const Dir = __stubFnDoNotCall;
+/** Stub for opendir */
+export const opendir = __stubFnDoNotCall;
+/** Stub for opendirSync */
+export const opendirSync = __stubFnDoNotCall;
 /** Stub for F_OK */
 export const F_OK = 0;
 /** Stub for R_OK */
@@ -218,6 +224,8 @@ export const constants = {
   UV_DIRENT_SOCKET: 5,
   UV_DIRENT_CHAR: 6,
   UV_DIRENT_BLOCK: 7,
+  EXTENSIONLESS_FORMAT_JAVASCRIPT: 0,
+  EXTENSIONLESS_FORMAT_WASM: 1,
   S_IFMT: 61440,
   S_IFREG: 32768,
   S_IFDIR: 16384,
@@ -232,12 +240,12 @@ export const constants = {
   O_NOCTTY: 256,
   O_TRUNC: 512,
   O_APPEND: 1024,
-  O_DIRECTORY: 16384,
+  O_DIRECTORY: 65536,
   O_NOATIME: 262144,
-  O_NOFOLLOW: 32768,
+  O_NOFOLLOW: 131072,
   O_SYNC: 1052672,
   O_DSYNC: 4096,
-  O_DIRECT: 65536,
+  O_DIRECT: 16384,
   O_NONBLOCK: 2048,
   S_IRWXU: 448,
   S_IRUSR: 256,
@@ -279,6 +287,7 @@ export const promises = {
   symlink: __stubFnDoNotCall,
   lstat: __stubFnDoNotCall,
   stat: __stubFnDoNotCall,
+  statfs: __stubFnDoNotCall,
   link: __stubFnDoNotCall,
   unlink: __stubFnDoNotCall,
   chmod: __stubFnDoNotCall,
@@ -293,4 +302,7 @@ export const promises = {
   appendFile: __stubFnDoNotCall,
   readFile: __stubFnDoNotCall,
   watch: __stubFnDoNotCall,
+  get constants() {
+    return constants;
+  },
 };

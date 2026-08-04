@@ -1,7 +1,6 @@
 import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
-import get from 'lodash.get';
 import {
   DateWithoutTime,
   Result,
@@ -3879,7 +3878,12 @@ test('Election package and ballots export', async () => {
     }
 
     for (const { stringKey, stringInEnglish } of stringsInEnglish) {
-      const stringInLanguage = get(uiStrings, [languageCode, stringKey].flat());
+      const stringInLanguage = [languageCode, stringKey]
+        .flat()
+        .reduce<unknown>(
+          (node, key) => (node as Record<string, unknown> | undefined)?.[key],
+          uiStrings
+        );
       if (
         Array.isArray(stringKey) &&
         stringKey[0] === ElectionStringKey.BALLOT_STYLE_ID

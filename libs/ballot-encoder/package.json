@@ -8,7 +8,6 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -21,7 +20,8 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
@@ -29,7 +29,7 @@
     "js-sha256": "^0.9.0"
   },
   "devDependencies": {
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@types/text-encoding": "^0.0.35",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",

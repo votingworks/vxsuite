@@ -7,7 +7,6 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -20,7 +19,8 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "7.6.3",
     "@types/debug": "4.1.12",
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",

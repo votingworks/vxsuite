@@ -10,7 +10,6 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -23,7 +22,8 @@
     "test:ci": "TZ=America/Anchorage pnpm build && pnpm test:coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest"
+    "test:watch": "TZ=America/Anchorage vitest",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
@@ -42,7 +42,7 @@
     "@types/debug": "4.1.12",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@types/randombytes": "^2.0.0",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",

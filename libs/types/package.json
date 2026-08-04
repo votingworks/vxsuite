@@ -10,11 +10,14 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "tsc --build tsconfig.build.json",
+    "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
+    "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
+    "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts",
+    "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint --cache .",
@@ -24,16 +27,12 @@
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
     "test:watch": "vitest",
-    "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
-    "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
-    "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
-    "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts"
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@antongolub/iso8601": "^1.2.1",
     "@votingworks/basics": "workspace:*",
     "js-sha256": "^0.9.0",
-    "lodash.setwith": "^4.3.2",
     "util": "^0.12.4",
     "zod": "4.4.3"
   },
@@ -41,8 +40,7 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
-    "@types/lodash.setwith": "^4.3.9",
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@types/react": "18.3.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/cdf-schema-builder": "workspace:*",
