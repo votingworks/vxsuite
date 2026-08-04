@@ -15,6 +15,11 @@ tasks:
     options:
       mergeArgs: replace
       mergeOutputs: replace
+    # cargo/napi saturate every core internally. Bound the job count so multiple
+    # native builds running under moon (and their RAM) don't collectively demand
+    # cores x N. Tune down further on RAM-constrained CI.
+    env:
+      CARGO_BUILD_JOBS: '6'
     inputs:
       - 'Cargo.toml'
       - 'build.rs'

@@ -20,7 +20,12 @@ tasks:
       - '^:build'
 
   test:
-    command: 'vitest run'
+    # Cap vitest's own worker pool. moon runs up to MOON_CONCURRENCY test tasks at
+    # once, and each vitest defaults to a pool sized to all cores — so N suites x
+    # cores massively oversubscribes the CPU and makes timing-sensitive tests flake.
+    # With maxWorkers=2, test-phase threads are ~= MOON_CONCURRENCY x 2; keep
+    # MOON_CONCURRENCY around cores/2 (env-only; moon has no committable setting).
+    command: 'vitest run --maxWorkers=2'
     env:
       TZ: America/Anchorage
     inputs:
