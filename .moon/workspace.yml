@@ -1,0 +1,31 @@
+projects:
+  # TS-only libs whose full production dependency closure is also TS-only, so
+  # their `tsc` build is hermetic. Libs downstream of a native lib (e.g. anything
+  # depending on `backend`, which depends on the native `logging-utils`) are
+  # deferred to the native-libs batch so moon can build/hash the native dep first.
+  auth: libs/auth
+  ballot-encoder: libs/ballot-encoder
+  basics: libs/basics
+  cdf-schema-builder: libs/cdf-schema-builder
+  custom-paper-handler: libs/custom-paper-handler
+  db: libs/db
+  eslint-plugin-vx: libs/eslint-plugin-vx
+  fixtures: libs/fixtures
+  fs: libs/fs
+  fujitsu-thermal-printer: libs/fujitsu-thermal-printer
+  grout: libs/grout
+  image-utils: libs/image-utils
+  logging: libs/logging
+  message-coder: libs/message-coder
+  monorepo-utils: libs/monorepo-utils
+  test-utils: libs/test-utils
+  types: libs/types
+  usb-drive: libs/usb-drive
+  utils: libs/utils
+
+vcs:
+  defaultBranch: main
+  provider: github
+
+experiments:
+  casOutputsCache: true

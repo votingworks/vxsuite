@@ -6,10 +6,11 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
+    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "declaration": true
   },
   "references": [
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }
