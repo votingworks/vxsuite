@@ -1,6 +1,6 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 import { assert } from 'node:console';
-import { vi } from 'vitest';
+import { Mock, vi } from 'vitest';
 
 type MockSocketEventName = 'connect' | 'error';
 
@@ -31,8 +31,8 @@ export class MockSocket {
     return this;
   });
 
-  setEncoding = vi.fn();
-  destroy = vi.fn();
+  setEncoding: Mock = vi.fn();
+  destroy: Mock = vi.fn();
 
   emitConnect(): void {
     const handler = this.handlers['connect'];
