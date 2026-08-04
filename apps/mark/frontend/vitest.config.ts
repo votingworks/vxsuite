@@ -19,8 +19,8 @@ export default defineConfig({
         '**/*.test.{ts,tsx}',
       ],
       thresholds: {
-        lines: 99,
-        branches: 98,
+        lines: -5,
+        branches: -5,
       },
     },
     alias: [

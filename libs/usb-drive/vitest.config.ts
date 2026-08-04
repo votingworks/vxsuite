@@ -7,7 +7,7 @@ export default defineConfig({
       exclude: ['src/cli.ts', 'src/**/*.test.ts'],
       thresholds: {
         lines: 100,
-        branches: 98,
+        branches: 100,
       },
     },
   },

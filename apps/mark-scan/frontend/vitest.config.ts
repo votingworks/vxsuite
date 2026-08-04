@@ -17,8 +17,8 @@ export default defineConfig({
         'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
       thresholds: {
-        lines: 97,
-        branches: 96,
+        lines: -13,
+        branches: -6,
       },
     },
     alias: [
