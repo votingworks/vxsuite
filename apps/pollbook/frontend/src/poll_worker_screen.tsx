@@ -26,10 +26,10 @@ import {
 import {
   createEmptySearchParams,
   VoterSearchScreen,
-} from './voter_search_screen';
-import { VoterConfirmScreen } from './voter_confirm_screen';
-import { NavScreen, NoNavScreen, pollWorkerRoutes } from './nav_screen';
-import { Column, Row } from './layout';
+} from './voter_search_screen.js';
+import { VoterConfirmScreen } from './voter_confirm_screen.js';
+import { NavScreen, NoNavScreen, pollWorkerRoutes } from './nav_screen.js';
+import { Column, Row } from './layout.js';
 import {
   getDeviceStatuses,
   getIsAbsenteeMode,
@@ -37,10 +37,10 @@ import {
   getPollbookConfigurationInformation,
   getElection,
   checkInVoter,
-} from './api';
-import { AbsenteeModeCallout, VoterName } from './shared_components';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
-import { SelectPartyScreen } from './select_party_screen';
+} from './api.js';
+import { AbsenteeModeCallout, VoterName } from './shared_components.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { SelectPartyScreen } from './select_party_screen.js';
 
 type CheckInFlowState =
   | { step: 'search'; search: VoterSearchParams }

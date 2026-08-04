@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, expect, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { ElectionDefinition } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '../test/react_testing_library';
-import { App } from './app';
-import { ApiMock, createApiMock } from '../test/mock_api_client';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { App } from './app.js';
+import { ApiMock, createApiMock } from '../test/mock_api_client.js';
 
 let apiMock: ApiMock;
 let unmount: () => void = () => {

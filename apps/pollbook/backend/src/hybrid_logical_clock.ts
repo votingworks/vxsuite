@@ -1,4 +1,4 @@
-import { getCurrentTime } from './get_current_time';
+import { getCurrentTime } from './get_current_time.js';
 
 export interface HlcTimestamp {
   physical: number; // e.g. Unix time in ms

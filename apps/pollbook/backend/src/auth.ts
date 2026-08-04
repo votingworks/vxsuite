@@ -6,7 +6,7 @@ import {
 import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
-import { LocalWorkspace, PeerWorkspace } from './types';
+import { LocalWorkspace, PeerWorkspace } from './types.js';
 
 export function constructAuthMachineState(
   workspace: LocalWorkspace | PeerWorkspace

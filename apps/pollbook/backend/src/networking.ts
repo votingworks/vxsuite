@@ -3,7 +3,7 @@ import * as grout from '@votingworks/grout';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 import {
   CommunicatingPollbookConnectionStatuses,
   createConnectedPollbookServiceFromConfiguration,
@@ -12,16 +12,16 @@ import {
   PollbookConnectionStatus,
   transitionPollbookToConnectedStatus,
   transitionPollbookToDisconnectedStatus,
-} from './types';
+} from './types.js';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_GOSSIP_BRANCHING_FACTOR,
   NETWORK_POLLING_INTERVAL,
   NETWORK_REQUEST_TIMEOUT,
   PEER_PORT,
-} from './globals';
-import type { PeerApi } from './peer_app';
-import { intermediateScript } from './intermediate_scripts';
+} from './globals.js';
+import type { PeerApi } from './peer_app.js';
+import { intermediateScript } from './intermediate_scripts.js';
 
 const debug = rootDebug.extend('networking');
 

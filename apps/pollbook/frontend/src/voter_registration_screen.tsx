@@ -26,13 +26,13 @@ import {
   getElection,
   getPollbookConfigurationInformation,
   registerVoter,
-} from './api';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
-import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen';
-import { Column, FieldName, Row } from './layout';
-import { RequiredStaticInput, VoterName } from './shared_components';
-import { AddressInputGroup } from './address_input_group';
-import { NameInputGroup } from './name_input_group';
+} from './api.js';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen.js';
+import { Column, FieldName, Row } from './layout.js';
+import { RequiredStaticInput, VoterName } from './shared_components.js';
+import { AddressInputGroup } from './address_input_group.js';
+import { NameInputGroup } from './name_input_group.js';
 
 function createBlankVoter(): VoterRegistrationRequest {
   return {

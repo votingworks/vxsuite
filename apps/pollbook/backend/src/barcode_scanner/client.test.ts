@@ -20,14 +20,14 @@ import {
   Logger,
 } from '@votingworks/logging';
 import path from 'node:path';
-import { tryConnect } from './unix_socket';
+import { tryConnect } from './unix_socket.js';
 import {
   connectToBarcodeScannerSocket,
   BarcodeScannerClient,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
   SCAN_DATA_TTL_MS,
-} from './client';
-import { AamvaDocument, BarcodeScannerError } from '../types';
+} from './client.js';
+import { AamvaDocument, BarcodeScannerError } from '../types.js';
 
 vi.mock('./unix_socket');
 

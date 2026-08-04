@@ -22,20 +22,20 @@ import { join } from 'node:path';
 import { readdir, lstat } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { rootDebug } from './debug';
+import { rootDebug } from './debug.js';
 import {
   LocalAppContext,
   PollbookPackage,
   PeerAppContext,
   PollbookConnectionStatus,
-} from './types';
+} from './types.js';
 import {
   CONFIGURATION_POLLING_INTERVAL,
   MAX_POLLBOOK_PACKAGE_SIZE,
   POLLBOOK_PACKAGE_ASSET_FILE_NAME,
   POLLBOOK_PACKAGE_FILENAME_PREFIX,
-} from './globals';
-import { constructAuthMachineState } from './auth';
+} from './globals.js';
+import { constructAuthMachineState } from './auth.js';
 
 const usbDebug = rootDebug.extend('usb');
 const debug = rootDebug.extend('pollbook-package');

@@ -6,15 +6,15 @@ import {
   ValidStreetInfo,
   VoterAddressChangeRequest,
 } from '@votingworks/types';
-import { Row, FieldName } from './layout';
+import { Row, FieldName } from './layout.js';
 import {
   RequiredStaticInput,
   TextField,
   RequiredExpandableInput,
   StaticInput,
   ExpandableInput,
-} from './shared_components';
-import { getValidStreetInfo } from './api';
+} from './shared_components.js';
+import { getValidStreetInfo } from './api.js';
 
 function findDetailsFromStreetAddress(
   validStreetInfo: ValidStreetInfo[],

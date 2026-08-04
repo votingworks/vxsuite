@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import { VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION } from '@votingworks/ui';
-import { StyledReceipt, ReceiptMetadata, ReceiptIcon } from './receipt_helpers';
+import { StyledReceipt, ReceiptMetadata, ReceiptIcon } from './receipt_helpers.js';
 
 const TextRow = styled.div`
   display: flex;

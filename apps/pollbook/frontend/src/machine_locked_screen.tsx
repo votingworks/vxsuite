@@ -1,9 +1,9 @@
 import { H1, H3, InsertCardImage, Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
-import { ElectionInfoBar } from './election_info_bar';
-import { getElection, getPollbookConfigurationInformation } from './api';
-import { DeviceStatusBar } from './nav_screen';
+import { ElectionInfoBar } from './election_info_bar.js';
+import { getElection, getPollbookConfigurationInformation } from './api.js';
+import { DeviceStatusBar } from './nav_screen.js';
 
 const LockedImage = styled.img`
   margin-right: auto;

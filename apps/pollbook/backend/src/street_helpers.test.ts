@@ -7,7 +7,7 @@ import type {
 import {
   maybeGetStreetInfoForAddressChange,
   maybeGetStreetInfoForVoterRegistration,
-} from './street_helpers';
+} from './street_helpers.js';
 
 const mockStreetInfo: ValidStreetInfo[] = [
   {

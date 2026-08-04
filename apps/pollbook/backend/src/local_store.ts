@@ -26,7 +26,7 @@ import {
   sortedByVoterName,
   sortedByVoterNameAndMatchingPrecinct,
   Store,
-} from './store';
+} from './store.js';
 import {
   EventDbRow,
   EventType,
@@ -45,19 +45,19 @@ import {
   VoterRegistrationInvalidatedEvent,
   VoterSearchParams,
   PartyFilterAbbreviation,
-} from './types';
+} from './types.js';
 import {
   applyPollbookEventsToVoters,
   convertDbRowsToPollbookEvents,
   createVoterFromRegistrationData,
-} from './event_helpers';
-import { HybridLogicalClock } from './hybrid_logical_clock';
-import { getCurrentTime } from './get_current_time';
+} from './event_helpers.js';
+import { HybridLogicalClock } from './hybrid_logical_clock.js';
+import { getCurrentTime } from './get_current_time.js';
 import {
   maybeGetStreetInfoForVoterRegistration,
   maybeGetStreetInfoForAddressChange,
-} from './street_helpers';
-import { isVoterNameChangeValid } from './voter_helpers';
+} from './street_helpers.js';
+import { isVoterNameChangeValid } from './voter_helpers.js';
 
 const debug = makeDebug('pollbook:local-store');
 

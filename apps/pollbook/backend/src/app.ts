@@ -53,8 +53,8 @@ import {
   PartyFilterAbbreviation,
   Anomaly,
   EventType,
-} from './types';
-import { rootDebug } from './debug';
+} from './types.js';
+import { rootDebug } from './debug.js';
 import {
   CheckInReceipt,
   RegistrationReceipt,
@@ -62,18 +62,18 @@ import {
   MailingAddressChangeReceipt,
   NameChangeReceipt,
   StatisticsSummaryReceipt,
-} from './receipts';
-import { pollUsbDriveForPollbookPackage } from './pollbook_package';
-import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
-import { renderAndPrintReceipt } from './receipts/printing';
-import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
-import { generateVoterHistoryCsvContent } from './voter_history';
-import { getCurrentTime } from './get_current_time';
-import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
-import { InvalidateRegistrationReceipt } from './receipts/invalidate_registration_receipt';
-import { BarcodeScannerClient } from './barcode_scanner/client';
-import { securityHeadersMiddleware } from './security_middleware';
-import { constructAuthMachineState } from './auth';
+} from './receipts/index.js';
+import { pollUsbDriveForPollbookPackage } from './pollbook_package.js';
+import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt.js';
+import { renderAndPrintReceipt } from './receipts/printing.js';
+import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals.js';
+import { generateVoterHistoryCsvContent } from './voter_history.js';
+import { getCurrentTime } from './get_current_time.js';
+import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt.js';
+import { InvalidateRegistrationReceipt } from './receipts/invalidate_registration_receipt.js';
+import { BarcodeScannerClient } from './barcode_scanner/client.js';
+import { securityHeadersMiddleware } from './security_middleware.js';
+import { constructAuthMachineState } from './auth.js';
 
 const debug = rootDebug.extend('local_app');
 
