@@ -22,6 +22,39 @@
   useful because otherwise they'd be duplicated among e.g. `build`, `lint`,
   `test`, etc.
 
+## Concurrency and resource limits
+
+Total worker threads under moon are roughly
+`MOON_CONCURRENCY x per-task-workers`. moon's `--concurrency`/`MOON_CONCURRENCY`
+only controls how many _tasks_ run at once; each `vitest` suite spawns its own
+core-sized worker pool and each Rust build (cargo/napi) saturates every core
+internally. If you cap only moon, the product still oversubscribes the CPU and
+timing-sensitive tests flake.
+
+So two of the three knobs are committed (they travel with the repo), and the
+outer dial is per-environment:
+
+- `vitest run --maxWorkers=2` — in `.moon/tasks/typescript.yml` (test task).
+- `CARGO_BUILD_JOBS: '6'` — env on each native Rust build task
+  (`libs/{ballot-interpreter,pdi-scanner,logging-utils}/moon.yml`).
+- `MOON_CONCURRENCY` — env var only (moon 2.4.6 has no committable setting). Set
+  it to roughly **cores / 2**:
+  - Dev (16 logical cores / 61 GB): `MOON_CONCURRENCY=8` → test peak ~16
+    threads.
+  - CI, CircleCI **xlarge** (8 vCPU / 16 GB): `MOON_CONCURRENCY=4` → test peak
+    ~8 threads = the full 8 vCPU; ~4 concurrent tsc builds fit comfortably in 16
+    GB.
+
+**CircleCI gotcha:** the Docker executor reports the _host_ CPU count via
+`nproc`/`os.cpus()`, not the resource-class limit. Anything that auto-sizes to
+"cores" (moon's default concurrency, cargo's default `-j`, vitest's default
+pool) will parallelize against ~30+ phantom cores on an 8-vCPU box and
+OOM/thrash. The committed `--maxWorkers` and `CARGO_BUILD_JOBS` neutralize that
+for vitest and cargo; **`MOON_CONCURRENCY` must be set explicitly in the
+CircleCI job env** — never rely on moon's auto-detect there. If cold Rust builds
+ever pressure the 16 GB (they are cached by moon, so this is rare), lower
+`CARGO_BUILD_JOBS`.
+
 ## Questions
 
 - Can I use `dependsOn` to declare explicit dependencies while also retaining
