@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import {
   handleUncaughtExceptions,
@@ -37,7 +38,7 @@ function main(): number {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     process.exitCode = main();
   } catch (error) {
