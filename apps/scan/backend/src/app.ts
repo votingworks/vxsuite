@@ -21,6 +21,7 @@ import {
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -210,11 +211,13 @@ export function buildApi({
       });
 
       try {
-        await configureUiStringAudioClipsStreaming({
-          electionPackageFilePath: filePath,
-          store: workspace.store.getUiStringsStore(),
-          withTransaction: (fn) => store.withTransaction(fn),
-        });
+        await withElectionPackageZip(filePath, (electionPackageZip) =>
+          configureUiStringAudioClipsStreaming({
+            electionPackageZip,
+            store: workspace.store.getUiStringsStore(),
+            withTransaction: (fn) => store.withTransaction(fn),
+          })
+        );
       } catch (error) {
         workspace.reset();
         throw error;

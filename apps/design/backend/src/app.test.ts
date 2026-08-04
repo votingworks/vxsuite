@@ -10,6 +10,7 @@ import {
   deferred,
   err,
   find,
+  iter,
   ok,
   range,
   throwIllegalValue,
@@ -86,6 +87,7 @@ import {
   readElectionPackageFromBuffer,
   streamElectionPackageAudioClips,
   streamElectionPackageBallots,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   backendWaitFor,
@@ -319,30 +321,28 @@ afterEach(() => {
   vi.mocked(createTestDeckTallyReports).mockRestore();
 });
 
-async function readBallotsFromElectionPackage(
+function readBallotsFromElectionPackage(
   electionPackageContents: Buffer
 ): Promise<EncodedBallotEntry[]> {
-  const ballots: EncodedBallotEntry[] = [];
-  await streamElectionPackageBallots(
+  return withElectionPackageZip(
     makeTemporaryFile({ content: electionPackageContents }),
-    (batch) => {
-      ballots.push(...batch);
-    }
+    (electionPackageZip) =>
+      iter(streamElectionPackageBallots(electionPackageZip))
+        .flatMap((batch) => batch)
+        .toArray()
   );
-  return ballots;
 }
 
-async function readAudioClipsFromElectionPackage(
+function readAudioClipsFromElectionPackage(
   electionPackageContents: Buffer
 ): Promise<UiStringAudioClip[]> {
-  const audioClips: UiStringAudioClip[] = [];
-  await streamElectionPackageAudioClips(
+  return withElectionPackageZip(
     makeTemporaryFile({ content: electionPackageContents }),
-    (batch) => {
-      audioClips.push(...batch);
-    }
+    (electionPackageZip) =>
+      iter(streamElectionPackageAudioClips(electionPackageZip))
+        .flatMap((batch) => batch)
+        .toArray()
   );
-  return audioClips;
 }
 
 test('all methods require authentication', async () => {
