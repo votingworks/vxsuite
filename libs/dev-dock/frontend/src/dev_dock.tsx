@@ -804,6 +804,13 @@ function BatchScannerMockControl() {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['batchScannerGetStatus']),
   });
+  const setErrorQueuedMutation = useMutation(
+    apiClient.batchScannerSetErrorQueued,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['batchScannerGetStatus']),
+    }
+  );
   const setCopiesMutation = useMutation(apiClient.batchScannerSetCopies, {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['batchScannerGetStatus']),
@@ -812,6 +819,7 @@ function BatchScannerMockControl() {
 
   const status = getStatusQuery.data;
   const sheetCount = status?.sheetCount ?? 0;
+  const errorQueued = status?.errorQueued ?? false;
 
   return (
     <BatchScannerControls>
@@ -859,6 +867,14 @@ function BatchScannerMockControl() {
           disabled={sheetCount === 0}
         >
           Clear
+        </ScannerButton>
+        <ScannerButton
+          onClick={() =>
+            setErrorQueuedMutation.mutate({ errorQueued: !errorQueued })
+          }
+          disabled={setErrorQueuedMutation.isLoading}
+        >
+          {errorQueued ? 'Cancel Error' : 'Queue Error'}
         </ScannerButton>
       </ScannerControls>
     </BatchScannerControls>

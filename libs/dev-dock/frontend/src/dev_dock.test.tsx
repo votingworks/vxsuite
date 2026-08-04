@@ -818,7 +818,7 @@ describe('batch scanner mock', () => {
       .resolves({ mockBatchScanner: true });
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 0 });
+      .resolves({ sheetCount: 0, errorQueued: false });
 
     renderDock(mockApiClient);
     const loadButton = await screen.findByRole('button', {
@@ -836,7 +836,7 @@ describe('batch scanner mock', () => {
       .resolves();
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 2 });
+      .resolves({ sheetCount: 2, errorQueued: false });
     userEvent.click(loadButton);
 
     const queuedText = await screen.findByText(/2 sheet\(s\) queued/);
@@ -849,7 +849,7 @@ describe('batch scanner mock', () => {
     mockApiClient.batchScannerClearBallots.expectCallWith().resolves();
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 0 });
+      .resolves({ sheetCount: 0, errorQueued: false });
     userEvent.click(clearButton);
     await waitFor(() => {
       expect(screen.queryByText(/sheet\(s\) queued/)).not.toBeInTheDocument();
@@ -864,7 +864,7 @@ describe('batch scanner mock', () => {
       .resolves({ mockBatchScanner: true });
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 0 });
+      .resolves({ sheetCount: 0, errorQueued: false });
 
     renderDock(mockApiClient);
     const loadButton = await screen.findByRole('button', {
@@ -889,7 +889,7 @@ describe('batch scanner mock', () => {
       .resolves({ mockBatchScanner: true });
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 2 });
+      .resolves({ sheetCount: 2, errorQueued: false });
 
     renderDock(mockApiClient);
     await screen.findByText(/2 sheet\(s\) queued/);
@@ -900,7 +900,7 @@ describe('batch scanner mock', () => {
       .resolves();
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 6 });
+      .resolves({ sheetCount: 6, errorQueued: false });
     fireEvent.change(copiesInput, { target: { value: '3' } });
 
     await screen.findByText(/6 sheet\(s\) queued/);
@@ -911,10 +911,49 @@ describe('batch scanner mock', () => {
       .resolves();
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
-      .resolves({ sheetCount: 2 });
+      .resolves({ sheetCount: 2, errorQueued: false });
     fireEvent.change(copiesInput, { target: { value: '' } });
 
     await screen.findByText(/2 sheet\(s\) queued/);
+  });
+
+  test('queue and cancel a simulated scanner error', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockBatchScanner: true });
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0, errorQueued: false });
+
+    renderDock(mockApiClient);
+    const errorButton = await screen.findByRole('button', {
+      name: 'Queue Error',
+    });
+    expect(errorButton).toBeEnabled();
+
+    mockApiClient.batchScannerSetErrorQueued
+      .expectCallWith({ errorQueued: true })
+      .resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0, errorQueued: true });
+    userEvent.click(errorButton);
+
+    const cancelButton = await screen.findByRole('button', {
+      name: 'Cancel Error',
+    });
+    expect(cancelButton).toBeEnabled();
+
+    mockApiClient.batchScannerSetErrorQueued
+      .expectCallWith({ errorQueued: false })
+      .resolves();
+    mockApiClient.batchScannerGetStatus
+      .expectRepeatedCallsWith()
+      .resolves({ sheetCount: 0, errorQueued: false });
+    userEvent.click(cancelButton);
+
+    await screen.findByRole('button', { name: 'Queue Error' });
   });
 });
 

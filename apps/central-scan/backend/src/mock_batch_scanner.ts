@@ -8,9 +8,10 @@ import {
 
 export interface MockBatchScannerApi {
   addSheets(sheets: readonly ScannedSheetInfo[]): void;
-  getStatus(): { sheetCount: number };
+  getStatus(): { sheetCount: number; errorQueued: boolean };
   clearSheets(): void;
   setCopies(copies: number): void;
+  setErrorQueued(errorQueued: boolean): void;
   /** Directory for writing temporary ballot images. */
   imageDir: string;
 }
@@ -29,12 +30,18 @@ export interface MockBatchScannerApi {
  * effect when the next scan session starts; `getStatus()` reports the scaled
  * sheet count.
  *
+ * `setErrorQueued(true)` queues a one-shot scanner error: the next attempt to
+ * scan a sheet fails, whether mid-batch or when opening the next scan session.
+ * This exercises the batch error flow; retrying succeeds since the error is
+ * consumed. `setErrorQueued(false)` cancels a queued error.
+ *
  * Images are stored in the provided directory rather than a random temp
  * directory, so previous runs' files are cleaned up on startup.
  */
 export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private queue: ScannedSheetInfo[] = [];
   private copies = 1;
+  private pendingError?: Error;
 
   constructor(private readonly imageDirPath: string) {
     // Wipe any leftover images from a previous run
@@ -58,8 +65,11 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     this.queue.push(...sheets);
   }
 
-  getStatus(): { sheetCount: number } {
-    return { sheetCount: this.queue.length * this.copies };
+  getStatus(): { sheetCount: number; errorQueued: boolean } {
+    return {
+      sheetCount: this.queue.length * this.copies,
+      errorQueued: this.pendingError !== undefined,
+    };
   }
 
   setCopies(copies: number): void {
@@ -68,8 +78,15 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   clearSheets(): void {
     this.queue = [];
+    this.pendingError = undefined;
     fs.rmSync(this.imageDirPath, { recursive: true, force: true });
     fs.mkdirSync(this.imageDirPath, { recursive: true });
+  }
+
+  setErrorQueued(errorQueued: boolean): void {
+    this.pendingError = errorQueued
+      ? new Error('simulated scanner error')
+      : undefined;
   }
 
   /* eslint-disable @typescript-eslint/require-await */
@@ -80,7 +97,12 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     let index = 0;
 
     return {
-      async scanSheet(): Promise<ScannedSheetInfo | undefined> {
+      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
+        if (this.pendingError) {
+          const error = this.pendingError;
+          this.pendingError = undefined;
+          throw error;
+        }
         if (index >= snapshot.length) {
           return undefined;
         }
