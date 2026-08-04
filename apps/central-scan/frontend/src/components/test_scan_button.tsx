@@ -1,7 +1,7 @@
 import { Button, Font, Loading, Modal, P } from '@votingworks/ui';
 import React from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { getStatus, performScanDiagnostic } from '../api';
+import { getStatus, performScanDiagnostic } from '../api.js';
 
 function TestScanModal({
   isScannerAttached,

@@ -10,9 +10,9 @@ import {
   ToggleUsbPortsButton,
 } from '@votingworks/ui';
 import { useContext } from 'react';
-import { NavigationScreen } from '../navigation_screen';
-import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure, useApiClient } from '../api';
+import { NavigationScreen } from '../navigation_screen.js';
+import { AppContext } from '../contexts/app_context.js';
+import { logOut, unconfigure, useApiClient } from '../api.js';
 
 export function SystemAdministratorSettingsScreen(): JSX.Element {
   const { electionDefinition, usbDriveStatus } = useContext(AppContext);

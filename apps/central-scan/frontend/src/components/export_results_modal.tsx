@@ -11,13 +11,13 @@ import {
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { AppContext } from '../contexts/app_context';
+import { AppContext } from '../contexts/app_context.js';
 import {
   ejectUsbDrive,
   exportCastVoteRecordsToUsbDrive,
   getUsbDriveStatus,
-} from '../api';
-import { InsertUsbDriveModal } from './insert_usb_drive_modal';
+} from '../api.js';
+import { InsertUsbDriveModal } from './insert_usb_drive_modal.js';
 
 export interface Props {
   onClose: () => void;

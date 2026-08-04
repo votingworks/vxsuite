@@ -2,14 +2,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library.js';
 import {
   ScanBallotsScreen,
   ScanBallotsScreenProps,
-} from './scan_ballots_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/api';
-import { mockBatch, mockStatus } from '../../test/fixtures';
+} from './scan_ballots_screen.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/api.js';
+import { mockBatch, mockStatus } from '../../test/fixtures.js';
 
 let apiMock: ApiMock;
 

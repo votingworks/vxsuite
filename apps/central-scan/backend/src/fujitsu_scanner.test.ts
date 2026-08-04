@@ -9,9 +9,9 @@ import {
   FUJITSU_VENDOR_ID,
   FujitsuScanner,
   ScannerMode,
-} from './fujitsu_scanner';
-import { makeMockChildProcess } from '../test/util/mocks';
-import { streamExecFile } from './exec';
+} from './fujitsu_scanner.js';
+import { makeMockChildProcess } from '../test/util/mocks.js';
+import { streamExecFile } from './exec.js';
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
