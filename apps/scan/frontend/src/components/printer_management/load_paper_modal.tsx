@@ -1,7 +1,7 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import React, { useState } from 'react';
 import { Button, Modal, P, useQueryChangeListener } from '@votingworks/ui';
-import { getPrinterStatus } from '../../api';
+import { getPrinterStatus } from '../../api.js';
 
 export interface LoadPaperModalProps {
   postLoadPaperInstructions: string;

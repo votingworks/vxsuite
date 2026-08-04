@@ -17,8 +17,8 @@ import {
 } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { encryptAes256 } from '@votingworks/auth';
-import { Workspace } from './util/workspace';
-import { Store } from './store';
+import { Workspace } from './util/workspace.js';
+import { Store } from './store.js';
 
 export async function encryptBallotAuditId(
   store: Store,

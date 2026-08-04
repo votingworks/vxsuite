@@ -5,10 +5,10 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Store } from '../store';
-import { getMachineConfig } from '../machine_config';
-import { getCurrentTime } from '../util/get_current_time';
-import { ADJUSTED_MARGIN_DIMENSIONS } from './constants';
+import { Store } from '../store.js';
+import { getMachineConfig } from '../machine_config.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { ADJUSTED_MARGIN_DIMENSIONS } from './constants.js';
 
 export async function printWriteInImageReport({
   store,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
-import { getPrinterStatus } from '../../api';
-import { LoadPaperModal } from './load_paper_modal';
+import { getPrinterStatus } from '../../api.js';
+import { LoadPaperModal } from './load_paper_modal.js';
 
 export interface PollWorkerLoadAndReprintButtonProps {
   reprint: () => void;

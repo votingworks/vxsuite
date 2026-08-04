@@ -20,7 +20,7 @@ import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { interpret } from './interpret';
+import { interpret } from './interpret.js';
 
 if (process.env.CI) {
   vi.setConfig({ testTimeout: 20_000 });

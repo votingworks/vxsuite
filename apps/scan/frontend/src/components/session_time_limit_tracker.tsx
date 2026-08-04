@@ -1,6 +1,6 @@
 import { SessionTimeLimitTracker as SessionTimeLimitTrackerBase } from '@votingworks/ui';
 
-import { getAuthStatus, getConfig, logOut, updateSessionExpiry } from '../api';
+import { getAuthStatus, getConfig, logOut, updateSessionExpiry } from '../api.js';
 
 export function SessionTimeLimitTracker(): JSX.Element {
   const authStatusQuery = getAuthStatus.useQuery();

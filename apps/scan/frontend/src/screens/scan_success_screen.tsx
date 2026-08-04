@@ -1,7 +1,7 @@
 import { FullScreenIconWrapper, Icons, P, appStrings } from '@votingworks/ui';
 
-import { Screen } from '../components/layout';
-import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import { Screen } from '../components/layout.js';
+import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 
 interface Props {
   scannedBallotCount: number;

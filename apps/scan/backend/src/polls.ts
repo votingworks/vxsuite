@@ -1,10 +1,10 @@
 import { Result, assert, err, ok } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Store } from './store';
-import { exportCastVoteRecordsToUsbDrive } from './export';
-import { Workspace } from './util/workspace';
-import { getCurrentTime } from './util/get_current_time';
+import { Store } from './store.js';
+import { exportCastVoteRecordsToUsbDrive } from './export.js';
+import { Workspace } from './util/workspace.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 export type OpenPollsResult = Result<void, 'ballots-already-scanned'>;
 

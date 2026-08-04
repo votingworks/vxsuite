@@ -2,8 +2,8 @@ import { expect, test, vi } from 'vitest';
 import { mockLogger } from '@votingworks/logging';
 import { AUDIO_DEVICE_DEFAULT_SINK, AudioPlayer } from '@votingworks/backend';
 import { deferred, sleep } from '@votingworks/basics';
-import { Player, SoundName } from './player';
-import { AudioCard } from './card';
+import { Player, SoundName } from './player.js';
+import { AudioCard } from './card.js';
 
 vi.mock('./card.js');
 
@@ -25,7 +25,7 @@ vi.mock('@votingworks/backend', async (importOriginal) => {
 
 const MockAudioPlayer = vi.mocked(AudioPlayer);
 
-test('Player uses correct sounds directory (__dirname)', () => {
+test('Player uses correct sounds directory (import.meta.dirname)', () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
 
@@ -36,7 +36,7 @@ test('Player uses correct sounds directory (__dirname)', () => {
     nodeEnv: 'development',
     logger,
     outputName: AUDIO_DEVICE_DEFAULT_SINK,
-    soundsDirectory: __dirname,
+    soundsDirectory: import.meta.dirname,
   });
 });
 

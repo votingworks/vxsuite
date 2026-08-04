@@ -1,5 +1,5 @@
 import { test } from 'vitest';
-import { electricalTest } from './electrical_test';
+import { electricalTest } from './electrical_test.js';
 
 export type ExtendedTest = typeof test & {
   electrical: typeof electricalTest;

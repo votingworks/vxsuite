@@ -3,18 +3,18 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import { sleep } from '@votingworks/basics';
-import { render, waitFor } from '../../test/react_testing_library';
-import { VoterScreen, VoterScreenProps } from './voter_screen';
+import { render, waitFor } from '../../test/react_testing_library.js';
+import { VoterScreen, VoterScreenProps } from './voter_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   useScanFeedbackAudio,
   UseScanFeedbackAudioInput,
-} from '../utils/use_scan_feedback_audio';
+} from '../utils/use_scan_feedback_audio.js';
 
 vi.mock('../utils/use_scan_feedback_audio.ts');
 vi.mock('./insert_ballot_screen');

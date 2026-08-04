@@ -4,10 +4,10 @@ import { PollsTransitionType } from '@votingworks/types';
 import { Optional, assert } from '@votingworks/basics';
 import { getPollsReportTitle } from '@votingworks/utils';
 import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
-import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
-import { getPrinterStatus, printReportSection } from '../api';
-import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
-import { CenteredText } from '../components/layout';
+import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared.js';
+import { getPrinterStatus, printReportSection } from '../api.js';
+import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button.js';
+import { CenteredText } from '../components/layout.js';
 
 /**
  * Drives printing of a report one report section at a time so the poll worker can tear

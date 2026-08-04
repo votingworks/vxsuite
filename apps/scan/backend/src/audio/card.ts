@@ -6,7 +6,7 @@ import {
   setAudioVolume,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
-import { NODE_ENV } from '../globals';
+import { NODE_ENV } from '../globals.js';
 
 /**
  * Headphone-based screen reader audio is calibrated against a 100% system

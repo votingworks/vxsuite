@@ -5,9 +5,9 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../../test/helpers/mock_api_client';
-import { render, screen, waitFor } from '../../../test/react_testing_library';
-import { PrintTestPageButton } from './print_test_page_button';
+} from '../../../test/helpers/mock_api_client.js';
+import { render, screen, waitFor } from '../../../test/react_testing_library.js';
+import { PrintTestPageButton } from './print_test_page_button.js';
 
 let apiMock: ApiMock;
 

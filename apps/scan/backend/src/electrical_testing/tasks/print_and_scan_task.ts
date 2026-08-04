@@ -24,9 +24,9 @@ import {
   analyzeScannedPage,
   ScannedPageAnalysis,
   writeScanPageAnalyses,
-} from '../analysis/scan';
-import type { ScanningMode, ServerContext } from '../context';
-import { resultToString } from '../utils';
+} from '../analysis/scan.js';
+import type { ScanningMode, ServerContext } from '../context.js';
+import { resultToString } from '../utils.js';
 
 export const LOOP_INTERVAL_MS = 100;
 export const PRINT_INTERVAL_SECONDS = 5 * 60;

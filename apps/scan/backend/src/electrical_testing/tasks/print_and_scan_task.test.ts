@@ -4,12 +4,12 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { test } from '../../../test/helpers/test';
+import { test } from '../../../test/helpers/test.js';
 import {
   DELAY_AFTER_ACCEPT_MS,
   DELAY_AFTER_SCANNER_ERROR_MS,
   runPrintAndScanTask,
-} from './print_and_scan_task';
+} from './print_and_scan_task.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

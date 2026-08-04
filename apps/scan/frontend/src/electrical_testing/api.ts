@@ -12,7 +12,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 import React from 'react';
-import * as appApi from '../api';
+import * as appApi from '../api.js';
 
 export type ApiClient = grout.Client<HWTA.Api>;
 

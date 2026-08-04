@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { useAudioControls, useAudioEnabled } from '@votingworks/ui';
 import { useMutation } from '@tanstack/react-query';
-import * as api from '../api';
+import * as api from '../api.js';
 
 export function useAlarm(enableAlarm: boolean): void {
   const { setIsEnabled: setTtsEnabled } = useAudioControls();

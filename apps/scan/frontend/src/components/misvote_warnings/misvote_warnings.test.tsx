@@ -1,10 +1,10 @@
 import { beforeEach, afterEach, test, expect, vi } from 'vitest';
-import { render, screen } from '../../../test/react_testing_library';
-import { WarningDetails } from './warning_details';
-import { generateContests } from './test_utils.test';
-import { WarningsSummary } from './warnings_summary';
-import { useLayoutConfig } from './use_layout_config_hook';
-import { MisvoteWarnings } from './misvote_warnings';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { WarningDetails } from './warning_details.js';
+import { generateContests } from './test_utils.test.js';
+import { WarningsSummary } from './warnings_summary.js';
+import { useLayoutConfig } from './use_layout_config_hook.js';
+import { MisvoteWarnings } from './misvote_warnings.js';
 
 vi.mock('./warning_details', async () => ({
   ...(await vi.importActual('./warning_details')),

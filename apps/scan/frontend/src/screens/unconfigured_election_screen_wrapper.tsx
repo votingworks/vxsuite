@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import {
   configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
-} from '../api';
+} from '../api.js';
 
 interface Props {
   isElectionManagerAuth: boolean;

@@ -8,9 +8,9 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { withApp } from '../test/helpers/scanner_helpers';
-import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
-import { delays } from './scanner';
+import { withApp } from '../test/helpers/scanner_helpers.js';
+import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
+import { delays } from './scanner.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
