@@ -35,3 +35,26 @@ test('generateConfig', () => {
   );
   expect(mainConfig).toContain('only: main');
 });
+
+test('generateAllConfigs moon prototype mode', () => {
+  const root = join(__dirname, '../../..');
+  const configs = generateAllConfigs(getWorkspacePackageInfo(root), {
+    moonPrototype: true,
+  });
+
+  // Only the single top-level config is emitted (no per-app filtered configs).
+  const keys = Array.from(configs.keys());
+  expect(keys).toHaveLength(1);
+  assert(keys[0] !== undefined);
+  expect(keys[0].endsWith('.circleci/config.yml')).toEqual(true);
+
+  const config = configs.get(keys[0]);
+  assert(config !== undefined);
+  // Runs the experimental moon job...
+  expect(config).toContain('moon-ci:');
+  expect(config).toContain('moon ci --summary');
+  expect(config).toContain('moonrepo.dev/install/moon.sh');
+  // ...and none of the per-package / rust jobs.
+  expect(config).not.toContain('test-libs-basics');
+  expect(config).not.toContain('test-rust-crates');
+});
