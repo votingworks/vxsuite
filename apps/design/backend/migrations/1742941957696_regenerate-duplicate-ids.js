@@ -3,7 +3,13 @@ const {
   hasSplits,
   straightPartyNotYetImplemented,
 } = require('@votingworks/types');
-const { generateId } = require('../build/utils.js');
+
+// Assigned in up() from the built (ESM) helper via dynamic import, before
+// regenerateElectionIds (a module-scope helper) calls it. This migration is
+// CommonJS (node-pg-migrate loads migrations with require), so it cannot
+// require the ESM build output or use top-level await.
+/** @type {() => string} */
+let generateId;
 
 /**
  * Regenerate the IDs of all entities in an election, ensuring that all
@@ -105,6 +111,7 @@ exports.shorthands =
  * @returns {Promise<void>}
  */
 exports.up = async (pgm) => {
+  ({ generateId } = await import('../build/utils.js'));
   const allElections = await pgm.db.select({
     text: 'SELECT id, election_data, precinct_data FROM elections',
   });

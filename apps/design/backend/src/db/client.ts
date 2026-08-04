@@ -92,6 +92,11 @@ export class Client {
       dbClient: this.conn,
       noLock: params.noLock,
       dir: 'migrations',
+      // The migrations dir carries a package.json ("type": "commonjs") so its
+      // .js migration files stay CommonJS under this package's "type": "module"
+      // (node-pg-migrate loads them with require). Skip that package.json — and
+      // any dotfiles — so it is not treated as a migration.
+      ignorePattern: '\\..*|.*\\.json',
       direction: 'up',
       log: params.enableLogging ? undefined : () => {},
       migrationsSchema: params.schemaName,
