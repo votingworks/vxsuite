@@ -354,12 +354,143 @@ function generateCircleCiFilteredAppConfigForPackage(
   ];
 }
 
+// The moon binary version installed in CI. Keep in sync with the version the
+// team develops against (and eventually bake into the CI Docker image).
+const MOON_VERSION = '2.4.6';
+
+// Experimental single job that runs the whole affected task graph via `moon ci`
+// (which is affected-by-default). It reuses `checkout-and-install` for pnpm +
+// rust-addon setup/caching, installs the pinned moon binary, and persists moon's
+// own output cache across runs with CircleCI save_cache. Single container for
+// now; sharding (`--job`/`--job-total`) + a remote cache come later.
+function generateMoonCiJob(): string[] {
+  return [
+    `moon-ci:`,
+    `  executor: nodejs`,
+    `  resource_class: xlarge`,
+    `  environment:`,
+    `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
+    `    MOON_CONCURRENCY: '4'`,
+    `  steps:`,
+    `    - checkout-and-install:`,
+    `        is_node_package: true`,
+    `    - run:`,
+    `        name: Install moon`,
+    `        command: |`,
+    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
+    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    `    - restore_cache:`,
+    `        keys:`,
+    `          - moon-{{ .Branch }}-{{ .Revision }}`,
+    `          - moon-{{ .Branch }}-`,
+    `          - moon-main-`,
+    `    - run:`,
+    `        name: moon ci`,
+    `        command: moon ci --summary`,
+    `    - save_cache:`,
+    `        key: moon-{{ .Branch }}-{{ .Revision }}`,
+    `        paths:`,
+    `          - .moon/cache/hashes`,
+    `          - .moon/cache/outputs`,
+  ];
+}
+
+// PROTOTYPE ONLY: a slim config that runs *just* the experimental `moon-ci` job,
+// so we don't spend compute on the ~60 per-package jobs while iterating on the
+// moon migration. Regenerate the full config by running the generator without
+// MOON_CI_PROTOTYPE. `checkout-and-install` is intentionally duplicated from the
+// main config here to leave the normal generation path untouched; the two get
+// unified when moon graduates from prototype.
+function generateMoonPrototypeConfig(): string {
+  return `
+# THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
+# Run \`MOON_CI_PROTOTYPE=1 pnpm -w generate-circleci-config\` to regenerate it.
+#
+# PROTOTYPE: runs ONLY the experimental \`moon-ci\` job. Regenerate without
+# MOON_CI_PROTOTYPE to restore the full per-package config.
+
+version: 2.1
+
+executors:
+  nodejs:
+    docker:
+      - image: votingworks/cimg-debian12:4.6.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+jobs:
+${generateMoonCiJob()
+  .map((line) => `  ${line}`)
+  .join('\n')}
+
+workflows:
+  moon-experiment:
+    jobs:
+      - moon-ci:
+          context:
+            - screenshots-publishing
+
+commands:
+  checkout-and-install:
+    description: Get the code and install dependencies.
+    parameters:
+      is_node_package:
+        type: boolean
+    steps:
+      - run:
+          name: Ensure Rust tooling is in PATH
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Fix node-gyp gyp entrypoint permissions
+          command: |
+            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"
+      - checkout
+      - when:
+          condition: << parameters.is_node_package >>
+          steps:
+            - restore_cache:
+                name: Restore Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+            - run:
+                name: Install Node.js Dependencies
+                command: pnpm install --frozen-lockfile
+            - save_cache:
+                name: Save Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                paths:
+                  - /root/.local/share/pnpm/store/v10
+                  - /root/.cache/ms-playwright
+      - restore_cache:
+          name: Restore Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+      - run:
+          name: Install Rust Dependencies
+          command: pnpm --recursive install:rust-addon
+      - save_cache:
+          name: Save Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+          paths:
+            - /root/.cargo
+`.trim();
+}
+
 /**
  * Generates all CircleCI config files.
  */
 export function generateAllConfigs(
-  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>
+  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
+  options: { moonPrototype?: boolean } = {}
 ): Map<string, string> {
+  if (options.moonPrototype) {
+    return new Map([[CIRCLECI_CONFIG_PATH, generateMoonPrototypeConfig()]]);
+  }
+
   const [jobsToRunOnChanges, jobsToAlwaysRun] = iter(
     pnpmPackages.values()
   ).partition((pkg) =>
