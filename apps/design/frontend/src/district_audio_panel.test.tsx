@@ -6,11 +6,11 @@ import { ElectionInfo, TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
-import { createMockApiClient, provideApi } from '../test/api_helpers';
-import { DistrictAudioPanel } from './district_audio_panel';
-import { electionParamRoutes, routes } from './routes';
-import { AudioEditorPanel } from './ballot_audio/audio_editor_panel';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { createMockApiClient, provideApi } from '../test/api_helpers.js';
+import { DistrictAudioPanel } from './district_audio_panel.js';
+import { electionParamRoutes, routes } from './routes.js';
+import { AudioEditorPanel } from './ballot_audio/audio_editor_panel.js';
+import { render, screen, waitFor } from '../test/react_testing_library.js';
 
 vi.mock('./ballot_audio/audio_editor_panel', async (importActual) => ({
   ...(await importActual()),

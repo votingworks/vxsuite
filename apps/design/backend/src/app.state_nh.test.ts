@@ -26,12 +26,12 @@ import {
   users,
   nonVxUser,
   nhJurisdiction,
-} from '../test/mocks';
+} from '../test/mocks.js';
 import {
   exportElectionPackage,
   getExportedFile,
   testSetupHelpers,
-} from '../test/helpers';
+} from '../test/helpers.js';
 
 const nhUser = nonVxUser;
 const signatureSvg = readFileSync('./test/mockSignature.svg').toString();

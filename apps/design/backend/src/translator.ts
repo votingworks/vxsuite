@@ -7,9 +7,9 @@ import {
   restoreImagesInTranslation,
 } from '@votingworks/backend';
 import { NonEnglishLanguageCode } from '@votingworks/types';
-import { Store } from './store';
-import { TranslationSourceCounts } from './translation_source_counts';
-import { isValidPrimaryKey } from './utils';
+import { Store } from './store.js';
+import { TranslationSourceCounts } from './translation_source_counts.js';
+import { isValidPrimaryKey } from './utils.js';
 
 /**
  * An implementation of {@link GoogleCloudTranslator} that uses the Google Cloud Translation API

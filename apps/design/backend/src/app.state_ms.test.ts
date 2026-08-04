@@ -22,7 +22,7 @@ import {
   getExportedFile,
   readFixture,
   testSetupHelpers,
-} from '../test/helpers';
+} from '../test/helpers.js';
 import {
   anotherNonVxUser,
   jurisdictions,
@@ -31,8 +31,8 @@ import {
   users,
   vxJurisdiction,
   vxUser,
-} from '../test/mocks';
-import { convertMsResults } from './convert_ms_results';
+} from '../test/mocks.js';
+import { convertMsResults } from './convert_ms_results.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

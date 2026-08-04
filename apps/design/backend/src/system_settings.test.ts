@@ -4,7 +4,7 @@ import { SystemSettings } from '@votingworks/types';
 import {
   SLI_DEFAULT_SYSTEM_SETTINGS,
   stateDefaultSystemSettings,
-} from './system_settings';
+} from './system_settings.js';
 
 // This test is meant to catch accidental changes to default system settings. If a change is
 // intentional, simply update the snapshot.

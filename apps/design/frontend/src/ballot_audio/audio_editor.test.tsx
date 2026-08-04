@@ -4,14 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey } from '@votingworks/types';
 
-import { TtsTextEditor, TtsTextEditorProps } from './tts_text_editor';
+import { TtsTextEditor, TtsTextEditorProps } from './tts_text_editor.js';
 import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../../test/api_helpers';
-import { render, screen } from '../../test/react_testing_library';
-import { AudioEditor, AudioEditorProps } from './audio_editor';
+} from '../../test/api_helpers.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { AudioEditor, AudioEditorProps } from './audio_editor.js';
 
 vi.mock('./tts_text_editor.js');
 

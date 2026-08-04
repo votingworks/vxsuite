@@ -5,13 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { deferred, sleep } from '@votingworks/basics';
 import { TtsEdit } from '@votingworks/types';
 
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { TtsTextEditor } from './tts_text_editor';
+import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import { TtsTextEditor } from './tts_text_editor.js';
 import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../../test/api_helpers';
+} from '../../test/api_helpers.js';
 
 const jurisdictionId = 'jurisdiction-1';
 const languageCode = 'en';

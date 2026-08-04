@@ -17,8 +17,8 @@ import {
 } from '@votingworks/basics';
 import type { ElectionUpload, Jurisdiction } from '@votingworks/design-backend';
 import styled from 'styled-components';
-import { listJurisdictions, loadElection } from './api';
-import { Column, InputGroup, Row } from './layout';
+import { listJurisdictions, loadElection } from './api.js';
+import { Column, InputGroup, Row } from './layout.js';
 
 interface VxUploadFormState {
   format: 'vxf';

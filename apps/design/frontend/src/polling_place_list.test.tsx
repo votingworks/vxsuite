@@ -3,8 +3,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { PollingPlace } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../test/react_testing_library';
-import { PollingPlaceList } from './polling_place_list';
+import { render, screen } from '../test/react_testing_library.js';
+import { PollingPlaceList } from './polling_place_list.js';
 
 const withNoPrecincts: PollingPlace = {
   id: 'withNoPrecincts',

@@ -12,15 +12,15 @@ import type { ElectionInfo } from '@votingworks/design-backend';
 import userEvent from '@testing-library/user-event';
 import { DateWithoutTime, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
-import { routes } from './routes';
-import { withRoute } from '../test/routing_helpers';
+import { routes } from './routes.js';
+import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,
   MockApiClient,
   provideApi,
-} from '../test/api_helpers';
-import { render, screen, within } from '../test/react_testing_library';
-import { BallotsStatus } from './ballots_status';
+} from '../test/api_helpers.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { BallotsStatus } from './ballots_status.js';
 
 const electionId = 'election-1';
 

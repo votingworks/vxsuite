@@ -12,7 +12,7 @@ import {
   render,
   screen,
   within,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 import {
   MockApiClient,
   createMockApiClient,
@@ -21,14 +21,14 @@ import {
   provideApi,
   user,
   mockStateFeatures,
-} from '../test/api_helpers';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { SystemSettingsScreen } from './system_settings_screen';
+} from '../test/api_helpers.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { SystemSettingsScreen } from './system_settings_screen.js';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
-} from '../test/fixtures';
+} from '../test/fixtures.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
