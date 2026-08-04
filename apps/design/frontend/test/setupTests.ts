@@ -22,7 +22,7 @@ vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
 }));
 
-global.TextEncoder = TextEncoder as typeof global.TextEncoder;
+global.TextEncoder = TextEncoder;
 
 URL.createObjectURL = vi.fn();
 
