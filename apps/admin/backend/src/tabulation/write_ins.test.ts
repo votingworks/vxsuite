@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
-import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   readElectionTwoPartyPrimary,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -162,7 +162,7 @@ test('tabulateWriteInTallies', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -479,7 +479,7 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
     }),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -551,7 +551,7 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
     }),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

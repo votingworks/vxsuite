@@ -11,6 +11,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   suppressingConsoleOutput,
+  zipFile,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
@@ -26,12 +27,15 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
   DEV_MACHINE_ID,
+  ElectionPackageFileName,
   EncodedBallotEntry,
+  LATEST_METADATA,
   BallotType,
 } from '@votingworks/types';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
   generateMockVotes,
@@ -212,6 +216,60 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     electionDefinition,
     electionPackageHash: expect.any(String),
   });
+});
+
+test('configureElectionPackageFromUsb cleans up when ballot streaming fails', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  mockElectionManagerAuth(electionDefinition);
+  mockUsbDrive.insertUsbDrive({
+    [generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.ballotHash
+    )]: {
+      [ELECTION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': await zipFile({
+          [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+          [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+          [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+            DEFAULT_SYSTEM_SETTINGS
+          ),
+          [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+          [ElectionPackageFileName.BALLOTS]: 'not a valid ballot line',
+        }),
+      },
+    },
+  });
+
+  await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow();
+  expect(await apiClient.getElectionRecord()).toBeNull();
+});
+
+test('configureElectionPackageFromUsb cleans up when audio clip streaming fails', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  mockElectionManagerAuth(electionDefinition);
+  mockUsbDrive.insertUsbDrive({
+    [generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.ballotHash
+    )]: {
+      [ELECTION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': await zipFile({
+          [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+          [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+          [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+            DEFAULT_SYSTEM_SETTINGS
+          ),
+          [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+          [ElectionPackageFileName.AUDIO_CLIPS]: 'not a valid audio clip line',
+        }),
+      },
+    },
+  });
+
+  await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow();
+  expect(await apiClient.getElectionRecord()).toBeNull();
 });
 
 test('configureElectionPackageFromUsb stores ballots when present in election package', async () => {

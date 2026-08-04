@@ -5,6 +5,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
+  ElectionRegisteredVoterCounts,
   EncodedBallotEntry,
   InsertedSmartCardAuth,
   LATEST_METADATA,
@@ -36,7 +37,16 @@ import {
   readElectionGeneralDefinition,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { assertDefined, err, ok, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  fail,
+  iter,
+  ok,
+  range,
+  typedAs,
+} from '@votingworks/basics';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
@@ -47,6 +57,7 @@ import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'node:path';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
+import { Readable } from 'node:stream';
 import { writeMockFileTree } from '@votingworks/usb-drive';
 import { sha256 } from 'js-sha256';
 import {
@@ -54,10 +65,13 @@ import {
   mockElectionPackageFileTree,
 } from './test_utils';
 import {
-  ElectionPackageWithFileContents,
+  ElectionPackageZip,
+  ParsedElectionPackageWithHash,
   readElectionPackageFromBuffer,
   readElectionPackageFromFile,
   readSignedElectionPackageFromDirectory,
+  streamElectionPackageAudioClips,
+  streamElectionPackageBallots,
 } from './election_package_io';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -127,18 +141,15 @@ test('readElectionPackageFromFile reads an election package without system setti
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
-      uiStringAudioClips: [],
-      ballots: [],
     },
     electionPackageHash: sha256(fileContents),
-    fileContents,
   });
 });
 
@@ -155,18 +166,15 @@ test('readElectionPackageFromFile reads an election package with system settings
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
-      uiStringAudioClips: [],
-      ballots: [],
     },
     electionPackageHash: sha256(fileContents),
-    fileContents,
   });
 });
 
@@ -209,18 +217,15 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedUiStrings,
-      uiStringAudioClips: [],
-      ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -236,7 +241,7 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
   ).unsafeUnwrap().ballotStrings;
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition:
         safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
@@ -244,11 +249,8 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: expectedCdfStrings,
-      uiStringAudioClips: [],
-      ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -285,61 +287,26 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
       uiStringAudioIds: expectedAudioIds,
-      uiStringAudioClips: [],
-      ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
-test('readElectionPackageFromFile loads UI string audio clips', async () => {
+test('readElectionPackageFromFile ignores ballots and audio clips entries', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { electionData } = electionDefinition;
 
   const audioClips: UiStringAudioClips = [
     { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: 'en' },
-    { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: 'es-US' },
   ];
-
-  const pkg = await electionPackageZip({
-    [ElectionPackageFileName.ELECTION]: electionData,
-    [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
-      .map((clip) => JSON.stringify(clip))
-      .join('\n'),
-  });
-  const file = makeTemporaryFile({ content: pkg });
-
-  expect(
-    (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
-    electionPackage: {
-      electionDefinition,
-      metadata: LATEST_METADATA,
-      uiStringAudioIds: {},
-      systemSettings: DEFAULT_SYSTEM_SETTINGS,
-      uiStrings: electionDefinition.election.ballotStrings,
-      uiStringAudioClips: audioClips,
-      ballots: [],
-    },
-    electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
-  });
-});
-
-test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
-  const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { electionData } = electionDefinition;
-
   const ballots: EncodedBallotEntry[] = [
     {
       ballotStyleId: '1_en',
@@ -348,38 +315,93 @@ test('readElectionPackageFromFile loads base64-encoded ballots', async () => {
       ballotMode: 'official',
       encodedBallot: 'ABC==',
     },
-    {
-      ballotStyleId: '1_es_us',
-      precinctId: 'precinct_1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'official',
-      encodedBallot: 'DEF==',
-    },
   ];
 
   const pkg = await electionPackageZip({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
+      .map((clip) => JSON.stringify(clip))
+      .join('\n'),
     [ElectionPackageFileName.BALLOTS]: ballots
       .map((ballot) => JSON.stringify(ballot))
       .join('\n'),
+    // Directory entries (created for the nested path) should be ignored
+    'nested/extra.txt': 'not an election package file',
   });
   const file = makeTemporaryFile({ content: pkg });
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
-      uiStringAudioClips: [],
-      ballots,
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
+});
+
+test('readElectionPackageFromBuffer parses registered voter counts', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+
+  const audioClips: UiStringAudioClips = [
+    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: 'en' },
+  ];
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct_1',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      encodedBallot: 'ABC==',
+    },
+  ];
+  const registeredVoterCounts: ElectionRegisteredVoterCounts = {
+    precinct_1: 100,
+  };
+
+  const pkg = await electionPackageZip({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
+      .map((clip) => JSON.stringify(clip))
+      .join('\n'),
+    [ElectionPackageFileName.BALLOTS]: ballots
+      .map((ballot) => JSON.stringify(ballot))
+      .join('\n'),
+    [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
+      registeredVoterCounts
+    ),
+  });
+
+  expect(
+    (await readElectionPackageFromBuffer(pkg)).unsafeUnwrap()
+  ).toEqual<ParsedElectionPackageWithHash>({
+    electionPackage: {
+      electionDefinition,
+      metadata: LATEST_METADATA,
+      uiStringAudioIds: {},
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStrings: electionDefinition.election.ballotStrings,
+      registeredVoterCounts,
+    },
+    electionPackageHash: sha256(pkg),
+  });
+});
+
+test('readElectionPackageFromBuffer errors when given an invalid zip', async () => {
+  expect(
+    await readElectionPackageFromBuffer(Buffer.from('not a zip file'))
+  ).toEqual(
+    err({
+      type: 'invalid-zip',
+      message: expect.stringContaining('central directory'),
+    })
+  );
 });
 
 test('readElectionPackageFromFile reads metadata', async () => {
@@ -396,18 +418,15 @@ test('readElectionPackageFromFile reads metadata', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackageWithFileContents>({
+  ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
       electionDefinition,
       metadata,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStringAudioIds: {},
-      uiStringAudioClips: [],
       uiStrings: electionDefinition.election.ballotStrings,
-      ballots: [],
     },
     electionPackageHash: expect.any(String),
-    fileContents: expect.any(Buffer),
   });
 });
 
@@ -428,8 +447,7 @@ test('readElectionPackageFromFile errors throws when given an invalid zip file',
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-zip',
-      message:
-        "Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html",
+      message: expect.stringContaining('Error'),
     })
   );
 });
@@ -508,6 +526,121 @@ test.each([
     );
   }
 );
+
+function makeTestBallot(index: number): EncodedBallotEntry {
+  return {
+    ballotStyleId: '1_en',
+    precinctId: 'precinct_1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    encodedBallot: `ballot-${index}`,
+  };
+}
+
+/**
+ * A fake {@link ElectionPackageZip} holding a single JSONL entry, so the
+ * streaming helpers can be exercised without building a zip.
+ */
+function jsonlEntryZip(entryName: string, jsonl: string): ElectionPackageZip {
+  return {
+    hasEntry: (name) => name === entryName,
+    openEntryStream: (name) => {
+      assert(name === entryName);
+      return Promise.resolve(Readable.from([jsonl], { objectMode: false }));
+    },
+    readEntryText: () => fail('unexpected call to readEntryText'),
+  };
+}
+
+function ballotsZip(ballots: EncodedBallotEntry[]): ElectionPackageZip {
+  return jsonlEntryZip(
+    ElectionPackageFileName.BALLOTS,
+    ballots.map((ballot) => `${JSON.stringify(ballot)}\n`).join('')
+  );
+}
+
+test('streamElectionPackageBallots streams small ballots in a single batch', async () => {
+  const ballots = range(0, 501).map(makeTestBallot);
+
+  const batches = await iter(
+    streamElectionPackageBallots(ballotsZip(ballots))
+  ).toArray();
+
+  expect(batches.map((batch) => batch.length)).toEqual([501]);
+  expect(batches.flat()).toEqual(ballots);
+});
+
+test('streamElectionPackageBallots flushes a batch per ballot when each exceeds the batch size', async () => {
+  // ~9MB encoded ballots: each line alone exceeds the 8MB batch cap
+  const ballots = range(0, 2).map((index) => ({
+    ...makeTestBallot(index),
+    encodedBallot: 'x'.repeat(9 * 1024 * 1024),
+  }));
+
+  const batchLengths = await iter(
+    streamElectionPackageBallots(ballotsZip(ballots))
+  )
+    .map((batch) => batch.length)
+    .toArray();
+
+  expect(batchLengths).toEqual([1, 1]);
+});
+
+test('streamElectionPackageBallots caps batches by size for large ballots', async () => {
+  // ~5MB encoded ballots: an 8MB batch cap flushes after every two
+  const ballots = range(0, 3).map((index) => ({
+    ...makeTestBallot(index),
+    encodedBallot: 'x'.repeat(5 * 1024 * 1024),
+  }));
+
+  const batchLengths = await iter(
+    streamElectionPackageBallots(ballotsZip(ballots))
+  )
+    .map((batch) => batch.length)
+    .toArray();
+
+  expect(batchLengths).toEqual([2, 1]);
+});
+
+test('streamElectionPackageAudioClips streams clips and skips blank lines', async () => {
+  const audioClips: UiStringAudioClips = [
+    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: 'en' },
+    { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: 'es-US' },
+  ];
+
+  const clips = await iter(
+    streamElectionPackageAudioClips(
+      jsonlEntryZip(
+        ElectionPackageFileName.AUDIO_CLIPS,
+        `${audioClips.map((clip) => JSON.stringify(clip)).join('\n\n')}\n`
+      )
+    )
+  ).toArray();
+
+  expect(clips.flat()).toEqual(audioClips);
+});
+
+test('streamElectionPackageBallots yields nothing for a package without ballots', async () => {
+  expect(
+    await iter(
+      streamElectionPackageBallots({
+        hasEntry: () => false,
+        openEntryStream: () => fail('unexpected call to openEntryStream'),
+        readEntryText: () => fail('unexpected call to readEntryText'),
+      })
+    ).toArray()
+  ).toHaveLength(0);
+});
+
+test('streamElectionPackageBallots throws on an invalid ballot line', async () => {
+  await expect(
+    iter(
+      streamElectionPackageBallots(
+        jsonlEntryZip(ElectionPackageFileName.BALLOTS, 'not a valid ballot\n')
+      )
+    ).toArray()
+  ).rejects.toThrow();
+});
 
 test('readSignedElectionPackageFromDirectory can read an election package from a directory', async () => {
   const electionDefinition =

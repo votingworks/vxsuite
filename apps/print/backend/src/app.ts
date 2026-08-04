@@ -25,6 +25,8 @@ import {
   ExportDataResult,
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
+  streamElectionPackageBallots,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   electionHasBallotPositions,
@@ -187,10 +189,31 @@ export function buildApi(ctx: AppContext) {
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionPackage, electionPackageHash } =
+      const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
-      const { electionDefinition, systemSettings, ballots } = electionPackage;
-      if (!ballots || ballots.length === 0) {
+      const { electionDefinition, systemSettings } = electionPackage;
+      assert(systemSettings);
+
+      // Stream the serialized ballots (potentially GBs) into the store in
+      // batches rather than holding them all in memory. The ballots table is
+      // independent of the election record, so a failed or empty import is
+      // cleaned up here without ever leaving the machine configured.
+      store.deleteBallots();
+      let ballotCount = 0;
+      try {
+        await withElectionPackageZip(filePath, async (electionPackageZip) => {
+          for await (const ballots of streamElectionPackageBallots(
+            electionPackageZip
+          )) {
+            store.addBallots(ballots);
+            ballotCount += ballots.length;
+          }
+        });
+      } catch (error) {
+        store.deleteBallots();
+        throw error;
+      }
+      if (ballotCount === 0) {
         const noBallotsError: ElectionPackageConfigurationError = {
           type: 'no_ballots',
         };
@@ -201,7 +224,6 @@ export function buildApi(ctx: AppContext) {
         });
         return err(noBallotsError);
       }
-      assert(systemSettings);
 
       store.withTransaction(() => {
         store.setElectionAndJurisdiction({
@@ -210,7 +232,6 @@ export function buildApi(ctx: AppContext) {
           electionPackageHash,
         });
         store.setSystemSettings(systemSettings);
-        store.setBallots(ballots);
 
         if (electionDefinition.election.pollingPlaces?.length === 1) {
           workspace.store.setPollingPlaceId(

@@ -7,6 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
+import { readdirSync } from 'node:fs';
 import {
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
@@ -346,7 +347,7 @@ test('managing the current election', async () => {
 });
 
 test('configuring with an election.json file', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
 
   mockSystemAdministratorAuth(auth);
 
@@ -355,6 +356,13 @@ test('configuring with an election.json file', async () => {
     electionFilePath: saveTmpFile(electionDefinition.electionData, '.json'),
   });
   expect(configureResult).toEqual(ok(expect.anything()));
+
+  // The temporary package built from the election.json is cleaned up
+  expect(
+    readdirSync(workspace.path).filter((entry) =>
+      entry.startsWith('imported-election-package')
+    )
+  ).toEqual([]);
 
   const badConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile('bad json file', '.json'),

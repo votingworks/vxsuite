@@ -32,6 +32,8 @@ import {
   configureUiStrings,
   createSystemCallApi,
   ExportDataResult,
+  configureUiStringAudioClipsStreaming,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -178,7 +180,7 @@ export function buildApi(
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionPackage, electionPackageHash } =
+      const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
@@ -203,6 +205,19 @@ export function buildApi(
           store: workspace.store.getUiStringsStore(),
         });
       });
+
+      try {
+        await withElectionPackageZip(filePath, (electionPackageZip) =>
+          configureUiStringAudioClipsStreaming({
+            electionPackageZip,
+            store: workspace.store.getUiStringsStore(),
+            withTransaction: (fn) => workspace.store.withTransaction(fn),
+          })
+        );
+      } catch (error) {
+        workspace.store.reset();
+        throw error;
+      }
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,

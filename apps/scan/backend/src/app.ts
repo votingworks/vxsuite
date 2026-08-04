@@ -17,9 +17,11 @@ import {
   readSignedElectionPackageFromDirectory,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
+  configureUiStringAudioClipsStreaming,
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -178,7 +180,7 @@ export function buildApi({
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionPackage, electionPackageHash } =
+      const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
@@ -204,10 +206,22 @@ export function buildApi({
         configureUiStrings({
           electionPackage,
           logger,
-          noAudio: true,
           store: workspace.store.getUiStringsStore(),
         });
       });
+
+      try {
+        await withElectionPackageZip(filePath, (electionPackageZip) =>
+          configureUiStringAudioClipsStreaming({
+            electionPackageZip,
+            store: workspace.store.getUiStringsStore(),
+            withTransaction: (fn) => store.withTransaction(fn),
+          })
+        );
+      } catch (error) {
+        workspace.reset();
+        throw error;
+      }
 
       await audioPlayer.setIsScreenReaderEnabled(
         !systemSettings.precinctScanDisableScreenReaderAudio

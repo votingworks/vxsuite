@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import { AddressInfo } from 'node:net';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { Server } from 'node:http';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { testDetectDevices } from '@votingworks/backend';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -205,7 +205,7 @@ test('logs when there is stored election results data present at startup', async
   const electionId = await workspace.store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   workspace.store.setCurrentElectionId(electionId);

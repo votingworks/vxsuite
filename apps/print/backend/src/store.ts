@@ -242,11 +242,16 @@ export class Store {
   }
 
   /**
-   * Stores encoded ballots for printing.
+   * Deletes all stored ballots.
    */
-  setBallots(ballots: EncodedBallotEntry[]): void {
+  deleteBallots(): void {
     this.client.run('delete from ballots');
+  }
 
+  /**
+   * Appends encoded ballots for printing.
+   */
+  addBallots(ballots: EncodedBallotEntry[]): void {
     const insert = this.client.prepare(
       `
       insert into ballots (
@@ -259,16 +264,18 @@ export class Store {
       `
     );
 
-    for (const ballot of ballots) {
-      this.client.run(
-        insert,
-        ballot.ballotStyleId,
-        ballot.precinctId,
-        ballot.ballotType,
-        ballot.ballotMode,
-        ballot.encodedBallot
-      );
-    }
+    this.withTransaction(() => {
+      for (const ballot of ballots) {
+        this.client.run(
+          insert,
+          ballot.ballotStyleId,
+          ballot.precinctId,
+          ballot.ballotType,
+          ballot.ballotMode,
+          ballot.encodedBallot
+        );
+      }
+    });
   }
 
   getBallotPrintCounts({

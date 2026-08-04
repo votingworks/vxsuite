@@ -66,7 +66,7 @@ test('hasTestBallots', () => {
 
   expect(store.hasTestBallots()).toEqual(false);
 
-  store.setBallots([
+  store.addBallots([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -77,7 +77,7 @@ test('hasTestBallots', () => {
   ]);
   expect(store.hasTestBallots()).toEqual(false);
 
-  store.setBallots([
+  store.addBallots([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',

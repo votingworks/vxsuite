@@ -10,6 +10,7 @@ import {
   deferred,
   err,
   find,
+  iter,
   ok,
   range,
   throwIllegalValue,
@@ -23,6 +24,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   BallotMode,
@@ -64,6 +66,8 @@ import {
   LATEST_SOFTWARE_VERSION,
   convertLatestElectionToV4p0,
   straightPartyNotYetImplemented,
+  EncodedBallotEntry,
+  UiStringAudioClip,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -81,6 +85,9 @@ import {
   mockCloudTranslatedText,
   readCastVoteRecordExport,
   readElectionPackageFromBuffer,
+  streamElectionPackageAudioClips,
+  streamElectionPackageBallots,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   backendWaitFor,
@@ -313,6 +320,30 @@ afterEach(() => {
   vi.mocked(createSummaryBallotTestDeck).mockRestore();
   vi.mocked(createTestDeckTallyReports).mockRestore();
 });
+
+function readBallotsFromElectionPackage(
+  electionPackageContents: Buffer
+): Promise<EncodedBallotEntry[]> {
+  return withElectionPackageZip(
+    makeTemporaryFile({ content: electionPackageContents }),
+    (electionPackageZip) =>
+      iter(streamElectionPackageBallots(electionPackageZip))
+        .flatMap((batch) => batch)
+        .toArray()
+  );
+}
+
+function readAudioClipsFromElectionPackage(
+  electionPackageContents: Buffer
+): Promise<UiStringAudioClip[]> {
+  return withElectionPackageZip(
+    makeTemporaryFile({ content: electionPackageContents }),
+    (electionPackageZip) =>
+      iter(streamElectionPackageAudioClips(electionPackageZip))
+        .flatMap((batch) => batch)
+        .toArray()
+  );
+}
 
 test('all methods require authentication', async () => {
   const { apiClient, baseUrl, ...context } = await setupApp({
@@ -3704,16 +3735,17 @@ test('Election package and ballots export', async () => {
     metadata,
     registeredVoterCounts,
     systemSettings,
-    uiStringAudioClips,
     uiStringAudioIds,
     uiStrings,
-    ballots,
   } = electionPackage;
+  const uiStringAudioClips = await readAudioClipsFromElectionPackage(
+    electionPackageContents
+  );
+  const ballots = await readBallotsFromElectionPackage(electionPackageContents);
   assert(metadata !== undefined);
   assert(systemSettings !== undefined);
 
   expect(registeredVoterCounts).toEqual(expectedRegisteredVoterCounts);
-  assert(uiStringAudioClips !== undefined);
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
 
@@ -3978,7 +4010,6 @@ test('Election package and ballots export', async () => {
     );
 
   // Check that we have the expected number of entries
-  assert(ballots, '`ballots` was undefined after parsing election package');
   expect(ballots).toHaveLength(expectedEntries.length);
 
   // Check each expected entry exists with base64 encoded data
@@ -4164,7 +4195,8 @@ test('export omits optional ballots if not enabled', async () => {
     await readElectionPackageFromBuffer(electionZip)
   ).unsafeUnwrap();
 
-  const { electionDefinition, ballots } = electionPackage;
+  const { electionDefinition } = electionPackage;
+  const ballots = await readBallotsFromElectionPackage(electionZip);
 
   expect(exportMeta.sampleBallotsUrl).toBeUndefined();
   expect(exportMeta.testBallotsUrl).toBeUndefined();
@@ -4178,7 +4210,6 @@ test('export omits optional ballots if not enabled', async () => {
     expectedNumBallots += bs.precincts.length * ballotTypes.length;
   }
 
-  assert(ballots, '`ballots` was undefined after parsing election package');
   expect(ballots).toHaveLength(expectedNumBallots);
   for (const ballot of ballots) {
     expect(ballot.ballotMode).toEqual<BallotMode>('official');

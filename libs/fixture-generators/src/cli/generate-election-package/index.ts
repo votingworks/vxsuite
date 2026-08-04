@@ -1,11 +1,13 @@
 import {
-  ElectionPackage,
   formatBallotHash,
   formatElectionPackageHash,
   safeParseElection,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
-import { readElectionPackageFromFile } from '@votingworks/backend';
+import {
+  ParsedElectionPackage,
+  readElectionPackageFromFile,
+} from '@votingworks/backend';
 import yargs from 'yargs/yargs';
 import { stdout } from 'node:process';
 import { generateElectionPackage } from '../../generate-election-package';
@@ -87,7 +89,7 @@ export async function main(
   }
 
   const { isMultiLanguage } = args;
-  let electionPackage: ElectionPackage | undefined;
+  let electionPackage: ParsedElectionPackage | undefined;
   let electionPackageHash: string | undefined;
   // If we want to force retranslation we do not pass through the previously generated election package
   if (args.priorElectionPackage) {

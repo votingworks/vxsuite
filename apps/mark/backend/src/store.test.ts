@@ -123,7 +123,7 @@ test('get/set/delete ballots', () => {
   ];
 
   // Store ballots
-  store.setBallots(ballots);
+  store.addBallots(ballots);
 
   // Retrieve and verify ballots
   const retrievedBallot1 = store.getBallot({
@@ -194,7 +194,7 @@ test('hasTestBallots', () => {
   expect(store.hasTestBallots()).toEqual(false);
 
   // Only official ballots.
-  store.setBallots([
+  store.addBallots([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
@@ -206,7 +206,7 @@ test('hasTestBallots', () => {
   expect(store.hasTestBallots()).toEqual(false);
 
   // Test ballots present.
-  store.setBallots([
+  store.addBallots([
     {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',

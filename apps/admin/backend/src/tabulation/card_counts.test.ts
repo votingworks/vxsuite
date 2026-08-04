@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { Buffer } from 'node:buffer';
 import {
   electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   Admin,
@@ -40,7 +40,7 @@ test('tabulateScannedCardCounts - grouping', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -199,7 +199,7 @@ test('tabulateScannedCardCounts - groupByBatchDate', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -310,7 +310,7 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', async () =
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -395,7 +395,7 @@ test('tabulateScannedCardCounts - merging card tallies', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -472,7 +472,7 @@ test('tabulateFullCardCounts - manual results', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -626,7 +626,7 @@ test('tabulateFullCardCounts - blankBallots', async () => {
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -746,7 +746,7 @@ test('tabulateFullCardCounts - hasCrossoverVote filter (combined ballot primary)
   const electionId = await store.addElection({
     electionData,
     systemSettingsData,
-    electionPackageFileContents: Buffer.of(),
+    electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { Buffer } from 'node:buffer';
 import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
@@ -58,7 +58,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const electionId = await store.addElection({
       electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);
@@ -87,7 +87,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const electionId = await store.addElection({
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageFileContents: Buffer.of(),
+      electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);
