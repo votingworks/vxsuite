@@ -1,14 +1,17 @@
 # logging-utils is fundamentally a Rust (napi) package; its only TypeScript is
-# esbuild-run tests. Its real toolchain tasks are cargo-based, so the inherited
-# TS-oriented tasks are remapped:
-#   build      -> napi build (emits the .node addon at the package root)
-#   type-check -> no-op: there is no tsc type-check upstream (no @types/node; the
-#                 TS test files are only ever run through esbuild/vitest)
-#   lint       -> cargo clippy (the package's actual lint script)
-#   test       -> inherited `vitest run`, but add its own `build` as a dep so the
-#                 .node addon exists when the tests load it
-# `--offline` is used for cargo so the orchestrated build never reaches the network
-# (deps are already vendored/cached).
+# esbuild-run tests. Its real toolchain tasks are cargo-based, so:
+#   - exclude the inherited `type-check` entirely (no tsc type-check upstream:
+#     no @types/node, tests only ever run through esbuild/vitest)
+#   - build -> napi build (emits the .node addon at the package root)
+#   - lint  -> cargo clippy (the package's actual lint script); drop the inherited
+#     `deps: ['type-check']` since that task no longer exists
+#   - test  -> inherited `vitest run`, plus its own `build` so the .node addon
+#     exists when the tests load it
+# `--offline` keeps cargo off the network (deps are vendored/cached).
+workspace:
+  inheritedTasks:
+    exclude: ['type-check']
+
 tasks:
   build:
     command: 'pnpm build:self'
@@ -26,15 +29,11 @@ tasks:
     outputs:
       - '*.node'
 
-  type-check:
-    command: 'true'
-    options:
-      mergeArgs: replace
-
   lint:
     command: 'cargo clippy --offline'
     options:
       mergeArgs: replace
+      mergeDeps: replace
 
   test:
     deps:
