@@ -7,12 +7,13 @@ import { PDFDocument, PDFFont, rgb } from 'pdf-lib';
 import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import { assertDefined } from '@votingworks/basics';
 import {
+  ballotPaperDimensions,
   gridPositionsFromBallotPositions,
   safeParseElection,
 } from '@votingworks/types';
 
 import { fixturesDir } from './ballot_fixtures';
-import { gridCellSize } from './marking';
+import { gridSpacing } from './marking';
 import {
   drawWriteInText,
   fitWriteInText,
@@ -276,7 +277,9 @@ test('every write-in area on the ballots we generate fits the longest name a vot
     seenElections.add(electionJson);
 
     const election = safeParseElection(JSON.parse(electionJson)).unsafeUnwrap();
-    const gridCell = gridCellSize(election.ballotLayout.paperSize);
+    const spacing = gridSpacing(
+      ballotPaperDimensions(election.ballotLayout.paperSize)
+    );
 
     for (const ballotStyle of election.ballotStyles) {
       if (!ballotStyle.ballotPositions) continue;
@@ -288,8 +291,8 @@ test('every write-in area on the ballots we generate fits the longest name a vot
 
         const text = fitWriteInText(
           MAX_LENGTH_NAME,
-          position.writeInArea.width * gridCell.width,
-          position.writeInArea.height * gridCell.height,
+          position.writeInArea.width * spacing.columnGap,
+          position.writeInArea.height * spacing.rowGap,
           font
         );
         const where = `${fixture} ${ballotStyle.id} ${position.contestId}`;

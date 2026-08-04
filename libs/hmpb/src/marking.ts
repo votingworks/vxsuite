@@ -13,7 +13,6 @@ import fs from 'node:fs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
-  HmpbBallotPaperSize,
   Candidate,
   Contest,
   Election,
@@ -31,7 +30,7 @@ import {
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
 } from './ballot_components';
-import { PrintCalibration } from './types';
+import { InchDimensions, PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
 import { drawWriteInText } from './write_in_text';
 
@@ -61,21 +60,25 @@ const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
 
 /**
- * Size of one cell of the timing mark grid, in `pt`. Grid coordinates in ballot
+ * Spacing between adjacent timing marks, in `pt`. Grid coordinates in ballot
  * positions - including write-in area dimensions - are in these units.
+ *
+ * This is the same quantity as the `columnGap`/`rowGap` of the
+ * {@link GridMeasurements} that {@link measureTimingMarkGrid} returns, but
+ * computed from the paper size rather than measured from a rendered ballot: we
+ * only have a PDF here, not a rendered document to inspect.
  */
-export function gridCellSize(paperSize: HmpbBallotPaperSize): {
-  width: number;
-  height: number;
+export function gridSpacing(pageDimensions: InchDimensions): {
+  columnGap: number;
+  rowGap: number;
 } {
-  const pageSizeIn = ballotPaperDimensions(paperSize);
-  const timingMarkCount = timingMarkCounts(pageSizeIn);
+  const timingMarkCount = timingMarkCounts(pageDimensions);
   return {
-    width:
-      (pageSizeIn.width * IN - 2 * pageMargins[0] - timingMarkSize[0]) /
+    columnGap:
+      (pageDimensions.width * IN - 2 * pageMargins[0] - timingMarkSize[0]) /
       (timingMarkCount.x - 1),
-    height:
-      (pageSizeIn.height * IN - 2 * pageMargins[1] - timingMarkSize[1]) /
+    rowGap:
+      (pageDimensions.height * IN - 2 * pageMargins[1] - timingMarkSize[1]) /
       (timingMarkCount.y - 1),
   };
 }
@@ -127,6 +130,7 @@ export async function generateMarkOverlay(
     pageSize[0] - 2 * pageMargins[0] - timingMarkSize[0],
     pageSize[1] - 2 * pageMargins[1] - timingMarkSize[1],
   ];
+  const spacing = gridSpacing(pageSizeIn);
 
   // Load base ballot PDF or create a new document
   const doc = baseBallotPdf
@@ -187,10 +191,9 @@ export async function generateMarkOverlay(
       gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount.x - 1)),
       gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount.y - 1)),
     ];
-    const gridCell = gridCellSize(election.ballotLayout.paperSize);
     const areaSize = [
-      area.width * gridCell.width,
-      area.height * gridCell.height,
+      area.width * spacing.columnGap,
+      area.height * spacing.rowGap,
     ];
 
     drawWriteInText(page, fontRobotoBold, name, {
