@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { expect, test } from 'vitest';
 
-import { safeParseElection } from '@votingworks/types';
+import { safeParseElection, Vote, VotesDict } from '@votingworks/types';
 import { assertDefined, find, iter } from '@votingworks/basics';
 import {
   overlayImages,
@@ -13,6 +13,7 @@ import { generateMarkOverlay } from './marking';
 import {
   miGeneralElectionFixtures,
   nhGeneralElectionFixtures,
+  nhStateGeneralElectionFixtures,
   vxGeneralElectionFixtures,
 } from './ballot_fixtures';
 
@@ -119,6 +120,51 @@ test('marks a ballot with a vote for the third yesno option', async () => {
   const markedPages = pdfToImages(markedBallotPdf, { scale });
 
   for await (const page of markedPages) {
+    expect(toImageBuffer(page.page)).toMatchImageSnapshot();
+  }
+});
+
+test.each([
+  {
+    label: 'a wide write-in area',
+    fixtures: () => vxGeneralElectionFixtures.fixtureSpecs[0],
+  },
+  {
+    label: 'a narrow write-in area',
+    fixtures: () => nhStateGeneralElectionFixtures,
+  },
+])('keeps an overflowing write-in name inside $label', async ({ fixtures }) => {
+  const { electionPath, ballotStyleId, votes, blankBallotPath } = fixtures();
+
+  const election = safeParseElection(
+    JSON.parse(fs.readFileSync(electionPath, 'utf8'))
+  ).unsafeUnwrap();
+
+  // A name long enough to overflow its write-in area and run into the
+  // neighboring contest, which could be read as a mark there. 39 characters,
+  // just under the 40-character limit VxMark enforces on write-in names.
+  const longName = 'BARTHOLOMEW MONTGOMERY-WINTERBOTTOM III';
+  const longWriteInVotes: VotesDict = Object.fromEntries(
+    Object.entries(votes).map(([contestId, contestVotes]) => [
+      contestId,
+      (contestVotes ?? []).map((vote) =>
+        typeof vote === 'string' || !vote.isWriteIn
+          ? vote
+          : { ...vote, name: longName }
+      ) as Vote,
+    ])
+  );
+
+  const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
+  const markedBallotPdf = await generateMarkOverlay(
+    election,
+    ballotStyleId,
+    longWriteInVotes,
+    { offsetMmX: 0, offsetMmY: 0 },
+    baseBallotPdf
+  );
+
+  for await (const page of pdfToImages(markedBallotPdf, { scale: 1 })) {
     expect(toImageBuffer(page.page)).toMatchImageSnapshot();
   }
 });

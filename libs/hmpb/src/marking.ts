@@ -32,6 +32,7 @@ import {
 } from './ballot_components';
 import { PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
+import { fitWriteInText, writeInLineBaselineOffset } from './write_in_text';
 
 const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
 
@@ -57,9 +58,6 @@ const bubbleSize = [BUBBLE_WIDTH_PX * PX, BUBBLE_HEIGHT_PX * PX] as const;
 const markSize = [bubbleSize[0] * 1.2, bubbleSize[1] * 1.2] as const;
 const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
-
-const writeInFontSizeDefault = 12;
-const writeInFontSizeReduced = 10;
 
 /**
  * Generates a PDF with bubble marks in the expected positions for the given
@@ -173,19 +171,19 @@ export async function generateMarkOverlay(
       area.height * (gridSize[1] / (timingMarkCount.y - 1)),
     ];
 
-    let fontSize = writeInFontSizeDefault;
-    if (fontRobotoBold.widthOfTextAtSize(name, fontSize) > areaSize[0]) {
-      fontSize = writeInFontSizeReduced;
+    const text = fitWriteInText(name, areaSize[0], areaSize[1], fontRobotoBold);
+
+    for (const [lineIndex, line] of text.lines.entries()) {
+      page.drawText(line, {
+        font: fontRobotoBold,
+        size: text.fontSize,
+        x: origin[0],
+        y:
+          pageSize[1] -
+          origin[1] -
+          writeInLineBaselineOffset(text, lineIndex, areaSize[1]),
+      });
     }
-
-    origin[1] += 0.5 * (areaSize[1] - fontSize);
-
-    page.drawText(name, {
-      font: fontRobotoBold,
-      size: fontSize,
-      x: origin[0],
-      y: pageSize[1] - origin[1] - fontSize,
-    });
   }
 
   // Make sure we have an even number of pages, to match print order of the base
