@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { CastBallotPage } from './cast_ballot_page';
+import { render, screen } from '../../test/react_testing_library.js';
+import { CastBallotPage } from './cast_ballot_page.js';
 
 it('renders CastBallotPage', () => {
   render(<CastBallotPage hidePostVotingInstructions={vi.fn()} />);

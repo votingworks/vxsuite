@@ -9,5 +9,5 @@ export function intermediateScript(
   script: 'avahi-publish-service' | 'avahi-browse' | 'is-online'
 ): string {
   // At runtime we're in build/, so go up one level to reach intermediate-scripts/
-  return path.join(__dirname, '../intermediate-scripts', script);
+  return path.join(import.meta.dirname, '../intermediate-scripts', script);
 }

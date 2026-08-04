@@ -26,9 +26,9 @@ import {
   VotesDict,
   getBallotStyle,
 } from '@votingworks/types';
-import { Review, ReviewProps } from '../components/review';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
+import { Review, ReviewProps } from '../components/review.js';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen.js';
 
 const ContentHeader = styled(FocusableAudio)`
   padding: 0.5rem 0.75rem 0;

@@ -24,7 +24,7 @@ import { createHash } from 'node:crypto';
 import JsZip from 'jszip';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
+import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache.js';
 
 // In order for the zip files generated to hash to the same value when the contents
 // are the same we need to make sure the date on the files is always kept static.

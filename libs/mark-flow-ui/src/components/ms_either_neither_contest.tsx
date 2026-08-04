@@ -18,9 +18,9 @@ import {
   YesNoOption,
 } from '@votingworks/types';
 
-import { UpdateVoteFunction } from '../config/types';
-import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests';
-import { ContestHeader } from './contest_header';
+import { UpdateVoteFunction } from '../config/types.js';
+import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests.js';
+import { ContestHeader } from './contest_header.js';
 
 const ChoicesGrid = styled.div`
   display: grid;

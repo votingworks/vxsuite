@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { SCREENSHOTS_DIR } from './constants';
-import type { ScreenshotNamer } from './screenshots';
+import { SCREENSHOTS_DIR } from './constants.js';
+import type { ScreenshotNamer } from './screenshots.js';
 
 export interface CapturePdfScreenshotsOptions {
   /**

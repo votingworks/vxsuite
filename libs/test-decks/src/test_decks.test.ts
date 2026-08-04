@@ -30,7 +30,7 @@ import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
-} from './test_decks';
+} from './test_decks.js';
 
 const electionGeneral = readElectionGeneral();
 

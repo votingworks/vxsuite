@@ -55,7 +55,7 @@ import {
   MockBatchScannerApi,
   DEV_DOCK_ELECTION_FILE_NAME,
   PdiScannerStatus,
-} from './dev_dock_api';
+} from './dev_dock_api.js';
 
 const electionGeneral = readElectionGeneral();
 

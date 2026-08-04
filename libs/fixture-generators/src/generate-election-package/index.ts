@@ -1,1 +1,1 @@
-export * from './generate_election_package';
+export * from './generate_election_package.js';

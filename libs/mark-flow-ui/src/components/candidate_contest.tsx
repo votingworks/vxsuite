@@ -42,16 +42,16 @@ import {
 } from '@votingworks/ui';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
-import { UpdateVoteFunction } from '../config/types';
+import { UpdateVoteFunction } from '../config/types.js';
 
-import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { ChoicesGrid } from './contest_screen_layout';
-import { ContestHeader } from './contest_header';
-import { WriteInCandidateName } from './write_in_candidate_name';
+import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals.js';
+import { ChoicesGrid } from './contest_screen_layout.js';
+import { ContestHeader } from './contest_header.js';
+import { WriteInCandidateName } from './write_in_candidate_name.js';
 import {
   deriveStraightPartyVotesFromOrderedCandidates,
   numVotesRemaining,
-} from '../utils/vote';
+} from '../utils/vote.js';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
