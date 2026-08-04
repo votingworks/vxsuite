@@ -12,14 +12,14 @@ import {
   Main,
 } from '@votingworks/ui';
 
-import { Toolbar } from './toolbar';
-import { electionManagerRoutes, routeMap } from '../routes';
+import { Toolbar } from './toolbar.js';
+import { electionManagerRoutes, routeMap } from '../routes.js';
 import {
   getElectionRecord,
   getMachineConfig,
   getPollingPlaceId,
   getSystemSettings,
-} from '../api';
+} from '../api.js';
 
 export function ScreenWrapper({
   children,

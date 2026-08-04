@@ -5,7 +5,7 @@ import {
   setTestMode,
   getBallotPrintCounts,
   hasTestBallots,
-} from '../api';
+} from '../api.js';
 
 /**
  * Presents a button to toggle between test & official modes with a confirmation.

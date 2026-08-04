@@ -1,7 +1,7 @@
 import React from 'react';
 import { H1, MainHeader, TestModeBanner } from '@votingworks/ui';
 import styled from 'styled-components';
-import { getElectionRecord, getTestMode } from '../api';
+import { getElectionRecord, getTestMode } from '../api.js';
 
 const ButtonRow = styled.div`
   display: flex;

@@ -22,12 +22,12 @@ import {
   getBallotPrintCounts,
   printBallotsPrintedReport,
   getDeviceStatuses,
-} from '../api';
-import { Row } from '../layout';
-import { TitleBar } from '../components/title_bar';
-import { Filter } from '../components/filter';
-import { ExportReportButton } from '../components/export_report_button';
-import { ScreenWrapper } from '../components/screen_wrapper';
+} from '../api.js';
+import { Row } from '../layout.js';
+import { TitleBar } from '../components/title_bar.js';
+import { Filter } from '../components/filter.js';
+import { ExportReportButton } from '../components/export_report_button.js';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

@@ -45,18 +45,18 @@ import {
 } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { generateMarkOverlay } from '@votingworks/hmpb';
-import { AppContext } from './context';
-import { constructAuthMachineState } from './util/auth';
+import { AppContext } from './context.js';
+import { constructAuthMachineState } from './util/auth.js';
 import {
   printBallotsPrintedReport,
   exportBallotsPrintedReportPdf,
-} from './reports/ballots_printed_report';
-import { printTestPage } from './printing/test_print';
-import { saveReadinessReport } from './reports/readiness';
-import { BallotPrintEntry, DeviceStatuses } from './types';
-import { getMachineConfig } from './machine_config';
-import { findBallotStyleId } from './util/ballot_styles';
-import { getCurrentTime } from './util/get_current_time';
+} from './reports/ballots_printed_report.js';
+import { printTestPage } from './printing/test_print.js';
+import { saveReadinessReport } from './reports/readiness.js';
+import { BallotPrintEntry, DeviceStatuses } from './types.js';
+import { getMachineConfig } from './machine_config.js';
+import { findBallotStyleId } from './util/ballot_styles.js';
+import { getCurrentTime } from './util/get_current_time.js';
 
 interface TestDeckBallotToPrint {
   spec: TestDeckBallot;

@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BallotType, LanguageCode } from '@votingworks/types';
-import { Store } from './store';
+import { Store } from './store.js';
 
 test('getDbPath', () => {
   const store = Store.memoryStore();
