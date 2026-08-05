@@ -1,0 +1,102 @@
+{
+  "file": "orphans.ts",
+  "directives": [
+    {
+      "line": 9,
+      "label": "defer",
+      "form": "default",
+      "reason": "nothing bindable follows inside this block",
+      "error": "orphan"
+    },
+    {
+      "line": 13,
+      "label": "exclude",
+      "form": "else",
+      "reason": "misuse — this if has an explicit else",
+      "error": "else-misuse"
+    },
+    {
+      "line": 21,
+      "label": "exclude",
+      "form": "default",
+      "reason": "trailing orphan at end of file",
+      "error": "orphan"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "7:16",
+      "hits": 1,
+      "snippet": "41; return value + 1; // @coverage-defer",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 1,
+      "snippet": "return value + 1; // @coverage-defer: no",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "14:2",
+      "hits": 2,
+      "snippet": "if (flag) { return 1; } else { return 2;",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "15:4",
+      "hits": 1,
+      "snippet": "return 1; } else { return 2; } } // @cov",
+      "status": "covered"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "17:4",
+      "hits": 1,
+      "snippet": "return 2; } } // @coverage-exclude: trai",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "6:39",
+      "hits": 1,
+      "snippet": "{ const value = 41; return value + 1; //",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "12:50",
+      "hits": 2,
+      "snippet": "{ // @coverage-exclude-else: misuse — th",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "14:2",
+      "hits": 1,
+      "snippet": "if (flag) { return 1; } else { return 2;",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "if",
+      "at": "16:9",
+      "hits": 1,
+      "snippet": "{ return 2; } } // @coverage-exclude: tr",
+      "status": "covered"
+    }
+  ]
+}

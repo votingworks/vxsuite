@@ -1,0 +1,48 @@
+{
+  "file": "jsx_container.tsx",
+  "directives": [
+    {
+      "line": 12,
+      "label": "exclude",
+      "form": "default",
+      "reason": "error banner exercised in integration tests",
+      "binds": "props.error !== undefined && <strong>{props.error}</strong>"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "9:2",
+      "hits": 1,
+      "snippet": "return ( <div> <span>ready</span> {/* @c",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "8:62",
+      "hits": 1,
+      "snippet": "{ return ( <div> <span>ready</span> {/* ",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "12:76",
+      "hits": 1,
+      "snippet": "props.error !== undefined && <strong>{pr",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "13:21",
+      "hits": 0,
+      "snippet": "<strong>{props.error}</strong>} </div> )",
+      "status": "excluded"
+    }
+  ]
+}

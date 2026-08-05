@@ -1,0 +1,252 @@
+{
+  "file": "statement_form.ts",
+  "directives": [
+    {
+      "line": 12,
+      "label": "defer",
+      "form": "default",
+      "reason": "negative path untested",
+      "binds": "const flipped = n * -2;"
+    },
+    {
+      "line": 14,
+      "label": "exclude",
+      "form": "default",
+      "binds": "return flipped + 1;"
+    },
+    {
+      "line": 26,
+      "label": "exclude",
+      "form": "default",
+      "reason": "thought unreachable, but the driver covers it",
+      "binds": "return n + 1;",
+      "stale": true
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "9:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n * 2; } // @coverag",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "10:4",
+      "hits": 1,
+      "snippet": "return n * 2; } // @coverage-defer: nega",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "13:18",
+      "hits": 0,
+      "snippet": "n * -2; // @coverage-exclude return flip",
+      "status": "deferred"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "15:2",
+      "hits": 0,
+      "snippet": "return flipped + 1; } export function un",
+      "status": "excluded"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return 1; } return -1; } ex",
+      "status": "covered"
+    },
+    {
+      "id": "s5",
+      "kind": "statement",
+      "at": "20:4",
+      "hits": 1,
+      "snippet": "return 1; } return -1; } export function",
+      "status": "covered"
+    },
+    {
+      "id": "s6",
+      "kind": "statement",
+      "at": "22:2",
+      "hits": 0,
+      "snippet": "return -1; } export function staleFlag(n",
+      "status": "fail"
+    },
+    {
+      "id": "s7",
+      "kind": "statement",
+      "at": "27:2",
+      "hits": 1,
+      "snippet": "return n + 1; } export function unknownL",
+      "status": "covered"
+    },
+    {
+      "id": "s8",
+      "kind": "statement",
+      "at": "31:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n; } // @coverage-sk",
+      "status": "covered"
+    },
+    {
+      "id": "s9",
+      "kind": "statement",
+      "at": "32:4",
+      "hits": 1,
+      "snippet": "return n; } // @coverage-skip: not a rec",
+      "status": "covered"
+    },
+    {
+      "id": "s10",
+      "kind": "statement",
+      "at": "35:2",
+      "hits": 0,
+      "snippet": "return -n; } export function proseMentio",
+      "status": "fail"
+    },
+    {
+      "id": "s11",
+      "kind": "statement",
+      "at": "39:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n; } // coverage-exc",
+      "status": "covered"
+    },
+    {
+      "id": "s12",
+      "kind": "statement",
+      "at": "40:4",
+      "hits": 1,
+      "snippet": "return n; } // coverage-exclude: without",
+      "status": "covered"
+    },
+    {
+      "id": "s13",
+      "kind": "statement",
+      "at": "43:2",
+      "hits": 0,
+      "snippet": "return -n; }",
+      "status": "fail"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "8:48",
+      "hits": 1,
+      "snippet": "{ if (n > 0) { return n * 2; } // @cover",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "18:49",
+      "hits": 1,
+      "snippet": "{ if (n > 0) { return 1; } return -1; } ",
+      "status": "covered"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "25:45",
+      "hits": 1,
+      "snippet": "{ // @coverage-exclude: thought unreacha",
+      "status": "covered"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "30:48",
+      "hits": 1,
+      "snippet": "{ if (n > 0) { return n; } // @coverage-",
+      "status": "covered"
+    },
+    {
+      "id": "f4",
+      "kind": "function",
+      "at": "38:48",
+      "hits": 1,
+      "snippet": "{ if (n > 0) { return n; } // coverage-e",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "9:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n * 2; } // @coverag",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "13:2",
+      "hits": 0,
+      "snippet": "const flipped = n * -2; // @coverage-exc",
+      "status": "deferred"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return 1; } return -1; } ex",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "22:2",
+      "hits": 0,
+      "snippet": "return -1; } export function staleFlag(n",
+      "status": "fail"
+    },
+    {
+      "id": "b2.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "31:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n; } // @coverage-sk",
+      "status": "covered"
+    },
+    {
+      "id": "b2.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "35:2",
+      "hits": 0,
+      "snippet": "return -n; } export function proseMentio",
+      "status": "fail"
+    },
+    {
+      "id": "b3.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "39:2",
+      "hits": 1,
+      "snippet": "if (n > 0) { return n; } // coverage-exc",
+      "status": "covered"
+    },
+    {
+      "id": "b3.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "43:2",
+      "hits": 0,
+      "snippet": "return -n; }",
+      "status": "fail"
+    }
+  ]
+}

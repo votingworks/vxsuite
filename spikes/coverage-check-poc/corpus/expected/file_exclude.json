@@ -1,0 +1,45 @@
+{
+  "file": "file_exclude.ts",
+  "directives": [
+    {
+      "line": 1,
+      "label": "exclude",
+      "form": "file",
+      "reason": "exercised only via the manual QA harness"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "4:2",
+      "hits": 0,
+      "snippet": "return initDriver('usb'); } function ini",
+      "status": "excluded"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 0,
+      "snippet": "return `driver:${kind}`; }",
+      "status": "excluded"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "3:39",
+      "hits": 0,
+      "snippet": "{ return initDriver('usb'); } function i",
+      "status": "excluded"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "7:42",
+      "hits": 0,
+      "snippet": "{ return `driver:${kind}`; }",
+      "status": "excluded"
+    }
+  ]
+}

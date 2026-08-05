@@ -1,0 +1,78 @@
+{
+  "file": "fluent_chain.ts",
+  "directives": [
+    {
+      "line": 8,
+      "label": "exclude",
+      "form": "default",
+      "reason": "sentinel filter, driver sends []",
+      "binds": "(n) => n < 0"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "6:2",
+      "hits": 1,
+      "snippet": "return items .map((n) => n * 2) .filter(",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "7:16",
+      "hits": 0,
+      "snippet": "n * 2) .filter(/* @coverage-exclude: sen",
+      "status": "fail"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "8:77",
+      "hits": 0,
+      "snippet": "n < 0) .map((n) => n + 1); }",
+      "status": "excluded"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "9:16",
+      "hits": 0,
+      "snippet": "n + 1); }",
+      "status": "fail"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "5:58",
+      "hits": 1,
+      "snippet": "{ return items .map((n) => n * 2) .filte",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "7:16",
+      "hits": 0,
+      "snippet": "n * 2) .filter(/* @coverage-exclude: sen",
+      "status": "fail"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "8:77",
+      "hits": 0,
+      "snippet": "n < 0) .map((n) => n + 1); }",
+      "status": "excluded"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "9:16",
+      "hits": 0,
+      "snippet": "n + 1); }",
+      "status": "fail"
+    }
+  ]
+}

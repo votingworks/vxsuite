@@ -1,0 +1,145 @@
+{
+  "file": "terminating_then.ts",
+  "directives": [
+    {
+      "line": 12,
+      "label": "defer",
+      "form": "default",
+      "reason": "positive accumulation untested",
+      "binds": "sum += item;"
+    },
+    {
+      "line": 22,
+      "label": "exclude",
+      "form": "default",
+      "reason": "happy path covered by integration tests only",
+      "binds": "return n;"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "7:12",
+      "hits": 1,
+      "snippet": "0; for (const item of items) { if (item ",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 1,
+      "snippet": "for (const item of items) { if (item < 0",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "9:4",
+      "hits": 2,
+      "snippet": "if (item < 0) { continue; } // @coverage",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "10:6",
+      "hits": 2,
+      "snippet": "continue; } // @coverage-defer: positive",
+      "status": "covered"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "13:4",
+      "hits": 0,
+      "snippet": "sum += item; } return sum; } export func",
+      "status": "deferred"
+    },
+    {
+      "id": "s5",
+      "kind": "statement",
+      "at": "15:2",
+      "hits": 1,
+      "snippet": "return sum; } export function requirePos",
+      "status": "covered"
+    },
+    {
+      "id": "s6",
+      "kind": "statement",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "if (n <= 0) { throw new Error('not posit",
+      "status": "covered"
+    },
+    {
+      "id": "s7",
+      "kind": "statement",
+      "at": "20:4",
+      "hits": 1,
+      "snippet": "throw new Error('not positive'); } // @c",
+      "status": "covered"
+    },
+    {
+      "id": "s8",
+      "kind": "statement",
+      "at": "23:2",
+      "hits": 0,
+      "snippet": "return n; }",
+      "status": "excluded"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "6:56",
+      "hits": 1,
+      "snippet": "{ let sum = 0; for (const item of items)",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "18:51",
+      "hits": 1,
+      "snippet": "{ if (n <= 0) { throw new Error('not pos",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "9:4",
+      "hits": 2,
+      "snippet": "if (item < 0) { continue; } // @coverage",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "13:4",
+      "hits": 0,
+      "snippet": "sum += item; } return sum; } export func",
+      "status": "deferred"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "if (n <= 0) { throw new Error('not posit",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "23:2",
+      "hits": 0,
+      "snippet": "return n; }",
+      "status": "excluded"
+    }
+  ]
+}

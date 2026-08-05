@@ -1,0 +1,216 @@
+{
+  "file": "ternary_logical.ts",
+  "directives": [
+    {
+      "line": 8,
+      "label": "exclude",
+      "form": "default",
+      "reason": "failure label, hardware only",
+      "binds": "'no'"
+    },
+    {
+      "line": 12,
+      "label": "defer",
+      "form": "default",
+      "binds": "'fallback'"
+    },
+    {
+      "line": 18,
+      "label": "exclude",
+      "form": "default",
+      "reason": "exhausted-iterator fallback",
+      "binds": "buildFallback()"
+    },
+    {
+      "line": 23,
+      "label": "exclude",
+      "form": "default",
+      "reason": "see nullishOwnLine",
+      "binds": "function buildFallback(): string { return 'generated'; }"
+    },
+    {
+      "line": 29,
+      "label": "exclude",
+      "form": "default",
+      "binds": "n > 10"
+    },
+    {
+      "line": 30,
+      "label": "defer",
+      "form": "default",
+      "binds": "1"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 1,
+      "snippet": "return flag ? 'yes' : /* @coverage-exclu",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "12:2",
+      "hits": 1,
+      "snippet": "return value ?? /* @coverage-defer */ 'f",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "16:2",
+      "hits": 1,
+      "snippet": "return ( value ?? // @coverage-exclude: ",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "25:2",
+      "hits": 0,
+      "snippet": "return 'generated'; } export function an",
+      "status": "excluded"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "29:2",
+      "hits": 1,
+      "snippet": "return n !== undefined && /* @coverage-e",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "7:53",
+      "hits": 1,
+      "snippet": "{ return flag ? 'yes' : /* @coverage-exc",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "11:65",
+      "hits": 1,
+      "snippet": "{ return value ?? /* @coverage-defer */ ",
+      "status": "covered"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "15:66",
+      "hits": 1,
+      "snippet": "{ return ( value ?? // @coverage-exclude",
+      "status": "covered"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "24:33",
+      "hits": 0,
+      "snippet": "{ return 'generated'; } export function ",
+      "status": "excluded"
+    },
+    {
+      "id": "f4",
+      "kind": "function",
+      "at": "28:56",
+      "hits": 1,
+      "snippet": "{ return n !== undefined && /* @coverage",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "8:16",
+      "hits": 1,
+      "snippet": "'yes' : /* @coverage-exclude: failure la",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "8:78",
+      "hits": 0,
+      "snippet": "'no'; } export function nullishInline(va",
+      "status": "excluded"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "12:9",
+      "hits": 1,
+      "snippet": "value ?? /* @coverage-defer */ 'fallback",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "12:40",
+      "hits": 0,
+      "snippet": "'fallback'; } export function nullishOwn",
+      "status": "deferred"
+    },
+    {
+      "id": "b2.0",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "17:4",
+      "hits": 1,
+      "snippet": "value ?? // @coverage-exclude: exhausted",
+      "status": "covered"
+    },
+    {
+      "id": "b2.1",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "19:4",
+      "hits": 0,
+      "snippet": "buildFallback() ); } // @coverage-exclud",
+      "status": "excluded"
+    },
+    {
+      "id": "b3.0",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "30:28",
+      "hits": 0,
+      "snippet": "1 : 0; }",
+      "status": "deferred"
+    },
+    {
+      "id": "b3.1",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "31:6",
+      "hits": 1,
+      "snippet": "0; }",
+      "status": "covered"
+    },
+    {
+      "id": "b4.0",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "29:9",
+      "hits": 1,
+      "snippet": "n !== undefined && /* @coverage-exclude ",
+      "status": "covered"
+    },
+    {
+      "id": "b4.1",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "29:52",
+      "hits": 0,
+      "snippet": "n > 10 ? /* @coverage-defer */ 1 : 0; }",
+      "status": "excluded"
+    }
+  ]
+}

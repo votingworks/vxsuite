@@ -1,0 +1,3 @@
+checker/target/
+corpus/node_modules/
+corpus/dump.json

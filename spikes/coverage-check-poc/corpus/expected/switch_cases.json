@@ -1,0 +1,81 @@
+{
+  "file": "switch_cases.ts",
+  "directives": [
+    {
+      "line": 10,
+      "label": "exclude",
+      "form": "default",
+      "reason": "write mode disabled in this product",
+      "binds": "case 'write': return 'writer';"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "7:2",
+      "hits": 2,
+      "snippet": "switch (mode) { case 'read': return 'rea",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "9:6",
+      "hits": 1,
+      "snippet": "return 'reader'; // @coverage-exclude: w",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "12:6",
+      "hits": 0,
+      "snippet": "return 'writer'; default: return 'admini",
+      "status": "excluded"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "14:6",
+      "hits": 1,
+      "snippet": "return 'administrator'; } }",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "6:49",
+      "hits": 2,
+      "snippet": "{ switch (mode) { case 'read': return 'r",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "switch",
+      "at": "8:4",
+      "hits": 1,
+      "snippet": "case 'read': return 'reader'; // @covera",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "switch",
+      "at": "11:4",
+      "hits": 0,
+      "snippet": "case 'write': return 'writer'; default: ",
+      "status": "excluded"
+    },
+    {
+      "id": "b0.2",
+      "kind": "branch",
+      "type": "switch",
+      "at": "13:4",
+      "hits": 1,
+      "snippet": "default: return 'administrator'; } }",
+      "status": "covered"
+    }
+  ]
+}

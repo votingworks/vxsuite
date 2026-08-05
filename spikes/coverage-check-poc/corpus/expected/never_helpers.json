@@ -1,0 +1,38 @@
+{
+  "file": "never_helpers.ts",
+  "directives": [],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "5:2",
+      "hits": 1,
+      "snippet": "throw new Error(`Illegal value: ${JSON.s",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "9:2",
+      "hits": 1,
+      "snippet": "return value; }",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "4:55",
+      "hits": 1,
+      "snippet": "{ throw new Error(`Illegal value: ${JSON",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "8:41",
+      "hits": 1,
+      "snippet": "{ return value; }",
+      "status": "covered"
+    }
+  ]
+}

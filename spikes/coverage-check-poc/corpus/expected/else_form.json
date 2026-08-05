@@ -1,0 +1,130 @@
+{
+  "file": "else_form.ts",
+  "directives": [
+    {
+      "line": 7,
+      "label": "exclude",
+      "form": "else",
+      "reason": "quiet path exercised in integration tests",
+      "binds": "if (verbose) { out += message; }"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "6:12",
+      "hits": 1,
+      "snippet": "'log:'; // @coverage-exclude-else: quiet",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 1,
+      "snippet": "if (verbose) { out += message; } return ",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "9:4",
+      "hits": 1,
+      "snippet": "out += message; } return out; } export f",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "11:2",
+      "hits": 1,
+      "snippet": "return out; } export function orDefault(",
+      "status": "covered"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "15:14",
+      "hits": 1,
+      "snippet": "0; if (flag) { value = 1; } return value",
+      "status": "covered"
+    },
+    {
+      "id": "s5",
+      "kind": "statement",
+      "at": "16:2",
+      "hits": 1,
+      "snippet": "if (flag) { value = 1; } return value + ",
+      "status": "covered"
+    },
+    {
+      "id": "s6",
+      "kind": "statement",
+      "at": "17:4",
+      "hits": 1,
+      "snippet": "value = 1; } return value + 1; }",
+      "status": "covered"
+    },
+    {
+      "id": "s7",
+      "kind": "statement",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "return value + 1; }",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "5:75",
+      "hits": 1,
+      "snippet": "{ let out = 'log:'; // @coverage-exclude",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "14:49",
+      "hits": 1,
+      "snippet": "{ let value = 0; if (flag) { value = 1; ",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "8:2",
+      "hits": 1,
+      "snippet": "if (verbose) { out += message; } return ",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "8:2",
+      "hits": 0,
+      "snippet": "if (verbose) { out += message; } return ",
+      "status": "excluded"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "16:2",
+      "hits": 1,
+      "snippet": "if (flag) { value = 1; } return value + ",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "16:2",
+      "hits": 0,
+      "snippet": "if (flag) { value = 1; } return value + ",
+      "status": "fail"
+    }
+  ]
+}

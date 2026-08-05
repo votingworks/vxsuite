@@ -5,3 +5,7 @@ pnpm-lock.yaml
 libs/logging-utils/index.d.ts
 libs/logging-utils/index.js
 libs/logging/VotingWorksLoggingDocumentation.md
+
+# Coverage-check golden corpus: fixtures are position-sensitive data,
+# and the coverage/dump JSON is machine-generated
+spikes/coverage-check-poc/corpus/

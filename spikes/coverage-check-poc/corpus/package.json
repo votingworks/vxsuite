@@ -1,0 +1,12 @@
+{
+  "name": "coverage-check-corpus",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^4.1.6",
+    "vitest": "^4.1.6"
+  }
+}

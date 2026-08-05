@@ -1,0 +1,113 @@
+{
+  "file": "styled_interpolation.ts",
+  "directives": [
+    {
+      "line": 11,
+      "label": "exclude",
+      "form": "default",
+      "reason": "compact padding is visual-only",
+      "binds": "'2px'"
+    },
+    {
+      "line": 13,
+      "label": "defer",
+      "form": "default",
+      "reason": "margin interpolation untested",
+      "binds": "(props) => (props.compact ? '0' : '4px')"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "9:27",
+      "hits": 1,
+      "snippet": "css` padding: ${(props) => props.compact",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "11:4",
+      "hits": 1,
+      "snippet": "props.compact ? /* @coverage-exclude: co",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "14:16",
+      "hits": 0,
+      "snippet": "props.compact ? '0' : '4px') }; `; expor",
+      "status": "deferred"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "return buttonStyle(props); }",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "11:4",
+      "hits": 1,
+      "snippet": "props.compact ? /* @coverage-exclude: co",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "14:16",
+      "hits": 0,
+      "snippet": "props.compact ? '0' : '4px') }; `; expor",
+      "status": "deferred"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "18:56",
+      "hits": 1,
+      "snippet": "{ return buttonStyle(props); }",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "11:76",
+      "hits": 0,
+      "snippet": "'2px' : '8px'}; margin: ${ // @coverage-",
+      "status": "excluded"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "11:84",
+      "hits": 1,
+      "snippet": "'8px'}; margin: ${ // @coverage-defer: m",
+      "status": "covered"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "14:32",
+      "hits": 0,
+      "snippet": "'0' : '4px') }; `; export function rende",
+      "status": "deferred"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "14:38",
+      "hits": 0,
+      "snippet": "'4px') }; `; export function renderButto",
+      "status": "deferred"
+    }
+  ]
+}

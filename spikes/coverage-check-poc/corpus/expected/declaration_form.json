@@ -1,0 +1,147 @@
+{
+  "file": "declaration_form.ts",
+  "directives": [
+    {
+      "line": 5,
+      "label": "exclude",
+      "form": "default",
+      "reason": "dev-only helper, never called from tests",
+      "binds": "export function debugDump(value: unknown): string { const se"
+    },
+    {
+      "line": 11,
+      "label": "defer",
+      "form": "default",
+      "reason": "widget rendering not yet tested",
+      "binds": "export class Widget { label = 'widget'; render(): string { r"
+    },
+    {
+      "line": 21,
+      "label": "exclude",
+      "form": "default",
+      "reason": "error-path formatting only",
+      "binds": "describe(): string { return 'partial'; }"
+    },
+    {
+      "line": 32,
+      "label": "exclude",
+      "form": "default",
+      "reason": "lazily evaluated default thunk",
+      "binds": "fallback = (): string => 'default';"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "7:21",
+      "hits": 0,
+      "snippet": "JSON.stringify(value); return serialized",
+      "status": "excluded"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 0,
+      "snippet": "return serialized.toUpperCase(); } // @c",
+      "status": "excluded"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "13:10",
+      "hits": 0,
+      "snippet": "'widget'; render(): string { return this",
+      "status": "deferred"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "16:4",
+      "hits": 0,
+      "snippet": "return this.label; } } export class Part",
+      "status": "deferred"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "23:4",
+      "hits": 0,
+      "snippet": "return 'partial'; } used(): number { ret",
+      "status": "excluded"
+    },
+    {
+      "id": "s5",
+      "kind": "statement",
+      "at": "27:4",
+      "hits": 1,
+      "snippet": "return 7; } } export class Config { // @",
+      "status": "covered"
+    },
+    {
+      "id": "s6",
+      "kind": "statement",
+      "at": "33:2",
+      "hits": 1,
+      "snippet": "fallback = (): string => 'default'; name",
+      "status": "covered"
+    },
+    {
+      "id": "s7",
+      "kind": "statement",
+      "at": "33:27",
+      "hits": 0,
+      "snippet": "'default'; name = 'config'; }",
+      "status": "excluded"
+    },
+    {
+      "id": "s8",
+      "kind": "statement",
+      "at": "35:9",
+      "hits": 1,
+      "snippet": "'config'; }",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "6:50",
+      "hits": 0,
+      "snippet": "{ const serialized = JSON.stringify(valu",
+      "status": "excluded"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "15:19",
+      "hits": 0,
+      "snippet": "{ return this.label; } } export class Pa",
+      "status": "deferred"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "22:21",
+      "hits": 0,
+      "snippet": "{ return 'partial'; } used(): number { r",
+      "status": "excluded"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "26:17",
+      "hits": 1,
+      "snippet": "{ return 7; } } export class Config { //",
+      "status": "covered"
+    },
+    {
+      "id": "f4",
+      "kind": "function",
+      "at": "33:27",
+      "hits": 0,
+      "snippet": "'default'; name = 'config'; }",
+      "status": "excluded"
+    }
+  ]
+}

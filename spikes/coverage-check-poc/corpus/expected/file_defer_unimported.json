@@ -1,0 +1,61 @@
+{
+  "file": "file_defer_unimported.ts",
+  "directives": [
+    {
+      "line": 1,
+      "label": "defer",
+      "form": "file",
+      "reason": "no tests yet for the retry planner"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "4:25",
+      "hits": 0,
+      "snippet": "[]; for (let i = 0; i < budget; i += 1) ",
+      "status": "deferred"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "5:2",
+      "hits": 0,
+      "snippet": "for (let i = 0; i < budget; i += 1) { pl",
+      "status": "deferred"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "5:15",
+      "hits": 0,
+      "snippet": "0; i < budget; i += 1) { plan.push(2 ** ",
+      "status": "deferred"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "6:4",
+      "hits": 0,
+      "snippet": "plan.push(2 ** i); } return plan; }",
+      "status": "deferred"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "8:2",
+      "hits": 0,
+      "snippet": "return plan; }",
+      "status": "deferred"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "3:54",
+      "hits": 0,
+      "snippet": "{ const plan: number[] = []; for (let i ",
+      "status": "deferred"
+    }
+  ]
+}

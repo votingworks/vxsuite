@@ -1,0 +1,258 @@
+{
+  "file": "never_param.ts",
+  "directives": [],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "13:2",
+      "hits": 2,
+      "snippet": "switch (kind) { case 'alpha': return 1; ",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "15:6",
+      "hits": 1,
+      "snippet": "return 1; case 'beta': return 2; default",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "17:6",
+      "hits": 1,
+      "snippet": "return 2; default: assertExhausted(kind)",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "19:6",
+      "hits": 0,
+      "snippet": "assertExhausted(kind); } } export functi",
+      "status": "never",
+      "note": "never-param call to `assertExhausted`"
+    },
+    {
+      "id": "s4",
+      "kind": "statement",
+      "at": "24:2",
+      "hits": 2,
+      "snippet": "switch (kind) { case 'alpha': return 10;",
+      "status": "covered"
+    },
+    {
+      "id": "s5",
+      "kind": "statement",
+      "at": "26:6",
+      "hits": 1,
+      "snippet": "return 10; case 'beta': return 20; defau",
+      "status": "covered"
+    },
+    {
+      "id": "s6",
+      "kind": "statement",
+      "at": "28:6",
+      "hits": 1,
+      "snippet": "return 20; default: { assertExhausted(ki",
+      "status": "covered"
+    },
+    {
+      "id": "s7",
+      "kind": "statement",
+      "at": "30:6",
+      "hits": 0,
+      "snippet": "assertExhausted(kind); } } } function th",
+      "status": "never",
+      "note": "never-param call to `assertExhausted`"
+    },
+    {
+      "id": "s8",
+      "kind": "statement",
+      "at": "36:2",
+      "hits": 0,
+      "snippet": "throw new Error(value); } export functio",
+      "status": "fail"
+    },
+    {
+      "id": "s9",
+      "kind": "statement",
+      "at": "40:2",
+      "hits": 1,
+      "snippet": "if (x.length > 0) { return x; } return t",
+      "status": "covered"
+    },
+    {
+      "id": "s10",
+      "kind": "statement",
+      "at": "41:4",
+      "hits": 1,
+      "snippet": "return x; } return throwIllegalValue(x);",
+      "status": "covered"
+    },
+    {
+      "id": "s11",
+      "kind": "statement",
+      "at": "43:2",
+      "hits": 0,
+      "snippet": "return throwIllegalValue(x); } export fu",
+      "status": "fail"
+    },
+    {
+      "id": "s12",
+      "kind": "statement",
+      "at": "47:2",
+      "hits": 1,
+      "snippet": "if (x > 0) { return x; } return identity",
+      "status": "covered"
+    },
+    {
+      "id": "s13",
+      "kind": "statement",
+      "at": "48:4",
+      "hits": 1,
+      "snippet": "return x; } return identity(x); }",
+      "status": "covered"
+    },
+    {
+      "id": "s14",
+      "kind": "statement",
+      "at": "50:2",
+      "hits": 0,
+      "snippet": "return identity(x); }",
+      "status": "fail"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "12:43",
+      "hits": 2,
+      "snippet": "{ switch (kind) { case 'alpha': return 1",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "23:48",
+      "hits": 2,
+      "snippet": "{ switch (kind) { case 'alpha': return 1",
+      "status": "covered"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "35:49",
+      "hits": 0,
+      "snippet": "{ throw new Error(value); } export funct",
+      "status": "fail"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "39:46",
+      "hits": 1,
+      "snippet": "{ if (x.length > 0) { return x; } return",
+      "status": "covered"
+    },
+    {
+      "id": "f4",
+      "kind": "function",
+      "at": "46:53",
+      "hits": 1,
+      "snippet": "{ if (x > 0) { return x; } return identi",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "switch",
+      "at": "14:4",
+      "hits": 1,
+      "snippet": "case 'alpha': return 1; case 'beta': ret",
+      "status": "covered"
+    },
+    {
+      "id": "b0.1",
+      "kind": "branch",
+      "type": "switch",
+      "at": "16:4",
+      "hits": 1,
+      "snippet": "case 'beta': return 2; default: assertEx",
+      "status": "covered"
+    },
+    {
+      "id": "b0.2",
+      "kind": "branch",
+      "type": "switch",
+      "at": "18:4",
+      "hits": 0,
+      "snippet": "default: assertExhausted(kind); } } expo",
+      "status": "never"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "switch",
+      "at": "25:4",
+      "hits": 1,
+      "snippet": "case 'alpha': return 10; case 'beta': re",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "switch",
+      "at": "27:4",
+      "hits": 1,
+      "snippet": "case 'beta': return 20; default: { asser",
+      "status": "covered"
+    },
+    {
+      "id": "b1.2",
+      "kind": "branch",
+      "type": "switch",
+      "at": "29:4",
+      "hits": 0,
+      "snippet": "default: { assertExhausted(kind); } } } ",
+      "status": "never"
+    },
+    {
+      "id": "b2.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "40:2",
+      "hits": 1,
+      "snippet": "if (x.length > 0) { return x; } return t",
+      "status": "covered"
+    },
+    {
+      "id": "b2.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "43:2",
+      "hits": 0,
+      "snippet": "return throwIllegalValue(x); } export fu",
+      "status": "fail"
+    },
+    {
+      "id": "b3.0",
+      "kind": "branch",
+      "type": "if",
+      "at": "47:2",
+      "hits": 1,
+      "snippet": "if (x > 0) { return x; } return identity",
+      "status": "covered"
+    },
+    {
+      "id": "b3.1",
+      "kind": "branch",
+      "type": "if",
+      "attributed_at": "50:2",
+      "hits": 0,
+      "snippet": "return identity(x); }",
+      "status": "fail"
+    }
+  ]
+}

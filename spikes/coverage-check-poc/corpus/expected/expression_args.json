@@ -1,0 +1,144 @@
+{
+  "file": "expression_args.ts",
+  "directives": [
+    {
+      "line": 7,
+      "label": "exclude",
+      "form": "default",
+      "reason": "default punctuation",
+      "binds": "'!'"
+    },
+    {
+      "line": 12,
+      "label": "defer",
+      "form": "default",
+      "reason": "see makeConfig",
+      "binds": "function defaultRetries(): number { return 3; }"
+    },
+    {
+      "line": 22,
+      "label": "defer",
+      "form": "default",
+      "reason": "default plumbing untested",
+      "binds": "defaultRetries()"
+    },
+    {
+      "line": 27,
+      "label": "exclude",
+      "form": "default",
+      "reason": "plural suffix",
+      "binds": "'s'"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "9:2",
+      "hits": 1,
+      "snippet": "return `${name}${punctuation}`; } // @co",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "14:2",
+      "hits": 0,
+      "snippet": "return 3; } export function makeConfig(o",
+      "status": "deferred"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "20:2",
+      "hits": 1,
+      "snippet": "return { retries: overrides.retries ?? /",
+      "status": "covered"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "27:2",
+      "hits": 1,
+      "snippet": "return `${count} item${count === 1 ? '' ",
+      "status": "covered"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "8:10",
+      "hits": 1,
+      "snippet": "{ return `${name}${punctuation}`; } // @",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "13:34",
+      "hits": 0,
+      "snippet": "{ return 3; } export function makeConfig",
+      "status": "deferred"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "19:2",
+      "hits": 1,
+      "snippet": "{ return { retries: overrides.retries ??",
+      "status": "covered"
+    },
+    {
+      "id": "f3",
+      "kind": "function",
+      "at": "26:49",
+      "hits": 1,
+      "snippet": "{ return `${count} item${count === 1 ? '",
+      "status": "covered"
+    },
+    {
+      "id": "b0.0",
+      "kind": "branch",
+      "type": "default-arg",
+      "at": "7:61",
+      "hits": 0,
+      "snippet": "'!' ): string { return `${name}${punctua",
+      "status": "excluded"
+    },
+    {
+      "id": "b1.0",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "22:6",
+      "hits": 1,
+      "snippet": "overrides.retries ?? /* @coverage-defer:",
+      "status": "covered"
+    },
+    {
+      "id": "b1.1",
+      "kind": "branch",
+      "type": "binary-expr",
+      "at": "22:76",
+      "hits": 0,
+      "snippet": "defaultRetries(), }; } export function p",
+      "status": "deferred"
+    },
+    {
+      "id": "b2.0",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "27:39",
+      "hits": 1,
+      "snippet": "'' : /* @coverage-exclude: plural suffix",
+      "status": "covered"
+    },
+    {
+      "id": "b2.1",
+      "kind": "branch",
+      "type": "cond-expr",
+      "at": "27:83",
+      "hits": 0,
+      "snippet": "'s'}`; }",
+      "status": "excluded"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "file": "cdf_zlazy.ts",
+  "directives": [
+    {
+      "line": 14,
+      "label": "exclude",
+      "form": "default",
+      "reason": "CDF generated thunk",
+      "binds": "() => buildPersonSchema()"
+    },
+    {
+      "line": 17,
+      "label": "exclude",
+      "form": "default",
+      "reason": "CDF generated builder",
+      "binds": "function buildPersonSchema(): SchemaShape { return { name: '"
+    }
+  ],
+  "entities": [
+    {
+      "id": "s0",
+      "kind": "statement",
+      "at": "10:2",
+      "hits": 1,
+      "snippet": "return { read: factory }; } export const",
+      "status": "covered"
+    },
+    {
+      "id": "s1",
+      "kind": "statement",
+      "at": "13:28",
+      "hits": 1,
+      "snippet": "lazyLike( /* @coverage-exclude: CDF gene",
+      "status": "covered"
+    },
+    {
+      "id": "s2",
+      "kind": "statement",
+      "at": "14:53",
+      "hits": 0,
+      "snippet": "buildPersonSchema() ); // @coverage-excl",
+      "status": "excluded"
+    },
+    {
+      "id": "s3",
+      "kind": "statement",
+      "at": "19:2",
+      "hits": 0,
+      "snippet": "return { name: 'Person' }; }",
+      "status": "excluded"
+    },
+    {
+      "id": "f0",
+      "kind": "function",
+      "at": "9:58",
+      "hits": 1,
+      "snippet": "{ return { read: factory }; } export con",
+      "status": "covered"
+    },
+    {
+      "id": "f1",
+      "kind": "function",
+      "at": "14:53",
+      "hits": 0,
+      "snippet": "buildPersonSchema() ); // @coverage-excl",
+      "status": "excluded"
+    },
+    {
+      "id": "f2",
+      "kind": "function",
+      "at": "18:42",
+      "hits": 0,
+      "snippet": "{ return { name: 'Person' }; }",
+      "status": "excluded"
+    }
+  ]
+}
