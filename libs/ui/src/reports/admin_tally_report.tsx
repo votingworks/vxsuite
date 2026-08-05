@@ -5,7 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import { getBallotCount, getScannedBallotCount } from '@votingworks/utils';
+import { getScannedBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -73,10 +73,7 @@ export function AdminTallyReport({
     manual: manualElectionResults?.ballotCount,
   };
   const scannedBallotCount = getScannedBallotCount(cardCounts);
-  const manualBallotCount = getBallotCount(cardCounts) - scannedBallotCount;
-  // The scanned/manual breakdown only tells the reader something when the
-  // report has both kinds of ballots. Without scanned ballots, the scanned
-  // column is all zeroes and the total column just repeats the manual one.
+  const manualBallotCount = cardCounts.manual ?? 0;
   const showManualBreakdown = scannedBallotCount > 0 && manualBallotCount > 0;
   const isManualOnly = scannedBallotCount === 0 && manualBallotCount > 0;
   const reportTitle = prefixedTitle({
