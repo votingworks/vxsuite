@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('../src/generate_fixtures')
-  .main()
+// Runs the compiled output rather than transpiling `src` on the fly: the
+// esbuild-runner hook this used to go through is a CommonJS `require` hook and
+// cannot load this package's ESM sources. The `generate-fixtures` package
+// script builds first; run `pnpm build:self` if invoking this directly.
+import { main } from '../build/generate_fixtures.js';
+
+main()
   .then((exitCode) => {
     process.exitCode = exitCode;
   })

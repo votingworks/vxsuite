@@ -31,31 +31,31 @@ import {
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
-import { createTestVotes, markBallotDocument } from './mark_ballot';
+import { createTestVotes, markBallotDocument } from './mark_ballot.js';
 import {
   allBaseBallotProps,
   ElectionSerializationOptions,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
-} from './render_ballot';
-import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
-import * as timingMarkPaperTemplate from './timing_mark_paper/template';
-import * as calibrationSheetTemplate from './calibration_sheet/template';
-import { Renderer, RendererPool } from './renderer';
+} from './render_ballot.js';
+import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';
+import * as timingMarkPaperTemplate from './timing_mark_paper/template.js';
+import * as calibrationSheetTemplate from './calibration_sheet/template.js';
+import { Renderer, RendererPool } from './renderer.js';
 import {
   NhBallotProps,
   nhBallotTemplate,
-} from './ballot_templates/nh_ballot_template';
-import { convertPdfToCmyk } from './pdf_conversion';
-import { generateBallotStyles } from './ballot_styles';
-import { miBallotTemplate } from './ballot_templates/mi_ballot_template';
-import { msBallotTemplate } from './ballot_templates/ms_ballot_template';
-import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template';
-import { NhStateBallotProps } from './ballot_templates/nh_state_ballot_components';
+} from './ballot_templates/nh_ballot_template.js';
+import { convertPdfToCmyk } from './pdf_conversion.js';
+import { generateBallotStyles } from './ballot_styles.js';
+import { miBallotTemplate } from './ballot_templates/mi_ballot_template.js';
+import { msBallotTemplate } from './ballot_templates/ms_ballot_template.js';
+import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template.js';
+import { NhStateBallotProps } from './ballot_templates/nh_state_ballot_components.js';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
-export const fixturesDir = join(__dirname, '../fixtures');
+export const fixturesDir = join(import.meta.dirname, '../fixtures');
 
 const serializationOptions: ElectionSerializationOptions = {
   format: 'vxf',

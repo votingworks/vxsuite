@@ -4,7 +4,7 @@ import { stderr } from 'node:process';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { asyncDisposable } from '@votingworks/test-utils';
 import { Browser, chromium } from 'playwright';
-import { DONE_MARKER_ID } from './preview/browser_preview';
+import { DONE_MARKER_ID } from './preview/browser_preview.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
@@ -39,8 +39,8 @@ test.each([
   const { createServer } = await import('vite');
   await using vite = asyncDisposable(
     await createServer({
-      root: join(__dirname, '../src/preview'),
-      configFile: join(__dirname, '../vite.config.ts'),
+      root: join(import.meta.dirname, '../src/preview'),
+      configFile: join(import.meta.dirname, '../vite.config.ts'),
     }),
     (s) => s.close()
   );

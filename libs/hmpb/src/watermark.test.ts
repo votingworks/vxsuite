@@ -3,10 +3,10 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { encodeImageData, pdfToImages } from '@votingworks/image-utils';
 import { BallotType } from '@votingworks/types';
 import { expect, test, vi } from 'vitest';
-import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { renderBallotPreviewToPdf } from './render_ballot';
-import { Renderer } from './renderer';
+import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';
+import { createPlaywrightRenderer } from './playwright_renderer.js';
+import { renderBallotPreviewToPdf } from './render_ballot.js';
+import { Renderer } from './renderer.js';
 
 // eslint-disable-next-line vitest/valid-title
 const rendererTest = test.extend<{ renderer: Renderer }>({

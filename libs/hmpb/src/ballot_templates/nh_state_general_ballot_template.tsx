@@ -30,7 +30,8 @@ import {
   electionStrings,
   RichText,
 } from '@votingworks/ui';
-import styled, { css } from 'styled-components';
+import { css } from 'styled-components';
+import { styled } from '../styled.js';
 import {
   primaryLanguageCode,
   Page,
@@ -42,12 +43,12 @@ import {
   BALLOT_MEASURE_OPTION_CLASS,
   CANDIDATE_OPTION_CLASS,
   WRITE_IN_OPTION_CLASS,
-} from '../ballot_components';
-import { ContentComponentResult, BallotLayoutError } from '../render_ballot';
-import { Watermark } from './watermark';
-import { PixelDimensions } from '../types';
-import { layOutInColumns } from '../layout_in_columns';
-import { RenderScratchpad } from '../renderer';
+} from '../ballot_components.js';
+import { ContentComponentResult, BallotLayoutError } from '../render_ballot.js';
+import { Watermark } from './watermark.js';
+import { PixelDimensions } from '../types.js';
+import { layOutInColumns } from '../layout_in_columns.js';
+import { RenderScratchpad } from '../renderer.js';
 import {
   allCaps,
   HandCountInsignia,
@@ -57,7 +58,7 @@ import {
   NhStateBallotProps,
   isDemocraticParty,
   isRepublicanParty,
-} from './nh_state_ballot_components';
+} from './nh_state_ballot_components.js';
 
 export function Header({
   election,

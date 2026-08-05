@@ -16,8 +16,8 @@ import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-import { generateBallotStyles } from './ballot_styles';
-import * as ballotRotation from './ballot_rotation';
+import { generateBallotStyles } from './ballot_styles.js';
+import * as ballotRotation from './ballot_rotation.js';
 
 function makeContest(
   id: string,

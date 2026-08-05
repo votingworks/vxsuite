@@ -6,8 +6,8 @@ import {
   Renderer,
   createDocument,
   createScratchpad,
-} from '../renderer';
-import { PAGE_CLASS } from '../ballot_components';
+} from '../renderer.js';
+import { PAGE_CLASS } from '../ballot_components.js';
 
 function browserPage(): Page {
   return {
