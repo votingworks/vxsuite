@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
 import { loadImageData } from '@votingworks/image-utils';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { findTimingMarkGrid } from './bubble-ballot-ts';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { findTimingMarkGrid } from './bubble-ballot-ts/index.js';
 
 test('letter-sized timing mark paper', async () => {
   const { pdf } = timingMarkPaperFixtures.specPaths({
@@ -28,7 +28,10 @@ test('scanned image', async () => {
   const { topLeftMark, topRightMark } = await findTimingMarkGrid(
     (
       await loadImageData(
-        join(__dirname, '../test/fixtures/vxqa-2024-10/skew-front.png')
+        join(
+          import.meta.dirname,
+          '../test/fixtures/vxqa-2024-10/skew-front.png'
+        )
       )
     ).unsafeUnwrap()
   );

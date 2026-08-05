@@ -1,7 +1,7 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { expect, test, vi } from 'vitest';
-import { napi } from './napi';
-import { interpret } from './interpret';
+import { napi } from './napi.js';
+import { interpret } from './interpret.js';
 
 const { electionDefinition } = vxFamousNamesFixtures;
 

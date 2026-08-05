@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import { styleText } from 'node:util';
-import { runBlankPaperDiagnostic } from './diagnostic';
+import { runBlankPaperDiagnostic } from './diagnostic.js';
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(

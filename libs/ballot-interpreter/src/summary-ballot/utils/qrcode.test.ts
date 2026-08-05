@@ -12,7 +12,7 @@ import {
   getSearchAreas,
   unwrapVxPayload,
 } from './qrcode.js';
-import { pdfToPageImages } from '../../../test/helpers/interpretation';
+import { pdfToPageImages } from '../../../test/helpers/interpretation.js';
 
 test('does not find QR codes when there are none to find', async () => {
   const detectResult = await detectInBallot(

@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { dirSync } from 'tmp';
 import { removeSync } from 'fs-extra';
 import assert from 'node:assert';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { writeImageDataToPng } from '../src/bubble-ballot-ts';
-import { benchmarkRegressionTest } from './benchmarking';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { writeImageDataToPng } from '../src/bubble-ballot-ts/index.js';
+import { benchmarkRegressionTest } from './benchmarking.js';
 
 const { blankBallotPath } = vxFamousNamesFixtures;
 
