@@ -2,8 +2,8 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { resolve } from 'node:path';
-import { WORKSPACE } from '../src/globals.js';
-import { createWorkspace } from '../src/workspace.js';
+import { WORKSPACE } from '../globals.js';
+import { createWorkspace } from '../workspace.js';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
@@ -12,8 +12,8 @@ async function main(): Promise<void> {
     resolve(assertDefined(WORKSPACE)),
     new BaseLogger(LogSource.VxDesignService)
   );
-  const jurisdictions = await workspace.store.listJurisdictions();
-  console.log('✅ Jurisdictions:', jurisdictions);
+  const organizations = await workspace.store.listOrganizations();
+  console.log('✅ Organizations:', organizations);
 }
 
 main()

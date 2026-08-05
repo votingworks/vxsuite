@@ -3,25 +3,25 @@ import util from 'node:util';
 import { assert, assertDefined } from '@votingworks/basics';
 import { resolve } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Auth0Client } from '../src/auth0_client.js';
-import { createWorkspace } from '../src/workspace.js';
-import { WORKSPACE } from '../src/globals.js';
+import { Auth0Client } from '../auth0_client.js';
+import { createWorkspace } from '../workspace.js';
+import { WORKSPACE } from '../globals.js';
 
-const USAGE = `Usage: pnpm create-organization-user --organizationId=<string> <email address>`;
+const USAGE = `Usage: pnpm create-support-user <email address>; Support users must have a @voting.works or @vx.support email`;
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
     positionals: [userEmail],
-    values: { organizationId },
   } = util.parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
-    options: {
-      organizationId: { type: 'string' },
-    },
+    options: {},
   });
-  if (!userEmail || !organizationId) {
+  if (
+    !userEmail ||
+    (!userEmail.endsWith('@voting.works') && !userEmail.endsWith('@vx.support'))
+  ) {
     console.log(USAGE);
     process.exit(0);
   }
@@ -31,7 +31,11 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignService)
   );
 
-  const organization = await workspace.store.getOrganization(organizationId);
+  const votingWorksOrgId = assertDefined(
+    process.env.ORG_ID_VOTINGWORKS,
+    'ORG_ID_VOTINGWORKS environment variable is required'
+  );
+  const organization = await workspace.store.getOrganization(votingWorksOrgId);
 
   const auth = Auth0Client.init();
 
@@ -41,12 +45,14 @@ async function main(): Promise<void> {
   const userId = await auth.createUser({ userEmail });
   await workspace.store.createUser({
     id: userId,
-    type: 'organization_user',
+    type: 'support_user',
     name: userEmail,
     organization,
   });
 
-  console.log(`✅ User created and added to organization ${organization.name}`);
+  console.log(
+    `✅ Support user created and added to organization ${organization.name}`
+  );
 }
 
 main()
