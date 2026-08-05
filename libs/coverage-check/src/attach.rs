@@ -1,8 +1,8 @@
-// Attachment semantics (spec section 2): a flag binds to the outermost AST
-// node starting at the next token position after the comment; `-file` binds
-// the whole file (top of file only); `-else` binds the implicit-else arm of
-// the next `if` statement. Orphans (nothing bindable before the enclosing
-// scope ends) are checker failures.
+//! Attachment semantics (spec section 2): a directive binds to the outermost
+//! AST node starting at the next token position after the comment; `-file`
+//! binds the whole file (top of file only); `-else` binds the implicit-else
+//! arm of the next `if` statement. Orphans (nothing bindable before the
+//! enclosing scope ends) are checker failures.
 
 use oxc_allocator::Allocator;
 use oxc_ast::ast::{Expression, Statement, TSType};
@@ -11,7 +11,7 @@ use oxc_ast_visit::Visit;
 use oxc_parser::Parser;
 use oxc_span::{GetSpan, SourceType, Span};
 
-use crate::grammar::{parse_comment_text, Form, ParsedFlag};
+use crate::grammar::{parse_comment_text, Form, ParsedDirective};
 
 #[derive(Debug, Clone)]
 pub struct IfInfo {
@@ -25,11 +25,11 @@ pub struct IfInfo {
 #[derive(Debug, Clone)]
 pub struct CallSite {
     pub callee: String,
-    pub call_span: Span,
-    /// The enclosing ExpressionStatement span when the call is a whole statement.
+    /// The enclosing `ExpressionStatement` span when the call is a whole
+    /// statement.
     pub stmt_span: Option<Span>,
-    /// Start of the enclosing switch-case clause when the call statement is the
-    /// arm's entire body (modulo a trailing `break`).
+    /// Start of the enclosing switch-case clause when the call statement is
+    /// the arm's entire body (modulo a trailing `break`).
     pub arm_start: Option<u32>,
 }
 
@@ -37,7 +37,6 @@ pub struct CallSite {
 pub struct ImportBinding {
     pub local: String,
     pub imported: String,
-    pub source: String,
 }
 
 #[derive(Debug, Clone)]
@@ -55,11 +54,11 @@ pub struct Collected {
     pub fn_decls: Vec<FnDecl>,
 }
 
-struct Collector<'a> {
-    source: &'a str,
+#[derive(Default)]
+struct Collector {
     out: Collected,
     /// Case clause spans whose body is a single expression statement
-    /// (plus optional break): (stmt_span_start, case_start).
+    /// (plus optional break): (`stmt_span_start`, `case_start`).
     single_stmt_arms: Vec<(u32, u32)>,
 }
 
@@ -69,9 +68,7 @@ fn statement_terminates(stmt: &Statement) -> bool {
         | Statement::ThrowStatement(_)
         | Statement::BreakStatement(_)
         | Statement::ContinueStatement(_) => true,
-        Statement::BlockStatement(block) => {
-            block.body.last().is_some_and(statement_terminates)
-        }
+        Statement::BlockStatement(block) => block.body.last().is_some_and(statement_terminates),
         _ => false,
     }
 }
@@ -85,13 +82,7 @@ fn record_siblings(out: &mut Vec<(u32, Option<u32>)>, stmts: &[Statement]) {
     }
 }
 
-impl<'a> Collector<'a> {
-    fn new(source: &'a str) -> Self {
-        Self { source, out: Collected::default(), single_stmt_arms: Vec::new() }
-    }
-}
-
-impl<'a> Visit<'a> for Collector<'a> {
+impl<'a> Visit<'a> for Collector {
     fn enter_node(&mut self, kind: AstKind<'a>) {
         self.out.spans.push(kind.span());
         match kind {
@@ -122,7 +113,8 @@ impl<'a> Visit<'a> for Collector<'a> {
                 }
                 if body.len() == 1 {
                     if let Statement::ExpressionStatement(_) = body[0] {
-                        self.single_stmt_arms.push((body[0].span().start, case.span.start));
+                        self.single_stmt_arms
+                            .push((body[0].span().start, case.span.start));
                     }
                 }
             }
@@ -131,7 +123,6 @@ impl<'a> Visit<'a> for Collector<'a> {
                     if let Expression::Identifier(ident) = &call.callee {
                         self.out.calls.push(CallSite {
                             callee: ident.name.to_string(),
-                            call_span: call.span,
                             stmt_span: Some(stmt.span),
                             arm_start: None, // resolved after visit
                         });
@@ -141,12 +132,10 @@ impl<'a> Visit<'a> for Collector<'a> {
             AstKind::ImportDeclaration(decl) => {
                 if let Some(specifiers) = &decl.specifiers {
                     for spec in specifiers {
-                        if let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec
-                        {
+                        if let oxc_ast::ast::ImportDeclarationSpecifier::ImportSpecifier(s) = spec {
                             self.out.imports.push(ImportBinding {
                                 local: s.local.name.to_string(),
                                 imported: s.imported.name().to_string(),
-                                source: decl.source.value.to_string(),
                             });
                         }
                     }
@@ -179,6 +168,7 @@ pub struct ParsedFile {
     pub parse_errors: usize,
 }
 
+#[must_use]
 pub fn parse_file(allocator: &Allocator, path: &std::path::Path, source: &str) -> ParsedFile {
     let source_type = SourceType::from_path(path).unwrap_or_default();
     let ret = Parser::new(allocator, source, source_type).parse();
@@ -196,7 +186,7 @@ pub fn parse_file(allocator: &Allocator, path: &std::path::Path, source: &str) -
         comments.push((comment.span, text.to_string()));
     }
 
-    let mut collector = Collector::new(source);
+    let mut collector = Collector::default();
     collector.visit_program(&ret.program);
 
     // Fill in if-statement sibling info by walking statement lists.
@@ -204,7 +194,10 @@ pub fn parse_file(allocator: &Allocator, path: &std::path::Path, source: &str) -
     collect_statement_lists(&ret.program, &mut siblings);
     let mut collected = collector.out;
     for if_info in &mut collected.ifs {
-        if let Some((_, next)) = siblings.iter().find(|(start, _)| *start == if_info.span.start) {
+        if let Some((_, next)) = siblings
+            .iter()
+            .find(|(start, _)| *start == if_info.span.start)
+        {
             if_info.following_start = *next;
         }
     }
@@ -231,7 +224,7 @@ pub fn parse_file(allocator: &Allocator, path: &std::path::Path, source: &str) -
         collected,
         comments,
         first_node_start,
-        parse_errors: ret.diagnostics.len(),
+        parse_errors: ret.errors.len(),
     }
 }
 
@@ -240,7 +233,7 @@ fn collect_statement_lists(program: &oxc_ast::ast::Program, out: &mut Vec<(u32, 
     struct Lists<'v> {
         out: &'v mut Vec<(u32, Option<u32>)>,
     }
-    impl<'a, 'v> Visit<'a> for Lists<'v> {
+    impl<'a> Visit<'a> for Lists<'_> {
         fn enter_node(&mut self, kind: AstKind<'a>) {
             match kind {
                 AstKind::Program(p) => record_siblings(self.out, &p.body),
@@ -265,32 +258,50 @@ pub enum Binding {
     WholeFile,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BindError {
     Orphan,
     ElseMisuse,
     NotTopOfFile,
 }
 
+impl BindError {
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            BindError::Orphan => "orphan",
+            BindError::ElseMisuse => "else-misuse",
+            BindError::NotTopOfFile => "not-top-of-file",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
-pub struct BoundFlag {
-    pub parsed: ParsedFlag,
+pub struct BoundDirective {
+    pub parsed: ParsedDirective,
     pub comment_span: Span,
     pub binding: Result<Binding, BindError>,
 }
 
-pub fn bind_flags(file: &ParsedFile, source_len: u32) -> Vec<BoundFlag> {
-    let mut flags = Vec::new();
+#[must_use]
+pub fn bind_directives(file: &ParsedFile, source_len: u32) -> Vec<BoundDirective> {
+    let mut directives = Vec::new();
     for (span, text) in &file.comments {
-        let Some(parsed) = parse_comment_text(text) else { continue };
+        let Some(parsed) = parse_comment_text(text) else {
+            continue;
+        };
         let binding = bind_one(&parsed, *span, file, source_len);
-        flags.push(BoundFlag { parsed, comment_span: *span, binding });
+        directives.push(BoundDirective {
+            parsed,
+            comment_span: *span,
+            binding,
+        });
     }
-    flags
+    directives
 }
 
 fn bind_one(
-    parsed: &ParsedFlag,
+    parsed: &ParsedDirective,
     comment: Span,
     file: &ParsedFile,
     source_len: u32,
@@ -337,7 +348,7 @@ fn bind_one(
                 .filter(|s| s.start == min_start)
                 .max_by_key(|s| s.end)
                 .copied()
-                .unwrap();
+                .expect("candidates with min_start is non-empty");
             Ok(Binding::Range(outermost))
         }
     }

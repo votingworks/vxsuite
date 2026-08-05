@@ -8,4 +8,4 @@ libs/logging/VotingWorksLoggingDocumentation.md
 
 # Coverage-check golden corpus: fixtures are position-sensitive data,
 # and the coverage/dump JSON is machine-generated
-spikes/coverage-check-poc/corpus/
+libs/coverage-check/corpus/
