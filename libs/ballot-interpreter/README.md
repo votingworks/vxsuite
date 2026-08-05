@@ -19,6 +19,9 @@ pnpm build
 
 ## CLI
 
+The commands below run this package's compiled output, so run `pnpm build` first
+— and again after changing anything under `src/`.
+
 ### bin/interpret
 
 Currently, the CLI only works for HMPB.
