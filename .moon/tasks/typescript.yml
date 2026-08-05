@@ -20,12 +20,19 @@ tasks:
       - '^:build'
 
   test:
-    # Cap vitest's own worker pool. moon runs up to MOON_CONCURRENCY test tasks at
-    # once, and each vitest defaults to a pool sized to all cores — so N suites x
-    # cores massively oversubscribes the CPU and makes timing-sensitive tests flake.
-    # With maxWorkers=2, test-phase threads are ~= MOON_CONCURRENCY x 2; keep
-    # MOON_CONCURRENCY around cores/2 (env-only; moon has no committable setting).
-    command: 'vitest run --maxWorkers=2'
+    # `FORCE_COLOR=0` (inline, so it wins over moon's inherited/injected value):
+    # moon forces color for piped tasks, but the normal per-package CI runner does
+    # not. Some tests snapshot diff output that colorizes based on it (e.g.
+    # test-utils' mockFunction errors embed a jest-diff), so forced color breaks
+    # the color-free committed snapshots. `script` (not `command`) so the inline
+    # env assignment is honored by the shell.
+    #
+    # maxWorkers=2 caps vitest's own worker pool: moon runs up to MOON_CONCURRENCY
+    # test tasks at once and each vitest otherwise sizes its pool to all cores, so
+    # N suites x cores oversubscribes the CPU and flakes timing-sensitive tests.
+    # Test-phase threads are then ~= MOON_CONCURRENCY x 2; keep MOON_CONCURRENCY
+    # around cores/2 (env-only; moon has no committable concurrency setting).
+    script: 'FORCE_COLOR=0 vitest run --maxWorkers=2'
     env:
       TZ: America/Anchorage
     inputs:
