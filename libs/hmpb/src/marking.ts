@@ -30,8 +30,9 @@ import {
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
 } from './ballot_components';
-import { PrintCalibration } from './types';
+import { InchDimensions, PrintCalibration } from './types';
 import { voteMatchesGridPosition } from './vote_matching';
+import { drawWriteInText } from './write_in_text';
 
 const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
 
@@ -58,8 +59,31 @@ const markSize = [bubbleSize[0] * 1.2, bubbleSize[1] * 1.2] as const;
 const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
 
-const writeInFontSizeDefault = 12;
-const writeInFontSizeReduced = 10;
+/**
+ * Distance between the centers of adjacent timing marks, in `pt` - the pitch of
+ * the timing mark grid, not the blank space between one mark and the next. Grid
+ * coordinates in ballot positions - including write-in area dimensions - are in
+ * these units.
+ *
+ * This is the same quantity as the `columnGap`/`rowGap` of the
+ * {@link GridMeasurements} that {@link measureTimingMarkGrid} returns, but
+ * computed from the paper size rather than measured from a rendered ballot: we
+ * only have a PDF here, not a rendered document to inspect.
+ */
+export function gridSpacing(pageDimensions: InchDimensions): {
+  columnGap: number;
+  rowGap: number;
+} {
+  const timingMarkCount = timingMarkCounts(pageDimensions);
+  return {
+    columnGap:
+      (pageDimensions.width * IN - 2 * pageMargins[0] - timingMarkSize[0]) /
+      (timingMarkCount.x - 1),
+    rowGap:
+      (pageDimensions.height * IN - 2 * pageMargins[1] - timingMarkSize[1]) /
+      (timingMarkCount.y - 1),
+  };
+}
 
 /**
  * Generates a PDF with bubble marks in the expected positions for the given
@@ -108,6 +132,7 @@ export async function generateMarkOverlay(
     pageSize[0] - 2 * pageMargins[0] - timingMarkSize[0],
     pageSize[1] - 2 * pageMargins[1] - timingMarkSize[1],
   ];
+  const spacing = gridSpacing(pageSizeIn);
 
   // Load base ballot PDF or create a new document
   const doc = baseBallotPdf
@@ -169,22 +194,15 @@ export async function generateMarkOverlay(
       gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount.y - 1)),
     ];
     const areaSize = [
-      area.width * (gridSize[0] / (timingMarkCount.x - 1)),
-      area.height * (gridSize[1] / (timingMarkCount.y - 1)),
+      area.width * spacing.columnGap,
+      area.height * spacing.rowGap,
     ];
 
-    let fontSize = writeInFontSizeDefault;
-    if (fontRobotoBold.widthOfTextAtSize(name, fontSize) > areaSize[0]) {
-      fontSize = writeInFontSizeReduced;
-    }
-
-    origin[1] += 0.5 * (areaSize[1] - fontSize);
-
-    page.drawText(name, {
-      font: fontRobotoBold,
-      size: fontSize,
+    drawWriteInText(page, fontRobotoBold, name, {
       x: origin[0],
-      y: pageSize[1] - origin[1] - fontSize,
+      y: pageSize[1] - origin[1] - areaSize[1],
+      width: areaSize[0],
+      height: areaSize[1],
     });
   }
 
