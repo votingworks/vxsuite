@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import '../configure_sentry.js'; // Must be imported first to instrument code
 
 import path from 'node:path';
@@ -45,7 +46,10 @@ async function main(): Promise<void> {
 }
 
 /* istanbul ignore next */
-if (require.main === module) {
+// ESM has no `require.main`/`module`, so compare this module's path to the entry
+// point node was given — `process.argv[1]`, which node resolves to an absolute
+// path even when invoked relatively (`node ./build/index.js`, as start.sh does).
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
     process.stderr.write(
       `Error starting VxDesign background worker:\n${error.stack}\n`

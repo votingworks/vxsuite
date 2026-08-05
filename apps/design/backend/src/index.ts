@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 
+import { fileURLToPath } from 'node:url';
 import './configure_sentry.js'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
@@ -100,7 +101,10 @@ async function main(): Promise<number> {
   return Promise.resolve(0);
 }
 
-if (require.main === module) {
+// ESM has no `require.main`/`module`, so compare this module's path to the entry
+// point node was given — `process.argv[1]`, which node resolves to an absolute
+// path even when invoked relatively (`node ./build/index.js`, as start.sh does).
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console

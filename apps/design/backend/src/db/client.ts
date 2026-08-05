@@ -1,7 +1,8 @@
 /* istanbul ignore file - [TODO] need to update CI image to include postgres. */
 
 import { Buffer } from 'node:buffer';
-import * as pg from 'pg';
+// Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
+import type * as pg from 'pg';
 import * as migrate from 'node-pg-migrate';
 import { NODE_ENV } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';

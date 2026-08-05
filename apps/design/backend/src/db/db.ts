@@ -8,7 +8,11 @@ import {
   LogEventId,
 } from '@votingworks/logging';
 import makeDebug from 'debug';
-import * as pg from 'pg';
+// `pg` is CommonJS and node's ESM named-export detection cannot see its
+// exports, so values have to come off the default import (`module.exports`);
+// types still come from `pg` by name.
+import pg from 'pg';
+import type { Pool } from 'pg';
 import { Client } from './client.js';
 import { databaseUrl, NODE_ENV } from '../globals.js';
 
@@ -18,7 +22,7 @@ const debug = makeDebug('pg-client');
  * Manages a pool of connections to a PostgreSQL database.
  */
 export class Db {
-  private readonly pool: pg.Pool;
+  private readonly pool: Pool;
 
   constructor(
     private readonly logger: BaseLogger,

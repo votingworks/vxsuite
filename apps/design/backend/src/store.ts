@@ -71,7 +71,8 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
-import { DatabaseError } from 'pg';
+import pg from 'pg';
+import type { DatabaseError } from 'pg';
 import {
   ExternalElectionSource,
   ElectionListing,
@@ -197,12 +198,18 @@ async function assertWithinTransaction(client: Client): Promise<void> {
   }
 }
 
+// `pg` is CommonJS and node's ESM named-export detection cannot see its
+// exports, so a named import of the class fails to load under node — `tsc` and
+// vitest both accept it, which is why this went unnoticed. Take the class off
+// the default import (`module.exports`); the type still comes from `pg` by name.
+const { DatabaseError: DatabaseErrorClass } = pg;
+
 function isDuplicateKeyError(
   error: unknown,
   constraint: string
 ): error is DatabaseError {
   return (
-    error instanceof DatabaseError &&
+    error instanceof DatabaseErrorClass &&
     error.code === '23505' &&
     error.constraint === constraint
   );
@@ -213,7 +220,7 @@ function isForeignKeyError(
   constraint: string
 ): error is DatabaseError {
   return (
-    error instanceof DatabaseError &&
+    error instanceof DatabaseErrorClass &&
     error.code === '23503' &&
     error.constraint === constraint
   );
