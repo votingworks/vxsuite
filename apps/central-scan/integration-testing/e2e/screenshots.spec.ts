@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import test from '@playwright/test';
+import { test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
@@ -29,7 +29,7 @@ import {
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
-} from './support/auth';
+} from './support/auth.js';
 
 const BALLOT_STYLE_ID = '1-1';
 const PRECINCT_ID = '20';
@@ -38,7 +38,7 @@ const PRECINCT_ID = '20';
 // diagnostic — a synthetic all-white image fails the interpreter's paper-edge
 // detection, so we feed an actual scanned blank sheet for both sides.
 const BLANK_SHEET_FIXTURE_DIR = resolve(
-  __dirname,
+  import.meta.dirname,
   '../../../../libs/ballot-interpreter/test/fixtures/diagnostic/blank/20lb'
 );
 const BLANK_SHEET_FRONT = resolve(
