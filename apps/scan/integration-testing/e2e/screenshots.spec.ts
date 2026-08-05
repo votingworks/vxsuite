@@ -1,4 +1,4 @@
-import test, { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
@@ -32,9 +32,9 @@ import {
   logInAsElectionManager,
   logInAsPollWorker,
   logInAsSystemAdministrator,
-} from './support/auth';
-import { capturePrintedReport } from './support/print_to_png';
-import { mockPdiScannerHandler } from './support/scanner';
+} from './support/auth.js';
+import { capturePrintedReport } from './support/print_to_png.js';
+import { mockPdiScannerHandler } from './support/scanner.js';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
