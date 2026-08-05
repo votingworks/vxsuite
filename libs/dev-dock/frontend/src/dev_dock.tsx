@@ -774,6 +774,20 @@ const ScannerControls = styled.div`
   gap: 8px;
 `;
 
+const CopiesInput = styled.input`
+  width: 70px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid ${Colors.BORDER};
+  color: ${Colors.TEXT};
+`;
+
+const BatchScannerControls = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
 function BatchScannerMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -790,42 +804,80 @@ function BatchScannerMockControl() {
     onSuccess: async () =>
       await queryClient.invalidateQueries(['batchScannerGetStatus']),
   });
+  const setErrorQueuedMutation = useMutation(
+    apiClient.batchScannerSetErrorQueued,
+    {
+      onSuccess: async () =>
+        await queryClient.invalidateQueries(['batchScannerGetStatus']),
+    }
+  );
+  const setCopiesMutation = useMutation(apiClient.batchScannerSetCopies, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+  });
+  const [copies, setCopies] = useState(1);
 
   const status = getStatusQuery.data;
   const sheetCount = status?.sheetCount ?? 0;
+  const errorQueued = status?.errorQueued ?? false;
 
   return (
-    <div>
-      <strong>Batch Scanner:</strong>{' '}
-      <ScannerButton
-        onClick={async () => {
-          const dialogResult = await assertDefined(window.kiosk).showOpenDialog(
-            {
+    <BatchScannerControls>
+      <ScannerControls>
+        <strong>Batch Scanner:</strong>
+        <ScannerButton
+          onClick={async () => {
+            const dialogResult = await assertDefined(
+              window.kiosk
+            ).showOpenDialog({
               properties: ['openFile', 'multiSelections'],
               filters: [
                 { name: 'Ballots', extensions: ['pdf', 'jpg', 'jpeg', 'png'] },
               ],
+            });
+            if (dialogResult.canceled) return;
+            if (dialogResult.filePaths.length > 0) {
+              loadBallotsMutation.mutate({ paths: dialogResult.filePaths });
             }
-          );
-          if (dialogResult.canceled) return;
-          if (dialogResult.filePaths.length > 0) {
-            loadBallotsMutation.mutate({ paths: dialogResult.filePaths });
+          }}
+          disabled={loadBallotsMutation.isLoading}
+        >
+          {loadBallotsMutation.isLoading ? 'Loading...' : 'Load Ballots'}
+        </ScannerButton>
+        ×
+        <CopiesInput
+          aria-label="Copies"
+          type="number"
+          min={1}
+          value={copies}
+          onChange={(event) => {
+            const value = event.target.valueAsNumber;
+            const newCopies = Number.isNaN(value)
+              ? 1
+              : Math.max(1, Math.floor(value));
+            setCopies(newCopies);
+            setCopiesMutation.mutate({ copies: newCopies });
+          }}
+        />
+      </ScannerControls>
+      <ScannerControls>
+        {sheetCount > 0 && <span>{sheetCount} sheet(s) queued</span>}
+        <ScannerButton
+          onClick={() => clearBallotsMutation.mutate()}
+          disabled={sheetCount === 0}
+        >
+          Clear
+        </ScannerButton>
+        <ScannerButton
+          onClick={() =>
+            setErrorQueuedMutation.mutate({ errorQueued: !errorQueued })
           }
-        }}
-        disabled={loadBallotsMutation.isLoading}
-      >
-        {loadBallotsMutation.isLoading ? 'Loading...' : 'Load Ballots'}
-      </ScannerButton>
-      {sheetCount > 0 && (
-        <>
-          {' '}
-          {sheetCount} sheet(s) queued{' '}
-          <ScannerButton onClick={() => clearBallotsMutation.mutate()}>
-            Clear
-          </ScannerButton>
-        </>
-      )}
-    </div>
+          disabled={setErrorQueuedMutation.isLoading}
+        >
+          {errorQueued ? 'Cancel Error' : 'Queue Error'}
+        </ScannerButton>
+      </ScannerControls>
+    </BatchScannerControls>
   );
 }
 

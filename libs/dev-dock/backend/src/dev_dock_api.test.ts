@@ -833,16 +833,25 @@ test('mock PDI scanner - odd-page PDF gets blank back', async () => {
 
 function createMockBatchScanner(imageDir: string): MockBatchScannerApi {
   let sheets: Array<{ frontPath: string; backPath: string }> = [];
+  let copies = 1;
+  let errorQueued = false;
   return {
     imageDir,
     addSheets(newSheets) {
       sheets.push(...newSheets);
     },
     getStatus() {
-      return { sheetCount: sheets.length };
+      return { sheetCount: sheets.length * copies, errorQueued };
     },
     clearSheets() {
       sheets = [];
+      errorQueued = false;
+    },
+    setCopies(newCopies) {
+      copies = newCopies;
+    },
+    setErrorQueued(newErrorQueued) {
+      errorQueued = newErrorQueued;
     },
   };
 }
@@ -851,7 +860,53 @@ test('mock batch scanner - get status', async () => {
   const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
   const mockBatchScanner = createMockBatchScanner(devDockDir);
   const { apiClient } = setup({ mockBatchScanner }, devDockDir);
-  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 0,
+    errorQueued: false,
+  });
+});
+
+test('mock batch scanner - queue and cancel an error', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  await apiClient.batchScannerSetErrorQueued({ errorQueued: true });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 0,
+    errorQueued: true,
+  });
+
+  await apiClient.batchScannerSetErrorQueued({ errorQueued: false });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 0,
+    errorQueued: false,
+  });
+});
+
+test('mock batch scanner - set copies scales the queued sheets', async () => {
+  const devDockDir = makeTemporaryDirectory({ prefix: 'dev-dock-test-' });
+  const mockBatchScanner = createMockBatchScanner(devDockDir);
+  const { apiClient } = setup({ mockBatchScanner }, devDockDir);
+
+  await apiClient.batchScannerLoadBallots({
+    paths: [vxFamousNamesFixtures.markedBallotPath],
+  });
+  const { sheetCount: singleCopySheetCount } =
+    await apiClient.batchScannerGetStatus();
+  expect(singleCopySheetCount).toBeGreaterThan(0);
+
+  await apiClient.batchScannerSetCopies({ copies: 3 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: singleCopySheetCount * 3,
+    errorQueued: false,
+  });
+
+  await apiClient.batchScannerSetCopies({ copies: 1 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: singleCopySheetCount,
+    errorQueued: false,
+  });
 });
 
 test('mock batch scanner - load ballots from PDF', async () => {
@@ -880,7 +935,10 @@ test('mock batch scanner - clear ballots', async () => {
   );
 
   await apiClient.batchScannerClearBallots();
-  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 0 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 0,
+    errorQueued: false,
+  });
 });
 
 test('mock batch scanner - load image files as front/back pairs', async () => {
@@ -898,7 +956,10 @@ test('mock batch scanner - load image files as front/back pairs', async () => {
   await writeImageData(img2, createImageData(10, 10));
 
   await apiClient.batchScannerLoadBallots({ paths: [img1, img2] });
-  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 1,
+    errorQueued: false,
+  });
 });
 
 test('mock batch scanner - odd image gets a blank back', async () => {
@@ -913,7 +974,10 @@ test('mock batch scanner - odd image gets a blank back', async () => {
   await writeImageData(img, createImageData(10, 10));
 
   await apiClient.batchScannerLoadBallots({ paths: [img] });
-  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 1,
+    errorQueued: false,
+  });
 });
 
 test('mock batch scanner - single page PDF gets blank back', async () => {
@@ -925,7 +989,10 @@ test('mock batch scanner - single page PDF gets blank back', async () => {
   fs.writeFileSync(pdfPath, SINGLE_PAGE_PDF);
 
   await apiClient.batchScannerLoadBallots({ paths: [pdfPath] });
-  expect(await apiClient.batchScannerGetStatus()).toEqual({ sheetCount: 1 });
+  expect(await apiClient.batchScannerGetStatus()).toEqual({
+    sheetCount: 1,
+    errorQueued: false,
+  });
 });
 
 test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
