@@ -72,14 +72,13 @@ export function AdminTallyReport({
     ...scannedElectionResults.cardCounts,
     manual: manualElectionResults?.ballotCount,
   };
-  // A scanned column of all zeroes is noise, so entirely manual results are
-  // shown in the same single-column layout as entirely scanned results. A
-  // report without any ballots at all is empty, not manual, so it keeps the
-  // layout it has today.
-  const isManualOnly =
-    manualElectionResults !== undefined &&
-    getScannedBallotCount(cardCounts) === 0 &&
-    getBallotCount(cardCounts) > 0;
+  const scannedBallotCount = getScannedBallotCount(cardCounts);
+  const manualBallotCount = getBallotCount(cardCounts) - scannedBallotCount;
+  // The scanned/manual breakdown only tells the reader something when the
+  // report has both kinds of ballots. Without scanned ballots, the scanned
+  // column is all zeroes and the total column just repeats the manual one.
+  const showManualBreakdown = scannedBallotCount > 0 && manualBallotCount > 0;
+  const isManualOnly = scannedBallotCount === 0 && manualBallotCount > 0;
   const reportTitle = prefixedTitle({
     isOfficial,
     isForLogicAndAccuracyTesting,
@@ -128,7 +127,7 @@ export function AdminTallyReport({
                 contest={contest}
                 scannedContestResults={scannedContestResults}
                 manualContestResults={manualContestResults}
-                showManualBreakdown={!isManualOnly}
+                showManualBreakdown={showManualBreakdown}
                 aggregateInsignificantWriteIns={aggregateInsignificantWriteIns}
               />
             );

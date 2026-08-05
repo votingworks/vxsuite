@@ -244,10 +244,12 @@ test('with empty manual results', () => {
     />
   );
 
-  // a report without any ballots is empty, not manual
+  // a report without any ballots is empty, not manual, and there's nothing
+  // for a scanned/manual breakdown to say
   expect(
     screen.queryByText('Manually Entered Results')
   ).not.toBeInTheDocument();
+  expect(screen.queryAllByText('manual')).toHaveLength(0);
 });
 
 test('allows card counts override', () => {
