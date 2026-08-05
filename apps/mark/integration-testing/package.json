@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
-    "test": "echo \"DIAG-EMIT: $(head -c 20 ../../../libs/integration-test-utils/build/index.js 2>&1)\"; head -3 ../../../libs/integration-test-utils/build/index.js; playwright test",
+    "test": "echo \"== DIAG ==\"; L=../../../libs/integration-test-utils/build; echo \"index.js:   $(head -c 22 $L/index.js)\"; echo \"pwconfig.js: $(head -c 22 $L/playwright_config.js)\"; ls -la --time-style=full-iso $L/index.js $L/playwright_config.js 2>&1 | awk '{print $6,$7,$9}'; echo \"CJS files in build:\"; grep -lE \"^\\\"use strict\\\"|Object.defineProperty.exports\" $L/*.js 2>/dev/null | xargs -n1 basename 2>/dev/null | tr \"\\n\" \" \"; echo; echo \"== END DIAG ==\"; playwright test",
     "test:watch": "playwright test --ui"
   },
   "dependencies": {
