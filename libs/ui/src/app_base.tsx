@@ -2,10 +2,10 @@ import React, { useCallback } from 'react';
 
 import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
-import { GlobalStyles } from './global_styles';
-import { VoterSettingsManagerContext } from './voter_settings_manager_context';
-import { VxThemeProvider } from './themes/vx_theme_provider';
-import { loadFonts, unloadFonts } from './fonts/load_fonts';
+import { GlobalStyles } from './global_styles.js';
+import { VoterSettingsManagerContext } from './voter_settings_manager_context.js';
+import { VxThemeProvider } from './themes/vx_theme_provider.js';
+import { loadFonts, unloadFonts } from './fonts/load_fonts.js';
 
 declare module 'styled-components' {
   /**

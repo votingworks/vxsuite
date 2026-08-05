@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { sleep } from '@votingworks/basics';
 
-import { Button } from './button';
-import { Loading } from './loading';
-import { Modal } from './modal';
-import { Font, H2, P } from './typography';
+import { Button } from './button.js';
+import { Loading } from './loading.js';
+import { Modal } from './modal.js';
+import { Font, H2, P } from './typography.js';
 
 interface Props {
   unconfigureMachine: () => Promise<void>;

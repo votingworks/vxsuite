@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { useAvailableLanguages } from '../hooks/use_available_languages';
-import { Button } from '../button';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { useAvailableLanguages } from '../hooks/use_available_languages.js';
+import { Button } from '../button.js';
 import {
   appStrings,
   electionStrings,
   LanguageOverride,
   WithAltAudio,
-} from '../ui_strings';
+} from '../ui_strings/index.js';
 
 export interface LanguageSettingsButtonProps {
   disabled?: boolean;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { DiagnosticOutcome } from '@votingworks/types';
-import { Modal } from '../modal';
-import { Button } from '../button';
-import { P } from '../typography';
+import { Modal } from '../modal.js';
+import { Button } from '../button.js';
+import { P } from '../typography.js';
 
 export interface UpsDiagnosticModalProps {
   setVisible: (visible: boolean) => void;

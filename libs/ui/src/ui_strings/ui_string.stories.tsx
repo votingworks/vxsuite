@@ -6,12 +6,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { assertDefined } from '@votingworks/basics';
 
-import { UiString as Component, UiStringProps as Props } from './ui_string';
+import { UiString as Component, UiStringProps as Props } from './ui_string.js';
 import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
   NumPlanets,
-} from '../../test/test_ui_strings';
+} from '../../test/test_ui_strings.js';
 import {
   Caption,
   H4,
@@ -21,8 +21,8 @@ import {
   UiStringsContextProvider,
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from '..';
-import { useFrontendLanguageContext } from './language_context';
+} from '../index.js';
+import { useFrontendLanguageContext } from './language_context.js';
 
 const initialProps: Partial<Props> = {
   children: null,

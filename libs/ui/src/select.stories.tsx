@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { Select, SelectProps } from './select';
+import { Select, SelectProps } from './select.js';
 
 const initialProps: SelectProps = {
   children: (

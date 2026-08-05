@@ -1,9 +1,9 @@
 import React from 'react';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { useAvailableLanguages } from '../hooks/use_available_languages';
-import { useLanguageControls } from '../hooks/use_language_controls';
-import { useAudioControls } from '../hooks/use_audio_controls';
-import { Keybinding } from '../keybindings';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { useAvailableLanguages } from '../hooks/use_available_languages.js';
+import { useLanguageControls } from '../hooks/use_language_controls.js';
+import { useAudioControls } from '../hooks/use_audio_controls.js';
+import { Keybinding } from '../keybindings.js';
 
 /**
  * Installs UI String keyboard shortcuts for dev convenience.

@@ -8,16 +8,16 @@ import {
   SheetPositions,
   Tabulation,
 } from '@votingworks/types';
-import styled from 'styled-components';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import electionWithMsEitherNeitherData from '@fixtures/electionWithMsEitherNeither/electionWithMsEitherNeither.json?raw';
+import { styled } from '../styled.js';
 import {
   BallotCountReport,
   BallotCountReportProps,
-} from './ballot_count_report';
-import { LabeledScannerBatch } from './utils';
+} from './ballot_count_report.js';
+import { LabeledScannerBatch } from './utils.js';
 
 const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
   electionTwoPartyPrimaryData

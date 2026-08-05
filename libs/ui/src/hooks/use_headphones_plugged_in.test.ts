@@ -4,10 +4,10 @@ import {
   getFeatureFlagMock,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { useHeadphonesPluggedIn } from './use_headphones_plugged_in';
-import { AUDIO_INFO_POLLING_INTERVAL_MS } from '../system_call_api';
-import { newTestContext } from '../../test/test_context';
-import { act, waitFor } from '../../test/react_testing_library';
+import { useHeadphonesPluggedIn } from './use_headphones_plugged_in.js';
+import { AUDIO_INFO_POLLING_INTERVAL_MS } from '../system_call_api.js';
+import { newTestContext } from '../../test/test_context.js';
+import { act, waitFor } from '../../test/react_testing_library.js';
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),

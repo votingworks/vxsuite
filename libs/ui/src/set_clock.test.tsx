@@ -2,22 +2,22 @@ import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from './user_event.js';
 import {
   act,
   cleanup,
   screen,
   waitFor,
   within,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 import {
   PickDateTimeModal,
   MAX_YEAR,
   MIN_YEAR,
   SetClockButton,
   CurrentDateAndTime,
-} from './set_clock';
-import { newTestContext } from '../test/test_context';
+} from './set_clock.js';
+import { newTestContext } from '../test/test_context.js';
 
 function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId);

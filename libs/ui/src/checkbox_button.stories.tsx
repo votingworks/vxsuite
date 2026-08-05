@@ -5,7 +5,7 @@ import type { Meta } from '@storybook/react-vite' with {
 import {
   CheckboxButtonProps,
   CheckboxButton as Component,
-} from './checkbox_button';
+} from './checkbox_button.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/CheckboxButton',
