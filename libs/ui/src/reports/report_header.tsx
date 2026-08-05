@@ -66,7 +66,7 @@ export function LabeledValue({
   );
 }
 
-const TestModeBannerContainer = styled(Box)`
+const ReportBannerContainer = styled(Box)`
   padding: 1em;
   margin-bottom: 1em;
 
@@ -82,12 +82,23 @@ export function TestModeReportBanner({
   overrideText?: string;
 }): JSX.Element {
   return (
-    <TestModeBannerContainer>
+    <ReportBannerContainer>
       <h2>
         <Icons.Warning /> Test Report
       </h2>
       {overrideText ??
         'This report was generated using test ballots and does not contain actual election results.'}
-    </TestModeBannerContainer>
+    </ReportBannerContainer>
+  );
+}
+
+export function ManualResultsReportBanner(): JSX.Element {
+  return (
+    <ReportBannerContainer>
+      <h2>
+        <Icons.Warning /> Manually Entered Results
+      </h2>
+      All results in this report were manually entered rather than scanned.
+    </ReportBannerContainer>
   );
 }

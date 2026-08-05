@@ -127,7 +127,7 @@ function ContestOptionRow({
   return (
     <tr data-testid={testId}>
       <th colSpan={3}>{optionLabel}</th>
-      <td>{format.count(scannedTally)}</td>
+      <td>{format.count(scannedTally + manualTally)}</td>
     </tr>
   );
 }
@@ -169,6 +169,11 @@ interface Props {
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
   aggregateInsignificantWriteIns?: boolean;
+  /**
+   * When false, manual tallies are folded into a single column of totals
+   * rather than broken out alongside the scanned tallies.
+   */
+  showManualBreakdown?: boolean;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -182,10 +187,17 @@ export function ContestResultsTable({
   scannedContestResults,
   manualContestResults,
   aggregateInsignificantWriteIns = true,
+  showManualBreakdown = true,
 }: Props): JSX.Element {
-  // When there are manual results, the metadata is included as table rows
-  // rather than as an above table caption.
-  const contestTableRows: JSX.Element[] = manualContestResults
+  // Manual tallies that aren't broken out are still counted; they're summed
+  // into the single column of totals.
+  const manualColumnResults = showManualBreakdown
+    ? manualContestResults
+    : undefined;
+
+  // When the manual tallies are broken out, the metadata is included as table
+  // rows rather than as an above table caption.
+  const contestTableRows: JSX.Element[] = manualColumnResults
     ? [
         <tr className="metadata header" key={`${contest.id}-header`}>
           <th> </th>
@@ -199,25 +211,34 @@ export function ContestResultsTable({
           label="Ballots Cast"
           key={`${contest.id}-ballots-cast`}
           scannedTally={scannedContestResults.ballots}
-          manualTally={manualContestResults.ballots}
+          manualTally={manualColumnResults.ballots}
         />,
         <ContestMetadataRow
           label="Overvotes"
           key={`${contest.id}-overvotes`}
           scannedTally={scannedContestResults.overvotes}
-          manualTally={manualContestResults.overvotes}
+          manualTally={manualColumnResults.overvotes}
         />,
         <ContestMetadataRow
           label="Undervotes"
           key={`${contest.id}-undervotes`}
           scannedTally={scannedContestResults.undervotes}
-          manualTally={manualContestResults.undervotes}
+          manualTally={manualColumnResults.undervotes}
           isLast
         />,
       ]
     : [];
 
-  const hasManualResults = Boolean(manualContestResults);
+  const hasManualColumn = Boolean(manualColumnResults);
+
+  // The caption describes the single column of totals, so it includes the
+  // manual tallies when they aren't broken out.
+  const totalBallots =
+    scannedContestResults.ballots + (manualContestResults?.ballots ?? 0);
+  const totalOvervotes =
+    scannedContestResults.overvotes + (manualContestResults?.overvotes ?? 0);
+  const totalUndervotes =
+    scannedContestResults.undervotes + (manualContestResults?.undervotes ?? 0);
 
   switch (contest.type) {
     case 'candidate': {
@@ -240,7 +261,7 @@ export function ContestResultsTable({
             optionLabel={candidateReportTally.name}
             scannedTally={candidateReportTally.scannedTally}
             manualTally={candidateReportTally.manualTally}
-            showManualTally={hasManualResults}
+            showManualTally={hasManualColumn}
           />
         );
       }
@@ -258,7 +279,7 @@ export function ContestResultsTable({
             optionLabel={option.label}
             scannedTally={scannedContestResults.tallies[option.id] ?? 0}
             manualTally={manualContestResults?.tallies[option.id] ?? 0}
-            showManualTally={hasManualResults}
+            showManualTally={hasManualColumn}
           />
         );
       }
@@ -280,7 +301,7 @@ export function ContestResultsTable({
             }
             scannedTally={scannedContestResults.tallies[partyId]}
             manualTally={manualContestResults?.tallies[partyId] ?? 0}
-            showManualTally={hasManualResults}
+            showManualTally={hasManualColumn}
           />
         );
       }
@@ -304,28 +325,28 @@ export function ContestResultsTable({
           )}
         </ContestMetadata>
       )}
-      {!hasManualResults && (
+      {!hasManualColumn && (
         <MetadataLabel>
           <Font noWrap>
-            {`${format.count(scannedContestResults.ballots)} ${pluralize(
+            {`${format.count(totalBallots)} ${pluralize(
               'ballots',
-              scannedContestResults.ballots
+              totalBallots
             )}`}{' '}
             cast /
           </Font>{' '}
           <Font noWrap>
             {' '}
-            {`${format.count(scannedContestResults.overvotes)} ${pluralize(
+            {`${format.count(totalOvervotes)} ${pluralize(
               'overvotes',
-              scannedContestResults.overvotes
+              totalOvervotes
             )}`}{' '}
             /
           </Font>{' '}
           <Font noWrap>
             {' '}
-            {`${format.count(scannedContestResults.undervotes)} ${pluralize(
+            {`${format.count(totalUndervotes)} ${pluralize(
               'undervotes',
-              scannedContestResults.undervotes
+              totalUndervotes
             )}`}
           </Font>
         </MetadataLabel>

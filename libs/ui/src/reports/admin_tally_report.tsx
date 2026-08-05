@@ -5,6 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
+import { getScannedBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -22,6 +23,7 @@ import {
   ReportTitle,
   ReportElectionInfo,
   TestModeReportBanner,
+  ManualResultsReportBanner,
   ReportSubtitle,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
@@ -70,6 +72,11 @@ export function AdminTallyReport({
     ...scannedElectionResults.cardCounts,
     manual: manualElectionResults?.ballotCount,
   };
+  // A scanned column of all zeroes is noise, so entirely manual results are
+  // shown in the same single-column layout as entirely scanned results.
+  const isManualOnly =
+    manualElectionResults !== undefined &&
+    getScannedBallotCount(cardCounts) === 0;
   const reportTitle = prefixedTitle({
     isOfficial,
     isForLogicAndAccuracyTesting,
@@ -80,6 +87,7 @@ export function AdminTallyReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
         {isTest && <TestModeReportBanner />}
+        {isManualOnly && <ManualResultsReportBanner />}
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>
@@ -117,6 +125,7 @@ export function AdminTallyReport({
                 contest={contest}
                 scannedContestResults={scannedContestResults}
                 manualContestResults={manualContestResults}
+                showManualBreakdown={!isManualOnly}
                 aggregateInsignificantWriteIns={aggregateInsignificantWriteIns}
               />
             );

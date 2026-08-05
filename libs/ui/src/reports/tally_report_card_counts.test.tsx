@@ -92,11 +92,10 @@ test('only manual count', () => {
   const ballotCountRow = screen.getByText('Ballot Count').closest('tr')!;
   within(ballotCountRow).getByText('7');
 
-  const scannedRow = screen.getByText('Scanned').closest('tr')!;
-  within(scannedRow).getByText('0');
-
-  const manualRow = screen.getByText('Manually Entered').closest('tr')!;
-  within(manualRow).getByText('7');
+  // without scanned ballots, the breakdown would only restate the total
+  expect(screen.queryByText('Scanned')).not.toBeInTheDocument();
+  expect(screen.queryByText('Manually Entered')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('row')).toHaveLength(1);
 });
 
 test('all counts, single HMPB sheet', () => {
