@@ -60,8 +60,10 @@ const markBorderRadius = markSize[1] * 0.5;
 const markSizeHalf = [markSize[0] * 0.5, markSize[1] * 0.5] as const;
 
 /**
- * Spacing between adjacent timing marks, in `pt`. Grid coordinates in ballot
- * positions - including write-in area dimensions - are in these units.
+ * Distance between the centers of adjacent timing marks, in `pt` - the pitch of
+ * the timing mark grid, not the blank space between one mark and the next. Grid
+ * coordinates in ballot positions - including write-in area dimensions - are in
+ * these units.
  *
  * This is the same quantity as the `columnGap`/`rowGap` of the
  * {@link GridMeasurements} that {@link measureTimingMarkGrid} returns, but

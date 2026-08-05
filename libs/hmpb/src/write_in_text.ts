@@ -45,12 +45,14 @@ export interface FittedWriteInText {
 }
 
 /**
- * A piece of text that may start a new line, along with whether it is separated
- * from the preceding piece by a space.
+ * A piece of text that may start a new line, along with whether it begins a new
+ * word - false for a piece that continues the word before it, as the part after
+ * a hyphen does. Determines whether a space goes before it when it continues a
+ * line.
  */
 interface Segment {
   readonly text: string;
-  readonly precededBySpace: boolean;
+  readonly startsWord: boolean;
 }
 
 /**
@@ -65,7 +67,7 @@ function breakIntoSegments(text: string): Segment[] {
     .flatMap((word) =>
       assertDefined(word.match(/[^-]*-|[^-]+/g)).map((part, index) => ({
         text: part,
-        precededBySpace: index === 0,
+        startsWord: index === 0,
       }))
     );
 }
@@ -75,15 +77,10 @@ function breakIntoSegments(text: string): Segment[] {
  * long to fit on a line of its own is broken across lines mid-segment, so every
  * returned line is guaranteed to fit.
  *
- * We wrap by hand rather than using pdf-lib's `layoutMultilineText` because that
- * function only breaks at whitespace, and when a single word is too wide for the
- * line it gives up and returns the word whole - which is the overflow we're
- * fixing here. A 40-character name with no spaces in our narrowest write-in area
- * comes back from it 2.8x wider than the area. It's also more conservative than
- * it needs to be on names it can wrap, since it reserves a full line's ascent and
- * descent plus 20% leading per line: it drops a long hyphenated name to its 4pt
- * floor and leaves 40% of the area's height unused, where we fit the same name at
- * 6pt.
+ * We wrap by hand rather than using pdf-lib's `layoutMultilineText` because it
+ * only breaks at whitespace and can't be told to break mid-segment when that's
+ * the only way to fit, which is the overflow we're fixing here. We also need
+ * finer control over sizing than it offers.
  */
 function wrapText(
   text: string,
@@ -99,7 +96,7 @@ function wrapText(
   let line = '';
 
   for (const segment of breakIntoSegments(text)) {
-    const separator = line !== '' && segment.precededBySpace ? ' ' : '';
+    const separator = line !== '' && segment.startsWord ? ' ' : '';
     const extendedLine = `${line}${separator}${segment.text}`;
     if (fits(extendedLine)) {
       line = extendedLine;
