@@ -281,7 +281,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   async isEmpty(): Promise<boolean> {
-    /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
+    // @coverage-exclude: `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined
     return (await this.intoInner()[Symbol.asyncIterator]().next()).done ?? true;
   }
 
@@ -547,9 +547,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       (async function* gen(): AsyncIterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map(
           (it) =>
-            /* istanbul ignore next */
+            // @coverage-exclude
             (it as AsyncIterable<unknown>)[Symbol.asyncIterator]?.() ??
-            /* istanbul ignore next */
             (it as Iterable<unknown>)[Symbol.iterator]?.()
         );
 
