@@ -96,16 +96,16 @@ function ContestOptionRow({
   testId,
   optionLabel,
   scannedTally,
-  showManualTally,
+  separateScannedAndManualTally,
   manualTally,
 }: {
   testId: string;
   optionLabel: string;
   scannedTally: number;
-  showManualTally: boolean;
+  separateScannedAndManualTally: boolean;
   manualTally: number;
 }): JSX.Element {
-  if (showManualTally) {
+  if (separateScannedAndManualTally) {
     return (
       <tr data-testid={testId}>
         <th className="option-label">{optionLabel.replace('-', '‑')}</th>
@@ -170,10 +170,11 @@ interface Props {
   manualContestResults?: Tabulation.ContestResults;
   aggregateInsignificantWriteIns?: boolean;
   /**
-   * When false, manual tallies are folded into a single column of totals
-   * rather than broken out alongside the scanned tallies.
+   * When false, the manual tallies are summed into the single column of
+   * totals instead of getting a column of their own beside the scanned
+   * tallies.
    */
-  showManualBreakdown?: boolean;
+  separateScannedAndManualTallies?: boolean;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -187,11 +188,11 @@ export function ContestResultsTable({
   scannedContestResults,
   manualContestResults,
   aggregateInsignificantWriteIns = true,
-  showManualBreakdown = true,
+  separateScannedAndManualTallies = true,
 }: Props): JSX.Element {
   // Manual tallies that aren't broken out are still counted; they're summed
   // into the single column of totals.
-  const manualColumnResults = showManualBreakdown
+  const manualColumnResults = separateScannedAndManualTallies
     ? manualContestResults
     : undefined;
 
@@ -261,7 +262,7 @@ export function ContestResultsTable({
             optionLabel={candidateReportTally.name}
             scannedTally={candidateReportTally.scannedTally}
             manualTally={candidateReportTally.manualTally}
-            showManualTally={hasManualColumn}
+            separateScannedAndManualTally={hasManualColumn}
           />
         );
       }
@@ -279,7 +280,7 @@ export function ContestResultsTable({
             optionLabel={option.label}
             scannedTally={scannedContestResults.tallies[option.id] ?? 0}
             manualTally={manualContestResults?.tallies[option.id] ?? 0}
-            showManualTally={hasManualColumn}
+            separateScannedAndManualTally={hasManualColumn}
           />
         );
       }
@@ -301,7 +302,7 @@ export function ContestResultsTable({
             }
             scannedTally={scannedContestResults.tallies[partyId]}
             manualTally={manualContestResults?.tallies[partyId] ?? 0}
-            showManualTally={hasManualColumn}
+            separateScannedAndManualTally={hasManualColumn}
           />
         );
       }

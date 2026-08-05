@@ -74,7 +74,8 @@ export function AdminTallyReport({
   };
   const scannedBallotCount = getScannedBallotCount(cardCounts);
   const manualBallotCount = cardCounts.manual ?? 0;
-  const showManualBreakdown = scannedBallotCount > 0 && manualBallotCount > 0;
+  const separateScannedAndManualTallies =
+    scannedBallotCount > 0 && manualBallotCount > 0;
   const isManualOnly = scannedBallotCount === 0 && manualBallotCount > 0;
   const reportTitle = prefixedTitle({
     isOfficial,
@@ -124,7 +125,9 @@ export function AdminTallyReport({
                 contest={contest}
                 scannedContestResults={scannedContestResults}
                 manualContestResults={manualContestResults}
-                showManualBreakdown={showManualBreakdown}
+                separateScannedAndManualTallies={
+                  separateScannedAndManualTallies
+                }
                 aggregateInsignificantWriteIns={aggregateInsignificantWriteIns}
               />
             );
