@@ -40,6 +40,16 @@ jobs:
             set +e
             moon ci --summary
             echo $? > /tmp/moon-exit-code
+            # Echo any vitest-failed task's captured log to this step's tail, so
+            # the failure survives CircleCI's head-truncation of long step logs
+            # (moon's per-task logs are also uploaded as artifacts below).
+            for d in $(find .moon/cache/states -mindepth 2 -maxdepth 2 -type d); do
+              o="$d/stdout.log"
+              if [ -f "$o" ] && grep -qE "[0-9]+ failed" "$o"; then
+                echo "===== FAILED TASK: $d ====="; tail -120 "$o"
+                echo "--- stderr ---"; tail -60 "$d/stderr.log" 2>/dev/null
+              fi
+            done
             exit 0
       - save_cache:
           key: moon-{{ .Branch }}-{{ .Revision }}
