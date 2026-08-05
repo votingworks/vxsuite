@@ -10,9 +10,9 @@ import {
 import { Election, Id, safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { SCAN_WORKSPACE } from '../src/globals.js';
-import { Store } from '../src/store.js';
-import { createWorkspace } from '../src/util/workspace.js';
+import { SCAN_WORKSPACE } from '../globals.js';
+import { Store } from '../store.js';
+import { createWorkspace } from '../util/workspace.js';
 
 const usageMessage = `Usage: copy-batch '<batch-name>' <num-copies>
 

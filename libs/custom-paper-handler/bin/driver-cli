@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install();
+// Runs the compiled output rather than transpiling `src` on the fly: the
+// esbuild-runner hook this used to go through is a CommonJS `require` hook and
+// cannot load this package's ESM sources. Run `pnpm build:self` first.
+import { main } from '../build/cli/driver_cli.js';
 
-require('../src/cli/driver_cli')
-  .main()
+main()
   .then((code) => {
     process.exitCode = code;
   })

@@ -14,6 +14,10 @@ export default defineConfig({
         branches: -45,
       },
       exclude: [
+        // Dev-only CLI entry points, compiled so the `scripts/` launchers can
+        // import them rather than transpiling sources at run time. They lived
+        // outside `src/` before, so they were never counted.
+        'src/scripts/**',
         '**/node_modules/**',
         '**/*.test.ts',
         'test/**/*',
