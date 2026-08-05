@@ -30,6 +30,7 @@ import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
 import noAssertResultPredicates from './no_assert_result_predicates';
 import noImportSubfolders from './no_import_workspace_subfolders';
+import noEsmWorkspaceImportInTestSetup from './no_esm_workspace_import_in_test_setup';
 import noExpectToBe from './no_expect_to_be';
 import noManualSleep from './no_manual_sleep';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
@@ -65,6 +66,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-assert-result-predicates': noAssertResultPredicates,
   'no-floating-results': noFloatingVoids,
+  'no-esm-workspace-import-in-test-setup': noEsmWorkspaceImportInTestSetup,
   'no-import-workspace-subfolders': noImportSubfolders,
   'no-expect-to-be': noExpectToBe,
   'no-manual-sleep': noManualSleep,
