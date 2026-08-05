@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { Table, TD, TH } from './table';
+import { Table, TD, TH } from './table.js';
 
 test('default table', () => {
   render(

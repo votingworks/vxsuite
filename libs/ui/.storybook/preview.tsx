@@ -6,9 +6,9 @@ import {
   StoryContext,
 } from '@storybook/types';
 
-import { AppBase, VoterSettingsManagerContext } from '../src';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
+import { AppBase, VoterSettingsManagerContext } from '../src/index.js';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
 // the @storybook/types repo.

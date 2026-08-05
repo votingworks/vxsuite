@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
 import { styled } from '../styled.js';
-import { act, render, screen } from '../../test/react_testing_library';
+import { act, render, screen } from '../../test/react_testing_library.js';
 import {
   PageNavigationButtonId,
   advanceElementFocus,
   triggerPageNavigationButton,
-} from './navigation';
-import { FocusableAudio } from '../focusable_audio';
+} from './navigation.js';
+import { FocusableAudio } from '../focusable_audio.js';
 
 const TestButton = styled.button.attrs({ type: 'button' })`
   /* stylelint-disable no-empty-source */

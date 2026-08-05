@@ -10,8 +10,8 @@ import {
   BatchInfo,
   formatElectionHashes,
 } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
-import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
+import { render, screen } from '../../test/react_testing_library.js';
+import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

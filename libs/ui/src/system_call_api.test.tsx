@@ -8,7 +8,7 @@ import {
   createSystemCallApi,
   DISK_SPACE_POLLING_INTERVAL_MS,
   useSystemCallApi,
-} from './system_call_api';
+} from './system_call_api.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

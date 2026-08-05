@@ -1,4 +1,4 @@
-import { QRCodeSVG } from 'qrcode.react';
+import { QrCodeSvg } from './qrcode_react.js';
 import { styled } from './styled.js';
 
 const ResponsiveSvgWrapper = styled.div`
@@ -40,7 +40,7 @@ export function QrCode({
 }: QrCodeProps): JSX.Element {
   return (
     <ResponsiveSvgWrapper>
-      <QRCodeSVG value={value} level={level} size={size} />
+      <QrCodeSvg value={value} level={level} size={size} />
     </ResponsiveSvgWrapper>
   );
 }

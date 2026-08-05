@@ -2,7 +2,7 @@
 import { rgba } from 'polished';
 import { css, keyframes } from 'styled-components';
 import { styled } from '../styled.js';
-import { Svg } from '../svg';
+import { Svg } from '../svg.js';
 
 const DURATION_SECONDS = 5;
 const BORDER_RADIUS_FRAME_CSS_VAL = '1vh';

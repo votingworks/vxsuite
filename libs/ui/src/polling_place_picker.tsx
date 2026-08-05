@@ -7,11 +7,11 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import { styled } from './styled.js';
-import { Button } from './button';
-import { Modal } from './modal';
-import { Caption, Font, H1, P } from './typography';
-import { Icons } from './icons';
-import { SearchSelect } from './search_select';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { Caption, Font, H1, P } from './typography.js';
+import { Icons } from './icons.js';
+import { SearchSelect } from './search_select.js';
 
 export const POLLING_PLACE_PICKER_LABEL = 'Select a polling place…';
 

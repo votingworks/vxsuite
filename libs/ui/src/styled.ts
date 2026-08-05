@@ -21,4 +21,6 @@ const styledModule = styledDefault as unknown as StyledInterface & {
   default?: StyledInterface;
 };
 
-export const styled: StyledInterface = styledModule.default ?? styledModule;
+export const styled: StyledInterface =
+  /* istanbul ignore next - only one branch is reachable per loader */
+  styledModule.default ?? styledModule;

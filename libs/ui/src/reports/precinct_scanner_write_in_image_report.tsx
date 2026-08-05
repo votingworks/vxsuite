@@ -13,10 +13,10 @@ import {
   WriteInGrid,
   WriteInImage,
   WriteInTextBox,
-} from './write_in_report_styles';
-import { LogoMark } from '../logo_mark';
-import { Font } from '../typography';
-import { PrintedReport, printedReportThemeFn } from './layout';
+} from './write_in_report_styles.js';
+import { LogoMark } from '../logo_mark.js';
+import { Font } from '../typography.js';
+import { PrintedReport, printedReportThemeFn } from './layout.js';
 import {
   LabeledValue,
   ReportElectionInfo,
@@ -25,8 +25,8 @@ import {
   ReportSubtitle,
   ReportTitle,
   TestModeReportBanner,
-} from './report_header';
-import { precinctScannerLocationName } from './precinct_scanner_report_header';
+} from './report_header.js';
+import { precinctScannerLocationName } from './precinct_scanner_report_header.js';
 
 export interface WriteInEntry {
   type: 'image' | 'text';

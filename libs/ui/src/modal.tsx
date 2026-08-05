@@ -7,10 +7,10 @@ import { assert } from '@votingworks/basics';
 
 import { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
-import { H2 } from './typography';
-import { ReadOnLoad } from './ui_strings/read_on_load';
-import { useAudioContext } from './ui_strings/audio_context';
-import { FocusableAudio } from './focusable_audio';
+import { H2 } from './typography.js';
+import { ReadOnLoad } from './ui_strings/read_on_load.js';
+import { useAudioContext } from './ui_strings/audio_context.js';
+import { FocusableAudio } from './focusable_audio.js';
 
 /**
  * Controls the maximum width the modal can expand to.

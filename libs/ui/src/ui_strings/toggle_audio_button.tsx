@@ -1,12 +1,12 @@
 import React from 'react';
-import { Button } from '../button';
-import { P } from '../typography';
-import { useAudioControls } from '../hooks/use_audio_controls';
-import { Icons } from '../icons';
-import { appStrings } from './app_strings';
-import { WithAltAudio } from './with_alt_audio';
-import { useAudioEnabled } from '../hooks/use_audio_enabled';
-import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in';
+import { Button } from '../button.js';
+import { P } from '../typography.js';
+import { useAudioControls } from '../hooks/use_audio_controls.js';
+import { Icons } from '../icons.js';
+import { appStrings } from './app_strings.js';
+import { WithAltAudio } from './with_alt_audio.js';
+import { useAudioEnabled } from '../hooks/use_audio_enabled.js';
+import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in.js';
 
 export function ToggleAudioButton(): React.ReactNode {
   const isAudioEnabled = useAudioEnabled();

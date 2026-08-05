@@ -6,7 +6,7 @@ import { SizeMode, SizeTheme, UiTheme } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { rgba } from 'polished';
 import { styled } from './styled.js';
-import { IconName, Icons } from './icons';
+import { IconName, Icons } from './icons.js';
 
 const FONT_SIZE_REM = 1;
 

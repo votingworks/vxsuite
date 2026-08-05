@@ -1,7 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
-import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
+import { userEvent } from './user_event.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
+import { ResetPollsToPausedButton } from './reset_polls_to_paused_button.js';
 
 test('component flow', async () => {
   const resetPollsToPaused = vi.fn();

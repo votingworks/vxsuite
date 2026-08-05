@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { styled } from './styled.js';
 
-import { ReadOnLoad } from './ui_strings/read_on_load';
+import { ReadOnLoad } from './ui_strings/read_on_load.js';
 
 export const FOCUSABLE_AUDIO_CLASS_NAME = 'FocusableAudio';
 

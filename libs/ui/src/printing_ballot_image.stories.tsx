@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/react';
 
-import { PrintingBallotImage } from './printing_ballot_image';
+import { PrintingBallotImage } from './printing_ballot_image.js';
 
 const meta: Meta<typeof PrintingBallotImage> = {
   title: 'libs-ui/Images',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled } from './styled.js';
-import { Caption } from './typography';
+import { Caption } from './typography.js';
 
 /** Props for {@link LabelledText}. */
 export interface LabelledTextProps {

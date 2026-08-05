@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 
-import { RadioGroup as Component, RadioGroupProps } from '.';
+import { RadioGroup as Component, RadioGroupProps } from './index.js';
 
 const initialArgs: Partial<RadioGroupProps<string>> = {
   label: 'Favourite Thing:',

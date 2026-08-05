@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   FileInputButton as Component,
   FileInputButtonProps,
-} from './file_input_button';
+} from './file_input_button.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/FileInputButton',

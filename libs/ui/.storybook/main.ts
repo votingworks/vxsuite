@@ -1,11 +1,10 @@
 import * as path from 'node:path';
-// @ts-expect-error - TS thinks there's an error with the module type but it works ok
 import { Alias, mergeConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
-const config: StorybookConfig = {
+export const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
   addons: [
     '@storybook/addon-links',
@@ -23,7 +22,7 @@ const config: StorybookConfig = {
   staticDirs: ['../.storybook-static'],
   async viteFinal(config) {
     const workspacePackages = getWorkspacePackageInfo(
-      path.join(__dirname, '../..')
+      path.join(import.meta.dirname, '../..')
     );
 
     return mergeConfig(config, {
@@ -42,7 +41,7 @@ const config: StorybookConfig = {
           // const election = safeParseElection(electionData).unsafeUnwrap();
           {
             find: '@fixtures',
-            replacement: path.join(__dirname, '../../fixtures/data'),
+            replacement: path.join(import.meta.dirname, '../../fixtures/data'),
           },
 
           // Replace NodeJS built-in modules with polyfills.
@@ -57,31 +56,34 @@ const config: StorybookConfig = {
           { find: 'node:events', replacement: require.resolve('events/') },
           {
             find: 'fs/promises',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'node:fs/promises',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'fs',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'node:fs',
-            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/fs.ts'),
           },
           {
             find: 'jsdom',
-            replacement: path.join(__dirname, '../src/stubs/jsdom.ts'),
+            replacement: path.join(
+              import.meta.dirname,
+              '../src/stubs/jsdom.ts'
+            ),
           },
           {
             find: 'os',
-            replacement: path.join(__dirname, '../src/stubs/os.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/os.ts'),
           },
           {
             find: 'node:os',
-            replacement: path.join(__dirname, '../src/stubs/os.ts'),
+            replacement: path.join(import.meta.dirname, '../src/stubs/os.ts'),
           },
           { find: 'path', replacement: require.resolve('path/') },
           { find: 'node:path', replacement: require.resolve('path/') },
@@ -126,5 +128,3 @@ const config: StorybookConfig = {
     });
   },
 };
-
-module.exports = config;

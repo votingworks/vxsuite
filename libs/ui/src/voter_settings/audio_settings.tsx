@@ -1,23 +1,23 @@
 import React from 'react';
 import { styled } from '../styled.js';
-import { SettingsPane } from './settings_pane';
-import { Button } from '../button';
-import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
+import { SettingsPane } from './settings_pane.js';
+import { Button } from '../button.js';
+import { VoterSettingsManagerContext } from '../voter_settings_manager_context.js';
 import {
   AppStringKey,
   appStrings,
   RATE_CHANGE_FEEDBACK_STRING_KEYS,
   VOLUME_CHANGE_FEEDBACK_STRING_KEYS,
-} from '../ui_strings/app_strings';
-import { ToggleAudioButton, WithAltAudio } from '../ui_strings';
-import { useAudioControls } from '../hooks/use_audio_controls';
-import { useCurrentTheme } from '../hooks/use_current_theme';
-import { Font } from '../typography';
-import { useAudioContext } from '../ui_strings/audio_context';
-import { AssistiveTechInstructions } from '../accessible_controllers';
-import { IconName } from '../icons';
-import { AudioVolume } from '../ui_strings/audio_volume';
-import { PlaybackRate } from '../ui_strings/audio_playback_rate';
+} from '../ui_strings/app_strings.js';
+import { ToggleAudioButton, WithAltAudio } from '../ui_strings/index.js';
+import { useAudioControls } from '../hooks/use_audio_controls.js';
+import { useCurrentTheme } from '../hooks/use_current_theme.js';
+import { Font } from '../typography.js';
+import { useAudioContext } from '../ui_strings/audio_context.js';
+import { AssistiveTechInstructions } from '../accessible_controllers/index.js';
+import { IconName } from '../icons.js';
+import { AudioVolume } from '../ui_strings/audio_volume.js';
+import { PlaybackRate } from '../ui_strings/audio_playback_rate.js';
 
 const Column = styled.div`
   align-items: start;

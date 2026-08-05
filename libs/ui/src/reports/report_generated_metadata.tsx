@@ -5,7 +5,7 @@ import {
   formatBallotHash,
   formatElectionHashes,
 } from '@votingworks/types';
-import { LabeledValue, ReportMetadata } from './report_header';
+import { LabeledValue, ReportMetadata } from './report_header.js';
 
 export function ReportGeneratedMetadata({
   generatedAtTime,

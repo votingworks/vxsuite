@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import contrastLib from 'get-contrast';
 import { styled } from '../styled.js';
-import { H2, H4, Icons } from '..';
+import { H2, H4, Icons } from '../index.js';
 
 function contrastGrade(colorMode: ColorMode, ratio: number): string {
   switch (colorMode) {

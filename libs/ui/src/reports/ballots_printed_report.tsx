@@ -10,16 +10,16 @@ import { format, getLanguageOptions } from '@votingworks/utils';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { styled } from '../styled.js';
 
-import { PrintedReport, reportColors, printedReportThemeFn } from './layout';
-import { LogoMark } from '../logo_mark';
+import { PrintedReport, reportColors, printedReportThemeFn } from './layout.js';
+import { LogoMark } from '../logo_mark.js';
 import {
   ReportHeader,
   ReportTitle,
   ReportElectionInfo,
   TestModeReportBanner,
-} from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
-import { FillerColumn } from './ballot_count_report';
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
+import { FillerColumn } from './ballot_count_report.js';
 
 type AttributeColumnId =
   | 'precinctName'
