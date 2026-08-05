@@ -1,6 +1,6 @@
 import { lines, sleep } from '@votingworks/basics';
-import { rootDebug } from '../utils/debug';
-import { exec } from '../utils/exec';
+import { rootDebug } from '../utils/debug.js';
+import { exec } from '../utils/exec.js';
 
 export const LPINFO_ARGS = ['--include-schemes', 'usb', '-v'];
 export const DEFAULT_LPINFO_RETRY_COUNT = 3;

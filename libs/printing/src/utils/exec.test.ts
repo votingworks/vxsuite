@@ -3,10 +3,10 @@ import { Buffer } from 'node:buffer';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { err, iter, ok, sleep } from '@votingworks/basics';
-import { exec } from './exec';
+import { exec } from './exec.js';
 
-const argsWorkerPath = join(__dirname, '../../test/args_worker.js');
-const echoWorkerPath = join(__dirname, '../../test/echo_worker.js');
+const argsWorkerPath = join(import.meta.dirname, '../../test/args_worker.js');
+const echoWorkerPath = join(import.meta.dirname, '../../test/echo_worker.js');
 
 test('command with no args', async () => {
   const execPromise = exec('date');

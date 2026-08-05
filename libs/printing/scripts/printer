@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+// Runs the compiled output rather than transpiling `src` on the fly: the
+// esbuild-runner hook this used to go through is a CommonJS `require` hook and
+// cannot load this package's ESM sources. Run `pnpm build:self` first.
+import { main } from '../build/printer/cli.js';
 
-require('../src/printer/cli')
-  .main(process.argv)
+main(process.argv)
   .then((code) => {
     process.exitCode = code;
   })
