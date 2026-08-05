@@ -6,7 +6,7 @@ import {
   layOutSectionsInColumns,
   layOutSectionsInParallelColumns,
   Section,
-} from './layout_in_columns';
+} from './layout_in_columns.js';
 
 interface TestElement {
   readonly id: string;

@@ -31,10 +31,10 @@ import {
   RichText,
 } from '@votingworks/ui';
 import React from 'react';
-import styled from 'styled-components';
-import { BallotLayoutError, ContentComponentResult } from '../render_ballot';
-import { RenderScratchpad } from '../renderer';
-import { SpotColor } from '../pdf_conversion';
+import { styled } from '../styled.js';
+import { BallotLayoutError, ContentComponentResult } from '../render_ballot.js';
+import { RenderScratchpad } from '../renderer.js';
+import { SpotColor } from '../pdf_conversion.js';
 import {
   OptionInfo,
   Page,
@@ -47,10 +47,10 @@ import {
   Colors,
   primaryLanguageCode,
   WriteInLabel,
-} from '../ballot_components';
-import { PixelDimensions } from '../types';
-import { layOutInColumns } from '../layout_in_columns';
-import { Watermark } from './watermark';
+} from '../ballot_components.js';
+import { PixelDimensions } from '../types.js';
+import { layOutInColumns } from '../layout_in_columns.js';
+import { Watermark } from './watermark.js';
 import {
   allCaps,
   HandCountInsignia,
@@ -60,7 +60,7 @@ import {
   isDemocraticParty,
   isRepublicanParty,
   voteForText,
-} from './nh_state_ballot_components';
+} from './nh_state_ballot_components.js';
 
 export const ColorTints = {
   BLUE: '#8FD0F1',

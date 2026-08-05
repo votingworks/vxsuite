@@ -4,15 +4,15 @@ import {
   BallotPageTemplate,
   ContentComponent,
   FrameComponent,
-} from '../render_ballot';
-import * as General from './nh_state_general_ballot_template';
-import * as Primary from './nh_state_primary_ballot_template';
+} from '../render_ballot.js';
+import * as General from './nh_state_general_ballot_template.js';
+import * as Primary from './nh_state_primary_ballot_template.js';
 import {
   BaseStyles,
   isFederalOfficeContest,
   NhStateBallotProps,
   NhStateBallotVariant,
-} from './nh_state_ballot_components';
+} from './nh_state_ballot_components.js';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
   switch (props.election.type) {

@@ -47,8 +47,8 @@ import {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
-} from '../render_ballot';
-import { RenderScratchpad } from '../renderer';
+} from '../render_ballot.js';
+import { RenderScratchpad } from '../renderer.js';
 import {
   OptionInfo,
   Page,
@@ -69,14 +69,14 @@ import {
   PrecinctOrSplitName,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
-} from '../ballot_components';
-import { PixelDimensions, CandidateOrdering, RotationParams } from '../types';
-import { hmpbStrings } from '../hmpb_strings';
-import { voteForText } from './nh_state_ballot_components';
-import { layOutInColumns } from '../layout_in_columns';
-import { Watermark } from './watermark';
-import { ArrowRightCircle } from '../svg_assets';
-import { BaseStyles } from '../base_styles';
+} from '../ballot_components.js';
+import { PixelDimensions, CandidateOrdering, RotationParams } from '../types.js';
+import { hmpbStrings } from '../hmpb_strings.js';
+import { voteForText } from './nh_state_ballot_components.js';
+import { layOutInColumns } from '../layout_in_columns.js';
+import { Watermark } from './watermark.js';
+import { ArrowRightCircle } from '../svg_assets.js';
+import { BaseStyles } from '../base_styles.js';
 
 // Maps the number of candidates in a contest to the index at which to rotate
 // the candidates. These indexes are randomly selected by the state every 2

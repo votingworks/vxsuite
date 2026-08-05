@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import React from 'react';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
@@ -20,14 +19,15 @@ import {
   format,
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
-import { InchDimensions, InchMargins } from './types';
-import { hmpbStrings } from './hmpb_strings';
+import { styled } from './styled.js';
+import { InchDimensions, InchMargins } from './types.js';
+import { hmpbStrings } from './hmpb_strings.js';
 import {
   ArrowRightCircle,
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
-} from './svg_assets';
-import { baseLineHeight } from './base_styles';
+} from './svg_assets.js';
+import { baseLineHeight } from './base_styles.js';
 
 /**
  * Include 5mm margins by default to create room for an imprinting ID

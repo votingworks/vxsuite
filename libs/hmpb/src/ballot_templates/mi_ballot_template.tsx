@@ -35,13 +35,13 @@ import {
   electionStrings,
   RichText,
 } from '@votingworks/ui';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
-} from '../render_ballot';
-import { RenderScratchpad } from '../renderer';
+} from '../render_ballot.js';
+import { RenderScratchpad } from '../renderer.js';
 import {
   OptionInfo,
   Page,
@@ -57,17 +57,17 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
   PrecinctOrSplitName,
-} from '../ballot_components';
-import { PixelDimensions, PixelMeasurements } from '../types';
+} from '../ballot_components.js';
+import { PixelDimensions, PixelMeasurements } from '../types.js';
 import {
   Section,
   layOutSectionsInColumns,
   layOutSectionsInParallelColumns,
-} from '../layout_in_columns';
-import { hmpbStrings } from '../hmpb_strings';
-import { Watermark } from './watermark';
-import { BaseStyles as BaseStylesComponent } from '../base_styles';
-import { ArrowDown } from '../svg_assets';
+} from '../layout_in_columns.js';
+import { hmpbStrings } from '../hmpb_strings.js';
+import { Watermark } from './watermark.js';
+import { BaseStyles as BaseStylesComponent } from '../base_styles.js';
+import { ArrowDown } from '../svg_assets.js';
 
 // MI has specific ballot styling requirements (e.g. font sizes and tints for
 // various elements), so we encode those all as styled components here.

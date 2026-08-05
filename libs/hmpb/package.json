@@ -3,8 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
   "files": [
     "build",
     "bin"
@@ -17,8 +22,8 @@
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "generate-fixtures": "DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
-    "generate-vxprint-test-print": "./bin/generate-vxprint-test-print",
+    "generate-fixtures": "pnpm build:self && DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
+    "generate-vxprint-test-print": "pnpm build:self && ./bin/generate-vxprint-test-print",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
