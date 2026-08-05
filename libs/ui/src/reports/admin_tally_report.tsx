@@ -5,7 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import { getScannedBallotCount } from '@votingworks/utils';
+import { getBallotCount, getScannedBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -73,10 +73,13 @@ export function AdminTallyReport({
     manual: manualElectionResults?.ballotCount,
   };
   // A scanned column of all zeroes is noise, so entirely manual results are
-  // shown in the same single-column layout as entirely scanned results.
+  // shown in the same single-column layout as entirely scanned results. A
+  // report without any ballots at all is empty, not manual, so it keeps the
+  // layout it has today.
   const isManualOnly =
     manualElectionResults !== undefined &&
-    getScannedBallotCount(cardCounts) === 0;
+    getScannedBallotCount(cardCounts) === 0 &&
+    getBallotCount(cardCounts) > 0;
   const reportTitle = prefixedTitle({
     isOfficial,
     isForLogicAndAccuracyTesting,

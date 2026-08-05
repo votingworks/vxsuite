@@ -226,6 +226,30 @@ test('with only manual results', () => {
   expect(screen.queryByText('Scanned')).not.toBeInTheDocument();
 });
 
+test('with empty manual results', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest={false}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      contests={election.contests}
+      scannedElectionResults={getEmptyElectionResults(election, true)}
+      manualElectionResults={buildManualResultsFixture({
+        election,
+        ballotCount: 0,
+        contestResultsSummaries: {},
+      })}
+    />
+  );
+
+  // a report without any ballots is empty, not manual
+  expect(
+    screen.queryByText('Manually Entered Results')
+  ).not.toBeInTheDocument();
+});
+
 test('allows card counts override', () => {
   render(
     <AdminTallyReport
