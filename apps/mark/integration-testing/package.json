@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
-    "test": "playwright test",
+    "test": "echo \"DIAG-EMIT: $(head -c 20 ../../../libs/integration-test-utils/build/index.js 2>&1)\"; head -3 ../../../libs/integration-test-utils/build/index.js; playwright test",
     "test:watch": "playwright test --ui"
   },
   "dependencies": {
