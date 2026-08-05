@@ -384,14 +384,32 @@ function generateMoonCiJob(): string[] {
     `          - moon-{{ .Branch }}-{{ .Revision }}`,
     `          - moon-{{ .Branch }}-`,
     `          - moon-main-`,
+    // Capture moon's exit code rather than failing the step immediately, so the
+    // cache save and per-task log upload below always run (even on test failure).
     `    - run:`,
     `        name: moon ci`,
-    `        command: moon ci --summary`,
+    `        command: |`,
+    `          set +e`,
+    `          moon ci --summary`,
+    `          echo $? > /tmp/moon-exit-code`,
+    `          exit 0`,
     `    - save_cache:`,
     `        key: moon-{{ .Branch }}-{{ .Revision }}`,
     `        paths:`,
     `          - .moon/cache/hashes`,
     `          - .moon/cache/outputs`,
+    // moon writes each task's stdout/stderr under .moon/cache/states/<proj>/<task>/.
+    // Upload them so failures are inspectable even when CircleCI truncates the
+    // step log (early-finishing tasks otherwise lose their output).
+    `    - store_artifacts:`,
+    `        path: .moon/cache/states`,
+    `        destination: moon-task-logs`,
+    `    - run:`,
+    `        name: Propagate moon ci exit code`,
+    `        command: |`,
+    `          code=$(cat /tmp/moon-exit-code)`,
+    `          echo "moon ci exit code: $code"`,
+    `          exit "$code"`,
   ];
 }
 

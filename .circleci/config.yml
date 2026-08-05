@@ -36,12 +36,25 @@ jobs:
             - moon-main-
       - run:
           name: moon ci
-          command: moon ci --summary
+          command: |
+            set +e
+            moon ci --summary
+            echo $? > /tmp/moon-exit-code
+            exit 0
       - save_cache:
           key: moon-{{ .Branch }}-{{ .Revision }}
           paths:
             - .moon/cache/hashes
             - .moon/cache/outputs
+      - store_artifacts:
+          path: .moon/cache/states
+          destination: moon-task-logs
+      - run:
+          name: Propagate moon ci exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon ci exit code: $code"
+            exit "$code"
 
 workflows:
   moon-experiment:
