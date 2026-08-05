@@ -96,7 +96,7 @@ export function ManualResultsReportBanner(): JSX.Element {
   return (
     <ReportBannerContainer>
       <h2>
-        <Icons.Warning /> Manually Entered Results
+        <Icons.Info /> Manually Entered Results
       </h2>
       All results in this report were manually entered rather than scanned.
     </ReportBannerContainer>
