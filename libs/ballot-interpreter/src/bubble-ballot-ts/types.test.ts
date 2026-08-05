@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BallotSide } from './types';
+import { BallotSide } from './types.js';
 
 test('has BallotSide enum', () => {
   expect(BallotSide).toEqual({

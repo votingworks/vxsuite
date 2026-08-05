@@ -1,16 +1,10 @@
-import { join } from 'node:path';
-
-/**
- * Type of the napi-rs native addon, derived from the generated `index.d.ts`.
- */
-type NapiAddon = typeof import('../../index');
-
 /**
  * The napi-rs native addon. The generated `index.js` at the package root
- * handles platform detection and loads the correct `.node` binary.
+ * handles platform detection and loads the correct `.node` binary; it is
+ * generated in ESM form (`napi build --esm`), so it can be re-exported
+ * directly.
  *
  * The relative path resolves correctly from both source
  * (`src/bubble-ballot-ts/`) and compiled output (`build/bubble-ballot-ts/`).
  */
-// eslint-disable-next-line import/no-dynamic-require, global-require, @typescript-eslint/no-require-imports
-export const napi: NapiAddon = require(join(__dirname, '..', '..', 'index.js'));
+export * as napi from '../../index.js';

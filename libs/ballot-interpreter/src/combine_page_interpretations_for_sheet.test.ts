@@ -13,7 +13,7 @@ import {
   SheetInterpretation,
   VotesDict,
 } from '@votingworks/types';
-import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet';
+import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet.js';
 
 const { election, electionDefinition } = vxFamousNamesFixtures;
 const combinedBallotPrimaryElection =

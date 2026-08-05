@@ -6,8 +6,8 @@ import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
 import { Optional, Result, err, ok, assertDefined } from '@votingworks/basics';
-import { DetectedQrCode } from '../types';
-import { stats, Stats } from './luminosity';
+import { DetectedQrCode } from '../types.js';
+import { stats, Stats } from './luminosity.js';
 
 const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 

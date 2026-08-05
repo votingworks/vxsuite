@@ -3,7 +3,7 @@ import { mapSheet, SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'node:path';
-import { writeImageDataToPng } from './bubble-ballot-ts';
+import { writeImageDataToPng } from './bubble-ballot-ts/index.js';
 
 const debug = makeDebug('ballot-interpreter:save-images');
 

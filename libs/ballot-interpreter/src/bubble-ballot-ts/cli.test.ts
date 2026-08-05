@@ -11,8 +11,8 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
-import { pdfToPageImages } from '../../test/helpers/interpretation';
-import { main } from './cli';
+import { pdfToPageImages } from '../../test/helpers/interpretation.js';
+import { main } from './cli.js';
 
 test('interpret CVRs', async () => {
   const ballotImages = asSheet(

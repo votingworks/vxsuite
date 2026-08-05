@@ -5,8 +5,8 @@ import {
 import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
 import { ImageData } from 'canvas';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { interpretSheet } from './interpret';
-import { normalizeBallotMode } from './validation';
+import { interpretSheet } from './interpret.js';
+import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');
 
