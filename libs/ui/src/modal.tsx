@@ -1,11 +1,12 @@
 import React, { ReactNode, useMemo } from 'react';
 import ReactModal from 'react-modal';
-import styled, { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
 
 import { assert } from '@votingworks/basics';
 
 import { SizeMode } from '@votingworks/types';
+import { styled } from './styled.js';
 import { H2 } from './typography';
 import { ReadOnLoad } from './ui_strings/read_on_load';
 import { useAudioContext } from './ui_strings/audio_context';

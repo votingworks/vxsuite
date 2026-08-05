@@ -3,7 +3,8 @@ import {
   ElectionDefinition,
   PollsSuspensionTransitionType,
 } from '@votingworks/types';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import { styled } from '../styled.js';
 import { BatchSummaryTable } from './batch_summary_table';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { printedReportThemeFn, PrintedReport } from './layout';

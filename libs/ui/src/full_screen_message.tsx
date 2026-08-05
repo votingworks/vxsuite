@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import React from 'react';
+import { styled } from './styled.js';
 import { H1 } from './typography';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import styled, { DefaultTheme, StyledComponent } from 'styled-components';
+import { DefaultTheme, StyledComponent } from 'styled-components';
+import { styled } from '../styled.js';
 import { Icons } from '../icons';
 import { appStrings } from '../ui_strings';
 import { DELETE_KEY, SPACE_BAR_KEY } from './virtual_keyboard';

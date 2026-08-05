@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 import { rgba } from 'polished';
-import styled, { css, keyframes } from 'styled-components';
+import { css, keyframes } from 'styled-components';
+import { styled } from '../styled.js';
 import { Svg } from '../svg';
 
 const DURATION_SECONDS = 5;

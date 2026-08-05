@@ -1,7 +1,7 @@
 import { BatchInfo, Tabulation } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { TD, TH } from '../table';
 import { ReportTable } from './layout';
 

@@ -3,7 +3,7 @@ import type { Meta, StoryFn } from '@storybook/react-vite' with {
 };
 
 import { LoremIpsum } from 'lorem-ipsum';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import {
   WithScrollButtons,
   WithScrollButtonsProps,

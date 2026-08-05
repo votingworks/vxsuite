@@ -1,8 +1,8 @@
 /* istanbul ignore file */
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import type { CpuMetrics } from '@votingworks/backend';
+import { styled } from './styled.js';
 import { Sparkline } from './sparkline';
 
 // Landscape mode - horizontal top bar (single row)

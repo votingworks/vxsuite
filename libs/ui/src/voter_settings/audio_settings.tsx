@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import React from 'react';
+import { styled } from '../styled.js';
 import { SettingsPane } from './settings_pane';
 import { Button } from '../button';
 import { VoterSettingsManagerContext } from '../voter_settings_manager_context';

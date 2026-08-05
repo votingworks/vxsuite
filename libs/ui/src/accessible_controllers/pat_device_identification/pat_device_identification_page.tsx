@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '../../styled.js';
 
 import { P, Font } from '../../typography';
 import { Icons } from '../../icons';

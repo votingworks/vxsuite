@@ -1,5 +1,3 @@
-import styled from 'styled-components';
-
 import {
   ComponentPropsWithoutRef,
   CSSProperties,
@@ -7,6 +5,8 @@ import {
   MouseEvent,
   useState,
 } from 'react';
+import { styled } from './styled.js';
+
 import { ReadOnLoad } from './ui_strings/read_on_load';
 
 export const FOCUSABLE_AUDIO_CLASS_NAME = 'FocusableAudio';

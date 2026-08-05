@@ -1,10 +1,11 @@
 /* istanbul ignore file - tested via VxMark Playwright tests */
 import React from 'react';
-import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
+import { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { rgba } from 'polished';
 import { SizeMode, TouchSizeMode, isTouchSizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { Icons } from './icons';
 import { makeTheme } from './themes/make_theme';

@@ -1,7 +1,7 @@
-import styled from 'styled-components';
 import React from 'react';
 import { DateTime } from 'luxon';
 import { formatFullDateTimeZone } from '@votingworks/utils';
+import { styled } from '../styled.js';
 import { LogoMark } from '../logo_mark';
 import { P, H1, Font } from '../typography';
 

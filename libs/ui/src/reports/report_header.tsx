@@ -1,7 +1,7 @@
 import { format } from '@votingworks/utils';
-import styled from 'styled-components';
 import { Election } from '@votingworks/types';
 import React from 'react';
+import { styled } from '../styled.js';
 import { Font } from '../typography';
 import { Icons } from '../icons';
 import { Box } from './layout';

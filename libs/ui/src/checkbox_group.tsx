@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import React from 'react';
+import { styled } from './styled.js';
 import { CheckboxButton } from './checkbox_button';
 
 interface Option<T extends string> {

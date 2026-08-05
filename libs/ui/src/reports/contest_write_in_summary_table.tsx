@@ -1,5 +1,3 @@
-import styled from 'styled-components';
-
 import {
   Election,
   getContestDistrictName,
@@ -9,6 +7,7 @@ import {
 import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
+import { styled } from '../styled.js';
 import { TD } from '../table';
 import { Caption, Font, FontProps } from '../typography';
 import { reportColors } from './layout';

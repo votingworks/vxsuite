@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Screen } from './screen';
 import { Main } from './main';
 

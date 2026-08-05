@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { Button } from '../button';
 import { IconName } from '../icons';
 

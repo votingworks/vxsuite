@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, RefObject } from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { LabelButton, ButtonProps } from './button';
 
 const LabelButtonContainer = styled(LabelButton)`

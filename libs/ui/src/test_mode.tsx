@@ -1,5 +1,6 @@
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import { isTouchSizeMode } from '@votingworks/types';
+import { styled } from './styled.js';
 import {
   DesktopPalette,
   makeTheme,

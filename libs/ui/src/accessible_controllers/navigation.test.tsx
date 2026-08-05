@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { act, render, screen } from '../../test/react_testing_library';
 import {
   PageNavigationButtonId,

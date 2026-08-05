@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
-import styled, { DefaultTheme, css } from 'styled-components';
-
+import { DefaultTheme, css } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
+import { styled } from './styled.js';
+
 import { Button, ButtonVariant } from './button';
 import { Checkbox } from './checkbox';
 import { Caption, P } from './typography';

@@ -5,7 +5,8 @@ import {
   formatFullDateTimeZone,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import { styled } from '../styled.js';
 import {
   ContestHeading,
   ContestSection,

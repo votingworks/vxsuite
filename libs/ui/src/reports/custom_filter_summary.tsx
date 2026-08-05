@@ -3,7 +3,7 @@ import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
 
 import pluralize from 'pluralize';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { Font } from '../typography';
 import {
   getBallotStyleLabel,

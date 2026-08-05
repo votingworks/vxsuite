@@ -1,8 +1,8 @@
 import React from 'react';
 import { isVxDev } from '@votingworks/utils';
 
-import styled from 'styled-components';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';

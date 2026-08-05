@@ -7,8 +7,9 @@ import Select, {
   OptionProps,
   StylesConfig,
 } from 'react-select';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import React from 'react';
+import { styled } from './styled.js';
 import { Button, buttonStyles, StyledButtonProps } from './button';
 import { Icons } from './icons';
 

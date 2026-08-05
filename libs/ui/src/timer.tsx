@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 import { useNow } from './hooks/use_now';
 

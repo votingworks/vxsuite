@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref } from 'react';
-import styled from 'styled-components';
+import { styled } from '../../styled.js';
 import { gapStyles } from '../../button';
 import { TextOnly } from '../../ui_strings';
 import { getBorderWidthRem, Key } from '../common';

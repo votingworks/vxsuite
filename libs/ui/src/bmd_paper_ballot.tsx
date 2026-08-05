@@ -1,6 +1,5 @@
 import { fromByteArray } from 'base64-js';
 import React from 'react';
-import styled from 'styled-components';
 
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
@@ -38,6 +37,7 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
+import { styled } from './styled.js';
 import { QrCode, QrCodeLevel } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';

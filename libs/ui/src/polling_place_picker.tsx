@@ -6,7 +6,7 @@ import {
   pollingPlaceTypeName,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { Modal } from './modal';
 import { Caption, Font, H1, P } from './typography';

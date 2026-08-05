@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { SmartCardChipImage } from './smart_card_images';
 
 const CardIllustrationContainer = styled.div<{

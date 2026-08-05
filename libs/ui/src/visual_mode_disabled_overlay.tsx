@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { VoterSettingsManagerContext } from './voter_settings_manager_context';
 import { Button } from './button';
 import { appStrings } from './ui_strings';

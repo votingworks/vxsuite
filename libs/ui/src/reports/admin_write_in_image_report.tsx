@@ -5,7 +5,8 @@ import {
   ContestId,
   ElectionDefinition,
 } from '@votingworks/types';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import { styled } from '../styled.js';
 import {
   ContestHeading,
   ContestSection,

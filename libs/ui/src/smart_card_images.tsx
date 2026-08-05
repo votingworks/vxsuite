@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Svg } from './svg';
 
 const directionTransforms = {

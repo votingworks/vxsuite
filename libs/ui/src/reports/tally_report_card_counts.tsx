@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { Tabulation } from '@votingworks/types';
 import {
   format,
@@ -6,6 +5,7 @@ import {
   getScannedBallotCount,
   getScannedBallotCountForSheet,
 } from '@votingworks/utils';
+import { styled } from '../styled.js';
 import { TD, TH } from '../table';
 import { reportColors } from './layout';
 

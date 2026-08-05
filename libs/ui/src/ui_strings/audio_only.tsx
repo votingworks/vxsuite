@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-
 import React from 'react';
+import { styled } from '../styled.js';
+
 import { AUDIO_ONLY_STYLES } from '../global_styles';
 
 const Container = styled.span`
