@@ -30,14 +30,14 @@ import {
   logInAsPollWorker,
   logInAsSystemAdministrator,
   logOut,
-} from './support/auth';
+} from './support/auth.js';
 import {
   getElectionDefinition,
   NO_SPLIT_POLLING_PLACE,
   SPLIT_POLLING_PLACE,
-} from './support/election';
-import { buildBallotsForElection, configureMachine } from './support/flows';
-import { capturePrintedBallotsReport } from './support/reports';
+} from './support/election.js';
+import { buildBallotsForElection, configureMachine } from './support/flows.js';
+import { capturePrintedBallotsReport } from './support/reports.js';
 
 test.beforeAll(setupTemporaryRootDir);
 test.afterAll(clearTemporaryRootDir);
