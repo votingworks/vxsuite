@@ -5,8 +5,9 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import React from 'react';
+import { styled } from '../styled.js';
 import { PrintedReport, printedReportThemeFn, reportColors } from './layout';
 import { LogoMark } from '../logo_mark';
 import { prefixedTitle } from './utils';

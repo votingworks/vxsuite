@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 
 import { SettingsPaneId } from './types';
 import { TabBar } from './tab_bar';

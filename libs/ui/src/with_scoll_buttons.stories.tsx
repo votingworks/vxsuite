@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 
 import { LoremIpsum } from 'lorem-ipsum';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import {
   WithScrollButtons,
   WithScrollButtonsProps,

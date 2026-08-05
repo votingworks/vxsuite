@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 const SparklineContainer = styled.div`
   display: inline-block;

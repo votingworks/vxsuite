@@ -1,7 +1,7 @@
 import React from 'react';
 import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
-import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
+import { styled } from './styled.js';
 import { Seal } from './seal';
 import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';

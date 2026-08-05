@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { TabBar, TabInfo } from './tab_bar';
 
 export interface TabbedSectionProps<Id extends string = string> {

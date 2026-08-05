@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '../../styled.js';
 
 export const PortraitStepInnerContainer = styled.div`
   width: 100%;

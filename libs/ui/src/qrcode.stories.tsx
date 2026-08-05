@@ -1,6 +1,6 @@
 import { Meta, StoryFn } from '@storybook/react';
 
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { QrCode, QrCodeProps } from './qrcode';
 
 const initialProps: QrCodeProps = {

@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { forwardRef, Ref } from 'react';
+import { styled } from '../../styled.js';
 import { Button } from '../../button';
 import { WithAltAudio } from '../../ui_strings';
 import { getBorderWidthRem, Key } from '../common';

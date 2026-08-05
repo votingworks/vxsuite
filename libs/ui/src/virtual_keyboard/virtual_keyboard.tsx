@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 
 import { Button, ButtonProps } from '../button';
 import { WithAltAudio, appStrings } from '../ui_strings';

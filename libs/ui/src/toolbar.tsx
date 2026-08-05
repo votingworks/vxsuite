@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { getBatteryIcon } from './battery_display';
 import { Icons } from './icons';

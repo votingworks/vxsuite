@@ -9,7 +9,7 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { useNow } from './hooks/use_now';
 import { Modal } from './modal';

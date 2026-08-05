@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 
 import { Keybinding } from '../keybindings';
 import { MarkScanControllerButton } from './types';

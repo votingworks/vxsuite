@@ -1,7 +1,7 @@
 import React from 'react';
-import styled, { DefaultTheme } from 'styled-components';
-
+import { DefaultTheme } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
+import { styled } from '../styled.js';
 
 import { Screen } from '../screen';
 import { Button } from '../button';

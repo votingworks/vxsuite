@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { LinkButton, LinkButtonProps } from './link_button';
 import { Icons } from './icons';
 

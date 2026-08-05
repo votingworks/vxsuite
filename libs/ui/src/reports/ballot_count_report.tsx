@@ -6,7 +6,7 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import {
   combineCardCounts,
   determinePartyId,
@@ -20,6 +20,7 @@ import {
   getScannedBallotCountForSheet,
 } from '@votingworks/utils';
 import React from 'react';
+import { styled } from '../styled.js';
 import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
 import { LogoMark } from '../logo_mark';
 import { CustomFilterSummary } from './custom_filter_summary';

@@ -11,10 +11,10 @@ import {
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
-import styled from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { assert, find } from '@votingworks/basics';
 import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
+import { styled } from './styled.js';
 import {
   BmdPaperBallot as Component,
   BmdPaperBallotProps,

@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { DateTime } from 'luxon';
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { CounterButton } from './counter_button';
 import { useKeyPressTracking } from './hooks/use_key_press_tracking';
 

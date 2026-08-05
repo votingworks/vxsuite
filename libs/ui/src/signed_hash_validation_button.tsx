@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { assert } from '@votingworks/basics';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 
 import { DateTime } from 'luxon';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { Icons } from './icons';
 import { Modal } from './modal';

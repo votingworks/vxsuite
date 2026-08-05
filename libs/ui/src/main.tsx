@@ -1,6 +1,7 @@
-import styled, { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { SizeMode } from '@votingworks/types';
+import { styled } from './styled.js';
 
 export type JustifyContent =
   | 'start'

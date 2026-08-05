@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { ProgressEllipsis } from './progress_ellipsis';
 
 const Fullscreen = styled.div`

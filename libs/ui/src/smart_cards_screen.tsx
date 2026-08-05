@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import {
   assert,
   deepEqual,
@@ -14,6 +13,7 @@ import {
 } from '@votingworks/types';
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { styled } from './styled.js';
 import { Callout } from './callout';
 import { H1, H2, H3, P } from './typography';
 import { Button } from './button';

@@ -1,4 +1,5 @@
-import styled, { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
+import { styled } from '../styled.js';
 import { makeTheme } from '../themes/make_theme';
 
 export const TallyReportColumns = styled.div`

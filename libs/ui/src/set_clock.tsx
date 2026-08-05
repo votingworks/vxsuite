@@ -10,7 +10,7 @@ import {
 } from '@votingworks/utils';
 import { SelectChangeEventFunction } from '@votingworks/types';
 import { assertDefined, integers } from '@votingworks/basics';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Select } from './select';
 import { Modal } from './modal';
 import { Button, ButtonProps } from './button';

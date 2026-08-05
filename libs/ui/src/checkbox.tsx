@@ -1,4 +1,5 @@
-import styled, { css } from 'styled-components';
+import { css } from 'styled-components';
+import { styled } from './styled.js';
 
 import { Icons } from './icons';
 

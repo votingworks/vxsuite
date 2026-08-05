@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 import { Checkbox } from './checkbox';
 import { Icons } from './icons';

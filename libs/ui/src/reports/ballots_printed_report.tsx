@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import {
   ElectionDefinition,
   hasSplits,
@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types';
 import { format, getLanguageOptions } from '@votingworks/utils';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { styled } from '../styled.js';
 
 import { PrintedReport, reportColors, printedReportThemeFn } from './layout';
 import { LogoMark } from '../logo_mark';

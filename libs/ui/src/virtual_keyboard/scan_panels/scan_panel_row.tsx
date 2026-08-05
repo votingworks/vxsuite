@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref } from 'react';
-import styled from 'styled-components';
+import { styled } from '../../styled.js';
 import { TextOnly } from '../../ui_strings';
 import { Key } from '../common';
 import { KeyGroupAudioLabel } from './key_group_audio_label';

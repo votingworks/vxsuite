@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 
 import { PANE_IDS, SettingsPaneId } from './types';
 import { Button } from '../button';

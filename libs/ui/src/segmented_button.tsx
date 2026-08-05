@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, { css, useTheme } from 'styled-components';
+import { css, useTheme } from 'styled-components';
+import { styled } from './styled.js';
 
 import { Button, ButtonProps } from './button';
 

@@ -1,7 +1,7 @@
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Button } from './button';
 import { Card } from './card';
 import { Icons } from './icons';

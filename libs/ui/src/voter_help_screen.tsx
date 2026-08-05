@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 import { PageNavigationButtonId } from './accessible_controllers';
 import { Button } from './button';

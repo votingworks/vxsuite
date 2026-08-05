@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { Screen } from './screen';
 import { Main } from './main';
 import { Caption, H1, P } from './typography';

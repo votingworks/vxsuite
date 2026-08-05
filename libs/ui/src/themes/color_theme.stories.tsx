@@ -1,9 +1,10 @@
 import { Meta } from '@storybook/react';
 import { ColorMode } from '@votingworks/types';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import contrastLib from 'get-contrast';
+import { styled } from '../styled.js';
 import { H2, H4, Icons } from '..';
 
 function contrastGrade(colorMode: ColorMode, ratio: number): string {

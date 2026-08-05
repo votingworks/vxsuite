@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 import { useAudioContext } from './audio_context';
 
 const Container = styled.div`

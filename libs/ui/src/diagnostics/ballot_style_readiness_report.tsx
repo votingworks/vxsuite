@@ -1,8 +1,8 @@
-import styled from 'styled-components';
 import { Contest, ElectionDefinition, getContests } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React from 'react';
+import { styled } from '../styled.js';
 import { Font, H2, H3 } from '../typography';
 import { SuccessIcon } from './icons';
 

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import { IconName, Icons } from './icons';
 import { Card, CardProps } from './card';
 
