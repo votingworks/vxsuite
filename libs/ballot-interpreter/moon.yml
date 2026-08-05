@@ -20,3 +20,11 @@ tasks:
       - '/libs/types-rs/Cargo.toml'
     outputs:
       - '*.node'
+
+  # The vitest tests `require` the napi `.node` addon, so this package must build
+  # itself first. The inherited `deps: ['^:build']` only builds dependencies, not
+  # this project — without this a fresh checkout fails with "Cannot find native
+  # binding" (local runs pass only because an old .node is already on disk).
+  test:
+    deps:
+      - 'build'
