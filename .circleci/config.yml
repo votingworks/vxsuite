@@ -428,6 +428,22 @@ jobs:
           command: |
             pnpm --dir apps/mark/integration-testing build
       - run:
+          name: DIAG build state
+          when: always
+          command: |
+            L=libs/integration-test-utils
+            b=$(head -c 20 $L/build/index.js 2>/dev/null)
+            case "$b" in export*) echo "BUILD EMIT: ESM" ;; *) echo "BUILD EMIT: CJS -- CAUGHT" ;; esac
+            echo "index head:"; head -3 $L/build/index.js 2>&1
+            echo "pwconfig head:"; head -3 $L/build/playwright_config.js 2>&1
+            echo "pkg type: $(node -p "require('./'+'$L'+'/package.json').type" 2>&1)"
+            echo "tsbuildinfo:"; find $L -name '*.tsbuildinfo' 2>&1
+            echo "second copy of playwright_config.js anywhere?:"; find . -path ./node_modules/.pnpm -prune -o -name playwright_config.js -print 2>/dev/null | grep -v /src/
+            echo "-- forced re-emit --"
+            node_modules/.bin/tsc --build $L/tsconfig.build.json --force > /dev/null 2>&1
+            a=$(head -c 20 $L/build/index.js 2>/dev/null)
+            case "$a" in export*) echo "AFTER FORCE: ESM" ;; *) echo "AFTER FORCE: CJS" ;; esac
+      - run:
           name: Lint
           command: |
             pnpm --dir apps/mark/integration-testing lint
