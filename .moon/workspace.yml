@@ -49,3 +49,10 @@ vcs:
 
 experiments:
   casOutputsCache: true
+
+remote:
+  api: 'grpc'
+  cache:
+    instanceName: 'vxsuite'
+    compression: 'zstd'
+    verifyIntegrity: true
