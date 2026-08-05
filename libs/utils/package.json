@@ -30,7 +30,6 @@
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
-    "fast-text-encoding": "^1.0.2",
     "jszip": "^3.9.1",
     "luxon": "^3.0.0",
     "randombytes": "^2.1.0",
@@ -41,7 +40,6 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
-    "@types/fast-text-encoding": "^1.0.1",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",

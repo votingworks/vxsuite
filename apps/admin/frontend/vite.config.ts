@@ -88,11 +88,6 @@ export default defineConfig((env) => {
           replacement: require.resolve('browserify-zlib'),
         },
 
-        // Work around an internet curmudgeon.
-        // Problem: https://github.com/isaacs/node-glob/pull/374
-        // Fix: https://github.com/isaacs/node-glob/pull/479
-        { find: /^glob$/, replacement: join(__dirname, './src/stubs/glob.ts') },
-
         // Create aliases for all workspace packages, i.e.
         //
         //   {
