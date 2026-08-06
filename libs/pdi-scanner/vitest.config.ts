@@ -8,9 +8,10 @@ export default defineConfig({
         'src/ts/demo.ts',
         'src/ts/mock_file_scanner.ts',
       ],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 100,
-        branches: -3,
+        lines: 0,
+        branches: 0,
       },
     },
   },

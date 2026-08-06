@@ -10,6 +10,7 @@
     "build"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check --manifest-path ../../Cargo.toml -- check . --never-scan ../../libs/basics/src",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -22,11 +23,11 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && vitest run --coverage",
+    "test:ci": "pnpm build && pnpm test:ts:coverage",
     "test:run": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "vitest --coverage",
+    "test:ts:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:ts:run": "vitest run",
     "test:ts:watch": "vitest",
     "type-check": "tsc --build"
