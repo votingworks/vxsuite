@@ -1,0 +1,32 @@
+# Shared task config for Vite-built React frontends. Applied to any project
+# tagged `vite-app` (see each apps/*/frontend/moon.yml). Centralizes what used to
+# be duplicated in every frontend moon.yml. Tag-scoped files inherit AFTER the
+# toolchain files (typescript.yml), so these override the shared tsc build/lint.
+inheritedBy:
+  tags:
+    or: ['vite-app']
+
+tasks:
+  # Build with Vite (emits to build/), not `tsc --build`. Type errors are caught
+  # by the separate inherited `type-check` task. `mergeInputs: replace` drops the
+  # inherited `tsconfig.build.json` input (frontends have no build tsconfig — it
+  # would otherwise warn "input does not exist") in favor of Vite's real inputs.
+  build:
+    command: 'vite build'
+    options:
+      mergeArgs: replace
+      mergeInputs: replace
+    inputs:
+      - '@group(sources)'
+      - 'vite.config.ts'
+      - 'index.html'
+    outputs:
+      - 'build'
+    deps:
+      - '^:build'
+
+  # Frontends also run stylelint (styled-components) beyond eslint.
+  lint:
+    script: 'eslint --cache . && pnpm stylelint:run'
+    options:
+      mergeArgs: replace

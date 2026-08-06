@@ -1,23 +1,3 @@
-# admin-frontend is a Vite-built React app (first frontend wired into moon), so
-# its build and lint differ from the shared tsc/eslint tasks:
-#   - build -> `vite build` (emits to `build/`, matching the inherited output),
-#     NOT `tsc --build`. Type errors are caught by the separate `type-check`
-#     task, so we don't repeat the package's `pnpm type-check && vite build`.
-#   - lint  -> also run stylelint (styled-components), which the shared eslint-
-#     only lint task doesn't cover.
-# type-check (`tsc --build tsconfig.json`) and test (`vitest run --coverage`)
-# inherit unchanged and match the package's own scripts.
-tasks:
-  build:
-    command: 'vite build'
-    options:
-      mergeArgs: replace
-    deps:
-      - '^:build'
-    outputs:
-      - 'build'
-
-  lint:
-    script: 'eslint --cache . && pnpm stylelint:run'
-    options:
-      mergeArgs: replace
+# Vite-built React frontend; shared build/lint live in .moon/tasks/vite-frontend.yml.
+tags:
+  - 'vite-app'

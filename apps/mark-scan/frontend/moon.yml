@@ -1,17 +1,3 @@
-# Vite-built React frontend (same shape as admin-frontend): build via `vite build`
-# (emits to build/, matching the inherited output) instead of `tsc --build`, and
-# lint also runs stylelint. type-check and test (vitest --coverage) inherit.
-tasks:
-  build:
-    command: 'vite build'
-    options:
-      mergeArgs: replace
-    deps:
-      - '^:build'
-    outputs:
-      - 'build'
-
-  lint:
-    script: 'eslint --cache . && pnpm stylelint:run'
-    options:
-      mergeArgs: replace
+# Vite-built React frontend; shared build/lint live in .moon/tasks/vite-frontend.yml.
+tags:
+  - 'vite-app'

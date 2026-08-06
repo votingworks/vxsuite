@@ -1,27 +1,11 @@
-# Vite-built React frontend (same shape as admin-frontend): build via `vite build`
-# (emits to build/, matching the inherited output) instead of `tsc --build`, and
-# lint also runs stylelint. type-check and test (vitest --coverage) inherit.
-# (design-frontend tests don't need the DB — only design-backend does.)
+# Vite-built React frontend; shared build/lint live in .moon/tasks/vite-frontend.yml.
+tags:
+  - 'vite-app'
+
 tasks:
-  build:
-    command: 'vite build'
-    options:
-      mergeArgs: replace
-    deps:
-      - '^:build'
-    outputs:
-      - 'build'
-
-  lint:
-    script: 'eslint --cache . && pnpm stylelint:run'
-    options:
-      mergeArgs: replace
-
-  # Unlike every other app, design-frontend's real test:ci sets NO TZ (so it runs
-  # under the CI system TZ = UTC), and its date-rendering tests expect that. The
-  # shared test task forces TZ=America/Anchorage (UTC-9), which shifts a rendered
-  # election date back a day (a "Nov 5, 2024" assertion fails). Override TZ to UTC
-  # here to match the package's actual test environment.
+  # design-frontend is the one app whose tests expect UTC (its real test:ci sets
+  # no TZ); the shared test task forces TZ=America/Anchorage, which shifts a
+  # rendered election date back a day. Override back to UTC.
   test:
     env:
       TZ: 'UTC'
