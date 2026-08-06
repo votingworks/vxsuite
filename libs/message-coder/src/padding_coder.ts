@@ -1,14 +1,14 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { bufferContainsBitOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { bufferContainsBitOffset } from './bits.js';
 import {
   BitLength,
   BitOffset,
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Occupies bits in the buffer without encoding or decoding any data.

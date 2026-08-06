@@ -5,7 +5,7 @@ import {
   toBitLength,
   toBitOffset,
   toByteOffset,
-} from './bits';
+} from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -13,7 +13,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Represents a string of unknown length. As it is not terminated, it is
