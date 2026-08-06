@@ -29,9 +29,9 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { createApp } from '../test/app_helpers';
-import { Api } from './app';
-import { MockBarcodeClient } from './barcodes/mock_client';
+import { createApp } from '../test/app_helpers.js';
+import { Api } from './app.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

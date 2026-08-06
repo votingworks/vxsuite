@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../../test/react_testing_library';
+import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
-import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
+} from '../../test/helpers/mock_api_client.js';
+import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen.js';
 
 let apiMock: ApiMock;
 let onComplete: () => void;

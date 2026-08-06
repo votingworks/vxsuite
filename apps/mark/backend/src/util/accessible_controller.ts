@@ -1,6 +1,6 @@
 import { isDeviceAttached } from '@votingworks/backend';
-import { getMockPatInputConnected } from './mock_pat_input';
-import { getMockAccessibleControllerConnected } from './mock_accessible_controller';
+import { getMockPatInputConnected } from './mock_pat_input.js';
+import { getMockAccessibleControllerConnected } from './mock_accessible_controller.js';
 
 export const ACCESSIBLE_CONTROLLER_VENDOR_ID = 0x0d8c;
 export const ACCESSIBLE_CONTROLLER_PRODUCT_ID = 0x0170;

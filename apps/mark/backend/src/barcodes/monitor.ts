@@ -9,7 +9,7 @@ import util from 'node:util';
 import { parentPort } from 'node:worker_threads';
 import { sleep } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { ScanEvent } from './types';
+import { ScanEvent } from './types.js';
 
 // Inline udev monitor to avoid importing @votingworks/backend, which
 // transitively loads pcsclite (smart card library) and canvas — both of which

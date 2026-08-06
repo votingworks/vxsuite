@@ -32,8 +32,8 @@ import {
 
 import styled from 'styled-components';
 
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
-import { printBlankBallot } from '../api';
+import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
+import { printBlankBallot } from '../api.js';
 
 const Contents = styled.div`
   display: flex;

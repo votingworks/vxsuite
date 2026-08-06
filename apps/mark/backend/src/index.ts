@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import {
   BaseLogger,
   LogSource,
@@ -17,22 +18,22 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import * as server from './server';
-import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
-import { createWorkspace, Workspace } from './util/workspace';
-import { startElectricalTestingServer } from './electrical_testing/server';
-import { getDefaultAuth, getUserRole } from './util/auth';
-import { BarcodeClient } from './barcodes';
-import { MockBarcodeClient } from './barcodes/mock_client';
-import { Player as AudioPlayer } from './audio/player';
+import * as server from './server.js';
+import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { startElectricalTestingServer } from './electrical_testing/server.js';
+import { getDefaultAuth, getUserRole } from './util/auth.js';
+import { BarcodeClient } from './barcodes/index.js';
+import { MockBarcodeClient } from './barcodes/mock_client.js';
+import { Player as AudioPlayer } from './audio/player.js';
 
-export type { Api } from './app';
+export type { Api } from './app.js';
 export type { PrintCalibration } from '@votingworks/hmpb';
 export type {
   ElectricalTestingApi,
   BarcodeStatus,
-} from './electrical_testing/app';
-export * from './types';
+} from './electrical_testing/app.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -115,7 +116,7 @@ async function main(): Promise<number> {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main()
     .then((exitCode) => {
       process.exitCode = exitCode;

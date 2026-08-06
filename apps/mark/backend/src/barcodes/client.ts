@@ -1,10 +1,10 @@
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { Worker } from 'node:worker_threads';
-import { EventEmitter } from 'node:stream';
+import { EventEmitter } from 'node:events';
 import util from 'node:util';
 
 import { sleep, throwIllegalValue } from '@votingworks/basics';
-import { BarcodeReader, WorkerMessage } from './types';
+import { BarcodeReader, WorkerMessage } from './types.js';
 
 export class BarcodeClient
   extends EventEmitter<{
@@ -78,7 +78,7 @@ export class BarcodeClient
     });
 
   start(): Worker {
-    return new Worker(`${__dirname}/monitor`)
+    return new Worker(`${import.meta.dirname}/monitor`)
       .on('error', this.onError)
       .on('exit', this.onExit)
       .on('message', this.onMessage)

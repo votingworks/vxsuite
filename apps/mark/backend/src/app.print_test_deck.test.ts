@@ -32,8 +32,8 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { createApp } from '../test/app_helpers';
-import { Api } from './app';
+import { createApp } from '../test/app_helpers.js';
+import { Api } from './app.js';
 
 vi.setConfig({ testTimeout: 90_000 });
 

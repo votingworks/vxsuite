@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
-import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen';
+} from '../../test/helpers/mock_api_client.js';
+import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen.js';
 
 let apiMock: ApiMock;
 let onComplete: () => void;

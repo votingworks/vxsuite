@@ -3,7 +3,7 @@ import { ElectionDefinition, HmpbBallotPaperSize } from '@votingworks/types';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { getCurrentTime } from './get_current_time';
+import { getCurrentTime } from './get_current_time.js';
 
 function getMockElectionDefinition(): ElectionDefinition {
   const today = getCurrentTime();
