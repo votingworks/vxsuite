@@ -10,6 +10,7 @@
     "build"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../libs/basics/src",
     "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
@@ -25,8 +26,8 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && TZ=America/Anchorage vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm build && pnpm test:coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "test:coverage": "TZ=America/Anchorage vitest run --coverage && pnpm coverage-check",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest"
   },

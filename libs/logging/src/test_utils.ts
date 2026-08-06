@@ -46,7 +46,6 @@ export function mockLogger({
     async (eventId, user, logData, outerDebug) => {
       if (outerDebug) {
         const eventSpecificDetails = getDetailsForEventId(eventId);
-        /* istanbul ignore next */
         const {
           message = eventSpecificDetails.defaultMessage,
           disposition = LogDispositionStandardTypes.NotApplicable,
