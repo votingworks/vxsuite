@@ -113,11 +113,9 @@ function TestScanModal({
             />
           );
         default:
-          /* istanbul ignore next */
           throwIllegalValue(outcome);
       }
     }
-    /* istanbul ignore next */
     // eslint-disable-next-line no-fallthrough
     default:
       throwIllegalValue(status);

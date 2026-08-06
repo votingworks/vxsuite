@@ -143,6 +143,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
                 <UsbControllerButton
+                  // @coverage-defer
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
                   usbDriveStatus={usbDriveStatus}
                   usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}

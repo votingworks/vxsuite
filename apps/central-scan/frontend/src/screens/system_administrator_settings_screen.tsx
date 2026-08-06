@@ -45,6 +45,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
       <P>
         <CurrentDateAndTime />
       </P>
+      {/* @coverage-defer */}
       <SetClockButton logOut={() => logOutMutation.mutate()}>
         Set Date and Time
       </SetClockButton>

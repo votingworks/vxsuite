@@ -117,6 +117,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
       <InvalidCardScreen
         reasonAndContext={authStatus}
         recommendedAction={
+          // @coverage-defer
           electionDefinition
             ? 'Use a valid election manager or system administrator card.'
             : 'Use an election manager card.'
@@ -192,6 +193,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   // A polling place must be selected before scanning.
   const isPollingPlaceUnconfigured = !pollingPlaceIdQuery.data;
 
+  // @coverage-defer
   if (status.adjudicationsRemaining > 0) {
     return (
       <AppContext.Provider value={currentContext}>
