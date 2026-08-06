@@ -58,7 +58,6 @@ export class BarcodeClient
         this.emit('scan', payload.data);
         break;
       default:
-        /* istanbul ignore next - should be unreachable due to type guard */
         throwIllegalValue(payload, 'type');
     }
   };

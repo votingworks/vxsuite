@@ -1,4 +1,4 @@
-/* istanbul ignore file - hardware interface worker thread */
+// @coverage-exclude-file: hardware interface worker thread
 /* eslint-disable vx/gts-unicode-escapes */
 
 import * as hid from 'node-hid';

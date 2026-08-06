@@ -164,7 +164,7 @@ export function buildApi(ctx: Context) {
     machineId: getMachineConfig().machineId,
     codeVersion: getMachineConfig().codeVersion,
     workspacePath: workspace.path,
-    getAuthStatus: /* istanbul ignore next */ () =>
+    getAuthStatus: /* @coverage-exclude */ () =>
       auth.getAuthStatus(constructAuthMachineState(workspace)),
   });
 
@@ -372,6 +372,7 @@ export function buildApi(ctx: Context) {
 
     async printBlankBallot(input: PrintBlankBallotProps) {
       const systemSettings =
+        // @coverage-defer
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
       assert(
         systemSettings.allowPrintingBlankBallotsFromVxMark,
@@ -459,7 +460,7 @@ export function buildApi(ctx: Context) {
           ballotCount: ballotSpecs.length,
         });
       } catch (error) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
           message: 'Error printing summary ballot test deck',
           disposition: 'failure',
@@ -492,7 +493,6 @@ export function buildApi(ctx: Context) {
             }
             return LogEventId.VotingResumed;
           default: {
-            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
           }
         }

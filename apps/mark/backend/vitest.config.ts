@@ -9,9 +9,10 @@ export default defineConfig({
       './test/setup_custom_matchers.ts',
     ],
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 98,
-        branches: -5,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
         '**/*.d.ts',
@@ -21,6 +22,9 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
         'src/util/accessible_controller.ts',
+        'src/util/mock_accessible_controller.ts',
+        'src/util/mock_pat_input.ts',
+        'src/barcodes/mock_client.ts',
         'src/electrical_testing/**',
       ],
     },

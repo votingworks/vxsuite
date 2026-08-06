@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
@@ -20,6 +19,7 @@ const NodeEnvSchema = z.union([
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -28,6 +28,7 @@ export const NODE_ENV = unsafeParse(
  */
 export const MARK_WORKSPACE =
   process.env.MARK_WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
