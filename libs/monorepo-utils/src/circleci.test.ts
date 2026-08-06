@@ -50,9 +50,12 @@ test('generateAllConfigs moon prototype mode', () => {
 
   const config = configs.get(keys[0]);
   assert(config !== undefined);
-  // Runs the experimental moon job...
+  // Runs the experimental moon job, sharded across containers...
   expect(config).toContain('moon-ci:');
-  expect(config).toContain('moon ci --summary');
+  expect(config).toContain('parallelism: 3');
+  expect(config).toContain(
+    'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL"'
+  );
   expect(config).toContain('moonrepo.dev/install/moon.sh');
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
