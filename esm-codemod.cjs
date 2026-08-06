@@ -58,7 +58,9 @@ function filesForConfig(configPath) {
     });
   } catch (error) {
     throw new Error(
-      `tsc --showConfig failed for ${configPath}:\n${error.stderr || error.message}`
+      `tsc --showConfig failed for ${configPath}:\n${
+        error.stderr || error.message
+      }`
     );
   }
   const { files = [] } = JSON.parse(stdout);
@@ -136,11 +138,20 @@ function updatePackageJson() {
   // frontend, which is never imported as a package) just gets `"type": "module"`.
   const esmFields = [['type', 'module']];
   if (pkg.main != null || pkg.exports != null) {
-    const entryJs = `./${String(pkg.main || 'build/index.js').replace(/^\.\//, '')}`;
+    const entryJs = `./${String(pkg.main || 'build/index.js').replace(
+      /^\.\//,
+      ''
+    )}`;
     const entryDts = entryJs.replace(/\.js$/, '.d.ts');
+    // `./package.json` has to be declared explicitly: an `exports` map turns off
+    // both extension-adding and unlisted-subpath resolution, so tooling that
+    // reads `<pkg>/package.json` gets ERR_PACKAGE_PATH_NOT_EXPORTED without it.
     esmFields.push([
       'exports',
-      pkg.exports ?? { '.': { types: entryDts, default: entryJs } },
+      {
+        ...(pkg.exports ?? { '.': { types: entryDts, default: entryJs } }),
+        './package.json': './package.json',
+      },
     ]);
   }
   const drop = new Set(['main', 'types', 'type', 'exports']);
@@ -172,7 +183,9 @@ function updatePackageJson() {
   fs.writeFileSync(pkgPath, next);
   const added = esmFields.map(([k]) => k).join(' + ');
   const removed = ['main', 'types'].filter((k) => k in pkg);
-  return `added ${added}${removed.length ? `, removed ${removed.join('/')}` : ''}`;
+  return `added ${added}${
+    removed.length ? `, removed ${removed.join('/')}` : ''
+  }`;
 }
 
 // --- main ---------------------------------------------------------------------
@@ -204,7 +217,12 @@ const pkgJsonChange = updatePackageJson();
 // references (e.g. a `--config` path), so it's left to the human.
 const cjsConfigs = fs
   .readdirSync(pkgDir, { withFileTypes: true })
-  .filter((e) => e.isFile() && e.name.endsWith('.js') && !targets.has(path.join(pkgDir, e.name)))
+  .filter(
+    (e) =>
+      e.isFile() &&
+      e.name.endsWith('.js') &&
+      !targets.has(path.join(pkgDir, e.name))
+  )
   .map((e) => e.name)
   .filter((name) => {
     const text = fs.readFileSync(path.join(pkgDir, name), 'utf8');
@@ -222,6 +240,8 @@ console.log(
 if (cjsConfigs.length > 0) {
   console.log(
     `\n⚠  CJS config file(s) at the package root will break as ESM — rename to .cjs:\n` +
-      cjsConfigs.map((name) => `     ${name} → ${name.slice(0, -3)}.cjs`).join('\n')
+      cjsConfigs
+        .map((name) => `     ${name} → ${name.slice(0, -3)}.cjs`)
+        .join('\n')
   );
 }
