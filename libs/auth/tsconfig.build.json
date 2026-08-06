@@ -7,7 +7,6 @@
     "declarationMap": true,
     "noEmit": false,
     "outDir": "build",
-    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "rootDir": "src"
   },
   "references": [
