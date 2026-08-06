@@ -23,6 +23,11 @@ tasks:
       mergeArgs: replace
       cache: false
       runInCI: false
+      # Each app's Playwright webServer binds the same fixed ports (:3000, ...),
+      # so two e2e suites running at once collide (EADDRINUSE). A shared mutex
+      # makes moon run all e2e tasks serially (one webServer set at a time) while
+      # their dep builds still parallelize.
+      mutex: 'e2e-servers'
     deps:
       - 'admin-backend:build'
       - 'admin-frontend:build'
