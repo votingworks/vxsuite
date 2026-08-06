@@ -50,11 +50,13 @@ test('generateAllConfigs moon prototype mode', () => {
 
   const config = configs.get(keys[0]);
   assert(config !== undefined);
-  // Required check: a single (non-sharded) moon ci job with test results.
+  // Required check: sharded moon ci (spreads load across containers) with test
+  // results collected.
   expect(config).toContain('moon-ci:');
-  expect(config).not.toContain('parallelism: 3');
-  expect(config).not.toContain('--job-total');
-  expect(config).toContain('moon ci --downstream none --summary');
+  expect(config).toContain('parallelism: 3');
+  expect(config).toContain(
+    'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none'
+  );
   expect(config).toContain('moonrepo.dev/install/moon.sh');
   expect(config).toContain('store_test_results:');
   // The measurement-only baseline job is gone now that we've chosen

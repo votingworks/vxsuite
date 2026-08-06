@@ -18,6 +18,7 @@ jobs:
   moon-ci:
     executor: nodejs
     resource_class: xlarge
+    parallelism: 3
     environment:
       # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.
       MOON_CONCURRENCY: '4'
@@ -31,9 +32,9 @@ jobs:
             echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
       - restore_cache:
           keys:
-            - moon-{{ .Branch }}-{{ .Revision }}
-            - moon-{{ .Branch }}-
-            - moon-main-
+            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}
+            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-
+            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-main-
       - run:
           name: moon ci
           command: |
@@ -43,9 +44,9 @@ jobs:
               export MOON_REMOTE_HOST
               echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"
             else
-              echo "remote cache: disabled (MOON_REMOTE_HOST unset — cold full build)"
+              echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards rebuild shared deps)"
             fi
-            moon ci --downstream none --summary
+            moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary
             echo $? > /tmp/moon-exit-code
             # Echo any vitest-failed task's captured log to this step's tail, so
             # the failure survives CircleCI's head-truncation of long step logs
@@ -59,7 +60,7 @@ jobs:
             done
             exit 0
       - save_cache:
-          key: moon-{{ .Branch }}-{{ .Revision }}
+          key: moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}
           paths:
             - .moon/cache/hashes
             - .moon/cache/outputs
