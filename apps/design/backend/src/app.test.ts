@@ -3198,7 +3198,15 @@ test('cloneElection', async () => {
               expect.objectContaining({
                 ...candidate,
                 id: expectNotEqualTo(candidate.id),
-                partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+                partyIds: candidate.partyIds
+                  ?.map(updatedPartyId)
+                  .sort((a, b) => {
+                    const aName = destParties.find((p) => p.id === a)?.name;
+                    const bName = destParties.find((p) => p.id === b)?.name;
+                    assert(typeof aName === 'string', `no party with id: ${a}`);
+                    assert(typeof bName === 'string', `no party with id: ${b}`);
+                    return aName.localeCompare(bName);
+                  }),
               })
             ),
           };
