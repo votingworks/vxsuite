@@ -1,5 +1,3 @@
-/* istanbul ignore file - tested via VxSuite apps. */
-
 import { BaseLogger } from '@votingworks/logging';
 import {
   UiStringAudioClips,

@@ -106,7 +106,6 @@ function buildContest(
     case 'straight-party':
       return buildStraightPartyContest(contest);
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest);
   }
 }

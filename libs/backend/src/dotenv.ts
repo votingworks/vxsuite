@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-exclude-file
 
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';

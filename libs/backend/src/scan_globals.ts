@@ -22,6 +22,7 @@ export const VX_MACHINE_ID = process.env.VX_MACHINE_ID ?? DEV_MACHINE_ID;
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 

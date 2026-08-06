@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './api';
 export * as audio from './get_audio_info';
 export * from './get_audio_card_name';

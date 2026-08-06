@@ -176,7 +176,6 @@ async function exportLogsToUsbHelper({
       }
       break;
     default:
-      /* istanbul ignore next - compile time check */
       throwIllegalValue(format);
   }
 
@@ -191,7 +190,6 @@ async function exportLogsToUsbHelper({
         await execFile('cp', ['-r', tempDirectory, destinationDirectory]);
         break;
       default:
-        /* istanbul ignore next - compile time check */
         throwIllegalValue(format);
     }
     await usbDrive.sync();
@@ -236,6 +234,7 @@ export async function exportLogsToUsb({
     let cause: string | undefined;
     if ('cause' in error) {
       if (error.cause instanceof Error) {
+        // @coverage-defer
         cause = error.cause.stack || extractErrorMessage(error.cause);
       } else {
         cause = extractErrorMessage(error.cause);

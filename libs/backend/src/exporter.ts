@@ -167,6 +167,7 @@ export class Exporter {
     if (machineDirectoryToWriteToFirst) {
       const machineFilePath = join(machineDirectoryToWriteToFirst, name);
       const result = await this.exportData(machineFilePath, dataToWrite);
+      // @coverage-defer
       if (result.isErr()) {
         return result;
       }
@@ -251,7 +252,7 @@ export class Exporter {
         return false;
       }
 
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }

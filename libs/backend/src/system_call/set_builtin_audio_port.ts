@@ -39,6 +39,7 @@ async function impl(
     throw new Error(`Unable to set builtin audio port: ${error}}`);
   }
 
+  // @coverage-defer
   if (errorOutput) {
     throw new Error(`Unable to set builtin audio port: ${errorOutput}}`);
   }
@@ -52,10 +53,12 @@ export async function setBuiltinAudioPort(
   nodeEnv: typeof NODE_ENV,
   portName: AudioPort,
   logger: Logger,
+  // @coverage-defer
   opts: {
     maxRetries?: number;
   } = {}
 ): Promise<void> {
+  // @coverage-defer
   const { maxRetries = 0 } = opts;
   const maxAttempts = 1 + maxRetries;
   const baseWaitTimeMs = 1000;

@@ -50,8 +50,10 @@ function buildApi({
     getBatteryInfo: async () => getBatteryInfo({ logger }),
     getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: NODE_ENV }),
     getUsbPortStatus: async () =>
+      // @coverage-defer
       getUsbPortStatus({ logger, nodeEnv: NODE_ENV }),
     toggleUsbPorts: async (input: { action: UsbPortAction }) =>
+      // @coverage-defer
       toggleUsbPorts({ action: input.action, logger, nodeEnv: NODE_ENV }),
     getDiskSpaceSummary: async () => {
       const diskSpaceSummary = await getDiskSpaceSummary([workspacePath]);

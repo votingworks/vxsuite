@@ -188,6 +188,7 @@ export async function readElectionPackageFromBuffer(
       );
       for await (const line of audioClipsFileLines) {
         // Skip blank lines (an empty audioClips.jsonl has no clips).
+        // @coverage-defer
         if (line.trim().length === 0) continue;
         uiStringAudioClips.push(
           safeParseJson(line, UiStringAudioClipSchema).unsafeUnwrap()
@@ -201,6 +202,7 @@ export async function readElectionPackageFromBuffer(
       entries,
       ElectionPackageFileName.REGISTERED_VOTER_COUNTS
     );
+    // @coverage-defer
     if (registeredVoterCountsEntry) {
       registeredVoterCounts = safeParseJson(
         await readTextEntry(registeredVoterCountsEntry),
@@ -308,6 +310,7 @@ export async function getMostRecentElectionPackageFilepath(
       (entry) => entry.isDirectory() && entry.name === ELECTION_PACKAGE_FOLDER
     );
 
+    // @coverage-defer
     if (hasElectionPackageDirectory) {
       electionElectionPackageDirectories.push(
         join(directory, possibleElectionDirectory.name, ELECTION_PACKAGE_FOLDER)

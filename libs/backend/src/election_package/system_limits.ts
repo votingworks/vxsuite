@@ -96,7 +96,6 @@ export function validateElectionDefinitionAgainstSystemLimits(
         break;
       }
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(contest, 'type');
       }
     }
@@ -195,7 +194,6 @@ export function validateElectionDefinitionAgainstSystemLimits(
             break;
           }
           default: {
-            /* istanbul ignore next */
             throwIllegalValue(contest, 'type');
           }
         }

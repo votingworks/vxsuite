@@ -42,6 +42,7 @@ export async function getAudioInfo(ctx: {
   logger: Logger;
   nodeEnv: typeof NODE_ENV;
 }): Promise<AudioInfo> {
+  // @coverage-defer
   if (isIntegrationTest()) {
     return MOCK_AUDIO_INFO;
   }

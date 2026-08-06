@@ -73,7 +73,7 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
   }) {
     this.textToSpeechClient =
       input.textToSpeechClient ??
-      /* istanbul ignore next */ new GoogleCloudTextToSpeechClient();
+      /* @coverage-exclude */ new GoogleCloudTextToSpeechClient();
   }
 
   async synthesizeSpeech(

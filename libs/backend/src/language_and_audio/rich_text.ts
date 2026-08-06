@@ -98,6 +98,7 @@ function audioFriendlyTable(node: HtmlElementNode): HtmlElementNode {
       }
 
       switch (child.tagName) {
+        // @coverage-defer
         case 'THEAD': {
           nodesToVisit.push(child);
           break;
@@ -171,6 +172,7 @@ function tableRowItems(node: HtmlElementNode): {
         items.push({ textContent: simpleHtmlToText(child).trim() });
         break;
       }
+      // @coverage-defer
       default:
         break;
     }

@@ -1,5 +1,3 @@
-/* istanbul ignore file - tested via VxSuite apps. */
-
 import { ElectionPackage } from '@votingworks/types';
 import { BaseLogger } from '@votingworks/logging';
 import { UiStringsStore } from './ui_strings_store';
