@@ -1095,10 +1095,13 @@ export class Store {
               first_name as "firstName",
               middle_name as "middleName",
               last_name as "lastName",
-              array_remove(array_agg(candidates_parties.party_id ORDER BY candidates_parties.party_id), NULL) as "partyIds"
+              -- Order by name for a deterministic order (party ids are
+              -- randomly generated, so ordering by them varies per import)
+              array_remove(array_agg(candidates_parties.party_id ORDER BY parties.name), NULL) as "partyIds"
             from candidates
             join contests on candidates.contest_id = contests.id
             left join candidates_parties on candidates_parties.candidate_id = candidates.id
+            left join parties on parties.id = candidates_parties.party_id
             where contests.election_id = $1
             group by candidates.id
             order by candidates.ballot_order
