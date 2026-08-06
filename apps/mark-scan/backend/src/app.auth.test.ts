@@ -9,7 +9,11 @@ import {
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { assertDefined } from '@votingworks/basics';
+import {
+  InsertedSmartCardAuthApi,
+  InsertedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { Server } from 'node:http';
 import {
   BooleanEnvironmentVariableName,
@@ -153,6 +157,45 @@ test('endCardlessVoterSession', async () => {
     machineType,
   });
   expect(stateMachine.reset).toHaveBeenCalled();
+});
+
+test('changing a relevant setting force ends any cardless voter session', async () => {
+  vi.spyOn(stateMachine, 'reset');
+
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
+  const authMachineState: InsertedSmartCardAuthMachineState = {
+    ...systemSettings.auth,
+    electionKey,
+    jurisdiction,
+    machineType,
+  };
+
+  await apiClient.setTestMode({ isTestMode: false });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    1,
+    authMachineState
+  );
+
+  const pollingPlace = assertDefined(election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    2,
+    authMachineState
+  );
+
+  // Ended before the store is reset, so the machine state still describes the
+  // election the session was started for.
+  await apiClient.unconfigureMachine();
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    3,
+    authMachineState
+  );
+
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(3);
+
+  // Ending a session this way is about the configuration, not about a voter
+  // being finished with the machine, so the paper handler is left as it is.
+  expect(stateMachine.reset).not.toHaveBeenCalled();
 });
 
 test('getAuthStatus before election definition has been configured', async () => {

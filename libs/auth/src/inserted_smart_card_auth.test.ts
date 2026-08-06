@@ -1448,6 +1448,26 @@ test('skipPollWorkerCheck does not work when logged in as non-poll-worker', asyn
   });
 });
 
+test('Ending a cardless voter session when there is no session is a no-op', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: { ...defaultConfig, allowCardlessVoterSessions: true },
+    logger: mockLogger,
+  });
+
+  await logInAsElectionManager(auth);
+  vi.mocked(mockLogger.log).mockClear();
+
+  auth.endCardlessVoterSession();
+
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: expect.any(Date),
+  });
+  expect(mockLogger.log).not.toHaveBeenCalled();
+});
+
 test('Attempting to start a cardless voter session when not allowed by config', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,

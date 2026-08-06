@@ -47,12 +47,6 @@ export interface InsertedSmartCardAuthConfig {
    * the others render them as buttons.
    */
   pinDigitSelector?: 'button' | 'text';
-  /**
-   * Whether `forceLogOutAndResetElectionDefinition` should first end a lingering
-   * cardless voter session. VxMark and VxMarkScan need this; see the workaround
-   * note on the internal `endCardlessVoterSession`.
-   */
-  endsCardlessVoterSession?: boolean;
 }
 
 export interface InsertedSmartCardAuthHelpers {
@@ -70,11 +64,7 @@ export interface InsertedSmartCardAuthHelpers {
 export function buildInsertedSmartCardAuthHelpers(
   config: InsertedSmartCardAuthConfig
 ): InsertedSmartCardAuthHelpers {
-  const {
-    appName,
-    pinDigitSelector = 'button',
-    endsCardlessVoterSession: endsSession = false,
-  } = config;
+  const { appName, pinDigitSelector = 'button' } = config;
 
   async function enterPin(page: Page): Promise<void> {
     await page.getByText('Enter Card PIN').waitFor();
@@ -109,23 +99,9 @@ export function buildInsertedSmartCardAuthHelpers(
     await postToApiOrThrow(page, 'logOut');
   }
 
-  /**
-   * Ends any active cardless voter session, bypassing the UI. Needed before
-   * unconfiguring: a session left active when the machine is unconfigured (and
-   * later reconfigured with a different election) references a now-missing
-   * ballot style and crashes the app on boot. Workaround for
-   * https://github.com/votingworks/vxsuite/issues/8553 — remove once fixed.
-   */
-  async function endCardlessVoterSession(page: Page): Promise<void> {
-    await postToApiOrThrow(page, 'endCardlessVoterSession');
-  }
-
   async function forceLogOutAndResetElectionDefinition(
     page: Page
   ): Promise<void> {
-    if (endsSession) {
-      await endCardlessVoterSession(page);
-    }
     await forceLogOut(page);
     await page.goto('/');
     mockCardRemoval();
