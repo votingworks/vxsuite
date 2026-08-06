@@ -116,6 +116,7 @@ export function buildApi({
       );
     },
 
+    // @coverage-defer
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -226,6 +227,7 @@ export function buildApi({
       return {
         electionDefinition: electionRecord?.electionDefinition,
         electionPackageHash: electionRecord?.electionPackageHash,
+        // @coverage-defer
         systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         pollingPlaceId: store.getPollingPlaceId(),
         isSoundMuted: store.getIsSoundMuted(),
@@ -289,6 +291,7 @@ export function buildApi({
     async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
       store.setIsSoundMuted(input.isSoundMuted);
       await logger.logAsCurrentRole(LogEventId.SoundToggled, {
+        // @coverage-defer
         message: `Sounds were toggled ${input.isSoundMuted ? 'off' : 'on'}`,
         disposition: 'success',
         isSoundMuted: input.isSoundMuted,
@@ -347,6 +350,7 @@ export function buildApi({
       ballotCastingMode: BallotCastingMode;
     }): Promise<Result<void, Error>> {
       const pollsState = store.getPollsState();
+      // @coverage-defer
       if (pollsState === 'polls_open' || pollsState === 'polls_closed_final') {
         const message = `Couldn't set ballot casting mode because polls are in state: ${pollsState}`;
         await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
@@ -401,6 +405,7 @@ export function buildApi({
       });
     },
 
+    // @coverage-defer
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.getStatus();
     },
@@ -542,6 +547,7 @@ export function buildApi({
       });
     },
 
+    // @coverage-defer
     getMostRecentAudioDiagnostic(): DiagnosticRecord | null {
       return store.getMostRecentDiagnosticRecord('scan-audio') ?? null;
     },
@@ -553,6 +559,7 @@ export function buildApi({
       );
     },
 
+    // @coverage-defer
     logAudioDiagnosticOutcome(input: { outcome: DiagnosticOutcome }): void {
       store.addDiagnosticRecord({
         type: 'scan-audio',
@@ -629,13 +636,14 @@ export function buildApi({
       if (!systemSettings || !systemSettings.quickResultsReportingUrl) {
         return [];
       }
+      // @coverage-defer
       if (!doesPollsStateSupportLiveReporting(pollsState)) {
         return [];
       }
       // Live results reporting requires a configured polling place
       // TODO (CARO) - Change to an assert when polling places are shipped
       const pollingPlaceId = store.getPollingPlaceId();
-      /* istanbul ignore else - temporary fallback while polling places is not shipped */
+      // @coverage-defer
       if (!pollingPlaceId) {
         return [];
       }
@@ -671,7 +679,7 @@ export function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
   });

@@ -19,6 +19,7 @@ export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -27,6 +28,7 @@ export const NODE_ENV = unsafeParse(
  */
 export const SCAN_WORKSPACE =
   process.env.SCAN_WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);

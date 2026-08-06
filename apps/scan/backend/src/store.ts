@@ -145,6 +145,7 @@ export class Store {
   // eslint-disable-next-line vx/gts-no-public-class-fields
   readonly scannerType = 'precinct';
 
+  // @coverage-defer
   getDbPath(): string {
     return this.client.getDatabasePath();
   }
@@ -323,6 +324,7 @@ export class Store {
       'select ballot_casting_mode as ballotCastingMode from election'
     ) as { ballotCastingMode: BallotCastingMode } | undefined;
 
+    // @coverage-defer
     if (!electionRow) {
       // election_day will be the default when an election is defined
       return 'election_day';
@@ -335,6 +337,7 @@ export class Store {
    * Sets the current ballot casting mode setting value.
    */
   setBallotCastingMode(ballotCastingMode: BallotCastingMode): void {
+    // @coverage-defer
     if (!this.hasElection()) {
       throw new Error('Cannot set ballot casting mode without an election.');
     }
@@ -434,6 +437,7 @@ export class Store {
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
 
+  // @coverage-defer
   getBallotPaperSizeForElection(): HmpbBallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
@@ -485,6 +489,7 @@ export class Store {
       electionRow.rawPollsState
     );
 
+    // @coverage-defer
     if (pollsStateParseResult.isErr()) {
       throw new Error('Unable to parse stored polls state.');
     }
@@ -516,6 +521,7 @@ export class Store {
   }
 
   resetPollsState(): void {
+    // @coverage-defer
     if (!this.hasElection()) {
       throw new Error('Cannot reset polls state without an election.');
     }
@@ -637,6 +643,7 @@ export class Store {
         sheets.rejected_at is null
     `) as { ballotsCounted: number } | undefined;
 
+    // @coverage-defer
     return row?.ballotsCounted ?? 0;
   }
 
@@ -673,24 +680,29 @@ export class Store {
         front.imagePath,
         JSON.stringify(front.interpretation),
         back.imagePath,
+        // @coverage-defer
         JSON.stringify(back.interpretation ?? {})
       );
     } catch (error) {
+      // @coverage-defer
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
         front.imagePath,
         back.imagePath
       );
 
+      // @coverage-defer
       const row = this.client.one(
         'select id from sheets where front_image_path = ?',
         front.imagePath
       ) as { id: string } | undefined;
 
+      // @coverage-defer
       if (row) {
         return row.id;
       }
 
+      // @coverage-defer
       throw error;
     }
 
@@ -698,6 +710,7 @@ export class Store {
   }
 
   resetElectionSession(): void {
+    // @coverage-defer
     if (this.hasElection()) {
       this.client.transaction(() => {
         this.resetPollsState();

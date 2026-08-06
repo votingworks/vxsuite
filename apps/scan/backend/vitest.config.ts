@@ -9,9 +9,10 @@ export default defineConfig({
       './test/setupTests.ts',
     ],
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -40,
-        branches: -45,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
         '**/node_modules/**',

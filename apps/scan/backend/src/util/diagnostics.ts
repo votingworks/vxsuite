@@ -23,10 +23,8 @@ export function testPrintFailureDiagnosticMessage(
         case 'hardware':
           return 'The printer experienced an unknown hardware error during printing.';
         default:
-          /* istanbul ignore next */
           throwIllegalValue(failureStatus.type);
       }
-    /* istanbul ignore next */
     // eslint-disable-next-line no-fallthrough
     default:
       throwIllegalValue(failureStatus, 'state');

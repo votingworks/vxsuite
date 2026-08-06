@@ -55,7 +55,7 @@ export async function start({
 
   // TODO: We can likely consolidate on the file-based mock scanner in all
   // cases — the branching here isn't known to be required.
-  /* istanbul ignore next */
+  // @coverage-exclude
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
@@ -66,9 +66,7 @@ export async function start({
 
   const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(
     {
-      scannerClient:
-        /* istanbul ignore next */
-        mockPdiScanner?.client ?? createPdiScannerClient(),
+      scannerClient: mockPdiScanner?.client ?? createPdiScannerClient(),
       workspace,
       usbDrive: resolvedUsbDrive,
       auth,
@@ -79,7 +77,6 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  /* istanbul ignore next */
   const resolvedAudioPlayer =
     audioPlayer ??
     new AudioPlayer(
