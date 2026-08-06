@@ -1,0 +1,8 @@
+# Backend build is more than tsc: build:self also copies fixtures into build/
+# (copyfiles src/custom-paper-handler/diagnostic/*.json -> build/...). Override
+# the build command to run build:self; outputs stay ['build'].
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace

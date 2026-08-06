@@ -149,20 +149,21 @@ jobs:
             pnpm --dir apps/admin/integration-testing exec playwright install chromium
       - run:
           name: moon run e2e (non-required)
+          no_output_timeout: 30m
           command: |
             set +e
             if [ -n "${MOON_REMOTE_HOST:-}" ]; then
               MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
               export MOON_REMOTE_HOST
             fi
-            env -u CI moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test
+            env -u CI moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test scan-integration-testing:test print-integration-testing:test
             echo $? > /tmp/moon-exit-code
             exit 0
       - run:
           name: Collect e2e results
           command: |
             mkdir -p /tmp/e2e-results
-            for app in admin central-scan mark; do
+            for app in admin central-scan mark scan print; do
               d="apps/$app/integration-testing/test-results"
               [ -d "$d" ] && cp -r "$d" "/tmp/e2e-results/$app" || true
             done

@@ -1,0 +1,9 @@
+# Backend build is more than tsc: build:self also copies assets into build/
+# (scripts/copy_build_assets.sh -> build/audio etc.). Override the build command
+# to run build:self so those assets land in the cached output; outputs stay
+# ['build'].
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace
