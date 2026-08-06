@@ -265,7 +265,7 @@ test('renders network status as expected - when configured', async () => {
   expect(iconElement0).toMatchInlineSnapshot(`
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-circle-check "
+      class="svg-inline--fa fa-circle-check"
       data-icon="circle-check"
       data-prefix="fas"
       focusable="false"

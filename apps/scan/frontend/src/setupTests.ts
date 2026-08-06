@@ -12,7 +12,7 @@ expect.extend(matchers);
 configure({ asyncUtilTimeout: 5_000 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
-globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+globalThis.TextEncoder = TextEncoder;
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

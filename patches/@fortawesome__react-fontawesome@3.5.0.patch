@@ -1,0 +1,45 @@
+diff --git a/package.json b/package.json
+index a165dcaff6385e38205af2b751d0679e7e035c67..521f9f9d0b26ef56f91717c839db3c55507d17b2 100644
+--- a/package.json
++++ b/package.json
+@@ -9,15 +9,25 @@
+   "types": "./dist/index.d.ts",
+   "exports": {
+     ".": {
+-      "types": "./dist/index.d.ts",
+-      "import": "./dist/index.js",
+-      "require": "./dist/index.cjs",
++      "import": {
++        "types": "./dist/index.d.ts",
++        "default": "./dist/index.js"
++      },
++      "require": {
++        "types": "./dist/index.d.cts",
++        "default": "./dist/index.cjs"
++      },
+       "default": "./dist/index.js"
+     },
+     "./CustomPrefixProvider": {
+-      "types": "./dist/CustomPrefixProvider.d.ts",
+-      "import": "./dist/CustomPrefixProvider.js",
+-      "require": "./dist/CustomPrefixProvider.cjs",
++      "import": {
++        "types": "./dist/CustomPrefixProvider.d.ts",
++        "default": "./dist/CustomPrefixProvider.js"
++      },
++      "require": {
++        "types": "./dist/CustomPrefixProvider.d.cts",
++        "default": "./dist/CustomPrefixProvider.cjs"
++      },
+       "default": "./dist/CustomPrefixProvider.js"
+     },
+     "./package.json": "./package.json"
+@@ -42,7 +52,7 @@
+     "Calvin Freitas <github.com/calvinf>",
+     "Bill Parrott <github.com/chimericdream>",
+     "Mike Lynch <github.com/baelec>",
+-    "Lukáš Rod <github.com/rodlukas>",
++    "Luk\u00e1\u0161 Rod <github.com/rodlukas>",
+     "Proudust <github.com/proudust>",
+     "Tiago Sousa <github.com/TiagoPortfolio>",
+     "Alexey Victorov <github.com/AliMamed>",

@@ -9,7 +9,7 @@ import { TextDecoder, TextEncoder } from 'node:util';
 expect.extend(matchers);
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
-globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+globalThis.TextEncoder = TextEncoder;
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

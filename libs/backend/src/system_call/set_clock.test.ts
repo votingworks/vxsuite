@@ -14,7 +14,7 @@ vi.mock(
 
 const execMock = vi.mocked(execFile);
 
-const actualTimezone = process.env.TZ;
+const actualTimezone = process.env['TZ'];
 
 beforeEach(() => {
   execMock.mockClear();
@@ -63,14 +63,14 @@ test('setClock sets the process timezone', async () => {
     ...process.env,
     TZ: 'America/Anchorage',
   };
-  expect(process.env.TZ).toEqual('America/Anchorage');
+  expect(process.env['TZ']).toEqual('America/Anchorage');
 
   await setClock({
     isoDatetime: '2020-11-03T15:00Z',
     ianaZone: 'America/Chicago',
   });
 
-  expect(process.env.TZ).toEqual('America/Chicago');
+  expect(process.env['TZ']).toEqual('America/Chicago');
 });
 
 test('setClock bubbles up errors', async () => {

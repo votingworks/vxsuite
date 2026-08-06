@@ -7,6 +7,8 @@ function __stubFnDoNotCall(): never {
 }
 /** Stub for arch */
 export const arch = __stubFnDoNotCall;
+/** Stub for availableParallelism */
+export const availableParallelism = __stubFnDoNotCall;
 /** Stub for cpus */
 export const cpus = __stubFnDoNotCall;
 /** Stub for endianness */
@@ -41,6 +43,8 @@ export const userInfo = __stubFnDoNotCall;
 export const uptime = __stubFnDoNotCall;
 /** Stub for version */
 export const version = __stubFnDoNotCall;
+/** Stub for machine */
+export const machine = __stubFnDoNotCall;
 /** Stub for constants */
 export const constants = {
   UV_UDP_REUSEADDR: 4,
@@ -166,7 +170,6 @@ export const constants = {
     SIGPOLL: 29,
     SIGPWR: 30,
     SIGSYS: 31,
-    SIGUNUSED: 31,
   },
   priority: {
     PRIORITY_LOW: 19,

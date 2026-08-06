@@ -1,6 +1,5 @@
 import React from 'react';
-import getDeepValue from 'lodash.get';
-
+import { getDeepValue } from './get_deep_value';
 import { useAudioContext } from './audio_context';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';

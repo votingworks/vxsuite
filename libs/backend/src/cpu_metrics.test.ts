@@ -33,6 +33,7 @@ const readFileMockMatchers: Array<
     file: Parameters<(typeof mockFs)['readFile']>[0]
   ) => MaybePromise<Optional<string | Buffer>>
 > = [];
+// @ts-expect-error -- `readFile` is overloaded and confuses TS
 vi.mocked(mockFs.readFile).mockImplementation(async (file) => {
   for (const matcher of readFileMockMatchers) {
     const result = await matcher(file);

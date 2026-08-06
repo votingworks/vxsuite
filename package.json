@@ -4,10 +4,10 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "clean-all": "git clean -dfX",
-    "generate-circleci-config": "node libs/monorepo-utils/bin/generate-circleci-config",
-    "prepare": "husky install",
     "configure-env": "node libs/utils/build/scripts/generate_env_file.js",
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
+    "generate-circleci-config": "node libs/monorepo-utils/bin/generate-circleci-config",
+    "prepare": "husky install",
     "run-dev": "script/run-dev",
     "shellcheck": "script/shellcheck",
     "update-snapshots": "script/update-snapshots"
@@ -57,10 +57,14 @@
     "overrides": {
       "@babel/traverse": "7.23.2",
       "@types/eslint": "8.4.1",
-      "brace-expansion": "1.1.13",
+      "brace-expansion@1": "^1.1.13",
+      "brace-expansion@2": "^2.0.2",
       "graceful-fs": "^4.2.9",
       "nan": "^2.20.0",
       "typescript": "npm:@typescript/typescript6@6.0.2"
+    },
+    "patchedDependencies": {
+      "@fortawesome/react-fontawesome@3.5.0": "patches/@fortawesome__react-fontawesome@3.5.0.patch"
     }
   }
 }

@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/jsdom": "20.0.0",
     "@types/json-schema": "^7.0.9",
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",

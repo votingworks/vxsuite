@@ -11,7 +11,6 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -27,13 +26,14 @@
     "test:ci": "vitest run --coverage",
     "test:coverage": "vitest --coverage",
     "test:run": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@fortawesome/react-fontawesome": "3.5.0",
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -64,7 +64,7 @@
     "@types/history": "4.7.11",
     "@types/kiosk-browser": "workspace:*",
     "@types/lodash.camelcase": "^4.3.6",
-    "@types/node": "20.17.31",
+    "@types/node": "20.19.43",
     "@types/pluralize": "^0.0.29",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
@@ -79,6 +79,7 @@
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
+    "esbuild": "0.28.1",
     "eslint-plugin-storybook": "^0.6.10",
     "eslint-plugin-vx": "workspace:*",
     "events": "3.3.0",

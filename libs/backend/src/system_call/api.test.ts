@@ -29,7 +29,7 @@ vi.mock(import('./get_audio_info.js'));
 vi.mock(import('./get_battery_info.js'));
 vi.mock(import('./get_disk_space_summary.js'));
 
-const actualTimezone = process.env.TZ;
+const actualTimezone = process.env['TZ'];
 
 const vendorUser = { role: 'vendor', jurisdiction: '*' } as const;
 const systemAdministratorUser = {
