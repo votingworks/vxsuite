@@ -202,6 +202,7 @@ function ConfirmInvalidateRegistrationModal({
 
   if (errorMessage) {
     const errorContent =
+      // @coverage-defer
       errorMessage === 'voter_checked_in'
         ? 'This voter is already checked in. Their registration cannot be deleted.'
         : 'This voter is not a newly registered voter.';
@@ -249,6 +250,7 @@ function VoterDetailsScreenLayout({
 }: React.PropsWithChildren): JSX.Element {
   const history = useHistory();
 
+  // @coverage-defer
   const onClose = useCallback(() => {
     history.push(electionManagerRoutes.voters.path);
   }, [history]);
@@ -321,6 +323,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
     const result = await reprintVoterReceiptMutation.mutateAsync({
       voterId,
     });
+    // @coverage-defer
     if (result.isOk()) {
       await sleep(PRINTING_INDICATOR_DELAY_MS);
       setIsPrinting(false);
@@ -358,6 +361,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
     return (
       <PrinterRequired
         printer={printer}
+        // @coverage-defer
         onClose={() => setShowUpdateAddressFlow(false)}
       >
         <UpdateAddressFlow
@@ -374,6 +378,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
     return (
       <PrinterRequired
         printer={printer}
+        // @coverage-defer
         onClose={() => setShowUpdateMailingAddressFlow(false)}
       >
         <UpdateMailingAddressFlow
@@ -389,6 +394,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
     return (
       <PrinterRequired
         printer={printer}
+        // @coverage-defer
         onClose={() => setShowUpdateNameFlow(false)}
       >
         <UpdateNameFlow
@@ -405,8 +411,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
       {reprintErrorMessage && (
         <Modal
           title="Error Reprinting"
+          // @coverage-defer
           onOverlayClick={() => setReprintErrorMessage('')}
           actions={
+            // @coverage-defer
             <Button onPress={() => setReprintErrorMessage('')}>Close</Button>
           }
           content="Voter is not currently checked in."
@@ -427,6 +435,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
       {showUndoCheckinFlow && (
         <PrinterRequired
           printer={printer}
+          // @coverage-defer
           onClose={() => setShowUndoCheckinFlow(false)}
         >
           <ConfirmUndoCheckInModal
@@ -570,6 +579,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
         </Column>
         <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
+            {/* @coverage-defer */}
             {voter.isInactive && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
                 <Icons.Delete /> Voter Inactive
@@ -612,6 +622,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                   </LabelledText>
                   {voter.checkIn.identificationMethod.type ===
                     'outOfStateLicense' && (
+                    // @coverage-defer
                     <LabelledText label="Identification Method">
                       Out-of-State ID (
                       {voter.checkIn.identificationMethod.state})

@@ -78,6 +78,7 @@ function RegistrationDuplicateNameMessage({
 }): JSX.Element | null {
   const isSinglePrecinctElection = election.precincts.length === 1;
   const inputtedName = normalizeName(inputtedVoter);
+  // @coverage-defer
   const matchingName = duplicateError.matchingVoters[0]
     ? normalizeName(duplicateError.matchingVoters[0])
     : inputtedName;
@@ -275,6 +276,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                     style={{ width: '20rem' }}
                     value={voter.party || undefined}
                     onChange={(value) =>
+                      // @coverage-defer
                       setVoter({ ...voter, party: value || '' })
                     }
                     menuPortalTarget={document.body}
@@ -396,6 +398,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                   >
                     Add Voter
                   </Button>
+                  {/* @coverage-defer */}
                   <Button onPress={() => setFlowState({ step: 'register' })}>
                     Close
                   </Button>

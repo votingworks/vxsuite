@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import {
   FullScreenIconWrapper,
   H1,

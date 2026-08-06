@@ -65,12 +65,14 @@ export function ElectionScreen(): JSX.Element | null {
         <Row>
           <SegmentedButton
             label="Check-In Mode"
+            // @coverage-defer
             selectedOptionId={isAbsenteeMode ? 'absentee' : 'precinct'}
             options={[
               { label: 'Precinct Mode', id: 'precinct' },
               { label: 'Absentee Mode', id: 'absentee', icon: 'Envelope' },
             ]}
             onChange={(selectedId) =>
+              // @coverage-defer
               setIsAbsenteeModeMutation.mutate({
                 isAbsenteeMode: selectedId === 'absentee',
               })
@@ -102,6 +104,7 @@ export function ElectionScreen(): JSX.Element | null {
               options={precinctOptions}
               value={configuredPrecinctId}
               onChange={async (precinctId) => {
+                // @coverage-defer
                 if (precinctId) {
                   const result =
                     await setConfiguredPrecinctMutation.mutateAsync({

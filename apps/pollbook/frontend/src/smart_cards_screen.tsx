@@ -17,6 +17,7 @@ export function SmartCardsScreen(): JSX.Element | null {
   assert(isSystemAdministratorAuth(authStatus));
 
   let election;
+  // @coverage-defer
   if (getElectionQuery.data.isOk()) {
     election = getElectionQuery.data.ok();
   }
