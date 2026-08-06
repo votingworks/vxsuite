@@ -33,7 +33,7 @@ async function getReadinessReport({
     pollingPlaceId,
     batteryInfo:
       (await getBatteryInfo({ logger })) ??
-      /* istanbul ignore next */
+      // @coverage-exclude
       undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     printerStatus: await printer.status(),

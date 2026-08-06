@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import {
   DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
@@ -20,11 +19,13 @@ const NodeEnvSchema = z.union([
   z.literal('production'),
 ]);
 
+// @coverage-exclude: NODE_ENV is always 'test' under vitest
 const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env['NODE_ENV'] ?? 'development'
 );
 
+// @coverage-exclude: NODE_ENV is always 'test' under vitest
 export const PRINT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
     ? isIntegrationTest()

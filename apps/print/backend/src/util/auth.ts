@@ -15,7 +15,7 @@ import {
 import { Workspace } from './workspace';
 import { Store } from '../store';
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {
   return new DippedSmartCardAuth({
     card:
@@ -62,5 +62,5 @@ export async function getUserRole(
   );
   return authStatus.status === 'logged_in'
     ? authStatus.user.role
-    : /* istanbul ignore next */ 'unknown';
+    : /* @coverage-exclude */ 'unknown';
 }
