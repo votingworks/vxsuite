@@ -3251,28 +3251,6 @@ export class Store implements BaseStore {
     return getMostRecentDiagnosticRecord(this.client, type);
   }
 
-  /* istanbul ignore start */
-  getDebugSummary(): Map<string, number> {
-    const tableNameRows = this.client.all(
-      `select name from sqlite_schema where type='table' order by name;`
-    ) as Array<{ name: string }>;
-
-    return new Map<string, number>(
-      tableNameRows.map(
-        (row) =>
-          [
-            row.name,
-            (
-              this.client.one(`select count(*) as count from ${row.name}`) as {
-                count: number;
-              }
-            ).count,
-          ] as const
-      )
-    );
-  }
-  /* istanbul ignore stop */
-
   //
   // Manage machine connections (multi-station)
   //

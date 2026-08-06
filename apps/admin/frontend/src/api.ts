@@ -427,28 +427,6 @@ export const updateQualifiedWriteInCandidates = {
   },
 } as const;
 
-type GetCastVoteRecordVoteInfoInput = QueryInput<'getCastVoteRecordVoteInfo'>;
-export const getCastVoteRecordVoteInfo = {
-  queryKey(input?: GetCastVoteRecordVoteInfoInput): QueryKey {
-    return input
-      ? ['getCastVoteRecordVoteInfo', input.cvrId]
-      : ['getCastVoteRecordVoteInfo'];
-  },
-  useQuery(input?: GetCastVoteRecordVoteInfoInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      input
-        ? () =>
-            apiClient.getCastVoteRecordVoteInfo({
-              cvrId: input.cvrId,
-            }) /* istanbul ignore next */
-        : () => fail('input is required'),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-} as const;
-
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -665,7 +643,6 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // cast vote record endpoints
     queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
-    queryClient.invalidateQueries(getCastVoteRecordVoteInfo.queryKey()),
 
     // scanner batches are generated from cast vote records
     queryClient.invalidateQueries(getScannerBatches.queryKey()),

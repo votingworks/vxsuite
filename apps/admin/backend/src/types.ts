@@ -3,7 +3,6 @@ import {
   ContestId,
   ContestOptionId,
   ElectionDefinition,
-  ElectionDefinitionSchema,
   ElectionKey,
   Id,
   IdSchema,
@@ -17,7 +16,6 @@ import {
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
   Admin,
-  Sha256Hash,
   BallotStyleGroupId,
   BallotCastingMode,
   ContestOption,
@@ -110,17 +108,6 @@ export interface ElectionRecord {
 }
 
 /**
- * Schema for {@link ElectionRecord}.
- */
-export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
-  id: IdSchema,
-  electionDefinition: ElectionDefinitionSchema,
-  createdAt: Iso8601TimestampSchema,
-  isOfficialResults: z.boolean(),
-  electionPackageHash: Sha256Hash,
-});
-
-/**
  * Info related to a CVR file import attempt.
  */
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -164,27 +151,6 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     precinctIds: z.array(z.string()),
     scannerIds: z.array(z.string()),
     sha256Hash: z.string().nonempty(),
-    createdAt: Iso8601TimestampSchema,
-  });
-
-/**
- * A Cast Vote Record's metadata.
- */
-export interface CastVoteRecordFileEntryRecord {
-  readonly id: Id;
-  readonly electionId: Id;
-  readonly data: string;
-  readonly createdAt: Iso8601Timestamp;
-}
-
-/**
- * Schema for {@link CastVoteRecordFileEntryRecord}.
- */
-export const CastVoteRecordFileEntryRecordSchema: z.ZodSchema<CastVoteRecordFileEntryRecord> =
-  z.object({
-    id: IdSchema,
-    electionId: IdSchema,
-    data: z.string(),
     createdAt: Iso8601TimestampSchema,
   });
 
@@ -273,13 +239,6 @@ export type WriteInRecord = WriteInRecordPending | WriteInRecordAdjudicated;
  * Status values for a write-in or write-in summary - either pending or adjudicated.
  */
 export type WriteInAdjudicationStatus = WriteInRecord['status'];
-
-/**
- * Types of write-in adjudications - for an official candidate, a write-in
- * candidate, or to mark it as invalid.
- */
-export type WriteInAdjudicationType =
-  WriteInRecordAdjudicated['adjudicationType'];
 
 /**
  * Information about an individual write-in for tallying purposes.
@@ -539,18 +498,6 @@ export interface BallotImages {
 }
 
 /**
- * An adjudication that creates a mark where one was not previously tabulated
- * or removes a mark that was previously tabulated.
- */
-export interface VoteAdjudication {
-  electionId: Id;
-  cvrId: Id;
-  contestId: Id;
-  optionId: Id;
-  isVote: boolean;
-}
-
-/**
  * Top-level adjudication information about a cast vote record.
  */
 export interface CastVoteRecordVoteInfo {
@@ -568,19 +515,6 @@ export type CastVoteRecordAdjudicationFlags = Record<
   Admin.CastVoteRecordAdjudicationFlag,
   boolean
 >;
-
-/**
- * Ballot mode.
- */
-export type BallotMode =
-  /** Official ballots to be used and scanned during an election */
-  | 'official'
-  /** Test ballots to be used and scanned during pre-election testing / L&A */
-  | 'test'
-  /** Sample ballots to be provided to voters ahead of an election */
-  | 'sample'
-  /** Draft ballots to verify that an election definition has been properly configured */
-  | 'draft';
 
 /**
  * The ballot type for the CVR files currently being handled.
