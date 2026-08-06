@@ -8,7 +8,7 @@ import { WritableStream } from 'memory-streams';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { split, splitToFiles } from './split';
+import { split, splitToFiles } from './split.js';
 
 test('empty stream', async () => {
   const output = new WritableStream();

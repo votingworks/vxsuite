@@ -1,6 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { intermediateScript } from '../intermediate_scripts';
+import { execFile } from '../exec.js';
+import { intermediateScript } from '../intermediate_scripts.js';
 
 /**
  * Reboots the machine.

@@ -27,12 +27,12 @@ import {
   interpretedHmpbPage1,
   interpretedHmpbWithUnmarkedWriteIn,
   interpretedHmpbWithWriteIn,
-} from '../../test/fixtures/interpretations';
+} from '../../test/fixtures/interpretations.js';
 import {
   MockCentralScannerStore,
   MockPrecinctScannerStore,
   summarizeDirectoryContents,
-} from '../../test/utils';
+} from '../../test/utils.js';
 import {
   AcceptedSheet,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
@@ -41,15 +41,15 @@ import {
   ExportOptions,
   RejectedSheet,
   Sheet,
-} from './export';
+} from './export.js';
 import {
   readCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
-} from './import';
+} from './import.js';
 import {
   getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecord,
-} from './test_utils';
+} from './test_utils.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

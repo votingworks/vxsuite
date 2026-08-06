@@ -21,7 +21,7 @@ import {
   ElectionRecord,
   PrecinctScannerStore,
   ScannerStoreBase,
-} from '../src/cast_vote_records/export';
+} from '../src/cast_vote_records/export.js';
 
 class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];

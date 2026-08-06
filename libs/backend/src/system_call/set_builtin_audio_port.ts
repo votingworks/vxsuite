@@ -1,7 +1,7 @@
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { type NODE_ENV } from '../globals';
+import { execFile } from '../exec.js';
+import { type NODE_ENV } from '../globals.js';
 
 const PULSE_AUDIO_SINK_ID_BUILTIN_SOUND_CARD = '0';
 

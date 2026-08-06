@@ -11,12 +11,12 @@ import {
   ElectionStringKey,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
-import { extractAndTranslateElectionStrings } from './election_strings';
-import { GoogleCloudTranslator } from './translator';
+import { extractAndTranslateElectionStrings } from './election_strings.js';
+import { GoogleCloudTranslator } from './translator.js';
 import {
   makeMockGoogleCloudTranslationClient,
   mockCloudTranslatedText,
-} from './test_utils';
+} from './test_utils.js';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },

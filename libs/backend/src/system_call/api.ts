@@ -3,21 +3,21 @@ import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 
-import { GetAuthStatus } from './auth';
-import { exportLogsToUsb } from './export_logs_to_usb';
-import { reboot } from './reboot';
-import { rebootToVendorMenu } from './reboot_to_vendor_menu';
-import { powerDown } from './power_down';
-import { setClock } from './set_clock';
-import { getBatteryInfo } from './get_battery_info';
-import { getAudioInfo } from './get_audio_info';
-import { getDiskSpaceSummaries } from './disk_space_summaries';
+import { GetAuthStatus } from './auth.js';
+import { exportLogsToUsb } from './export_logs_to_usb.js';
+import { reboot } from './reboot.js';
+import { rebootToVendorMenu } from './reboot_to_vendor_menu.js';
+import { powerDown } from './power_down.js';
+import { setClock } from './set_clock.js';
+import { getBatteryInfo } from './get_battery_info.js';
+import { getAudioInfo } from './get_audio_info.js';
+import { getDiskSpaceSummaries } from './disk_space_summaries.js';
 import {
   getUsbPortStatus,
   toggleUsbPorts,
   UsbPortAction,
-} from './usb_port_status';
-import { getNodeEnv } from '../globals';
+} from './usb_port_status.js';
+import { getNodeEnv } from '../globals.js';
 
 function buildApi({
   usbDrive,

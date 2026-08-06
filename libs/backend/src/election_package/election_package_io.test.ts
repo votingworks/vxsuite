@@ -63,7 +63,7 @@ import { writeMockFileTree } from '@votingworks/usb-drive';
 import {
   createElectionPackageZipArchive,
   mockElectionPackageFileTree,
-} from './test_utils';
+} from './test_utils.js';
 import {
   ElectionPackageZip,
   ParsedElectionPackageWithHash,
@@ -72,7 +72,7 @@ import {
   readSignedElectionPackageFromDirectory,
   streamElectionPackageAudioClips,
   streamElectionPackageBallots,
-} from './election_package_io';
+} from './election_package_io.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

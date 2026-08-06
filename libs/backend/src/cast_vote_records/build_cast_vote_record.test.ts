@@ -25,14 +25,14 @@ import {
   interpretedHmpbPage1WithWriteIn,
   interpretedHmpbPage2,
   interpretedHmpbPage2WithMarginalMark,
-} from '../../test/fixtures/interpretations';
+} from '../../test/fixtures/interpretations.js';
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
-} from './build_cast_vote_record';
+} from './build_cast_vote_record.js';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDefinition;

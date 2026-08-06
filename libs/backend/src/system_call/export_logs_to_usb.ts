@@ -21,7 +21,7 @@ import { createGunzip, createGzip } from 'node:zlib';
 import { dirSync } from 'tmp';
 import { generateFileTimeSuffix } from '@votingworks/utils';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
-import { execFile } from '../exec';
+import { execFile } from '../exec.js';
 
 const LOG_DIR = '/var/log/votingworks';
 const COMPRESSED_VX_LOGS_NAME_REGEX = 'vx-logs.log-[0-9]*.gz';

@@ -2,8 +2,8 @@ import { expect, test, vi } from 'vitest';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
-import { execFile } from '../exec';
-import { SetDefaultAudioResult, setDefaultAudio } from './set_default_audio';
+import { execFile } from '../exec.js';
+import { SetDefaultAudioResult, setDefaultAudio } from './set_default_audio.js';
 
 vi.mock(import('../exec.js'));
 

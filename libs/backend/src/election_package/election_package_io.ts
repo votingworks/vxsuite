@@ -55,7 +55,7 @@ import {
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { z } from 'zod/v4';
-import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
+import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.js';
 
 /**
  * An error from parsing an election package.

@@ -1,7 +1,7 @@
 import { assert, assertDefined, iter, lines } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { execFile } from '../exec';
+import { execFile } from '../exec.js';
 
 const DF_ROW_PATTERN = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.+?)\s*$/;
 

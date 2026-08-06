@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { assert } from '@votingworks/basics';
-import { execFile } from '../exec';
+import { execFile } from '../exec.js';
 
 /**
  * Updates the creation timestamp of a directory and its children files (assuming no
