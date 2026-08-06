@@ -540,15 +540,23 @@ function generateMoonCiBaselineJob(): string[] {
   ];
 }
 
-// The "non-required" e2e lane. The Playwright integration suite is excluded
-// from `moon ci` (its task is `runInCI: false`), so this job runs it explicitly
-// with `moon run`. It installs Chromium, and keeps the remote cache ON so the
-// app builds it depends on (admin-frontend/backend + libs) hydrate instead of
-// rebuilding — only the e2e task itself is uncached (`cache: false`). Mark this
-// job NON-required in GitHub branch protection so flaky/slow e2e doesn't block
-// merges. Currently covers admin; extend the `moon run` targets as more apps'
-// suites are wired.
+// Apps whose Playwright integration-testing suite is wired into moon (as a
+// `runInCI: false` e2e task). Extend as more apps are wired.
+const MOON_E2E_APPS = ['admin', 'central-scan', 'mark'];
+
+// The "non-required" e2e lane. Each app's Playwright suite is excluded from
+// `moon ci` (its task is `runInCI: false`), so this job runs them explicitly
+// with one `moon run` over all targets. It installs Chromium once (shared across
+// apps), and keeps the remote cache ON so the app builds the suites depend on
+// hydrate instead of rebuilding — only the e2e tasks themselves are uncached
+// (`cache: false`). Mark this job NON-required in GitHub branch protection so
+// flaky/slow e2e doesn't block merges. As the suite count grows this may want to
+// split into per-app parallel jobs; single serial job is fine for now.
 function generateMoonE2eJob(): string[] {
+  const targets = MOON_E2E_APPS.map(
+    (app) => `${app}-integration-testing:test`
+  ).join(' ');
+  const appList = MOON_E2E_APPS.join(' ');
   return [
     `moon-e2e:`,
     `  executor: nodejs`,
@@ -563,6 +571,7 @@ function generateMoonE2eJob(): string[] {
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
     `    - run:`,
     `        name: Install Playwright Chromium`,
+    // Chromium is shared across suites (one node_modules); install once.
     `        command: |`,
     `          pnpm --dir apps/admin/integration-testing exec playwright install-deps`,
     `          pnpm --dir apps/admin/integration-testing exec playwright install chromium`,
@@ -574,19 +583,28 @@ function generateMoonE2eJob(): string[] {
     `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
     `            export MOON_REMOTE_HOST`,
     `          fi`,
-    // The e2e task is `runInCI: false` so `moon ci` (required lane) skips it.
+    // e2e tasks are `runInCI: false` so `moon ci` (required lane) skips them.
     // moon 2.4.6 has no `--ignore-ci-checks` on `moon run`, and it honors
     // runInCI in a CI env (would report "No tasks found"). moon detects CI via
     // the CI/CI_NAME/AZURE_PIPELINES env vars, so unset CI for just this command
-    // to let the explicit `moon run` execute the task. Dep builds still hydrate
+    // to let the explicit `moon run` execute the tasks. Dep builds still hydrate
     // from the remote cache (MOON_REMOTE_HOST exported above).
-    `          env -u CI moon run admin-integration-testing:test`,
+    `          env -u CI moon run ${targets}`,
     `          echo $? > /tmp/moon-exit-code`,
     `          exit 0`,
+    // Gather each app's Playwright results/artifacts into one place.
+    `    - run:`,
+    `        name: Collect e2e results`,
+    `        command: |`,
+    `          mkdir -p /tmp/e2e-results`,
+    `          for app in ${appList}; do`,
+    `            d="apps/$app/integration-testing/test-results"`,
+    `            [ -d "$d" ] && cp -r "$d" "/tmp/e2e-results/$app" || true`,
+    `          done`,
     `    - store_test_results:`,
-    `        path: apps/admin/integration-testing/test-results`,
+    `        path: /tmp/e2e-results`,
     `    - store_artifacts:`,
-    `        path: apps/admin/integration-testing/test-results`,
+    `        path: /tmp/e2e-results`,
     `        destination: e2e-test-results`,
     `    - run:`,
     `        name: Propagate moon run exit code`,

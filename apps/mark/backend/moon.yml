@@ -1,0 +1,9 @@
+# mark-backend's build is more than tsc: build:self runs `tsc --build` AND copies
+# src/audio/*.mp3 into build/audio/ (voter-facing audio assets). Override the
+# build command to run build:self so those assets land in the cached output.
+# (outputs stays the inherited ['build'] — audio goes to build/audio/.)
+tasks:
+  build:
+    command: 'pnpm build:self'
+    options:
+      mergeArgs: replace
