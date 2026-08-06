@@ -47,8 +47,10 @@ export interface MarginalMark {
 
 /**
  * Default partial-fill fraction for a {@link MarginalMark}. Tuned so the
- * VxDefault bubble interprets to a score in the marginal range (~0.07), between
- * the marginal (0.05) and definite (0.10) thresholds.
+ * VxDefault bubble interprets to a score in the marginal range (~0.05–0.06),
+ * between the marginal (0.05) and definite (0.10) thresholds. The score
+ * responds to this fraction in coarse steps (the fill snaps to whole pixels),
+ * and the next step up (~0.11) crosses the definite threshold.
  */
 export const DEFAULT_MARGINAL_MARK_FILL_FRACTION = 0.18;
 
@@ -100,16 +102,31 @@ export async function markBallotDocument(
               return marginalMark ? (
                 <BubbleShape
                   key={optionInfo.optionId}
-                  fillFraction={
-                    marginalMark.fillFraction ??
-                    DEFAULT_MARGINAL_MARK_FILL_FRACTION
-                  }
                   style={{
                     position: 'absolute',
                     top: bubble.y - page.y,
                     left: bubble.x - page.x,
+                    overflow: 'hidden',
                   }}
-                />
+                >
+                  {/* Partial fill from the bottom up. Drawn as a plain
+                      rectangle rather than a CSS gradient: hard-stop gradients
+                      in the resulting PDF rasterize inconsistently across
+                      renderers (e.g. @napi-rs/canvas inverts them). */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${
+                        (marginalMark.fillFraction ??
+                          DEFAULT_MARGINAL_MARK_FILL_FRACTION) * 100
+                      }%`,
+                      background: 'black',
+                    }}
+                  />
+                </BubbleShape>
               ) : undefined;
             }
 

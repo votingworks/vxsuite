@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
 import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { DocumentProps, PageProps } from 'react-pdf';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { ok, err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
@@ -45,7 +45,7 @@ function MockDocument({
       <div>
         {file && new TextDecoder().decode((file as { data: Uint8Array }).data)}
       </div>
-      {children}
+      {children as ReactNode}
     </div>
   );
 }
@@ -54,15 +54,17 @@ function MockPage({ pageNumber }: PageProps) {
   return <div>Mock Page {pageNumber}</div>;
 }
 
-vi.mock(import('react-pdf'), async (importActual) => {
-  const original = await importActual();
-  return {
-    ...original,
-    pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
-    Document: MockDocument,
-    Page: MockPage,
-  } as unknown as typeof original;
-});
+// Don't load the real react-pdf: importing it evaluates pdfjs-dist, which
+// requires browser APIs (e.g. DOMMatrix) that jsdom doesn't provide.
+vi.mock(
+  import('react-pdf'),
+  () =>
+    ({
+      pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
+      Document: MockDocument,
+      Page: MockPage,
+    }) as unknown as typeof import('react-pdf')
+);
 
 let apiMock: MockApiClient;
 

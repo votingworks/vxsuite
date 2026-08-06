@@ -150,7 +150,6 @@ export function WriteInImageReportScreen(): JSX.Element {
           key={contestId ?? 'no-contest'}
           loading={isPreviewLoading}
           pdfData={pdfData}
-          renderMode="canvas"
         />
       </ReportScreenContainer>
     </NavigationScreen>

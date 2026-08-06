@@ -1,5 +1,6 @@
+import { createCanvas } from '@napi-rs/canvas';
 import { Buffer } from 'node:buffer';
-import { CanvasGradient, CanvasPattern, ImageData, createCanvas } from 'canvas';
+import { CanvasGradient, CanvasPattern, ImageData } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 /**
@@ -23,27 +24,34 @@ export interface PdfToImagesOptions {
  * Renders PDF pages as images. This function consumes the data source, leaving
  * the caller with an empty `Uint8Array` when this function resolves. Be sure to
  * clone the data if you need it afterward.
+ *
+ * Rendering uses `@napi-rs/canvas` rather than `canvas` because that's the
+ * canvas implementation pdfjs supports in Node.js — rendering to a
+ * node-canvas context silently produces blank pages. The resulting pixels are
+ * returned as node-canvas `ImageData` to match the rest of this library.
  */
 export async function* pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions = {}
 ): AsyncIterable<PdfPage> {
   const { background, scale = 1 } = opts;
-  const { default: pdfjs } = await import('pdfjs-dist/legacy/build/pdf.js');
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
 
   // Consumes `pdfBytes` here:
-  const pdf = await pdfjs.getDocument(
+  const pdf = await pdfjs.getDocument({
     // pdfjs-dist wants a `Uint8Array`, not a `Buffer`
-    Buffer.isBuffer(pdfBytes)
+    data: Buffer.isBuffer(pdfBytes)
       ? new Uint8Array(
           pdfBytes.buffer,
           pdfBytes.byteOffset,
           pdfBytes.byteLength
         )
-      : pdfBytes
-  ).promise;
+      : pdfBytes,
+    // Defense in depth: never evaluate JS embedded in PDFs (CVE-2024-4367).
+    isEvalSupported: false,
+  }).promise;
 
   // Yes, 1-indexing is correct.
   // https://github.com/mozilla/pdf.js/blob/6ffcedc24bba417694a9d0e15eaf16cadf4dad15/src/display/api.js#L2457-L2463
@@ -55,15 +63,22 @@ export async function* pdfToImages(
     canvas.height = viewport.height;
 
     await page.render({
-      canvasContext: context,
+      canvas,
       viewport,
       background,
     }).promise;
 
+    const { data, width, height } = context.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
     yield {
       pageCount: pdf.numPages,
       pageNumber: i,
-      page: context.getImageData(0, 0, canvas.width, canvas.height),
+      page: new ImageData(data, width, height),
     };
   }
 }
@@ -78,8 +93,11 @@ export async function* pdfToImages(
 export async function parsePdf(
   pdfBytes: Uint8Array
 ): Promise<PDFDocumentProxy> {
-  const { default: pdfjs } = await import('pdfjs-dist/legacy/build/pdf.js');
-  const pdf = await pdfjs.getDocument(pdfBytes).promise;
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const pdf = await pdfjs.getDocument({
+    data: pdfBytes,
+    isEvalSupported: false,
+  }).promise;
   return pdf;
 }
 

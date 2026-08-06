@@ -94,7 +94,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 114,
           "left": 104,
           "top": 1356,
           "width": 479,
@@ -108,9 +108,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 116,
           "left": 104,
-          "top": 1463,
+          "top": 1462,
           "width": 479,
         },
         "gridLocation": {
@@ -228,7 +228,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 114,
           "left": 611,
           "top": 1356,
           "width": 478,
@@ -242,9 +242,9 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 114,
+          "height": 115,
           "left": 611,
-          "top": 1481,
+          "top": 1480,
           "width": 478,
         },
         "gridLocation": {
@@ -683,7 +683,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 116,
+          "height": 115,
           "left": 1117,
           "top": 922,
           "width": 479,
@@ -697,9 +697,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 116,
           "left": 1117,
-          "top": 1030,
+          "top": 1029,
           "width": 479,
         },
         "gridLocation": {
@@ -739,7 +739,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 116,
+          "height": 115,
           "left": 1117,
           "top": 1382,
           "width": 479,
@@ -753,9 +753,9 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 114,
+          "height": 115,
           "left": 1117,
-          "top": 1497,
+          "top": 1496,
           "width": 479,
         },
         "gridLocation": {
@@ -864,7 +864,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 114,
           "left": 104,
           "top": 1356,
           "width": 479,
@@ -878,9 +878,9 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 116,
           "left": 104,
-          "top": 1463,
+          "top": 1462,
           "width": 479,
         },
         "gridLocation": {
@@ -998,7 +998,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 114,
           "left": 611,
           "top": 1356,
           "width": 478,
@@ -1012,9 +1012,9 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 114,
+          "height": 115,
           "left": 611,
-          "top": 1481,
+          "top": 1480,
           "width": 478,
         },
         "gridLocation": {
@@ -1453,7 +1453,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 116,
+          "height": 115,
           "left": 1117,
           "top": 922,
           "width": 479,
@@ -1467,9 +1467,9 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 115,
+          "height": 116,
           "left": 1117,
-          "top": 1030,
+          "top": 1029,
           "width": 479,
         },
         "gridLocation": {
@@ -1509,7 +1509,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 116,
+          "height": 115,
           "left": 1117,
           "top": 1382,
           "width": 479,
@@ -1523,9 +1523,9 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 114,
+          "height": 115,
           "left": 1117,
-          "top": 1497,
+          "top": 1496,
           "width": 479,
         },
         "gridLocation": {
@@ -1558,15 +1558,15 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05635220184922218,
+    "score": 0.05630188807845116,
     "shape": {
       "bottomLeft": {
         "x": 183.42340087890625,
-        "y": 1065.5,
+        "y": 1066,
       },
       "bottomRight": {
         "x": 557.5870361328125,
-        "y": 1065.5,
+        "y": 1066,
       },
       "topLeft": {
         "x": 183.42340087890625,
@@ -1598,11 +1598,11 @@ exports[`score write in areas 1`] = `
     "shape": {
       "bottomLeft": {
         "x": 183.42340087890625,
-        "y": 1649.5,
+        "y": 1650,
       },
       "bottomRight": {
         "x": 557.5870361328125,
-        "y": 1649.5,
+        "y": 1650,
       },
       "topLeft": {
         "x": 183.42340087890625,
@@ -1630,7 +1630,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05625257268548012,
+    "score": 0.05707527697086334,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1678,11 +1678,11 @@ exports[`score write in areas 1`] = `
       },
       "topLeft": {
         "x": 690.2671508789062,
-        "y": 1489.5,
+        "y": 1489,
       },
       "topRight": {
         "x": 1064.4306640625,
-        "y": 1489.5,
+        "y": 1489,
       },
     },
   },
@@ -1702,7 +1702,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05514075234532356,
+    "score": 0.05549389496445656,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
@@ -1819,11 +1819,11 @@ exports[`score write in areas 2`] = `
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
-        "y": 1049.5,
+        "y": 1049,
       },
       "bottomRight": {
         "x": 1064.4306640625,
-        "y": 1049.5,
+        "y": 1049,
       },
       "topLeft": {
         "x": 690.2671508789062,
@@ -1851,7 +1851,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 2,
     },
-    "score": 0.05699148401618004,
+    "score": 0.05723905563354492,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1999,11 +1999,11 @@ exports[`score write in areas 2`] = `
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
-        "y": 1445,
+        "y": 1444,
       },
       "bottomRight": {
         "x": 1571.2744140625,
-        "y": 1445,
+        "y": 1444,
       },
       "topLeft": {
         "x": 1197.11083984375,
@@ -2043,11 +2043,11 @@ exports[`score write in areas 2`] = `
       },
       "topLeft": {
         "x": 1197.11083984375,
-        "y": 1505.5,
+        "y": 1506,
       },
       "topRight": {
         "x": 1571.2744140625,
-        "y": 1505.5,
+        "y": 1506,
       },
     },
   },

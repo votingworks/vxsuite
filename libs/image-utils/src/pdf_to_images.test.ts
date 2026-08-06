@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -63,6 +63,20 @@ test('can generate images with a different scale', async () => {
       size: { width: 1224, height: 1584 },
     }
   );
+});
+
+test('renders visible content, not blank pages', async () => {
+  const firstPage = assertDefined(
+    await iter(pdfToImages(await readMsBallotPdf())).first()
+  );
+  const { data } = firstPage.page;
+  let darkPixelCount = 0;
+  for (let offset = 0; offset < data.length; offset += 4) {
+    if ((data[offset] ?? 255) < 128) {
+      darkPixelCount += 1;
+    }
+  }
+  expect(darkPixelCount).toBeGreaterThan(1000);
 });
 
 test('parsePdf', async () => {
