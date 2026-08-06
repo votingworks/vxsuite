@@ -14,6 +14,7 @@
     "*.node"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check --manifest-path ../../Cargo.toml -- check . --never-scan ../../libs/basics/src",
     "benchmark": "cd benchmarks && vitest",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
@@ -27,10 +28,10 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && pnpm test:ts:coverage --run",
+    "test:ci": "pnpm build && pnpm test:ts:coverage",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "vitest --coverage",
+    "test:ts:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:ts:watch": "vitest",
     "test:ts:run": "vitest run",
     "test:run": "pnpm test:rust-addon && vitest run",

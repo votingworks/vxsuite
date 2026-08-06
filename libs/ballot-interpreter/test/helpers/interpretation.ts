@@ -95,7 +95,6 @@ export function sortUnmarkedWriteIns(
   return [...writeIns].sort(
     (a, b) =>
       a.contestId.localeCompare(b.contestId) ||
-      /* istanbul ignore next */
       a.optionId.localeCompare(b.optionId)
   );
 }

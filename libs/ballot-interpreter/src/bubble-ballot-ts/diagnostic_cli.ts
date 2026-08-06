@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { promises as fs } from 'node:fs';
 import { styleText } from 'node:util';
 import { runBlankPaperDiagnostic } from './diagnostic';

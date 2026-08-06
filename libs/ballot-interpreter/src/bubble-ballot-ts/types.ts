@@ -305,6 +305,7 @@ export interface Quadrilateral {
   bottomRight: Point<SubPixelUnit>;
 }
 
+// @coverage-defer
 export function getQuadrilateralBounds(q: Quadrilateral): Rect {
   const left = Math.floor(Math.min(q.topLeft.x, q.bottomLeft.x));
   const top = Math.floor(Math.min(q.topLeft.y, q.topRight.y));

@@ -20,7 +20,6 @@ function rankMarkStatus(markStatus: MarkStatus): number {
     case MarkStatus.Unmarked:
       return 0;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(markStatus);
   }
 }
@@ -40,7 +39,6 @@ function getExpectedVoteCount(contest: Contest): number {
     case 'straight-party':
       return 1;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -58,6 +56,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
 
   for (const contest of contests) {
     const expectedSelectionCount = getExpectedVoteCount(contest);
+    // @coverage-defer
     const actualVotes = votes[contest.id] ?? [];
 
     const actualVoteCount = actualVotes.length;
@@ -69,6 +68,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
     // Check for undervotes
     if (actualVoteCount < expectedSelectionCount) {
       const optionIds = actualVotes.map((option) =>
+        // @coverage-defer
         typeof option === 'string' ? option : option.id
       );
       reasons.push({
@@ -158,7 +158,6 @@ export function getAllPossibleAdjudicationReasons(
         case MarkStatus.Unmarked:
           break;
 
-        // istanbul ignore next
         default:
           throwIllegalValue(markStatus);
       }

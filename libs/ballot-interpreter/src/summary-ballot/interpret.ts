@@ -98,7 +98,7 @@ export async function interpret(
       expectedBallotHash,
       actualBallotHash:
         actualBallotHash ??
-        /* istanbul ignore next */
+        // @coverage-exclude
         '',
     });
   }

@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import { assert, unique } from '@votingworks/basics';
 import {
   ElectionDefinition,

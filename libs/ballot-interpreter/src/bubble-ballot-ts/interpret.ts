@@ -40,6 +40,7 @@ function assertImageData(imageData: unknown): asserts imageData is ImageData {
 }
 
 function checkImageSource(imageSource: string | ImageData): void {
+  // @coverage-defer
   switch (typeof imageSource) {
     case 'string':
       break;
@@ -49,7 +50,7 @@ function checkImageSource(imageSource: string | ImageData): void {
       break;
 
     default:
-      /* istanbul ignore next */
+      // @coverage-exclude
       assert(false, `unknown imageSource type: ${typeof imageSource}`);
   }
 }
