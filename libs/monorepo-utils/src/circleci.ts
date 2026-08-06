@@ -368,6 +368,13 @@ function generateMoonCiJob(): string[] {
     `moon-ci:`,
     `  executor: nodejs`,
     `  resource_class: xlarge`,
+    // Shard the affected task graph across N containers. CircleCI sets
+    // CIRCLE_NODE_INDEX / CIRCLE_NODE_TOTAL; \`moon ci --job/--job-total\`
+    // partitions targets accordingly. NOTE: without a remote cache each shard has
+    // its own .moon/cache, so shared deps (basics, types, …) are rebuilt in every
+    // shard that needs them — a remote cache (bazel-remote) is what makes sharding
+    // efficient; this is fine for proving the mechanics.
+    `  parallelism: 3`,
     `  environment:`,
     `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
     `    MOON_CONCURRENCY: '4'`,
@@ -379,18 +386,20 @@ function generateMoonCiJob(): string[] {
     `        command: |`,
     `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    // Cache keys are namespaced by shard index so parallel shards don't clobber
+    // each other's save_cache (and a shard only restores its own prior cache).
     `    - restore_cache:`,
     `        keys:`,
-    `          - moon-{{ .Branch }}-{{ .Revision }}`,
-    `          - moon-{{ .Branch }}-`,
-    `          - moon-main-`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-main-`,
     // Capture moon's exit code rather than failing the step immediately, so the
     // cache save and per-task log upload below always run (even on test failure).
     `    - run:`,
     `        name: moon ci`,
     `        command: |`,
     `          set +e`,
-    `          moon ci --summary`,
+    `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --summary`,
     `          echo $? > /tmp/moon-exit-code`,
     `          # Echo any vitest-failed task's captured log to this step's tail, so`,
     `          # the failure survives CircleCI's head-truncation of long step logs`,
@@ -404,7 +413,7 @@ function generateMoonCiJob(): string[] {
     `          done`,
     `          exit 0`,
     `    - save_cache:`,
-    `        key: moon-{{ .Branch }}-{{ .Revision }}`,
+    `        key: moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
     `        paths:`,
     `          - .moon/cache/hashes`,
     `          - .moon/cache/outputs`,
