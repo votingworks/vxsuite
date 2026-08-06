@@ -19,8 +19,16 @@ tasks:
     inputs:
       - '@group(sources)'
       - 'tsconfig.build.json'
+    # `tsc --build` writes incremental state to `tsconfig.build.tsbuildinfo` at
+    # the package root (outside build/). Cache it ALONGSIDE build/ so a cache hit
+    # restores a consistent pair; otherwise a restored build/ next to a stale/
+    # missing tsbuildinfo desyncs and tsc skips re-emitting, producing a
+    # version-skewed build/. (We intentionally don't move it into build/ via
+    # `tsBuildInfoFile` — validate-monorepo forbids setting that in
+    # tsconfig.build.json.)
     outputs:
       - 'build'
+      - 'tsconfig.build.tsbuildinfo'
     deps:
       - '^:build'
 

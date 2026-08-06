@@ -6,7 +6,6 @@
     "noEmit": false,
     "rootDir": "src/ts",
     "outDir": "build",
-    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "declaration": true
   },
   "references": [
