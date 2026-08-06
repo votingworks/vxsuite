@@ -1,12 +1,12 @@
 /* eslint-disable prefer-regex-literals */
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { setClock } from './set_clock';
-import { execFile } from '../exec';
+import { setClock } from './set_clock.js';
+import { execFile } from '../exec.js';
 
 vi.mock(
   import('../exec.js'),
-  async (importActual): Promise<typeof import('../exec')> => ({
+  async (importActual): Promise<typeof import('../exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })

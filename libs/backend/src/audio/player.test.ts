@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { AudioPlayer } from './player';
-import { execFile } from '../exec';
+import { AudioPlayer } from './player.js';
+import { execFile } from '../exec.js';
 
 vi.mock('../exec');
 

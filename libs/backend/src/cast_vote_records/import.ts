@@ -37,14 +37,14 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
+import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata.js';
 import {
   ReferencedFile,
   ReferencedFiles,
   referencedImageFile,
   referencedLayoutFile,
-} from './referenced_files';
-import { getImageHash, getLayoutHash } from './build_cast_vote_record';
+} from './referenced_files.js';
+import { getImageHash, getLayoutHash } from './build_cast_vote_record.js';
 
 interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;

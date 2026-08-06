@@ -9,11 +9,11 @@ import {
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Result, assertDefined } from '@votingworks/basics';
-import { UiStringsStore } from './ui_strings_store';
+import { UiStringsStore } from './ui_strings_store.js';
 import {
   mockElectionPackageFileTree,
   PartialElectionPackage,
-} from '../election_package/test_utils';
+} from '../election_package/test_utils.js';
 
 type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 

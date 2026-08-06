@@ -12,7 +12,7 @@ import {
   ReadCastVoteRecordError,
 } from '@votingworks/types';
 
-import { referencedImageFile, referencedLayoutFile } from './referenced_files';
+import { referencedImageFile, referencedLayoutFile } from './referenced_files.js';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),

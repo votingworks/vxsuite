@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { TaskController } from './task_controller';
+import { TaskController } from './task_controller.js';
 
 describe('TaskController', () => {
   test('is initially not running', () => {

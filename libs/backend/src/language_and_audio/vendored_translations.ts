@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { z } from 'zod/v4';
 import {
   safeParse,
@@ -5,7 +7,6 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 
-import vendoredTranslations from './vendored_translations.json';
 
 /**
  * A mapping of non-English language codes to translations of English text.
@@ -27,6 +28,13 @@ const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.object({
  * Parse the vendored translations from the JSON file.
  */
 export function parseVendoredTranslations(): VendoredTranslations {
+  // Read rather than imported: a JSON import needs an import attribute, which
+  // NodeJS requires and tsc only allows above `module: node16` — and which
+  // Babel, used to run the integration tests, cannot parse at all.
+  const vendoredTranslations = JSON.parse(
+    readFileSync(join(import.meta.dirname, 'vendored_translations.json'), 'utf8')
+  );
+
   return safeParse(
     VendoredTranslationsSchema,
     vendoredTranslations

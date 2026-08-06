@@ -9,7 +9,7 @@ import {
   prepareTextForSpeechSynthesis,
   setUiString,
   setUiStringAudioIds,
-} from './utils';
+} from './utils.js';
 
 test.each<{
   languageCode: LanguageCode;

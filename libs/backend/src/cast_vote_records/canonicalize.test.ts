@@ -5,13 +5,13 @@ import {
   SheetOf,
   SheetValidationError,
 } from '@votingworks/types';
-import { canonicalizeSheet } from './canonicalize';
+import { canonicalizeSheet } from './canonicalize.js';
 import {
   interpretedBmdPage1,
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-} from '../../test/fixtures/interpretations';
+} from '../../test/fixtures/interpretations.js';
 
 const blankPage: BlankPage = {
   type: 'BlankPage',

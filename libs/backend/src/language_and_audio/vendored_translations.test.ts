@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import { parseVendoredTranslations } from './vendored_translations';
+import { parseVendoredTranslations } from './vendored_translations.js';
 
 function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
   if (set1.size !== set2.size) {

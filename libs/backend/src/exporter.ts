@@ -1,13 +1,13 @@
 import { err, ok, Result } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { any } from 'micromatch';
+import micromatch from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'node:path';
 import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { splitToFiles } from './split';
+import { splitToFiles } from './split.js';
 
 /**
  * The largest file size that can be exported to a USB drive formatted as FAT32.
@@ -210,7 +210,7 @@ export class Exporter {
 
     const normalizedPath = normalize(path);
 
-    if (!any(normalizedPath, this.allowedExportPatterns)) {
+    if (!micromatch.any(normalizedPath, this.allowedExportPatterns)) {
       return err({
         type: 'permission-denied',
         message: `Path is not allowed: ${path}`,

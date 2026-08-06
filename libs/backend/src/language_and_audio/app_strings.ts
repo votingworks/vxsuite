@@ -11,8 +11,8 @@ import {
 } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
-import { GoogleCloudTranslator } from './translator';
-import { setUiString } from './utils';
+import { GoogleCloudTranslator } from './translator.js';
+import { setUiString } from './utils.js';
 
 /**
  * Creates a package of all translated app strings for the given code machine version,
@@ -27,7 +27,7 @@ export async function translateAppStrings(
 
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
-      __dirname,
+      import.meta.dirname,
       `../../../ui/src/ui_strings/app_strings_catalog/${machineVersion}.json`
     ),
     'utf-8'
