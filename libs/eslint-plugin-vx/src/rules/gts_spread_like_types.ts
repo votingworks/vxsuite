@@ -112,8 +112,8 @@ const rule: TSESLint.RuleModule<
             break;
           }
 
+          // @coverage-exclude: this should not be possible
           default: {
-            /* istanbul ignore next - this should not be possible */
             throw new Error(
               `unexpected spread element parent: ${
                 (node.parent as { type: string }).type

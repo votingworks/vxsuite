@@ -104,7 +104,6 @@ const rule: TSESLint.RuleModule<
               messageId: 'noDefaultExports',
               fix: declaration
                 ? function* getFixes(fixer) {
-                    /* istanbul ignore next - this is for TypeScript type narrowing */
                     assert(declaration.parent);
 
                     if (
@@ -135,9 +134,7 @@ const rule: TSESLint.RuleModule<
                   node,
                   { count: 2 }
                 );
-                /* istanbul ignore next - this is for TypeScript type narrowing */
                 assert.equal(exportToken?.value, 'export');
-                /* istanbul ignore next - this is for TypeScript type narrowing */
                 assert.equal(defaultToken?.value, 'default');
 
                 // `export default function a() {}` → `export function a() {}`
@@ -160,11 +157,9 @@ const rule: TSESLint.RuleModule<
       },
 
       ImportDefaultSpecifier(node: TSESTree.ImportDefaultSpecifier): void {
-        /* istanbul ignore next - this is for TypeScript type narrowing */
         assert(node.parent?.type === AST_NODE_TYPES.ImportDeclaration);
         const importDeclaration = node.parent;
 
-        /* istanbul ignore next - this is for TypeScript type narrowing */
         assert(typeof importDeclaration.source.value === 'string');
 
         if (
@@ -189,11 +184,8 @@ const rule: TSESLint.RuleModule<
             } else {
               const [commaToken, leftBracketToken, afterLeftBracketToken] =
                 sourceCode.getTokensAfter(node, { count: 3 });
-              /* istanbul ignore next - this is for TypeScript type narrowing */
               assert(commaToken?.value === ',');
-              /* istanbul ignore next - this is for TypeScript type narrowing */
               assert(leftBracketToken?.value === '{');
-              /* istanbul ignore next - this is for TypeScript type narrowing */
               assert(afterLeftBracketToken);
 
               // `import a, { b } from './a';` → `import a, b } from './a';`

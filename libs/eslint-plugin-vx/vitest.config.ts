@@ -12,9 +12,10 @@ export default defineConfig({
         'src/configs/*.ts',
         'src/util/index.ts',
       ],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -1,
-        branches: -12,
+        lines: 0,
+        branches: 0,
       },
     },
   },

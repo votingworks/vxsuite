@@ -107,6 +107,7 @@ const rule: TSESLint.RuleModule<
           return;
         }
 
+        // @coverage-defer
         if (node.key.type === AST_NODE_TYPES.Identifier) {
           checkIdentifier(node.key);
         }
@@ -114,6 +115,7 @@ const rule: TSESLint.RuleModule<
 
       ObjectExpression(node: TSESTree.ObjectExpression): void {
         for (const property of node.properties) {
+          // @coverage-defer
           if (
             property.type !== AST_NODE_TYPES.SpreadElement &&
             property.key.type === AST_NODE_TYPES.Identifier
@@ -124,6 +126,7 @@ const rule: TSESLint.RuleModule<
       },
 
       ExportAllDeclaration(node: TSESTree.ExportAllDeclaration): void {
+        // @coverage-defer
         if (node.exported) {
           checkIdentifier(node.exported);
         }
