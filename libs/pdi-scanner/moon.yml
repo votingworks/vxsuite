@@ -1,17 +1,23 @@
-# Two-stage build: `cargo build --release` produces a standalone Rust binary in
-# the (gitignored) `target/` dir, then `tsc` builds `build/`. moon caches only
-# `build/` (the inherited output); the Rust binary is left to cargo's own target
-# cache — caching `target/` via moon is impractical and it isn't a clean output.
-# Rust sources are added as inputs so a crate change re-runs the build.
+# Two-stage build: `cargo build --release` produces standalone Rust binaries in
+# the (gitignored) `target/` dir, then `tsc` builds `build/`. Consumers spawn the
+# `pdictl` binary at a fixed path (libs/pdi-scanner/target/release/pdictl — see
+# scanner_client.ts), so it MUST be a cached output: otherwise a cache-hit
+# restores build/ but not the binary, and downstream tests (scan-backend) fail
+# with `spawn ... pdictl ENOENT`. We don't cache all of `target/` (huge), just
+# the binary. Rust sources are added as inputs so a crate change re-runs.
 tasks:
   build:
     command: 'pnpm build:self'
     options:
       mergeArgs: replace
+      mergeOutputs: replace
     # cargo saturates every core internally; bound the job count so overlapping
     # native builds don't collectively demand cores x N. Tune down further on CI.
     env:
       CARGO_BUILD_JOBS: '6'
+    outputs:
+      - 'build'
+      - 'target/release/pdictl'
     inputs:
       - 'Cargo.toml'
       - 'Cargo.lock'
