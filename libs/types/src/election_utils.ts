@@ -579,9 +579,7 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
         width: 8,
         height: 13.25,
       };
-    // @coverage-defer
     default: {
-      // @coverage-exclude
       return throwIllegalValue(paperSize);
     }
   }

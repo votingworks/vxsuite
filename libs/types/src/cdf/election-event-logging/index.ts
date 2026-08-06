@@ -367,19 +367,16 @@ export interface ElectionEventLogDocumentation {
 /**
  * Schema for {@link ElectionEventLogDocumentation}.
  */
-export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDocumentation> =
-  z.object({
-    '@type': z.literal('EventLogging.ElectionEventLogDocumentation'),
-    DeviceId: z.optional(z.string()),
-    DeviceManufacturer: z.string(),
-    DeviceModel: z.string(),
-    DeviceVersion: z.optional(z.string()),
-    EventIdDescription: z.array(z.lazy(() => EventIdDescriptionSchema)).min(1),
-    EventTypeDescription: z
-      .array(z.lazy(() => EventTypeDescriptionSchema))
-      .min(1),
-    GeneratedDate: DateSchema,
-  });
+export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDocumentation> = z.object({
+  '@type': z.literal('EventLogging.ElectionEventLogDocumentation'),
+  DeviceId: z.optional(z.string()),
+  DeviceManufacturer: z.string(),
+  DeviceModel: z.string(),
+  DeviceVersion: z.optional(z.string()),
+  EventIdDescription: z.array(z.lazy(() => EventIdDescriptionSchema)).min(1),
+  EventTypeDescription: z.array(z.lazy(() => EventTypeDescriptionSchema)).min(1),
+  GeneratedDate: DateSchema,
+});
 
 /**
  * Event holds information about a specific event. Severity is an optional attribute for describing a severity indication for the event.  If the event disposition is not found in the EventDispositionType enumeration, Disposition is 'other' and OtherDisposition contains the other disposition.
@@ -481,12 +478,11 @@ export interface EventIdDescription {
 /**
  * Schema for {@link EventIdDescription}.
  */
-export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> =
-  z.object({
-    '@type': z.literal('EventLogging.EventIdDescription'),
-    Description: z.string(),
-    Id: z.string(),
-  });
+export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> = z.object({
+  '@type': z.literal('EventLogging.EventIdDescription'),
+  Description: z.string(),
+  Id: z.string(),
+});
 
 /**
  * For associating a description with an election event log type, used in ElectionEventLogDocumentation::EventTypeDescription.
@@ -508,9 +504,9 @@ export interface EventTypeDescription {
 /**
  * Schema for {@link EventTypeDescription}.
  */
-export const EventTypeDescriptionSchema: z.ZodSchema<EventTypeDescription> =
-  z.object({
-    '@type': z.literal('EventLogging.EventTypeDescription'),
-    Description: z.string(),
-    Type: z.string(),
-  });
+export const EventTypeDescriptionSchema: z.ZodSchema<EventTypeDescription> = z.object({
+  '@type': z.literal('EventLogging.EventTypeDescription'),
+  Description: z.string(),
+  Type: z.string(),
+});
+
