@@ -1,6 +1,6 @@
 /* istanbul ignore file */
-export * from './types';
-export * from './logging';
-export * from './printer';
-export * from './mocks/memory_printer';
-export * from './mocks/file_printer';
+export * from './types.js';
+export * from './logging.js';
+export * from './printer.js';
+export * from './mocks/memory_printer.js';
+export * from './mocks/file_printer.js';
