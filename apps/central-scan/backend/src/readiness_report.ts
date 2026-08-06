@@ -30,12 +30,12 @@ export async function saveReadinessReport({
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
   const { electionDefinition, electionPackageHash } =
+    // @coverage-defer
     store.getElectionRecord() ?? {};
   const markThresholds = store.getSystemSettings()?.markThresholds;
   const report = CentralScanReadinessReport({
     batteryInfo:
-      (await getBatteryInfo({ logger })) ??
-      /* istanbul ignore next */ undefined,
+      (await getBatteryInfo({ logger })) ?? /* @coverage-exclude */ undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     isScannerAttached,
     mostRecentScannerDiagnostic:
@@ -65,6 +65,7 @@ export async function saveReadinessReport({
     data
   );
 
+  // @coverage-defer
   if (exportFileResult.isOk()) {
     await logger.logAsCurrentRole(LogEventId.ReadinessReportSaved, {
       message: `User saved the equipment readiness report to a USB drive.`,

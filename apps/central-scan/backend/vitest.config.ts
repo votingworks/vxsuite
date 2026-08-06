@@ -17,9 +17,10 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
       ],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -48,
-        branches: -38,
+        lines: 0,
+        branches: 0,
       },
     },
     // Ensure only one instance of each library is loaded by loading the TS

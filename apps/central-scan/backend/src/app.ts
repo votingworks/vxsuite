@@ -136,13 +136,16 @@ function buildApi({
           batchId,
         });
       } catch (error) {
+        // @coverage-defer
         assert(error instanceof Error);
+        // @coverage-defer
         await logger.logAsCurrentRole(LogEventId.DeleteScanBatchComplete, {
           disposition: 'failure',
           message: `Error deleting batch id: ${batchId}.`,
           error: error.message,
           result: 'Batch not deleted.',
         });
+        // @coverage-defer
         throw error;
       }
     },
@@ -200,6 +203,7 @@ function buildApi({
       return ok(electionDefinition);
     },
 
+    // @coverage-defer
     getSystemSettings(): SystemSettings {
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
@@ -241,7 +245,9 @@ function buildApi({
         const batchId = await importer.startImport();
         await logBatchStartSuccess(logger, batchId);
       } catch (error) {
+        // @coverage-defer
         assert(error instanceof Error);
+        // @coverage-defer
         await logBatchStartFailure(logger, error);
       }
     },
@@ -302,7 +308,9 @@ function buildApi({
         importer.continueImport(input);
         await logScanBatchContinueSuccess(logger, forceAccept);
       } catch (error) {
+        // @coverage-defer
         assert(error instanceof Error);
+        // @coverage-defer
         await logScanBatchContinueFailure(logger, error);
       }
     },
@@ -343,6 +351,7 @@ function buildApi({
         { scannerType: 'central' }
       );
       store.setScannerBackedUp();
+      // @coverage-defer
       if (exportResult.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
@@ -378,12 +387,14 @@ function buildApi({
     },
 
     getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
+      // @coverage-defer
       return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
     },
 
     getMostRecentUpsDiagnostic(): DiagnosticRecord | null {
       return (
         store.getMostRecentDiagnosticRecord('uninterruptible-power-supply') ??
+        // @coverage-defer
         null
       );
     },
@@ -415,7 +426,7 @@ function buildApi({
       });
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -429,7 +440,6 @@ function buildApi({
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,
@@ -437,7 +447,7 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   });

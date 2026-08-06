@@ -39,17 +39,20 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
+// @coverage-defer
 export function start({
+  // @coverage-defer
   port = PORT,
   usbDrive,
   importer,
   app,
+  // @coverage-defer
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
 }: Partial<StartOptions> = {}): Server {
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
@@ -86,7 +89,7 @@ export function start({
 
   let resolvedApp = app;
   let mockBatchScanner: MockBatchScanner | undefined;
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
       card:

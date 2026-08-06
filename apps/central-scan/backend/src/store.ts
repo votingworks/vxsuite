@@ -171,6 +171,7 @@ export class Store {
   /**
    * Writes a copy of the database to the given path.
    */
+  // @coverage-defer
   backup(filepath: string): void {
     this.client.run('vacuum into ?', filepath);
   }
@@ -392,6 +393,7 @@ export class Store {
     const electionRecord = this.getElectionRecord();
     return (
       electionRecord?.electionDefinition.election.ballotLayout.paperSize ??
+      // @coverage-defer
       HmpbBallotPaperSize.Letter
     );
   }
@@ -419,6 +421,7 @@ export class Store {
       electionRow.rawPollsState
     );
 
+    // @coverage-defer
     if (pollsStateParseResult.isErr()) {
       throw new Error('Unable to parse stored polls state.');
     }
@@ -471,6 +474,7 @@ export class Store {
   /**
    * Returns the id of the an unfinished batch if there is one
    */
+  // @coverage-defer
   getOngoingBatchId(): Optional<string> {
     const ongoingBatchRow = this.client.one(
       'select id from batches where ended_at is null'
@@ -483,6 +487,7 @@ export class Store {
    * Records that batches have been backed up.
    */
   setScannerBackedUp(backedUp = true): void {
+    // @coverage-defer
     if (!this.hasElection()) {
       throw new Error('Unconfigured scanner cannot be backed up.');
     }
@@ -524,6 +529,7 @@ export class Store {
         batches.deleted_at is null
     `) as { ballotsCounted: number } | undefined;
 
+    // @coverage-defer
     return row?.ballotsCounted ?? 0;
   }
 
@@ -585,6 +591,7 @@ export class Store {
     return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
   }
 
+  // @coverage-defer
   addBallotCard(batchId: string): string {
     const id = uuid();
     this.client.run(
@@ -632,26 +639,31 @@ export class Store {
         front.imagePath,
         JSON.stringify(front.interpretation),
         back.imagePath,
+        // @coverage-defer
         JSON.stringify(back.interpretation ?? {}),
         requiresAdjudication ? 1 : 0,
         requiresAdjudication ? null : DateTime.now().toISOTime()
       );
     } catch (error) {
+      // @coverage-defer
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
         front.imagePath,
         back.imagePath
       );
 
+      // @coverage-defer
       const row = this.client.one(
         'select id from sheets where front_image_path = ?',
         front.imagePath
       ) as { id: string } | undefined;
 
+      // @coverage-defer
       if (row) {
         return row.id;
       }
 
+      // @coverage-defer
       throw error;
     }
 
@@ -669,6 +681,7 @@ export class Store {
   }
 
   resetElectionSession(): void {
+    // @coverage-defer
     if (this.hasElection()) {
       this.client.transaction(() => {
         this.setPollsState('polls_closed_initial');
@@ -696,6 +709,7 @@ export class Store {
       sheetId
     ) as Optional<{ imagePath: string }>;
 
+    // @coverage-defer
     if (!row) {
       return;
     }
