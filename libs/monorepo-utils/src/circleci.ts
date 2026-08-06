@@ -399,12 +399,14 @@ function generateMoonCiJob(): string[] {
     `moon-ci:`,
     `  executor: nodejs`,
     `  resource_class: xlarge`,
-    // SINGLE container (not sharded). The remote cache makes the common
-    // warm/incremental run fast on one box, so sharding would pay ~3x container
-    // cost on every run to speed up only the rare cold path — and moon's
-    // positional \`--job\` sharding doesn't cost-balance, so heavy suites clump.
-    // If the cold path (main / cache-eviction) ever gets too slow, prefer
-    // splitting the heaviest suites into finer vitest tasks over container shards.
+    // Shard the affected task graph across 3 containers (CircleCI sets
+    // CIRCLE_NODE_INDEX / CIRCLE_NODE_TOTAL; \`moon ci --job/--job-total\`
+    // partitions positionally). Beyond faster cold wall, spreading the ~50 test
+    // suites across containers keeps each box's RAM/CPU load down — a single
+    // xlarge running them all at MOON_CONCURRENCY=4 hit contention timeouts
+    // (e.g. a heavy ballot-interpreter test). Cross-shard build deps hydrate from
+    // the remote cache (MOON_REMOTE_HOST); without it shared deps rebuild per shard.
+    `  parallelism: 3`,
     `  environment:`,
     `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
     `    MOON_CONCURRENCY: '4'`,
@@ -416,11 +418,13 @@ function generateMoonCiJob(): string[] {
     `        command: |`,
     `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    // Cache keys are namespaced by shard index so parallel shards don't clobber
+    // each other's save_cache (and a shard only restores its own prior cache).
     `    - restore_cache:`,
     `        keys:`,
-    `          - moon-{{ .Branch }}-{{ .Revision }}`,
-    `          - moon-{{ .Branch }}-`,
-    `          - moon-main-`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-`,
+    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-main-`,
     // Capture moon's exit code rather than failing the step immediately, so the
     // cache save and per-task log upload below always run (even on test failure).
     `    - run:`,
@@ -438,12 +442,13 @@ function generateMoonCiJob(): string[] {
     `            export MOON_REMOTE_HOST`,
     `            echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"`,
     `          else`,
-    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — cold full build)"`,
+    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards rebuild shared deps)"`,
     `          fi`,
-    // \`--downstream none\`: \`moon ci\` defaults to also pulling each task's
-    // DIRECT dependents in for regression checks, but the affected set already
-    // includes them as primaries, so that fan-out is redundant work.
-    `          moon ci --downstream none --summary`,
+    // \`--downstream none\`: moon ci defaults to also pulling each task's DIRECT
+    // dependents in for regression checks, but the affected set already includes
+    // them as primaries, so the fan-out just replicates heavy tests into every
+    // shard. Dropping it makes each task a primary on exactly one shard.
+    `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary`,
     `          echo $? > /tmp/moon-exit-code`,
     `          # Echo any vitest-failed task's captured log to this step's tail, so`,
     `          # the failure survives CircleCI's head-truncation of long step logs`,
@@ -457,7 +462,7 @@ function generateMoonCiJob(): string[] {
     `          done`,
     `          exit 0`,
     `    - save_cache:`,
-    `        key: moon-{{ .Branch }}-{{ .Revision }}`,
+    `        key: moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
     `        paths:`,
     `          - .moon/cache/hashes`,
     `          - .moon/cache/outputs`,
