@@ -28,7 +28,13 @@ import {
   iter,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
+import {
+  BitReader,
+  BitWriter,
+  CustomEncoding,
+  Uint8,
+  Uint8Size,
+} from './bits/index.js';
 
 /**
  * Maximum number of characters in a write-in.

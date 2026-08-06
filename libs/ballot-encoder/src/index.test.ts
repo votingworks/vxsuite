@@ -28,8 +28,8 @@ import {
   encodeSummaryBallotPageInto,
   decodeSummaryBallotPage,
   SummaryBallotPage,
-} from '.';
-import { BitReader, BitWriter } from './bits';
+} from './index.js';
+import { BitReader, BitWriter } from './bits/index.js';
 
 test('sliceBallotHashForEncoding', () => {
   expect(sliceBallotHashForEncoding('0000000000000000000000000')).toEqual(

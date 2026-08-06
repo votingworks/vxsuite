@@ -1,7 +1,7 @@
-import { BitCursor } from './bit_cursor';
-import { Uint1, Uint8, Uint8Size } from './types';
-import { sizeof, makeMasks, toUint8 } from './utils';
-import { Utf8Encoding, Encoding } from './encoding';
+import { BitCursor } from './bit_cursor.js';
+import { Uint1, Uint8, Uint8Size } from './types.js';
+import { sizeof, makeMasks, toUint8 } from './utils.js';
+import { Utf8Encoding, Encoding } from './encoding.js';
 
 /**
  * Reads structured data from a `Uint8Array`. Data is read in little-endian
