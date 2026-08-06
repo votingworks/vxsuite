@@ -583,7 +583,23 @@ test('create/list/delete elections', async () => {
                 expect.objectContaining({
                   ...candidate,
                   id: expectNotEqualTo(candidate.id),
-                  partyIds: candidate.partyIds?.map(updatedPartyId).sort(),
+                  partyIds: candidate.partyIds
+                    ?.map(updatedPartyId)
+                    .sort((a, b) => {
+                      const aName = election2Parties.find((p) => p.id === a)
+                        ?.name;
+                      const bName = election2Parties.find((p) => p.id === b)
+                        ?.name;
+                      assert(
+                        typeof aName === 'string',
+                        `no party with id: ${a}`
+                      );
+                      assert(
+                        typeof bName === 'string',
+                        `no party with id: ${b}`
+                      );
+                      return aName.localeCompare(bName);
+                    }),
                   firstName: expect.any(String),
                   // TODO upgrade vitest to use expect.toBeOneOf
                   // middleName: expect.toBeOneOf([expect.any(String), undefined]),
