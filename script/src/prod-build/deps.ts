@@ -50,7 +50,7 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
       ]) {
         for (const name in from) {
           if (from[name].startsWith('workspace:')) {
-            const depPkgFile = resolveFrom(path, `${name}/package`);
+            const depPkgFile = resolveFrom(path, `${name}/package.json`);
             const depPkgRoot = dirname(depPkgFile);
             to.push(addDependency(depPkgRoot, PackageType.Library));
           }
