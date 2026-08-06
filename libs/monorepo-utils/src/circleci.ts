@@ -574,7 +574,13 @@ function generateMoonE2eJob(): string[] {
     `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
     `            export MOON_REMOTE_HOST`,
     `          fi`,
-    `          moon run admin-integration-testing:test`,
+    // The e2e task is `runInCI: false` so `moon ci` (required lane) skips it.
+    // moon 2.4.6 has no `--ignore-ci-checks` on `moon run`, and it honors
+    // runInCI in a CI env (would report "No tasks found"). moon detects CI via
+    // the CI/CI_NAME/AZURE_PIPELINES env vars, so unset CI for just this command
+    // to let the explicit `moon run` execute the task. Dep builds still hydrate
+    // from the remote cache (MOON_REMOTE_HOST exported above).
+    `          env -u CI moon run admin-integration-testing:test`,
     `          echo $? > /tmp/moon-exit-code`,
     `          exit 0`,
     `    - store_test_results:`,

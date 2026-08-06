@@ -26,3 +26,15 @@ tasks:
     deps:
       - 'admin-backend:build'
       - 'admin-frontend:build'
+
+  # Excluding `type-check` above stripped lint's inherited `deps: [type-check]`,
+  # leaving it with NO build deps — so on a cold CI run it raced ahead of
+  # `eslint-plugin-vx:build` and eslint couldn't load the (unbuilt) plugin. Other
+  # packages' lint is gated behind their type-check -> ^:build closure; restore an
+  # equivalent gate here: build this project's deps AND the eslint plugin first.
+  lint:
+    deps:
+      - '^:build'
+      - 'eslint-plugin-vx:build'
+    options:
+      mergeDeps: replace

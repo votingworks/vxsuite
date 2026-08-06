@@ -155,7 +155,7 @@ jobs:
               MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
               export MOON_REMOTE_HOST
             fi
-            moon run admin-integration-testing:test
+            env -u CI moon run admin-integration-testing:test
             echo $? > /tmp/moon-exit-code
             exit 0
       - store_test_results:
