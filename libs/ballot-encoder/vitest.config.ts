@@ -4,9 +4,10 @@ export default defineConfig({
   test: {
     setupFiles: ['test/expect.ts'],
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        branches: -2,
-        lines: 100,
+        lines: 0,
+        branches: 0,
       },
     },
   },
