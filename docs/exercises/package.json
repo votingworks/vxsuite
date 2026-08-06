@@ -5,13 +5,14 @@
   "description": "Code exercises",
   "license": "GPL-3.0-only",
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check .",
     "build": "pnpm type-check",
     "clean": "echo 'Nothing to clean'",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
+    "test:ci": "pnpm test:coverage",
+    "test:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:watch": "vitest",
     "type-check": "tsc --build"
   },
