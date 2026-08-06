@@ -17,6 +17,7 @@ export async function processBackgroundTask(
   { id: taskId, taskName, payload }: BackgroundTask
 ): Promise<void> {
   function emitProgress(label: string, progress: number, total: number): void {
+    // @coverage-defer
     context.workspace.store
       .updateBackgroundTaskProgress(taskId, {
         label,
@@ -56,7 +57,6 @@ export async function processBackgroundTask(
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(taskName);
     }
   }

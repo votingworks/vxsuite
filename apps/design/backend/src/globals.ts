@@ -15,6 +15,7 @@ const NodeEnvSchema = z.union([
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -50,7 +51,6 @@ export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || FRONTEND_PORT + 1);
 
-/* istanbul ignore next */
 function requiredProdEnvVar<Fallback>(
   name: string,
   devFallback: Fallback
@@ -65,7 +65,6 @@ function requiredProdEnvVar<Fallback>(
   return devFallback;
 }
 
-/* istanbul ignore next */
 export function databaseUrl(): string {
   return requiredProdEnvVar(
     'DATABASE_URL',
@@ -73,7 +72,7 @@ export function databaseUrl(): string {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function authEnabled(): boolean {
   if (NODE_ENV === 'production') {
     return true;
@@ -84,7 +83,7 @@ export function authEnabled(): boolean {
   return envVar.toLowerCase() === 'true';
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function baseUrl(): string {
   // Special case to support Heroku review apps
   const herokuAppName = process.env['HEROKU_APP_NAME'];
@@ -95,37 +94,34 @@ export function baseUrl(): string {
   return requiredProdEnvVar('BASE_URL', `http://localhost:${FRONTEND_PORT}`);
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0ClientId(): string {
   return requiredProdEnvVar('AUTH0_CLIENT_ID', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0ClientDomain(): string {
   return requiredProdEnvVar('AUTH0_CLIENT_DOMAIN', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0IssuerBaseUrl(): string {
   return requiredProdEnvVar('AUTH0_ISSUER_BASE_URL', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }
 
-/* istanbul ignore next */
 export function slackWebhookUrl(): string {
   return requiredProdEnvVar('SLACK_WEBHOOK_URL', '');
 }
 
-/* istanbul ignore next */
 export function votingWorksOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
 
-/* istanbul ignore next */
 export function sliOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_SLI', 'sli');
 }
@@ -134,7 +130,6 @@ export function sliOrganizationId(): string {
  * CircleCI API token for triggering QA builds.
  * Optional - if not set, QA builds will not be triggered.
  */
-/* istanbul ignore next */
 export function circleCiApiToken(): string | undefined {
   return process.env.CIRCLECI_API_TOKEN;
 }
@@ -143,7 +138,7 @@ export function circleCiApiToken(): string | undefined {
  * CircleCI project slug (e.g., "gh/organization/repository").
  * Required if CircleCI integration is enabled.
  */
-/* istanbul ignore next */
+// @coverage-exclude
 export function circleCiProjectSlug(): string | undefined {
   return process.env.CIRCLECI_PROJECT_SLUG;
 }
@@ -152,7 +147,6 @@ export function circleCiProjectSlug(): string | undefined {
  * Shared secret for authenticating CircleCI webhook callbacks.
  * Required if CircleCI integration is enabled.
  */
-/* istanbul ignore next */
 export function circleCiWebhookSecret(): string | undefined {
   return process.env.CIRCLECI_WEBHOOK_SECRET;
 }
@@ -160,7 +154,7 @@ export function circleCiWebhookSecret(): string | undefined {
 /**
  * Whether CircleCI integration is enabled (has required config).
  */
-/* istanbul ignore next */
+// @coverage-exclude
 export function isCircleCiEnabled(): boolean {
   return !!(
     circleCiApiToken() &&
@@ -173,7 +167,6 @@ export function isCircleCiEnabled(): boolean {
  * CircleCI branch to trigger pipelines on.
  * Optional - if not set, CircleCI uses the project's default branch.
  */
-/* istanbul ignore next */
 export function circleCiBranch(): string | undefined {
   return process.env.CIRCLECI_BRANCH || undefined;
 }
@@ -182,7 +175,6 @@ export function circleCiBranch(): string | undefined {
  * CircleCI API base URL (for testing with mock servers).
  * Defaults to https://circleci.com
  */
-/* istanbul ignore next */
 export function circleCiBaseUrl(): string {
   return process.env.CIRCLECI_BASE_URL ?? 'https://circleci.com';
 }
@@ -192,6 +184,7 @@ export function circleCiBaseUrl(): string {
  */
 export const WORKSPACE =
   process.env.WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);

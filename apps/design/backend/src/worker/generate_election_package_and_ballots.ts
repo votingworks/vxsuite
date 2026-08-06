@@ -127,17 +127,22 @@ async function triggerCircleCiQaBuild(params: {
     return;
   }
 
+  // @coverage-defer
   const qaRunId = uuid();
+  // @coverage-defer
   const webhookSecret = circleCiWebhookSecret();
 
+  // @coverage-defer
   if (!webhookSecret) {
     debug('CircleCI webhook secret not configured, cannot trigger QA build');
     return;
   }
 
+  // @coverage-defer
   // Use a presigned S3 URL if available (production), otherwise fall back to
   // the app URL (dev/test where files are on the local filesystem)
   let fullExportUrl: string;
+  // @coverage-defer
   if (fileStorageClient.getSignedUrl) {
     const storageKey = electionPackageUrl.replace(/^\/files\//, '');
     fullExportUrl = await fileStorageClient.getSignedUrl(storageKey);
@@ -154,12 +159,14 @@ async function triggerCircleCiQaBuild(params: {
     );
   }
 
+  // @coverage-defer
   // Construct the webhook URL
   const webhookUrl = new URL(
     `/api/export-qa-webhook/${qaRunId}`,
     baseUrl()
   ).toString();
 
+  // @coverage-defer
   // Create QA run record
   await store.createExportQaRun({
     id: qaRunId,
@@ -167,6 +174,7 @@ async function triggerCircleCiQaBuild(params: {
     exportPackageUrl: fullExportUrl,
   });
 
+  // @coverage-defer
   try {
     // Trigger CircleCI pipeline
     const circleCiClient = createCircleCiClient();
@@ -314,7 +322,6 @@ export async function generateElectionPackageAndBallots(
         return shouldExportTestBallots;
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(props.ballotMode);
       }
     }
@@ -446,7 +453,6 @@ export async function generateElectionPackageAndBallots(
         break;
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(props.ballotMode);
       }
     }

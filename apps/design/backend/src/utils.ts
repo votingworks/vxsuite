@@ -103,7 +103,7 @@ export function regenerateElectionIds(
     id: replaceId(contest.id),
     districtId: replaceId(contest.districtId),
     ...(() => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -125,7 +125,6 @@ export function regenerateElectionIds(
             })) as unknown as typeof contest.options,
           };
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(contest);
         }
       }
@@ -155,7 +154,7 @@ export function regenerateElectionIds(
         newPrecincts[newPrecinctId] =
           oldPrecinct.type === 'whole'
             ? { ...oldPrecinct }
-            : /* istanbul ignore next - not yet supported (asserted at the store level) */
+            : // @coverage-exclude: not yet supported (asserted at the store level)
               { ...oldPrecinct, splitIds: oldPrecinct.splitIds.map(replaceId) };
       }
 
@@ -190,6 +189,7 @@ export function splitCandidateName(
 ): Pick<Candidate, 'firstName' | 'middleName' | 'lastName'> {
   const [firstPart, ...middleParts] = name.split(' ');
   return {
+    // @coverage-defer
     firstName: firstPart ?? '',
     lastName: middleParts.pop() ?? '',
     middleName: middleParts.join(' '),
@@ -216,7 +216,6 @@ export function userCanAccessJurisdiction(
     case 'support_user':
       return true;
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(user);
     }
   }

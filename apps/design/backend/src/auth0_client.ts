@@ -43,6 +43,7 @@ export class Auth0Client implements Auth0ClientInterface {
     private readonly users: UsersManager
   ) {}
 
+  // @coverage-defer
   static init(): Auth0Client {
     const clientId = assertDefined(auth0ClientId());
     const clientSecret = assertDefined(auth0Secret());
@@ -67,6 +68,7 @@ export class Auth0Client implements Auth0ClientInterface {
     connectionType?: ConnectionType;
     userEmail: string;
   }): Promise<string> {
+    // @coverage-defer
     const { connectionType = 'Username-Password-Authentication', userEmail } =
       params;
 
@@ -92,6 +94,7 @@ export class Auth0Client implements Auth0ClientInterface {
     connectionType?: ConnectionType;
     userEmail: string;
   }): Promise<void> {
+    // @coverage-defer
     const { connectionType = 'Username-Password-Authentication', userEmail } =
       params;
 
@@ -101,12 +104,14 @@ export class Auth0Client implements Auth0ClientInterface {
     });
   }
 
+  // @coverage-defer
   userIdFromRequest(req: Express.Request): string | undefined {
     const auth0User = req.oidc.user as unknown as Auth0User | undefined;
     if (!auth0User) return;
     return auth0User.sub;
   }
 
+  // @coverage-defer
   static dev(): Auth0Client {
     // [TEMP] Just allows us to have a stub in place for dev without the need
     // for an Auth0 connection.

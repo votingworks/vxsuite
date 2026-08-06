@@ -187,6 +187,7 @@ export interface TestDecksTaskMetadata {
  * function that groups multiple database operations together.
  */
 async function assertWithinTransaction(client: Client): Promise<void> {
+  // @coverage-defer
   if (process.env.NODE_ENV !== 'production') {
     const { isInTransaction } = (
       await client.query(
@@ -395,7 +396,7 @@ async function insertContest(
   ballotOrder?: number
 ) {
   await assertWithinTransaction(client);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -534,7 +535,6 @@ async function insertContest(
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }
@@ -577,11 +577,10 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 export class Store {
   constructor(private readonly db: Db) {}
 
-  /* istanbul ignore start */
+  // @coverage-exclude
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
   }
-  /* istanbul ignore stop */
 
   async listOrganizations(): Promise<Organization[]> {
     return await this.db.withClient(
@@ -803,7 +802,6 @@ export class Store {
           return { ...userBase, type: userRow.type };
 
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(userRow.type);
         }
       }
@@ -835,6 +833,7 @@ export class Store {
     let whereClause = '';
     const params: Bindable[] = [];
 
+    // @coverage-defer
     if (input.jurisdictionIds) {
       whereClause = `where jurisdiction_id in (${input.jurisdictionIds
         .map((_, i) => `$${i + 1}`)
@@ -1117,6 +1116,7 @@ export class Store {
               .filter((candidate) => candidate.contestId === row.id)
               .map((candidate) => ({
                 id: candidate.id,
+                // @coverage-defer
                 firstName: candidate.firstName || undefined,
                 middleName: candidate.middleName || undefined,
                 lastName: candidate.lastName || undefined,
@@ -1160,12 +1160,12 @@ export class Store {
                   id: assertDefined(row.noOptionId),
                   label: assertDefined(row.noOptionLabel),
                 },
+                // @coverage-defer
                 ...(row.additionalOptions ?? []),
               ],
             });
           }
           default: {
-            /* istanbul ignore next */
             return throwIllegalValue(row.type);
           }
         }
@@ -1466,6 +1466,7 @@ export class Store {
         for (const precinct of election.precincts) {
           await insertPrecinct(client, election.id, precinct);
         }
+        // @coverage-defer
         for (const place of election.pollingPlaces || []) {
           const res = await insertPollingPlace(client, election.id, place);
           res.unsafeUnwrap();
@@ -1562,7 +1563,7 @@ export class Store {
       ) {
         return err('duplicate-title-and-date');
       }
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }
@@ -1586,7 +1587,7 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }
@@ -1617,7 +1618,6 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next */
       throw error;
     }
   }
@@ -1739,14 +1739,13 @@ export class Store {
                   // user will resolve this manually.
                   break;
 
-                /* istanbul ignore next - shouldn't be possible */
+                // @coverage-exclude: shouldn't be possible
                 case 'invalid-precinct':
                   throw new Error(
                     `unexpected polling place generation error: ${error}`
                   );
 
                 default:
-                  /* istanbul ignore next */
                   throwIllegalValue(error);
               }
             }
@@ -3156,6 +3155,7 @@ export class Store {
     const reportsByPollingPlace: Record<string, QuickReportedPollStatus[]> = {};
     for (const status of rows) {
       const key = status.pollingPlaceId;
+      // @coverage-defer
       if (!reportsByPollingPlace[key]) {
         reportsByPollingPlace[key] = [];
       }
@@ -3650,6 +3650,7 @@ async function insertPollingPlace(
       return err('invalid-precinct');
     }
 
+    // @coverage-defer
     throw error;
   }
 
@@ -3661,6 +3662,7 @@ async function insertPollingPlacePrecincts(
   place: PollingPlace
 ) {
   const precinctIds = Object.keys(place.precincts);
+  // @coverage-defer
   if (precinctIds.length === 0) return;
 
   const params = [place.id, ...precinctIds];

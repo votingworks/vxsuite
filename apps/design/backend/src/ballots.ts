@@ -38,7 +38,6 @@ export function defaultBallotTemplate(
     case 'NH':
       return 'NhBallot';
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(jurisdiction.stateCode);
     }
   }
@@ -190,7 +189,6 @@ export function createBallotPropsForTemplate(
       return baseBallotProps;
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(templateId);
     }
   }

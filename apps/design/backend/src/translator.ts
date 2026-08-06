@@ -28,8 +28,7 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     super({ translationClient: input.translationClient });
     this.store = input.store;
     this.vendoredTranslations =
-      input.vendoredTranslations ??
-      /* istanbul ignore next */ parseVendoredTranslations();
+      input.vendoredTranslations ?? parseVendoredTranslations();
   }
 
   /**

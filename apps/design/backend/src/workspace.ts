@@ -9,7 +9,7 @@ export interface Workspace {
   store: Store;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function createWorkspace(
   workspacePath: string,
   logger: BaseLogger,

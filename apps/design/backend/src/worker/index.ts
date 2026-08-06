@@ -15,9 +15,10 @@ import {
   S3FileStorageClient,
 } from '../file_storage_client';
 
+// @coverage-defer
 loadEnvVarsFromDotenvFiles();
 
-/* istanbul ignore next */
+// @coverage-exclude
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
   const logger = new BaseLogger(LogSource.VxDesignWorker);
@@ -44,7 +45,7 @@ async function main(): Promise<void> {
   });
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 if (require.main === module) {
   main().catch((error) => {
     process.stderr.write(

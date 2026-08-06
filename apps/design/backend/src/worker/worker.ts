@@ -61,6 +61,7 @@ export async function start(
       console.log('Marked running task as gracefully interrupted');
       console.log('Graceful shutdown complete, exiting...');
     } catch (error) {
+      // @coverage-defer
       console.error('Error during graceful shutdown:', error);
     }
     process.exit(0);
@@ -101,6 +102,7 @@ export async function start(
 
   while (!options?.signal?.aborted) {
     const { wasTaskProcessed } = await processNextBackgroundTaskIfAny(context);
+    // @coverage-defer
     if (!wasTaskProcessed) {
       await sleep(1000);
     }

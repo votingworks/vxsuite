@@ -6,11 +6,12 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -60,
-        branches: -65,
+        lines: 0,
+        branches: 0,
       },
-      exclude: ['src/configure_sentry.ts', '**/*.test.ts'],
+      exclude: ['src/configure_sentry.ts', 'src/index.ts', '**/*.test.ts'],
     },
     alias: [
       {

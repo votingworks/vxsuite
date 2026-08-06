@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';

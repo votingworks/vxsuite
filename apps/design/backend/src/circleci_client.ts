@@ -68,7 +68,9 @@ export class CircleCiClient {
   private readonly projectSlug: string;
 
   constructor(apiToken?: string, projectSlug?: string) {
+    // @coverage-defer
     this.apiToken = apiToken ?? circleCiApiToken() ?? '';
+    // @coverage-defer
     this.projectSlug = projectSlug ?? circleCiProjectSlug() ?? '';
 
     if (!this.apiToken || !this.projectSlug) {
@@ -123,6 +125,7 @@ export class CircleCiClient {
 
     try {
       const body = JSON.stringify({
+        // @coverage-defer
         ...(circleCiBranch() ? { branch: circleCiBranch() } : {}),
         parameters: {
           export_package_url: exportPackageUrl,
@@ -181,6 +184,7 @@ export class CircleCiClient {
     } catch (error) {
       debug(
         'Error triggering CircleCI pipeline: error=%s, qaRunId=%s',
+        // @coverage-defer
         error instanceof Error ? error.message : String(error),
         qaRunId
       );
@@ -192,7 +196,7 @@ export class CircleCiClient {
 /**
  * Create a CircleCI client instance.
  */
-/* istanbul ignore next */
+// @coverage-exclude
 export function createCircleCiClient(): CircleCiClient {
   return new CircleCiClient();
 }
@@ -200,7 +204,6 @@ export function createCircleCiClient(): CircleCiClient {
 /**
  * Check if CircleCI integration is enabled and configured.
  */
-/* istanbul ignore next */
 export function shouldTriggerCircleCi(): boolean {
   return isCircleCiEnabled();
 }
