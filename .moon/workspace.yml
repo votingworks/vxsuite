@@ -20,6 +20,9 @@ projects:
   basics: libs/basics
   bmd-ballot-fixtures: libs/bmd-ballot-fixtures
   cdf-schema-builder: libs/cdf-schema-builder
+  central-scan-backend: apps/central-scan/backend
+  central-scan-frontend: apps/central-scan/frontend
+  central-scan-integration-testing: apps/central-scan/integration-testing
   custom-paper-handler: libs/custom-paper-handler
   db: libs/db
   dev-dock-backend: libs/dev-dock/backend
@@ -35,6 +38,9 @@ projects:
   image-utils: libs/image-utils
   integration-test-utils: libs/integration-test-utils
   logging: libs/logging
+  mark-backend: apps/mark/backend
+  mark-frontend: apps/mark/frontend
+  mark-integration-testing: apps/mark/integration-testing
   mark-flow-ui: libs/mark-flow-ui
   message-coder: libs/message-coder
   monorepo-utils: libs/monorepo-utils

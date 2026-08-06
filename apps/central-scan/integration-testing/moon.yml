@@ -1,0 +1,27 @@
+# Playwright e2e suite (same shape as admin-integration-testing): non-required
+# lane. `test` runs Playwright with runInCI:false (excluded from `moon ci`) +
+# cache:false (e2e implicit inputs can't be source-hashed), depending on the
+# central-scan app builds. build/type-check excluded (no tsc build / no
+# type-check script). lint needs an explicit build gate (excluding type-check
+# stripped its inherited one) so eslint-plugin-vx is built before it runs.
+workspace:
+  inheritedTasks:
+    exclude: ['build', 'type-check']
+
+tasks:
+  test:
+    script: 'playwright test'
+    options:
+      mergeArgs: replace
+      cache: false
+      runInCI: false
+    deps:
+      - 'central-scan-backend:build'
+      - 'central-scan-frontend:build'
+
+  lint:
+    deps:
+      - '^:build'
+      - 'eslint-plugin-vx:build'
+    options:
+      mergeDeps: replace

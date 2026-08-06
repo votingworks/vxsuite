@@ -67,7 +67,9 @@ test('generateAllConfigs moon prototype mode', () => {
   // runInCI:false so `moon ci` skips it) after installing Chromium.
   expect(config).toContain('moon-e2e:');
   expect(config).toContain('playwright install chromium');
-  expect(config).toContain('moon run admin-integration-testing:test');
+  expect(config).toContain(
+    'moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test'
+  );
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
   expect(config).not.toContain('test-rust-crates');
