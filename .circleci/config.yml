@@ -39,6 +39,11 @@ jobs:
           name: moon ci
           command: |
             set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              echo "remote cache: ENABLED (MOON_REMOTE_HOST is set)"
+            else
+              echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"
+            fi
             moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --summary
             echo $? > /tmp/moon-exit-code
             # Echo any vitest-failed task's captured log to this step's tail, so

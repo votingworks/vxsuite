@@ -358,11 +358,22 @@ function generateCircleCiFilteredAppConfigForPackage(
 // team develops against (and eventually bake into the CI Docker image).
 const MOON_VERSION = '2.4.6';
 
-// Experimental single job that runs the whole affected task graph via `moon ci`
-// (which is affected-by-default). It reuses `checkout-and-install` for pnpm +
-// rust-addon setup/caching, installs the pinned moon binary, and persists moon's
-// own output cache across runs with CircleCI save_cache. Single container for
-// now; sharding (`--job`/`--job-total`) + a remote cache come later.
+// Experimental job that runs the whole affected task graph via `moon ci` (which
+// is affected-by-default), sharded across containers. It reuses
+// `checkout-and-install` for pnpm + rust-addon setup/caching, installs the
+// pinned moon binary, and persists moon's own output cache across runs with
+// CircleCI save_cache.
+//
+// Remote cache is env-gated: moon reads `MOON_REMOTE_HOST` (see the host-less
+// `remote:` block in .moon/workspace.yml — absent host = off) and, if the cache
+// is authenticated, `MOON_REMOTE_AUTH_TOKEN`. Set `MOON_REMOTE_HOST` as a
+// CircleCI project/context env var (e.g. `grpc://<cache-ip>:9092`) to turn it
+// on. CircleCI does NOT expose project env vars to forked-PR builds, so external
+// contributors' PRs run with the remote off and build normally — the desired
+// conditional behavior. Sharding is only sound WITH the remote cache: `moon ci
+// --job` slices the flat affected-target list positionally and assumes a task's
+// cross-shard build deps are hydrated from the shared cache, so without it a
+// test can land on a shard lacking a dependency's build output.
 function generateMoonCiJob(): string[] {
   return [
     `moon-ci:`,
@@ -370,10 +381,10 @@ function generateMoonCiJob(): string[] {
     `  resource_class: xlarge`,
     // Shard the affected task graph across N containers. CircleCI sets
     // CIRCLE_NODE_INDEX / CIRCLE_NODE_TOTAL; \`moon ci --job/--job-total\`
-    // partitions targets accordingly. NOTE: without a remote cache each shard has
-    // its own .moon/cache, so shared deps (basics, types, …) are rebuilt in every
-    // shard that needs them — a remote cache (bazel-remote) is what makes sharding
-    // efficient; this is fine for proving the mechanics.
+    // partitions targets positionally. With MOON_REMOTE_HOST set, a task's
+    // cross-shard build deps are hydrated from the shared remote cache; without
+    // it each shard only has its own .moon/cache, so a shard can miss a
+    // dependency's build output (and shared deps are rebuilt per shard).
     `  parallelism: 3`,
     `  environment:`,
     `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
@@ -399,6 +410,13 @@ function generateMoonCiJob(): string[] {
     `        name: moon ci`,
     `        command: |`,
     `          set +e`,
+    // Make the remote-cache state obvious in the log without leaking the host:
+    // moon picks up MOON_REMOTE_HOST from the environment automatically.
+    `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
+    `            echo "remote cache: ENABLED (MOON_REMOTE_HOST is set)"`,
+    `          else`,
+    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"`,
+    `          fi`,
     `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --summary`,
     `          echo $? > /tmp/moon-exit-code`,
     `          # Echo any vitest-failed task's captured log to this step's tail, so`,
