@@ -291,7 +291,6 @@ struct Tally {
     stale: usize,
     excluded: usize,
     deferred: usize,
-    never_excluded: usize,
 }
 
 fn cmd_check(
@@ -346,15 +345,18 @@ fn cmd_check(
 
     tally.directive_errors += report_unlisted_directive_files(pkg_dir, &report, format);
 
+    let errors = match tally.directive_errors {
+        0 => String::new(),
+        1 => ", 1 error".to_string(),
+        n => format!(", {n} errors"),
+    };
     println!(
-        "\nsummary: {} uncovered without directives, {} directive errors, {} stale directives, \
-         register: {} excluded / {} deferred / {} never-param",
-        tally.fail,
-        tally.directive_errors,
-        tally.stale,
-        tally.excluded,
-        tally.deferred,
-        tally.never_excluded
+        "\ndirectives: {} deferred, {} excluded{errors}",
+        tally.deferred, tally.excluded
+    );
+    println!(
+        "coverage summary: {} uncovered, {} stale",
+        tally.fail, tally.stale
     );
     if timing {
         println!("timing: {:.0}ms", started.elapsed().as_secs_f64() * 1000.0);
@@ -495,10 +497,7 @@ fn entity_finding(
             tally.deferred += 1;
             None
         }
-        Status::NeverExcluded => {
-            tally.never_excluded += 1;
-            None
-        }
+        Status::NeverExcluded => None,
         Status::Covered => {
             let note = e.note.as_ref()?;
             Some(Finding {

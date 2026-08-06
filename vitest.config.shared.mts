@@ -11,6 +11,7 @@ export const base: vitest.ViteUserConfig = {
         branches: 100,
       },
       reportOnFailure: true,
+      reporter: ['json'],
       provider: 'istanbul',
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
