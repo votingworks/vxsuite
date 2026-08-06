@@ -22,14 +22,14 @@ import {
   logInAsElectionManager,
   logInAsPollWorker,
   logInAsSystemAdministrator,
-} from './support/auth';
-import { getFamousNamesElectionDefinition } from './support/election';
+} from './support/auth.js';
+import { getFamousNamesElectionDefinition } from './support/election.js';
 import {
   configureMachine,
   insertBlankBallotSheet,
   openPolls,
   startVotingSession,
-} from './support/flows';
+} from './support/flows.js';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
 const PRECINCT_NAME = 'North Lincoln';

@@ -4,7 +4,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Election } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { postToApi } from '@votingworks/integration-test-utils';
-import { logInAsElectionManager, logInAsPollWorker } from './auth';
+import { logInAsElectionManager, logInAsPollWorker } from './auth.js';
 
 /**
  * Simulates a voter inserting a blank ballot sheet to start a voting session.

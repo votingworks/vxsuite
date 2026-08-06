@@ -27,13 +27,17 @@ import {
   logInAsElectionManager,
   logInAsPollWorker,
   logInAsSystemAdministrator,
-} from './support/auth';
+} from './support/auth.js';
 import {
   getFamousNamesElectionDefinition,
   getMultiLanguageGeneralElectionDefinition,
-} from './support/election';
-import { configureMachine, openPolls, voteFullBallot } from './support/flows';
-import { capturePrintedBallot } from './support/reports';
+} from './support/election.js';
+import {
+  configureMachine,
+  openPolls,
+  voteFullBallot,
+} from './support/flows.js';
+import { capturePrintedBallot } from './support/reports.js';
 
 const POLLING_PLACE_NAME = 'North Lincoln';
 const PRECINCT_NAME = 'North Lincoln';

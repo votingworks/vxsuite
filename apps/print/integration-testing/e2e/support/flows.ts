@@ -8,7 +8,7 @@ import {
   EncodedBallotEntry,
 } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
-import { logInAsElectionManager } from './auth';
+import { logInAsElectionManager } from './auth.js';
 
 type ElectionPackageFileTree = Awaited<
   ReturnType<typeof mockElectionPackageFileTree>
@@ -22,7 +22,7 @@ async function getFamousNamesBallotPdfBase64s(): Promise<
   readonly [string, string, string, string]
 > {
   const baseDir = resolve(
-    __dirname,
+    import.meta.dirname,
     '../../../../../libs/hmpb/fixtures/vx-famous-names'
   );
   const [pdf1, pdf2, pdf3, pdf4] = await Promise.all([

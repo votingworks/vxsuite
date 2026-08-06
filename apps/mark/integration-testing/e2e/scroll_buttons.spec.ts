@@ -15,8 +15,8 @@ import { mockCardRemoval } from '@votingworks/auth';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
-} from './support/auth';
-import { openPolls } from './support/flows';
+} from './support/auth.js';
+import { openPolls } from './support/flows.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

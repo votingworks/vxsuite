@@ -57,14 +57,14 @@ import {
   logInAsElectionManager,
   logInAsSystemAdministrator,
   logOut,
-} from './support/auth';
-import { getPendingContestItems } from './support/write_in_adjudication';
+} from './support/auth.js';
+import { getPendingContestItems } from './support/write_in_adjudication.js';
 import {
   getPrimaryButton,
   openDropdown,
   selectOpenDropdownOption,
   waitForReportToLoad,
-} from './support/navigation';
+} from './support/navigation.js';
 
 async function printAndCaptureReport({
   page,
