@@ -30,8 +30,8 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
-import { Api } from './app';
+} from '../test/app.js';
+import { Api } from './app.js';
 
 vi.setConfig({ testTimeout: 90_000 });
 

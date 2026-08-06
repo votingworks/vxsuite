@@ -30,14 +30,14 @@ import {
   PrintButton,
   ScreenWrapper,
   TitleBar,
-} from '../components';
+} from '../components/index.js';
 import {
   getDeviceStatuses,
   getElectionRecord,
   getPollingPlaceId,
   printBallot,
-} from '../api';
-import { getPartyOptions } from '../utils';
+} from '../api.js';
+import { getPartyOptions } from '../utils.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

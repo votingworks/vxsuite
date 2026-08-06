@@ -12,8 +12,8 @@ import {
   BooleanEnvironmentVariableName as Feature,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { Workspace } from './workspace';
-import { Store } from '../store';
+import { Workspace } from './workspace.js';
+import { Store } from '../store.js';
 
 /* istanbul ignore next */
 export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {

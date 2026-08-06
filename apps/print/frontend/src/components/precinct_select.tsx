@@ -1,6 +1,6 @@
 import { Precinct, PrecinctId } from '@votingworks/types';
 import React from 'react';
-import { ExpandedSelect } from './expanded_select';
+import { ExpandedSelect } from './expanded_select.js';
 
 interface PrecinctSelectProps {
   searchValue?: string;

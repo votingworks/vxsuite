@@ -24,7 +24,7 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockSystemAdministratorAuth,
-} from '../test/app';
+} from '../test/app.js';
 
 const mockFeatures = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({

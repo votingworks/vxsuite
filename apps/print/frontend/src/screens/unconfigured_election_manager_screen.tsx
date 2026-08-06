@@ -2,8 +2,8 @@ import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { configureElectionPackageFromUsb, getDeviceStatuses } from '../api';
-import { ScreenWrapper } from '../components/screen_wrapper';
+import { configureElectionPackageFromUsb, getDeviceStatuses } from '../api.js';
+import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 export function UnconfiguredElectionManagerScreen(): JSX.Element | null {
   const deviceStatusesQuery = getDeviceStatuses.useQuery();

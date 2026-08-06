@@ -1,13 +1,14 @@
+import { fileURLToPath } from 'node:url';
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import * as server from './server';
-import { WORKSPACE } from './globals';
-import { createWorkspace, Workspace } from './util/workspace';
+import * as server from './server.js';
+import { WORKSPACE } from './globals.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
 
-export type { Api } from './app';
+export type { Api } from './app.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -37,7 +38,7 @@ function main(): number {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     process.exitCode = main();
   } catch (error) {

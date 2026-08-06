@@ -1,5 +1,5 @@
 import { DEV_MACHINE_ID } from '@votingworks/types';
-import { MachineConfig } from './types';
+import { MachineConfig } from './types.js';
 
 /**
  * Returns the ID of the current machine and the version of the currently

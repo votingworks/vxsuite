@@ -28,19 +28,19 @@ import {
   DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { BallotPrintEntry, BallotMode } from './types';
+import { BallotPrintEntry, BallotMode } from './types.js';
 import {
   addBallotsPropsToPrintCountRow,
   getLanguageForBallotStyle,
-} from './util/ballot_styles';
-import { sortBallotPrintCounts } from './util/sort';
+} from './util/ballot_styles.js';
+import { sortBallotPrintCounts } from './util/sort.js';
 
 export type BallotPrintCountRow = Omit<
   BallotPrintCount,
   'precinctOrSplitName' | 'partyName' | 'languageCode'
 > & { precinctId: string };
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 /**
  * ElectionRecord represents election configuration in the store.

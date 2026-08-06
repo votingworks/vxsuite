@@ -11,8 +11,8 @@ import {
   generateFileTimeSuffix,
 } from '@votingworks/utils';
 import { ElectionDefinition } from '@votingworks/types';
-import { Store } from '../store';
-import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals';
+import { Store } from '../store.js';
+import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals.js';
 
 export function generateReportsDirectoryPath(
   electionDefinition: ElectionDefinition
