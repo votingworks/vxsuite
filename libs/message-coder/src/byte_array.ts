@@ -1,8 +1,8 @@
 import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { CoderError, EncodeResult, DecodeResult, Coder } from './types';
-import { toBitLength, toByteOffset, bufferContainsBitOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { CoderError, EncodeResult, DecodeResult, Coder } from './types.js';
+import { toBitLength, toByteOffset, bufferContainsBitOffset } from './bits.js';
 
 /**
  * Coder for a sequence of bytes of fixed length. Does not encode the length.

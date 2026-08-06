@@ -3,12 +3,12 @@
 
 import { Result, err, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { CoderError, EncodeResult, DecodeResult, Coder } from './types';
-import { BITS_PER_BYTE, toBitLength } from './bits';
-import { uint8 } from './uint8_coder';
-import { uint16 } from './uint16_coder';
-import { byteArray } from './byte_array';
+import { BaseCoder } from './base_coder.js';
+import { CoderError, EncodeResult, DecodeResult, Coder } from './types.js';
+import { BITS_PER_BYTE, toBitLength } from './bits.js';
+import { uint8 } from './uint8_coder.js';
+import { uint16 } from './uint16_coder.js';
+import { byteArray } from './byte_array.js';
 
 /**
  * Coder for a sequence of bytes of variable length. Encoded with a length

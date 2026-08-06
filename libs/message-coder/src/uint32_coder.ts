@@ -1,6 +1,6 @@
 import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { MAX_UINT32, MIN_UINT32 } from './constants';
+import { MAX_UINT32, MIN_UINT32 } from './constants.js';
 import {
   BitLength,
   BitOffset,
@@ -9,8 +9,8 @@ import {
   DecodeResult,
   EncodeResult,
   Uint32,
-} from './types';
-import { UintCoder } from './uint_coder';
+} from './types.js';
+import { UintCoder } from './uint_coder.js';
 
 interface Uint32CoderOptions {
   littleEndian: boolean;
