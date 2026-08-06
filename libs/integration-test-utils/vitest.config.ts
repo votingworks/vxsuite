@@ -8,6 +8,11 @@ export default defineConfig({
     passWithNoTests: true,
     coverage: {
       exclude: ['src/**'],
+      // Remove after migration to coverage-check is complete
+      thresholds: {
+        lines: 0,
+        branches: 0,
+      },
     },
   },
 });
