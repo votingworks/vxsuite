@@ -402,9 +402,10 @@ test('vacuuming reduces file size', () => {
 
   const preInsertSize = fs.statSync(dbFile).size;
 
-  for (let i = 0; i < 1000; i += 1) {
-    client.run(
-      `
+  client.transaction(() => {
+    for (let i = 0; i < 1000; i += 1) {
+      client.run(
+        `
       insert into users (
         id,
         name,
@@ -414,12 +415,13 @@ test('vacuuming reduces file size', () => {
         ?, ?, ?, ?
       )
     `,
-      `user-${i}`,
-      'User',
-      'user@email.org',
-      'hash'
-    );
-  }
+        `user-${i}`,
+        'User',
+        'user@email.org',
+        'hash'
+      );
+    }
+  });
 
   const postInsertSize = fs.statSync(dbFile).size;
   client.run('delete from users');
