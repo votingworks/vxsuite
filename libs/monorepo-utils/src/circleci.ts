@@ -540,6 +540,57 @@ function generateMoonCiBaselineJob(): string[] {
   ];
 }
 
+// The "non-required" e2e lane. The Playwright integration suite is excluded
+// from `moon ci` (its task is `runInCI: false`), so this job runs it explicitly
+// with `moon run`. It installs Chromium, and keeps the remote cache ON so the
+// app builds it depends on (admin-frontend/backend + libs) hydrate instead of
+// rebuilding — only the e2e task itself is uncached (`cache: false`). Mark this
+// job NON-required in GitHub branch protection so flaky/slow e2e doesn't block
+// merges. Currently covers admin; extend the `moon run` targets as more apps'
+// suites are wired.
+function generateMoonE2eJob(): string[] {
+  return [
+    `moon-e2e:`,
+    `  executor: nodejs`,
+    `  resource_class: xlarge`,
+    `  steps:`,
+    `    - checkout-and-install:`,
+    `        is_node_package: true`,
+    `    - run:`,
+    `        name: Install moon`,
+    `        command: |`,
+    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
+    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    `    - run:`,
+    `        name: Install Playwright Chromium`,
+    `        command: |`,
+    `          pnpm --dir apps/admin/integration-testing exec playwright install-deps`,
+    `          pnpm --dir apps/admin/integration-testing exec playwright install chromium`,
+    `    - run:`,
+    `        name: moon run e2e (non-required)`,
+    `        command: |`,
+    `          set +e`,
+    `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
+    `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
+    `            export MOON_REMOTE_HOST`,
+    `          fi`,
+    `          moon run admin-integration-testing:test`,
+    `          echo $? > /tmp/moon-exit-code`,
+    `          exit 0`,
+    `    - store_test_results:`,
+    `        path: apps/admin/integration-testing/test-results`,
+    `    - store_artifacts:`,
+    `        path: apps/admin/integration-testing/test-results`,
+    `        destination: e2e-test-results`,
+    `    - run:`,
+    `        name: Propagate moon run exit code`,
+    `        command: |`,
+    `          code=$(cat /tmp/moon-exit-code)`,
+    `          echo "moon run exit code: $code"`,
+    `          exit "$code"`,
+  ];
+}
+
 // PROTOTYPE ONLY: a slim config that runs *just* the experimental `moon-ci` job,
 // so we don't spend compute on the ~60 per-package jobs while iterating on the
 // moon migration. Regenerate the full config by running the generator without
@@ -571,6 +622,9 @@ ${generateMoonCiJob()
 ${generateMoonCiBaselineJob()
   .map((line) => `  ${line}`)
   .join('\n')}
+${generateMoonE2eJob()
+  .map((line) => `  ${line}`)
+  .join('\n')}
 
 workflows:
   moon-experiment:
@@ -579,6 +633,11 @@ workflows:
           context:
             - screenshots-publishing
       - moon-ci-baseline:
+          context:
+            - screenshots-publishing
+      # NON-REQUIRED lane — mark this job's status non-required in branch
+      # protection so slow/flaky e2e doesn't block merges.
+      - moon-e2e:
           context:
             - screenshots-publishing
 

@@ -1,0 +1,28 @@
+# admin integration-testing is a Playwright end-to-end suite, not a buildable/
+# vitest package:
+#   - exclude the inherited `build` (no tsconfig.build.json) and `type-check`
+#     (no type-check script; eslint with type info covers it via `lint`).
+#   - `test` runs Playwright, NOT vitest. It is the "non-required" e2e lane:
+#       * runInCI: false  -> excluded from `moon ci` (the required checks); a
+#         separate CircleCI `moon-e2e` job runs it via `moon run` and is marked
+#         non-required for merge.
+#       * cache: false    -> never cached. e2e has large implicit inputs (the
+#         built app bundle, browser version, fixtures) that a source-based hash
+#         can't capture, so a cache hit could be a false green.
+#     It depends on the admin app being built; the package.json doesn't list the
+#     app as a dep (the harness serves it), so those builds are declared here.
+#   - `lint` (inherited `eslint .`) is unchanged.
+workspace:
+  inheritedTasks:
+    exclude: ['build', 'type-check']
+
+tasks:
+  test:
+    script: 'playwright test'
+    options:
+      mergeArgs: replace
+      cache: false
+      runInCI: false
+    deps:
+      - 'admin-backend:build'
+      - 'admin-frontend:build'
