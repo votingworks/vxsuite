@@ -374,6 +374,26 @@ const MOON_VERSION = '2.4.6';
 // --job` slices the flat affected-target list positionally and assumes a task's
 // cross-shard build deps are hydrated from the shared cache, so without it a
 // test can land on a shard lacking a dependency's build output.
+// Collect every package's `reports/junit.xml` (written by vitest when CI) into
+// one uniquely-named-per-package dir and hand it to store_test_results. Tasks
+// that were cache hits didn't re-run and so contribute no fresh junit — that's
+// fine, they passed unchanged. Shared by both moon jobs; placed before the
+// exit-code propagation so results upload even when a task failed.
+function moonTestResultsSteps(): string[] {
+  return [
+    `    - run:`,
+    `        name: Collect JUnit reports`,
+    `        command: |`,
+    `          mkdir -p /tmp/test-results`,
+    `          find . -path '*/reports/junit.xml' -not -path '*/node_modules/*' | while read -r f; do`,
+    `            name=$(echo "$f" | sed -e 's|^\\./||' -e 's|/reports/junit.xml$||' -e 's|/|_|g')`,
+    `            cp "$f" "/tmp/test-results/\${name}.xml"`,
+    `          done`,
+    `    - store_test_results:`,
+    `        path: /tmp/test-results`,
+  ];
+}
+
 function generateMoonCiJob(): string[] {
   return [
     `moon-ci:`,
@@ -453,6 +473,7 @@ function generateMoonCiJob(): string[] {
     `    - store_artifacts:`,
     `        path: .moon/cache/states`,
     `        destination: moon-task-logs`,
+    ...moonTestResultsSteps(),
     `    - run:`,
     `        name: Propagate moon ci exit code`,
     `        command: |`,
@@ -462,12 +483,15 @@ function generateMoonCiJob(): string[] {
   ];
 }
 
-// Single-container baseline (NO sharding) for a direct comparison against the
-// 3-shard `moon-ci` job: same executor, resource_class, and MOON_CONCURRENCY, so
-// the only variable is sharding on/off. It targets an ISOLATED remote-cache
-// instance (`vxsuite-baseline`) so its cold-then-warm timings neither read from
-// nor pollute the sharded job's `vxsuite` cache — first run measures cold
-// single-container, a same-commit re-run measures warm. Step boilerplate is
+// Single-container COLD baseline (NO sharding) for a direct comparison against
+// the 3-shard `moon-ci` job: same executor, resource_class, and MOON_CONCURRENCY,
+// so the only variable is sharding on/off. The remote cache is DISABLED here (we
+// `unset MOON_REMOTE_HOST`) and there is no CircleCI restore_cache, so every run
+// is a clean cold full build+test — an honest worst-case single-container number.
+// (Env can't point it at an isolated cache instance: the committed
+// `cache.instanceName` in .moon/workspace.yml takes precedence over
+// MOON_REMOTE_CACHE_INSTANCE_NAME, so it would otherwise share the sharded job's
+// warm `vxsuite` cache and the timing would be meaningless.) Step boilerplate is
 // duplicated from generateMoonCiJob() rather than shared, to keep that working
 // job byte-for-byte untouched while we prototype.
 function generateMoonCiBaselineJob(): string[] {
@@ -477,9 +501,6 @@ function generateMoonCiBaselineJob(): string[] {
     `  resource_class: xlarge`,
     `  environment:`,
     `    MOON_CONCURRENCY: '4'`,
-    // Isolated cold cache namespace (an S3 folder) so this baseline doesn't
-    // share hits with the sharded job's warm `vxsuite` instance.
-    `    MOON_REMOTE_CACHE_INSTANCE_NAME: 'vxsuite-baseline'`,
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: true`,
@@ -488,22 +509,13 @@ function generateMoonCiBaselineJob(): string[] {
     `        command: |`,
     `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
-    `    - restore_cache:`,
-    `        keys:`,
-    `          - moon-baseline-{{ .Branch }}-{{ .Revision }}`,
-    `          - moon-baseline-{{ .Branch }}-`,
-    `          - moon-baseline-main-`,
     `    - run:`,
-    `        name: moon ci (single container)`,
+    `        name: moon ci (single container, cold)`,
     `        command: |`,
     `          set +e`,
-    `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
-    `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
-    `            export MOON_REMOTE_HOST`,
-    `            echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST], instance=$MOON_REMOTE_CACHE_INSTANCE_NAME"`,
-    `          else`,
-    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset)"`,
-    `          fi`,
+    // Force a cold run: the whole point of the baseline is worst-case timing.
+    `          unset MOON_REMOTE_HOST`,
+    `          echo "remote cache: DISABLED (cold single-container baseline)"`,
     // No --job/--job-total: run the whole affected graph in one container.
     `          moon ci --downstream none --summary`,
     `          echo $? > /tmp/moon-exit-code`,
@@ -515,14 +527,10 @@ function generateMoonCiBaselineJob(): string[] {
     `            fi`,
     `          done`,
     `          exit 0`,
-    `    - save_cache:`,
-    `        key: moon-baseline-{{ .Branch }}-{{ .Revision }}`,
-    `        paths:`,
-    `          - .moon/cache/hashes`,
-    `          - .moon/cache/outputs`,
     `    - store_artifacts:`,
     `        path: .moon/cache/states`,
     `        destination: moon-baseline-task-logs`,
+    ...moonTestResultsSteps(),
     `    - run:`,
     `        name: Propagate moon ci exit code`,
     `        command: |`,

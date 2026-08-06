@@ -37,7 +37,17 @@ tasks:
     # N suites x cores oversubscribes the CPU and flakes timing-sensitive tests.
     # Test-phase threads are then ~= MOON_CONCURRENCY x 2; keep MOON_CONCURRENCY
     # around cores/2 (env-only; moon has no committable concurrency setting).
-    script: 'FORCE_COLOR=0 vitest run --maxWorkers=2'
+    #
+    # `--coverage` matches each package's real `test:ci` and enforces the shared
+    # 100% line/branch thresholds — WITHOUT it moon runs a bare `vitest run` and
+    # the coverage gate is silently unenforced. The gate is checked at run time
+    # (vitest exits non-zero below threshold), so a cache hit already implies it
+    # passed. Outputs stay empty on purpose: junit (reports/junit.xml) is only
+    # written when CI, so declaring it as an output makes moon fail LOCAL runs
+    # with `missing_outputs`. CI still collects junit for tasks that actually ran
+    # (see the moon-ci job's store_test_results); cached tasks don't re-report,
+    # which is fine — they passed unchanged.
+    script: 'FORCE_COLOR=0 vitest run --coverage --maxWorkers=2'
     env:
       TZ: America/Anchorage
     inputs:
