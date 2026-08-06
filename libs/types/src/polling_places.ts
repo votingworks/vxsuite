@@ -109,7 +109,6 @@ export function pollingPlaceGroups(
         break;
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(place.type);
     }
   }
@@ -117,6 +116,7 @@ export function pollingPlaceGroups(
   return groups;
 }
 
+// @coverage-defer
 export function getConfiguredPrecinctsAndSplits(p: {
   election: Election;
   pollingPlaceId: string;
@@ -144,7 +144,6 @@ export function pollingPlaceMembers(
       continue;
     }
 
-    /* istanbul ignore next - coverage not getting detected here */
     switch (member.type) {
       case 'partial': {
         for (const split of precinct.splits) {
@@ -162,7 +161,6 @@ export function pollingPlaceMembers(
       }
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(member, 'type');
       }
     }
@@ -229,7 +227,6 @@ export function pollingPlaceTypeName(type: PollingPlaceType): string {
       return 'Election Day';
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(type);
   }
 }

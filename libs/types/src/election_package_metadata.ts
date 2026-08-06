@@ -1,4 +1,3 @@
-/* istanbul ignore file - will eventually be tested via consumers. */
 import { z } from 'zod/v4';
 
 export type MachineVersion = 'latest';
