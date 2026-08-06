@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 
-import { ElectionIdParams, routes } from './routes';
-import { Column } from './layout';
-import * as api from './api';
-import { EntityList } from './entity_list';
+import { ElectionIdParams, routes } from './routes.js';
+import { Column } from './layout.js';
+import * as api from './api.js';
+import { EntityList } from './entity_list.js';
 
 const NoPrecincts = styled.div`
   padding: 1rem;

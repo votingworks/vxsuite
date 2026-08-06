@@ -1,19 +1,20 @@
-import '../configure_sentry'; // Must be imported first to instrument code
+import { fileURLToPath } from 'node:url';
+import '../configure_sentry.js'; // Must be imported first to instrument code
 
 import path from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
-import { WORKSPACE } from '../globals';
-import { createWorkspace } from '../workspace';
-import * as worker from './worker';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer';
-import { GoogleCloudTranslatorWithDbCache } from '../translator';
+import { WORKSPACE } from '../globals.js';
+import { createWorkspace } from '../workspace.js';
+import * as worker from './worker.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer.js';
+import { GoogleCloudTranslatorWithDbCache } from '../translator.js';
 import {
   LocalFileStorageClient,
   S3FileStorageClient,
-} from '../file_storage_client';
+} from '../file_storage_client.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -45,7 +46,10 @@ async function main(): Promise<void> {
 }
 
 /* istanbul ignore next */
-if (require.main === module) {
+// ESM has no `require.main`/`module`, so compare this module's path to the entry
+// point node was given — `process.argv[1]`, which node resolves to an absolute
+// path even when invoked relatively (`node ./build/index.js`, as start.sh does).
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
     process.stderr.write(
       `Error starting VxDesign background worker:\n${error.stack}\n`

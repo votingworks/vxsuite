@@ -34,7 +34,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import styled from 'styled-components';
-import { processQrCodeReport } from './public_api';
+import { processQrCodeReport } from './public_api.js';
 
 const ColumnSpan = styled.span`
   display: flex;

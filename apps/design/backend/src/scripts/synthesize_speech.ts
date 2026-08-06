@@ -4,8 +4,8 @@ import { extractErrorMessage } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Store } from '../src/store';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
+import { Store } from '../store.js';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer.js';
 
 const languageCodes: string[] = Object.values(LanguageCode);
 const usageMessage = `Usage: synthesize-speech 'Text to convert to speech' <language-code> <output-file-path>

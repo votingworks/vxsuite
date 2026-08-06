@@ -47,8 +47,8 @@ import type {
   GetExportedElectionError,
   QuickReportedPollStatus,
 } from '@votingworks/design-backend';
-import { ElectionNavScreen, Header } from './nav_screen';
-import { ElectionIdParams, routes } from './routes';
+import { ElectionNavScreen, Header } from './nav_screen.js';
+import { ElectionIdParams, routes } from './routes.js';
 import {
   deleteQuickReportingResults,
   getLiveReportsActivityLog,
@@ -56,10 +56,10 @@ import {
   getLiveReportsSummary,
   getStateFeatures,
   getSystemSettings,
-} from './api';
-import { useTitle } from './hooks/use_title';
-import { Row } from './layout';
-import { useSound } from './utils';
+} from './api.js';
+import { useTitle } from './hooks/use_title.js';
+import { Row } from './layout.js';
+import { useSound } from './utils.js';
 
 // --- Status types and helpers ---
 

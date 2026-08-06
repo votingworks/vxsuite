@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { ImageInput, ImageInputProps } from './image_input';
-import { NormalizeParams } from './image_normalization';
+import { ImageInput, ImageInputProps } from './image_input.js';
+import { NormalizeParams } from './image_normalization.js';
 
 const StyledImageInput = styled(ImageInput)`
   img {

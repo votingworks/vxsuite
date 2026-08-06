@@ -17,9 +17,9 @@ import {
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
 import { AnyBallotProps } from '@votingworks/hmpb';
-import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
-import { Jurisdiction, User } from './types';
-import { type StateFeaturesConfig } from './features';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
+import { Jurisdiction, User } from './types.js';
+import { type StateFeaturesConfig } from './features.js';
 
 export function getBallotPdfFileName(props: AnyBallotProps): string {
   const precinct = assertDefined(getPrecinctById(props));

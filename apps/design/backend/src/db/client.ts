@@ -1,7 +1,8 @@
 /* istanbul ignore file - [TODO] need to update CI image to include postgres. */
 
 import { Buffer } from 'node:buffer';
-import * as pg from 'pg';
+// Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
+import type * as pg from 'pg';
 import * as migrate from 'node-pg-migrate';
 import { NODE_ENV } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
@@ -92,6 +93,11 @@ export class Client {
       dbClient: this.conn,
       noLock: params.noLock,
       dir: 'migrations',
+      // The migrations dir carries a package.json ("type": "commonjs") so its
+      // .js migration files stay CommonJS under this package's "type": "module"
+      // (node-pg-migrate loads them with require). Skip that package.json — and
+      // any dotfiles — so it is not treated as a migration.
+      ignorePattern: '\\..*|.*\\.json',
       direction: 'up',
       log: params.enableLogging ? undefined : () => {},
       migrationsSchema: params.schemaName,

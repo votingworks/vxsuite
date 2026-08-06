@@ -17,7 +17,7 @@ import {
 } from '@votingworks/utils';
 import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 import {
   MockApiClient,
   createMockApiClient,
@@ -26,16 +26,16 @@ import {
   provideApi,
   user,
   mockStateFeatures,
-} from '../test/api_helpers';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
-import { LiveReportsScreen } from './live_reports_screen';
+} from '../test/api_helpers.js';
+import { withRoute } from '../test/routing_helpers.js';
+import { routes } from './routes.js';
+import { LiveReportsScreen } from './live_reports_screen.js';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
   primaryElectionRecord,
-} from '../test/fixtures';
-import { VXQR_REFETCH_INTERVAL_MS } from './api';
+} from '../test/fixtures.js';
+import { VXQR_REFETCH_INTERVAL_MS } from './api.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const primaryElectionRecordGenerated = primaryElectionRecord(jurisdiction.id);

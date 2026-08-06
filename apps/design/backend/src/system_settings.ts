@@ -8,8 +8,8 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 
-import { sliOrganizationId } from './globals';
-import { Jurisdiction, resultsReportingUrl, StateCode } from './types';
+import { sliOrganizationId } from './globals.js';
+import { Jurisdiction, resultsReportingUrl, StateCode } from './types.js';
 
 /**
  * Default settings applied across customers and SLI

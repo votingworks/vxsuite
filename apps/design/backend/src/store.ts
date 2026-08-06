@@ -62,6 +62,7 @@ import {
   ElectionType,
   straightPartyNotYetImplemented,
   StraightPartyContest,
+  Tabulation,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
@@ -70,8 +71,8 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
-import { DatabaseError } from 'pg';
-import { ContestResults } from '@votingworks/types/src/tabulation';
+import pg from 'pg';
+import type { DatabaseError } from 'pg';
 import {
   ExternalElectionSource,
   ElectionListing,
@@ -86,12 +87,12 @@ import {
   UserType,
   ElectionStatus,
   ElectionInfoUpdate,
-} from './types';
-import { Db } from './db/db';
-import { Bindable, Client } from './db/client';
-import { generateId } from './utils';
-import { getStateFeaturesConfig } from './features';
-import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
+} from './types.js';
+import { Db } from './db/db.js';
+import { Bindable, Client } from './db/client.js';
+import { generateId } from './utils.js';
+import { getStateFeaturesConfig } from './features.js';
+import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 
 export interface ElectionRecord {
   jurisdictionId: string;
@@ -197,12 +198,18 @@ async function assertWithinTransaction(client: Client): Promise<void> {
   }
 }
 
+// `pg` is CommonJS and node's ESM named-export detection cannot see its
+// exports, so a named import of the class fails to load under node — `tsc` and
+// vitest both accept it, which is why this went unnoticed. Take the class off
+// the default import (`module.exports`); the type still comes from `pg` by name.
+const { DatabaseError: DatabaseErrorClass } = pg;
+
 function isDuplicateKeyError(
   error: unknown,
   constraint: string
 ): error is DatabaseError {
   return (
-    error instanceof DatabaseError &&
+    error instanceof DatabaseErrorClass &&
     error.code === '23505' &&
     error.constraint === constraint
   );
@@ -213,7 +220,7 @@ function isForeignKeyError(
   constraint: string
 ): error is DatabaseError {
   return (
-    error instanceof DatabaseError &&
+    error instanceof DatabaseErrorClass &&
     error.code === '23503' &&
     error.constraint === constraint
   );
@@ -3179,7 +3186,7 @@ export class Store {
     precinctSelection: PrecinctSelection,
     isLive: boolean
   ): Promise<{
-    contestResults: Record<ContestId, ContestResults>;
+    contestResults: Record<ContestId, Tabulation.ContestResults>;
     machinesReporting: string[];
   }> {
     let precinctWhereClause = '';

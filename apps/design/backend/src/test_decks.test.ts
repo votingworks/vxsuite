@@ -30,7 +30,7 @@ import {
   createTestDeckTallyReports,
   precinctTallyReportFileName,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-} from './test_decks';
+} from './test_decks.js';
 
 vi.setConfig({
   testTimeout: 90_000,

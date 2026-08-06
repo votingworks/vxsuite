@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
-import { CircleCiClient } from './circleci_client';
+import { CircleCiClient } from './circleci_client.js';
 
 describe('CircleCiClient', () => {
   let mockFetch: Mock<typeof fetch>;

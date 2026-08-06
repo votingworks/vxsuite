@@ -10,7 +10,7 @@ import {
 } from 'auth0';
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
-import { Auth0Client, ConnectionType } from './auth0_client';
+import { Auth0Client, ConnectionType } from './auth0_client.js';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));

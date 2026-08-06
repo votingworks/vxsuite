@@ -3,9 +3,9 @@ import { useParams } from 'react-router-dom';
 
 import { LinkButton } from '@votingworks/ui';
 
-import * as api from '../api';
-import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip';
-import { ElectionIdParams } from '../routes';
+import * as api from '../api.js';
+import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip.js';
+import { ElectionIdParams } from '../routes.js';
 
 export interface AudioLinkButtonProps {
   buttonClassName?: string;

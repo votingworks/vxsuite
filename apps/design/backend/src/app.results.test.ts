@@ -28,23 +28,23 @@ import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmpb';
 import type * as grout from '@votingworks/grout';
-import type { UnauthenticatedApi } from './app';
+import type { UnauthenticatedApi } from './app.js';
 import {
   ApiClient,
   exportElectionPackage,
   getExportedFile,
   MockFileStorageClient,
   testSetupHelpers,
-} from '../test/helpers';
-import { Workspace } from './workspace';
+} from '../test/helpers.js';
+import { Workspace } from './workspace.js';
 import {
   jurisdictions,
   nonVxJurisdiction,
   nonVxUser,
   organizations,
   users,
-} from '../test/mocks';
-import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals';
+} from '../test/mocks.js';
+import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

@@ -12,7 +12,7 @@ import {
 import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 
-import { WORKSPACE } from './globals';
+import { WORKSPACE } from './globals.js';
 
 // TODO: Properly enumerate error cases with FileStorageClientError type
 export type FileStorageClientError =

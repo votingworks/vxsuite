@@ -5,10 +5,10 @@ import { Button } from '@votingworks/ui';
 import { Contest, Party } from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
 import { groupBy } from '@votingworks/basics';
-import { Column, Row } from './layout';
-import * as api from './api';
-import { ElectionIdParams, routes } from './routes';
-import { EntityList } from './entity_list';
+import { Column, Row } from './layout.js';
+import * as api from './api.js';
+import { ElectionIdParams, routes } from './routes.js';
+import { EntityList } from './entity_list.js';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
 

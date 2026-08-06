@@ -11,11 +11,11 @@ import {
   ElectionTypeSchema,
   DateWithoutTimeSchema,
   LanguageCodeSchema,
+  Tabulation,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
-import { ContestResults } from '@votingworks/types/src/tabulation';
 import { z } from 'zod/v4';
-import { baseUrl } from './globals';
+import { baseUrl } from './globals.js';
 
 export const StateCodes = ['DEMO', 'MI', 'MS', 'NH'] as const;
 export type StateCode = (typeof StateCodes)[number];
@@ -180,7 +180,7 @@ export interface ReceivedPollsClosedFinalReportInfo
   isPartial: false;
   contestResultsByPrecinct: Record<
     PrecinctId,
-    Record<ContestId, ContestResults>
+    Record<ContestId, Tabulation.ContestResults>
   >;
 }
 
@@ -193,7 +193,7 @@ export type ReceivedReportInfo =
 
 export interface AggregatedReportedResults {
   ballotHash: string;
-  contestResults: Record<ContestId, ContestResults>;
+  contestResults: Record<ContestId, Tabulation.ContestResults>;
   election: Election;
   machinesReporting: string[];
   isLive: boolean;

@@ -6,10 +6,10 @@ import { within } from '@testing-library/react';
 import { Precinct, PrecinctSplit } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
-import { createMockApiClient, provideApi } from '../test/api_helpers';
-import { PrecinctList } from './precincts_list';
-import { electionParamRoutes, routes } from './routes';
-import { render, screen } from '../test/react_testing_library';
+import { createMockApiClient, provideApi } from '../test/api_helpers.js';
+import { PrecinctList } from './precincts_list.js';
+import { electionParamRoutes, routes } from './routes.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 const electionId = 'election1';
 const precinctRoutes = routes.election(electionId).precincts;

@@ -10,13 +10,13 @@ import {
   generateAllPrecinctsTallyReportWithManualTallies,
   readFixture,
   stringifyAllPrecinctsTallyReportRows,
-} from '../test/helpers';
-import { convertMsElection } from './convert_ms_election';
+} from '../test/helpers.js';
+import { convertMsElection } from './convert_ms_election.js';
 import {
   convertMsResults,
   SEMS_RESULTS_COLUMNS,
   SemsResultsRow,
-} from './convert_ms_results';
+} from './convert_ms_results.js';
 
 const generalElection = convertMsElection(
   'election-id-1',
