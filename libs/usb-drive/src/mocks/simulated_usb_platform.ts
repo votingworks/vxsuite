@@ -180,7 +180,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
       linkSync(initPath, this.stateFilePath);
       debug('Created new devices file');
     } catch (e) {
-      /* istanbul ignore next: unexpected errors should propagate */
+      // @coverage-exclude: unexpected errors should propagate
       if ((e as { code?: string }).code !== 'EEXIST') {
         throw e;
       }

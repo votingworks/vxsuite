@@ -79,10 +79,9 @@ export function createUsbDriveAdapter(
         case 'unmounted':
           debug('adapter: partition is unmounted, returning no_drive');
           return Promise.resolve({ status: 'no_drive' });
-        /* istanbul ignore start */
+        // @coverage-exclude
         default:
           return throwIllegalValue(mount);
-        /* istanbul ignore stop */
       }
     },
 
