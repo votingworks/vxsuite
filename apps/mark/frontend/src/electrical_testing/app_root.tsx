@@ -29,7 +29,7 @@ import {
 } from './api.js';
 import { useSound } from '../hooks/use_sound.js';
 
-const SOUND_INTERVAL_SECONDS = 5;
+const SOUND_INTERVAL_SECONDS = 10;
 
 function formatPrinterStatus(
   printerStatus: Awaited<ReturnType<typeof getPrinterStatus.useQuery>>['data'],
