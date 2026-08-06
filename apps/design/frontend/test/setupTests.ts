@@ -22,6 +22,20 @@ vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
 }));
 
+// Don't load the real react-pdf: importing it evaluates pdfjs-dist, which
+// requires browser APIs (e.g. DOMMatrix) that jsdom doesn't provide. Tests
+// that exercise the PDF viewer (e.g. ballot_screen.test.tsx) register their
+// own richer mock, which takes precedence over this one.
+vi.mock(
+  import('react-pdf'),
+  () =>
+    ({
+      pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
+      Document: () => null,
+      Page: () => null,
+    }) as unknown as typeof import('react-pdf')
+);
+
 global.TextEncoder = TextEncoder;
 
 URL.createObjectURL = vi.fn();

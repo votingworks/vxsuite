@@ -41,8 +41,11 @@ import {
 import { routes } from './routes.js';
 import { FieldName as BaseFieldName, Row } from './layout.js';
 
-// Worker file must be copied from pdfjs-dist into public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
+// The worker is bundled from the same pdfjs-dist version react-pdf uses
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};

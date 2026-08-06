@@ -15,15 +15,17 @@ expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 
-vi.mock(import('react-pdf'), async (importActual) => {
-  const original = await importActual();
-  return {
-    ...original,
-    pdfjs: { GlobalWorkerOptions: { workerSrc: '/mock', workerPort: 3000 } },
-    Document: MockDocument,
-    Page: MockPage,
-  } as unknown as typeof original;
-});
+// Don't load the real react-pdf: importing it evaluates pdfjs-dist, which
+// requires browser APIs (e.g. DOMMatrix) that jsdom doesn't provide.
+vi.mock(
+  import('react-pdf'),
+  () =>
+    ({
+      pdfjs: { GlobalWorkerOptions: { workerSrc: '/mock', workerPort: 3000 } },
+      Document: MockDocument,
+      Page: MockPage,
+    }) as unknown as typeof import('react-pdf')
+);
 
 afterEach(() => {
   cleanup();

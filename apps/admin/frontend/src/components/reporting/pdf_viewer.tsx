@@ -5,8 +5,11 @@ import { H3, Icons, P } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { range } from '@votingworks/basics';
 
-// Worker file must be copied from pdfjs-dist into public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
+// The worker is bundled from the same pdfjs-dist version react-pdf uses
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
 
 // Large PDFs can crash the page. We've seen this occur at ~100 pages, so set a
 // conservative limit to make sure it never happens in production.
@@ -63,19 +66,9 @@ const DEFAULT_ZOOM = 1.8;
 interface PdfViewerProps {
   pdfData?: Uint8Array;
   loading?: boolean;
-  renderMode?: 'canvas' | 'svg';
 }
 
-function PdfViewerHelper({
-  pdfData,
-  loading,
-  // SVG render mode is deprecated, but for some reason the PDF
-  // fonts are grainy in kiosk-browser. Because that's not the
-  // case in Chrome, hopefully it's a Chrome version issue and
-  // we can move to the "canvas" default and avoid the console
-  // warnings
-  renderMode = 'svg',
-}: PdfViewerProps): JSX.Element {
+function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState(1);
   const file = useMemo(
@@ -149,7 +142,6 @@ function PdfViewerHelper({
                   // ReactPDF renders at 3/4 of actual size for some reason
                   // https://github.com/wojtekmaj/react-pdf/issues/1219
                   scale={DEFAULT_ZOOM * (4 / 3)}
-                  renderMode={renderMode}
                   pageNumber={pageNumber}
                   renderTextLayer={false}
                   renderAnnotationLayer={false}
@@ -166,18 +158,13 @@ function PdfViewerHelper({
   );
 }
 
-export function PdfViewer({
-  loading,
-  pdfData,
-  renderMode,
-}: PdfViewerProps): JSX.Element {
+export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
   return (
     <PdfViewerHelper
       // Reset the page count state whenever we change the PDF data
       key={String(Boolean(pdfData))}
       loading={loading}
       pdfData={pdfData}
-      renderMode={renderMode}
     />
   );
 }

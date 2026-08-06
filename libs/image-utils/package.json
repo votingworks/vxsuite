@@ -22,13 +22,14 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@napi-rs/canvas": "0.1.100",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "canvas": "2.11.2",
     "debug": "4.3.4",
     "jest-image-snapshot": "^6.4.0",
-    "pdfjs-dist": "3.11.174",
+    "pdfjs-dist": "5.4.296",
     "pixelmatch": "^5.3.0",
     "tmp": "^0.2.6"
   },
