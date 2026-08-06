@@ -19,9 +19,10 @@
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../libs/basics/src",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest run --coverage",
-    "test:coverage": "vitest --coverage",
+    "test:ci": "pnpm test:coverage",
+    "test:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:run": "vitest run",
     "test:watch": "vitest"
   },

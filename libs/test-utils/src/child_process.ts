@@ -42,6 +42,7 @@ export function mockReadable(): MockReadable {
     return readable;
   };
   readable.isPaused = () => isPaused;
+  // @coverage-defer
   readable.setEncoding = () => readable;
   readable.append = (chunk: unknown): void => {
     pendingChunks.push(chunk);
@@ -92,6 +93,7 @@ export function mockWritable(): MockWritable {
       throw new TypeError('encoding expected to be a string');
     }
 
+    // @coverage-defer
     if (typeof chunk !== 'undefined') {
       writes.push({ chunk, encoding });
     }
@@ -110,6 +112,7 @@ export function mockWritable(): MockWritable {
     let encoding: unknown;
     let callback: unknown;
 
+    // @coverage-defer
     if (args.length === 3) {
       [chunk, encoding, callback] = args;
     } else if (args.length === 2 && typeof args[1] === 'function') {
@@ -120,15 +123,18 @@ export function mockWritable(): MockWritable {
       [callback] = args;
     }
 
+    // @coverage-defer
     if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
       throw new TypeError('encoding expected to be a string');
     }
 
+    // @coverage-defer
     if (typeof chunk !== 'undefined') {
       writes.push({ chunk, encoding });
     }
 
     process.nextTick(() => {
+      // @coverage-defer
       if (typeof callback === 'function') {
         callback();
       }
@@ -172,6 +178,7 @@ export function mockChildProcess(): MockChildProcess {
     stdin: mockWritable(),
     stdout: mockReadable(),
     stderr: mockReadable(),
+    // @coverage-defer
     kill: () => true,
   };
 

@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import type { vi, Mocked } from 'vitest';
 
 export type MockKiosk = Mocked<KioskBrowser.Kiosk>;

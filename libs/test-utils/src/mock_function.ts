@@ -83,6 +83,7 @@ function formatExpectedAndActualCalls(
   const expectedStr = expectedCall
     ? formatFunctionCall(name, expectedCall.input) +
       (expectedCall.repeated ? ' (repeated)' : '') +
+      // @coverage-defer
       (expectedCall.optional ? ' (optional)' : '')
     : '<none>';
   const actualStr = actualCall
@@ -188,6 +189,7 @@ export function mockFunction<Func extends AnyFunc>(
 
   const mock: MockFunction<Func> = (...input: Parameters<Func>) => {
     // Special case - [] and [undefined] are equivalent as args
+    // @coverage-defer
     if (input.length === 1 && input[0] === undefined) {
       // eslint-disable-next-line no-param-reassign
       input = [] as unknown as Parameters<Func>;
@@ -271,6 +273,7 @@ export function mockFunction<Func extends AnyFunc>(
         optional: true,
       });
     },
+    // @coverage-defer
     resolves(output: Awaited<ReturnType<Func>>) {
       state.expectedCalls.push({
         input,

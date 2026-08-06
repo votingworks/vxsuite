@@ -16,6 +16,7 @@ export function suppressingConsoleOutput<T>(fn: () => T): T;
 export function suppressingConsoleOutput<T>(
   fn: () => MaybePromise<T>
 ): MaybePromise<T> {
+  // @coverage-defer
   if (process.env['SUPPRESS_CONSOLE_OUTPUT'] === 'false') {
     return fn();
   }

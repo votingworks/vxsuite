@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { AudioControls } from '@votingworks/types';
 import type { Mocked, vi } from 'vitest';
 
