@@ -244,26 +244,12 @@ export const BUBBLE_WIDTH_PX = 19;
 
 export const BubbleShape = styled.div<{
   isFilled?: boolean;
-  /**
-   * Fraction (0–1) of the bubble to fill solid from the bottom up, for
-   * rendering a partial (e.g. marginal) mark. Ignored when `isFilled` is set.
-   */
-  fillFraction?: number;
 }>`
   width: ${BUBBLE_WIDTH_PX}px;
   height: ${BUBBLE_HEIGHT_PX}px;
   border-radius: 7px;
   border: 1px solid black;
-  background: ${(p) => {
-    if (p.isFilled) return 'black';
-    /* istanbul ignore next - partial fill is only rendered when generating
-       marginal-mark fixtures via @votingworks/integration-test-utils */
-    if (p.fillFraction) {
-      const pct = p.fillFraction * 100;
-      return `linear-gradient(to top, black ${pct}%, transparent ${pct}%)`;
-    }
-    return undefined;
-  }};
+  background: ${(p) => (p.isFilled ? 'black' : undefined)};
 `;
 
 export const BUBBLE_CLASS = 'bubble';
