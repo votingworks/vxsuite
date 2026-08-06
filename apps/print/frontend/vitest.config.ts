@@ -7,9 +7,10 @@ export default defineConfig({
     setupFiles: ['src/setupTests.ts'],
 
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 46,
-        branches: 37,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
         'src/**/*.d.ts',

@@ -25,6 +25,7 @@ export function PrecinctSelect({
           .filter(
             (p) =>
               !searchValue ||
+              // @coverage-defer
               p.name.toLowerCase().includes(searchValue.toLowerCase())
           )
           .map((p) => ({ value: p.id, label: p.name }))}

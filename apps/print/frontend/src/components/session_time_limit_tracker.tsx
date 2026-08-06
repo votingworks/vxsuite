@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { SessionTimeLimitTracker as SessionTimeLimitTrackerBase } from '@votingworks/ui';
 
 import {

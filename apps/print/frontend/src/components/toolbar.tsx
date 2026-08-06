@@ -70,8 +70,10 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     return <PrinterConnectionStatus connected={connected} />;
   }
 
+  // @coverage-defer
   const { richStatus } = status;
 
+  // @coverage-defer
   if (richStatus.state === 'stopped') {
     if (
       richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
@@ -132,11 +134,13 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     );
   }
 
+  // @coverage-defer
   const cartridgeMarkerInfo = richStatus.markerInfos.find(
     (markerInfo) =>
       markerInfo.type === 'toner-cartridge' &&
       markerInfo.name === 'black cartridge'
   );
+  // @coverage-defer
   if (
     cartridgeMarkerInfo?.level &&
     cartridgeMarkerInfo.level <= LOW_TONER_LEVEL
@@ -149,6 +153,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     );
   }
 
+  // @coverage-defer
   return <PrinterConnectionStatus connected={connected} />;
 }
 
@@ -165,6 +170,7 @@ const BUTTON_ICON_AND_TEXT: Record<ExtendedUsbDriveStatus, [IconName, string]> =
 function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
   const ejectUsbMutation = ejectUsbDrive.useMutation();
   const isEjecting = ejectUsbMutation.isLoading;
+  // @coverage-defer
   const extendedUsbDriveStatus: ExtendedUsbDriveStatus = isEjecting
     ? 'ejecting'
     : status.status;
@@ -173,8 +179,10 @@ function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
       <ToolbarButton
         icon={icon}
+        // @coverage-defer
         onPress={() => ejectUsbMutation.mutate()}
         color="inverseNeutral"
+        // @coverage-defer
         disabled={extendedUsbDriveStatus !== 'mounted' || isEjecting}
       >
         {text}
@@ -188,6 +196,7 @@ export function Toolbar(): JSX.Element {
   const logOutMutation = logOut.useMutation();
   const history = useHistory();
 
+  // @coverage-defer
   function handleLock() {
     logOutMutation.mutate(undefined, {
       onSuccess: () => {
@@ -196,6 +205,7 @@ export function Toolbar(): JSX.Element {
     });
   }
 
+  // @coverage-defer
   if (!getDeviceStatusesQuery.isSuccess) {
     return (
       <ToolbarContainer>
@@ -209,6 +219,7 @@ export function Toolbar(): JSX.Element {
   return (
     <ToolbarContainer>
       <PrinterStatus status={printer} />
+      {/* @coverage-defer */}
       {battery && <BatteryStatus batteryInfo={battery} />}
       <DateTimeDisplay />
       <UsbControllerButton status={usbDrive} />

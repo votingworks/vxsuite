@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { PrintTestPageButton as SharedPrintTestPageButton } from '@votingworks/ui';
 import { addDiagnosticRecord, getDeviceStatuses, printTestPage } from '../api';
 

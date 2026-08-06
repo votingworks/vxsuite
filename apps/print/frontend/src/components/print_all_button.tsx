@@ -39,6 +39,7 @@ const Input = styled.div`
   flex: 1;
 `;
 
+// @coverage-defer
 function PrintAllModal({
   onClose,
 }: {
@@ -177,11 +178,13 @@ export function PrintAllButton({
         disabled={disabled}
         color="neutral"
         fill="outlined"
+        // @coverage-defer
         onPress={() => setIsShowingModal(true)}
       >
         Print All Ballot Styles
       </StyledButton>
       {isShowingModal && (
+        // @coverage-defer
         <PrintAllModal onClose={() => setIsShowingModal(false)} />
       )}
     </React.Fragment>

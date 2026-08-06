@@ -3,6 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { getDeviceStatuses, exportBallotsPrintedReportPdf } from '../api';
 
+// @coverage-defer
 export function ExportReportModal({
   onClose,
 }: {
@@ -78,12 +79,12 @@ export function ExportReportModal({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(exportReportMutation);
     }
   }
 }
 
+// @coverage-defer
 export function ExportReportButton(): JSX.Element {
   const [isShowingModal, setIsShowingModal] = useState(false);
 

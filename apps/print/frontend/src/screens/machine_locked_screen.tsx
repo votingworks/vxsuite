@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import styled from 'styled-components';
 import {
   ElectionInfoBar,

@@ -38,6 +38,7 @@ export function ElectionScreen(): JSX.Element | null {
   const unconfigureMutation = unconfigureMachine.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
+  // @coverage-defer
   if (!getElectionRecordQuery.isSuccess || !pollingPlaceIdQuery.isSuccess) {
     return null;
   }
@@ -46,6 +47,7 @@ export function ElectionScreen(): JSX.Element | null {
     electionDefinition: { election },
   } = assertDefined(getElectionRecordQuery.data);
 
+  // @coverage-defer
   async function unconfigure(): Promise<void> {
     try {
       await ejectUsbDriveMutation.mutateAsync();
@@ -55,6 +57,7 @@ export function ElectionScreen(): JSX.Element | null {
     }
   }
 
+  // @coverage-defer
   const pollingPlaces = election.pollingPlaces || [];
 
   return (
@@ -83,6 +86,7 @@ export function ElectionScreen(): JSX.Element | null {
               places={pollingPlaces}
               searchable
               selectedId={pollingPlaceIdQuery.data || undefined}
+              // @coverage-defer
               selectPlace={(id) => selectPollingPlace({ id })}
               style={{ width: '16rem' }}
             />

@@ -10,6 +10,7 @@ const ClearButton = styled(Button)`
   padding: 0.5rem;
 `;
 
+// @coverage-defer
 const SearchBox = styled.div`
   position: relative;
   border: 2px solid ${(p) => p.theme.colors.outline};
@@ -47,6 +48,7 @@ const SearchBox = styled.div`
   }
 `;
 
+// @coverage-defer
 export function Filter({
   filterText,
   setFilterText,

@@ -27,6 +27,7 @@ const Content = styled.div`
   padding: 1rem;
 `;
 
+// @coverage-defer
 export function DiagnosticsScreen({
   authType,
 }: {

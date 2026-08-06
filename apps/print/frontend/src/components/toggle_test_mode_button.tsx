@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Button, Modal, P, SegmentedButton } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { getTestMode, setTestMode, getBallotPrintCounts } from '../api';

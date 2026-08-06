@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Buffer } from 'node:buffer';
 
 globalThis.global = globalThis;

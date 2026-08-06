@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { systemAdministratorRoutes } from './routes';
