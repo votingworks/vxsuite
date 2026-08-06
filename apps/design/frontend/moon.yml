@@ -16,3 +16,12 @@ tasks:
     script: 'eslint --cache . && pnpm stylelint:run'
     options:
       mergeArgs: replace
+
+  # Unlike every other app, design-frontend's real test:ci sets NO TZ (so it runs
+  # under the CI system TZ = UTC), and its date-rendering tests expect that. The
+  # shared test task forces TZ=America/Anchorage (UTC-9), which shifts a rendered
+  # election date back a day (a "Nov 5, 2024" assertion fails). Override TZ to UTC
+  # here to match the package's actual test environment.
+  test:
+    env:
+      TZ: 'UTC'
