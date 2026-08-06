@@ -1,5 +1,5 @@
-export { BitReader } from './bit_reader';
-export { BitWriter } from './bit_writer';
-export * from './encoding';
-export * from './types';
-export * from './utils';
+export { BitReader } from './bit_reader.js';
+export { BitWriter } from './bit_writer.js';
+export * from './encoding.js';
+export * from './types.js';
+export * from './utils.js';

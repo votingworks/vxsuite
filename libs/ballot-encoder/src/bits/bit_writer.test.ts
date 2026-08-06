@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { expect, test, vi } from 'vitest';
-import { BitWriter } from './bit_writer';
-import { CustomEncoding } from './encoding';
+import { BitWriter } from './bit_writer.js';
+import { CustomEncoding } from './encoding.js';
 
 test('can write a bit', () => {
   expect(new BitWriter().writeUint1(1).toUint8Array()).toEqual(
