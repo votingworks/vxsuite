@@ -5,7 +5,6 @@ import {
   Logger,
 } from '@votingworks/logging';
 import {
-  audio,
   CardReaderErrorTracker,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
@@ -25,6 +24,7 @@ import { getDefaultAuth, getUserRole } from './util/auth';
 import { BarcodeClient } from './barcodes';
 import { MockBarcodeClient } from './barcodes/mock_client';
 import { Player as AudioPlayer } from './audio/player';
+import { initializeAudio } from './audio/initialize';
 
 export type { Api } from './app';
 export type { PrintCalibration } from '@votingworks/hmpb';
@@ -73,27 +73,12 @@ async function main(): Promise<number> {
     const barcodeClient = useMockBarcode
       ? new MockBarcodeClient()
       : new BarcodeClient(baseLogger);
-
-    // Initialize audio for electrical testing
-    let audioPlayer: AudioPlayer | undefined;
-    try {
-      const detectedAudioInfo = await audio.getAudioInfo({
-        logger,
-        nodeEnv: NODE_ENV,
-      });
-      if (detectedAudioInfo.builtin) {
-        audioPlayer = new AudioPlayer(
-          NODE_ENV,
-          logger,
-          detectedAudioInfo.builtin.name
-        );
-      }
-    } catch (error) {
-      logger.log(LogEventId.Info, 'system', {
-        message: `Failed to initialize audio: ${error}`,
-        disposition: 'failure',
-      });
-    }
+    const audioInfo = await initializeAudio(logger);
+    const audioPlayer = new AudioPlayer(
+      NODE_ENV,
+      logger,
+      audioInfo.builtin.name
+    );
 
     startElectricalTestingServer({
       audioPlayer,
