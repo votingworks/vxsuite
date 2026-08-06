@@ -38,6 +38,7 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
     workspacePackages,
     nodeVersionFile,
   });
+  yield* pkgs.checkPackageJsonIsExported({ workspacePackages });
   yield* tsconfig.checkConfig(workspacePackages);
   yield* circleci.checkConfig(workspacePackages);
   yield* cargo.checkConfig(root);

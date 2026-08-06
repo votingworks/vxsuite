@@ -5,6 +5,7 @@ import matcher from 'matcher';
 export enum ValidationIssueKind {
   MismatchedPropertyValue = 'MismatchedPropertyValue',
   NoLicenseSpecified = 'NoLicenseSpecified',
+  UnexportedPackageJson = 'UnexportedPackageJson',
 }
 
 export interface PackageJsonProperty {
@@ -23,9 +24,15 @@ export interface NoLicenseSpecifiedIssue {
   readonly packageJsonPath: string;
 }
 
+export interface UnexportedPackageJsonIssue {
+  readonly kind: ValidationIssueKind.UnexportedPackageJson;
+  readonly packageJsonPath: string;
+}
+
 export type ValidationIssue =
   | MismatchedPropertyIssue
-  | NoLicenseSpecifiedIssue;
+  | NoLicenseSpecifiedIssue
+  | UnexportedPackageJsonIssue;
 
 export async function* checkPackageManager({
   workspacePackages,
@@ -185,6 +192,40 @@ export async function* checkEngines(
           properties: propertiesNotMatchingNodeVersionFile,
         }
       }
+    }
+  }
+}
+
+/**
+ * Check that every package with an `exports` map exposes its own
+ * `package.json`. An `exports` map turns off unlisted-subpath resolution, so
+ * without this tooling that reads `<pkg>/package.json` fails with
+ * ERR_PACKAGE_PATH_NOT_EXPORTED.
+ */
+export async function* checkPackageJsonIsExported({
+  workspacePackages,
+}: {
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+}): AsyncGenerator<ValidationIssue> {
+  for (const pkg of workspacePackages.values()) {
+    const { packageJson, packageJsonPath } = pkg;
+
+    if (!packageJson || !packageJsonPath) {
+      continue;
+    }
+
+    const { exports: exportsMap } = packageJson as {
+      exports?: Record<string, unknown>;
+    };
+
+    if (
+      exportsMap &&
+      exportsMap['./package.json'] === undefined
+    ) {
+      yield {
+        kind: ValidationIssueKind.UnexportedPackageJson,
+        packageJsonPath,
+      };
     }
   }
 }

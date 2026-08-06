@@ -42,6 +42,18 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
+      case pkgs.ValidationIssueKind.UnexportedPackageJson: {
+        const { packageJsonPath } = issue;
+        stderr.write(
+          `${relative(
+            cwd,
+            packageJsonPath
+          )}: "exports" must include "./package.json" so tooling can read it\n`
+        );
+        errors += 1;
+        break;
+      }
+
       case tsconfig.ValidationIssueKind.MissingConfigFile: {
         const { tsconfigPath } = issue;
         stderr.write(`${tsconfigPath}: missing TypeScript configuration\n`);
