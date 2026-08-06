@@ -12,6 +12,7 @@ projects:
   # `backend` -> `logging-utils`) and is wired here now that the native deps
   # above are in the graph, so moon builds/hashes the native dep first.
   admin-backend: apps/admin/backend
+  admin-frontend: apps/admin/frontend
   auth: libs/auth
   backend: libs/backend
   ballot-encoder: libs/ballot-encoder
