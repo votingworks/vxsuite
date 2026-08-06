@@ -16,8 +16,8 @@ import { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 import { TestPrintPage } from './test_print_page.js';
 
-const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
-const PRINTER_TEST_INTERVAL_SECONDS = 5 * 60; // 5 minutes
+const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 10;
+const PRINTER_TEST_INTERVAL_SECONDS = 10 * 60; // 10 minutes
 export const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 function resultToString(result: Result<unknown, unknown>): string {
