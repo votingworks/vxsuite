@@ -10,10 +10,10 @@ import {
   ApiMock,
   MOCK_PRINTER_CONFIG,
   createApiMock,
-} from '../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { PrinterAlertWrapper } from './printer_alert_wrapper';
-import { screen } from '../../test/react_testing_library';
+} from '../../test/helpers/mock_api_client.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { PrinterAlertWrapper } from './printer_alert_wrapper.js';
+import { screen } from '../../test/react_testing_library.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

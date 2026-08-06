@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
-import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer.js';
 import {
   reportParentRoutes,
   ReportScreenContainer,
-} from '../../components/reporting/shared';
+} from '../../components/reporting/shared.js';
 
 export const TITLE = 'Voting Method Ballot Count Report';
 

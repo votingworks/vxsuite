@@ -5,18 +5,18 @@ import {
 
 import styled from 'styled-components';
 import { useContext } from 'react';
-import { NavigationScreen } from '../components/navigation_screen';
+import { NavigationScreen } from '../components/navigation_screen.js';
 import {
   getMostRecentPrinterDiagnostic,
   getPrinterStatus,
   getDiskSpaceSummary,
   saveReadinessReport,
   getUsbDriveStatus,
-} from '../api';
-import { systemCallApi } from '../shared_api';
-import { Loading } from '../components/loading';
-import { PrintTestPageButton } from '../components/print_test_page_button';
-import { AppContext } from '../contexts/app_context';
+} from '../api.js';
+import { systemCallApi } from '../shared_api.js';
+import { Loading } from '../components/loading.js';
+import { PrintTestPageButton } from '../components/print_test_page_button.js';
+import { AppContext } from '../contexts/app_context.js';
 
 const PageLayout = styled.div`
   display: flex;

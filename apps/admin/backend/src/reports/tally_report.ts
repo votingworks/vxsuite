@@ -8,13 +8,13 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
-import { generateTitleForReport } from './titles';
-import { Store } from '../store';
-import { getCurrentTime } from '../util/get_current_time';
-import { TallyReportWarning, getTallyReportWarning } from './warnings';
-import { ExportDataResult } from '../types';
-import { generateReportsDirectoryPath } from '../util/filenames';
-import { buildExporter } from '../util/exporter';
+import { generateTitleForReport } from './titles.js';
+import { Store } from '../store.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { TallyReportWarning, getTallyReportWarning } from './warnings.js';
+import { ExportDataResult } from '../types.js';
+import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { buildExporter } from '../util/exporter.js';
 
 /**
  * Parameters that define a tally report.

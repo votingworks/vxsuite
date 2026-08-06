@@ -25,9 +25,9 @@ import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
   saveTmpFile,
-} from '../test/app';
-import { mockFileName } from '../test/csv';
-import { generateReportPath } from './util/filenames';
+} from '../test/app.js';
+import { mockFileName } from '../test/csv.js';
+import { generateReportPath } from './util/filenames.js';
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 vi.mock(import('./util/get_current_time.js'), async (importActual) => ({

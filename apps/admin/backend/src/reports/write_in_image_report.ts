@@ -17,12 +17,12 @@ import {
 import { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
-import { Store } from '../store';
-import { getCurrentTime } from '../util/get_current_time';
-import { ExportDataResult, WriteInRecord } from '../types';
-import { buildExporter } from '../util/exporter';
-import { generateReportsDirectoryPath } from '../util/filenames';
-import { rootDebug } from '../util/debug';
+import { Store } from '../store.js';
+import { getCurrentTime } from '../util/get_current_time.js';
+import { ExportDataResult, WriteInRecord } from '../types.js';
+import { buildExporter } from '../util/exporter.js';
+import { generateReportsDirectoryPath } from '../util/filenames.js';
+import { rootDebug } from '../util/debug.js';
 
 const debug = rootDebug.extend('write-in-image-report');
 

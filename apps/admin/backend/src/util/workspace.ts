@@ -3,8 +3,8 @@ import { join, resolve } from 'node:path';
 import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
-import { Store } from '../store';
-import { ClientStore } from '../client_store';
+import { Store } from '../store.js';
+import { ClientStore } from '../client_store.js';
 
 /**
  * Shared workspace interface for both host and client machines.

@@ -24,15 +24,15 @@ import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { addMockCvrFileToStore } from '../test/mock_cvr_file';
-import { Store } from './store';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
+import { Store } from './store.js';
 import {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,
-} from './types';
-import { getCurrentTime } from './get_current_time';
-import { STALE_MACHINE_THRESHOLD_MS } from './globals';
+} from './types.js';
+import { getCurrentTime } from './get_current_time.js';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 
 vi.mock('./get_current_time');
 

@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react';
 
 import { Button, StyledButtonProps, Modal, P } from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
-import { Loading } from './loading';
-import { getPrinterStatus } from '../api';
+import { Loading } from './loading.js';
+import { getPrinterStatus } from '../api.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 

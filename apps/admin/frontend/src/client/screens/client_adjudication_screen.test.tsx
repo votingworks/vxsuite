@@ -6,14 +6,14 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
-import { screen } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library.js';
 import {
   ClientApiMock,
   createClientApiMock,
-} from '../../../test/helpers/mock_client_api_client';
-import { renderInClientContext } from '../../../test/render_in_client_context';
-import { routerPaths } from '../../router_paths';
-import { ClientAdjudicationScreen } from './client_adjudication_screen';
+} from '../../../test/helpers/mock_client_api_client.js';
+import { renderInClientContext } from '../../../test/render_in_client_context.js';
+import { routerPaths } from '../../router_paths.js';
+import { ClientAdjudicationScreen } from './client_adjudication_screen.js';
 
 let apiMock: ClientApiMock;
 

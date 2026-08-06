@@ -10,10 +10,10 @@ import {
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { Store } from '../store';
-import { tabulateElectionResults } from './full_results';
-import { tabulateManualResults } from './manual_results';
-import { rootDebug } from '../util/debug';
+import { Store } from '../store.js';
+import { tabulateElectionResults } from './full_results.js';
+import { tabulateManualResults } from './manual_results.js';
+import { rootDebug } from '../util/debug.js';
 
 const debug = rootDebug.extend('tabulation');
 

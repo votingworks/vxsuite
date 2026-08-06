@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateWithoutTime } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { areClosedPollsActionsBlocked } from './closed_polls_actions';
+import { areClosedPollsActionsBlocked } from './closed_polls_actions.js';
 
 const ELECTION_DATE = new DateWithoutTime('2026-11-03');
 const POLLS_CLOSE_TIME = '20:00:00';

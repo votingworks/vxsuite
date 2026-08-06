@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { deferred } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { ApiClient, ApiClientContext, createQueryClient } from '../api';
-import { useWatchUsbDriveStatus } from './use_watch_usb_drive_status';
+import { ApiClient, ApiClientContext, createQueryClient } from '../api.js';
+import { useWatchUsbDriveStatus } from './use_watch_usb_drive_status.js';
 
 const USB_DRIVE_STATUS_QUERY_KEY = ['getUsbDriveStatus'];
 

@@ -3,10 +3,10 @@ import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import { PollingPlace } from '@votingworks/types';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
-import { SendTallyReportsScreen, TITLE } from './send_tally_reports_screen';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { screen, waitFor, within } from '../../../test/react_testing_library.js';
+import { SendTallyReportsScreen, TITLE } from './send_tally_reports_screen.js';
 
 let apiMock: ApiMock;
 

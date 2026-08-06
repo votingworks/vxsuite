@@ -26,10 +26,10 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
-import { Api } from '.';
-import { mockFileName } from '../test/csv';
-import { generateReportPath } from './util/filenames';
+} from '../test/app.js';
+import { Api } from './index.js';
+import { mockFileName } from '../test/csv.js';
+import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({
   testTimeout: 60_000,

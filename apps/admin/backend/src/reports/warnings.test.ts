@@ -16,7 +16,7 @@ import {
   TallyReportWarning,
   getBallotCountReportWarning,
   getTallyReportWarning,
-} from './warnings';
+} from './warnings.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 

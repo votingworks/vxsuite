@@ -13,8 +13,8 @@ import {
   groupMapToGroupList,
   mergeWriteInTallies,
 } from '@votingworks/utils';
-import { Store } from './store';
-import { tabulateElectionResults } from './tabulation/full_results';
+import { Store } from './store.js';
+import { tabulateElectionResults } from './tabulation/full_results.js';
 
 /**
  * Returns the polling places that the loaded central scanner CVRs are

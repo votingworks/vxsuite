@@ -6,13 +6,13 @@ import {
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
 import {
   TITLE,
   WriteInImageReportScreen,
-} from './write_in_image_report_screen';
-import { fireEvent, screen, within } from '../../../test/react_testing_library';
+} from './write_in_image_report_screen.js';
+import { fireEvent, screen, within } from '../../../test/react_testing_library.js';
 
 let apiMock: ApiMock;
 

@@ -27,20 +27,20 @@ import type {
   WriteInRecord,
 } from '@votingworks/admin-backend';
 import { contestOptionName, format } from '@votingworks/utils';
-import { AppContext } from '../contexts/app_context';
+import { AppContext } from '../contexts/app_context.js';
 import {
   BallotStaticImageViewer,
   BallotZoomImageViewer,
   UnableToLoadImageCallout,
-} from '../components/adjudication_ballot_image_viewer';
-import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
-import { ContestOptionButton } from '../components/contest_option_button';
-import { contestPartyLabel, getOptionCoordinates } from '../utils/adjudication';
+} from '../components/adjudication_ballot_image_viewer.js';
+import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button.js';
+import { ContestOptionButton } from '../components/contest_option_button.js';
+import { contestPartyLabel, getOptionCoordinates } from '../utils/adjudication.js';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
-} from '../components/adjudication_double_vote_alert_modal';
-import { DiscardChangesModal } from '../components/discard_changes_modal';
+} from '../components/adjudication_double_vote_alert_modal.js';
+import { DiscardChangesModal } from '../components/discard_changes_modal.js';
 import {
   useContestAdjudicationState,
   isWriteInPending,
@@ -48,7 +48,7 @@ import {
   isValidCandidate,
   MarginalMarkStatus,
   WriteInAdjudicationStatus,
-} from '../hooks/use_contest_adjudication_state';
+} from '../hooks/use_contest_adjudication_state.js';
 
 const DEFAULT_PADDING = '0.75rem';
 // Update the corresponding constant in 'components/adjudication_ballot_image_viewer.tsx' if this changes

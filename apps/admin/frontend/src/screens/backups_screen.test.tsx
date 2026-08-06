@@ -5,11 +5,11 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
-import { screen } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library.js';
 
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { BackupsScreen } from './backups_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { BackupsScreen } from './backups_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports

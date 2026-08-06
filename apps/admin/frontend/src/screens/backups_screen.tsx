@@ -1,5 +1,5 @@
 import { P } from '@votingworks/ui';
-import { NavigationScreen } from '../components/navigation_screen';
+import { NavigationScreen } from '../components/navigation_screen.js';
 
 export function BackupsScreen(): JSX.Element {
   return (

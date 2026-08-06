@@ -1,9 +1,9 @@
 import { Buffer } from 'node:buffer';
 import { BallotPageLayout, Id, mapSheet, Rect, Side } from '@votingworks/types';
 import { loadImageMetadata } from '@votingworks/image-utils';
-import { Store } from '../store';
-import { BallotImages, BallotPageImage } from '../types';
-import { rootDebug } from './debug';
+import { Store } from '../store.js';
+import { BallotImages, BallotPageImage } from '../types.js';
+import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('adjudication');
 

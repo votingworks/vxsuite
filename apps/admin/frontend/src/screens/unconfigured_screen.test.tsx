@@ -3,17 +3,17 @@ import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen, within } from '../../test/react_testing_library';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { screen, within } from '../../test/react_testing_library.js';
 
-import { UnconfiguredScreen } from './unconfigured_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { UnconfiguredScreen } from './unconfigured_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 let mockNodeEnv: 'development' | 'test' = 'test';
 
 vi.mock(
   '../config/globals.js',
-  async (importActual): Promise<typeof import('../config/globals')> => ({
+  async (importActual): Promise<typeof import('../config/globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'development' | 'test' {
       return mockNodeEnv;

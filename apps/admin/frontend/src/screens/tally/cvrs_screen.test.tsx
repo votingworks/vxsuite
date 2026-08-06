@@ -8,10 +8,10 @@ import type {
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { CvrsScreen } from './cvrs_screen';
-import { createApiMock } from '../../../test/helpers/mock_api_client';
-import { screen, waitFor } from '../../../test/react_testing_library';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { CvrsScreen } from './cvrs_screen.js';
+import { createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { screen, waitFor } from '../../../test/react_testing_library.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;

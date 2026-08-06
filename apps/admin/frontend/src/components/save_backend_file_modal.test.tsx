@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen } from '../../test/react_testing_library';
-import { SaveBackendFileModal } from './save_backend_file_modal';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { screen } from '../../test/react_testing_library.js';
+import { SaveBackendFileModal } from './save_backend_file_modal.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

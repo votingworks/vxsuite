@@ -18,15 +18,15 @@ import {
   useSystemCallApi,
 } from '@votingworks/ui';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
-import { AppContext } from '../../contexts/app_context';
-import { NavigationScreen } from '../../components/navigation_screen';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   formatUsbDrive,
   getNetworkConnectionStatus,
   logOut,
   setMachineMode,
   useApiClient,
-} from '../api';
+} from '../api.js';
 
 function NetworkStatusSection(): JSX.Element {
   const networkStatusQuery = getNetworkConnectionStatus.useQuery();

@@ -43,14 +43,14 @@ import {
   mockLogger,
 } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { Api, PeerApi } from '../src';
-import { BaseStore } from '../src/types';
-import { createWorkspace } from '../src/util/workspace';
-import { buildApp } from '../src/app';
-import { buildPeerApp } from '../src/peer_app';
-import { getMachineConfig } from '../src/machine_config';
-import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
-import { getUserRole } from '../src/util/auth';
+import { Api, PeerApi } from '../src/index.js';
+import { BaseStore } from '../src/types.js';
+import { createWorkspace } from '../src/util/workspace.js';
+import { buildApp } from '../src/app.js';
+import { buildPeerApp } from '../src/peer_app.js';
+import { getMachineConfig } from '../src/machine_config.js';
+import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup.js';
+import { getUserRole } from '../src/util/auth.js';
 
 type ActualDirectory = string;
 type MockFileTree = MockFile | MockDirectory | ActualDirectory;

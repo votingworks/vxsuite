@@ -6,16 +6,16 @@ import {
   exportBallotCountReportPdf,
   getBallotCountReportPreview,
   printBallotCountReport,
-} from '../../api';
-import { ExportActions, GenerateButtonWrapper, ReportWarning } from './shared';
-import { getBallotCountReportWarningText } from './ballot_count_report_warnings';
-import { PrintButton } from '../print_button';
-import { PdfViewer } from './pdf_viewer';
-import { ExportFileButton } from './export_file_button';
+} from '../../api.js';
+import { ExportActions, GenerateButtonWrapper, ReportWarning } from './shared.js';
+import { getBallotCountReportWarningText } from './ballot_count_report_warnings.js';
+import { PrintButton } from '../print_button.js';
+import { PdfViewer } from './pdf_viewer.js';
+import { ExportFileButton } from './export_file_button.js';
 import {
   generateBallotCountReportCsvFilename,
   generateBallotCountReportPdfFilename,
-} from '../../utils/reporting';
+} from '../../utils/reporting.js';
 
 export type BallotCountReportViewerProps = BallotCountReportSpec & {
   disabled: boolean;

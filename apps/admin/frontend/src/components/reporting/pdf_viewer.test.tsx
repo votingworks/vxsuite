@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { render, screen } from '../../../test/react_testing_library';
-import { PdfViewer } from './pdf_viewer';
-import { setMockPdfNumPages } from '../../../test/react_pdf_mocks';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { PdfViewer } from './pdf_viewer.js';
+import { setMockPdfNumPages } from '../../../test/react_pdf_mocks.js';
 
 const LOADING_TEST_ID = 'pdf-loading';
 

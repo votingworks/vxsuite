@@ -15,8 +15,8 @@ import type {
 import { Button } from '@votingworks/ui';
 import { ElectionDefinition } from '@votingworks/types';
 
-import { AppContext } from '../../contexts/app_context';
-import * as api from '../../api';
+import { AppContext } from '../../contexts/app_context.js';
+import * as api from '../../api.js';
 
 export type ImportFn = (p: { path: string }) => void;
 

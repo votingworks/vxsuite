@@ -19,8 +19,8 @@ import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Admin, CandidateContest } from '@votingworks/types';
 import type { MachineRecord } from '@votingworks/admin-backend';
-import { NavigationScreen } from '../components/navigation_screen';
-import { AppContext } from '../contexts/app_context';
+import { NavigationScreen } from '../components/navigation_screen.js';
+import { AppContext } from '../contexts/app_context.js';
 import {
   getCastVoteRecordFiles,
   getBallotAdjudicationQueueMetadata,
@@ -29,9 +29,9 @@ import {
   getQualifiedWriteInCandidates,
   getSystemSettings,
   setIsClientAdjudicationEnabled,
-} from '../api';
-import { isMultiStationAdjudicationEnabled } from '../shared_api';
-import { routerPaths } from '../router_paths';
+} from '../api.js';
+import { isMultiStationAdjudicationEnabled } from '../shared_api.js';
+import { routerPaths } from '../router_paths.js';
 
 const CardStack = styled.div`
   display: flex;

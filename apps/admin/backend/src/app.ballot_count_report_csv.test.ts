@@ -18,20 +18,20 @@ import {
 } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
-import { mockFileName, parseCsv } from '../test/csv';
+import { mockFileName, parseCsv } from '../test/csv.js';
 import {
   attachUsbDrive,
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../test/mock_cvr_file';
-import { Api } from './app';
-import { generateReportPath } from './util/filenames';
-import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture';
+} from '../test/mock_cvr_file.js';
+import { Api } from './app.js';
+import { generateReportPath } from './util/filenames.js';
+import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 
 vi.setConfig({
   testTimeout: 60_000,

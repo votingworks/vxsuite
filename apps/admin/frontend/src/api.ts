@@ -17,7 +17,7 @@ import type {
   UsbDriveStatus,
   UsbPartitionMountpoint,
 } from '@votingworks/usb-drive';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals.js';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 

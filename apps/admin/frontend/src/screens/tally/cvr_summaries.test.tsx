@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import * as ui from '@votingworks/ui';
-import { render, screen } from '../../../test/react_testing_library';
-import { CvrSummaries } from './cvr_summaries';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { CvrSummaries } from './cvr_summaries.js';
 
 const progressBarSpy = vi.spyOn(ui, 'ProgressBar');
 

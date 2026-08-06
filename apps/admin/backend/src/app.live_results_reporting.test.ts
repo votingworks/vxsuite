@@ -14,8 +14,8 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
-import { addMockCvrFileToStore } from '../test/mock_cvr_file';
+} from '../test/app.js';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

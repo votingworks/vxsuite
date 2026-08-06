@@ -8,11 +8,11 @@ import type {
 } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { act, screen, within } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { AdjudicationStartScreen } from './adjudication_start_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
+import { act, screen, within } from '../../test/react_testing_library.js';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { AdjudicationStartScreen } from './adjudication_start_screen.js';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data.js';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports

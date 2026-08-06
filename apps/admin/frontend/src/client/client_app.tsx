@@ -1,15 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { BatteryLowAlert, LowDiskSpaceWarning } from '@votingworks/ui';
-import { ClientAppRoot } from './client_app_root';
+import { ClientAppRoot } from './client_app_root.js';
 import {
   ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
-} from './api';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
-import { SharedApiClientContext } from '../shared_api';
+} from './api.js';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
+import { SharedApiClientContext } from '../shared_api.js';
 
 export interface ClientAppProps {
   apiClient?: ApiClient;

@@ -11,19 +11,19 @@ import {
   ElectionRegisteredVoterCounts,
   hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
+import { AppContext } from '../../contexts/app_context.js';
 
-import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
+import { NavigationScreen } from '../../components/navigation_screen.js';
+import { routerPaths } from '../../router_paths.js';
 import {
   getTotalBallotCount,
   getCastVoteRecordFileMode,
   getRegisteredVoterCounts,
   getSystemSettings,
-} from '../../api';
-import { MarkResultsOfficialButton } from '../../components/mark_official_button';
-import { OfficialResultsCard } from '../../components/official_results_card';
-import { areClosedPollsActionsBlocked } from '../../utils/closed_polls_actions';
+} from '../../api.js';
+import { MarkResultsOfficialButton } from '../../components/mark_official_button.js';
+import { OfficialResultsCard } from '../../components/official_results_card.js';
+import { areClosedPollsActionsBlocked } from '../../utils/closed_polls_actions.js';
 
 const Section = styled.section`
   margin-bottom: 2rem;

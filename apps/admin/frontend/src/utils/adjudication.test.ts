@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { normalizeWriteInName } from './adjudication';
+import { normalizeWriteInName } from './adjudication.js';
 
 test('normalizeWriteInName', () => {
   expect(normalizeWriteInName('Name')).toEqual('name');

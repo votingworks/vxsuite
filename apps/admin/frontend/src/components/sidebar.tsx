@@ -14,7 +14,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { AppContext } from '../contexts/app_context';
+import { AppContext } from '../contexts/app_context.js';
 
 export interface SidebarProps {
   navItems: readonly NavItem[];

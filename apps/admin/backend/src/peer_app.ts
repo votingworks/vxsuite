@@ -17,8 +17,8 @@ import {
   type UserRole,
 } from '@votingworks/types';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
-import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { getMachineConfig } from './machine_config.js';
+import { Workspace } from './util/workspace.js';
 import {
   AdjudicationError,
   ElectionRecord,
@@ -27,13 +27,13 @@ import {
   BallotAdjudicationData,
   BallotImages,
   WriteInCandidateRecord,
-} from './types';
-import { rootDebug } from './util/debug';
-import { adjudicateCvr } from './adjudication';
+} from './types.js';
+import { rootDebug } from './util/debug.js';
+import { adjudicateCvr } from './adjudication.js';
 import {
   getBallotImageBuffer,
   getBallotImageMetadata,
-} from './util/adjudication';
+} from './util/adjudication.js';
 
 const debug = rootDebug.extend('peer-app');
 

@@ -3,13 +3,13 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen } from '../../../test/react_testing_library';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import { renderInAppContext } from '../../../test/render_in_app_context.js';
+import { screen } from '../../../test/react_testing_library.js';
 import {
   PrecinctBallotCountReport,
   TITLE,
-} from './precinct_ballot_count_report_screen';
+} from './precinct_ballot_count_report_screen.js';
 
 let apiMock: ApiMock;
 

@@ -5,9 +5,9 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { ClientStore, HostConnection } from './client_store';
-import { ClientConnectionStatus, ElectionRecord } from './types';
-import type { PeerApi } from './peer_app';
+import { ClientStore, HostConnection } from './client_store.js';
+import { ClientConnectionStatus, ElectionRecord } from './types.js';
+import type { PeerApi } from './peer_app.js';
 
 function createMockPeerApiClient(): grout.Client<PeerApi> {
   // Not calling any API methods in these tests, just storing the reference

@@ -109,12 +109,12 @@ import {
   ContestOptionAdjudicationData,
   AdjudicatedCvrContest,
   AdjudicationError,
-} from './types';
-import { buildAdjudicatedContestOption } from './adjudication';
-import { deriveCvrContestTag } from './util/cast_vote_records';
-import { rootDebug } from './util/debug';
-import { getCurrentTime } from './get_current_time';
-import { STALE_MACHINE_THRESHOLD_MS } from './globals';
+} from './types.js';
+import { buildAdjudicatedContestOption } from './adjudication.js';
+import { deriveCvrContestTag } from './util/cast_vote_records.js';
+import { rootDebug } from './util/debug.js';
+import { getCurrentTime } from './get_current_time.js';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 
 const debug = rootDebug.extend('store');
 
@@ -128,7 +128,7 @@ type StoreCastVoteRecordAttributes = Omit<
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string

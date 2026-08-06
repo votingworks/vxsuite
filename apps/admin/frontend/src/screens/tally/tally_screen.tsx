@@ -13,13 +13,13 @@ import {
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { isCombinedBallotPrimary } from '@votingworks/types';
-import { AppContext } from '../../contexts/app_context';
-import { NavScreenLite } from '../../components/navigation_screen';
-import { ManualTalliesTab } from './manual_tallies_tab';
-import { routerPaths } from '../../router_paths';
-import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal';
-import { BORDER_LIGHT, GAP } from './styles';
-import { CvrsScreen } from './cvrs_screen';
+import { AppContext } from '../../contexts/app_context.js';
+import { NavScreenLite } from '../../components/navigation_screen.js';
+import { ManualTalliesTab } from './manual_tallies_tab.js';
+import { routerPaths } from '../../router_paths.js';
+import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal.js';
+import { BORDER_LIGHT, GAP } from './styles.js';
+import { CvrsScreen } from './cvrs_screen.js';
 
 const Container = styled.div`
   display: grid;

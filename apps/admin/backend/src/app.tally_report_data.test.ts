@@ -21,16 +21,16 @@ import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
-} from '../test/app';
+} from '../test/app.js';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
-} from '../test/mock_cvr_file';
+} from '../test/mock_cvr_file.js';
 import {
   seedCombinedBallotPrimaryCvrsAndAdjudications,
   seedCombinedBallotPrimaryWriteIns,
-} from '../test/combined_ballot_primary_fixture';
-import { AdjudicatedContestOption } from './types';
+} from '../test/combined_ballot_primary_fixture.js';
+import { AdjudicatedContestOption } from './types.js';
 
 vi.setConfig({
   testTimeout: 60_000,

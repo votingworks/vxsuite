@@ -8,7 +8,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { buildTestEnvironment, configureMachine } from '../test/app';
+import { buildTestEnvironment, configureMachine } from '../test/app.js';
 
 beforeEach(() => {
   process.env = { ...process.env, VX_MACHINE_JURISDICTION: TEST_JURISDICTION };

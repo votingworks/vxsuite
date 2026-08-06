@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import type { BallotCountReportWarning } from '@votingworks/admin-backend';
-import { getBallotCountReportWarningText } from './ballot_count_report_warnings';
+import { getBallotCountReportWarningText } from './ballot_count_report_warnings.js';
 
 test('getBallotCountReportWarningText', () => {
   const testCase: Array<{

@@ -2,10 +2,10 @@ import { afterEach, beforeEach, test } from 'vitest';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { screen } from '../test/react_testing_library';
-import { renderRootElement } from '../test/render_in_app_context';
-import { AppRoot } from './app_root';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { screen } from '../test/react_testing_library.js';
+import { renderRootElement } from '../test/render_in_app_context.js';
+import { AppRoot } from './app_root.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

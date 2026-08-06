@@ -4,7 +4,7 @@ import type { TallyReportWarning } from '@votingworks/admin-backend';
 import {
   getTallyReportWarningText,
   TallyReportWarningText,
-} from './tally_report_warnings';
+} from './tally_report_warnings.js';
 
 test('getTallyReportWarningText', () => {
   const election = readElectionTwoPartyPrimary();

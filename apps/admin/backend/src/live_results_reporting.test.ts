@@ -18,15 +18,15 @@ import {
   decodeAndReadPerPrecinctCompressedTally,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { Store } from './store';
+import { Store } from './store.js';
 import {
   generateAdminLiveResultsReportingUrls,
   getLiveReportsPollingPlaces,
-} from './live_results_reporting';
+} from './live_results_reporting.js';
 import {
   addMockCvrFileToStore,
   MockCastVoteRecordFile,
-} from '../test/mock_cvr_file';
+} from '../test/mock_cvr_file.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

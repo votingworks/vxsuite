@@ -9,9 +9,9 @@ import {
   H1,
   H3,
 } from '@votingworks/ui';
-import { AppContext } from '../../contexts/app_context';
-import { getNetworkConnectionStatus } from '../api';
-import { UnconfiguredNetworkStatusIndicator } from '../components/unconfigured_network_status_indicator';
+import { AppContext } from '../../contexts/app_context.js';
+import { getNetworkConnectionStatus } from '../api.js';
+import { UnconfiguredNetworkStatusIndicator } from '../components/unconfigured_network_status_indicator.js';
 
 const LockedImage = styled.img`
   margin-right: auto;

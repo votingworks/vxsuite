@@ -27,27 +27,27 @@ import {
   startHostNetworking,
   startClientNetworking,
   getHostServiceName,
-} from './networking';
-import { buildPeerApp } from './peer_app';
-import type { PeerApi } from './peer_app';
-import { buildClientApp } from './client_app';
-import type { ClientApi } from './client_app';
-import { Store } from './store';
-import { ClientConnectionStatus } from './types';
-import { addMockCvrFileToStore } from '../test/mock_cvr_file';
+} from './networking.js';
+import { buildPeerApp } from './peer_app.js';
+import type { PeerApi } from './peer_app.js';
+import { buildClientApp } from './client_app.js';
+import type { ClientApi } from './client_app.js';
+import { Store } from './store.js';
+import { ClientConnectionStatus } from './types.js';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import {
   buildMockLogger,
   mockElectionManagerAuth,
   mockMachineLocked,
-} from '../test/app';
+} from '../test/app.js';
 
-import { ClientStore } from './client_store';
-import { createClientWorkspace, createWorkspace } from './util/workspace';
+import { ClientStore } from './client_store.js';
+import { createClientWorkspace, createWorkspace } from './util/workspace.js';
 import {
   NETWORK_POLLING_INTERVAL_MS,
   STALE_MACHINE_THRESHOLD_MS,
-} from './globals';
-import { getCurrentTime } from './get_current_time';
+} from './globals.js';
+import { getCurrentTime } from './get_current_time.js';
 
 vi.mock('./get_current_time');
 

@@ -11,13 +11,13 @@ import {
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 
-import { CvrSummaries } from './cvr_summaries';
-import { GAP, INSET_FOCUS_OUTLINE } from './styles';
-import { LocationFilter, LocationFilterBar } from './location_filter_bar';
-import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
-import { CvrsState, useCvrsState } from './cvrs_state';
-import { LocationList } from './location_list';
-import { CvrImportPanel } from './cvr_import_panel';
+import { CvrSummaries } from './cvr_summaries.js';
+import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
+import { LocationFilter, LocationFilterBar } from './location_filter_bar.js';
+import { RemoveAllCvrsModal } from './remove_all_cvrs_modal.js';
+import { CvrsState, useCvrsState } from './cvrs_state.js';
+import { LocationList } from './location_list.js';
+import { CvrImportPanel } from './cvr_import_panel.js';
 
 const TEST_MODE_CONTAINER_CSS = css`
   grid-template-rows: min-content min-content 1fr;
