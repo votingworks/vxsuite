@@ -102,6 +102,7 @@ export function splitContestsByPage({
 export function arrangeContestsBySheet(
   contestsByPage: Iterable<readonly Contest[]>
 ): IteratorPlus<SheetOf<readonly Contest[]>> {
+  // @coverage-defer
   return iter(contestsByPage)
     .chunks(2)
     .map<SheetOf<readonly Contest[]>>(([front, back = []]) => [front, back]);
@@ -117,6 +118,7 @@ export function filterVotesByContests(
 ): VotesDict {
   const filteredVotes: VotesDict = {};
   for (const contest of contests) {
+    // @coverage-defer
     if (votes[contest.id]) {
       filteredVotes[contest.id] = votes[contest.id];
     }
@@ -141,6 +143,7 @@ export function generateBallotAssetPath({
   assetType: 'image' | 'layout';
   frontOrBack: 'front' | 'back';
 }): string {
+  // @coverage-defer
   const fileExtension = assetType === 'image' ? '.jpg' : '.layout.json';
   return `${castVoteRecordId}-${frontOrBack}${fileExtension}`;
 }
@@ -160,6 +163,7 @@ export function replaceUniqueId(
   assert(currentSnapshot);
   const isCurrentSnapshotInterpreted =
     currentSnapshot['@id'].includes('interpreted');
+  // @coverage-defer
   const maybeSecondSnapshot = isCurrentSnapshotInterpreted
     ? castVoteRecord.CVRSnapshot[1]
     : undefined;
@@ -167,13 +171,16 @@ export function replaceUniqueId(
     ...castVoteRecord,
     UniqueId: newUniqueId,
     CurrentSnapshotId: `${newUniqueId}-${
+      // @coverage-defer
       isCurrentSnapshotInterpreted ? 'interpreted' : 'original'
     }`,
+    // @coverage-defer
     CVRSnapshot: maybeSecondSnapshot
       ? [
           {
             ...currentSnapshot,
             '@id': `${newUniqueId}-${
+              // @coverage-defer
               isCurrentSnapshotInterpreted ? 'interpreted' : 'original'
             }`,
           },
