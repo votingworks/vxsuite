@@ -1,6 +1,6 @@
 import { Result, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { MAX_UINT8, MIN_UINT8 } from './constants';
+import { MAX_UINT8, MIN_UINT8 } from './constants.js';
 import {
   BitLength,
   BitOffset,
@@ -9,8 +9,8 @@ import {
   DecodeResult,
   EncodeResult,
   Uint8,
-} from './types';
-import { UintCoder } from './uint_coder';
+} from './types.js';
+import { UintCoder } from './uint_coder.js';
 
 /**
  * Coder for a uint8, aka an 8-bit unsigned integer.

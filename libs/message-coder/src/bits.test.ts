@@ -8,7 +8,7 @@ import {
   toBitOffset,
   toByteLength,
   toByteOffset,
-} from './bits';
+} from './bits.js';
 
 test('toByteLength', () => {
   expect(toByteLength(0)).toEqual(0);

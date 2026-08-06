@@ -1,7 +1,7 @@
 import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { BITS_PER_BYTE, bufferContainsBitOffset, toByteOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { BITS_PER_BYTE, bufferContainsBitOffset, toByteOffset } from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -9,7 +9,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Coder for a uint1, aka a boolean.
