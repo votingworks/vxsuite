@@ -50,6 +50,13 @@ export function main({ stdout }: IO): void {
     fs.copyFileSync(join(WORKSPACE_ROOT, file), join(outRoot, basename(file)));
   }
 
+  // `pnpm.patchedDependencies` in the root package.json points at patch files by
+  // path, so `pnpm install` in the copied workspace needs them alongside it.
+  const patchesDir = join(WORKSPACE_ROOT, 'patches');
+  if (existsSync(patchesDir)) {
+    fs.cpSync(patchesDir, join(outRoot, 'patches'), { recursive: true });
+  }
+
   for (const { path } of allPackages) {
     stdout.write(`📦 packing ${path}\n`);
     doCopy(path, outRoot);
