@@ -462,6 +462,76 @@ function generateMoonCiJob(): string[] {
   ];
 }
 
+// Single-container baseline (NO sharding) for a direct comparison against the
+// 3-shard `moon-ci` job: same executor, resource_class, and MOON_CONCURRENCY, so
+// the only variable is sharding on/off. It targets an ISOLATED remote-cache
+// instance (`vxsuite-baseline`) so its cold-then-warm timings neither read from
+// nor pollute the sharded job's `vxsuite` cache — first run measures cold
+// single-container, a same-commit re-run measures warm. Step boilerplate is
+// duplicated from generateMoonCiJob() rather than shared, to keep that working
+// job byte-for-byte untouched while we prototype.
+function generateMoonCiBaselineJob(): string[] {
+  return [
+    `moon-ci-baseline:`,
+    `  executor: nodejs`,
+    `  resource_class: xlarge`,
+    `  environment:`,
+    `    MOON_CONCURRENCY: '4'`,
+    // Isolated cold cache namespace (an S3 folder) so this baseline doesn't
+    // share hits with the sharded job's warm `vxsuite` instance.
+    `    MOON_REMOTE_CACHE_INSTANCE_NAME: 'vxsuite-baseline'`,
+    `  steps:`,
+    `    - checkout-and-install:`,
+    `        is_node_package: true`,
+    `    - run:`,
+    `        name: Install moon`,
+    `        command: |`,
+    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
+    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    `    - restore_cache:`,
+    `        keys:`,
+    `          - moon-baseline-{{ .Branch }}-{{ .Revision }}`,
+    `          - moon-baseline-{{ .Branch }}-`,
+    `          - moon-baseline-main-`,
+    `    - run:`,
+    `        name: moon ci (single container)`,
+    `        command: |`,
+    `          set +e`,
+    `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
+    `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
+    `            export MOON_REMOTE_HOST`,
+    `            echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST], instance=$MOON_REMOTE_CACHE_INSTANCE_NAME"`,
+    `          else`,
+    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset)"`,
+    `          fi`,
+    // No --job/--job-total: run the whole affected graph in one container.
+    `          moon ci --downstream none --summary`,
+    `          echo $? > /tmp/moon-exit-code`,
+    `          for d in $(find .moon/cache/states -mindepth 2 -maxdepth 2 -type d); do`,
+    `            o="$d/stdout.log"`,
+    `            if [ -f "$o" ] && grep -qE "[0-9]+ failed" "$o"; then`,
+    `              echo "===== FAILED TASK: $d ====="; tail -120 "$o"`,
+    `              echo "--- stderr ---"; tail -60 "$d/stderr.log" 2>/dev/null`,
+    `            fi`,
+    `          done`,
+    `          exit 0`,
+    `    - save_cache:`,
+    `        key: moon-baseline-{{ .Branch }}-{{ .Revision }}`,
+    `        paths:`,
+    `          - .moon/cache/hashes`,
+    `          - .moon/cache/outputs`,
+    `    - store_artifacts:`,
+    `        path: .moon/cache/states`,
+    `        destination: moon-baseline-task-logs`,
+    `    - run:`,
+    `        name: Propagate moon ci exit code`,
+    `        command: |`,
+    `          code=$(cat /tmp/moon-exit-code)`,
+    `          echo "moon ci exit code: $code"`,
+    `          exit "$code"`,
+  ];
+}
+
 // PROTOTYPE ONLY: a slim config that runs *just* the experimental `moon-ci` job,
 // so we don't spend compute on the ~60 per-package jobs while iterating on the
 // moon migration. Regenerate the full config by running the generator without
@@ -490,11 +560,17 @@ jobs:
 ${generateMoonCiJob()
   .map((line) => `  ${line}`)
   .join('\n')}
+${generateMoonCiBaselineJob()
+  .map((line) => `  ${line}`)
+  .join('\n')}
 
 workflows:
   moon-experiment:
     jobs:
       - moon-ci:
+          context:
+            - screenshots-publishing
+      - moon-ci-baseline:
           context:
             - screenshots-publishing
 
