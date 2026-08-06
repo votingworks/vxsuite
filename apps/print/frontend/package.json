@@ -90,7 +90,6 @@
     "is-ci-cli": "2.2.0",
     "react-app-polyfill": "3.0.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "29.1.1",
     "vite": "8.0.16",
     "vitest": "^4.1.6"
   },

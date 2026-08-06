@@ -43,7 +43,6 @@
     "eslint": "8.57.0",
     "husky": "^7.0.0",
     "lint-staged": "^15.0.0",
-    "ora": "^5.2.0",
     "postcss-styled-syntax": "^0.4.0",
     "prettier": "^3.0.3",
     "sort-package-json": "^1.50.0",

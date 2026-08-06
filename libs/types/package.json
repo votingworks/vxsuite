@@ -51,7 +51,6 @@
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "fast-glob": "^3.2.11",
     "is-ci-cli": "2.2.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.set": "^4.3.2",
