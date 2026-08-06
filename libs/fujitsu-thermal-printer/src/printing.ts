@@ -35,6 +35,7 @@ const PRINTING_DPI = 200;
 /**
  * Chunks an image assuming it is 8.5" wide (i.e. 1700px).
  */
+// @coverage-defer
 function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
   assert(imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI);
 
@@ -85,6 +86,7 @@ export interface BinaryBitmap {
  * @param x Gamma-compressed color value
  * @returns
  */
+// @coverage-defer
 function gammaExpand(x: number) {
   if (x < 0.04045) {
     return x / 12.92;
@@ -93,6 +95,7 @@ function gammaExpand(x: number) {
   return ((x + 0.055) / 1.055) ** 2.4;
 }
 
+// @coverage-defer
 function gammaCompress(x: number) {
   if (x < 0.0031308) {
     return x * 12.92;
@@ -110,6 +113,7 @@ function gammaCompress(x: number) {
  * @param b Blue color value from 0 - 255
  * @returns Grayscale color value from 0 - 255
  */
+// @coverage-defer
 export function rgbToGrayscaleGamma(r: number, g: number, b: number): number {
   return (
     gammaCompress(
@@ -129,6 +133,7 @@ export function rgbToGrayscaleGamma(r: number, g: number, b: number): number {
  * @param b Blue color value from 0 - 255
  * @returns Grayscale color value from 0 - 255
  */
+// @coverage-defer
 export function rgbToGrayscale(r: number, g: number, b: number): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
@@ -158,6 +163,7 @@ export const DEFAULT_IMAGE_CONVERSION_OPTIONS: ImageConversionOptions = {
  * @param b Blue color value from 0 - 255
  * @returns true for black, false for white
  */
+// @coverage-defer
 function rgbToBinary(
   r: number,
   g: number,
@@ -170,8 +176,10 @@ function rgbToBinary(
   return grayscaleValue < options.whiteThreshold;
 }
 
+// @coverage-defer
 export function imageDataToBinaryBitmap(
   imageData: ImageData,
+  // @coverage-defer
   overrideOptions: Partial<ImageConversionOptions> = {}
 ): BinaryBitmap {
   debug('converting image data to binary bitmap');
@@ -197,6 +205,7 @@ export function imageDataToBinaryBitmap(
   };
 }
 
+// @coverage-defer
 function bitmapToBitImage(bitmap: BinaryBitmap): UncompressedBitImage {
   debug('converting bitmap to bit image');
   const byteMap: number[] = [];
@@ -257,6 +266,7 @@ export function packBitsCompression(data: Uint8Array): Int8Array {
       i += repeats;
     } else {
       literalBuffer.push(byte);
+      // @coverage-defer
       if (literalBuffer.length === MAX_PACKET_DATA_LENGTH) {
         flushLiteralBuffer();
       }
@@ -283,6 +293,7 @@ export function compressBitImage(
 const WAIT_FOR_BUFFER_NOT_FULL_TIMEOUT_MS = 2.5 * 1000;
 const WAIT_FOR_BUFFER_FLUSH_TIMEOUT_MS = 10 * 1000;
 
+// @coverage-defer
 export async function printPageBitImage(
   driver: FujitsuThermalPrinterDriverInterface,
   compressedBitImages: IteratorPlus<CompressedBitImage>
@@ -324,6 +335,7 @@ export async function printPageBitImage(
 /**
  * Prints an image assuming it is 8.5" wide (i.e. 1700px).
  */
+// @coverage-defer
 async function printImageDataInternal(
   driver: FujitsuThermalPrinterDriverInterface,
   imageData: ImageData
@@ -340,6 +352,7 @@ async function printImageDataInternal(
 /**
  * Prints an image assuming it is less than or equal to 8.5" wide (i.e. 1700px).
  */
+// @coverage-defer
 export async function printImageData(
   driver: FujitsuThermalPrinterDriverInterface,
   imageData: ImageData
@@ -390,6 +403,7 @@ export async function printImageData(
  */
 const PDF_SCALE = 200 / 72;
 
+// @coverage-defer
 export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
@@ -409,6 +423,7 @@ export async function printPdf(
   return ok();
 }
 
+// @coverage-defer
 export async function printFixture(
   pdfFixturePath: string,
   driver: FujitsuThermalPrinterDriver

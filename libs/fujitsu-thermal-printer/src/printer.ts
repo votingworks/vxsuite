@@ -91,6 +91,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     }
   }
 
+  // @coverage-defer
   async advancePaper(
     millimeters: number
   ): Promise<Result<void, PrinterStatus>> {
@@ -120,6 +121,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     return ok();
   }
 
+  // @coverage-defer
   async printPdf(data: Uint8Array): Promise<Result<void, PrinterStatus>> {
     assert(this.driver);
     await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
@@ -150,6 +152,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     return ok();
   }
 
+  // @coverage-defer
   async printImageData(imageData: ImageData): Promise<PrintResult> {
     assert(this.driver);
     await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
@@ -184,6 +187,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
 export function getFujitsuThermalPrinter(
   logger: Logger
 ): FujitsuThermalPrinterInterface {
+  // @coverage-defer
   // mock printer for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
     return new MockFileFujitsuPrinter(

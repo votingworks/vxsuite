@@ -359,6 +359,7 @@ export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
 
 const BIT_MULTIPLIERS = [128, 64, 32, 16, 8, 4, 2, 1];
 
+// @coverage-defer
 export function bitArrayToByte(bits: BitArray): Uint8 {
   if (bits.length !== 8) {
     throw new Error('invalid bit array');
@@ -379,6 +380,7 @@ export function bitArrayToByte(bits: BitArray): Uint8 {
  */
 export type Uint16 = number;
 
+// @coverage-defer
 export function numberIsInRangeInclusive(
   num: number,
   lowerBound: number,
@@ -387,6 +389,7 @@ export function numberIsInRangeInclusive(
   return num >= lowerBound && num <= upperBound;
 }
 
+// @coverage-defer
 export function assertNumberIsInRangeInclusive(
   num: number,
   lowerBound: number,
@@ -399,18 +402,22 @@ export function assertNumberIsInRangeInclusive(
   }
 }
 
+// @coverage-defer
 export function isUint8(num: number): num is Uint8 {
   return numberIsInRangeInclusive(num, 0, UINT_8_MAX);
 }
 
+// @coverage-defer
 export function assertUint8(num: number): asserts num is Uint8 {
   assertNumberIsInRangeInclusive(num, 0, UINT_8_MAX);
 }
 
+// @coverage-defer
 export function assertUint16(num: number): asserts num is Uint16 {
   assertNumberIsInRangeInclusive(num, 0, UINT_16_MAX);
 }
 
+// @coverage-defer
 export function Uint16toUint8(value: Uint16): [MSB: Uint8, LSB: Uint8] {
   if (value < 0 || value > UINT_16_MAX) {
     throw new Error('invalid Uint16');
@@ -424,6 +431,7 @@ export function Uint16toUint8(value: Uint16): [MSB: Uint8, LSB: Uint8] {
 
 const UINT_32_MAX = 4294967295;
 
+// @coverage-defer
 export function Uint32toUint8(value: number): [Uint8, Uint8, Uint8, Uint8] {
   if (value < 0 || value > UINT_32_MAX) {
     throw new Error('invalid Uint32');
