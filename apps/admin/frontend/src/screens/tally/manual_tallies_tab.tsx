@@ -45,8 +45,6 @@ import {
   VotingMethodLabel,
 } from './manual_tallies_shared_components.js';
 
-export const TITLE = 'Manual Tallies';
-
 export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'precinct',
   'absentee',

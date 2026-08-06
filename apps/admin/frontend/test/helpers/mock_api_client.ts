@@ -35,10 +35,8 @@ import {
 import {
   Admin,
   BallotPageLayout,
-  BallotStyleGroupId,
   BallotType,
   ContestId,
-  ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
   DiagnosticRecord,
   DippedSmartCardAuth,
@@ -447,20 +445,6 @@ export function createApiMock(
           .expectOptionalRepeatedCallsWith()
           .resolves(cvrId);
       }
-    },
-
-    expectGetCastVoteRecordVoteInfo(
-      input: { cvrId: Id },
-      votes: Record<ContestId, ContestOptionId[]>,
-      ballotStyleGroupId?: BallotStyleGroupId
-    ) {
-      apiClient.getCastVoteRecordVoteInfo.expectCallWith(input).resolves({
-        votes,
-        id: input.cvrId,
-        electionId: 'electionId',
-        ballotStyleGroupId: ballotStyleGroupId ?? '1M',
-        markScores: null,
-      });
     },
 
     expectGetBallotImages(
