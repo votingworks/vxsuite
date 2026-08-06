@@ -131,6 +131,44 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon ci exit code: $code"
             exit "$code"
+  moon-e2e:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/admin/integration-testing exec playwright install-deps
+            pnpm --dir apps/admin/integration-testing exec playwright install chromium
+      - run:
+          name: moon run e2e (non-required)
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            moon run admin-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/admin/integration-testing/test-results
+      - store_artifacts:
+          path: apps/admin/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
 
 workflows:
   moon-experiment:
@@ -139,6 +177,11 @@ workflows:
           context:
             - screenshots-publishing
       - moon-ci-baseline:
+          context:
+            - screenshots-publishing
+      # NON-REQUIRED lane — mark this job's status non-required in branch
+      # protection so slow/flaky e2e doesn't block merges.
+      - moon-e2e:
           context:
             - screenshots-publishing
 

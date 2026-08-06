@@ -63,6 +63,11 @@ test('generateAllConfigs moon prototype mode', () => {
   expect(config).toContain('unset MOON_REMOTE_HOST');
   expect(config).toContain('moon ci --downstream none --summary');
   expect(config).toContain('store_test_results:');
+  // Non-required e2e lane: runs the Playwright suite via `moon run` (it's
+  // runInCI:false so `moon ci` skips it) after installing Chromium.
+  expect(config).toContain('moon-e2e:');
+  expect(config).toContain('playwright install chromium');
+  expect(config).toContain('moon run admin-integration-testing:test');
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
   expect(config).not.toContain('test-rust-crates');

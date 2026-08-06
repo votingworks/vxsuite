@@ -13,6 +13,7 @@ projects:
   # above are in the graph, so moon builds/hashes the native dep first.
   admin-backend: apps/admin/backend
   admin-frontend: apps/admin/frontend
+  admin-integration-testing: apps/admin/integration-testing
   auth: libs/auth
   backend: libs/backend
   ballot-encoder: libs/ballot-encoder
