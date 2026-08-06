@@ -27,6 +27,7 @@ projects:
   fs: libs/fs
   fujitsu-thermal-printer: libs/fujitsu-thermal-printer
   grout: libs/grout
+  grout-test-utils: libs/grout/test-utils
   hmpb: libs/hmpb
   image-utils: libs/image-utils
   integration-test-utils: libs/integration-test-utils
