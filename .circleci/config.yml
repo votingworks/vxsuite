@@ -68,6 +68,16 @@ jobs:
           path: .moon/cache/states
           destination: moon-task-logs
       - run:
+          name: Collect JUnit reports
+          command: |
+            mkdir -p /tmp/test-results
+            find . -path '*/reports/junit.xml' -not -path '*/node_modules/*' | while read -r f; do
+              name=$(echo "$f" | sed -e 's|^\./||' -e 's|/reports/junit.xml$||' -e 's|/|_|g')
+              cp "$f" "/tmp/test-results/${name}.xml"
+            done
+      - store_test_results:
+          path: /tmp/test-results
+      - run:
           name: Propagate moon ci exit code
           command: |
             code=$(cat /tmp/moon-exit-code)
@@ -78,7 +88,6 @@ jobs:
     resource_class: xlarge
     environment:
       MOON_CONCURRENCY: '4'
-      MOON_REMOTE_CACHE_INSTANCE_NAME: 'vxsuite-baseline'
     steps:
       - checkout-and-install:
           is_node_package: true
@@ -87,22 +96,12 @@ jobs:
           command: |
             curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
             echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
-      - restore_cache:
-          keys:
-            - moon-baseline-{{ .Branch }}-{{ .Revision }}
-            - moon-baseline-{{ .Branch }}-
-            - moon-baseline-main-
       - run:
-          name: moon ci (single container)
+          name: moon ci (single container, cold)
           command: |
             set +e
-            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
-              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
-              export MOON_REMOTE_HOST
-              echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST], instance=$MOON_REMOTE_CACHE_INSTANCE_NAME"
-            else
-              echo "remote cache: disabled (MOON_REMOTE_HOST unset)"
-            fi
+            unset MOON_REMOTE_HOST
+            echo "remote cache: DISABLED (cold single-container baseline)"
             moon ci --downstream none --summary
             echo $? > /tmp/moon-exit-code
             for d in $(find .moon/cache/states -mindepth 2 -maxdepth 2 -type d); do
@@ -113,14 +112,19 @@ jobs:
               fi
             done
             exit 0
-      - save_cache:
-          key: moon-baseline-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - .moon/cache/hashes
-            - .moon/cache/outputs
       - store_artifacts:
           path: .moon/cache/states
           destination: moon-baseline-task-logs
+      - run:
+          name: Collect JUnit reports
+          command: |
+            mkdir -p /tmp/test-results
+            find . -path '*/reports/junit.xml' -not -path '*/node_modules/*' | while read -r f; do
+              name=$(echo "$f" | sed -e 's|^\./||' -e 's|/reports/junit.xml$||' -e 's|/|_|g')
+              cp "$f" "/tmp/test-results/${name}.xml"
+            done
+      - store_test_results:
+          path: /tmp/test-results
       - run:
           name: Propagate moon ci exit code
           command: |
