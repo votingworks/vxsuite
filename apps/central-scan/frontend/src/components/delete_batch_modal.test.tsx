@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock, provideApi } from '../../test/api';
-import { render, screen } from '../../test/react_testing_library';
-import { DeleteBatchModal } from './delete_batch_modal';
+import { ApiMock, createApiMock, provideApi } from '../../test/api.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { DeleteBatchModal } from './delete_batch_modal.js';
 
 let apiMock: ApiMock;
 

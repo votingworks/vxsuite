@@ -5,7 +5,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { cleanup, configure } from '../test/react_testing_library';
+import { cleanup, configure } from '../test/react_testing_library.js';
 
 expect.extend(matchers);
 

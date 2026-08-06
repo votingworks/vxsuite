@@ -6,7 +6,7 @@ import {
   BallotType,
   InterpretedHmpbPage,
 } from '@votingworks/types';
-import { logSheetAdjudicationInfo } from './logging';
+import { logSheetAdjudicationInfo } from './logging.js';
 
 const metadata: BallotMetadata = {
   ballotStyleId: '12',

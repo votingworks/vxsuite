@@ -19,13 +19,13 @@ import {
   DEFAULT_DEV_DOCK_DIR,
   useDevDockRouter,
 } from '@votingworks/dev-dock-backend';
-import { PORT, SCAN_WORKSPACE } from './globals';
-import { Importer } from './importer';
-import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
-import { MockBatchScanner } from './mock_batch_scanner';
-import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './app';
-import { getUserRole } from './util/auth';
+import { PORT, SCAN_WORKSPACE } from './globals.js';
+import { Importer } from './importer.js';
+import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
+import { MockBatchScanner } from './mock_batch_scanner.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { buildCentralScannerApp } from './app.js';
+import { getUserRole } from './util/auth.js';
 
 export interface StartOptions {
   port: number | string;

@@ -1,14 +1,15 @@
+import { fileURLToPath } from 'node:url';
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import * as server from './server';
+import * as server from './server.js';
 
-export type { Api } from './app';
-export type { ScanDiagnosticOutcome } from './diagnostic';
-export * from './types';
+export type { Api } from './app.js';
+export type { ScanDiagnosticOutcome } from './diagnostic.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -21,7 +22,7 @@ function main(): number {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     process.exitCode = main();
   } catch (error) {

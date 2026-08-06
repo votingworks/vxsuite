@@ -7,10 +7,10 @@ import { deferred } from '@votingworks/basics';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
 import { anyPollingPlace } from '@votingworks/types';
-import { Importer } from './importer';
-import { createWorkspace, Workspace } from './util/workspace';
-import { makeMockScanner, MockScanner } from '../test/util/mocks';
-import { BatchControl, BatchScanner } from './fujitsu_scanner';
+import { Importer } from './importer.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { makeMockScanner, MockScanner } from '../test/util/mocks.js';
+import { BatchControl, BatchScanner } from './fujitsu_scanner.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;

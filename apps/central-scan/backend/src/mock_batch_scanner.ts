@@ -4,7 +4,7 @@ import {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
-} from './fujitsu_scanner';
+} from './fujitsu_scanner.js';
 
 export interface MockBatchScannerApi {
   addSheets(sheets: readonly ScannedSheetInfo[]): void;

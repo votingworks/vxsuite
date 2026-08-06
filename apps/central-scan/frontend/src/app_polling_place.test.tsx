@@ -6,9 +6,9 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
-import { App } from './app';
-import { ApiMock, createApiMock } from '../test/api';
+import { render, screen } from '../test/react_testing_library.js';
+import { App } from './app.js';
+import { ApiMock, createApiMock } from '../test/api.js';
 
 // The famous names fixture defines a 'central-scanning' absentee polling place.
 const electionDefinition =
