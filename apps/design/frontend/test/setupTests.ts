@@ -65,3 +65,11 @@ window.matchMedia = vi.fn().mockImplementation(() => ({ matches: false }));
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+// Discard any fake timers still pending after a test file finishes (e.g.
+// useTitle's reset timeout, scheduled on unmount during test cleanup).
+// With shouldAdvanceTime, a leftover timer can otherwise fire after the test
+// environment is torn down and crash the worker.
+afterAll(() => {
+  vi.useRealTimers();
+});
