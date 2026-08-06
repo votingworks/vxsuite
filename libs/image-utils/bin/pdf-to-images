@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+// Runs compiled output: the esbuild-runner require hook can't be used from an
+// ES module, and it resolves `.js` specifiers literally so it never finds the
+// `.ts` sources. Run `pnpm build` first.
+import { main } from '../build/cli/pdf_to_images.js';
 
-require('../src/cli/pdf_to_images').main(process.argv.slice(2), {
+main(process.argv.slice(2), {
   stdout: process.stdout,
   stderr: process.stderr,
 });
