@@ -16,12 +16,10 @@ export function SessionTimeLimitTracker(): JSX.Element {
   return (
     <SessionTimeLimitTrackerBase
       authStatus={authStatusQuery.data}
-      logOut={
-        /* istanbul ignore next */ () => logOutMutation.mutate()
-      }
+      logOut={/* @coverage-exclude */ () => logOutMutation.mutate()}
       systemSettings={systemSettingsQuery.data}
       updateSessionExpiry={
-        /* istanbul ignore next */ (sessionExpiresAt: Date) =>
+        /* @coverage-exclude */ (sessionExpiresAt: Date) =>
           updateSessionExpiryMutation.mutate({ sessionExpiresAt })
       }
     />

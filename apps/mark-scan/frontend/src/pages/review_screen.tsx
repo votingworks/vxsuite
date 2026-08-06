@@ -39,6 +39,7 @@ export function ReviewScreen(): JSX.Element {
       returnToContest={(contestId) => {
         const contestIndex = contests.findIndex(({ id }) => id === contestId);
         history.push(
+          // @coverage-defer
           isViewAllMode
             ? `/contests/${contestIndex}`
             : `/contests/${contestIndex}#review`

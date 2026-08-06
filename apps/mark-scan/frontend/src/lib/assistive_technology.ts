@@ -6,6 +6,7 @@ import {
 } from '@votingworks/ui';
 
 function handleClick() {
+  // @coverage-defer
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.click();
   }
@@ -22,7 +23,6 @@ function preventBrowserScroll(event: KeyboardEvent) {
   event.preventDefault();
 }
 
-/* istanbul ignore next */
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
     case Keybinding.PAGE_PREVIOUS:

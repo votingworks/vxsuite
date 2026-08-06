@@ -50,6 +50,7 @@ function StartScreenVoterHelpScreen(props: VoterHelpScreenProps): JSX.Element {
   );
 }
 
+// @coverage-defer
 function ContestScreenVoterHelpScreen(
   props: VoterHelpScreenProps
 ): JSX.Element {
@@ -69,6 +70,7 @@ function ContestScreenVoterHelpScreen(
   );
 }
 
+// @coverage-defer
 function PrePrintReviewScreenVoterHelpScreen(
   props: VoterHelpScreenProps
 ): JSX.Element {
@@ -83,6 +85,7 @@ function PrePrintReviewScreenVoterHelpScreen(
   );
 }
 
+// @coverage-defer
 function ContestReviewScreenVoterHelpScreen(
   props: VoterHelpScreenProps
 ): JSX.Element {
@@ -101,6 +104,7 @@ function ContestReviewScreenVoterHelpScreen(
   );
 }
 
+// @coverage-defer
 function PostPrintReviewScreenVoterHelpScreen(
   props: VoterHelpScreenProps
 ): JSX.Element {
