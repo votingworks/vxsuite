@@ -42,7 +42,7 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
     AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
     debug('Network restarted');
   } catch (error) {
-    /* istanbul ignore next - for safety */
+    // @coverage-exclude: for safety
     debug(`Error restarting network: ${error}`);
   }
 }
@@ -132,7 +132,7 @@ export function fetchEventsFromConnectedPollbooks({
         await Promise.all(
           pollbooksToQuery.map(async (currentName) => {
             const currentPollbookService = previouslyConnected[currentName];
-            /* istanbul ignore next - extremely unlikely scenario, a machine would need to change code versions to trigger included for defense in depth */
+            // @coverage-exclude: extremely unlikely scenario, a machine would need to change code versions to trigger included for defense in depth
             if (
               !arePollbooksCompatible(
                 myMachineInformation,
@@ -164,7 +164,7 @@ export function fetchEventsFromConnectedPollbooks({
               return;
             }
             const { apiClient } = currentPollbookService;
-            /* istanbul ignore next: rare edge case handling */
+            // @coverage-exclude: rare edge case handling
             if (!apiClient) {
               return;
             }
@@ -194,6 +194,7 @@ export function fetchEventsFromConnectedPollbooks({
               );
             } catch (error) {
               assert(error instanceof Error);
+              // @coverage-defer
               if (error.message === 'mismatched-configuration') {
                 workspace.store.setPollbookServiceForName(
                   currentName,
@@ -435,7 +436,7 @@ export function setupMachineNetworking({
         // Clean up stale machines
         workspace.store.cleanupStalePollbookServices();
       } catch (error) {
-        /* istanbul ignore next - for safety */
+        // @coverage-exclude: for safety
         debug(`Previously uncaught error in network polling: ${error}`);
       } finally {
         isPolling = false;

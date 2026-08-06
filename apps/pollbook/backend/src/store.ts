@@ -131,6 +131,7 @@ export abstract class Store {
     timestamp?: HlcTimestamp
   ): PollbookEvent[] {
     debug('Reprocessing event log from timestamp %o', timestamp);
+    // @coverage-defer
     const rows = timestamp
       ? (this.client.all(
           `
@@ -176,6 +177,7 @@ export abstract class Store {
     );
   }
 
+  // @coverage-defer
   getDbPath(): string {
     return this.client.getDatabasePath();
   }
@@ -467,6 +469,7 @@ export abstract class Store {
           break;
         case EventType.VoterNameChange: {
           const voter = this.getVoter(pollbookEvent.voterId);
+          // @coverage-defer
           if (voter.nameChange) {
             this.client.run(
               `
@@ -632,14 +635,17 @@ export abstract class Store {
         disposition: 'success',
       });
     } catch (error) {
+      // @coverage-defer
       debug('Failed to set election and voters: %s', error);
 
+      // @coverage-defer
       if (
         error instanceof Error &&
         error.message.includes('UNIQUE constraint failed')
       ) {
         return 'already-configured';
       }
+      // @coverage-defer
       throw error;
     }
   }
@@ -655,6 +661,7 @@ export abstract class Store {
         FROM event_log
       `
       ) as { count: number };
+      // @coverage-defer
       if (eventCount.count !== 0) {
         throw new Error('Can not change precinct when there are events.');
       }
@@ -687,6 +694,7 @@ export abstract class Store {
           limit 1
         `
     ) as { election_data: string; valid_street_data: string };
+    // @coverage-defer
     if (!row) {
       return [];
     }
@@ -696,6 +704,7 @@ export abstract class Store {
       ValidStreetInfoSchema
     ).unsafeUnwrap();
     this.validStreetInfo = validStreetInfo;
+    // @coverage-defer
     return this.validStreetInfo || [];
   }
 
@@ -714,6 +723,7 @@ export abstract class Store {
     const row = machineId
       ? (this.client.one(query, machineId) as { checkInCount: number })
       : (this.client.one(query) as { checkInCount: number });
+    // @coverage-defer
     return row ? row.checkInCount : 0;
   }
 
@@ -727,6 +737,7 @@ export abstract class Store {
     if (row) {
       return row.configurationStatus as ConfigurationStatus;
     }
+    // @coverage-defer
     return undefined;
   }
 
@@ -803,6 +814,7 @@ export abstract class Store {
           ...dbDetails,
           voter,
         },
+        // @coverage-defer
         dismissedAt: row.dismissed_at ? new Date(row.dismissed_at) : undefined,
         dismissed: row.dismissed === 1,
       };

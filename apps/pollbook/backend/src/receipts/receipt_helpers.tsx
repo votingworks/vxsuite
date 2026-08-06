@@ -30,6 +30,7 @@ export function prependSpaceIfNeeded(text?: string): string {
 
 function getPrecinctName(election: Election, precinctId: string): string {
   const precinct = election.precincts.find((p) => p.id === precinctId);
+  // @coverage-defer
   return precinct?.name || precinctId;
 }
 
@@ -142,6 +143,7 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
         {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </DivBreakWord>
       {voter.mailingAddressLine2 === '' ? null : (
+        // @coverage-defer
         <DivBreakWord>{voter.mailingAddressLine2}</DivBreakWord>
       )}
       <DivBreakWord>
@@ -160,7 +162,6 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
     case 'UND':
       return 'Undeclared';
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(party);
     }
   }
@@ -179,7 +180,6 @@ export function IdentificationMethod({
     case 'outOfStateLicense':
       return <div>OOS DL ({identificationMethod.state})</div>;
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(identificationMethod);
     }
   }

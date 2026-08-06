@@ -15,6 +15,7 @@ export function constructAuthMachineState(
   const { configuredPrecinctId } =
     workspace.store.getPollbookConfigurationInformation();
 
+  // @coverage-defer
   const jurisdiction = isIntegrationTest()
     ? TEST_JURISDICTION
     : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
@@ -44,6 +45,5 @@ export async function getUserRole(
   if (authStatus.status === 'logged_in') {
     return authStatus.user.role;
   }
-  /* istanbul ignore next - trivial fallback case */
   return 'unknown';
 }

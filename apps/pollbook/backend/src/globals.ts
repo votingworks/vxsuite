@@ -29,6 +29,7 @@ export const PEER_PORT = Number(
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -37,6 +38,7 @@ export const NODE_ENV = unsafeParse(
  */
 export const WORKSPACE =
   process.env.WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);

@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import express from 'express';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';

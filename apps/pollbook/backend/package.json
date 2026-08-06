@@ -13,6 +13,7 @@
     "intermediate-scripts"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../../libs/basics/src",
     "build": "pnpm --filter $npm_package_name... build:self",
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",
@@ -22,8 +23,8 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm test:coverage",
+    "test:coverage": "TZ=America/Anchorage vitest run --coverage && pnpm coverage-check",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"

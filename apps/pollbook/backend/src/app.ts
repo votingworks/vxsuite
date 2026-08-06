@@ -143,18 +143,22 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return store.getPollbookConfigurationInformation();
     },
 
+    // @coverage-defer
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 
+    // @coverage-defer
     checkPin(input: { pin: string }) {
       return auth.checkPin(constructAuthMachineState(workspace), input);
     },
 
+    // @coverage-defer
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
+    // @coverage-defer
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
         constructAuthMachineState(workspace),
@@ -162,6 +166,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       );
     },
 
+    // @coverage-defer
     async formatUsbDrive(): Promise<Result<void, Error>> {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
@@ -180,6 +185,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
     },
 
+    // @coverage-defer
     async getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
     },
@@ -208,12 +214,14 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       };
     },
 
+    // @coverage-defer
     async configureFromPeerMachine(input: {
       machineId: string;
     }): Promise<Result<void, ConfigurationError>> {
       return await workspace.peerApiClient.configureFromPeerMachine(input);
     },
 
+    // @coverage-defer
     // Gets the latest scanned ID document
     getScannedIdDocument(): Result<Optional<AamvaDocument>, Error> {
       const payload = barcodeScannerClient.readPayload();
@@ -224,6 +232,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return ok(payload);
     },
 
+    // @coverage-defer
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
     },
@@ -258,6 +267,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       pollUsbDriveForPollbookPackage(context);
     },
 
+    // @coverage-defer
     getIsAbsenteeMode(): boolean {
       return store.getIsAbsenteeMode();
     },
@@ -280,10 +290,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {
       const { searchParams } = input;
+      // @coverage-defer
       if (searchParams.firstName === '' && searchParams.lastName === '') {
         return null;
       }
 
+      // @coverage-defer
       if (searchParams.strictMatch) {
         return store.findVotersWithName(searchParams);
       }
@@ -308,11 +320,14 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         'Precinct must be configured to check in voter'
       );
       const { checkIn, party: voterParty } = store.getVoter(input.voterId);
+      // @coverage-defer
       if (checkIn) {
         return err('already_checked_in');
       }
 
+      // @coverage-defer
       if (election.type === 'primary') {
+        // @coverage-defer
         // Primary ballot party choice can't be undeclared
         switch (voterParty) {
           case 'UND':
@@ -328,7 +343,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
             );
             break;
           default:
-            /* istanbul ignore next */
+            // @coverage-exclude
             return err('unknown_voter_party');
         }
       } else if (election.type === 'general') {
@@ -386,6 +401,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     }): Promise<Result<void, 'not_checked_in'>> {
       const election = assertDefined(store.getElection());
       const voter: Voter = store.getVoter(input.voterId);
+      // @coverage-defer
       if (!voter.checkIn) {
         return err('not_checked_in');
       }
@@ -567,6 +583,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       if (originalVoter.checkIn) {
         return err('voter_checked_in');
       }
+      // @coverage-defer
       if (!originalVoter.registrationEvent) {
         return err('not_a_registration');
       }
@@ -574,6 +591,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         input.voterId
       );
       const printerStatus = await printer.status();
+      // @coverage-defer
       // This flow does not require a printer to be connected, only print a receipt opportunistically.
       if (!printerStatus.connected) {
         return ok();
@@ -592,10 +610,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return ok();
     },
 
+    // @coverage-defer
     getValidStreetInfo(): ValidStreetInfo[] {
       return store.getStreetInfo();
     },
 
+    // @coverage-defer
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
       return {
         thisMachine: store.getCheckInCount(machineId),
@@ -603,6 +623,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       };
     },
 
+    // @coverage-defer
     async exportVoterActivity(): Promise<void> {
       const election = assertDefined(store.getElection());
       const exporter = new Exporter({
@@ -624,6 +645,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       result.unsafeUnwrap();
     },
 
+    // @coverage-defer
     getAllVotersInCurrentPrecinct(): Voter[] {
       assertDefined(store.getElection());
       const { configuredPrecinctId } =
@@ -635,18 +657,21 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return store.getAllVotersInPrecinctSorted();
     },
 
+    // @coverage-defer
     getGeneralSummaryStatistics(input: {
       partyFilter: PartyFilterAbbreviation;
     }): SummaryStatistics {
       return store.getGeneralSummaryStatistics(input.partyFilter);
     },
 
+    // @coverage-defer
     getPrimarySummaryStatistics(input: {
       partyFilter: PartyFilterAbbreviation;
     }): PrimarySummaryStatistics {
       return store.getPrimarySummaryStatistics(input.partyFilter);
     },
 
+    // @coverage-defer
     getThroughputStatistics(input: {
       throughputInterval: number;
       partyFilter: PartyFilterAbbreviation;
@@ -722,6 +747,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           store.getPollbookConfigurationInformation();
 
         const electionRecord =
+          // @coverage-defer
           electionBallotHash && pollbookPackageHash
             ? {
                 electionDefinition: { ballotHash: electionBallotHash },
@@ -771,7 +797,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       machineId,
       codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   } as const;
