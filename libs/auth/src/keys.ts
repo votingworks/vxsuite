@@ -106,7 +106,6 @@ export function opensslKeyParams(
       ];
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(key, 'source');
     }
   }

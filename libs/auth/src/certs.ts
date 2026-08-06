@@ -397,7 +397,6 @@ export function certDetailsToCardDetails(
       };
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(cardIdentityCertDetails, 'cardType');
     }
   }
@@ -435,7 +434,6 @@ export function constructCardCertSubject(
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(user, 'role');
     }
   }

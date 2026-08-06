@@ -310,7 +310,7 @@ export async function generateSignedQuickResultsReportingUrl(
 ): Promise<string[]> {
   const config =
     configOverride ??
-    /* istanbul ignore next */ constructSignedQuickResultsReportingConfig();
+    /* @coverage-exclude */ constructSignedQuickResultsReportingConfig();
 
   const { ballotHash, election } = electionDefinition;
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
@@ -387,12 +387,11 @@ export async function generateSignedQuickResultsReportingUrl(
         quickResultsReportingUrl,
         maxQrCodeLength
       );
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (!url) break;
       return [url];
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(pollsTransitionType);
     }
   }
@@ -422,8 +421,7 @@ export async function authenticateSignedQuickResultsReportingUrl(
   );
 
   const cacPath =
-    caCertPath ??
-    /* istanbul ignore next */ getVxCertAuthorityCertPath();
+    caCertPath ?? /* @coverage-exclude */ getVxCertAuthorityCertPath();
 
   try {
     const publicKey = await extractPublicKeyFromCert(Buffer.from(certificate));

@@ -12,9 +12,10 @@ export default defineConfig({
         'src/jurisdictions.ts',
         'src/test_utils.ts',
       ],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 98,
-        branches: 94,
+        lines: 0,
+        branches: 0,
       },
     },
   },

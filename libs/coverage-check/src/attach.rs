@@ -112,7 +112,10 @@ impl<'a> Visit<'a> for Collector {
                     }
                 }
                 if body.len() == 1 {
-                    if let Statement::ExpressionStatement(_) = body[0] {
+                    if matches!(
+                        body[0],
+                        Statement::ExpressionStatement(_) | Statement::ReturnStatement(_)
+                    ) {
                         self.single_stmt_arms
                             .push((body[0].span().start, case.span.start));
                     }
@@ -120,6 +123,19 @@ impl<'a> Visit<'a> for Collector {
             }
             AstKind::ExpressionStatement(stmt) => {
                 if let Expression::CallExpression(call) = &stmt.expression {
+                    if let Expression::Identifier(ident) = &call.callee {
+                        self.out.calls.push(CallSite {
+                            callee: ident.name.to_string(),
+                            stmt_span: Some(stmt.span),
+                            arm_start: None, // resolved after visit
+                        });
+                    }
+                }
+            }
+            // `return throwIllegalValue(x)` is still "the call statement"
+            // for the never-param rule (spec 1b).
+            AstKind::ReturnStatement(stmt) => {
+                if let Some(Expression::CallExpression(call)) = &stmt.argument {
                     if let Expression::Identifier(ident) = &call.callee {
                         self.out.calls.push(CallSite {
                             callee: ident.name.to_string(),

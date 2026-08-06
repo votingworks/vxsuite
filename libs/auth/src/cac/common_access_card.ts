@@ -203,7 +203,6 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
             return;
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             throwIllegalValue(readerStatus);
           }
         }

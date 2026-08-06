@@ -171,12 +171,9 @@ async function remotelyCreateCardCert(
 ): Promise<Buffer> {
   const randomId =
     optionsOverride?.randomId ??
-    /* istanbul ignore next */ crypto
-      .randomBytes(3)
-      .toString('hex');
+    /* @coverage-exclude */ crypto.randomBytes(3).toString('hex');
   const workingDirectory =
-    optionsOverride?.workingDirectory ??
-    /* istanbul ignore next */ os.homedir();
+    optionsOverride?.workingDirectory ?? /* @coverage-exclude */ os.homedir();
 
   const publicKeyPath = path.join(
     workingDirectory,
@@ -246,13 +243,13 @@ export class JavaCard implements Card {
     configOverride?: JavaCardConfig
   ) {
     const config =
-      configOverride ??
-      /* istanbul ignore next */ constructJavaCardConfig();
+      configOverride ?? /* @coverage-exclude */ constructJavaCardConfig();
     this.cardProgrammingConfig = config.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card_reader' };
+    // @coverage-exclude
     this.generateChallenge =
       config.generateChallengeOverride ??
-      /* istanbul ignore next */ (() =>
+      (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid({
           disableEntropyCache: true,
         })}`);
@@ -284,7 +281,6 @@ export class JavaCard implements Card {
             return;
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             throwIllegalValue(readerStatus);
           }
         }
@@ -319,7 +315,7 @@ export class JavaCard implements Card {
         const numIncorrectPinAttempts =
           MAX_NUM_INCORRECT_PIN_ATTEMPTS -
           numRemainingPinAttemptsFromIncorrectPinStatusWord(error.statusWord());
-        /* istanbul ignore else */
+        // @coverage-exclude-else
         if (
           this.cardStatus.status === 'ready' &&
           this.cardStatus.cardDetails.user
@@ -339,7 +335,7 @@ export class JavaCard implements Card {
       }
       throw error;
     }
-    /* istanbul ignore else */
+    // @coverage-exclude-else
     if (
       this.cardStatus.status === 'ready' &&
       this.cardStatus.cardDetails.user
@@ -406,7 +402,6 @@ export class JavaCard implements Card {
         break;
       }
       default: {
-        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(user, 'role');
       }
     }
@@ -580,7 +575,7 @@ export class JavaCard implements Card {
         if (errorMessage.includes('certificate has expired')) {
           return 'certificate_expired';
         }
-        /* istanbul ignore next: It's hard to create test certs with start dates in the future
+        /* @coverage-exclude: It's hard to create test certs with start dates in the future
            given our current code. */
         // This typically indicates that machines' clocks have fallen out of sync, e.g., a VxScan
         // has a time before the time on the VxAdmin when the card was programmed.
@@ -902,7 +897,7 @@ export class JavaCard implements Card {
     // We reach this point if the card is currently authenticated, which means that the number of
     // incorrect PIN attempts is guaranteed to be 0.
     // Reference: https://github.com/votingworks/OpenFIPS201/blob/3be5580a89942c880e396803610bbc9bc5018e43/src/com/makina/security/openfips201/PIV.java#L798
-    /* istanbul ignore next */
+    // @coverage-exclude
     return 0;
   }
 

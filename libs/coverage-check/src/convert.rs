@@ -585,6 +585,15 @@ mod tests {
     }
 
     #[test]
+    fn deletes_hint_on_return_wrapped_never_param_call() {
+        let src = "import { throwIllegalValue } from '@votingworks/basics';\nfunction f(x: never): number {\n  switch (x) {\n    default: {\n      /* istanbul ignore next */\n      return throwIllegalValue(x);\n    }\n  }\n}\n";
+        let c = convert_src(src, &["throwIllegalValue"]);
+        assert!(!c.output.contains("coverage-exclude"));
+        assert!(!c.output.contains("istanbul"));
+        assert!(c.notes[0].message.contains("never-param"));
+    }
+
+    #[test]
     fn keeps_hint_on_same_named_local_that_is_not_never() {
         let src = "function throwIllegalValue(x: string): void {\n  throw new Error(x);\n}\nfunction f(): void {\n  /* istanbul ignore next */\n  throwIllegalValue('a');\n}\n";
         let c = convert_src(src, &["throwIllegalValue"]);
