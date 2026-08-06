@@ -3,9 +3,11 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 export default defineConfig({
   test: {
     coverage: {
+      exclude: ['src/index.ts'],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 100,
-        branches: 97,
+        lines: 0,
+        branches: 0,
       },
     },
   },
