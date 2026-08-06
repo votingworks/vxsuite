@@ -7,6 +7,7 @@
 pub mod analyze;
 pub mod attach;
 pub mod classify;
+pub mod convert;
 pub mod corpus;
 pub mod diagnostics;
 pub mod grammar;

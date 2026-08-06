@@ -12,8 +12,9 @@ use clap::Parser;
 use miette::Severity;
 
 use coverage_check::analyze::{analyze_file, bind_only, has_directive_text};
-use coverage_check::attach::BindError;
+use coverage_check::attach::{parse_file, BindError};
 use coverage_check::classify::{DirectiveVerdict, EntityVerdict, FileAnalysis, Status};
+use coverage_check::convert::{convert_file, Severity as ConvertSeverity};
 use coverage_check::corpus;
 use coverage_check::diagnostics::{render, Finding, RenderFormat};
 use coverage_check::grammar::Form;
@@ -39,6 +40,23 @@ enum Cli {
         #[arg(long)]
         timing: bool,
     },
+    /// Convert `istanbul ignore` hints to coverage directives (dry-run unless
+    /// --write)
+    Convert {
+        /// Package directory whose sources to convert
+        pkg_dir: PathBuf,
+        /// Extra directories to scan for never-param function declarations
+        /// (e.g. libs/basics for throwIllegalValue)
+        #[arg(long = "never-scan")]
+        never_scan: Vec<PathBuf>,
+        /// Skip files whose path contains this substring (repeatable; e.g.
+        /// src/cdf for generated files)
+        #[arg(long = "skip")]
+        skip: Vec<String>,
+        /// Apply the conversion to disk (default: print the plan only)
+        #[arg(long)]
+        write: bool,
+    },
     /// Print the analyzed golden corpus as JSON (for auditing/regenerating
     /// expected/)
     Dump {
@@ -54,6 +72,12 @@ fn main() -> ExitCode {
             never_scan,
             timing,
         } => cmd_check(&pkg_dir, &never_scan, timing, resolve_format()),
+        Cli::Convert {
+            pkg_dir,
+            never_scan,
+            skip,
+            write,
+        } => cmd_convert(&pkg_dir, &never_scan, &skip, write),
         Cli::Dump { corpus_dir } => match corpus::dump(&corpus_dir) {
             Ok(json) => {
                 println!("{json}");
@@ -64,6 +88,79 @@ fn main() -> ExitCode {
                 ExitCode::from(2)
             }
         },
+    }
+}
+
+/// Convert a package's istanbul hints to coverage directives. Dry-run by
+/// default; `--write` applies the edits. Exit code 1 when the sources contain
+/// broken hints (unclosed ranges) that must be fixed by hand.
+fn cmd_convert(pkg_dir: &Path, never_scan: &[PathBuf], skip: &[String], write: bool) -> ExitCode {
+    let mut scan_dirs: Vec<&Path> = vec![pkg_dir];
+    scan_dirs.extend(never_scan.iter().map(PathBuf::as_path));
+    let never_names = build_registry(&scan_dirs);
+
+    let mut files = source_files(pkg_dir);
+    files.sort();
+    let mut changed_files = 0usize;
+    let mut errors = 0usize;
+    let mut flags = 0usize;
+    for path in files {
+        if skip
+            .iter()
+            .any(|s| path.to_string_lossy().contains(s.as_str()))
+        {
+            continue;
+        }
+        let Ok(source) = std::fs::read_to_string(&path) else {
+            eprintln!("cannot read {}", path.display());
+            continue;
+        };
+        if !source.contains("istanbul ignore") {
+            continue;
+        }
+        let allocator = oxc_allocator::Allocator::default();
+        let parsed = parse_file(&allocator, &path, &source);
+        let conversion = convert_file(&source, &parsed, &never_names);
+        let table = LineTable::new(&source);
+        let rel = path.strip_prefix(pkg_dir).unwrap_or(&path);
+        for note in &conversion.notes {
+            let (line, col) = table.pos_of(&source, note.offset as usize);
+            let sev = match note.severity {
+                ConvertSeverity::Info => "info ",
+                ConvertSeverity::Flag => "FLAG ",
+                ConvertSeverity::Error => "ERROR",
+            };
+            match note.severity {
+                ConvertSeverity::Info => {}
+                ConvertSeverity::Flag => flags += 1,
+                ConvertSeverity::Error => errors += 1,
+            }
+            println!(
+                "{sev} {}:{}:{} {}",
+                rel.display(),
+                line,
+                col + 1,
+                note.message
+            );
+        }
+        if conversion.changed {
+            changed_files += 1;
+            if write {
+                if let Err(e) = std::fs::write(&path, &conversion.output) {
+                    eprintln!("cannot write {}: {e}", path.display());
+                    return ExitCode::from(2);
+                }
+            }
+        }
+    }
+    let mode = if write { "wrote" } else { "would write" };
+    println!(
+        "\nsummary: {mode} {changed_files} files, {flags} flagged for review, {errors} errors"
+    );
+    if errors > 0 {
+        ExitCode::FAILURE
+    } else {
+        ExitCode::SUCCESS
     }
 }
 

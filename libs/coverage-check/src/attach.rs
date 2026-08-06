@@ -290,7 +290,7 @@ pub fn bind_directives(file: &ParsedFile, source_len: u32) -> Vec<BoundDirective
         let Some(parsed) = parse_comment_text(text) else {
             continue;
         };
-        let binding = bind_one(&parsed, *span, file, source_len);
+        let binding = bind_form(parsed.form, *span, file, source_len);
         directives.push(BoundDirective {
             parsed,
             comment_span: *span,
@@ -300,13 +300,24 @@ pub fn bind_directives(file: &ParsedFile, source_len: u32) -> Vec<BoundDirective
     directives
 }
 
-fn bind_one(
-    parsed: &ParsedDirective,
+/// Bind a directive form at a comment position to its target node.
+///
+/// # Errors
+///
+/// Returns the binding failure (orphan, else-misuse, not-top-of-file) that
+/// the checker reports as a directive error.
+///
+/// # Panics
+///
+/// Never in practice: the only `expect` guards a candidate set already
+/// checked non-empty.
+pub fn bind_form(
+    form: Form,
     comment: Span,
     file: &ParsedFile,
     source_len: u32,
 ) -> Result<Binding, BindError> {
-    match parsed.form {
+    match form {
         Form::File => {
             let ok = file
                 .first_node_start
