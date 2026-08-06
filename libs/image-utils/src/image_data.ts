@@ -266,9 +266,15 @@ export function fromGrayScale(
 }
 
 function createCanvasWithImageData(imageData: ImageData) {
+  // `putImageData` reads `width * height * RGBA_CHANNEL_COUNT` bytes from the
+  // buffer without checking its length, so passing a grayscale image reads out
+  // of bounds and segfaults.
+  const rgbaImageData = isRgba(imageData)
+    ? ensureImageData(imageData)
+    : fromGrayScale(imageData.data, imageData.width, imageData.height);
   const canvas = createCanvas(imageData.width, imageData.height);
   const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  context.putImageData(rgbaImageData, 0, 0);
   return canvas;
 }
 
