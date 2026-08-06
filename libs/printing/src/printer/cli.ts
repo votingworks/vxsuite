@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-exclude-file
 import { sleep } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import { LogSource, BaseLogger } from '@votingworks/logging';

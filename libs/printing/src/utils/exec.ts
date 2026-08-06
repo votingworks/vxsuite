@@ -114,7 +114,7 @@ export async function exec(
           ? ok({ stdout, stderr })
           : err(
               makeExecError({
-                code: /* istanbul ignore next */ code ?? 1,
+                code: /* @coverage-exclude */ code ?? 1,
                 signal,
                 stdout,
                 stderr,

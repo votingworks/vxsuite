@@ -7,6 +7,7 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../libs/basics/src",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -18,8 +19,8 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "postinstall": "test -f /usr/bin/chromium || playwright install --with-deps chromium",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && TZ=America/Anchorage pnpm vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm build && pnpm test:coverage",
+    "test:coverage": "TZ=America/Anchorage vitest run --coverage && pnpm coverage-check",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
