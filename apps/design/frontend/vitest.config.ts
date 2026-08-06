@@ -8,11 +8,13 @@ export default defineConfig({
     clearMocks: true,
 
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 97,
-        branches: 90,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
+        'src/stubs/*',
         'src/**/*.d.ts',
         'src/index.tsx',
         '**/*.test.ts',

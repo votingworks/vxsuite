@@ -97,6 +97,7 @@ export function CreateElectionButton(
             history.push(`/elections/${electionId}`);
             return;
           }
+          // @coverage-defer
           // TODO handle error case
           throw result.err();
         },
@@ -104,7 +105,6 @@ export function CreateElectionButton(
     );
   }
 
-  /* istanbul ignore next */
   if (!userQuery.isSuccess) {
     return null;
   }
@@ -127,6 +127,7 @@ export function CreateElectionButton(
       {modalActive && (
         <CreateElectionModal
           createElection={createElection}
+          // @coverage-defer
           onClose={() => setModalActive(false)}
         />
       )}

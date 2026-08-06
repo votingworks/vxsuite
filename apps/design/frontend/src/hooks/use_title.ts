@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-/* istanbul ignore next */
 let baseTitle: string | undefined | null =
   document.getElementsByTagName('title')[0]?.textContent;
 
@@ -23,7 +22,6 @@ let resetToBaseTitleTimeout: ReturnType<typeof setTimeout> | undefined;
  * to avoid flickering when the title is updated in quick succession.
  */
 function resetToBaseTitle() {
-  /* istanbul ignore next */
   document.title = baseTitle ?? '';
 }
 

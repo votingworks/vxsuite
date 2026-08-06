@@ -116,7 +116,6 @@ export function CloneElectionButton(
     );
   }
 
-  /* istanbul ignore next */
   if (!userQuery.isSuccess) {
     return null;
   }
@@ -153,6 +152,7 @@ export function CloneElectionButton(
         <CloneElectionModal
           election={election}
           cloneElection={cloneElection}
+          // @coverage-defer
           onClose={() => setModalActive(false)}
         />
       )}

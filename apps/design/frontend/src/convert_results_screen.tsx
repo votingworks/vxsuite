@@ -37,6 +37,7 @@ export function ConvertResultsScreen(): JSX.Element | null {
           format.
         </P>
         {convertMsResultsMutation.isLoading ? (
+          // @coverage-defer
           <LoadingButton variant="primary">Converting Results…</LoadingButton>
         ) : (
           <FileInputButton
@@ -48,6 +49,7 @@ export function ConvertResultsScreen(): JSX.Element | null {
             accept=".csv"
             onChange={async (event) => {
               const file = event.currentTarget.files?.[0];
+              // @coverage-defer
               if (!file) return;
               const fileContents = await file.text();
               convertMsResultsMutation.mutate({
@@ -115,7 +117,6 @@ export function ConvertResultsScreen(): JSX.Element | null {
                       case 'report-contests-mismatch':
                         return 'This report contains different contests than this election.';
                       default: {
-                        /* istanbul ignore next */
                         throwIllegalValue(error);
                       }
                     }

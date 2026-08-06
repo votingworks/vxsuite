@@ -15,6 +15,7 @@ export const UnauthenticatedApiClientContext = React.createContext<
 
 export function useUnauthenticatedApiClient(): UnauthenticatedApiClient {
   const apiClient = React.useContext(UnauthenticatedApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('UnauthenticatedApiClientContext.Provider not found');
   }

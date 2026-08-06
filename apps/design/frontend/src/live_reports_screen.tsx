@@ -103,7 +103,6 @@ function getOverallStatusIcon(
     case 'closed':
       return <Icons.Done color="primary" />;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -119,7 +118,6 @@ function getOverallStatusLabel(status: PollingPlaceOverallStatus): string {
     case 'closed':
       return 'Voting complete';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -173,7 +171,6 @@ function getLiveReportTransitionName(
     case 'close_polls':
       return 'Closed';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -185,7 +182,6 @@ function getErrorMessage(error: GetExportedElectionError): string {
     case 'election-out-of-date':
       return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(error);
   }
 }
@@ -503,7 +499,7 @@ function DeleteReportsModal({
   return (
     <Modal
       content={
-        /* istanbul ignore next - mutation loading state is transient */
+        // @coverage-exclude: mutation loading state is transient
         deleteMutation.isLoading ? (
           <Icons.Loading />
         ) : (
@@ -516,7 +512,7 @@ function DeleteReportsModal({
         )
       }
       actions={
-        /* istanbul ignore next - mutation loading state is transient */
+        // @coverage-exclude: mutation loading state is transient
         deleteMutation.isLoading ? (
           <Button onPress={onClose} variant="secondary">
             Cancel
@@ -535,7 +531,7 @@ function DeleteReportsModal({
         )
       }
       onOverlayClick={
-        /* istanbul ignore next - mutation loading state is transient */
+        // @coverage-exclude: mutation loading state is transient
         deleteMutation.isLoading ? undefined : onClose
       }
     />
@@ -555,7 +551,7 @@ function useDataChangeAnimation(
 
   function setPlacesToAnimate(placeIds: string[]): void {
     setPollingPlaceIdsToAnimate(placeIds);
-    /* istanbul ignore next - timer cleanup runs after test completes */
+    // @coverage-exclude: timer cleanup runs after test completes
     setTimeout(() => {
       setPollingPlaceIdsToAnimate((prev) =>
         prev.filter((id) => !placeIds.includes(id))
@@ -575,7 +571,7 @@ function useDataChangeAnimation(
         newData;
       const { reportsByPollingPlace: oldReportsByPlace, isLive: oldIsLive } =
         oldData;
-      /* istanbul ignore if - defensive guard */
+      // @coverage-exclude: defensive guard
       if (!newReportsByPlace) return;
       const switchedLive = newIsLive && !oldIsLive;
       const changedPlaces = Object.entries(newReportsByPlace)
@@ -591,6 +587,7 @@ function useDataChangeAnimation(
         (reports) => reports.length > 0
       );
       setPlacesToAnimate(changedPlaces);
+      // @coverage-defer
       if (changedPlaces.length > 0 && hasNewData) {
         playSound();
       }
@@ -698,6 +695,7 @@ function LiveReportsOverviewScreen({
   assert(pollsStatusData !== null);
 
   const pollingPlaces: readonly PollingPlace[] =
+    // @coverage-defer
     pollsStatusData.election.pollingPlaces ?? [];
 
   const allEntries = Object.values(
@@ -833,6 +831,7 @@ function LiveReportsGroupScreen({
   const theme = useTheme();
   const { pollingPlaceIdsToAnimate } = useDataChangeAnimation(summaryQuery);
 
+  // @coverage-defer
   const pollsStatusData = summaryQuery.isSuccess
     ? summaryQuery.data.isOk()
       ? summaryQuery.data.ok()
@@ -843,6 +842,7 @@ function LiveReportsGroupScreen({
     return <LoadingScreen />;
   }
 
+  // @coverage-defer
   if (summaryQuery.data.isErr()) {
     return <ErrorScreen error={summaryQuery.data.err()} />;
   }
@@ -850,6 +850,7 @@ function LiveReportsGroupScreen({
   assert(pollsStatusData !== null);
 
   const pollingPlaces: readonly PollingPlace[] =
+    // @coverage-defer
     pollsStatusData.election.pollingPlaces ?? [];
   const filteredPollingPlaces = pollingPlaces.filter(
     (p) => p.type === votingGroup
@@ -922,6 +923,7 @@ function LiveReportsGroupScreen({
                 <tbody>
                   {filteredPollingPlaces.map((place) => {
                     const reportsForPlace =
+                      // @coverage-defer
                       pollsStatusData.reportsByPollingPlace[place.id] || [];
                     const overallStatus =
                       getPollingPlaceOverallStatus(reportsForPlace);

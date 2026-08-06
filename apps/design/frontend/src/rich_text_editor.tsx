@@ -458,8 +458,10 @@ export function RichTextEditor({
     onPaste: (event) => {
       tiptapErrorContextBox.lastPasteClipboardContent =
         event.clipboardData?.getData('text/html') ||
+        // @coverage-defer
         event.clipboardData?.getData('text/plain');
     },
+    // @coverage-defer
     onDrop: (event) => {
       tiptapErrorContextBox.lastDragAndDropContent =
         event.dataTransfer?.getData('text/html') ||

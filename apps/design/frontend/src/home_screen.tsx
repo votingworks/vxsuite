@@ -31,7 +31,6 @@ export function HomeScreen({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(user);
     }
   }

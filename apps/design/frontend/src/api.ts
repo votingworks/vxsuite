@@ -29,6 +29,7 @@ export const VXQR_REFETCH_INTERVAL_MS = 1_000;
 
 export type ApiClient = grout.Client<Api>;
 
+// @coverage-defer
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
 }
@@ -39,6 +40,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -89,7 +91,6 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-/* istanbul ignore next */
 export const getUser = {
   queryKey(): QueryKey {
     return ['getUser'];
@@ -100,7 +101,6 @@ export const getUser = {
   },
 } as const;
 
-/* istanbul ignore next */
 export const listJurisdictions = {
   queryKey(): QueryKey {
     return ['listJurisdictions'];
@@ -332,7 +332,6 @@ export const getBallotTemplate = {
   },
 } as const;
 
-/* istanbul ignore next - WIP */
 export const ttsEditsGet = {
   queryKey(params: TtsEditKey): QueryKey {
     return [
@@ -352,7 +351,6 @@ export const ttsEditsGet = {
   },
 } as const;
 
-/* istanbul ignore next - WIP */
 export const ttsEditsSet = {
   useMutation() {
     const apiClient = useApiClient();
@@ -365,7 +363,6 @@ export const ttsEditsSet = {
   },
 } as const;
 
-/* istanbul ignore next - WIP */
 export const ttsStringDefaults = {
   queryKey(electionId: string): QueryKey {
     return ['ttsStringDefaults', electionId];
@@ -379,7 +376,6 @@ export const ttsStringDefaults = {
   },
 } as const;
 
-/* istanbul ignore next - WIP */
 export const ttsSynthesizeFromText = {
   queryKey(input: { languageCode: string; text: string }): QueryKey {
     return ['ttsSynthesizeFromText', input.languageCode, input.text];
@@ -584,6 +580,7 @@ export const createContest = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.createContest, {
       async onSuccess(result, { electionId }) {
+        // @coverage-defer
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
           await queryClient.refetchQueries(listContests.queryKey(electionId));

@@ -33,6 +33,7 @@ export function ElectionInfoAudioPanel(): React.ReactNode {
       if (s.key === stringKey) return s;
     }
 
+    // @coverage-defer
     return undefined;
   }, [ttsDefaults.data, stringKey]);
 

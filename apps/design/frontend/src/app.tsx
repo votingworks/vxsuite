@@ -38,6 +38,7 @@ import { HomeScreen } from './home_screen';
 import { DownloadsScreen } from './downloads_screen';
 import { PollingPlacesScreen } from './polling_places_screen';
 
+// @coverage-defer
 function ElectionScreens(): JSX.Element {
   return (
     <Switch>
@@ -112,6 +113,7 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
 }
 
 export function App({
+  // @coverage-defer
   apiClient = createApiClient(),
   unauthenticatedApiClient = createUnauthenticatedApiClient(),
 }: {

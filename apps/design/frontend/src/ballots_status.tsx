@@ -216,7 +216,7 @@ export function BallotsStatus(): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next - manually tested */
+            // @coverage-exclude: manually tested
             () => setIsConfirmingFinalize(false)
           }
         />

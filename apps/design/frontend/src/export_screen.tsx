@@ -135,6 +135,7 @@ export function ExportScreen(): JSX.Element | null {
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
+    // @coverage-defer
     const files = Array.from(input.files ?? []);
     const file = files[0];
     const cvrZipFileContents = Buffer.from(await file.arrayBuffer());
@@ -277,6 +278,7 @@ export function ExportScreen(): JSX.Element | null {
               label="Generate audit IDs for ballots"
               isChecked={numAuditIdBallots !== undefined}
               onChange={(isChecked) =>
+                // @coverage-defer
                 setNumAuditIdBallots(isChecked ? 1 : undefined)
               }
             />

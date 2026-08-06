@@ -69,7 +69,6 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
     case 'absentee':
       return 'Absentee';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(votingType);
   }
 }
@@ -89,7 +88,6 @@ function getTimestampLabel(pollsTransition: PollsTransitionType): string {
     case 'close_polls':
       return 'Polls Closed at';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(pollsTransition);
   }
 }
@@ -199,6 +197,7 @@ function PartialReportHeader({
         received. Send the next part to continue.
       </Callout>
       {!isLive && (
+        // @coverage-defer
         <div>
           <TestModeReportBanner />
         </div>
@@ -390,6 +389,7 @@ function PrecinctTallySection({
 
   // Use empty (zero) results for precincts with no transmitted data
   const emptyResults = getEmptyElectionResults(election).contestResults;
+  // @coverage-defer
   const effectiveResults = contestResults ?? emptyResults;
 
   return (
@@ -404,6 +404,7 @@ function PrecinctTallySection({
           <TallyReportColumns>
             {partyContests.map((contest) => {
               const currentContestResults = effectiveResults[contest.id];
+              // @coverage-defer
               if (!currentContestResults) return null;
               return (
                 <ContestResultsTable
@@ -631,7 +632,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       );
 
     default:
-      /* istanbul ignore next -  */
       throwIllegalValue(reportData, 'pollsTransitionType');
   }
 }

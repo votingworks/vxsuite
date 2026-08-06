@@ -129,6 +129,7 @@ function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
     [pdfData]
   );
 
+  // @coverage-defer
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     if (!numPages) return;
     const { scrollHeight, scrollTop } = e.currentTarget;
@@ -306,6 +307,7 @@ export function BallotScreen(): JSX.Element | null {
     return URL.createObjectURL(blob);
   }, [ballotPreview]);
 
+  // @coverage-defer
   function onDownloadPdfPressed() {
     if (!ballotPreview) return;
     fileDownload(
@@ -315,6 +317,7 @@ export function BallotScreen(): JSX.Element | null {
     );
   }
 
+  // @coverage-defer
   function onPrintPdfPressed() {
     printIframeRef.current?.contentWindow?.print();
   }
@@ -348,6 +351,7 @@ export function BallotScreen(): JSX.Element | null {
   return (
     <TaskScreen>
       {pdfFile && (
+        // @coverage-defer
         <iframe
           ref={printIframeRef}
           src={pdfFile}
@@ -395,7 +399,6 @@ export function BallotScreen(): JSX.Element | null {
                     </ErrorMessage>
                   );
                 default: {
-                  /* istanbul ignore next */
                   throwIllegalValue(err, 'error');
                 }
               }
@@ -430,9 +433,12 @@ export function BallotScreen(): JSX.Element | null {
           </div>
 
           {electionInfo.type === 'primary' &&
+            // @coverage-defer
             !electionInfo.isMiCombinedBallotPrimary && (
+              // @coverage-defer
               <div>
                 <FieldName>Party</FieldName>
+                {/* @coverage-defer */}
                 {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
               </div>
             )}
@@ -455,6 +461,7 @@ export function BallotScreen(): JSX.Element | null {
               ]}
               value={isFederalOfficeOnly ? 'federal-office-only' : ballotType}
               onChange={(value) => {
+                // @coverage-defer
                 if (value === 'federal-office-only') {
                   setIsFederalOfficeOnly(true);
                   setBallotType(BallotType.Absentee);

@@ -12,6 +12,7 @@ export interface TaskProgressProps {
 export function TaskProgress(props: TaskProgressProps): React.ReactNode {
   const { title, task, style } = props;
 
+  // @coverage-defer
   if (!task) return null;
 
   return (

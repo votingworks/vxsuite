@@ -81,7 +81,6 @@ function ElectionInfoForm({
   const { electionId } = useParams<ElectionIdParams>();
   const infoRoutes = routes.election(electionId).electionInfo;
 
-  /* istanbul ignore next */
   if (!getStateFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
     return null;
   }
@@ -113,6 +112,7 @@ function ElectionInfoForm({
 
   function onInputChange(field: TextProperties) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
+      // @coverage-defer
       setElectionInfo((prev = savedElectionInfo) => ({
         ...prev,
         [field]: e.target.value,
@@ -122,6 +122,7 @@ function ElectionInfoForm({
 
   function onInputBlur(field: TextProperties) {
     return () => {
+      // @coverage-defer
       setElectionInfo((prev = savedElectionInfo) => ({
         ...prev,
         [field]:
@@ -134,6 +135,7 @@ function ElectionInfoForm({
     setIsConfirmingDelete(true);
   }
 
+  // @coverage-defer
   function onCancelDelete() {
     setIsConfirmingDelete(false);
   }
@@ -152,7 +154,7 @@ function ElectionInfoForm({
   let errorMessage;
   if (updateElectionInfoMutation.data?.isErr()) {
     const error = updateElectionInfoMutation.data.err();
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (error !== 'duplicate-title-and-date') throwIllegalValue(error);
     errorMessage = (
       <Callout icon="Danger" color="danger">
@@ -207,6 +209,7 @@ function ElectionInfoForm({
                 });
                 setDraftDate(undefined);
               } catch {
+                // @coverage-defer
                 setDraftDate(e.target.value);
               }
             }}
@@ -238,6 +241,7 @@ function ElectionInfoForm({
           onChange={(option) =>
             setElectionInfo({
               ...electionInfo,
+              // @coverage-defer
               type: option === 'general' ? 'general' : 'primary',
               isMiCombinedBallotPrimary: option === 'open-primary',
             })
@@ -279,6 +283,7 @@ function ElectionInfoForm({
           <div style={{ display: 'inline-flex' }}>
             <SealImageInput
               value={electionInfo.seal}
+              // @coverage-defer
               onChange={(seal = '') =>
                 setElectionInfo({ ...electionInfo, seal })
               }
@@ -293,6 +298,7 @@ function ElectionInfoForm({
               <FieldName>Signature</FieldName>
               <SignatureImageInput
                 value={electionInfo.signatureImage ?? ''}
+                // @coverage-defer
                 onChange={(signatureImage = '') =>
                   setElectionInfo({
                     ...electionInfo,

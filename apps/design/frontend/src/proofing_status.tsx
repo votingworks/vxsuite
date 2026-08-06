@@ -189,6 +189,7 @@ export function ProofingStatus(): React.ReactNode {
                   to approve these ballots before QA is complete?
                 </P>
               ) : (
+                // @coverage-defer
                 <P>
                   The automated QA check has not completed. Are you sure you
                   want to approve these ballots?
@@ -217,6 +218,7 @@ export function ProofingStatus(): React.ReactNode {
               </Button>
             </React.Fragment>
           }
+          // @coverage-defer
           onOverlayClick={() => setShowQaWarningModal(false)}
         />
       )}
@@ -275,6 +277,7 @@ export function ProofingStatus(): React.ReactNode {
               </Button>
             </React.Fragment>
           }
+          // @coverage-defer
           onOverlayClick={() => {
             setShowUnfinalizeModal(false);
             setReasonForUnfinalizing('');
@@ -346,6 +349,7 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
 
   if (status === 'success') {
     return (
+      // @coverage-defer
       <StatusLine date={updatedAt ?? createdAt} done>
         QA check passed
         {resultsUrl && (
@@ -360,6 +364,7 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
     );
   }
 
+  // @coverage-defer
   return null;
 }
 
@@ -372,6 +377,7 @@ function ApprovalNextSteps(): React.ReactNode {
   React.useEffect(() => {
     if (!justCopied) return;
 
+    // @coverage-defer
     const timer = window.setTimeout(() => setJustCopied(false), 1000);
     return () => window.clearTimeout(timer);
   }, [justCopied]);
@@ -412,6 +418,7 @@ function ExportStatus(props: {
 }): React.ReactNode {
   const { task, title } = props;
 
+  // @coverage-defer
   if (!task) return null;
 
   if (task.error) {
