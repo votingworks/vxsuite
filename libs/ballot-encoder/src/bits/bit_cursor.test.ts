@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BitCursor } from './bit_cursor';
+import { BitCursor } from './bit_cursor.js';
 
 test('starts with bit offset 0', () => {
   expect(new BitCursor().bitOffset).toEqual(0);

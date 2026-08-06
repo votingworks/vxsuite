@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BitReader, BitWriter, CustomEncoding } from '.';
+import { BitReader, BitWriter, CustomEncoding } from './index.js';
 
 test('can round-trip a bit', () => {
   expect(
