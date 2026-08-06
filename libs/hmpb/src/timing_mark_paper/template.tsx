@@ -13,6 +13,7 @@ export type TimingMarkPaperType = 'standard' | 'qa-overlay';
 export async function render(
   renderer: Renderer,
   paperSize: HmpbBallotPaperSize,
+  // @coverage-defer
   timingMarkPaperType: TimingMarkPaperType = 'standard'
 ): Promise<RenderDocument> {
   const scratchpad = await renderer.createScratchpad(<BaseStyles />);

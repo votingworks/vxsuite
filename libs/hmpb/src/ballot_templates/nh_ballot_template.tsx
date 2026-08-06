@@ -149,10 +149,12 @@ export function rotateCandidatesByPrecinct(
   precincts: readonly Precinct[],
   precinctId: PrecinctId
 ): OrderedCandidateOption[] {
+  // @coverage-defer
   if (contest.candidates.length < 2) {
     return contest.candidates.map((c) => ({ id: c.id, partyIds: c.partyIds }));
   }
   const allPrecinctsWithContest = precincts.filter((precinct) =>
+    // @coverage-defer
     hasSplits(precinct)
       ? precinct.splits.some((split) =>
           split.districtIds.includes(contest.districtId)
@@ -193,6 +195,7 @@ function rotateCandidates(
   precincts: readonly Precinct[],
   precinctId: PrecinctId
 ): OrderedCandidateOption[] {
+  // @coverage-defer
   if ((contestsUsingPrecinctRotation[electionId] ?? []).includes(contest.id)) {
     return rotateCandidatesByPrecinct(contest, precincts, precinctId);
   }
@@ -217,7 +220,7 @@ export function getCandidateOrderingSetsForNhBallot({
         OrderedCandidateOption[]
       > = {};
       for (const contest of contests) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (contest.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }
@@ -286,6 +289,7 @@ function Header({
   const ballotTitle = ballotTitles[ballotMode][ballotType];
 
   const party =
+    // @coverage-defer
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
@@ -326,6 +330,7 @@ function Header({
         <DualLanguageText>
           <div>
             <h1>{ballotTitle}</h1>
+            {/* @coverage-defer */}
             {party && <h1>{electionStrings.partyFullName(party)}</h1>}
             <h2>
               {electionTitleOverride ?? electionStrings.electionTitle(election)}
@@ -358,11 +363,13 @@ function Header({
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             marginTop: '0.125rem',
+            // @coverage-defer
             visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
           }}
         />
         <div
           style={{
+            // @coverage-defer
             visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
           }}
         >
@@ -394,6 +401,7 @@ function BallotPageFrame({
   totalPages?: number;
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
+  // @coverage-defer
   // Validate signature is present before rendering as old elections or
   // elections toggled from the VxDefault template may be missing it
   if (!election.signature) {
@@ -426,6 +434,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {/* @coverage-defer */}
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
@@ -508,6 +517,7 @@ function CandidateContest({
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
+  // @coverage-defer
   if (!voteForText) {
     throw new Error(
       `Unsupported number of seats for contest: ${contest.seats}`
@@ -545,6 +555,7 @@ function CandidateContest({
           </div>
         </DualLanguageText>
         {contest.termDescription && (
+          // @coverage-defer
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>
           </DualLanguageText>
@@ -553,6 +564,7 @@ function CandidateContest({
       <ul>
         {candidates.map((candidate, i) => {
           const partyText =
+            // @coverage-defer
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
                 candidate={candidate}
@@ -655,7 +667,7 @@ function BallotMeasureContest({
   // broader fix for in our image upload handling.
   // https://design.voting.works/elections/g4usy39oo1fw/contests/h9fzgh2orsim
   const ASHLAND_CONTEST_ID = 'h9fzgh2orsim';
-  /* istanbul ignore next - temporary */
+  // @coverage-exclude: temporary
   const imgWithOverride = contest.id === ASHLAND_CONTEST_ID ? '50%' : undefined;
 
   return (
@@ -775,7 +787,7 @@ function Contest({
   ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }) {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -834,6 +846,7 @@ async function splitLongBallotMeasureAcrossPages(
       dimensions.height
   );
 
+  // @coverage-defer
   // If no child explicitly overflows with the continues footer, it means the
   // contest overflows due to the Yes/No options (which are larger than the
   // continues footer). In this case, we split before the last child to be safe.
@@ -842,6 +855,7 @@ async function splitLongBallotMeasureAcrossPages(
     firstOverflowingChildIndex = childMeasurements.length - 1;
   }
 
+  // @coverage-defer
   // If a given child, e.g., paragraph, is itself too tall to fit on the page, we can't proceed and
   // need the user to try a longer paper size or higher density, or add a line break to their
   // content.
@@ -876,6 +890,7 @@ async function splitLongBallotMeasureAcrossPages(
 
   const restDescription = descriptionHtmlText.slice(splitIndex);
   const continuedTitleSuffix = ' (Continued)';
+  // @coverage-defer
   const continuedTitle = tooLongContest.title.endsWith(continuedTitleSuffix)
     ? tooLongContest.title
     : `${tooLongContest.title}${continuedTitleSuffix}`;
@@ -909,6 +924,7 @@ async function BallotPageContent(
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contests = getContests({ election, ballotStyle });
+  // @coverage-defer
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
@@ -1025,6 +1041,7 @@ async function BallotPageContent(
       },
       scratchpad
     );
+    // @coverage-defer
     if (splitResult.isOk()) {
       const { firstContestElement, restContest } = splitResult.ok();
       pageSections.push(firstContestElement);
@@ -1065,6 +1082,7 @@ async function BallotPageContent(
         ))}
       </div>
     ) : (
+      // @coverage-defer
       <BlankPageMessage />
     );
   const nextPageProps =

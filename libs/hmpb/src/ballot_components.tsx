@@ -256,7 +256,7 @@ export const BubbleShape = styled.div<{
   border: 1px solid black;
   background: ${(p) => {
     if (p.isFilled) return 'black';
-    /* istanbul ignore next - partial fill is only rendered when generating
+    /* @coverage-exclude: partial fill is only rendered when generating
        marginal-mark fixtures via @votingworks/integration-test-utils */
     if (p.fillFraction) {
       const pct = p.fillFraction * 100;
@@ -778,6 +778,7 @@ interface ContestHeaderProps {
   compact?: boolean;
 }
 
+// @coverage-defer
 export const ContestHeader = styled.div<ContestHeaderProps>`
   background: ${Colors.LIGHT_GRAY};
   padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};

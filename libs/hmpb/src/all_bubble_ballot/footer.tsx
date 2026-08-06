@@ -86,6 +86,7 @@ export function Footer({
   );
 
   let endOfPageInstruction;
+  // @coverage-defer
   if (totalPages !== undefined) {
     endOfPageInstruction =
       pageNumber === totalPages ? ballotComplete : continueVoting;

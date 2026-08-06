@@ -86,6 +86,7 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
       return createRendererFromPage(pageHandle).createScratchpad(styles);
     },
 
+    // @coverage-defer
     async loadDocumentFromContent(
       htmlContent: string
     ): Promise<RenderDocument> {
@@ -156,6 +157,7 @@ async function runTasksConcurrently<T>({
  * {@param size}).
  */
 export async function createPlaywrightRendererPool(
+  // @coverage-defer
   size = cpus().length || 2
 ): Promise<RendererPool> {
   const browser = await launchChromium();

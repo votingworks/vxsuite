@@ -96,6 +96,7 @@ const Box = styled.div<{
   border-width: 0 0 3px 0;
   padding: 0.75rem;
   background-color: ${(p) =>
+    // @coverage-defer
     p.fill === 'tinted'
       ? Colors.LIGHT_GRAY
       : p.fill === 'transparent' || !p.fill
@@ -106,6 +107,7 @@ const Box = styled.div<{
 function colorTintForParty(party: Party): ColorTint {
   if (isDemocraticParty(party)) return 'BLUE';
   if (isRepublicanParty(party)) return 'RED';
+  // @coverage-defer
   return 'GRAY';
 }
 
@@ -168,6 +170,7 @@ function Header({
         </h3>
         <h5
           style={{
+            // @coverage-defer
             visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
             lineHeight: 1,
           }}
@@ -184,6 +187,7 @@ function Header({
         <h5>{electionStrings.electionDate(election)}</h5>
       </div>
       {ballotMode === 'sample' ? (
+        // @coverage-defer
         <div
           style={{
             width: '1.5in',
@@ -275,6 +279,7 @@ export function BallotPageFrame({
   totalPages?: number;
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
+  // @coverage-defer
   if (!election.signature) {
     return err({ error: 'missingSignature' });
   }
@@ -298,6 +303,7 @@ export function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {/* @coverage-defer */}
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
@@ -396,6 +402,7 @@ function CandidateContest({
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
+  // @coverage-defer
   if (!voteForText) {
     throw new Error(
       `Unsupported number of seats for contest: ${contest.seats}`
@@ -426,9 +433,11 @@ function CandidateContest({
         <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         <h5>
           {voteForText}
+          {/* @coverage-defer */}
           {willBeElectedText && <span>; {willBeElectedText}</span>}
         </h5>
         {contest.termDescription && (
+          // @coverage-defer
           <div>{electionStrings.contestTerm(contest)}</div>
         )}
       </ContestHeader>
@@ -599,7 +608,7 @@ function Contest({
   election: Election;
   colorTint: ColorTint;
 }) {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -626,6 +635,7 @@ export async function BallotPageContent(
   );
   const colorTint = colorTintForParty(party);
   const contests = getContests({ election, ballotStyle });
+  // @coverage-defer
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
@@ -743,6 +753,7 @@ export async function BallotPageContent(
         {pageSections}
       </div>
     ) : (
+      // @coverage-defer
       <React.Fragment />
     );
   const nextPageProps =

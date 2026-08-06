@@ -14,6 +14,7 @@ function compareByScores<T>(scoringFns: Array<(item: T) => number>) {
         return diff;
       }
     }
+    // @coverage-defer
     return 0;
   };
 }
@@ -141,6 +142,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
     if (firstEmptyColumnIndex !== -1) {
       const newColumns = [...columnsSoFar];
       newColumns[firstEmptyColumnIndex] = [nextElement];
+      // @coverage-defer
       if (!isColumnOverflowing(newColumns[firstEmptyColumnIndex])) {
         yield* possibleColumns(newColumns, restElements);
       }
@@ -160,6 +162,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
         // Least difference in height among columns
         (columns) =>
           spread(columns.map((column) => columnHeight(column, elementGap))),
+        // @coverage-defer
         // Least gaps (empty columns in the middle)
         (columns) => columns.findIndex((column) => column.length === 0),
       ])
@@ -312,6 +315,7 @@ export function layOutSectionsInParallelColumns<
   columns: Array<Column<Header | Element>>;
   leftoverSections: Array<Section<Header, Element>>;
 } {
+  // @coverage-defer
   if (sections.length === 0) {
     return { columns: [], leftoverSections: [] };
   }

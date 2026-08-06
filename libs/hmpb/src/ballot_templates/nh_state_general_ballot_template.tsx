@@ -115,6 +115,7 @@ export function Header({
           ABSENTEE
         </h5>
         <h5
+          // @coverage-defer
           style={{ visibility: ballotMode === 'sample' ? 'hidden' : 'visible' }}
         >
           {ballotTitle} FOR
@@ -130,6 +131,7 @@ export function Header({
         <h3>{electionStrings.electionDate(election)}</h3>
       </div>
       {ballotMode === 'sample' ? (
+        // @coverage-defer
         <div
           style={{
             width: '1.2in',
@@ -221,6 +223,7 @@ export function BallotPageFrame({
   totalPages?: number;
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
+  // @coverage-defer
   if (!election.signature) {
     return err({ error: 'missingSignature' });
   }
@@ -240,6 +243,7 @@ export function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {/* @coverage-defer */}
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
@@ -509,6 +513,7 @@ function CandidateContest({
             )}
           </div>
           {contest.termDescription && (
+            // @coverage-defer
             <div>{electionStrings.contestTerm(contest)}</div>
           )}
         </div>
@@ -674,6 +679,7 @@ export async function BallotPageContent(
     getBallotStyle({ election, ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
+  // @coverage-defer
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
@@ -693,7 +699,7 @@ export async function BallotPageContent(
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest, index) => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -796,6 +802,7 @@ export async function BallotPageContent(
         {pageSections}
       </div>
     ) : (
+      // @coverage-defer
       <React.Fragment />
     );
   const nextPageProps =

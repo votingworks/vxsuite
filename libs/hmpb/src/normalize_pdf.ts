@@ -16,6 +16,7 @@ function renumberPdfObjects(str: string): string {
   const defRegex = /(\d+) 0 obj/g;
   let match = defRegex.exec(str);
   while (match) {
+    // @coverage-defer
     if (!oldToNew.has(match[1])) {
       oldToNew.set(match[1], nextNum);
       nextNum += 1;
@@ -38,6 +39,7 @@ function renumberPdfObjects(str: string): string {
   match = newDefRegex.exec(result);
   while (match) {
     const num = safeParseInt(match[1]).unsafeUnwrap();
+    // @coverage-defer
     if (!offsets.has(num)) {
       offsets.set(num, match.index);
     }

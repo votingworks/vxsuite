@@ -10,6 +10,7 @@
     "bin"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../libs/basics/src",
     "benchmark": "bin/run-benchmarks ${BENCH_ENV:-default}",
     "benchmark:compare": "vitest bench --compare bench-results/${BENCH_ENV:-default}.json",
     "build": "is-ci build:ci build:dev",
@@ -25,8 +26,8 @@
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "start": "vite -c vite.config.ts src/preview",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && pnpm test:coverage --run",
-    "test:coverage": "vitest --coverage",
+    "test:ci": "pnpm build && pnpm test:coverage",
+    "test:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:run": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --build"

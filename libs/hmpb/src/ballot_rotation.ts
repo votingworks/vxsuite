@@ -42,7 +42,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     > = {};
 
     for (const contest of contests) {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -58,6 +58,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
 
           // rotate so candidates starting with letters at or after the precinct letter come first
           const startIndex = sortedCandidates.findIndex(
+            // @coverage-defer
             (c) => (c.name.charAt(0) || '').toUpperCase() >= firstLetter
           );
 
@@ -78,7 +79,6 @@ export function getCandidateOrderingByPrecinctAlphabetical({
           break;
         }
         default: {
-          /* istanbul ignore next */
           return throwIllegalValue(contest, 'type');
         }
       }
@@ -106,7 +106,7 @@ function getDefaultCandidateOrdering({
   > = {};
 
   for (const contest of contests) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       return straightPartyNotYetImplemented();
     }
@@ -124,7 +124,6 @@ function getDefaultCandidateOrdering({
         // do nothing
         break;
       default: {
-        /* istanbul ignore next */
         return throwIllegalValue(contest, 'type');
       }
     }
@@ -175,7 +174,6 @@ export function getAllPossibleCandidateOrderings(
       case 'MiBallot':
         return getDefaultCandidateOrdering(params);
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(ballotStyleTemplateId);
       }
     }

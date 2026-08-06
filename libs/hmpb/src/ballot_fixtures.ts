@@ -79,9 +79,12 @@ function lazyFixtures<T extends object>(build: () => T): T {
   }
   return new Proxy(Object.create(null) as T, {
     get: (_target, prop) => Reflect.get(resolve(), prop),
+    // @coverage-defer
     has: (_target, prop) => Reflect.has(resolve(), prop),
+    // @coverage-defer
     ownKeys: () => Reflect.ownKeys(resolve()),
     getOwnPropertyDescriptor: (_target, prop) =>
+      // @coverage-defer
       Reflect.getOwnPropertyDescriptor(resolve(), prop),
   });
 }
@@ -242,6 +245,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
       let markedBallotPageImages: Optional<ImageData[]>;
       let blankOfficialBallotPageImages: Optional<ImageData[]>;
       let markedOfficialBallotPageImages: Optional<ImageData[]>;
+      // @coverage-defer
       if (generatePageImages) {
         [
           blankBallotPageImages,
@@ -531,6 +535,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
           async (renderer) => {
             const ballotDocument =
               await renderer.loadDocumentFromContent(blankBallotContents);
+            // @coverage-defer
             // eslint-disable-next-line @typescript-eslint/no-shadow
             const blankBallotPdf = markedOnly
               ? Buffer.from('')
@@ -566,6 +571,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
                   props.precinctId === spec.otherPrecinctId
               )
           );
+        // @coverage-defer
         const otherPrecinctBlankBallotPdf = markedOnly
           ? Buffer.from('')
           : await rendererPool.runTask(async (renderer) => {
@@ -997,6 +1003,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     'dem-hand-count-blank-ballot.pdf'
   );
   const baseElection = electionPrimaryPrecinctSplitsFixtures.readElection();
+  // @coverage-defer
   // Rename the Mammal/Fish parties to Democrat/Republican so the primary
   // template's color tinting (which keys off isDemocraticParty /
   // isRepublicanParty name matching) takes effect.
@@ -1020,6 +1027,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           abbrev: 'R',
         };
       }
+      // @coverage-defer
       return party;
     }),
     // Match NH state federal-office naming conventions.

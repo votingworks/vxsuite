@@ -174,6 +174,7 @@ export async function generateMarkOverlay(
     ];
 
     let fontSize = writeInFontSizeDefault;
+    // @coverage-defer
     if (fontRobotoBold.widthOfTextAtSize(name, fontSize) > areaSize[0]) {
       fontSize = writeInFontSizeReduced;
     }
@@ -326,7 +327,6 @@ function markInfo(
       }
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest);
     }
   }
