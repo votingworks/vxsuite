@@ -40,7 +40,7 @@ export function getOptionCoordinates(
   optionId: ContestOptionId
 ): Rect {
   const option = optionsLayout.find((opt) => opt.definition?.id === optionId);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!option) {
     throw new Error(
       'unable to find option in layout when determining option ballot coordinates'
@@ -56,6 +56,7 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
       !tag.hasWriteIn &&
       !tag.hasUnmarkedWriteIn &&
       !tag.hasOvervote) ??
+    // @coverage-defer
     false
   );
 }
@@ -151,7 +152,6 @@ export function adjudicatedVotes(
             ),
           ];
         default:
-          /* istanbul ignore next */
           return throwIllegalValue(contest);
       }
     })

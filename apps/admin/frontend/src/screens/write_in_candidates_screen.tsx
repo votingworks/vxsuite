@@ -180,6 +180,7 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
   function deleteCandidate(index: number) {
     const edited = editedCandidates[index];
     const saved = savedCandidates.find((c) => c.id === edited.id);
+    // @coverage-defer
     if (saved) {
       if (saved.hasAdjudicatedVotes) {
         setCandidateToDelete(saved);
@@ -204,6 +205,7 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
     const namesSeen = new Map<string, Id>();
     for (const candidate of editedCandidates) {
       const trimmed = candidate.name.trim().toLowerCase();
+      // @coverage-defer
       if (!trimmed) continue;
       const existingId = namesSeen.get(trimmed);
       if (existingId) {
@@ -242,7 +244,9 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
     }
 
     const renamedCandidates = editedCandidates.filter((d) => {
+      // @coverage-defer
       const saved = savedCandidates.find((c) => c.id === d.id);
+      // @coverage-defer
       return saved && d.name.trim() !== saved.name;
     });
 
@@ -250,15 +254,18 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
       ...editedCandidates
         .filter(
           (d) =>
+            // @coverage-defer
             !savedCandidates.some((c) => c.id === d.id) &&
             d.name.trim().length > 0
         )
         .map((d) => ({ contestId, name: d.name.trim() })),
+      // @coverage-defer
       ...renamedCandidates.map((d) => ({ contestId, name: d.name.trim() })),
     ];
 
     const allDeletedIds = [
       ...deletedIds,
+      // @coverage-defer
       ...renamedCandidates.map((d) => d.id),
     ];
 

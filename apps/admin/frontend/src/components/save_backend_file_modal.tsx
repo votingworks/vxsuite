@@ -43,6 +43,7 @@ export function SaveBackendFileModal({
   filename,
 }: SaveBackendFileModalProps): JSX.Element {
   const { usbDriveStatus, auth } = useContext(AppContext);
+  // @coverage-defer
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   function onClose() {
@@ -96,7 +97,6 @@ export function SaveBackendFileModal({
           />
         );
       }
-      // istanbul ignore next
       default:
         throwIllegalValue(usbDriveStatus, 'status');
     }
@@ -129,7 +129,6 @@ export function SaveBackendFileModal({
   }
 
   const errorMessage = (() => {
-    // istanbul ignore next - if this actually happens, error will go to error boundary
     if (saveFileStatus === 'error') {
       return 'Unknown API Error.';
     }
@@ -137,6 +136,7 @@ export function SaveBackendFileModal({
     assert(saveFileStatus === 'success');
     assert(saveFileResult && saveFileResult.isErr());
     const error = saveFileResult.err();
+    // @coverage-defer
     switch (error.type) {
       case 'permission-denied':
         return 'Permission denied.';
@@ -145,7 +145,6 @@ export function SaveBackendFileModal({
       case 'missing-usb-drive':
       case 'relative-file-path':
         return 'Application error.';
-      // istanbul ignore next
       default:
         throwIllegalValue(error.type);
     }

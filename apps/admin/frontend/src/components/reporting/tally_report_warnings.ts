@@ -72,12 +72,10 @@ export function getTallyReportWarningText({
             body: baseWarningText,
           };
         }
-        // istanbul ignore next
         default:
           return throwIllegalValue(tallyReportWarning, 'subType');
       }
     }
-    // istanbul ignore next
     default:
       throwIllegalValue(tallyReportWarning, 'type');
   }

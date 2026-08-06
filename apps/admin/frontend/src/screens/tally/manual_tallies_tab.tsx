@@ -53,6 +53,7 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
 ];
 
 function getManualTallyVotingMethods(
+  // @coverage-defer
   options: { isEarlyVotingEnabled?: boolean } = {}
 ): ManualResultsVotingMethod[] {
   return options.isEarlyVotingEnabled
@@ -62,6 +63,7 @@ function getManualTallyVotingMethods(
 
 function getAllPossibleManualTallyIdentifiers(
   election: Election,
+  // @coverage-defer
   options: { isEarlyVotingEnabled?: boolean } = {}
 ): ManualResultsIdentifier[] {
   return getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>

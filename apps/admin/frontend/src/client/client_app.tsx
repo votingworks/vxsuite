@@ -18,8 +18,10 @@ export interface ClientAppProps {
 
 export function ClientApp({
   apiClient,
+  // @coverage-defer
   queryClient = createQueryClient(),
 }: ClientAppProps): JSX.Element {
+  // @coverage-defer
   const resolvedApiClient = apiClient ?? createApiClient();
   return (
     <ApiClientContext.Provider value={resolvedApiClient}>

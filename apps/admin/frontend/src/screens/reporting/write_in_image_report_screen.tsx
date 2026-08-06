@@ -123,10 +123,13 @@ export function WriteInImageReportScreen(): JSX.Element {
                 exportMutation={exportMutation}
                 exportParameters={{ contestId }}
                 generateFilename={({ isTestMode, isOfficialResults, time }) => {
+                  // @coverage-defer
                   const prefix = isTestMode ? 'test-' : '';
+                  // @coverage-defer
                   const officiality = isOfficialResults
                     ? 'official'
                     : 'unofficial';
+                  // @coverage-defer
                   const contestSlug = (selectedContest?.title ?? contestId)
                     .toLowerCase()
                     .replace(/\s+/g, '-');

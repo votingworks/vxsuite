@@ -202,7 +202,6 @@ test('entering initial ballot count and contest tallies', async () => {
     expect(undervotesInput).toHaveValue('');
     userEvent.type(undervotesInput, contestResults.undervotes.toString());
 
-    /* istanbul ignore next */
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }

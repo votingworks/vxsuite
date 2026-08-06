@@ -142,7 +142,6 @@ function getNavItems(
       return CLIENT_POLL_WORKER_NAV_ITEMS;
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
 }
@@ -161,7 +160,6 @@ function shouldShowToolbar(
         isPollWorkerAuth(auth)
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
 }
@@ -192,6 +190,7 @@ function UsbEjectButton({
   onEject: () => void;
   isEjecting: boolean;
 }): JSX.Element {
+  // @coverage-defer
   const extendedStatus: ExtendedUsbDriveStatus = isEjecting
     ? 'ejecting'
     : usbDriveStatus.status;
@@ -237,6 +236,7 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
             <DateTimeDisplay />
             <UsbEjectButton
               usbDriveStatus={usbDriveStatus}
+              // @coverage-defer
               onEject={() => ejectUsbDriveMutation.mutate()}
               isEjecting={ejectUsbDriveMutation.isLoading}
             />

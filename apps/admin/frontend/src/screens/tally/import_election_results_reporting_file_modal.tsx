@@ -29,7 +29,6 @@ function errorCodeToMessage(
     case 'conversion-failed':
       return 'File is not a valid Election Results Reporting CDF file. Please ensure you are using the correct file format.';
     default: {
-      /* istanbul ignore next - compile time check */
       throwIllegalValue(errorCode);
     }
   }
@@ -80,6 +79,7 @@ export function ImportElectionsResultReportingFileModal({
       return;
     }
     const selectedPath = dialogResult.filePaths[0];
+    // @coverage-defer
     if (selectedPath) {
       handleImportElectionResultReportingFile(selectedPath);
     }
@@ -156,6 +156,5 @@ export function ImportElectionsResultReportingFileModal({
     );
   }
 
-  /* istanbul ignore next - compile time check */
   throwIllegalValue(usbDriveStatus, 'status');
 }

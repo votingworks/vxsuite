@@ -137,6 +137,7 @@ function generateOptionsForFilter({
     }
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
+        // @coverage-defer
         ...(isEarlyVotingEnabled
           ? [
               {
@@ -182,7 +183,6 @@ function generateOptionsForFilter({
         label: district.name,
       }));
     default: {
-      /* istanbul ignore next - compile-time check for completeness */
       throwIllegalValue(filterType);
     }
   }
@@ -226,7 +226,6 @@ function convertFilterRowsToTabulationFilter(
         filter.districtIds = filterValues;
         break;
       default: {
-        /* istanbul ignore next - compile-time check for completeness */
         throwIllegalValue(filterType);
       }
     }

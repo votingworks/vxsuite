@@ -69,7 +69,6 @@ export function CvrImportPanel(props: Props): React.ReactNode {
         return null;
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(importer, 'state');
     }
   })();

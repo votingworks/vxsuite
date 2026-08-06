@@ -1,5 +1,3 @@
-/* istanbul ignore file - shared base, tested via concrete components */
-
 import React from 'react';
 import styled from 'styled-components';
 

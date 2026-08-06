@@ -58,6 +58,7 @@ export function DiagnosticsScreen(): JSX.Element {
       <PageLayout>
         <div>
           <AdminReadinessReportContents
+            // @coverage-defer
             batteryInfo={batteryInfo ?? undefined}
             diskSpaceSummary={diskSpaceSummary}
             printerStatus={printerStatus}

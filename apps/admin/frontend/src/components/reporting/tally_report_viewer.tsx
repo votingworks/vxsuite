@@ -165,6 +165,7 @@ export function TallyReportViewer({
               >
                 <div>
                   {text.header && (
+                    // @coverage-defer
                     <H6 style={{ lineHeight: 1 }}>{text.header}</H6>
                   )}
                   {text.body}

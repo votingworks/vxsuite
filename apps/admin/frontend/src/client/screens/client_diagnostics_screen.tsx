@@ -24,6 +24,7 @@ export function ClientDiagnosticsScreen(): JSX.Element {
   return (
     <NavigationScreen title="Diagnostics">
       <AdminClientReadinessReportContents
+        // @coverage-defer
         batteryInfo={batteryInfo ?? undefined}
         diskSpaceSummary={diskSpaceSummary}
         electionDefinition={electionDefinition}

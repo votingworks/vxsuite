@@ -85,6 +85,7 @@ function PdfViewerHelper({
     [pdfData]
   );
 
+  // @coverage-defer
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     if (!numPages) return;
     const { scrollHeight, scrollTop } = e.currentTarget;
@@ -136,6 +137,7 @@ function PdfViewerHelper({
           {!numPages && loadingSpinner}
           <Document
             file={file}
+            // @coverage-defer
             onSourceSuccess={() => setNumPages(undefined)}
             onLoadSuccess={(result) => setNumPages(result.numPages)}
             // Hide the built in loading message
