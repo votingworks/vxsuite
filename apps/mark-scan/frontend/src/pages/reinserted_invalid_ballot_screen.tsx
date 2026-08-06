@@ -3,11 +3,11 @@ import React from 'react';
 import { assertDefined } from '@votingworks/basics';
 import { PageInterpretationType } from '@votingworks/types';
 
-import * as api from '../api';
-import { ReinsertedNonBallotScreen } from './reinserted_non_ballot_screen';
-import { ReinsertedWrongElectionBallotScreen } from './reinserted_wrong_election_ballot_screen';
-import { ReinsertedWrongTestModeBallotScreen } from './reinserted_wrong_test_mode_ballot_screen';
-import { ReinsertedWrongPrecinctBallotScreen } from './reinserted_wrong_precinct_ballot_screen';
+import * as api from '../api.js';
+import { ReinsertedNonBallotScreen } from './reinserted_non_ballot_screen.js';
+import { ReinsertedWrongElectionBallotScreen } from './reinserted_wrong_election_ballot_screen.js';
+import { ReinsertedWrongTestModeBallotScreen } from './reinserted_wrong_test_mode_ballot_screen.js';
+import { ReinsertedWrongPrecinctBallotScreen } from './reinserted_wrong_precinct_ballot_screen.js';
 
 const SCREENS: Readonly<
   Record<PageInterpretationType, JSX.Element | undefined>

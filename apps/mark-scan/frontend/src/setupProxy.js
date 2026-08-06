@@ -1,1 +1,0 @@
-../prodserver/setupProxy.js

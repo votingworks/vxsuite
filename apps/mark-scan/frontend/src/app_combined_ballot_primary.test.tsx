@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { BallotStyleId, CandidateContest } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { App } from './app';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { App } from './app.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

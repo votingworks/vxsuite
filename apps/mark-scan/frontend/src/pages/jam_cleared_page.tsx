@@ -1,10 +1,10 @@
 import { appStrings, P } from '@votingworks/ui';
 import { InsertedSmartCardAuth } from '@votingworks/types';
-import { AskPollWorkerPage } from './ask_poll_worker_page';
+import { AskPollWorkerPage } from './ask_poll_worker_page.js';
 import {
   JamClearedState,
   ReplaceJammedSheetScreen,
-} from './replace_jammed_sheet_screen';
+} from './replace_jammed_sheet_screen.js';
 
 export interface JamClearedPageProps {
   authStatus:

@@ -27,9 +27,9 @@ import {
   setPollingPlaceId,
   setTestMode,
   useApiClient,
-} from '../api';
-import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
-import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
+} from '../api.js';
+import { DiagnosticsScreen } from './diagnostics/diagnostics_screen.js';
+import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal.js';
 
 const ButtonGrid = styled.div`
   display: grid;

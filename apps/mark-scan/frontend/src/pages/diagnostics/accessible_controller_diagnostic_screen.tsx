@@ -10,11 +10,11 @@ import {
   MarkScanControllerButton,
   Keybinding,
 } from '@votingworks/ui';
-import { addDiagnosticRecord } from '../../api';
+import { addDiagnosticRecord } from '../../api.js';
 import {
   CancelButtonContainer,
   StepContainer,
-} from './diagnostic_screen_components';
+} from './diagnostic_screen_components.js';
 
 interface DiagnosticStep {
   button: string;

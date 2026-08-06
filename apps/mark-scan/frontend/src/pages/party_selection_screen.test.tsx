@@ -5,9 +5,9 @@ import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { CandidateContest, VotesDict } from '@votingworks/types';
-import { screen, within } from '../../test/react_testing_library';
-import { render } from '../../test/test_utils';
-import { PartySelectionScreen } from './party_selection_screen';
+import { screen, within } from '../../test/react_testing_library.js';
+import { render } from '../../test/test_utils.js';
+import { PartySelectionScreen } from './party_selection_screen.js';
 
 const electionDefinition =
   electionCombinedBallotPrimaryFixtures.readElectionDefinition();

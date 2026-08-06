@@ -3,7 +3,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { VxScreen, mockUsbDriveStatus } from '@votingworks/ui';
-import { ApiMock } from './mock_api_client';
+import { ApiMock } from './mock_api_client.js';
 
 /**
  * Simulates inserting a USB drive, configuring the backend with an election definition,

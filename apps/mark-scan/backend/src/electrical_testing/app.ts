@@ -7,8 +7,8 @@ import * as grout from '@votingworks/grout';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import express, { Application } from 'express';
-import { ServerContext } from './context';
-import { getMachineConfig } from '../machine_config';
+import { ServerContext } from './context.js';
+import { getMachineConfig } from '../machine_config.js';
 
 function buildApi({
   workspace,

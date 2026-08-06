@@ -2,7 +2,7 @@ import { Button, Icons, P } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { useEffect } from 'react';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
-import { confirmInvalidateBallot } from '../api';
+import { confirmInvalidateBallot } from '../api.js';
 
 interface Props {
   paperPresent: boolean;

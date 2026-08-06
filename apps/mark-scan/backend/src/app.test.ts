@@ -51,28 +51,28 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { AddressInfo } from 'node:net';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import * as backendLib from '@votingworks/backend';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
-} from '../test/app_helpers';
-import { Api, buildApp } from './app';
+} from '../test/app_helpers.js';
+import { Api, buildApp } from './app.js';
 import {
   ACCEPTED_PAPER_TYPES,
   delays,
   PaperHandlerStateMachine,
   SimpleServerStatus,
-} from './custom-paper-handler';
-import { ElectionState } from './types';
+} from './custom-paper-handler/index.js';
+import { ElectionState } from './types.js';
 import {
   mockCardlessVoterAuth,
   mockElectionManagerAuth,
   mockPollWorkerAuth,
-} from '../test/auth_helpers';
-import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
-import { createWorkspace } from './util/workspace';
+} from '../test/auth_helpers.js';
+import { PatConnectionStatusReader } from './pat-input/connection_status_reader.js';
+import { createWorkspace } from './util/workspace.js';
 
 const TEST_POLLING_INTERVAL_MS = 15;
 

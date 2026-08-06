@@ -3,9 +3,9 @@ import { BallotMetadata, PageInterpretation } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
-import { render } from '../../test/react_testing_library';
-import * as api from '../api';
-import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen';
+import { render } from '../../test/react_testing_library.js';
+import * as api from '../api.js';
+import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen.js';
 
 vi.mock(import('../api.js'));
 

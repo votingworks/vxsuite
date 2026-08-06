@@ -12,8 +12,8 @@ import {
   CONNECTION_RETRY_INTERVAL_MS,
   CONNECTION_TIMEOUT_MS,
   PatConnectionStatusReader,
-} from './connection_status_reader';
-import { FAI_100_STATUS_FILENAME } from './constants';
+} from './connection_status_reader.js';
+import { FAI_100_STATUS_FILENAME } from './constants.js';
 
 const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
