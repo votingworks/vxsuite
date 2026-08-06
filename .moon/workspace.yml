@@ -11,6 +11,7 @@ projects:
   # tsc build); the second group sits downstream of a native lib (e.g. via
   # `backend` -> `logging-utils`) and is wired here now that the native deps
   # above are in the graph, so moon builds/hashes the native dep first.
+  admin-backend: apps/admin/backend
   auth: libs/auth
   backend: libs/backend
   ballot-encoder: libs/ballot-encoder
