@@ -159,6 +159,7 @@ export function PrintBlankBallotScreen({
                 }))}
                 value={selectedLanguage}
                 onChange={(value) => {
+                  // @coverage-defer
                   if (value) {
                     setSelectedLanguage(value);
                   }

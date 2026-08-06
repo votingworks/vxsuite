@@ -95,6 +95,7 @@ export function AdminScreen({
     );
   }
 
+  // @coverage-defer
   if (isTestDeckScreenOpen) {
     return (
       <TestDeckScreen
@@ -183,6 +184,7 @@ export function AdminScreen({
             Diagnostics
           </Button>
           {systemSettingsQuery.data?.enableTestDeckPrinting && (
+            // @coverage-defer
             <Button onPress={() => setIsTestDeckScreenOpen(true)}>
               Test Decks
             </Button>

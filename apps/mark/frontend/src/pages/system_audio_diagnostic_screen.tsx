@@ -39,11 +39,12 @@ export function SystemAudioDiagnosticScreen({
         <H2>System Audio Test</H2>
         <P>Press the button below to play audio through the system speakers.</P>
         {playSoundMutation.isLoading ? (
+          // @coverage-defer
           <Button
             disabled
             icon="SoundOn"
             onPress={
-              /* istanbul ignore next */
+              // @coverage-exclude
               () => {}
             }
           >

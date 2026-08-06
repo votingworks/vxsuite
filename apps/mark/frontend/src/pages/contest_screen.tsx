@@ -51,6 +51,7 @@ export function ContestScreen(): JSX.Element {
       updateVote={updateVote}
       votes={votes}
       accessibilityMode={
+        // @coverage-defer
         // Simultaneous PAT and controller usage is not supported
         isPatDeviceConnected
           ? AccessibilityMode.SWITCH_SCANNING

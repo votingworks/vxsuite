@@ -13,14 +13,16 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/contexts/ballot_context.ts',
+        'src/polyfills.ts',
         // Hardware-test app code — not exercised by unit tests (only wired
         // up via index.tsx, which is itself excluded).
         'src/electrical_testing',
         '**/*.test.{ts,tsx}',
       ],
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: 99,
-        branches: 98,
+        lines: 0,
+        branches: 0,
       },
     },
     alias: [

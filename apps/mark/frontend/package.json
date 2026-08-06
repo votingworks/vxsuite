@@ -15,6 +15,7 @@
     "build:self": "pnpm type-check && vite build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../../libs/basics/src",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
@@ -23,8 +24,8 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage CI=true vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "CI=true pnpm test:coverage",
+    "test:coverage": "TZ=America/Anchorage vitest run --coverage && pnpm coverage-check",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest --watch",
     "type-check": "tsc --build"
