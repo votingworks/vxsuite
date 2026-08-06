@@ -7,7 +7,7 @@ import {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,
-} from '../types';
+} from '../types.js';
 
 /**
  * A mock of the  interface. See for details.

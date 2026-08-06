@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install();
+// Runs compiled output: the esbuild-runner require hook can't be used from an
+// ES module, and it resolves `.js` specifiers literally so it never finds the
+// `.ts` sources. Run `pnpm build` first.
+import { main } from '../build/cli.js';
 
-require('../src/cli')
-  .main()
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+try {
+  process.exitCode = await main();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
