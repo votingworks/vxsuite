@@ -55,6 +55,12 @@ pub struct Collected {
     /// All switch-case clause spans (directive insertion avoids these:
     /// comments between empty fallthrough cases trip `no-fallthrough`).
     pub case_spans: Vec<Span>,
+    /// JSX element/fragment spans — inside their children, `//` lines are
+    /// text, so inserted directives need the `{/* ... */}` container form.
+    pub jsx_spans: Vec<Span>,
+    /// Spans that restore JS-comment context inside JSX: expression
+    /// containers (`{...}`) and opening tags (attribute lists).
+    pub jsx_expr_spans: Vec<Span>,
 }
 
 #[derive(Default)]
@@ -76,6 +82,35 @@ fn statement_terminates(stmt: &Statement) -> bool {
     }
 }
 
+/// Start of the arm's single expression/return statement (modulo a trailing
+/// `break` and a single wrapping block — the repo's
+/// `default: { throwIllegalValue(x); }` convention), if the arm has one.
+fn single_stmt_arm_start(case: &oxc_ast::ast::SwitchCase) -> Option<u32> {
+    let mut body: Vec<&Statement> = case.consequent.iter().collect();
+    if let Some(Statement::BreakStatement(_)) = body.last().map(|s| &**s) {
+        body.pop();
+    }
+    while body.len() == 1 {
+        if let Statement::BlockStatement(block) = body[0] {
+            body = block.body.iter().collect();
+            if let Some(Statement::BreakStatement(_)) = body.last().map(|s| &**s) {
+                body.pop();
+            }
+        } else {
+            break;
+        }
+    }
+    if body.len() == 1
+        && matches!(
+            body[0],
+            Statement::ExpressionStatement(_) | Statement::ReturnStatement(_)
+        )
+    {
+        return Some(body[0].span().start);
+    }
+    None
+}
+
 fn record_siblings(out: &mut Vec<(u32, Option<u32>)>, stmts: &[Statement]) {
     for (i, stmt) in stmts.iter().enumerate() {
         if matches!(stmt, Statement::IfStatement(_)) {
@@ -87,6 +122,11 @@ fn record_siblings(out: &mut Vec<(u32, Option<u32>)>, stmts: &[Statement]) {
 
 impl<'a> Visit<'a> for Collector {
     fn enter_node(&mut self, kind: AstKind<'a>) {
+        // JSX text (mostly whitespace between children) is never a coverage
+        // entity and must not win the next-node race for directive binding.
+        if matches!(kind, AstKind::JSXText(_)) {
+            return;
+        }
         self.out.spans.push(kind.span());
         match kind {
             AstKind::IfStatement(if_stmt) => {
@@ -97,32 +137,21 @@ impl<'a> Visit<'a> for Collector {
                     following_start: None, // filled from sibling info below
                 });
             }
+            AstKind::JSXElement(el) => self.out.jsx_spans.push(el.span),
+            AstKind::JSXFragment(frag) => self.out.jsx_spans.push(frag.span),
+            AstKind::JSXExpressionContainer(container) => {
+                self.out.jsx_expr_spans.push(container.span);
+            }
+            AstKind::JSXOpeningElement(opening) => {
+                self.out.jsx_expr_spans.push(opening.span);
+            }
+            AstKind::JSXEmptyExpression(empty) => {
+                self.out.jsx_expr_spans.push(empty.span);
+            }
             AstKind::SwitchCase(case) => {
                 self.out.case_spans.push(case.span);
-                let mut body: Vec<&Statement> = case.consequent.iter().collect();
-                if let Some(Statement::BreakStatement(_)) = body.last().map(|s| &**s) {
-                    body.pop();
-                }
-                // Unwrap a single block wrapping the arm body (the repo's
-                // `default: { throwIllegalValue(x); }` convention).
-                while body.len() == 1 {
-                    if let Statement::BlockStatement(block) = body[0] {
-                        body = block.body.iter().collect();
-                        if let Some(Statement::BreakStatement(_)) = body.last().map(|s| &**s) {
-                            body.pop();
-                        }
-                    } else {
-                        break;
-                    }
-                }
-                if body.len() == 1 {
-                    if matches!(
-                        body[0],
-                        Statement::ExpressionStatement(_) | Statement::ReturnStatement(_)
-                    ) {
-                        self.single_stmt_arms
-                            .push((body[0].span().start, case.span.start));
-                    }
+                if let Some(stmt_start) = single_stmt_arm_start(case) {
+                    self.single_stmt_arms.push((stmt_start, case.span.start));
                 }
             }
             AstKind::ExpressionStatement(stmt) => {
@@ -362,27 +391,51 @@ pub fn bind_form(
                 Some(i) => Ok(Binding::ElseArm(i.span)),
             }
         }
-        Form::Default => {
-            let container = innermost_container(&file.collected.spans, comment, source_len);
-            let candidates: Vec<Span> = file
+        Form::Default => bind_default(comment, file, source_len),
+    }
+}
+
+fn bind_default(comment: Span, file: &ParsedFile, source_len: u32) -> Result<Binding, BindError> {
+    // A JSX comment container (`{/* directive */}`) holds nothing after the
+    // comment; it is transparent, and the directive binds within the
+    // enclosing JSX children instead.
+    let is_transparent = |container: Span| {
+        file.collected.jsx_expr_spans.contains(&container)
+            && !file
                 .collected
                 .spans
                 .iter()
-                .filter(|s| s.start >= comment.end && s.start < container.end)
-                .copied()
-                .collect();
-            let Some(min_start) = candidates.iter().map(|s| s.start).min() else {
-                return Err(BindError::Orphan);
-            };
-            let outermost = candidates
-                .iter()
-                .filter(|s| s.start == min_start)
-                .max_by_key(|s| s.end)
-                .copied()
-                .expect("candidates with min_start is non-empty");
-            Ok(Binding::Range(outermost))
-        }
-    }
+                .any(|s| s.start >= comment.end && s.start < container.end)
+    };
+    let mut containers: Vec<Span> = file
+        .collected
+        .spans
+        .iter()
+        .filter(|s| s.start <= comment.start && s.end >= comment.end)
+        .copied()
+        .collect();
+    containers.sort_by_key(|s| s.end - s.start);
+    let container = containers
+        .into_iter()
+        .find(|s| !is_transparent(*s))
+        .unwrap_or(Span::new(0, source_len));
+    let candidates: Vec<Span> = file
+        .collected
+        .spans
+        .iter()
+        .filter(|s| s.start >= comment.end && s.start < container.end)
+        .copied()
+        .collect();
+    let Some(min_start) = candidates.iter().map(|s| s.start).min() else {
+        return Err(BindError::Orphan);
+    };
+    let outermost = candidates
+        .iter()
+        .filter(|s| s.start == min_start)
+        .max_by_key(|s| s.end)
+        .copied()
+        .expect("candidates with min_start is non-empty");
+    Ok(Binding::Range(outermost))
 }
 
 fn innermost_container(spans: &[Span], comment: Span, source_len: u32) -> Span {
@@ -392,4 +445,24 @@ fn innermost_container(spans: &[Span], comment: Span, source_len: u32) -> Span {
         .min_by_key(|s| s.end - s.start)
         .copied()
         .unwrap_or(Span::new(0, source_len))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use oxc_allocator::Allocator;
+
+    #[test]
+    fn jsx_comment_container_binds_next_sibling() {
+        let src = "function App(): JSX.Element {\n  return (\n    <div>\n      {/* @coverage-exclude */}\n      <button>Go</button>\n    </div>\n  );\n}\n";
+        let allocator = Allocator::default();
+        let file = parse_file(&allocator, std::path::Path::new("t.tsx"), src);
+        let directives = bind_directives(&file, u32::try_from(src.len()).unwrap_or(u32::MAX));
+        assert_eq!(directives.len(), 1);
+        let Ok(Binding::Range(range)) = &directives[0].binding else {
+            panic!("expected a range binding, got {:?}", directives[0].binding);
+        };
+        let bound = &src[range.start as usize..range.end as usize];
+        assert_eq!(bound, "<button>Go</button>");
+    }
 }

@@ -7,6 +7,7 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../../libs/basics/src",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -16,8 +17,8 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && pnpm vitest run --coverage",
-    "test:coverage": "vitest --coverage",
+    "test:ci": "pnpm build && pnpm test:coverage",
+    "test:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:run": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --build"

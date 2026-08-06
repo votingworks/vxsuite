@@ -83,9 +83,15 @@ pub fn plan_file_defers(
         // line-scoped comments (eslint-disable-next-line, @ts-expect-error)
         // from the node they target.
         let at = above_leading_comments(source, line_start);
+        // Inside JSX children a `//` line is text, not a comment.
+        let comment = if in_jsx_children_context(file, node.start) {
+            "{/* @coverage-defer */}"
+        } else {
+            "// @coverage-defer"
+        };
         insertions.push(Insertion {
             at,
-            text: format!("{indent}// @coverage-defer\n"),
+            text: format!("{indent}{comment}\n"),
             covers: 1,
         });
         planned_spans.push(node);
@@ -114,6 +120,30 @@ fn tightest_line_leading_container(source: &str, file: &ParsedFile, off: usize) 
         })
         .max_by_key(|s| (s.start, std::cmp::Reverse(s.end)))
         .copied()
+}
+
+/// Is a position within JSX children (element/fragment body) without an
+/// intervening JSX expression container (which restores JS context)?
+fn in_jsx_children_context(file: &ParsedFile, pos: u32) -> bool {
+    let innermost = |spans: &[Span]| -> Option<Span> {
+        spans
+            .iter()
+            .filter(|s| s.start < pos && pos < s.end)
+            .min_by_key(|s| s.end - s.start)
+            .copied()
+    };
+    match (
+        innermost(&file.collected.jsx_spans),
+        innermost(&file.collected.jsx_expr_spans),
+    ) {
+        (Some(jsx), Some(expr)) => {
+            // JS context when the expression container is the innermost of
+            // the two; JSX text context when the element is.
+            expr.start < jsx.start
+        }
+        (Some(_), None) => true,
+        (None, _) => false,
+    }
 }
 
 /// Walk upward from a line start past contiguous own-line comment lines,
@@ -155,7 +185,7 @@ mod tests {
 
     fn plan(src: &str, offsets: &[usize], whole_file: bool) -> (String, FilePlan) {
         let allocator = Allocator::default();
-        let parsed = parse_file(&allocator, std::path::Path::new("test.ts"), src);
+        let parsed = parse_file(&allocator, std::path::Path::new("test.tsx"), src);
         let plan = plan_file_defers(src, &parsed, offsets, whole_file);
         (apply_insertions(src, &plan.insertions), plan)
     }
@@ -237,6 +267,36 @@ mod tests {
             out,
             "function f(): void {\n  // @coverage-defer\n  // eslint-disable-next-line no-console\n  console.log('x');\n}\n"
         );
+    }
+
+    #[test]
+    fn jsx_children_get_container_comment_form() {
+        let src = "function App(): JSX.Element {\n  return (\n    <div>\n      <button onClick={() => go()}>Go</button>\n    </div>\n  );\n}\n";
+        let off = src.find("<button").unwrap();
+        let (out, _plan) = plan(src, &[off], false);
+        assert_eq!(
+            out,
+            "function App(): JSX.Element {\n  return (\n    <div>\n      {/* @coverage-defer */}\n      <button onClick={() => go()}>Go</button>\n    </div>\n  );\n}\n"
+        );
+    }
+
+    #[test]
+    fn jsx_attribute_lists_are_js_context() {
+        let src = "function App({ on }: { on: boolean }): JSX.Element {\n  return (\n    <div\n      id=\"x\"\n      className={on ? 'a' : 'b'}\n    >\n      hi\n    </div>\n  );\n}\n";
+        let off = src.find("className").unwrap();
+        let (out, _plan) = plan(src, &[off], false);
+        assert!(
+            out.contains("// @coverage-defer\n      className"),
+            "got: {out}"
+        );
+    }
+
+    #[test]
+    fn jsx_expression_containers_are_js_context() {
+        let src = "function App({ x }: { x: boolean }): JSX.Element {\n  return (\n    <div>\n      {x ? (\n        <a>1</a>\n      ) : (\n        <b>2</b>\n      )}\n    </div>\n  );\n}\n";
+        let off = src.find("<b>").unwrap();
+        let (out, _plan) = plan(src, &[off], false);
+        assert!(out.contains("// @coverage-defer\n        <b>2</b>"));
     }
 
     #[test]
