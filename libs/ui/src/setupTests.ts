@@ -1,21 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { afterAll, beforeAll, beforeEach, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers.js';
 import { cleanup, configure } from '@testing-library/react';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import {
-  ToMatchPdfSnapshotOptions,
-  buildToMatchPdfSnapshot,
-} from '@votingworks/image-utils';
+import type { ToMatchPdfSnapshotOptions } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import {
   buildToHaveStyleRule,
   ToHaveStyleRuleMatchers,
 } from 'vitest-styled-components';
+
+// Loaded with `importActual` rather than imported: this file runs before any
+// `vi.mock` is registered, so a module-scope import would instantiate
+// image-utils's dependency graph inside vitest's module runner too early and
+// leave those modules holding unmocked bindings for the rest of the run.
+const { buildToMatchPdfSnapshot } = await vi.importActual<
+  typeof import('@votingworks/image-utils')
+>('@votingworks/image-utils');
 
 declare module 'vitest' {
   // vitest own `Assertion<T>` extends both `JestAssertion<T>` and

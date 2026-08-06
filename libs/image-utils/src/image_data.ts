@@ -19,8 +19,8 @@ import {
 import makeDebug from 'debug';
 import { open, writeFile } from 'node:fs/promises';
 
-import { assertInteger } from './numeric';
-import { int, u8, usize } from './types';
+import { assertInteger } from './numeric.js';
+import { int, u8, usize } from './types.js';
 
 const debug = makeDebug('image-utils');
 

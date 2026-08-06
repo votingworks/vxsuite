@@ -2,13 +2,18 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import {
-  buildToMatchPdfSnapshot,
-  ToMatchPdfSnapshotOptions,
-} from '@votingworks/image-utils';
+import type { ToMatchPdfSnapshotOptions } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import { makeIdFactory } from './id_helpers.js';
+
+// Loaded with `importActual` rather than imported: this file runs before any
+// `vi.mock` is registered, so a module-scope import would instantiate
+// image-utils's dependency graph inside vitest's module runner too early and
+// leave those modules holding unmocked bindings for the rest of the run.
+const { buildToMatchPdfSnapshot } = await vi.importActual<
+  typeof import('@votingworks/image-utils')
+>('@votingworks/image-utils');
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();
