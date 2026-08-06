@@ -1,0 +1,15 @@
+# design-backend requires PostgreSQL: its test:ci runs `db:migrations:ci-validate`
+# and a DB-backed suite, and moon-ci has no database service. Wire build/
+# type-check/lint (all DB-free) but exclude `test`; the DB-backed tests stay in
+# VxDesign's own postgres CI lane. (This is the VxDesign infra exception.)
+workspace:
+  inheritedTasks:
+    exclude: ['test']
+
+tasks:
+  # design-backend's migrations/*.js import from ../build/ (compiled output), so
+  # type-checking them needs this project's OWN build first. The shared
+  # type-check only deps ^:build (dependency projects), so add own build here.
+  type-check:
+    deps:
+      - 'build'

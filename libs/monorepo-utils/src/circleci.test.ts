@@ -68,7 +68,7 @@ test('generateAllConfigs moon prototype mode', () => {
   expect(config).toContain('moon-e2e:');
   expect(config).toContain('playwright install chromium');
   expect(config).toContain(
-    'moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test'
+    'moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test scan-integration-testing:test print-integration-testing:test'
   );
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');

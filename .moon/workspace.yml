@@ -25,6 +25,11 @@ projects:
   central-scan-integration-testing: apps/central-scan/integration-testing
   custom-paper-handler: libs/custom-paper-handler
   db: libs/db
+  # design-backend uses PostgreSQL: its build/type-check/lint are wired, but its
+  # `test` task is excluded (see apps/design/backend/moon.yml) since moon-ci has
+  # no database. design has no integration-testing (no e2e lane).
+  design-backend: apps/design/backend
+  design-frontend: apps/design/frontend
   dev-dock-backend: libs/dev-dock/backend
   dev-dock-frontend: libs/dev-dock/frontend
   eslint-plugin-vx: libs/eslint-plugin-vx
@@ -41,11 +46,25 @@ projects:
   mark-backend: apps/mark/backend
   mark-frontend: apps/mark/frontend
   mark-integration-testing: apps/mark/integration-testing
+  # mark-scan is the hardware combined device: its e2e needs the accessible-
+  # controller/PAT daemons built via `make` and real hardware, so its
+  # integration-testing suite is NOT wired here. Frontend + backend build/
+  # type-check/lint/test are.
+  mark-scan-backend: apps/mark-scan/backend
+  mark-scan-frontend: apps/mark-scan/frontend
   mark-flow-ui: libs/mark-flow-ui
   message-coder: libs/message-coder
   monorepo-utils: libs/monorepo-utils
   networking: libs/networking
+  pollbook-backend: apps/pollbook/backend
+  pollbook-frontend: apps/pollbook/frontend
+  print-backend: apps/print/backend
+  print-frontend: apps/print/frontend
+  print-integration-testing: apps/print/integration-testing
   printing: libs/printing
+  scan-backend: apps/scan/backend
+  scan-frontend: apps/scan/frontend
+  scan-integration-testing: apps/scan/integration-testing
   test-decks: libs/test-decks
   test-utils: libs/test-utils
   types: libs/types

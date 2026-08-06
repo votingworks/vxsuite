@@ -541,8 +541,9 @@ function generateMoonCiBaselineJob(): string[] {
 }
 
 // Apps whose Playwright integration-testing suite is wired into moon (as a
-// `runInCI: false` e2e task). Extend as more apps are wired.
-const MOON_E2E_APPS = ['admin', 'central-scan', 'mark'];
+// `runInCI: false` e2e task). Extend as more apps are wired. (mark-scan's e2e
+// needs hardware daemons via `make`, so it is intentionally not here.)
+const MOON_E2E_APPS = ['admin', 'central-scan', 'mark', 'scan', 'print'];
 
 // The "non-required" e2e lane. Each app's Playwright suite is excluded from
 // `moon ci` (its task is `runInCI: false`), so this job runs them explicitly
@@ -577,6 +578,9 @@ function generateMoonE2eJob(): string[] {
     `          pnpm --dir apps/admin/integration-testing exec playwright install chromium`,
     `    - run:`,
     `        name: moon run e2e (non-required)`,
+    // Suites run serially (shared mutex); give the step room so the growing
+    // serial run doesn't trip CircleCI's 10m no-output timeout between suites.
+    `        no_output_timeout: 30m`,
     `        command: |`,
     `          set +e`,
     `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,

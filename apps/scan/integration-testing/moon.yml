@@ -1,0 +1,27 @@
+# Playwright e2e suite (same shape as admin-integration-testing): non-required
+# lane. test = Playwright, runInCI:false (excluded from `moon ci`) + cache:false,
+# shared 'e2e-servers' mutex (fixed-port webServers must not run concurrently),
+# depending on the scan app builds. build/type-check excluded; lint gets an
+# explicit build gate so eslint-plugin-vx is built first.
+workspace:
+  inheritedTasks:
+    exclude: ['build', 'type-check']
+
+tasks:
+  test:
+    script: 'playwright test'
+    options:
+      mergeArgs: replace
+      cache: false
+      runInCI: false
+      mutex: 'e2e-servers'
+    deps:
+      - 'scan-backend:build'
+      - 'scan-frontend:build'
+
+  lint:
+    deps:
+      - '^:build'
+      - 'eslint-plugin-vx:build'
+    options:
+      mergeDeps: replace
