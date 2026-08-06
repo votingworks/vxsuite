@@ -69,6 +69,7 @@ export function convertContestWriteInSummaryToWriteInTallies(
   const { contestId, pendingTally, invalidTally, candidateTallies } =
     contestWriteInSummary;
 
+  // @coverage-defer
   if (pendingTally > 0) {
     writeInTallies.push({
       ...groupSpecifier,
@@ -78,6 +79,7 @@ export function convertContestWriteInSummaryToWriteInTallies(
     });
   }
 
+  // @coverage-defer
   if (invalidTally > 0) {
     writeInTallies.push({
       ...groupSpecifier,

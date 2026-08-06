@@ -72,7 +72,6 @@ export async function getBallotImageBuffer({
   const { image } =
     side === 'front' ? imagesAndLayouts[0] : imagesAndLayouts[1];
   const metadata = await loadImageMetadata(image);
-  /* istanbul ignore next - corrupted image data */
   if (metadata.isErr()) return undefined;
   return { buffer: image, contentType: metadata.ok().type };
 }

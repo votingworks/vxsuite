@@ -179,7 +179,7 @@ function getCurrentElectionRecord(
   workspace: Workspace
 ): Optional<ElectionRecord> {
   const electionId = workspace.store.getCurrentElectionId();
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!electionId) {
     return undefined;
   }
@@ -370,7 +370,7 @@ function buildApi({
       return printer.status();
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -384,7 +384,6 @@ function buildApi({
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();
@@ -479,7 +478,7 @@ function buildApi({
         signatureFile.fileName,
         signatureFile.fileContents
       );
-      /* istanbul ignore next: Tricky to make this second export err but the first export succeed
+      /* @coverage-exclude: Tricky to make this second export err but the first export succeed
         without significant mocking @preserve */
       if (exportSignatureFileResult.isErr()) {
         return exportSignatureFileResult;
@@ -519,7 +518,7 @@ function buildApi({
         depth: 3,
         excludeHidden: true,
       })) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (result.isErr()) {
           return result;
         }
@@ -603,7 +602,7 @@ function buildApi({
           await zipPromise.promise;
           const fileContents = Buffer.concat(chunks);
           const result = await readElectionPackageFromBuffer(fileContents);
-          /* istanbul ignore next */
+          // @coverage-exclude
           return result.isErr() ? result : ok({ ...result.ok(), fileContents });
         }
         return await readElectionPackageFromFile(input.electionFilePath);
@@ -615,6 +614,7 @@ function buildApi({
           message: `Error configuring machine.`,
           disposition: 'failure',
           errorDetails:
+            // @coverage-defer
             errorDetails.type === 'system-limit-violation'
               ? systemLimitViolationToString(errorDetails.violation)
               : JSON.stringify(errorDetails),
@@ -1544,10 +1544,9 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      /* istanbul ignore start */
+      // @coverage-exclude
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
-      /* istanbul ignore start */
     }),
   });
 }
