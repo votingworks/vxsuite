@@ -16,6 +16,7 @@ use coverage_check::attach::{parse_file, BindError};
 use coverage_check::classify::{DirectiveVerdict, EntityVerdict, FileAnalysis, Status};
 use coverage_check::convert::{convert_file, Severity as ConvertSeverity};
 use coverage_check::corpus;
+use coverage_check::defer::{apply_insertions, plan_file_defers};
 use coverage_check::diagnostics::{render, Finding, RenderFormat};
 use coverage_check::grammar::Form;
 use coverage_check::lines::LineTable;
@@ -57,6 +58,18 @@ enum Cli {
         #[arg(long)]
         write: bool,
     },
+    /// Insert @coverage-defer directives at uncovered-and-unmarked locations
+    /// from a fresh coverage report (dry-run unless --write)
+    Defer {
+        /// Package directory containing coverage/coverage-final.json
+        pkg_dir: PathBuf,
+        /// Extra directories to scan for never-param function declarations
+        #[arg(long = "never-scan")]
+        never_scan: Vec<PathBuf>,
+        /// Apply the insertions to disk (default: print the plan only)
+        #[arg(long)]
+        write: bool,
+    },
     /// Print the analyzed golden corpus as JSON (for auditing/regenerating
     /// expected/)
     Dump {
@@ -78,6 +91,11 @@ fn main() -> ExitCode {
             skip,
             write,
         } => cmd_convert(&pkg_dir, &never_scan, &skip, write),
+        Cli::Defer {
+            pkg_dir,
+            never_scan,
+            write,
+        } => cmd_defer(&pkg_dir, &never_scan, write),
         Cli::Dump { corpus_dir } => match corpus::dump(&corpus_dir) {
             Ok(json) => {
                 println!("{json}");
@@ -162,6 +180,99 @@ fn cmd_convert(pkg_dir: &Path, never_scan: &[PathBuf], skip: &[String], write: b
     } else {
         ExitCode::SUCCESS
     }
+}
+
+/// Insert @coverage-defer directives for FAIL entities from a fresh report.
+/// Positions shift after writing, so rerun coverage + check afterwards.
+fn cmd_defer(pkg_dir: &Path, never_scan: &[PathBuf], write: bool) -> ExitCode {
+    let pkg_dir = &pkg_dir
+        .canonicalize()
+        .unwrap_or_else(|_| pkg_dir.to_path_buf());
+    let report = match load_report(&pkg_dir.join("coverage/coverage-final.json")) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("{e}");
+            return ExitCode::from(2);
+        }
+    };
+    if let Some(signal) = partial_run_signal(&report) {
+        eprintln!("refusing to plan defers: {signal}");
+        return ExitCode::from(2);
+    }
+
+    let mut scan_dirs: Vec<&Path> = vec![pkg_dir];
+    scan_dirs.extend(never_scan.iter().map(PathBuf::as_path));
+    let never_names = build_registry(&scan_dirs);
+
+    let mut planned = 0usize;
+    let mut absorbed = 0usize;
+    let mut unplanned = 0usize;
+    let mut paths: Vec<&String> = report.keys().collect();
+    paths.sort();
+    for key in paths {
+        let cov = &report[key];
+        let path = Path::new(&cov.path);
+        let Ok(source) = std::fs::read_to_string(path) else {
+            eprintln!("cannot read {}", path.display());
+            continue;
+        };
+        if !cov.has_uncovered() {
+            continue;
+        }
+        let analysis = analyze_file(path, &source, cov, &never_names);
+        let table = LineTable::new(&source);
+        let fails: Vec<usize> = analysis
+            .entities
+            .iter()
+            .filter(|e| e.status == Status::Fail)
+            .filter_map(|e| e.attributed_at.or(e.at))
+            .filter_map(|pos| table.offset_of(&source, pos))
+            .collect();
+        if fails.is_empty() {
+            continue;
+        }
+        let whole_file = analysis.entities.iter().all(|e| e.status == Status::Fail);
+        let allocator = oxc_allocator::Allocator::default();
+        let parsed = parse_file(&allocator, path, &source);
+        let plan = plan_file_defers(&source, &parsed, &fails, whole_file);
+        let rel = cov
+            .path
+            .strip_prefix(&format!("{}/", pkg_dir.display()))
+            .unwrap_or(&cov.path);
+        for ins in &plan.insertions {
+            let (line, _) = table.pos_of(&source, ins.at);
+            let name = ins.text.trim();
+            println!(
+                "info  {rel}:{line} insert `{name}` (covers {} entities)",
+                ins.covers
+            );
+            planned += 1;
+            absorbed += ins.covers;
+        }
+        for u in &plan.unplanned {
+            let (line, col) = table.pos_of(&source, u.offset);
+            println!(
+                "FLAG  {rel}:{line}:{} no own-line insertion point — mark by hand",
+                col + 1
+            );
+            unplanned += 1;
+        }
+        if write && !plan.insertions.is_empty() {
+            let output = apply_insertions(&source, &plan.insertions);
+            if let Err(e) = std::fs::write(path, output) {
+                eprintln!("cannot write {}: {e}", path.display());
+                return ExitCode::from(2);
+            }
+        }
+    }
+    let mode = if write { "inserted" } else { "would insert" };
+    println!(
+        "\nsummary: {mode} {planned} directives covering {absorbed} entities, {unplanned} need a human"
+    );
+    if write && planned > 0 {
+        println!("note: rerun coverage before checking — insertions shifted line numbers");
+    }
+    ExitCode::SUCCESS
 }
 
 /// Graphical diagnostics on a TTY; one line per finding when piped/captured.
