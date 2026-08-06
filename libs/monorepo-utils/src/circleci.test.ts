@@ -57,6 +57,13 @@ test('generateAllConfigs moon prototype mode', () => {
     'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none'
   );
   expect(config).toContain('moonrepo.dev/install/moon.sh');
+  // Single-container baseline job for comparison, with its own cold cache
+  // instance and no --job sharding.
+  expect(config).toContain('moon-ci-baseline:');
+  expect(config).toContain(
+    "MOON_REMOTE_CACHE_INSTANCE_NAME: 'vxsuite-baseline'"
+  );
+  expect(config).toContain('moon ci --downstream none --summary');
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
   expect(config).not.toContain('test-rust-crates');
