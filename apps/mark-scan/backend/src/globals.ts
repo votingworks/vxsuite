@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
@@ -17,6 +16,7 @@ const NodeEnvSchema = z.union([
 
 const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -25,6 +25,7 @@ const NODE_ENV = unsafeParse(
  *
  * NOTE: Exposed as a function to enable mocking.
  */
+// @coverage-defer
 export function getNodeEnv(): z.TypeOf<typeof NodeEnvSchema> {
   return NODE_ENV;
 }
@@ -34,6 +35,7 @@ export function getNodeEnv(): z.TypeOf<typeof NodeEnvSchema> {
  */
 export const MARK_SCAN_WORKSPACE =
   process.env.MARK_SCAN_WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);

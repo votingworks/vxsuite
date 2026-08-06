@@ -9,9 +9,10 @@ export default defineConfig({
       './test/setup_custom_matchers.ts',
     ],
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -22,
-        branches: -27,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
         '**/*.d.ts',

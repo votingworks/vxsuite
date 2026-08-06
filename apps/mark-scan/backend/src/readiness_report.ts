@@ -49,6 +49,7 @@ export async function saveReadinessReport({
   // on PAT device connection (ie. is a sip & puff plugged in?) rather than
   // PAT input availability (ie. is the daemon running and able to query firmware?)
   const isPatAvailable =
+    // @coverage-defer
     getMarkScanBmdModel() === 'bmd-150'
       ? isControllerDaemonRunning
       : !!stateMachine.isPatDeviceConnected();

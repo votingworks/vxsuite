@@ -1,5 +1,4 @@
-/* istanbul ignore next */
 import debug from 'debug';
 
-/* istanbul ignore next */
+// @coverage-exclude
 export const rootDebug = debug('mark-backend');
