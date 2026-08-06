@@ -22,9 +22,17 @@ import {
   iter,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { createRequire } from 'node:module';
 import { VX_MACHINE_ID } from '@votingworks/backend';
-import memoizeOne from 'memoize-one';
-import type { Store } from '../store';
+import type { Store } from '../store.js';
+
+// `memoize-one` is CJS (`module.exports = fn`), but its types declare a
+// `export default`. Under node16 that mismatch makes neither a default nor a
+// namespace import resolve to the callable, so load it via require (which yields
+// the raw `module.exports`) and type it from the default export.
+const memoizeOne = createRequire(import.meta.url)(
+  'memoize-one'
+) as typeof import('memoize-one').default;
 
 export function isHmpbPage(
   interpretation: PageInterpretation

@@ -1,6 +1,6 @@
 import { Caption, H1, Icons, P, appStrings } from '@votingworks/ui';
-import { CenteredText, ScreenMainCenterChild } from '../components/layout';
-import { useAlarm } from '../utils/use_alarm';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout.js';
+import { useAlarm } from '../utils/use_alarm.js';
 
 interface Props {
   disableAlarm?: boolean;

@@ -6,18 +6,18 @@ import {
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
-import { ScanWarningScreen, Props } from './scan_warning_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ScanWarningScreen, Props } from './scan_warning_screen.js';
 import {
   ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
+} from '../../test/helpers/mock_api_client.js';
 import {
   WarningDetails as MisvoteWarningDetails,
   MisvoteWarnings,
-} from '../components/misvote_warnings';
+} from '../components/misvote_warnings/index.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

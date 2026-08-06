@@ -6,10 +6,10 @@ import { Card } from '@votingworks/auth';
 import {
   ScanningMode,
   ServerContext,
-} from '../../src/electrical_testing/context';
-import { ScanningSession } from '../../src/electrical_testing/analysis/scan';
-import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
-import { AppContext, withApp } from './scanner_helpers';
+} from '../../src/electrical_testing/context.js';
+import { ScanningSession } from '../../src/electrical_testing/analysis/scan.js';
+import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client.js';
+import { AppContext, withApp } from './scanner_helpers.js';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   return {

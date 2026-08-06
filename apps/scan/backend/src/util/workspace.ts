@@ -4,7 +4,7 @@ import { Mutex } from '@votingworks/utils';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
-import { Store } from '../store';
+import { Store } from '../store.js';
 
 export interface Workspace {
   /**

@@ -1,6 +1,6 @@
 import { H1, P, PowerDownButton, appStrings } from '@votingworks/ui';
 import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
-import { CenteredText, ScreenMainCenterChild } from '../components/layout';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout.js';
 
 function PrinterErrorMessage({
   printerStatus,

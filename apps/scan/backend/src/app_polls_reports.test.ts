@@ -31,14 +31,14 @@ import {
   configureApp,
   makeHmpbSheet,
   pdfToImageSheet,
-} from '../test/helpers/shared_helpers';
-import type { Store } from './store';
+} from '../test/helpers/shared_helpers.js';
+import type { Store } from './store.js';
 import {
   POLLING_PLACE_ID_COMPETE_BMD,
   scanBallot,
   withApp,
-} from '../test/helpers/scanner_helpers';
-import { getScannerResults } from './util/results';
+} from '../test/helpers/scanner_helpers.js';
+import { getScannerResults } from './util/results.js';
 
 // UUIDs and timestamps are displayed on the polls reports.
 // Mock them so snapshots are deterministic.

@@ -17,7 +17,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { loadImageData, crop, toDataUrl } from '@votingworks/image-utils';
-import { Store } from '../store';
+import { Store } from '../store.js';
 
 vi.mock(import('@votingworks/image-utils'), async (importActual) => {
   const original = await importActual();

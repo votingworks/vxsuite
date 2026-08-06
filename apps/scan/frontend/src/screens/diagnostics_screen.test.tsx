@@ -7,9 +7,9 @@ import {
   createApiMock,
   provideApi,
   statusNoPaper,
-} from '../../test/helpers/mock_api_client';
-import { render, screen, waitFor } from '../../test/react_testing_library';
-import { DiagnosticsScreen } from './diagnostics_screen';
+} from '../../test/helpers/mock_api_client.js';
+import { render, screen, waitFor } from '../../test/react_testing_library.js';
+import { DiagnosticsScreen } from './diagnostics_screen.js';
 
 let apiMock: ApiMock;
 

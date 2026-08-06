@@ -5,8 +5,8 @@ import { assert } from '@votingworks/basics';
 import React from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { createApiClient } from './api';
-import { ApiProvider } from './api_provider';
+import { createApiClient } from './api.js';
+import { ApiProvider } from './api_provider.js';
 
 const PreviewColumns = styled.div`
   columns: 2;

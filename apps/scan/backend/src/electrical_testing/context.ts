@@ -4,9 +4,9 @@ import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
-import { Workspace } from '../util/workspace';
-import { ScanningSession } from './analysis/scan';
-import { SimpleScannerClient } from './simple_scanner_client';
+import { Workspace } from '../util/workspace.js';
+import { ScanningSession } from './analysis/scan.js';
+import { SimpleScannerClient } from './simple_scanner_client.js';
 
 export type ScanningMode =
   | 'shoe-shine'

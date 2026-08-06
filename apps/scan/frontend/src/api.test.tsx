@@ -2,10 +2,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { useAudioEnabled } from '@votingworks/ui';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { deferred, sleep } from '@votingworks/basics';
-import { renderHook } from '../test/react_testing_library';
-import { ApiProvider } from './api_provider';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import * as api from './api';
+import { renderHook } from '../test/react_testing_library.js';
+import { ApiProvider } from './api_provider.js';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import * as api from './api.js';
 
 const mockAudioControls = mockUseAudioControls(vi.fn);
 vi.mock('@votingworks/ui', async () => ({

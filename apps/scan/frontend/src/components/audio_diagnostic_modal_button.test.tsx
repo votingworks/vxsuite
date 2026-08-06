@@ -6,9 +6,9 @@ import {
   screen,
   waitFor,
   within,
-} from '../../test/react_testing_library';
-import { AudioDiagnosticModalButton } from './audio_diagnostic_modal_button';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
+} from '../../test/react_testing_library.js';
+import { AudioDiagnosticModalButton } from './audio_diagnostic_modal_button.js';
+import { createApiMock, provideApi } from '../../test/helpers/mock_api_client.js';
 
 vi.mock('../utils/use_sound');
 

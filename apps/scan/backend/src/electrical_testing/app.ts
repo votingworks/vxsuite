@@ -8,10 +8,10 @@ import { mapSheet, SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import express, { Application } from 'express';
 import { basename, join } from 'node:path';
-import { Player as AudioPlayer, SoundName } from '../audio/player';
-import { getMachineConfig } from '../machine_config';
-import type { ScanningMode, ServerContext } from './context';
-import { ScanningSession, ScanningSessionData } from './analysis/scan';
+import { Player as AudioPlayer, SoundName } from '../audio/player.js';
+import { getMachineConfig } from '../machine_config.js';
+import type { ScanningMode, ServerContext } from './context.js';
+import { ScanningSession, ScanningSessionData } from './analysis/scan.js';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;

@@ -5,7 +5,7 @@ import {
 import { afterAll, beforeAll, expect } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { configure } from '../test/react_testing_library';
+import { configure } from '../test/react_testing_library.js';
 
 expect.extend(matchers);
 

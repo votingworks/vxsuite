@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { assert } from '@votingworks/basics';
 import {
   BaseLogger,
@@ -23,20 +24,20 @@ import {
   TaskController,
 } from '@votingworks/backend';
 import { getFujitsuThermalPrinter } from '@votingworks/fujitsu-thermal-printer';
-import { SCAN_WORKSPACE } from './globals';
-import { getMockPlayer as getMockAudioPlayer } from './audio/player';
-import * as server from './server';
-import { startElectricalTestingServer } from './electrical_testing/server';
-import { createWorkspace, Workspace } from './util/workspace';
-import { getUserRole } from './util/auth';
-import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
-import { ScanningSession } from './electrical_testing/analysis/scan';
+import { SCAN_WORKSPACE } from './globals.js';
+import { getMockPlayer as getMockAudioPlayer } from './audio/player.js';
+import * as server from './server.js';
+import { startElectricalTestingServer } from './electrical_testing/server.js';
+import { createWorkspace, Workspace } from './util/workspace.js';
+import { getUserRole } from './util/auth.js';
+import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client.js';
+import { ScanningSession } from './electrical_testing/analysis/scan.js';
 
-export type { Api } from './app';
-export type * as HWTA from './electrical_testing/exports';
-export type { OpenPollsResult } from './polls';
-export type { SoundName } from './audio/player';
-export * from './types';
+export type { Api } from './app.js';
+export type * as HWTA from './electrical_testing/exports.js';
+export type { OpenPollsResult } from './polls.js';
+export type { SoundName } from './audio/player.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -114,7 +115,7 @@ async function main(): Promise<number> {
   return 0;
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .then((code) => {
       process.exitCode = code;

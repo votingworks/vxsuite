@@ -8,7 +8,7 @@ import {
 } from '@votingworks/ui';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Screen } from '../components/layout';
+import { Screen } from '../components/layout.js';
 import {
   unconfigureElection,
   logOut,
@@ -17,9 +17,9 @@ import {
   getConfig,
   getScannerStatus,
   beginImageSensorCalibration,
-} from '../api';
-import { DiagnosticsScreen } from './diagnostics_screen';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
+} from '../api.js';
+import { DiagnosticsScreen } from './diagnostics_screen.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 
 interface SystemAdministratorScreenProps {
   electionDefinition?: ElectionDefinition;

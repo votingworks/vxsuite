@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
-import { openPolls } from './polls';
-import { Store } from './store';
+import { openPolls } from './polls.js';
+import { Store } from './store.js';
 
 test('opening polls fails if ballots have already been scanned', async () => {
   const logger = mockLogger({ fn: vi.fn });

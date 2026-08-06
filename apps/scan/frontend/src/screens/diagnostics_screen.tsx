@@ -6,7 +6,7 @@ import {
   ScanReadinessReportContents,
   UpsDiagnosticModalButton,
 } from '@votingworks/ui';
-import { Screen } from '../components/layout';
+import { Screen } from '../components/layout.js';
 import {
   getConfig,
   getDiskSpaceSummary,
@@ -21,12 +21,12 @@ import {
   endScannerDiagnostic,
   getMostRecentUpsDiagnostic,
   logUpsDiagnosticOutcome,
-} from '../api';
-import { PrintTestPageButton } from '../components/printer_management/print_test_page_button';
-import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button';
-import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
-import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';
+} from '../api.js';
+import { PrintTestPageButton } from '../components/printer_management/print_test_page_button.js';
+import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button.js';
+import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button.js';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
+import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen.js';
 
 export function DiagnosticsScreen({
   onClose,

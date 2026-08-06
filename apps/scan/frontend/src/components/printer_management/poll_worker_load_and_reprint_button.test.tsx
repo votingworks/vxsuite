@@ -4,12 +4,12 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../../test/helpers/mock_api_client';
-import { render, screen, waitFor } from '../../../test/react_testing_library';
+} from '../../../test/helpers/mock_api_client.js';
+import { render, screen, waitFor } from '../../../test/react_testing_library.js';
 import {
   PollWorkerLoadAndReprintButton,
   PollWorkerLoadAndReprintButtonProps,
-} from './poll_worker_load_and_reprint_button';
+} from './poll_worker_load_and_reprint_button.js';
 
 let apiMock: ApiMock;
 

@@ -11,9 +11,9 @@ import {
 import { safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { SCAN_WORKSPACE } from '../src/globals';
-import { Store } from '../src/store';
-import { createWorkspace } from '../src/util/workspace';
+import { SCAN_WORKSPACE } from '../src/globals.js';
+import { Store } from '../src/store.js';
+import { createWorkspace } from '../src/util/workspace.js';
 
 const usageMessage = `Usage: copy-sheets <target-sheet-count>
 

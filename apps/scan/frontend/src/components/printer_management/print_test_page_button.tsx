@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@votingworks/ui';
-import { getPrinterStatus, printTestPage } from '../../api';
-import { PrintTestPageModal } from './print_test_page_modal';
+import { getPrinterStatus, printTestPage } from '../../api.js';
+import { PrintTestPageModal } from './print_test_page_modal.js';
 
 export function PrintTestPageButton(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
