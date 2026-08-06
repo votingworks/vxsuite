@@ -34,6 +34,16 @@ test('generateConfig', () => {
     '"s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/"'
   );
   expect(mainConfig).toContain('only: main');
+
+  // The experimental moon jobs are added to the full config as non-blocking,
+  // main-only additions: moon-ci + one e2e job per app (incl. mark-scan, which
+  // gets a `make build` step for its hardware daemons).
+  expect(mainConfig).toContain('moon-ci:');
+  expect(mainConfig).toContain('moon-e2e-mark-scan:');
+  expect(mainConfig).toContain(
+    'make -C apps/mark-scan/integration-testing build'
+  );
+  expect(mainConfig).toContain('moon run admin-integration-testing:test');
 });
 
 test('generateAllConfigs moon prototype mode', () => {

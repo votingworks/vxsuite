@@ -1,10 +1,13 @@
 # THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
-# Run `MOON_CI_PROTOTYPE=1 pnpm -w generate-circleci-config` to regenerate it.
-#
-# PROTOTYPE: runs ONLY the experimental `moon-ci` job. Regenerate without
-# MOON_CI_PROTOTYPE to restore the full per-package config.
+# Run `pnpm -w generate-circleci-config` to regenerate it.
 
 version: 2.1
+
+setup: true
+
+orbs:
+  path-filtering: circleci/path-filtering@2
+  aws-cli: circleci/aws-cli@5
 
 executors:
   nodejs:
@@ -14,7 +17,1611 @@ executors:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
+  nodejs_postgres:
+    docker:
+      - image: votingworks/cimg-debian12:4.6.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+      - image: cimg/postgres:16.6
+        environment:
+          POSTGRES_USER: postgres
+
 jobs:
+  # @votingworks/admin-backend
+  test-apps-admin-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/backend/reports/
+      - store_artifacts:
+          path: apps/admin/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/admin-frontend
+  test-apps-admin-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/frontend/reports/
+
+  # @votingworks/admin-integration-testing
+  test-apps-admin-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/admin/integration-testing exec playwright install-deps
+            pnpm --dir apps/admin/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/admin/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/central-scan-backend
+  test-apps-central-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/backend/reports/
+      - store_artifacts:
+          path: apps/central-scan/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/central-scan-frontend
+  test-apps-central-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/frontend/reports/
+
+  # @votingworks/central-scan-integration-testing
+  test-apps-central-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/central-scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/design-backend
+  test-apps-design-backend:
+    executor: nodejs_postgres
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/backend/reports/
+      - store_artifacts:
+          path: apps/design/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/design-frontend
+  test-apps-design-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/frontend/reports/
+
+  # @votingworks/mark-scan-backend
+  test-apps-mark-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/backend/reports/
+      - store_artifacts:
+          path: apps/mark-scan/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/mark-scan-frontend
+  test-apps-mark-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/frontend/reports/
+
+  # @votingworks/mark-scan-integration-testing
+  test-apps-mark-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/mark-scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/mark-backend
+  test-apps-mark-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/backend/reports/
+      - store_artifacts:
+          path: apps/mark/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/mark-frontend
+  test-apps-mark-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/frontend/reports/
+
+  # @votingworks/mark-integration-testing
+  test-apps-mark-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/mark/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/pollbook-frontend
+  test-apps-pollbook-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/pollbook/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/pollbook/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/pollbook/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/pollbook/frontend/reports/
+
+  # @votingworks/print-backend
+  test-apps-print-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/backend/reports/
+      - store_artifacts:
+          path: apps/print/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/print-frontend
+  test-apps-print-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/frontend/reports/
+
+  # @votingworks/print-integration-testing
+  test-apps-print-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/print/integration-testing exec playwright install-deps
+            pnpm --dir apps/print/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/print/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/scan-backend
+  test-apps-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/backend/reports/
+      - store_artifacts:
+          path: apps/scan/backend/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/scan-frontend
+  test-apps-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/frontend/reports/
+
+  # @votingworks/scan-integration-testing
+  test-apps-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+
+  # @votingworks/exercises
+  test-docs-exercises:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir docs/exercises build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir docs/exercises lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir docs/exercises test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: docs/exercises/reports/
+
+  # @votingworks/auth
+  test-libs-auth:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/auth build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/auth lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/auth test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/auth/reports/
+
+  # @votingworks/backend
+  test-libs-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/backend/reports/
+
+  # @votingworks/ballot-encoder
+  test-libs-ballot-encoder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-encoder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-encoder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-encoder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-encoder/reports/
+
+  # @votingworks/ballot-interpreter
+  test-libs-ballot-interpreter:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter/reports/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/__image_snapshots__/__diff_output__/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/summary-ballot/__image_snapshots__/__diff_output__/
+
+  # @votingworks/basics
+  test-libs-basics:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/basics build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/basics lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/basics test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/basics/reports/
+
+  # @votingworks/bmd-ballot-fixtures
+  test-libs-bmd-ballot-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/bmd-ballot-fixtures/reports/
+      - store_artifacts:
+          path: libs/bmd-ballot-fixtures/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/cdf-schema-builder
+  test-libs-cdf-schema-builder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-schema-builder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-schema-builder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-schema-builder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-schema-builder/reports/
+
+  # @votingworks/custom-paper-handler
+  test-libs-custom-paper-handler:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/custom-paper-handler build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/custom-paper-handler lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/custom-paper-handler test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/custom-paper-handler/reports/
+
+  # @votingworks/db
+  test-libs-db:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/db build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/db lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/db test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/db/reports/
+
+  # @votingworks/dev-dock-backend
+  test-libs-dev-dock-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/backend/reports/
+
+  # @votingworks/dev-dock-frontend
+  test-libs-dev-dock-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/frontend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/frontend/reports/
+
+  # eslint-plugin-vx
+  test-libs-eslint-plugin-vx:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/eslint-plugin-vx build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/eslint-plugin-vx lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/eslint-plugin-vx test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/eslint-plugin-vx/reports/
+
+  # @votingworks/fixture-generators
+  test-libs-fixture-generators:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixture-generators build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixture-generators lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixture-generators test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixture-generators/reports/
+
+  # @votingworks/fixtures
+  test-libs-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixtures test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixtures/reports/
+
+  # @votingworks/fs
+  test-libs-fs:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fs build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fs lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fs test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fs/reports/
+
+  # @votingworks/fujitsu-thermal-printer
+  test-libs-fujitsu-thermal-printer:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fujitsu-thermal-printer/reports/
+
+  # @votingworks/grout
+  test-libs-grout:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/grout build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/grout lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/grout test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/grout/reports/
+
+  # @votingworks/grout-test-utils
+  test-libs-grout-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/grout/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/grout/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/grout/test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/grout/test-utils/reports/
+
+  # @votingworks/hmpb
+  test-libs-hmpb:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/hmpb lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/hmpb test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/hmpb/reports/
+      - store_artifacts:
+          path: libs/hmpb/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/image-utils
+  test-libs-image-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/image-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/image-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/image-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/image-utils/reports/
+
+  # @votingworks/integration-test-utils
+  test-libs-integration-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/integration-test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/integration-test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/integration-test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/integration-test-utils/reports/
+
+  # @votingworks/logging
+  test-libs-logging:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging/reports/
+
+  # @votingworks/logging-utils
+  test-libs-logging-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging-utils/reports/
+
+  # @votingworks/mark-flow-ui
+  test-libs-mark-flow-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/mark-flow-ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/mark-flow-ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/mark-flow-ui test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/mark-flow-ui/reports/
+
+  # @votingworks/message-coder
+  test-libs-message-coder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/message-coder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/message-coder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/message-coder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/message-coder/reports/
+
+  # @votingworks/monorepo-utils
+  test-libs-monorepo-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/monorepo-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/monorepo-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/monorepo-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/monorepo-utils/reports/
+
+  # @votingworks/networking
+  test-libs-networking:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/networking build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/networking lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/networking test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/networking/reports/
+
+  # @votingworks/pdi-scanner
+  test-libs-pdi-scanner:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/pdi-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/pdi-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/pdi-scanner test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/pdi-scanner/reports/
+
+  # @votingworks/printing
+  test-libs-printing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/printing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/printing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/printing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/printing/reports/
+      - store_artifacts:
+          path: libs/printing/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/test-decks
+  test-libs-test-decks:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-decks build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-decks lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-decks test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-decks/reports/
+      - store_artifacts:
+          path: libs/test-decks/src/__image_snapshots__/__diff_output__/
+
+  # @votingworks/test-utils
+  test-libs-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-utils/reports/
+
+  # @votingworks/types
+  test-libs-types:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/types build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/types lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/types test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/types/reports/
+
+  # @votingworks/ui
+  test-libs-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ui test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ui/reports/
+
+  # @votingworks/usb-drive
+  test-libs-usb-drive:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/usb-drive build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/usb-drive lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/usb-drive test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/usb-drive/reports/
+
+  # @votingworks/utils
+  test-libs-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/utils/reports/
+
+  test-rust-crates:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: false
+      - run:
+          name: Check Formatting
+          command: |
+            (cd . && cargo fmt --check)
+            (cd libs/ballot-interpreter && cargo fmt --check)
+            (cd libs/types-rs && cargo fmt --check)
+            (cd libs/pdi-scanner && cargo fmt --check)
+      - run:
+          name: Build
+          command: |
+            cargo build --manifest-path ./Cargo.toml
+            cargo build --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo build --manifest-path libs/types-rs/Cargo.toml
+            cargo build --manifest-path libs/pdi-scanner/Cargo.toml
+      - run:
+          name: Lint
+          command: |
+            cargo clippy --all-targets --manifest-path ./Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/types-rs/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/pdi-scanner/Cargo.toml
+      - run:
+          name: Test
+          command: |
+            cargo test --manifest-path ./Cargo.toml
+            cargo test --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo test --manifest-path libs/types-rs/Cargo.toml
+            cargo test --manifest-path libs/pdi-scanner/Cargo.toml
+
+
+  shellcheck:
+    executor: nodejs
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install shellcheck
+          command: |
+            apt-get update -qq && apt-get install -y --no-install-recommends shellcheck
+      - run:
+          name: Shellcheck
+          command: |
+            script/shellcheck
+
+  validate-monorepo:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
+          name: Validate
+          command: |
+            ./script/validate-monorepo
+
+  notify-gallery:
+    executor: nodejs
+    resource_class: small
+    steps:
+      - run:
+          name: Trigger screenshot gallery build on GitHub Actions
+          command: |
+            curl --fail --silent --show-error -X POST \
+              -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/votingworks/vxsuite/dispatches" \
+              -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'
+
   moon-ci:
     executor: nodejs
     resource_class: xlarge
@@ -83,6 +1690,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon ci exit code: $code"
             exit "$code"
+
   moon-e2e-admin:
     executor: nodejs
     resource_class: xlarge
@@ -122,6 +1730,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon run exit code: $code"
             exit "$code"
+
   moon-e2e-central-scan:
     executor: nodejs
     resource_class: xlarge
@@ -161,6 +1770,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon run exit code: $code"
             exit "$code"
+
   moon-e2e-mark:
     executor: nodejs
     resource_class: xlarge
@@ -200,6 +1810,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon run exit code: $code"
             exit "$code"
+
   moon-e2e-scan:
     executor: nodejs
     resource_class: xlarge
@@ -239,6 +1850,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon run exit code: $code"
             exit "$code"
+
   moon-e2e-print:
     executor: nodejs
     resource_class: xlarge
@@ -279,29 +1891,295 @@ jobs:
             echo "moon run exit code: $code"
             exit "$code"
 
+  moon-e2e-mark-scan:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build mark-scan app + hardware daemons (make)
+          no_output_timeout: 20m
+          command: make -C apps/mark-scan/integration-testing build
+      - run:
+          name: moon run e2e (non-required)
+          no_output_timeout: 20m
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            env -u CI moon run mark-scan-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/mark-scan/integration-testing/test-results
+      - store_artifacts:
+          path: apps/mark-scan/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
+
 workflows:
-  moon-experiment:
+  test:
     jobs:
+
+      - path-filtering/filter:
+          name: check-updated-files-for-test-filter
+          base-revision: main
+          mapping: |
+            apps/pollbook/backend/.* run-job true
+          config-path: apps/pollbook/backend/.circleci/config.yml
+      - test-apps-admin-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-admin-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-admin-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-apps-central-scan-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-central-scan-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-central-scan-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-apps-design-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-design-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-scan-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-scan-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-scan-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-mark-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-apps-pollbook-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-print-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-print-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-print-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-apps-scan-backend:
+          context:
+            - screenshots-publishing
+      - test-apps-scan-frontend:
+          context:
+            - screenshots-publishing
+      - test-apps-scan-integration-testing:
+          context:
+            - screenshots-publishing
+      - test-docs-exercises:
+          context:
+            - screenshots-publishing
+      - test-libs-auth:
+          context:
+            - screenshots-publishing
+      - test-libs-backend:
+          context:
+            - screenshots-publishing
+      - test-libs-ballot-encoder:
+          context:
+            - screenshots-publishing
+      - test-libs-ballot-interpreter:
+          context:
+            - screenshots-publishing
+      - test-libs-basics:
+          context:
+            - screenshots-publishing
+      - test-libs-bmd-ballot-fixtures:
+          context:
+            - screenshots-publishing
+      - test-libs-cdf-schema-builder:
+          context:
+            - screenshots-publishing
+      - test-libs-custom-paper-handler:
+          context:
+            - screenshots-publishing
+      - test-libs-db:
+          context:
+            - screenshots-publishing
+      - test-libs-dev-dock-backend:
+          context:
+            - screenshots-publishing
+      - test-libs-dev-dock-frontend:
+          context:
+            - screenshots-publishing
+      - test-libs-eslint-plugin-vx:
+          context:
+            - screenshots-publishing
+      - test-libs-fixture-generators:
+          context:
+            - screenshots-publishing
+      - test-libs-fixtures:
+          context:
+            - screenshots-publishing
+      - test-libs-fs:
+          context:
+            - screenshots-publishing
+      - test-libs-fujitsu-thermal-printer:
+          context:
+            - screenshots-publishing
+      - test-libs-grout:
+          context:
+            - screenshots-publishing
+      - test-libs-grout-test-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-hmpb:
+          context:
+            - screenshots-publishing
+      - test-libs-image-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-integration-test-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-logging:
+          context:
+            - screenshots-publishing
+      - test-libs-logging-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-mark-flow-ui:
+          context:
+            - screenshots-publishing
+      - test-libs-message-coder:
+          context:
+            - screenshots-publishing
+      - test-libs-monorepo-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-networking:
+          context:
+            - screenshots-publishing
+      - test-libs-pdi-scanner:
+          context:
+            - screenshots-publishing
+      - test-libs-printing:
+          context:
+            - screenshots-publishing
+      - test-libs-test-decks:
+          context:
+            - screenshots-publishing
+      - test-libs-test-utils:
+          context:
+            - screenshots-publishing
+      - test-libs-types:
+          context:
+            - screenshots-publishing
+      - test-libs-ui:
+          context:
+            - screenshots-publishing
+      - test-libs-usb-drive:
+          context:
+            - screenshots-publishing
+      - test-libs-utils:
+          context:
+            - screenshots-publishing
+      - shellcheck:
+          context:
+            - screenshots-publishing
+      - validate-monorepo:
+          context:
+            - screenshots-publishing
+      - test-rust-crates:
+          context:
+            - screenshots-publishing
+      - notify-gallery:
+          context:
+            - screenshots-publishing
+          requires:
+            - test-apps-admin-integration-testing
+            - test-apps-central-scan-integration-testing
+            - test-apps-mark-scan-integration-testing
+            - test-apps-mark-integration-testing
+            - test-apps-print-integration-testing
+            - test-apps-scan-integration-testing
+          filters:
+            branches:
+              only: main
       - moon-ci:
           context:
             - screenshots-publishing
-      # NON-REQUIRED lane (one job per app) — mark every moon-e2e-* job's status
-      # non-required in branch protection so slow/flaky e2e doesn't block merges.
+          filters:
+            branches:
+              only: main
       - moon-e2e-admin:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: main
       - moon-e2e-central-scan:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: main
       - moon-e2e-mark:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: main
       - moon-e2e-scan:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: main
       - moon-e2e-print:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: main
+      - moon-e2e-mark-scan:
+          context:
+            - screenshots-publishing
+          filters:
+            branches:
+              only: main
 
 commands:
   checkout-and-install:
@@ -317,8 +2195,15 @@ commands:
       - run:
           name: Fix node-gyp gyp entrypoint permissions
           command: |
+            # TODO: Remove once we upgrade past pnpm 11.10, which ships
+            # node-gyp with the gyp entrypoints executable.
+            # See https://github.com/pnpm/pnpm/issues/12455
             chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"
       - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
       - when:
           condition: << parameters.is_node_package >>
           steps:

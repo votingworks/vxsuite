@@ -485,7 +485,14 @@ function generateMoonCiJob(): string[] {
 // Apps whose Playwright integration-testing suite is wired into moon (as a
 // `runInCI: false` e2e task). Extend as more apps are wired. (mark-scan's e2e
 // needs hardware daemons via `make`, so it is intentionally not here.)
-const MOON_E2E_APPS = ['admin', 'central-scan', 'mark', 'scan', 'print'];
+const MOON_E2E_APPS = [
+  'admin',
+  'central-scan',
+  'mark',
+  'scan',
+  'print',
+  'mark-scan',
+];
 
 // One "non-required" e2e job PER app (parallel across CircleCI containers), so
 // the total e2e wall is the slowest single suite rather than the sum. Each app's
@@ -513,6 +520,17 @@ function generateMoonE2eAppJob(app: string): string[] {
     `        command: |`,
     `          pnpm --dir ${dir} exec playwright install-deps`,
     `          pnpm --dir ${dir} exec playwright install chromium`,
+    // mark-scan's suite drives the accessible-controller/PAT daemons, which the
+    // moon dep builds don't produce; build them (and the app) via make, matching
+    // the per-package integration-testing job.
+    ...(app === 'mark-scan'
+      ? [
+          `    - run:`,
+          `        name: Build mark-scan app + hardware daemons (make)`,
+          `        no_output_timeout: 20m`,
+          `        command: make -C ${dir} build`,
+        ]
+      : []),
     `    - run:`,
     `        name: moon run e2e (non-required)`,
     `        no_output_timeout: 20m`,
@@ -713,6 +731,28 @@ export function generateAllConfigs(
     `              only: main`,
   ].join('\n');
 
+  // The experimental moon jobs, added as NON-BLOCKING additions to the real CI
+  // to watch/learn from. They run on `main` only (see moonWorkflowEntries'
+  // branch filter) so they don't add cost to every PR, and re-run the same tests
+  // the per-package jobs do until those are retired. Mark each moon-* job's
+  // status non-required in branch protection.
+  const moonJobBlocks = [
+    generateMoonCiJob(),
+    ...MOON_E2E_APPS.map((app) => generateMoonE2eAppJob(app)),
+  ]
+    .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+    .join('\n\n');
+
+  const moonWorkflowEntries = [
+    'moon-ci',
+    ...MOON_E2E_APPS.map((app) => `moon-e2e-${app}`),
+  ]
+    .map(
+      (jobId) =>
+        `      - ${jobId}:\n          context:\n            - screenshots-publishing\n          filters:\n            branches:\n              only: main`
+    )
+    .join('\n');
+
   const baseConfig = `
 # THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
 # Run \`pnpm -w generate-circleci-config\` to regenerate it.
@@ -784,6 +824,8 @@ ${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)
   .join('\n')}
 
+${moonJobBlocks}
+
 workflows:
   test:
     jobs:
@@ -798,6 +840,7 @@ ${allJobIds
   )
   .join('\n')}
 ${notifyGalleryWorkflowEntry}
+${moonWorkflowEntries}
 
 commands:
   checkout-and-install:

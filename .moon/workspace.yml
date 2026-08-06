@@ -47,11 +47,13 @@ projects:
   mark-frontend: apps/mark/frontend
   mark-integration-testing: apps/mark/integration-testing
   # mark-scan is the hardware combined device: its e2e needs the accessible-
-  # controller/PAT daemons built via `make` and real hardware, so its
-  # integration-testing suite is NOT wired here. Frontend + backend build/
-  # type-check/lint/test are.
+  # controller/PAT daemons, built via `make` (see the moon-e2e-mark-scan CI job,
+  # which runs `make build` before Playwright). The existing per-package CI
+  # builds & runs them in a container, so it is CI-feasible (just not verifiable
+  # locally without browsers/daemons).
   mark-scan-backend: apps/mark-scan/backend
   mark-scan-frontend: apps/mark-scan/frontend
+  mark-scan-integration-testing: apps/mark-scan/integration-testing
   mark-flow-ui: libs/mark-flow-ui
   message-coder: libs/message-coder
   monorepo-utils: libs/monorepo-utils
