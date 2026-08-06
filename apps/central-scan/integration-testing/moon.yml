@@ -15,6 +15,9 @@ tasks:
       mergeArgs: replace
       cache: false
       runInCI: false
+      # Shared mutex: e2e suites bind the same fixed ports, so run them serially
+      # (see admin-integration-testing/moon.yml).
+      mutex: 'e2e-servers'
     deps:
       - 'central-scan-backend:build'
       - 'central-scan-frontend:build'
