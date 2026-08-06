@@ -5,6 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check --manifest-path ../../Cargo.toml -- check . --never-scan ../../libs/basics/src",
     "artifacts": "napi artifacts",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
@@ -16,7 +17,8 @@
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "cargo test && vitest",
+    "test:ci": "cargo test && pnpm test:coverage",
+    "test:coverage": "vitest run --coverage && pnpm coverage-check",
     "test:run": "cargo test && vitest run",
     "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
     "universal": "napi universal",
