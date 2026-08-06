@@ -6,7 +6,7 @@ import {
 import { assert } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
-import { convertHtmlToAudioCues } from './rich_text';
+import { convertHtmlToAudioCues } from './rich_text.js';
 
 /**
  * Available voices are listed at https://cloud.google.com/text-to-speech/docs/voices.

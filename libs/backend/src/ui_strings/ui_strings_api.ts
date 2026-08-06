@@ -5,7 +5,7 @@ import {
   UiStringAudioIds,
   UiStringTranslations,
 } from '@votingworks/types';
-import { UiStringsStore } from './ui_strings_store';
+import { UiStringsStore } from './ui_strings_store.js';
 
 /** App context for {@link UiStringsApiMethods} endpoints. */
 export interface UiStringsApiContext {

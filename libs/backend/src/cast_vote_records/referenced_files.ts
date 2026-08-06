@@ -14,7 +14,7 @@ import {
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
-import { CastVoteRecordFileSource } from './file_source';
+import { CastVoteRecordFileSource } from './file_source.js';
 
 /**
  * A file referenced by a cast vote record report

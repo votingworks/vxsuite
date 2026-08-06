@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
-import { execFile } from '../exec';
-import { intermediateScript } from '../intermediate_scripts';
+import { execFile } from '../exec.js';
+import { intermediateScript } from '../intermediate_scripts.js';
 
 /**
  * Parameters for the `setClock` function.

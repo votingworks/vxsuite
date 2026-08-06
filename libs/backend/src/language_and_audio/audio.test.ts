@@ -9,11 +9,11 @@ import { deferred } from '@votingworks/basics';
 import {
   GoogleCloudSpeechSynthesizer,
   SpeechSynthesizer,
-} from './speech_synthesizer';
-import { generateAudioIdsAndClips } from './audio';
-import { audioIdForText } from './utils';
-import { makeMockGoogleCloudTextToSpeechClient } from './test_utils';
-import { convertHtmlToAudioCues } from './rich_text';
+} from './speech_synthesizer.js';
+import { generateAudioIdsAndClips } from './audio.js';
+import { audioIdForText } from './utils.js';
+import { makeMockGoogleCloudTextToSpeechClient } from './test_utils.js';
+import { convertHtmlToAudioCues } from './rich_text.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(
