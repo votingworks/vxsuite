@@ -411,7 +411,9 @@ fn rewrite_comment(source: &str, hint: &Hint, suffix: &str) -> Edit {
         Some(reason) => format!("{name}: {reason}"),
         None => name,
     };
-    let replacement = if after_blank {
+    // Multi-line reasons must stay in block form: a `//` rewrite would turn
+    // the reason's continuation lines into bare code.
+    let replacement = if after_blank && !body.contains('\n') {
         format!("// {body}")
     } else {
         format!("/* {body} */")
@@ -515,6 +517,16 @@ mod tests {
         assert_eq!(
             c.output,
             "function f(): number {\n  // @coverage-exclude\n  return 1;\n}\n"
+        );
+    }
+
+    #[test]
+    fn multi_line_reason_stays_in_block_form() {
+        let src = "function f(): number {\n  /* istanbul ignore next: first line\n     second line. */\n  return 1;\n}\n";
+        let c = convert_src(src, &[]);
+        assert_eq!(
+            c.output,
+            "function f(): number {\n  /* @coverage-exclude: first line\n     second line. */\n  return 1;\n}\n"
         );
     }
 
