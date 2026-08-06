@@ -40,7 +40,9 @@ jobs:
           command: |
             set +e
             if [ -n "${MOON_REMOTE_HOST:-}" ]; then
-              echo "remote cache: ENABLED (MOON_REMOTE_HOST is set)"
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+              echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"
             else
               echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"
             fi

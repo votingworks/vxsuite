@@ -410,10 +410,16 @@ function generateMoonCiJob(): string[] {
     `        name: moon ci`,
     `        command: |`,
     `          set +e`,
-    // Make the remote-cache state obvious in the log without leaking the host:
-    // moon picks up MOON_REMOTE_HOST from the environment automatically.
+    // Make the remote-cache state obvious in the log. moon picks up
+    // MOON_REMOTE_HOST from the environment automatically, but a stray quote or
+    // trailing newline in the CircleCI env value makes moon reject the URI
+    // ("invalid uri character") and silently disable the cache — so trim
+    // surrounding whitespace/quotes and echo the value bracketed to expose any
+    // residual junk (\`[grpc://host:9092 ]\` reveals a trailing space).
     `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
-    `            echo "remote cache: ENABLED (MOON_REMOTE_HOST is set)"`,
+    `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
+    `            export MOON_REMOTE_HOST`,
+    `            echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"`,
     `          else`,
     `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"`,
     `          fi`,
