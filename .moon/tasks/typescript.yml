@@ -2,11 +2,15 @@ inheritedBy:
   toolchains:
     or: ['javascript', 'typescript']
 
+# `tsconfig.build.json` is intentionally NOT in `sources`: only the `build` task
+# consumes it (`tsc --build tsconfig.build.json`), so it's declared as a build
+# input below. Keeping it out of the shared group means test/type-check/lint
+# don't spuriously invalidate on build-config changes, and native libs that have
+# no build tsconfig (e.g. logging-utils) don't warn about a missing input.
 fileGroups:
   sources:
     - 'src/**/*'
     - 'tsconfig.json'
-    - 'tsconfig.build.json'
     - '/tsconfig.shared.json'
 
 tasks:
@@ -14,6 +18,7 @@ tasks:
     command: 'tsc --build tsconfig.build.json'
     inputs:
       - '@group(sources)'
+      - 'tsconfig.build.json'
     outputs:
       - 'build'
     deps:
