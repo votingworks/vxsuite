@@ -102,6 +102,7 @@ const ResolutionDecoder: Decoder<ResolutionCapabilityOption> = {
   0x07: 600,
 };
 
+// @coverage-defer
 function decode<Capability>(
   code: number,
   decoder: Decoder<Capability>
@@ -113,6 +114,7 @@ function decode<Capability>(
   return option;
 }
 
+// @coverage-defer
 function getEmptyScannerCapability(): ScannerCapability {
   return {
     paperMovementAfterScanOptions: [],
@@ -130,6 +132,7 @@ function getEmptyScannerCapability(): ScannerCapability {
   };
 }
 
+// @coverage-defer
 export function parseScannerCapability(data: DataView): ScannerCapability {
   const scannerCapability = getEmptyScannerCapability();
   let byteIndex = 4;

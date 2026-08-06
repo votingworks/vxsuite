@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Optional } from '@votingworks/basics';
 import { PaperHandlerDriverInterface } from './driver_interface';
 import { PaperHandlerDriver, getPaperHandlerWebDevice } from './driver';

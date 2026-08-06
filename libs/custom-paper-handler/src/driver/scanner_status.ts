@@ -11,6 +11,7 @@ export function isPaperReadyToLoad(
   );
 }
 
+// @coverage-defer
 export function isCoverOpen(paperHandlerStatus: PaperHandlerStatus): boolean {
   const isHoodRaised = paperHandlerStatus.optoSensor;
   const isDeviceOpen = paperHandlerStatus.coverOpen;

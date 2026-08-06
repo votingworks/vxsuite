@@ -18,6 +18,7 @@ import { defaultPaperHandlerStatus } from './test_utils';
 
 const debug = makeDebug('custom-paper-handler:mock-driver');
 
+// @coverage-defer
 // USBOutTransferResult is undefined at runtime
 function makeUsbOutTransferResult(
   status: USBTransferStatus,
@@ -86,63 +87,78 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     this.setMockStatus('noPaper');
   }
 
+  // @coverage-defer
   connect(): Promise<void> {
     return Promise.resolve();
   }
 
+  // @coverage-defer
   disconnect(): Promise<void> {
     return Promise.resolve();
   }
 
+  // @coverage-defer
   transferInGeneric(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   transferInAcknowledgement(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   clearGenericInBuffer(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   transferOutRealTime(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   transferInRealTime(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   handleRealTimeExchange(): Promise<Result<never, CoderError>> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   transferOutGeneric(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   initializePrinter(): Promise<void> {
     debug('initializePrinter called');
     return Promise.resolve();
   }
 
+  // @coverage-defer
   validateRealTimeExchangeResponse(): void {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   async abortScan(): Promise<void> {
     await sleep(500);
   }
 
+  // @coverage-defer
   async resetScan(): Promise<void> {
     await sleep(500);
   }
@@ -151,39 +167,48 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(this.statusRef);
   }
 
+  // @coverage-defer
   handleGenericCommandWithAcknowledgement(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   getScannerCapability(): Promise<ScannerCapability> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   syncScannerConfig(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setScanLight(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setScanDataFormat(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setScanResolution(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setPaperMovementAfterScan(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setScanDirection(): Promise<boolean> {
     return Promise.resolve(true);
   }
 
   scan(): Promise<ImageData> {
+    // @coverage-defer
     return Promise.resolve(this.mockPaperContents || BLANK_PAGE_IMAGE_DATA);
   }
 
@@ -226,35 +251,43 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(true);
   }
 
+  // @coverage-defer
   calibrate(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   enablePrint(): Promise<boolean> {
     return Promise.resolve(true);
   }
 
+  // @coverage-defer
   disablePrint(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setMotionUnits(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setLeftMargin(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setPrintingAreaWidth(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setLineSpacing(numMotionUnits: number): Promise<USBOutTransferResult> {
     debug('setLineSpacing called with numMotionUnits: %d', numMotionUnits);
     return Promise.resolve(makeUsbOutTransferResult('ok', 0));
   }
 
+  // @coverage-defer
   setPrintingSpeed(
     printingSpeed: PrintingSpeed
   ): Promise<USBOutTransferResult> {
@@ -262,30 +295,37 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(makeUsbOutTransferResult('ok', 0));
   }
 
+  // @coverage-defer
   setPrintingDensity(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setAbsolutePrintPosition(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setRelativePrintPosition(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   setRelativeVerticalPrintPosition(): Promise<USBOutTransferResult> {
     return Promise.resolve(makeUsbOutTransferResult('ok', 1));
   }
 
+  // @coverage-defer
   bufferChunk(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
 
+  // @coverage-defer
   printChunk(): Promise<void> {
     return Promise.resolve();
   }
 
+  // @coverage-defer
   print(): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -310,10 +350,12 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     this.mockPaperContents = contents;
   }
 
+  // @coverage-defer
   isCoverOpen(): boolean {
     return this.coverOpen;
   }
 
+  // @coverage-defer
   setCoverOpen(isOpen: boolean): void {
     this.coverOpen = isOpen;
     this.setMockStatus(this.mockStatus);

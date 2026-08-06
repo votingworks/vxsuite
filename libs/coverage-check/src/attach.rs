@@ -52,6 +52,9 @@ pub struct Collected {
     pub calls: Vec<CallSite>,
     pub imports: Vec<ImportBinding>,
     pub fn_decls: Vec<FnDecl>,
+    /// All switch-case clause spans (directive insertion avoids these:
+    /// comments between empty fallthrough cases trip `no-fallthrough`).
+    pub case_spans: Vec<Span>,
 }
 
 #[derive(Default)]
@@ -95,6 +98,7 @@ impl<'a> Visit<'a> for Collector {
                 });
             }
             AstKind::SwitchCase(case) => {
+                self.out.case_spans.push(case.span);
                 let mut body: Vec<&Statement> = case.consequent.iter().collect();
                 if let Some(Statement::BreakStatement(_)) = body.last().map(|s| &**s) {
                     body.pop();

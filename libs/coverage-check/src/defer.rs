@@ -71,7 +71,7 @@ pub fn plan_file_defers(
             insertions[prev].covers += 1;
             continue;
         }
-        let Some(node) = tightest_line_leading_container(source, &file.collected.spans, off) else {
+        let Some(node) = tightest_line_leading_container(source, file, off) else {
             unplanned.push(UnplannedEntity { offset: off });
             continue;
         };
@@ -79,8 +79,12 @@ pub fn plan_file_defers(
             .rfind('\n')
             .map_or(0, |i| i + 1);
         let indent: String = source[line_start..node.start as usize].to_string();
+        // Insert above any contiguous leading comment block so we never split
+        // line-scoped comments (eslint-disable-next-line, @ts-expect-error)
+        // from the node they target.
+        let at = above_leading_comments(source, line_start);
         insertions.push(Insertion {
-            at: line_start,
+            at,
             text: format!("{indent}// @coverage-defer\n"),
             covers: 1,
         });
@@ -95,11 +99,14 @@ pub fn plan_file_defers(
 
 /// The innermost node span that contains `off` and whose start is preceded
 /// only by whitespace on its line (so an own-line directive above it binds
-/// it).
-fn tightest_line_leading_container(source: &str, spans: &[Span], off: usize) -> Option<Span> {
-    spans
+/// it). Case clauses are skipped — a comment between empty fallthrough cases
+/// trips `no-fallthrough` — so arms bubble up to the enclosing switch.
+fn tightest_line_leading_container(source: &str, file: &ParsedFile, off: usize) -> Option<Span> {
+    file.collected
+        .spans
         .iter()
         .filter(|s| (s.start as usize) <= off && off < (s.end as usize))
+        .filter(|s| !file.collected.case_spans.contains(s))
         .filter(|s| {
             let start = s.start as usize;
             let line_start = source[..start].rfind('\n').map_or(0, |i| i + 1);
@@ -107,6 +114,24 @@ fn tightest_line_leading_container(source: &str, spans: &[Span], off: usize) -> 
         })
         .max_by_key(|s| (s.start, std::cmp::Reverse(s.end)))
         .copied()
+}
+
+/// Walk upward from a line start past contiguous own-line comment lines,
+/// returning the line start above them.
+fn above_leading_comments(source: &str, mut line_start: usize) -> usize {
+    loop {
+        if line_start == 0 {
+            return 0;
+        }
+        let prev_start = source[..line_start - 1].rfind('\n').map_or(0, |i| i + 1);
+        let prev_line = source[prev_start..line_start].trim();
+        if prev_line.starts_with("//") || (prev_line.starts_with("/*") && prev_line.ends_with("*/"))
+        {
+            line_start = prev_start;
+        } else {
+            return line_start;
+        }
+    }
 }
 
 /// Apply planned insertions to the source (descending offset so earlier
@@ -187,6 +212,30 @@ mod tests {
         assert_eq!(
             out,
             "function f(): void {\n  // @coverage-defer\n  a();\n}\nfunction g(): void {\n  // @coverage-defer\n  b();\n}\n"
+        );
+    }
+
+    #[test]
+    fn case_arms_bubble_up_to_the_enclosing_switch() {
+        let src = "function f(x: string): number {\n  switch (x) {\n    case 'a':\n    case 'b':\n      return 1;\n    default:\n      return 0;\n  }\n}\n";
+        let offsets = [src.find("case 'a'").unwrap(), src.find("case 'b'").unwrap()];
+        let (out, plan) = plan(src, &offsets, false);
+        assert_eq!(
+            out,
+            "function f(x: string): number {\n  // @coverage-defer\n  switch (x) {\n    case 'a':\n    case 'b':\n      return 1;\n    default:\n      return 0;\n  }\n}\n"
+        );
+        assert_eq!(plan.insertions.len(), 1);
+        assert_eq!(plan.insertions[0].covers, 2);
+    }
+
+    #[test]
+    fn inserts_above_leading_line_scoped_comments() {
+        let src = "function f(): void {\n  // eslint-disable-next-line no-console\n  console.log('x');\n}\n";
+        let off = src.find("console.log").unwrap();
+        let (out, _plan) = plan(src, &[off], false);
+        assert_eq!(
+            out,
+            "function f(): void {\n  // @coverage-defer\n  // eslint-disable-next-line no-console\n  console.log('x');\n}\n"
         );
     }
 

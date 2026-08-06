@@ -1,3 +1,4 @@
+// @coverage-defer-file
 /* eslint-disable no-console */
 
 import { createInterface } from 'node:readline';
