@@ -1,14 +1,14 @@
 import { Optional, Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { toBitLength, toByteOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { toBitLength, toByteOffset } from './bits.js';
 import {
   BitLength,
   BitOffset,
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 function concatLiteralParts<T extends Array<string | number | Buffer>>(
   ...values: T

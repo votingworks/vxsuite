@@ -1,14 +1,14 @@
 import { Buffer } from 'node:buffer';
 import { Result, assert, err } from '@votingworks/basics';
-import { BaseCoder } from './base_coder';
+import { BaseCoder } from './base_coder.js';
 import {
   BitLength,
   Coder,
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
-import { CoderType } from './message_coder';
+} from './types.js';
+import { CoderType } from './message_coder.js';
 
 /**
  * A coder that encodes/decodes one of a set of coders.
