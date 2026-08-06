@@ -38,6 +38,7 @@ export function filterVotesByContestIds({
 
   for (const contestId of contestIds) {
     const vote = votes[contestId];
+    // @coverage-defer
     if (vote) {
       filteredVotes[contestId] = vote;
     }

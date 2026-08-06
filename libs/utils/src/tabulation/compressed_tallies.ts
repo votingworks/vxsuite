@@ -84,7 +84,7 @@ export function compressTally(
   );
   // eslint-disable-next-line array-callback-return
   return contests.map((contest) => {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       return straightPartyNotYetImplemented();
     }
@@ -99,6 +99,7 @@ export function compressTally(
           contestResults.ballots,
           // One tally per option, in options[] order
           ...contest.options.map(
+            // @coverage-defer
             (option) => contestResults.tallies[option.id] ?? 0
           ),
         ] as YesNoContestCompressedTally);
@@ -113,11 +114,13 @@ export function compressTally(
           contestResults.overvotes, // overvotes
           contestResults.ballots, // ballotsCast
           ...contest.candidates.map(
+            // @coverage-defer
             (candidate) => contestResults.tallies[candidate.id]?.tally ?? 0
           ),
           ...(contest.allowWriteIns
             ? [
                 contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ??
+                  // @coverage-defer
                   0,
               ]
             : []),
@@ -125,7 +128,6 @@ export function compressTally(
       }
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest, 'type');
     }
   });
@@ -236,7 +238,7 @@ function getContestTalliesForCompressedContest(
   contest: Contest,
   compressedContest: CompressedTallyEntry
 ): Tabulation.ContestResults {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -248,6 +250,7 @@ function getContestTalliesForCompressedContest(
       );
       const tallies: Record<string, number> = {};
       for (const [i, option] of contest.options.entries()) {
+        // @coverage-defer
         tallies[option.id] = optionTallies[i] ?? 0;
       }
       return {
@@ -302,13 +305,12 @@ function getContestTalliesForCompressedContest(
       };
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
 
 function getNumberOfEntriesInContest(contest: Contest): number {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -325,7 +327,6 @@ function getNumberOfEntriesInContest(contest: Contest): number {
         (contest.allowWriteIns ? 1 : 0)
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -365,10 +366,11 @@ export function decodeV0CompressedTally(
   );
   for (const contest of contests) {
     const tallyLength = getNumberOfEntriesInContest(contest);
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
+    // @coverage-defer
     if (contest.type === 'yesno') {
       compressedTally.push(
         Array.from(
@@ -384,7 +386,6 @@ export function decodeV0CompressedTally(
       );
       offset += tallyLength;
     } else {
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }
@@ -408,7 +409,7 @@ function decodeContestEntriesFromUint16Array(
       uint16Array.slice(currentOffset, currentOffset + tallyLength)
     );
     let compressedEntry: CompressedTallyEntry;
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }

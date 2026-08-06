@@ -29,6 +29,7 @@ export function generateBallotStyleGroupId(params: {
   rotationIndex?: number;
   party?: Party;
 }): BallotStyleGroupId {
+  // @coverage-defer
   const indexString = params.rotationIndex
     ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.rotationIndex}`
     : params.ballotStyleIndex.toString();

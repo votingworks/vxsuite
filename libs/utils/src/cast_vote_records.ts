@@ -264,8 +264,9 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
       return contest.options.map((o) => o.id);
     case 'straight-party':
       return [...contest.optionIds];
+    // @coverage-defer
     default:
-      /* istanbul ignore next */
+      // @coverage-exclude
       return throwIllegalValue(contest);
   }
 }

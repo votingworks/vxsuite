@@ -189,7 +189,6 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
       return process.env.REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }
@@ -344,7 +343,6 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     default:
-      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }

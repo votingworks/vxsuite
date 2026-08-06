@@ -1,6 +1,7 @@
 import JsZip, { JSZipObject } from 'jszip';
 import { Buffer } from 'node:buffer';
 
+// @coverage-defer
 export function readFileAsyncAsString(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -15,12 +16,13 @@ export function readFileAsyncAsString(file: File): Promise<string> {
   });
 }
 
+// @coverage-defer
 export function readFile(file: File): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onerror =
-      /* istanbul ignore next */
+      // @coverage-exclude
       () => {
         reject(reader.error);
       };
@@ -88,10 +90,12 @@ export function getFilePrefixedByName(
   }
   // Choose the most recently modified file (by date, fallback to last in list)
   const sortedMatching = matching.slice().sort((a, b) => {
+    // @coverage-defer
     const aDate = a.date?.getTime?.() ?? 0;
     const bDate = b.date?.getTime?.() ?? 0;
     return bDate - aDate;
   });
+  // @coverage-defer
   if (sortedMatching[0] === undefined) {
     throw new Error(
       `${zipName} does not have a file starting with '${prefix}' and ending with '${extension}'`

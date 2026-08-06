@@ -17,7 +17,6 @@ export function getPollsTransitionDestinationState(
     case 'close_polls':
       return 'polls_closed_final';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -35,7 +34,6 @@ export function getPollsTransitionAction(
     case 'close_polls':
       return 'Close Polls';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -53,7 +51,6 @@ export function getPollsReportTitle(
     case 'close_polls':
       return 'Polls Closed Report';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -68,7 +65,6 @@ export function getPollsStateName(state: PollsState): string {
     case 'polls_closed_final':
       return 'Closed';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(state);
   }
 }
@@ -90,7 +86,6 @@ export function getPollTransitionsFromState(
     case 'polls_closed_final':
       return [];
     default:
-      /* istanbul ignore next */
       throwIllegalValue(state);
   }
 }
@@ -111,7 +106,6 @@ export function isValidPollsStateChange(
     case 'polls_closed_final':
       return false;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(prevState);
   }
 }
@@ -128,7 +122,6 @@ export function getPollsTransitionActionPastTense(
     case 'pause_voting':
       return 'Voting Paused';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -144,7 +137,6 @@ export function isPollsSuspensionTransition(
     case 'pause_voting':
       return true;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
