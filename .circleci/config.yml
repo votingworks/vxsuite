@@ -18,7 +18,6 @@ jobs:
   moon-ci:
     executor: nodejs
     resource_class: xlarge
-    parallelism: 3
     environment:
       # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.
       MOON_CONCURRENCY: '4'
@@ -32,9 +31,9 @@ jobs:
             echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
       - restore_cache:
           keys:
-            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}
-            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-
-            - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-main-
+            - moon-{{ .Branch }}-{{ .Revision }}
+            - moon-{{ .Branch }}-
+            - moon-main-
       - run:
           name: moon ci
           command: |
@@ -44,9 +43,9 @@ jobs:
               export MOON_REMOTE_HOST
               echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"
             else
-              echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"
+              echo "remote cache: disabled (MOON_REMOTE_HOST unset — cold full build)"
             fi
-            moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary
+            moon ci --downstream none --summary
             echo $? > /tmp/moon-exit-code
             # Echo any vitest-failed task's captured log to this step's tail, so
             # the failure survives CircleCI's head-truncation of long step logs
@@ -60,7 +59,7 @@ jobs:
             done
             exit 0
       - save_cache:
-          key: moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}
+          key: moon-{{ .Branch }}-{{ .Revision }}
           paths:
             - .moon/cache/hashes
             - .moon/cache/outputs
@@ -83,55 +82,7 @@ jobs:
             code=$(cat /tmp/moon-exit-code)
             echo "moon ci exit code: $code"
             exit "$code"
-  moon-ci-baseline:
-    executor: nodejs
-    resource_class: xlarge
-    environment:
-      MOON_CONCURRENCY: '4'
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Install moon
-          command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
-      - run:
-          name: moon ci (single container, cold)
-          command: |
-            set +e
-            unset MOON_REMOTE_HOST
-            echo "remote cache: DISABLED (cold single-container baseline)"
-            moon ci --downstream none --summary
-            echo $? > /tmp/moon-exit-code
-            for d in $(find .moon/cache/states -mindepth 2 -maxdepth 2 -type d); do
-              o="$d/stdout.log"
-              if [ -f "$o" ] && grep -qE "[0-9]+ failed" "$o"; then
-                echo "===== FAILED TASK: $d ====="; tail -120 "$o"
-                echo "--- stderr ---"; tail -60 "$d/stderr.log" 2>/dev/null
-              fi
-            done
-            exit 0
-      - store_artifacts:
-          path: .moon/cache/states
-          destination: moon-baseline-task-logs
-      - run:
-          name: Collect JUnit reports
-          command: |
-            mkdir -p /tmp/test-results
-            find . -path '*/reports/junit.xml' -not -path '*/node_modules/*' | while read -r f; do
-              name=$(echo "$f" | sed -e 's|^\./||' -e 's|/reports/junit.xml$||' -e 's|/|_|g')
-              cp "$f" "/tmp/test-results/${name}.xml"
-            done
-      - store_test_results:
-          path: /tmp/test-results
-      - run:
-          name: Propagate moon ci exit code
-          command: |
-            code=$(cat /tmp/moon-exit-code)
-            echo "moon ci exit code: $code"
-            exit "$code"
-  moon-e2e:
+  moon-e2e-admin:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -149,28 +100,176 @@ jobs:
             pnpm --dir apps/admin/integration-testing exec playwright install chromium
       - run:
           name: moon run e2e (non-required)
-          no_output_timeout: 30m
+          no_output_timeout: 20m
           command: |
             set +e
             if [ -n "${MOON_REMOTE_HOST:-}" ]; then
               MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
               export MOON_REMOTE_HOST
             fi
-            env -u CI moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test scan-integration-testing:test print-integration-testing:test
+            env -u CI moon run admin-integration-testing:test
             echo $? > /tmp/moon-exit-code
             exit 0
-      - run:
-          name: Collect e2e results
-          command: |
-            mkdir -p /tmp/e2e-results
-            for app in admin central-scan mark scan print; do
-              d="apps/$app/integration-testing/test-results"
-              [ -d "$d" ] && cp -r "$d" "/tmp/e2e-results/$app" || true
-            done
       - store_test_results:
-          path: /tmp/e2e-results
+          path: apps/admin/integration-testing/test-results
       - store_artifacts:
-          path: /tmp/e2e-results
+          path: apps/admin/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
+  moon-e2e-central-scan:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
+      - run:
+          name: moon run e2e (non-required)
+          no_output_timeout: 20m
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            env -u CI moon run central-scan-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/central-scan/integration-testing/test-results
+      - store_artifacts:
+          path: apps/central-scan/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
+  moon-e2e-mark:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/mark/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
+      - run:
+          name: moon run e2e (non-required)
+          no_output_timeout: 20m
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            env -u CI moon run mark-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/mark/integration-testing/test-results
+      - store_artifacts:
+          path: apps/mark/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
+  moon-e2e-scan:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/scan/integration-testing exec playwright install chromium
+      - run:
+          name: moon run e2e (non-required)
+          no_output_timeout: 20m
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            env -u CI moon run scan-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/scan/integration-testing/test-results
+      - store_artifacts:
+          path: apps/scan/integration-testing/test-results
+          destination: e2e-test-results
+      - run:
+          name: Propagate moon run exit code
+          command: |
+            code=$(cat /tmp/moon-exit-code)
+            echo "moon run exit code: $code"
+            exit "$code"
+  moon-e2e-print:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install moon
+          command: |
+            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install Playwright Chromium
+          command: |
+            pnpm --dir apps/print/integration-testing exec playwright install-deps
+            pnpm --dir apps/print/integration-testing exec playwright install chromium
+      - run:
+          name: moon run e2e (non-required)
+          no_output_timeout: 20m
+          command: |
+            set +e
+            if [ -n "${MOON_REMOTE_HOST:-}" ]; then
+              MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"
+              export MOON_REMOTE_HOST
+            fi
+            env -u CI moon run print-integration-testing:test
+            echo $? > /tmp/moon-exit-code
+            exit 0
+      - store_test_results:
+          path: apps/print/integration-testing/test-results
+      - store_artifacts:
+          path: apps/print/integration-testing/test-results
           destination: e2e-test-results
       - run:
           name: Propagate moon run exit code
@@ -185,12 +284,21 @@ workflows:
       - moon-ci:
           context:
             - screenshots-publishing
-      - moon-ci-baseline:
+      # NON-REQUIRED lane (one job per app) — mark every moon-e2e-* job's status
+      # non-required in branch protection so slow/flaky e2e doesn't block merges.
+      - moon-e2e-admin:
           context:
             - screenshots-publishing
-      # NON-REQUIRED lane — mark this job's status non-required in branch
-      # protection so slow/flaky e2e doesn't block merges.
-      - moon-e2e:
+      - moon-e2e-central-scan:
+          context:
+            - screenshots-publishing
+      - moon-e2e-mark:
+          context:
+            - screenshots-publishing
+      - moon-e2e-scan:
+          context:
+            - screenshots-publishing
+      - moon-e2e-print:
           context:
             - screenshots-publishing
 

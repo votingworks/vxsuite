@@ -50,26 +50,24 @@ test('generateAllConfigs moon prototype mode', () => {
 
   const config = configs.get(keys[0]);
   assert(config !== undefined);
-  // Runs the experimental moon job, sharded across containers...
+  // Required check: a single (non-sharded) moon ci job with test results.
   expect(config).toContain('moon-ci:');
-  expect(config).toContain('parallelism: 3');
-  expect(config).toContain(
-    'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none'
-  );
-  expect(config).toContain('moonrepo.dev/install/moon.sh');
-  // Single-container cold baseline job for comparison: remote cache disabled,
-  // no --job sharding, and test results collected.
-  expect(config).toContain('moon-ci-baseline:');
-  expect(config).toContain('unset MOON_REMOTE_HOST');
+  expect(config).not.toContain('parallelism: 3');
+  expect(config).not.toContain('--job-total');
   expect(config).toContain('moon ci --downstream none --summary');
+  expect(config).toContain('moonrepo.dev/install/moon.sh');
   expect(config).toContain('store_test_results:');
-  // Non-required e2e lane: runs the Playwright suite via `moon run` (it's
-  // runInCI:false so `moon ci` skips it) after installing Chromium.
-  expect(config).toContain('moon-e2e:');
+  // The measurement-only baseline job is gone now that we've chosen
+  // single-container.
+  expect(config).not.toContain('moon-ci-baseline:');
+  // Non-required e2e lane: one job per app, each installing Chromium and running
+  // its Playwright suite via `moon run` (runInCI:false so `moon ci` skips it).
   expect(config).toContain('playwright install chromium');
-  expect(config).toContain(
-    'moon run admin-integration-testing:test central-scan-integration-testing:test mark-integration-testing:test scan-integration-testing:test print-integration-testing:test'
-  );
+  expect(config).toContain('moon-e2e-admin:');
+  expect(config).toContain('moon-e2e-central-scan:');
+  expect(config).toContain('moon-e2e-print:');
+  expect(config).toContain('moon run admin-integration-testing:test');
+  expect(config).toContain('moon run print-integration-testing:test');
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
   expect(config).not.toContain('test-rust-crates');

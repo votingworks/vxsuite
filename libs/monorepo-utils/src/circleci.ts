@@ -399,13 +399,12 @@ function generateMoonCiJob(): string[] {
     `moon-ci:`,
     `  executor: nodejs`,
     `  resource_class: xlarge`,
-    // Shard the affected task graph across N containers. CircleCI sets
-    // CIRCLE_NODE_INDEX / CIRCLE_NODE_TOTAL; \`moon ci --job/--job-total\`
-    // partitions targets positionally. With MOON_REMOTE_HOST set, a task's
-    // cross-shard build deps are hydrated from the shared remote cache; without
-    // it each shard only has its own .moon/cache, so a shard can miss a
-    // dependency's build output (and shared deps are rebuilt per shard).
-    `  parallelism: 3`,
+    // SINGLE container (not sharded). The remote cache makes the common
+    // warm/incremental run fast on one box, so sharding would pay ~3x container
+    // cost on every run to speed up only the rare cold path — and moon's
+    // positional \`--job\` sharding doesn't cost-balance, so heavy suites clump.
+    // If the cold path (main / cache-eviction) ever gets too slow, prefer
+    // splitting the heaviest suites into finer vitest tasks over container shards.
     `  environment:`,
     `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
     `    MOON_CONCURRENCY: '4'`,
@@ -417,13 +416,11 @@ function generateMoonCiJob(): string[] {
     `        command: |`,
     `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
-    // Cache keys are namespaced by shard index so parallel shards don't clobber
-    // each other's save_cache (and a shard only restores its own prior cache).
     `    - restore_cache:`,
     `        keys:`,
-    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
-    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-`,
-    `          - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-main-`,
+    `          - moon-{{ .Branch }}-{{ .Revision }}`,
+    `          - moon-{{ .Branch }}-`,
+    `          - moon-main-`,
     // Capture moon's exit code rather than failing the step immediately, so the
     // cache save and per-task log upload below always run (even on test failure).
     `    - run:`,
@@ -441,15 +438,12 @@ function generateMoonCiJob(): string[] {
     `            export MOON_REMOTE_HOST`,
     `            echo "remote cache: ENABLED, host=[$MOON_REMOTE_HOST]"`,
     `          else`,
-    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"`,
+    `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — cold full build)"`,
     `          fi`,
-    // \`--downstream none\`: \`moon ci\` defaults to pulling each task's DIRECT
-    // dependents in for regression checks, but we already run the full affected
-    // set (affected propagates to dependents as their own primaries), so that
-    // fan-out just replicates the heavy hub-dependent tests (ui:test,
-    // admin-backend:test, …) into every shard. Dropping it makes each task a
-    // primary on exactly one shard, so the partition actually splits the work.
-    `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary`,
+    // \`--downstream none\`: \`moon ci\` defaults to also pulling each task's
+    // DIRECT dependents in for regression checks, but the affected set already
+    // includes them as primaries, so that fan-out is redundant work.
+    `          moon ci --downstream none --summary`,
     `          echo $? > /tmp/moon-exit-code`,
     `          # Echo any vitest-failed task's captured log to this step's tail, so`,
     `          # the failure survives CircleCI's head-truncation of long step logs`,
@@ -463,7 +457,7 @@ function generateMoonCiJob(): string[] {
     `          done`,
     `          exit 0`,
     `    - save_cache:`,
-    `        key: moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}`,
+    `        key: moon-{{ .Branch }}-{{ .Revision }}`,
     `        paths:`,
     `          - .moon/cache/hashes`,
     `          - .moon/cache/outputs`,
@@ -483,83 +477,22 @@ function generateMoonCiJob(): string[] {
   ];
 }
 
-// Single-container COLD baseline (NO sharding) for a direct comparison against
-// the 3-shard `moon-ci` job: same executor, resource_class, and MOON_CONCURRENCY,
-// so the only variable is sharding on/off. The remote cache is DISABLED here (we
-// `unset MOON_REMOTE_HOST`) and there is no CircleCI restore_cache, so every run
-// is a clean cold full build+test — an honest worst-case single-container number.
-// (Env can't point it at an isolated cache instance: the committed
-// `cache.instanceName` in .moon/workspace.yml takes precedence over
-// MOON_REMOTE_CACHE_INSTANCE_NAME, so it would otherwise share the sharded job's
-// warm `vxsuite` cache and the timing would be meaningless.) Step boilerplate is
-// duplicated from generateMoonCiJob() rather than shared, to keep that working
-// job byte-for-byte untouched while we prototype.
-function generateMoonCiBaselineJob(): string[] {
-  return [
-    `moon-ci-baseline:`,
-    `  executor: nodejs`,
-    `  resource_class: xlarge`,
-    `  environment:`,
-    `    MOON_CONCURRENCY: '4'`,
-    `  steps:`,
-    `    - checkout-and-install:`,
-    `        is_node_package: true`,
-    `    - run:`,
-    `        name: Install moon`,
-    `        command: |`,
-    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
-    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
-    `    - run:`,
-    `        name: moon ci (single container, cold)`,
-    `        command: |`,
-    `          set +e`,
-    // Force a cold run: the whole point of the baseline is worst-case timing.
-    `          unset MOON_REMOTE_HOST`,
-    `          echo "remote cache: DISABLED (cold single-container baseline)"`,
-    // No --job/--job-total: run the whole affected graph in one container.
-    `          moon ci --downstream none --summary`,
-    `          echo $? > /tmp/moon-exit-code`,
-    `          for d in $(find .moon/cache/states -mindepth 2 -maxdepth 2 -type d); do`,
-    `            o="$d/stdout.log"`,
-    `            if [ -f "$o" ] && grep -qE "[0-9]+ failed" "$o"; then`,
-    `              echo "===== FAILED TASK: $d ====="; tail -120 "$o"`,
-    `              echo "--- stderr ---"; tail -60 "$d/stderr.log" 2>/dev/null`,
-    `            fi`,
-    `          done`,
-    `          exit 0`,
-    `    - store_artifacts:`,
-    `        path: .moon/cache/states`,
-    `        destination: moon-baseline-task-logs`,
-    ...moonTestResultsSteps(),
-    `    - run:`,
-    `        name: Propagate moon ci exit code`,
-    `        command: |`,
-    `          code=$(cat /tmp/moon-exit-code)`,
-    `          echo "moon ci exit code: $code"`,
-    `          exit "$code"`,
-  ];
-}
-
 // Apps whose Playwright integration-testing suite is wired into moon (as a
 // `runInCI: false` e2e task). Extend as more apps are wired. (mark-scan's e2e
 // needs hardware daemons via `make`, so it is intentionally not here.)
 const MOON_E2E_APPS = ['admin', 'central-scan', 'mark', 'scan', 'print'];
 
-// The "non-required" e2e lane. Each app's Playwright suite is excluded from
-// `moon ci` (its task is `runInCI: false`), so this job runs them explicitly
-// with one `moon run` over all targets. It installs Chromium once (shared across
-// apps), and keeps the remote cache ON so the app builds the suites depend on
-// hydrate instead of rebuilding — only the e2e tasks themselves are uncached
-// (`cache: false`). Mark this job NON-required in GitHub branch protection so
-// flaky/slow e2e doesn't block merges. As the suite count grows this may want to
-// split into per-app parallel jobs; single serial job is fine for now.
-function generateMoonE2eJob(): string[] {
-  const targets = MOON_E2E_APPS.map(
-    (app) => `${app}-integration-testing:test`
-  ).join(' ');
-  const appList = MOON_E2E_APPS.join(' ');
+// One "non-required" e2e job PER app (parallel across CircleCI containers), so
+// the total e2e wall is the slowest single suite rather than the sum. Each app's
+// Playwright suite is excluded from `moon ci` (its task is `runInCI: false`), so
+// this runs it explicitly with `moon run`; the remote cache is kept ON so the app
+// builds the suite depends on hydrate instead of rebuilding (only the e2e task
+// itself is uncached, `cache: false`). Mark every `moon-e2e-*` job NON-required
+// in GitHub branch protection so flaky/slow e2e doesn't block merges.
+function generateMoonE2eAppJob(app: string): string[] {
+  const dir = `apps/${app}/integration-testing`;
   return [
-    `moon-e2e:`,
+    `moon-e2e-${app}:`,
     `  executor: nodejs`,
     `  resource_class: xlarge`,
     `  steps:`,
@@ -572,43 +505,31 @@ function generateMoonE2eJob(): string[] {
     `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
     `    - run:`,
     `        name: Install Playwright Chromium`,
-    // Chromium is shared across suites (one node_modules); install once.
     `        command: |`,
-    `          pnpm --dir apps/admin/integration-testing exec playwright install-deps`,
-    `          pnpm --dir apps/admin/integration-testing exec playwright install chromium`,
+    `          pnpm --dir ${dir} exec playwright install-deps`,
+    `          pnpm --dir ${dir} exec playwright install chromium`,
     `    - run:`,
     `        name: moon run e2e (non-required)`,
-    // Suites run serially (shared mutex); give the step room so the growing
-    // serial run doesn't trip CircleCI's 10m no-output timeout between suites.
-    `        no_output_timeout: 30m`,
+    `        no_output_timeout: 20m`,
     `        command: |`,
     `          set +e`,
     `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
     `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
     `            export MOON_REMOTE_HOST`,
     `          fi`,
-    // e2e tasks are `runInCI: false` so `moon ci` (required lane) skips them.
-    // moon 2.4.6 has no `--ignore-ci-checks` on `moon run`, and it honors
-    // runInCI in a CI env (would report "No tasks found"). moon detects CI via
-    // the CI/CI_NAME/AZURE_PIPELINES env vars, so unset CI for just this command
-    // to let the explicit `moon run` execute the tasks. Dep builds still hydrate
-    // from the remote cache (MOON_REMOTE_HOST exported above).
-    `          env -u CI moon run ${targets}`,
+    // The e2e task is `runInCI: false` so `moon ci` (required lane) skips it.
+    // moon 2.4.6 has no `--ignore-ci-checks` on `moon run`, and it honors runInCI
+    // in a CI env (would report "No tasks found"). moon detects CI via the
+    // CI/CI_NAME/AZURE_PIPELINES env vars, so unset CI for just this command to
+    // let the explicit `moon run` execute it. Dep builds still hydrate from the
+    // remote cache (MOON_REMOTE_HOST exported above).
+    `          env -u CI moon run ${app}-integration-testing:test`,
     `          echo $? > /tmp/moon-exit-code`,
     `          exit 0`,
-    // Gather each app's Playwright results/artifacts into one place.
-    `    - run:`,
-    `        name: Collect e2e results`,
-    `        command: |`,
-    `          mkdir -p /tmp/e2e-results`,
-    `          for app in ${appList}; do`,
-    `            d="apps/$app/integration-testing/test-results"`,
-    `            [ -d "$d" ] && cp -r "$d" "/tmp/e2e-results/$app" || true`,
-    `          done`,
     `    - store_test_results:`,
-    `        path: /tmp/e2e-results`,
+    `        path: ${dir}/test-results`,
     `    - store_artifacts:`,
-    `        path: /tmp/e2e-results`,
+    `        path: ${dir}/test-results`,
     `        destination: e2e-test-results`,
     `    - run:`,
     `        name: Propagate moon run exit code`,
@@ -647,12 +568,11 @@ jobs:
 ${generateMoonCiJob()
   .map((line) => `  ${line}`)
   .join('\n')}
-${generateMoonCiBaselineJob()
-  .map((line) => `  ${line}`)
-  .join('\n')}
-${generateMoonE2eJob()
-  .map((line) => `  ${line}`)
-  .join('\n')}
+${MOON_E2E_APPS.map((app) =>
+  generateMoonE2eAppJob(app)
+    .map((line) => `  ${line}`)
+    .join('\n')
+).join('\n')}
 
 workflows:
   moon-experiment:
@@ -660,14 +580,12 @@ workflows:
       - moon-ci:
           context:
             - screenshots-publishing
-      - moon-ci-baseline:
-          context:
-            - screenshots-publishing
-      # NON-REQUIRED lane — mark this job's status non-required in branch
-      # protection so slow/flaky e2e doesn't block merges.
-      - moon-e2e:
-          context:
-            - screenshots-publishing
+      # NON-REQUIRED lane (one job per app) — mark every moon-e2e-* job's status
+      # non-required in branch protection so slow/flaky e2e doesn't block merges.
+${MOON_E2E_APPS.map(
+  (app) =>
+    `      - moon-e2e-${app}:\n          context:\n            - screenshots-publishing`
+).join('\n')}
 
 commands:
   checkout-and-install:
