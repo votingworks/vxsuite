@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { err } from '@votingworks/basics';
-import { exportBackupVoterChecklist } from './backup_worker';
-import { withApp } from '../test/app';
-import { setupTestElectionAndVoters } from '../test/test_helpers';
+import { exportBackupVoterChecklist } from './backup_worker.js';
+import { withApp } from '../test/app.js';
+import { setupTestElectionAndVoters } from '../test/test_helpers.js';
 
 beforeEach(() => {
   vi.clearAllMocks();

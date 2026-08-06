@@ -21,9 +21,9 @@ import type {
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
-import { Column, Row } from './layout';
-import { NoNavScreen } from './nav_screen';
-import { usJurisdictions } from './us_states';
+import { Column, Row } from './layout.js';
+import { NoNavScreen } from './nav_screen.js';
+import { usJurisdictions } from './us_states.js';
 import {
   AbsenteeModeCallout,
   AddressChange,
@@ -35,11 +35,11 @@ import {
   hasMailingAddress,
   MailingAddressChange,
   VoterStatusLabel,
-} from './shared_components';
-import { UpdateAddressFlow } from './update_address_flow';
-import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
-import { getVoter } from './api';
-import { getVoterPrecinct } from './types';
+} from './shared_components.js';
+import { UpdateAddressFlow } from './update_address_flow.js';
+import { UpdateMailingAddressFlow } from './update_mailing_address_flow.js';
+import { getVoter } from './api.js';
+import { getVoterPrecinct } from './types.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { NH, ...usJurisdictionsWithoutNewHampshire } = usJurisdictions;

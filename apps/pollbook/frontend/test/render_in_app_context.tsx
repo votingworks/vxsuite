@@ -6,14 +6,14 @@ import {
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router } from 'react-router-dom';
-import { render as testRender, RenderResult } from './react_testing_library';
-import { ApiMock } from './mock_api_client';
+import { render as testRender, RenderResult } from './react_testing_library.js';
+import { ApiMock } from './mock_api_client.js';
 import {
   ApiClient,
   ApiClientContext,
   createQueryClient,
   systemCallApi,
-} from '../src/api';
+} from '../src/api.js';
 
 export interface RenderInAppContextParams {
   route?: string;

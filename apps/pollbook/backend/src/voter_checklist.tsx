@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { createRequire } from 'node:module';
 import {
   VX_DEFAULT_FONT_FAMILY_DECLARATION,
   DesktopPalette,
@@ -13,12 +13,19 @@ import { format } from '@votingworks/utils';
 import React from 'react';
 import { iter, range } from '@votingworks/basics';
 import { Election, Precinct, Voter } from '@votingworks/types';
-import { VoterGroup } from './types';
+import { VoterGroup } from './types.js';
 import {
   ExternalToInternalPrecinctIdMapping,
   getExternalPrecinctIdMappingFromElection,
-} from './pollbook_package';
-import { padWithZeroes } from './strings';
+} from './pollbook_package.js';
+import { padWithZeroes } from './strings.js';
+
+// styled-components is CJS with an ESM `export default`. Its default-import shape
+// differs between native node (the namespace) and vitest (the callable), so load it
+// via require for consistent behavior across both.
+const styled = createRequire(import.meta.url)(
+  'styled-components'
+).default as typeof import('styled-components').default;
 
 const ROWS_PER_PAGE = 16;
 

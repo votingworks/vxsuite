@@ -8,15 +8,15 @@ import {
   PeerAppContext,
   ConfigurationError,
   PollbookConfigurationInformation,
-} from './types';
+} from './types.js';
 import {
   fetchEventsFromConnectedPollbooks,
   resetNetworkSetup,
   setupMachineNetworking,
-} from './networking';
-import { pollNetworkForPollbookPackage } from './pollbook_package';
-import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals';
-import { securityHeadersMiddleware } from './security_middleware';
+} from './networking.js';
+import { pollNetworkForPollbookPackage } from './pollbook_package.js';
+import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals.js';
+import { securityHeadersMiddleware } from './security_middleware.js';
 
 function buildApi(context: PeerAppContext) {
   const { workspace } = context;

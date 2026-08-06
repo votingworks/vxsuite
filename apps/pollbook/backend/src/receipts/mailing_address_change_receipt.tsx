@@ -9,7 +9,7 @@ import {
   StyledReceipt,
   VoterMailingAddress,
   VoterName,
-} from './receipt_helpers';
+} from './receipt_helpers.js';
 
 export function MailingAddressChangeReceipt({
   voter,

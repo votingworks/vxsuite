@@ -17,8 +17,8 @@ import {
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { BatteryInfo } from '@votingworks/backend';
-import { TEST_MACHINE_ID, withApp } from '../test/app';
-import { createValidStreetInfo, createVoter } from '../test/test_helpers';
+import { TEST_MACHINE_ID, withApp } from '../test/app.js';
+import { createValidStreetInfo, createVoter } from '../test/test_helpers.js';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -68,7 +68,7 @@ const mockVoters = [
 
 vi.mock(
   './globals.js',
-  async (importActual): Promise<typeof import('./globals')> => ({
+  async (importActual): Promise<typeof import('./globals.js')> => ({
     ...(await importActual()),
     get NODE_ENV(): 'production' | 'test' {
       return mockNodeEnv;

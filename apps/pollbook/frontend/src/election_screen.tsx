@@ -20,8 +20,8 @@ import {
   unconfigure,
   getPollbookConfigurationInformation,
   getHaveElectionEventsOccurred,
-} from './api';
-import { Column, FieldName, Row } from './layout';
+} from './api.js';
+import { Column, FieldName, Row } from './layout.js';
 
 export function ElectionScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();

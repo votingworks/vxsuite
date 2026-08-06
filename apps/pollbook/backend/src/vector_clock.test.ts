@@ -3,8 +3,8 @@ import {
   mergeVectorClocks,
   compareVectorClocks,
   isLater,
-} from './vector_clock';
-import { VectorClock } from './types';
+} from './vector_clock.js';
+import { VectorClock } from './types.js';
 
 describe('Vector Clock Utilities', () => {
   test('mergeVectorClocks', () => {

@@ -13,8 +13,8 @@ import {
   BarcodeScannerPayload,
   BarcodeScannerPayloadSchema,
   isAamvaDocument,
-} from '../types';
-import { tryConnect } from './unix_socket';
+} from '../types.js';
+import { tryConnect } from './unix_socket.js';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
 export const UDS_CONNECTION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour

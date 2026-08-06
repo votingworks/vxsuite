@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { getNodeServiceName, isValidIpv4Address } from './networking';
+import { getNodeServiceName, isValidIpv4Address } from './networking.js';
 
 test('isValidIpv4Address', () => {
   expect(isValidIpv4Address('192.168.1.1')).toEqual(true);

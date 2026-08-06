@@ -9,7 +9,7 @@ import {
   ReceiptMetadataProps,
   ReceiptMetadata,
   ReceiptIcon,
-} from './receipt_helpers';
+} from './receipt_helpers.js';
 
 export function RegistrationReceipt({
   voter,

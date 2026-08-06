@@ -12,8 +12,8 @@ import {
 } from '@votingworks/ui';
 import { useState } from 'react';
 import { assertDefined, Optional } from '@votingworks/basics';
-import { NoNavScreen } from './nav_screen';
-import { Column, Row } from './layout';
+import { NoNavScreen } from './nav_screen.js';
+import { Column, Row } from './layout.js';
 
 interface SelectPartyScreenProps {
   voterId: string;

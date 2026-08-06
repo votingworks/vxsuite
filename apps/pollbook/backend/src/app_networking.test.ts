@@ -1,7 +1,7 @@
 import { vi, expect, test, beforeEach } from 'vitest';
 import { execFile } from '@votingworks/backend';
 import { AvahiService } from '@votingworks/networking';
-import { withApp } from '../test/app';
+import { withApp } from '../test/app.js';
 
 vi.mock('@votingworks/networking', () => ({
   hasOnlineInterface: vi.fn().mockResolvedValue(false),

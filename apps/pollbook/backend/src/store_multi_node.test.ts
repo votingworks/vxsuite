@@ -14,10 +14,10 @@ import {
   getTestElectionDefinition,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
-} from '../test/test_helpers';
-import { HybridLogicalClock } from './hybrid_logical_clock';
-import { LocalStore } from './local_store';
-import { PeerStore } from './peer_store';
+} from '../test/test_helpers.js';
+import { HybridLogicalClock } from './hybrid_logical_clock.js';
+import { LocalStore } from './local_store.js';
+import { PeerStore } from './peer_store.js';
 
 function setupFileStores(machineId: string): [LocalStore, PeerStore] {
   const workspacePath = makeTemporaryDirectory();

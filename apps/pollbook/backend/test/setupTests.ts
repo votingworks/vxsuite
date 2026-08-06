@@ -9,7 +9,7 @@ import {
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
-import { makeIdFactory } from './id_helpers';
+import { makeIdFactory } from './id_helpers.js';
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();

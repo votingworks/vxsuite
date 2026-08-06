@@ -32,7 +32,7 @@ import type {
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Row } from './layout';
+import { Row } from './layout.js';
 import {
   getDeviceStatuses,
   resetNetwork,
@@ -40,9 +40,9 @@ import {
   getElection,
   getPollbookConfigurationInformation,
   getAuthStatus,
-} from './api';
-import { PollbookConnectionStatus } from './types';
-import { VerticalElectionInfoBar } from './election_info_bar';
+} from './api.js';
+import { PollbookConnectionStatus } from './types.js';
+import { VerticalElectionInfoBar } from './election_info_bar.js';
 
 // To avoid constant jumpiness in the last seen time in the UI round the time difference down to the last 5 seconds.
 

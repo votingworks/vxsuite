@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
@@ -12,14 +13,14 @@ import {
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
 import { AvahiService } from '@votingworks/networking';
 import { detectPrinter } from '@votingworks/printing';
-import { WORKSPACE } from './globals';
-import * as localServer from './server';
-import * as peerServer from './peer_server';
-import * as backupWorker from './backup_worker';
-import { createLocalWorkspace, createPeerWorkspace } from './workspace';
+import { WORKSPACE } from './globals.js';
+import * as localServer from './server.js';
+import * as peerServer from './peer_server.js';
+import * as backupWorker from './backup_worker.js';
+import { createLocalWorkspace, createPeerWorkspace } from './workspace.js';
 
-export type { LocalApi as Api } from './app';
-export * from './types';
+export type { LocalApi as Api } from './app.js';
+export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -109,7 +110,7 @@ process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Promise Rejection:', reason);
 });
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console

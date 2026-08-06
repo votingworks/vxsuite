@@ -5,7 +5,7 @@ import {
   P,
   ERROR_SCREEN_MESSAGES,
 } from '@votingworks/ui';
-import { Column, Row } from './layout';
+import { Column, Row } from './layout.js';
 
 export function ErrorScreen(): JSX.Element {
   return (

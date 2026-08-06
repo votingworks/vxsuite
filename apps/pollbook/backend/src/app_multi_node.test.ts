@@ -12,17 +12,17 @@ import {
   extendedWaitFor,
   setupUnconfiguredPollbooksOnNetwork,
   withManyApps,
-} from '../test/app';
+} from '../test/app.js';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package';
-import { PollbookConnectionStatus } from './types';
+} from './pollbook_package.js';
+import { PollbookConnectionStatus } from './types.js';
 import {
   EVENT_POLLING_INTERVAL,
   MACHINE_DISCONNECTED_TIMEOUT,
   NETWORK_POLLING_INTERVAL,
-} from './globals';
+} from './globals.js';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 const singlePrecinctElectionDefinition =

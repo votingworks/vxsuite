@@ -7,5 +7,5 @@ import path from 'node:path';
  */
 export function intermediateScript(script: 'reset-network'): string {
   // Prefix with ../src since we're actually in ../build at runtime
-  return path.join(__dirname, '../intermediate-scripts', script);
+  return path.join(import.meta.dirname, '../intermediate-scripts', script);
 }

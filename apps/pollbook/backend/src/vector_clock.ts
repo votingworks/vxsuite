@@ -1,6 +1,6 @@
 // Helper functions for working with vector clocks
 
-import { VectorClock } from './types';
+import { VectorClock } from './types.js';
 
 // Merges two vector clocks, taking the maximum value for each key and returning the merged clock.
 export function mergeVectorClocks(

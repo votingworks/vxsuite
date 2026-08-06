@@ -15,8 +15,8 @@ import {
   createValidStreetInfo,
   createVoter,
   getTestElectionDefinition,
-} from '../test/test_helpers';
-import { LocalStore } from './local_store';
+} from '../test/test_helpers.js';
+import { LocalStore } from './local_store.js';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
   const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));

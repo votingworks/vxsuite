@@ -2,12 +2,12 @@ import { beforeEach, afterEach, expect, test, vi } from 'vitest';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
 import { VoterAddressChangeRequest } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
-import { LocalStore } from './local_store';
+import { LocalStore } from './local_store.js';
 import {
   getTestElectionDefinition,
   setupTestElectionAndVoters,
-} from '../test/test_helpers';
-import { generateVoterHistoryCsvContent } from './voter_history';
+} from '../test/test_helpers.js';
+import { generateVoterHistoryCsvContent } from './voter_history.js';
 
 const mockAddressDetails: VoterAddressChangeRequest = {
   streetName: 'MAIN',
