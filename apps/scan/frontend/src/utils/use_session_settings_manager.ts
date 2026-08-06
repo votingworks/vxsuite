@@ -84,12 +84,15 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   }
 
   function resumeSession() {
+    // @coverage-defer
     if (savedIsAudioEnabled !== null) {
       audioContext.setIsEnabled(savedIsAudioEnabled);
     }
+    // @coverage-defer
     if (savedVoterSessionLanguage) {
       languageContext.setLanguage(savedVoterSessionLanguage);
     }
+    // @coverage-defer
     if (savedVoterSessionTheme) {
       voterSettingsContext.setColorMode(savedVoterSessionTheme.colorMode);
       voterSettingsContext.setSizeMode(savedVoterSessionTheme.sizeMode);
@@ -98,6 +101,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
       );
     }
 
+    // @coverage-defer
     // Restore PAT calibration completion state
     if (savedIsPatCalibrationComplete !== null) {
       setIsPatCalibrationComplete(savedIsPatCalibrationComplete);

@@ -42,6 +42,7 @@ export function WarningDetailsModalButton(
             {appStrings.buttonClose()}
           </Button>
         }
+        // @coverage-defer
         onOverlayClick={() => setIsModalOpen(false)}
       />
     );

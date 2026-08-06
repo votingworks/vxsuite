@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import useSoundLib from 'use-sound';
 
 export type SoundType = 'success' | 'warning' | 'error' | 'alarm';

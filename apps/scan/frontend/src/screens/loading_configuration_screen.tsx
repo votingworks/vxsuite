@@ -12,7 +12,7 @@ export function LoadingConfigurationScreen(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <LoadingConfigurationScreen />;
 }

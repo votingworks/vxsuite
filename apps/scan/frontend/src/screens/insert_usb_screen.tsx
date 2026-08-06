@@ -44,17 +44,17 @@ export function InsertUsbScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function PollsClosedPreview(): JSX.Element {
   return <InsertUsbScreen pollsState="polls_closed_initial" />;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function PollsOpenWithAlarmPreview(): JSX.Element {
   return <InsertUsbScreen pollsState="polls_open" />;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function PollsOpenWithoutAlarmPreview(): JSX.Element {
   return <InsertUsbScreen disableAlarm pollsState="polls_open" />;
 }

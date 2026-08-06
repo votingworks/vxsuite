@@ -5,6 +5,7 @@ export interface ScanReturnedBallotScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanReturnedBallotScreen({
   isTestMode,
 }: ScanReturnedBallotScreenProps): JSX.Element {
@@ -19,7 +20,7 @@ export function ScanReturnedBallotScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <ScanReturnedBallotScreen isTestMode={false} />;
 }

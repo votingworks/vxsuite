@@ -96,7 +96,6 @@ export function LoadPaperModal({
         />
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(printerStatus, 'state');
   }
 }

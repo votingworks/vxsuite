@@ -126,6 +126,7 @@ export function PrintTestPageModal({
           <Button variant="primary" onPress={onClose}>
             Close
           </Button>
+          {/* @coverage-defer */}
           {onRetry && <Button onPress={onRetry}>Retry</Button>}
         </React.Fragment>
       }

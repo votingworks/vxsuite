@@ -39,7 +39,7 @@ export function ScanDoubleSheetScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />;
 }

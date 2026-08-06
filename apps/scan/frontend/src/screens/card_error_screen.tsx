@@ -13,7 +13,7 @@ export function CardErrorScreen(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <CardErrorScreen />;
 }

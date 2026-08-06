@@ -38,11 +38,10 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
   const endImageSensorCalibrationMutation =
     endImageSensorCalibration.useMutation();
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!scannerStatusQuery.isSuccess) return null;
   const status = scannerStatusQuery.data;
 
-  /* istanbul ignore next */
   assert(
     status.state === 'calibrating_image_sensors.calibrating' ||
       status.state === 'calibrating_image_sensors.done'
@@ -109,7 +108,6 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(status.state);
     }
   }

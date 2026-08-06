@@ -113,6 +113,7 @@ export function AppRoot(): JSX.Element | null {
       isAccessibilityInputConnected,
       wasAccessibilityInputConnected
     ) => {
+      // @coverage-defer
       if (wasAccessibilityInputConnected && !isAccessibilityInputConnected) {
         setAccessibilityInputDisconnected(true);
       } else if (isAccessibilityInputConnected) {
@@ -121,6 +122,7 @@ export function AppRoot(): JSX.Element | null {
     },
   });
 
+  // @coverage-defer
   // Callback for PAT tutorial completion
   const onPatCalibrationComplete = useCallback(() => {
     sessionSettingsManager.setShowingPatCalibration(false);
@@ -131,11 +133,13 @@ export function AppRoot(): JSX.Element | null {
   // Uses capture phase so it runs before the main keyboard handler.
   useEffect(() => {
     function patTutorialHandler(event: KeyboardEvent) {
+      // @coverage-defer
       if (event.repeat) return;
 
       const isPatKey =
         event.key === Keybinding.PAT_MOVE ||
         event.key === Keybinding.PAT_SELECT;
+      // @coverage-defer
       if (!isPatKey) return;
 
       // Show calibration if not yet calibrated and not already showing
@@ -213,6 +217,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <UnlockMachineScreen
         auth={authStatus}
+        // @coverage-defer
         checkPin={async (pin) => {
           try {
             await checkPinMutation.mutateAsync({ pin });
@@ -259,6 +264,7 @@ export function AppRoot(): JSX.Element | null {
     return <ScannerDoubleFeedCalibrationScreen />;
   }
 
+  // @coverage-defer
   if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen

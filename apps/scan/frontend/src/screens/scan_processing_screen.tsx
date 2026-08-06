@@ -19,7 +19,7 @@ export function ScanProcessingScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <ScanProcessingScreen isTestMode={false} />;
 }

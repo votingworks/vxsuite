@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { H1, H4 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';

@@ -29,11 +29,9 @@ export function getPollsFlowPrinterAlertText(
         case 'receive-data':
         case 'hardware':
           return 'The printer encountered an error';
-        // istanbul ignore next
         default:
           throwIllegalValue(status.type);
       }
-    // istanbul ignore next
     // eslint-disable-next-line no-fallthrough
     default:
       throwIllegalValue(status);
