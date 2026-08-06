@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { Rect } from '@votingworks/types';
 import { createImageData, ImageData } from 'canvas';
-import { RGBA_CHANNEL_COUNT, isRgba } from './image_data';
+import { RGBA_CHANNEL_COUNT, isRgba } from './image_data.js';
 
 /**
  * Returns a new image cropped to the specified bounds.
