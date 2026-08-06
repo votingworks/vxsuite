@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
+import { Readable } from 'node:stream';
 import readline from 'node:readline';
 import yauzl from 'yauzl';
 import {
@@ -413,23 +414,38 @@ export async function* streamElectionPackageJsonlEntry<T>(
 ): AsyncIterable<T[]> {
   if (!electionPackageZip.hasEntry(entryName)) return;
 
-  const fileLines = readline.createInterface(
-    await electionPackageZip.openEntryStream(entryName)
-  );
-  let batch: T[] = [];
-  let batchChars = 0;
-  for await (const line of fileLines) {
-    if (line.trim().length === 0) continue;
-    batch.push(safeParseJson(line, schema).unsafeUnwrap());
-    batchChars += line.length;
-    if (batchChars >= STREAM_BATCH_MAX_CHARS) {
-      yield batch;
-      batch = [];
-      batchChars = 0;
+  const entryStream = await electionPackageZip.openEntryStream(entryName);
+  const fileLines = readline.createInterface(entryStream);
+  try {
+    let batch: T[] = [];
+    let batchChars = 0;
+    for await (const line of fileLines) {
+      if (line.trim().length === 0) continue;
+      batch.push(safeParseJson(line, schema).unsafeUnwrap());
+      batchChars += line.length;
+      if (batchChars >= STREAM_BATCH_MAX_CHARS) {
+        yield batch;
+        batch = [];
+        batchChars = 0;
+      }
     }
-  }
-  if (batch.length > 0) {
-    yield batch;
+    if (batch.length > 0) {
+      yield batch;
+    }
+  } finally {
+    // Tear down the underlying entry stream on ANY exit — a mid-stream parse
+    // throw (invalid line), an early caller `break`, or normal completion.
+    // Without this the readline input is left open when the generator throws;
+    // when the surrounding zip is then closed the abandoned stream can emit an
+    // 'error' with no listener — an intermittent unhandled rejection that fails
+    // the run (surfaced by scan-backend's "invalid audio clip" test). Destroying
+    // an already-ended stream is a no-op, so the happy path is unaffected.
+    fileLines.close();
+    // The interface type is NodeJS.ReadableStream (no `destroy`), but the
+    // concrete streams are always node Readables; narrow before tearing down.
+    if (entryStream instanceof Readable) {
+      entryStream.destroy();
+    }
   }
 }
 
