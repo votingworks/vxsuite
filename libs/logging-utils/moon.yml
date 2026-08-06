@@ -18,12 +18,16 @@ tasks:
     options:
       mergeArgs: replace
       mergeOutputs: replace
+      # This is a napi/cargo build, not tsc — replace the inherited tsc inputs
+      # (which include `tsconfig.build.json`, absent here) with the Rust sources.
+      mergeInputs: replace
     # cargo/napi saturate every core internally. Bound the job count so multiple
     # native builds running under moon (and their RAM) don't collectively demand
     # cores x N. Tune down further on RAM-constrained CI.
     env:
       CARGO_BUILD_JOBS: '6'
     inputs:
+      - 'src/**/*'
       - 'Cargo.toml'
       - 'build.rs'
     outputs:
