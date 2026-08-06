@@ -349,12 +349,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       events:
         specifier: 3.3.0
         version: 3.3.0
@@ -760,12 +754,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       events:
         specifier: 3.3.0
         version: 3.3.0
@@ -1029,12 +1017,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -1210,12 +1192,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -1557,12 +1533,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -1944,12 +1914,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -2210,12 +2174,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -2370,12 +2328,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -2578,12 +2530,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -2705,12 +2651,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -3074,12 +3014,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
@@ -3465,24 +3399,15 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
       dotenv:
         specifier: 16.3.1
         version: 16.3.1
       dotenv-expand:
         specifier: 9.0.0
         version: 9.0.0
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
-      jszip:
-        specifier: ^3.9.1
-        version: 3.9.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3495,15 +3420,9 @@ importers:
       readline:
         specifier: ^1.3.0
         version: 1.3.0
-      stream-chain:
-        specifier: ^2.2.5
-        version: 2.2.5
       stream-chopper:
         specifier: ^3.0.1
         version: 3.0.1
-      stream-json:
-        specifier: ^1.7.5
-        version: 1.7.5
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -3517,12 +3436,6 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
@@ -3535,15 +3448,9 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/stream-chain':
-        specifier: ^2.0.1
-        version: 2.0.1
       '@types/stream-chopper':
         specifier: workspace:*
         version: link:../@types/stream-chopper
-      '@types/stream-json':
-        specifier: ^1.7.3
-        version: 1.7.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4920,18 +4827,6 @@ importers:
 
   libs/mark-flow-ui:
     dependencies:
-      '@fortawesome/fontawesome-svg-core':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/free-regular-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^6.7.2
-        version: 6.7.2
-      '@fortawesome/react-fontawesome':
-        specifier: 3.5.0
-        version: 3.5.0(patch_hash=032ae55c6a44387cf033d69474e0a2e1cde9e7cd37dfc5c2a8159e32e1202ef3)(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -4947,42 +4842,18 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
       lodash.camelcase:
         specifier: ^4.3.0
         version: 4.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
-      pluralize:
-        specifier: 8.0.0
-        version: 8.0.0
-      polished:
-        specifier: ^4.2.2
-        version: 4.2.2
-      qrcode.react:
-        specifier: ^3.1.0
-        version: 3.1.0(react@18.3.1)
-      react-idle-timer:
-        specifier: ^5.7.2
-        version: 5.7.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-modal:
-        specifier: ^3.16.1
-        version: 3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
       use-interval:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
-      zod:
-        specifier: 4.4.3
-        version: 4.4.3
     devDependencies:
       '@storybook/cli':
         specifier: ^7.2.2
@@ -5002,36 +4873,24 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.1.0)
-      '@types/base64-js':
-        specifier: ^1.3.0
-        version: 1.3.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      '@types/react-modal':
-        specifier: ^3.13.1
-        version: 3.13.1
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -5074,9 +4933,6 @@ importers:
       events:
         specifier: 3.3.0
         version: 3.3.0
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -5086,12 +4942,6 @@ importers:
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
-      lorem-ipsum:
-        specifier: ^2.0.8
-        version: 2.0.8
-      parse-css-color:
-        specifier: ^0.2.1
-        version: 0.2.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -10081,12 +9931,6 @@ packages:
 
   '@types/stack-utils@2.0.1':
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
-
-  '@types/stream-chain@2.0.1':
-    resolution: {integrity: sha512-D+Id9XpcBpampptkegH7WMsEk6fUdf9LlCIX7UhLydILsqDin4L0QT7ryJR0oycwC7OqohIzdfcMHVZ34ezNGg==}
-
-  '@types/stream-json@1.7.3':
-    resolution: {integrity: sha512-Jqsyq5VPOTWorvEmzWhEWH5tJnHA+bB8vt/Zzb11vSDj8esfSHDMj2rbVjP0mfJQzl3YBJSXBBq08iiyaBK3KA==}
 
   '@types/styled-components@5.1.26':
     resolution: {integrity: sha512-KuKJ9Z6xb93uJiIyxo/+ksS7yLjS1KzG6iv5i78dhVg/X3u5t1H7juRWqVmodIdz6wGVaIApo1u01kmFRdJHVw==}
@@ -15197,9 +15041,6 @@ packages:
   stream-browserify@3.0.0:
     resolution: {integrity: sha512-H73RAHsVBapbim0tU2JwwOiXUj+fikfiaoYAKHF3VJfA0pe2BCzkhAHBlLG6REzE+2WNZcxOXjK7lkso+9euLA==}
 
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
-
   stream-chopper@3.0.1:
     resolution: {integrity: sha512-f7h+ly8baAE26iIjcp3VbnBkbIRGtrvV0X0xxFM/d7fwLTYnLzDPTXRKNxa2HZzohOrc96NTrR+FaV3mzOelNA==}
 
@@ -15208,9 +15049,6 @@ packages:
 
   stream-events@1.0.5:
     resolution: {integrity: sha512-E1GUzBSgvct8Jsb3v2X15pjzN1tYebtbLaMg+eBOUOAxgbLoSbT2NS91ckc5lJD1KfLjId+jXJRgo0qnV5Nerg==}
-
-  stream-json@1.7.5:
-    resolution: {integrity: sha512-NSkoVduGakxZ8a+pTPUlcGEeAGQpWL9rKJhOFCV+J/QtdQUEU5vtBgVg6eJXn8JB8RZvpbJWZGvXkhz70MLWoA==}
 
   stream-shift@1.0.1:
     resolution: {integrity: sha512-AiisoFqQ0vbGcZgQPY1cdP2I76glaVA/RauYR4G4thNFgkTqr90yXTo4LYX60Jl+sIlPNHHdGSwo01AvbKUSVQ==}
@@ -21390,15 +21228,6 @@ snapshots:
 
   '@types/stack-utils@2.0.1': {}
 
-  '@types/stream-chain@2.0.1':
-    dependencies:
-      '@types/node': 20.19.43
-
-  '@types/stream-json@1.7.3':
-    dependencies:
-      '@types/node': 20.19.43
-      '@types/stream-chain': 2.0.1
-
   '@types/styled-components@5.1.26':
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
@@ -27334,8 +27163,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  stream-chain@2.2.5: {}
-
   stream-chopper@3.0.1:
     dependencies:
       readable-stream: 3.6.2
@@ -27347,10 +27174,6 @@ snapshots:
   stream-events@1.0.5:
     dependencies:
       stubs: 3.0.0
-
-  stream-json@1.7.5:
-    dependencies:
-      stream-chain: 2.2.5
 
   stream-shift@1.0.1: {}
 

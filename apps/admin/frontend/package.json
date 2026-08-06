@@ -57,8 +57,6 @@
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
-    "dotenv": "16.3.1",
-    "dotenv-expand": "9.0.0",
     "events": "3.3.0",
     "fetch-mock": "9.11.0",
     "fs-extra": "11.1.1",
