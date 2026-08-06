@@ -191,7 +191,6 @@ test('primary election, party report, test deck', () => {
         },
         contestIds: election.contests
           .filter((c) => {
-            /* istanbul ignore next */
             if (c.type === 'straight-party') {
               straightPartyNotYetImplemented();
             }

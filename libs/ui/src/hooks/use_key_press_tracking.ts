@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import { useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 

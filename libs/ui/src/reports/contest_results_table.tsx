@@ -256,6 +256,7 @@ export function ContestResultsTable({
             key={key}
             testId={key}
             optionLabel={option.label}
+            // @coverage-defer
             scannedTally={scannedContestResults.tallies[option.id] ?? 0}
             manualTally={manualContestResults?.tallies[option.id] ?? 0}
             showManualTally={hasManualResults}
@@ -287,7 +288,6 @@ export function ContestResultsTable({
       break;
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }

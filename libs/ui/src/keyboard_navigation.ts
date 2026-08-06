@@ -16,7 +16,7 @@ function preventBrowserScroll(event: KeyboardEvent) {
   event.preventDefault();
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   // VVSG 2.0 7.2-M – No repetitive activation
   if (event.repeat) return;

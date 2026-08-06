@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via integration tests. */
+// @coverage-exclude-file: tested via integration tests.
 
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,

@@ -240,14 +240,13 @@ export function UiStringScreenReader(
 
     const { target } = activeEvent;
 
-    /* istanbul ignore next - tough to test firing click events on non-elements */
+    // @coverage-exclude: tough to test firing click events on non-elements
     if (!(target instanceof Element)) {
       return;
     }
 
     // Ignore event if the target element has since been removed from the DOM.
     // (e.g. a button click event that triggers page navigation.)
-    /* istanbul ignore next */
     if (!window.document.body.contains(target)) {
       return;
     }
@@ -260,6 +259,7 @@ export function UiStringScreenReader(
       const i18nKey = audioElement.getAttribute(I18N_KEY);
       const languageCode = audioElement.getAttribute(LANGUAGE_CODE);
 
+      // @coverage-defer
       if (i18nKey && languageCode) {
         newI18nKeys.push({ i18nKey, languageCode });
       }
@@ -295,6 +295,7 @@ export function UiStringScreenReader(
   let clipQueue = EMPTY_CLIP_QUEUE;
 
   const isDataReady = Object.values(audioIdQueries).every((q) => q.isSuccess);
+  // @coverage-defer
   if (isDataReady) {
     // To avoid interrupting in-progress screen reader audio, only play audio
     // feedback if the UI string audio queue is empty:

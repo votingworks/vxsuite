@@ -327,7 +327,6 @@ describe('English ballot style', () => {
   test('all votes filled in', async () => {
     const votes: VotesDict = Object.fromEntries(
       contests.map((c) => {
-        /* istanbul ignore next */
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }

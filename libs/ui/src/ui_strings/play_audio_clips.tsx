@@ -99,6 +99,7 @@ export function PlayAudioClips(props: PlayAudioQueueProps): React.ReactNode {
   //
   clipIndexRef.current = clipIndex;
   const onClipDone = React.useCallback(() => {
+    // @coverage-defer
     if (clipIndexRef.current < clips.length) {
       setClipIndex(clipIndexRef.current + 1);
     }

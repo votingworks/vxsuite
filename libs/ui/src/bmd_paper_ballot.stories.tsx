@@ -42,7 +42,6 @@ function getDuplicatedContests(idSuffix: string) {
       return contest;
     }
 
-    /* istanbul ignore next */
     if (c.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
@@ -173,7 +172,6 @@ const initialArgs: BmdPaperBallotProps = {
   precinctId: election.precincts[0].id,
   votes: Object.fromEntries(
     election.contests.map((c) => {
-      /* istanbul ignore next */
       if (c.type === 'straight-party') {
         straightPartyNotYetImplemented();
       }

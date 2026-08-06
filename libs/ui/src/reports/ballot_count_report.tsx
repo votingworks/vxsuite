@@ -101,7 +101,6 @@ function getColumnLabel(column: Column): string {
     case 'filler':
       return '';
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -123,13 +122,11 @@ function getColumnWidth(column: Column): string {
         case 'right':
           return '2fr';
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(column);
         }
       }
     // eslint-disable-next-line no-fallthrough
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -388,6 +385,7 @@ function getCellContent({
           const partyId = assertDefined(
             determinePartyId(electionDefinition, cardCounts)
           );
+          // @coverage-defer
           if (Tabulation.isNoPartyId(partyId)) return 'No Party';
           return CachedElectionLookups.getPartyById(electionDefinition, partyId)
             .name;
@@ -411,7 +409,6 @@ function getCellContent({
           return format.localeDate(new Date(`${batchDate}T00:00:00`));
         }
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(column);
         }
       }
@@ -422,7 +419,6 @@ function getCellContent({
     case 'sheet-count':
       return getFormattedCount(cardCounts, column);
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -493,7 +489,7 @@ function BallotCountTable({
   // we show the sheet counts if the flag is true even if it's a single-sheet
   // election. it's the caller's responsibility to check the election definition
   if (includeSheetCounts) {
-    /* istanbul ignore next - trivial default value */
+    // @coverage-exclude: trivial default value
     const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });
@@ -595,7 +591,6 @@ function BallotCountTable({
                   />
                 );
               default: {
-                /* istanbul ignore next */
                 throwIllegalValue(column);
               }
             }

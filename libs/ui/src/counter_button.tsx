@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import { useState } from 'react';
 import { Button } from './button';
 

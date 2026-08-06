@@ -39,6 +39,7 @@ type ClientReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &
   StorageSectionProps;
 
+// @coverage-defer
 export function AdminClientReadinessReportContents(
   props: ClientReportContentsProps
 ): JSX.Element {

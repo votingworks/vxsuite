@@ -44,6 +44,7 @@ function MultiValueRemove(
         fill={selectProps.isDisabled ? 'transparent' : 'tinted'}
         color={selectProps.isDisabled ? 'neutral' : 'primary'}
         icon="X"
+        // @coverage-defer
         // The react-select MultiValueRemove component has its own click
         // handler. It seems to work fine with the button inside it, so we just
         // put a dummy handler on the button itself.

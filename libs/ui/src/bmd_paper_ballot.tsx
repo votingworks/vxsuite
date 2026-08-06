@@ -323,6 +323,7 @@ const Ballot = styled.div<BallotProps>`
   @page {
     margin: 0.375in;
     size: ${(props) => {
+      // @coverage-defer
       switch (props.sheetSize) {
         case 'custom8x13pt25':
           // Width of exactly 8in results in 1-3 dots of overflow. The overflowing dots print on a line of
@@ -838,6 +839,7 @@ export function BmdPaperBallot({
               </DualLanguageText>
             </P>
             {totalPages > 1 && (
+              // @coverage-defer
               <P style={{ fontWeight: 'bold' }}>
                 <InEnglish>
                   Page {pageNumber} of {totalPages}

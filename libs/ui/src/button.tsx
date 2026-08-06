@@ -258,7 +258,6 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
           }[color],
         };
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(fill);
       }
     }
@@ -471,6 +470,7 @@ export class Button<T = undefined> extends PureComponent<
 
   /* eslint-disable-next-line react/no-unused-class-component-methods */
   blur(): void {
+    // @coverage-defer
     if (this.buttonRef.current) {
       this.buttonRef.current.blur();
     }
@@ -478,6 +478,7 @@ export class Button<T = undefined> extends PureComponent<
 
   /* eslint-disable-next-line react/no-unused-class-component-methods */
   focus(): void {
+    // @coverage-defer
     if (this.buttonRef.current) {
       this.buttonRef.current.focus();
     }
@@ -575,5 +576,6 @@ export const LabelButton = styled.label`
 export function LoadingButton(
   props: Omit<ButtonProps, 'disabled' | 'onPress' | 'icon' | 'value' | 'type'>
 ): JSX.Element {
+  // @coverage-defer
   return <Button {...props} onPress={() => {}} disabled icon="Loading" />;
 }

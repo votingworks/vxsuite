@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';

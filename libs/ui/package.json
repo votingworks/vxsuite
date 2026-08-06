@@ -11,6 +11,7 @@
     "build"
   ],
   "scripts": {
+    "coverage-check": "cargo run --quiet --release --package coverage-check -- check . --never-scan ../../libs/basics/src",
     "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
@@ -26,8 +27,8 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm test:coverage",
+    "test:coverage": "TZ=America/Anchorage vitest run --coverage && pnpm coverage-check",
     "test:run": "TZ=America/Anchorage vitest run",
     "test:watch": "TZ=America/Anchorage vitest"
   },

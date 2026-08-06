@@ -37,6 +37,7 @@ export function UnconfiguredElectionScreen({
       return undefined;
     }
 
+    // @coverage-defer
     switch (backendConfigError.type) {
       case 'no_election_package':
         return 'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.';
@@ -53,7 +54,6 @@ export function UnconfiguredElectionScreen({
       case 'system_limit_violation':
         return systemLimitViolationToString(backendConfigError.violation);
       default: {
-        /* istanbul ignore next - compile time check for completeness */
         throwIllegalValue(backendConfigError);
       }
     }

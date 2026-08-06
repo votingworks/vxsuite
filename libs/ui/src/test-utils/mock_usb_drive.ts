@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { throwIllegalValue } from '@votingworks/basics';
 
 import type {

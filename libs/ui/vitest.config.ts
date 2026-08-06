@@ -6,11 +6,16 @@ export default defineConfig({
     setupFiles: ['src/setupTests.ts'],
 
     coverage: {
+      // Remove after migration to coverage-check is complete
       thresholds: {
-        lines: -30,
-        branches: -104,
+        lines: 0,
+        branches: 0,
       },
       exclude: [
+        'src/index.ts',
+        'src/stubs/*',
+        'src/test-utils/*',
+        'src/diagnostics/types.ts',
         'src/reports/index.ts',
         'src/diagnostics/test_utils.ts',
         '**/*.stories.ts',

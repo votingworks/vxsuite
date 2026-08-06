@@ -56,6 +56,7 @@ function useCurrentDate(): Date {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
+    // @coverage-defer
     const interval = setInterval(() => {
       setCurrentDate(new Date());
     }, 1000);

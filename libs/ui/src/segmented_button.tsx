@@ -86,7 +86,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   padding: ${(p) => (p.theme.sizeMode === 'desktop' ? undefined : '0.75rem')};
 
   ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
-  ${(p) => /* istanbul ignore next */ p.collapseLeft && collapseLeftCss}
+  ${(p) => /* @coverage-exclude */ p.collapseLeft && collapseLeftCss}
 `;
 
 type OptionButtonProps<T extends SegmentedButtonOptionId> = ButtonProps<T> & {
