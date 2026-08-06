@@ -54,7 +54,7 @@ test('generateAllConfigs moon prototype mode', () => {
   expect(config).toContain('moon-ci:');
   expect(config).toContain('parallelism: 3');
   expect(config).toContain(
-    'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL"'
+    'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none'
   );
   expect(config).toContain('moonrepo.dev/install/moon.sh');
   // ...and none of the per-package / rust jobs.

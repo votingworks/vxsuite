@@ -423,7 +423,13 @@ function generateMoonCiJob(): string[] {
     `          else`,
     `            echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"`,
     `          fi`,
-    `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --summary`,
+    // \`--downstream none\`: \`moon ci\` defaults to pulling each task's DIRECT
+    // dependents in for regression checks, but we already run the full affected
+    // set (affected propagates to dependents as their own primaries), so that
+    // fan-out just replicates the heavy hub-dependent tests (ui:test,
+    // admin-backend:test, …) into every shard. Dropping it makes each task a
+    // primary on exactly one shard, so the partition actually splits the work.
+    `          moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary`,
     `          echo $? > /tmp/moon-exit-code`,
     `          # Echo any vitest-failed task's captured log to this step's tail, so`,
     `          # the failure survives CircleCI's head-truncation of long step logs`,

@@ -46,7 +46,7 @@ jobs:
             else
               echo "remote cache: disabled (MOON_REMOTE_HOST unset — shards do not share build outputs)"
             fi
-            moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --summary
+            moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none --summary
             echo $? > /tmp/moon-exit-code
             # Echo any vitest-failed task's captured log to this step's tail, so
             # the failure survives CircleCI's head-truncation of long step logs
