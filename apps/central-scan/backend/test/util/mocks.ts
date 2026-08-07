@@ -1,5 +1,3 @@
-import { Mocked, vi } from 'vitest';
-import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
   MockReadable,
   mockReadable,
@@ -9,21 +7,11 @@ import {
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { fileSync } from 'tmp';
 import {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
 } from '../../src/fujitsu_scanner.js';
-
-export function makeMock<T>(Cls: new (...args: never[]) => T): Mocked<T> {
-  if (!vi.isMockFunction(Cls)) {
-    throw new Error(
-      `${Cls} is not a mock function; are you missing a vi.mock(…) call?`
-    );
-  }
-  return new Cls() as Mocked<T>;
-}
 
 type ScanSessionStep =
   | { type: 'sheet'; sheet: ScannedSheetInfo }
@@ -176,13 +164,4 @@ export function makeMockChildProcess(): MockChildProcess {
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;
-}
-
-export async function makeImageFile(): Promise<string> {
-  const imageFile = fileSync({ postfix: '.png' });
-  await writeImageData(
-    imageFile.name,
-    createImageData(Uint8ClampedArray.of(0, 0, 0), 1, 1)
-  );
-  return imageFile.name;
 }
