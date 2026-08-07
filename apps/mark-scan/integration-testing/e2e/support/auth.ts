@@ -13,4 +13,5 @@ export const {
 } = buildInsertedSmartCardAuthHelpers({
   appName: 'VxMarkScan',
   pinDigitSelector: 'text',
+  allowsCardlessVoterSessions: true,
 });

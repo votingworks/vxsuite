@@ -9,4 +9,5 @@ export const {
   forceLogOutAndResetElectionDefinition,
 } = buildInsertedSmartCardAuthHelpers({
   appName: 'VxMark',
+  allowsCardlessVoterSessions: true,
 });

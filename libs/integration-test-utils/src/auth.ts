@@ -47,6 +47,15 @@ export interface InsertedSmartCardAuthConfig {
    * the others render them as buttons.
    */
   pinDigitSelector?: 'button' | 'text';
+  /**
+   * Whether the app's auth allows cardless voter sessions (VxMark and
+   * VxMarkScan). Resetting those apps has to end any active voter session
+   * explicitly: `logOut` only ends the session belonging to a card, so a
+   * cardless voter session leaves the machine reporting a logged-in voter with
+   * no card inserted. Apps that don't allow such sessions can't make the call
+   * at all - their auth asserts on it.
+   */
+  allowsCardlessVoterSessions?: boolean;
 }
 
 export interface InsertedSmartCardAuthHelpers {
@@ -64,7 +73,11 @@ export interface InsertedSmartCardAuthHelpers {
 export function buildInsertedSmartCardAuthHelpers(
   config: InsertedSmartCardAuthConfig
 ): InsertedSmartCardAuthHelpers {
-  const { appName, pinDigitSelector = 'button' } = config;
+  const {
+    appName,
+    pinDigitSelector = 'button',
+    allowsCardlessVoterSessions = false,
+  } = config;
 
   async function enterPin(page: Page): Promise<void> {
     await page.getByText('Enter Card PIN').waitFor();
@@ -102,6 +115,11 @@ export function buildInsertedSmartCardAuthHelpers(
   async function forceLogOutAndResetElectionDefinition(
     page: Page
   ): Promise<void> {
+    // Has to happen before waitForLoggedOut below: a cardless voter session
+    // outlives logOut, leaving the machine logged in as a voter with no card.
+    if (allowsCardlessVoterSessions) {
+      await postToApiOrThrow(page, 'endCardlessVoterSession');
+    }
     await forceLogOut(page);
     await page.goto('/');
     mockCardRemoval();
