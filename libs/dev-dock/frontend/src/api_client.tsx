@@ -10,7 +10,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
-  // istanbul ignore next
+  // @coverage-exclude
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
