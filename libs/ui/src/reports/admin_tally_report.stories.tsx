@@ -2,6 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
+  getEmptyElectionResults,
 } from '@votingworks/utils';
 import {
   Tabulation,
@@ -139,6 +140,17 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
 
 export const BallotStyleManualReport: Story = {
   args: ballotStyleManualReportArgs,
+};
+
+const manualOnlyReportArgs: AdminTallyReportProps = {
+  ...ballotStyleManualReportArgs,
+  title: 'Full Election Tally Report',
+  contests,
+  scannedElectionResults: getEmptyElectionResults(election, true),
+};
+
+export const ManualOnlyReport: Story = {
+  args: manualOnlyReportArgs,
 };
 
 const fullElectionWriteInReportArgs: AdminTallyReportProps = {

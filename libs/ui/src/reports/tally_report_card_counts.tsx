@@ -60,7 +60,11 @@ export function TallyReportCardCounts({
     cardCounts.manual !== undefined && cardCounts.manual > 0
       ? cardCounts.manual
       : undefined;
-  const showScannedCount = manualCount !== undefined;
+  // Without scanned ballots to break the ballot count down against, the
+  // scanned and manual rows would just restate it.
+  const brokenOutManualCount =
+    getScannedBallotCount(cardCounts) > 0 ? manualCount : undefined;
+  const showScannedCount = brokenOutManualCount !== undefined;
 
   const numSheets = Math.max(cardCounts.hmpb.length, cardCounts.bmd.length);
 
@@ -94,10 +98,10 @@ export function TallyReportCardCounts({
                 </TD>
               </tr>
             ))}
-          {manualCount && (
+          {brokenOutManualCount && (
             <tr>
               <TD>Manually Entered</TD>
-              <TD>{format.count(manualCount)}</TD>
+              <TD>{format.count(brokenOutManualCount)}</TD>
             </tr>
           )}
         </tbody>

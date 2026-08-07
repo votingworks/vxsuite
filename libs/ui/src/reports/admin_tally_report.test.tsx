@@ -196,6 +196,62 @@ test('with scanned and manual results', () => {
   expect(screen.getAllByText('manual')).toHaveLength(election.contests.length);
 });
 
+test('with only manual results', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest={false}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      contests={election.contests}
+      scannedElectionResults={getEmptyElectionResults(election, true)}
+      manualElectionResults={manualElectionResults}
+    />
+  );
+
+  screen.getByText('Manually Entered Results');
+  screen.getByText(
+    'All results in this report were manually entered rather than scanned.'
+  );
+
+  // the manual tallies are shown in the single column of totals, as they
+  // would be for entirely scanned results
+  expect(screen.queryAllByText('manual')).toHaveLength(0);
+  screen.getByText(/100 ballots cast/);
+  within(screen.getByTestId('fishing-ban-fishing')).getByText('50');
+
+  const ballotCountRow = screen.getByText('Ballot Count').closest('tr')!;
+  within(ballotCountRow).getByText('100');
+  expect(screen.queryByText('Scanned')).not.toBeInTheDocument();
+});
+
+test('with empty manual results', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest={false}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      contests={election.contests}
+      scannedElectionResults={getEmptyElectionResults(election, true)}
+      manualElectionResults={buildManualResultsFixture({
+        election,
+        ballotCount: 0,
+        contestResultsSummaries: {},
+      })}
+    />
+  );
+
+  // a report without any ballots is empty, not manual, and there's nothing
+  // for a scanned/manual breakdown to say
+  expect(
+    screen.queryByText('Manually Entered Results')
+  ).not.toBeInTheDocument();
+  expect(screen.queryAllByText('manual')).toHaveLength(0);
+});
+
 test('allows card counts override', () => {
   render(
     <AdminTallyReport
