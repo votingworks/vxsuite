@@ -636,9 +636,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
       canvas:
         specifier: 2.11.2
         version: 2.11.2
@@ -703,9 +700,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       get-port:
         specifier: '5'
         version: 5.1.1
@@ -760,12 +754,6 @@ importers:
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
-      js-file-download:
-        specifier: 0.4.12
-        version: 0.4.12
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -787,15 +775,9 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
-      use-interval:
-        specifier: 1.4.0
-        version: 1.4.0(react@18.3.1)
       util:
         specifier: ^0.12.4
         version: 0.12.4
-      zod:
-        specifier: 4.4.3
-        version: 4.4.3
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.17.0
@@ -818,9 +800,6 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/pify':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -893,9 +872,6 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
-      type-fest:
-        specifier: ^0.18.0
-        version: 0.18.1
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
@@ -1207,9 +1183,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.15
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1373,9 +1346,6 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
-      '@votingworks/message-coder':
-        specifier: workspace:*
-        version: link:../../../libs/message-coder
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -1391,9 +1361,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      canvas:
-        specifier: 2.11.2
-        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -1403,9 +1370,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1542,9 +1506,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1651,9 +1612,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1784,9 +1742,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1920,12 +1875,6 @@ importers:
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
-      luxon:
-        specifier: ^3.0.0
-        version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1987,9 +1936,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2349,9 +2295,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -2954,9 +2897,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -3005,9 +2945,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -3020,15 +2957,9 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      pluralize:
-        specifier: 8.0.0
-        version: 8.0.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3084,9 +3015,6 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3126,9 +3054,6 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../../libs/monorepo-utils
-      '@votingworks/printing':
-        specifier: workspace:*
-        version: link:../../../libs/printing
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
@@ -4830,9 +4755,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/logging':
-        specifier: workspace:*
-        version: link:../logging
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -4842,9 +4764,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
       lodash.camelcase:
         specifier: ^4.3.0
         version: 4.3.0
@@ -4855,12 +4774,6 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
     devDependencies:
-      '@storybook/cli':
-        specifier: ^7.2.2
-        version: 7.2.2
-      '@storybook/react':
-        specifier: ^7.2.2
-        version: 7.2.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@7.0.2)
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4873,9 +4786,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.1.0)
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
@@ -4924,9 +4834,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      eslint-plugin-storybook:
-        specifier: ^0.6.10
-        version: 0.6.10(eslint@8.57.0)(typescript@7.0.2)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -9863,9 +9770,6 @@ packages:
   '@types/pg@8.6.1':
     resolution: {integrity: sha512-1Kc4oAGzAl7uqUStZCDvaLFqZrW9qWSjXOmBfdgyBP5La7Us6Mg4GBvRlSoaZMhQF/zSj1C8CtKMBkoiT8eL8w==}
 
-  '@types/pify@3.0.2':
-    resolution: {integrity: sha512-a5AKF1/9pCU3HGMkesgY6LsBdXHUY3WU+I2qgpU0J+I8XuJA1aFr59eS84/HP0+dxsyBSNbt+4yGI2adUpHwSg==}
-
   '@types/pixelmatch@5.2.6':
     resolution: {integrity: sha512-wC83uexE5KGuUODn6zkm9gMzTwdY5L0chiK+VrKcDfEjzxh1uadlWTvOmAbCpnM9zx/Ww3f8uKlYQVnO/TrqVg==}
 
@@ -13707,9 +13611,6 @@ packages:
     resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
     engines: {node: '>=10'}
 
-  normalize.css@8.0.1:
-    resolution: {integrity: sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==}
-
   now-and-later@3.0.0:
     resolution: {integrity: sha512-pGO4pzSdaxhWTGkfSfHx3hVzJVslFPwBp2Myq9MYN/ChfJZF87ochMAXnvz6/58RJSf5ik2q9tXprBBrk2cpcg==}
     engines: {node: '>= 10.13.0'}
@@ -15403,10 +15304,6 @@ packages:
 
   type-fest@0.16.0:
     resolution: {integrity: sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg==}
-    engines: {node: '>=10'}
-
-  type-fest@0.18.1:
-    resolution: {integrity: sha512-OIAYXk8+ISY+qTOwkHtKqzAuxchoMiD9Udx+FSGQDuiRR+PJKJHc2NJAXlbhkGwTt/4/nKZxELY1w3ReWOL8mw==}
     engines: {node: '>=10'}
 
   type-fest@0.20.2:
@@ -21147,8 +21044,6 @@ snapshots:
       pg-protocol: 1.7.0
       pg-types: 2.2.0
 
-  '@types/pify@3.0.2': {}
-
   '@types/pixelmatch@5.2.6':
     dependencies:
       '@types/node': 20.19.43
@@ -25648,8 +25543,6 @@ snapshots:
 
   normalize-url@6.1.0: {}
 
-  normalize.css@8.0.1: {}
-
   now-and-later@3.0.0:
     dependencies:
       once: 1.4.0
@@ -27590,8 +27483,6 @@ snapshots:
   type-detect@4.0.8: {}
 
   type-fest@0.16.0: {}
-
-  type-fest@0.18.1: {}
 
   type-fest@0.20.2: {}
 

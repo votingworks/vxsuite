@@ -86,7 +86,6 @@ export interface VotingState {
   hasPrintedBallot?: boolean;
 }
 
-export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
 export const initialElectionState: Readonly<ElectionState> = {
