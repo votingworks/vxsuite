@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via apps. */
+// @coverage-exclude-file: tested via apps
 
 import React from 'react';
 

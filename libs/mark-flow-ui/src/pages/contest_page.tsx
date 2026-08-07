@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via Mark/Mark-Scan */
+// @coverage-exclude-file: tested via Mark/Mark-Scan
 import React, { useCallback, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -134,7 +134,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
             contest.neitherOption.id
         );
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(contest);
       }
     }

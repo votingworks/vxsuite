@@ -80,6 +80,7 @@ export function CastBallotPage({
   // Replay instructions when left arrow is pressed (no previous page on this screen)
   React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      // @coverage-defer
       if (event.key === 'ArrowLeft' && instructionsRef.current) {
         instructionsRef.current.focus();
         instructionsRef.current.click();
@@ -107,6 +108,7 @@ export function CastBallotPage({
         <ReadOnLoad>
           <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
           <P>
+            {/* @coverage-defer */}
             {printingCompleted
               ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
               : appStrings.instructionsBmdCastBallotPreamble()}

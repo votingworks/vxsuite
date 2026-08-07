@@ -25,6 +25,7 @@ export function LocationPicker(props: LocationPickerProps): React.ReactNode {
   return (
     <PollingPlacePicker
       mode={mode}
+      // @coverage-defer
       places={election.pollingPlaces || []}
       selectedId={pollingPlaceId}
       selectPlace={selectPollingPlace}

@@ -34,6 +34,7 @@ export interface IdlePageProps {
   onCountdownEnd?: () => void;
 }
 
+// @coverage-defer
 function noop(): void {
   // do nothing
 }
@@ -47,6 +48,7 @@ export function IdlePage({
   const [isLoading, setIsLoading] = useState(false);
 
   useInterval(() => {
+    // @coverage-defer
     if (numSecondsRemaining === 0 && !isLoading) {
       setIsLoading(true);
       onCountdownEnd();

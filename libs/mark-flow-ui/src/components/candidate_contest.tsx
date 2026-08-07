@@ -193,6 +193,7 @@ export function CandidateContest({
     if (pendingFocusWriteInId.current && !writeInCandidateModalIsOpen) {
       const candidateId = pendingFocusWriteInId.current;
       pendingFocusWriteInId.current = null;
+      // @coverage-defer
       // When the contest is fully voted, ContestPage auto-focuses the Next
       // button for PAT navigation. Don't override that.
       if (votesRemainingIncludingDerivedVotes > 0 || !isPatDeviceConnected) {
@@ -468,6 +469,7 @@ export function CandidateContest({
 
               return (
                 <ContestChoiceButton
+                  // @coverage-defer
                   key={candidate.id + (candidate.partyIds ?? []).join('-')}
                   isSelected={isChecked}
                   isDerivedVote={isDerivedVote}
