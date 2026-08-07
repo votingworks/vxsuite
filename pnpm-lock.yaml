@@ -280,12 +280,6 @@ importers:
       csv-parse:
         specifier: ^5.5.0
         version: 5.5.0
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -449,9 +443,6 @@ importers:
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
-      '@types/readable-stream':
-        specifier: 2.3.9
-        version: 2.3.9
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -703,9 +694,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       get-port:
         specifier: '5'
         version: 5.1.1
@@ -763,9 +751,6 @@ importers:
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -818,9 +803,6 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/pify':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -869,12 +851,6 @@ importers:
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -893,9 +869,6 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
-      type-fest:
-        specifier: ^0.18.0
-        version: 0.18.1
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
@@ -1192,12 +1165,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
@@ -1207,9 +1174,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.15
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1319,9 +1283,6 @@ importers:
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1542,9 +1503,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1606,9 +1564,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -1651,9 +1606,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1923,9 +1875,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -1987,9 +1936,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2029,9 +1975,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2328,12 +2271,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -2349,9 +2286,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -2452,9 +2386,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2591,12 +2522,6 @@ importers:
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2651,12 +2576,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -2745,9 +2664,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2954,9 +2870,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -3020,9 +2933,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -3147,9 +3057,6 @@ importers:
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3506,9 +3413,6 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/text-encoding':
-        specifier: ^0.0.35
-        version: 0.0.35
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3863,9 +3767,6 @@ importers:
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3878,9 +3779,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      tmp:
-        specifier: ^0.2.6
-        version: 0.2.7
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -3948,9 +3846,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -4003,9 +3898,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.1.0)
-      '@types/express':
-        specifier: 4.17.14
-        version: 4.17.14
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../@types/kiosk-browser
@@ -4039,9 +3931,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -4280,9 +4169,6 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
       '@types/node':
         specifier: 20.19.43
         version: 20.19.43
@@ -4307,9 +4193,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      memory-streams:
-        specifier: ^0.1.3
-        version: 0.1.3
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4773,9 +4656,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      fast-check:
-        specifier: 2.23.2
-        version: 2.23.2
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -4791,9 +4671,6 @@ importers:
       '@napi-rs/cli':
         specifier: ^3.5.1
         version: 3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@20.19.43)(node-addon-api@8.3.1)
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4818,9 +4695,6 @@ importers:
       nodemon:
         specifier: ^3.1.7
         version: 3.1.7
-      tmp:
-        specifier: ^0.2.6
-        version: 0.2.7
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -5074,12 +4948,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5305,12 +5173,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild:
-        specifier: 0.28.1
-        version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5372,9 +5234,6 @@ importers:
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
-      '@types/zip-stream':
-        specifier: workspace:*
-        version: link:../@types/zip-stream
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -5409,9 +5268,6 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.clonedeep':
         specifier: ^4.5.9
         version: 4.5.9
@@ -5829,9 +5685,6 @@ importers:
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -9863,9 +9716,6 @@ packages:
   '@types/pg@8.6.1':
     resolution: {integrity: sha512-1Kc4oAGzAl7uqUStZCDvaLFqZrW9qWSjXOmBfdgyBP5La7Us6Mg4GBvRlSoaZMhQF/zSj1C8CtKMBkoiT8eL8w==}
 
-  '@types/pify@3.0.2':
-    resolution: {integrity: sha512-a5AKF1/9pCU3HGMkesgY6LsBdXHUY3WU+I2qgpU0J+I8XuJA1aFr59eS84/HP0+dxsyBSNbt+4yGI2adUpHwSg==}
-
   '@types/pixelmatch@5.2.6':
     resolution: {integrity: sha512-wC83uexE5KGuUODn6zkm9gMzTwdY5L0chiK+VrKcDfEjzxh1uadlWTvOmAbCpnM9zx/Ww3f8uKlYQVnO/TrqVg==}
 
@@ -9943,9 +9793,6 @@ packages:
 
   '@types/testing-library__jest-dom@5.14.9':
     resolution: {integrity: sha512-FSYhIjFlfOpGSRyVoMBMuS3ws5ehFQODymf3vlI7U1K8c7PHwWwFY7VREfmsuzHSOnoKs/9/Y983ayOs7eRzqw==}
-
-  '@types/text-encoding@0.0.35':
-    resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
 
   '@types/tmp@0.2.4':
     resolution: {integrity: sha512-Vq3rwM+2KgiLacq68EjTJD9cuJ/ne5pXntWn8B8Rxj25SLkGAhCgooCZ1lhcIcV5OFveJ+s5Cqpi+XKfFM/xZA==}
@@ -13707,9 +13554,6 @@ packages:
     resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
     engines: {node: '>=10'}
 
-  normalize.css@8.0.1:
-    resolution: {integrity: sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==}
-
   now-and-later@3.0.0:
     resolution: {integrity: sha512-pGO4pzSdaxhWTGkfSfHx3hVzJVslFPwBp2Myq9MYN/ChfJZF87ochMAXnvz6/58RJSf5ik2q9tXprBBrk2cpcg==}
     engines: {node: '>= 10.13.0'}
@@ -15403,10 +15247,6 @@ packages:
 
   type-fest@0.16.0:
     resolution: {integrity: sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg==}
-    engines: {node: '>=10'}
-
-  type-fest@0.18.1:
-    resolution: {integrity: sha512-OIAYXk8+ISY+qTOwkHtKqzAuxchoMiD9Udx+FSGQDuiRR+PJKJHc2NJAXlbhkGwTt/4/nKZxELY1w3ReWOL8mw==}
     engines: {node: '>=10'}
 
   type-fest@0.20.2:
@@ -21147,8 +20987,6 @@ snapshots:
       pg-protocol: 1.7.0
       pg-types: 2.2.0
 
-  '@types/pify@3.0.2': {}
-
   '@types/pixelmatch@5.2.6':
     dependencies:
       '@types/node': 20.19.43
@@ -21243,8 +21081,6 @@ snapshots:
   '@types/testing-library__jest-dom@5.14.9':
     dependencies:
       '@types/jest': 29.5.3
-
-  '@types/text-encoding@0.0.35': {}
 
   '@types/tmp@0.2.4': {}
 
@@ -25648,8 +25484,6 @@ snapshots:
 
   normalize-url@6.1.0: {}
 
-  normalize.css@8.0.1: {}
-
   now-and-later@3.0.0:
     dependencies:
       once: 1.4.0
@@ -27590,8 +27424,6 @@ snapshots:
   type-detect@4.0.8: {}
 
   type-fest@0.16.0: {}
-
-  type-fest@0.18.1: {}
 
   type-fest@0.20.2: {}
 

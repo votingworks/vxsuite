@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "@types/node": "20.19.43",
-    "@types/text-encoding": "^0.0.35",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",

@@ -45,7 +45,6 @@
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "express": "4.18.2",
-    "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"

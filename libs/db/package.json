@@ -32,12 +32,10 @@
     "@types/better-sqlite3": "7.6.3",
     "@types/debug": "4.1.12",
     "@types/node": "20.19.43",
-    "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "tmp": "^0.2.6",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@10.34.5"
