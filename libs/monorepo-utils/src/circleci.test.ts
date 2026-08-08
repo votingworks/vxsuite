@@ -35,15 +35,48 @@ test('generateConfig', () => {
   );
   expect(mainConfig).toContain('only: main');
 
-  // The experimental moon jobs are added to the full config as non-blocking,
-  // main-only additions: moon-ci + one e2e job per app (incl. mark-scan, which
-  // gets a `make build` step for its hardware daemons).
+  // The experimental moon jobs are added to the full config as non-blocking
+  // additions: moon-ci + one e2e job per app (incl. mark-scan, which gets a
+  // `make build` step for its hardware daemons).
   expect(mainConfig).toContain('moon-ci:');
   expect(mainConfig).toContain('moon-e2e-mark-scan:');
   expect(mainConfig).toContain(
     'make -C apps/mark-scan/integration-testing build'
   );
   expect(mainConfig).toContain('moon run admin-integration-testing:test');
+
+  // By default (`moonJobsMainOnly` off) the moon jobs run on EVERY branch, so
+  // their workflow entries carry NO branch filter — the entry goes straight from
+  // its context to the next job. (The `only: main` matches elsewhere are the
+  // notify-gallery / screenshot filters, not these.)
+  expect(mainConfig).toContain(
+    '      - moon-ci:\n' +
+      '          context:\n' +
+      '            - screenshots-publishing\n' +
+      '      - moon-e2e-admin:'
+  );
+});
+
+test('generateAllConfigs moonJobsMainOnly restricts moon jobs to main', () => {
+  const root = join(__dirname, '../../..');
+  const configs = generateAllConfigs(getWorkspacePackageInfo(root), {
+    moonJobsMainOnly: true,
+  });
+  const keys = Array.from(configs.keys());
+  assert(keys[0] !== undefined);
+  const mainConfig = configs.get(keys[0]);
+  assert(mainConfig !== undefined);
+
+  // With the flag on, each moon workflow entry gains a `branches: only: main`
+  // filter so the jobs only run on `main`.
+  expect(mainConfig).toContain(
+    '      - moon-ci:\n' +
+      '          context:\n' +
+      '            - screenshots-publishing\n' +
+      '          filters:\n' +
+      '            branches:\n' +
+      '              only: main'
+  );
 });
 
 test('generateAllConfigs moon prototype mode', () => {

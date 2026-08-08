@@ -2141,45 +2141,24 @@ workflows:
       - moon-ci:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-admin:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-central-scan:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-mark:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-scan:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-print:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
       - moon-e2e-mark-scan:
           context:
             - screenshots-publishing
-          filters:
-            branches:
-              only: main
 
 commands:
   checkout-and-install:

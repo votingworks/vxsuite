@@ -1,5 +1,9 @@
 # Moon Notes
 
+> For how to **install and use moon locally** and how to **diagnose the moon CI
+> jobs**, see [`docs/moon.md`](./docs/moon.md). This file is the running
+> experiment log / rationale.
+
 ## Discoveries
 
 - Moon can manage toolchains, i.e. nodejs/npm/rust/cargo.
