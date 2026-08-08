@@ -674,7 +674,7 @@ commands:
  */
 export function generateAllConfigs(
   pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
-  options: { moonPrototype?: boolean } = {}
+  options: { moonPrototype?: boolean; moonJobsMainOnly?: boolean } = {}
 ): Map<string, string> {
   if (options.moonPrototype) {
     return new Map([[CIRCLECI_CONFIG_PATH, generateMoonPrototypeConfig()]]);
@@ -732,10 +732,17 @@ export function generateAllConfigs(
   ].join('\n');
 
   // The experimental moon jobs, added as NON-BLOCKING additions to the real CI
-  // to watch/learn from. They run on `main` only (see moonWorkflowEntries'
-  // branch filter) so they don't add cost to every PR, and re-run the same tests
-  // the per-package jobs do until those are retired. Mark each moon-* job's
-  // status non-required in branch protection.
+  // to watch/learn from. They re-run the same tests the per-package jobs do until
+  // those are retired. Mark each moon-* job's status non-required in branch
+  // protection.
+  //
+  // `moonJobsMainOnly` gates whether they carry a `branches: only: main` filter.
+  // While we're still iterating on moon config it defaults to false so the jobs
+  // run on every branch (including the experiment branch) and we get feedback on
+  // each push. Flip it to true (env `MOON_JOBS_MAIN_ONLY=1` when regenerating)
+  // once the config is stable and we only want them watching `main` to avoid
+  // adding cost to every PR.
+  const moonJobsMainOnly = options.moonJobsMainOnly ?? false;
   const moonJobBlocks = [
     generateMoonCiJob(),
     ...MOON_E2E_APPS.map((app) => generateMoonE2eAppJob(app)),
@@ -743,13 +750,16 @@ export function generateAllConfigs(
     .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
     .join('\n\n');
 
+  const moonBranchFilter = moonJobsMainOnly
+    ? '\n          filters:\n            branches:\n              only: main'
+    : '';
   const moonWorkflowEntries = [
     'moon-ci',
     ...MOON_E2E_APPS.map((app) => `moon-e2e-${app}`),
   ]
     .map(
       (jobId) =>
-        `      - ${jobId}:\n          context:\n            - screenshots-publishing\n          filters:\n            branches:\n              only: main`
+        `      - ${jobId}:\n          context:\n            - screenshots-publishing${moonBranchFilter}`
     )
     .join('\n');
 
