@@ -1,8 +1,8 @@
-import { H2, P } from '../typography';
-import { Button } from '../button';
-import { ButtonBar } from '../modal';
-import { Main } from '../main';
-import { Screen } from '../screen';
+import { H2, P } from '../typography.js';
+import { Button } from '../button.js';
+import { ButtonBar } from '../modal.js';
+import { Main } from '../main.js';
+import { Screen } from '../screen.js';
 
 export interface UpsSectionProps {
   passTest: () => void;

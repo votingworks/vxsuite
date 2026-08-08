@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
-import { LabelledText } from './labelled_text';
+import { render, screen } from '../test/react_testing_library.js';
+import { LabelledText } from './labelled_text.js';
 
 test('renders label above text by default', () => {
   const { container } = render(

@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/react';
 
 import { LoremIpsum } from 'lorem-ipsum';
-import { Card as Component, CardProps as Props } from './card';
+import { Card as Component, CardProps as Props } from './card.js';
 
 const loremIpsum = new LoremIpsum({
   sentencesPerParagraph: { max: 8, min: 4 },

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
-import { Button } from './button';
-import { getBatteryIcon } from './battery_display';
-import { Icons } from './icons';
+import { styled } from './styled.js';
+import { Button } from './button.js';
+import { getBatteryIcon } from './battery_display.js';
+import { Icons } from './icons.js';
 
 export const Toolbar = styled.div`
   display: flex;

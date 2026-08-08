@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { Router, StaticRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 
-import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../test/react_testing_library';
-import { LinkButton } from './link_button';
+import { userEvent } from './user_event.js';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
+import { LinkButton } from './link_button.js';
 
 test('navigates to page', () => {
   const history = createMemoryHistory();

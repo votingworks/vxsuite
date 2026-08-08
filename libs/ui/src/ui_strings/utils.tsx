@@ -8,7 +8,7 @@ import {
   pollingPlaceFromElection,
 } from '@votingworks/types';
 
-import { electionStrings } from './election_strings';
+import { electionStrings } from './election_strings.js';
 
 /**
  * Convenience component for rendering a translated list of parties associated

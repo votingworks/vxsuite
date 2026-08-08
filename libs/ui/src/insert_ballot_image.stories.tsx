@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/react';
 
-import { InsertBallotImage } from './insert_ballot_image';
+import { InsertBallotImage } from './insert_ballot_image.js';
 
 const meta: Meta<typeof InsertBallotImage> = {
   title: 'libs-ui/Images',

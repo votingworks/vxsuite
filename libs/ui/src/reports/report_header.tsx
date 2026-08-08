@@ -1,10 +1,10 @@
 import { format } from '@votingworks/utils';
-import styled from 'styled-components';
 import { Election } from '@votingworks/types';
 import React from 'react';
-import { Font } from '../typography';
-import { Icons } from '../icons';
-import { Box } from './layout';
+import { styled } from '../styled.js';
+import { Font } from '../typography.js';
+import { Icons } from '../icons.js';
+import { Box } from './layout.js';
 
 export const ReportHeader = styled.div`
   p {

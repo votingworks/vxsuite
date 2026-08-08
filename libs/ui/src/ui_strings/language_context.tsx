@@ -1,5 +1,5 @@
 import React from 'react';
-import i18next, { InitOptions, i18n } from 'i18next';
+import i18nextDefault, { InitOptions, i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
 import { UiStringsPackage } from '@votingworks/types';
@@ -9,8 +9,15 @@ import {
   assertDefined,
   mapObject,
 } from '@votingworks/basics';
-import { Screen } from '../screen';
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
+import { Screen } from '../screen.js';
+import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+
+// i18next declares one `types` entry for both its CommonJS and ESM builds, so
+// TypeScript models the default import as CommonJS `module.exports` even though
+// node resolves the ESM build, whose default *is* the instance. Accept either
+// shape — the same interop dance as `../styled.ts`.
+const i18nextModule = i18nextDefault as unknown as i18n & { default?: i18n };
+const i18next: i18n = i18nextModule.default ?? i18nextModule;
 
 export const DEFAULT_LANGUAGE_CODE = 'en';
 export const DEFAULT_I18NEXT_NAMESPACE = 'translation';

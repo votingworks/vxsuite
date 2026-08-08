@@ -1,10 +1,10 @@
-import { MarkScanControllerButton } from './types';
+import { MarkScanControllerButton } from './types.js';
 import {
   AccessibleControllerHelpStrings,
   AccessibleControllerSandbox,
-} from './accessible_controller_sandbox';
-import { MarkScanControllerIllustration } from './mark_scan_controller_illustration';
-import { Keybinding } from '../keybindings';
+} from './accessible_controller_sandbox.js';
+import { MarkScanControllerIllustration } from './mark_scan_controller_illustration.js';
+import { Keybinding } from '../keybindings.js';
 
 const FEEDBACK_STRING_KEYS: AccessibleControllerHelpStrings<MarkScanControllerButton> =
   {

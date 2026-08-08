@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./finalize_app_strings_catalog.ts').main();
+// Runs the compiled output rather than transpiling `src` on the fly: the
+// esbuild-runner hook this used to go through is a CommonJS `require` hook and
+// cannot load this package's ESM sources. The `build:app-strings-catalog`
+// package script compiles first.
+import { main } from '../build/scripts/finalize_app_strings_catalog.js';
+
+main();

@@ -1,5 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
+
+const require = createRequire(import.meta.url);
 
 export function generateFontAwesomeStyles(outputPath: string): void {
   const fontAwesomePath = require.resolve('@fortawesome/fontawesome-svg-core');

@@ -1,22 +1,27 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
 
 import {
   hasTextAcrossElements,
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
+import { userEvent } from '../user_event.js';
 
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library.js';
 import {
   DELETE_KEY,
   SPACE_BAR_KEY,
   US_ENGLISH_KEYMAP,
   VirtualKeyboard,
-} from './virtual_keyboard';
-import { newTestContext as newUiStringsTestContext } from '../../test/test_context';
-import { AudioOnly } from '../ui_strings/audio_only';
-import { useCurrentLanguage } from '../hooks/use_current_language';
+} from './virtual_keyboard.js';
+import { newTestContext as newUiStringsTestContext } from '../../test/test_context.js';
+import { AudioOnly } from '../ui_strings/audio_only.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
 
 vi.mock(import('../ui_strings/audio_only.js'), async (importActual) => ({
   ...(await importActual()),

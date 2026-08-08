@@ -5,7 +5,7 @@ import {
   SegmentedButton as Component,
   SegmentedButtonOptionId,
   SegmentedButtonProps,
-} from './segmented_button';
+} from './segmented_button.js';
 
 const initialProps: SegmentedButtonProps<string> = {
   label: 'Ballot Mode:',

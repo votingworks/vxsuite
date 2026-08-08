@@ -1,8 +1,8 @@
 import { describe, test } from 'vitest';
-import { render, screen } from '../../test/react_testing_library';
-import { ThermalPrinterSection } from './thermal_printer_section';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
-import { P } from '../typography';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ThermalPrinterSection } from './thermal_printer_section.js';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
+import { P } from '../typography.js';
 
 describe('status message', () => {
   test('idle', async () => {

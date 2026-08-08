@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 interface Props {
   flexDirection?: 'row' | 'column' | 'row-reverse';

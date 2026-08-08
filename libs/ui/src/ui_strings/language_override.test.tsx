@@ -5,10 +5,10 @@ import {
   render as renderWithoutContext,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { InEnglish, LanguageOverride } from './language_override';
-import { Button, appStrings } from '..';
+} from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
+import { InEnglish, LanguageOverride } from './language_override.js';
+import { Button, appStrings } from '../index.js';
 
 test('LanguageOverride overrides current active language', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();

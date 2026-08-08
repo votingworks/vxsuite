@@ -15,7 +15,7 @@ import {
   P,
   FontProps,
   HeadingProps,
-} from './typography';
+} from './typography.js';
 
 const loremIpsum = new LoremIpsum({
   sentencesPerParagraph: { max: 8, min: 4 },
