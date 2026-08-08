@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { getAudioInfoWithRetry } from './get_audio_info_with_retry';
-import * as audio from '../system_call/get_audio_info';
+import { getAudioInfoWithRetry } from './get_audio_info_with_retry.js';
+import * as audio from '../system_call/get_audio_info.js';
 
 vi.mock('../system_call/get_audio_info');
 

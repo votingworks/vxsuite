@@ -21,11 +21,11 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
-import { readCastVoteRecordExportMetadata } from './import';
+import { readCastVoteRecordExportMetadata } from './import.js';
 import {
   buildBatchManifest,
   buildCastVoteRecordReportMetadata,
-} from './build_report_metadata';
+} from './build_report_metadata.js';
 
 function identifyFunction<T>(input: T): T {
   return input;

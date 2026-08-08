@@ -1,6 +1,6 @@
 import { err, ok, Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { toByteLength } from './bits';
+import { toByteLength } from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -8,7 +8,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Base class for coders with default implementations for encoding and decoding.

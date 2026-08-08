@@ -9,9 +9,9 @@ import {
   hasSplits,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { extractAndTranslateElectionStrings } from './election_strings';
-import { GoogleCloudTranslator } from './translator';
-import { setUiString } from './utils';
+import { extractAndTranslateElectionStrings } from './election_strings.js';
+import { GoogleCloudTranslator } from './translator.js';
+import { setUiString } from './utils.js';
 
 /**
  * Extracts strings defined on a list of "precinct splits".

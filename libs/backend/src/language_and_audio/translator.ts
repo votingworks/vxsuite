@@ -5,7 +5,7 @@ import {
 import { assertDefined, iter } from '@votingworks/basics';
 
 import { NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
-import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
+import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config.js';
 
 const REGEX_IMAGE_ELEMENTS = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
 

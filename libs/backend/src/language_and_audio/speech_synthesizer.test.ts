@@ -5,11 +5,11 @@ import { LanguageCode } from '@votingworks/types';
 import {
   GoogleCloudSpeechSynthesizer,
   GoogleCloudVoices,
-} from './speech_synthesizer';
+} from './speech_synthesizer.js';
 import {
   makeMockGoogleCloudTextToSpeechClient,
   mockCloudSynthesizedSpeech,
-} from './test_utils';
+} from './test_utils.js';
 
 vi.mock(import('./rich_text.js'), () => ({
   convertHtmlToAudioCues: vi.fn((text) => `[sanitized] ${text}`),

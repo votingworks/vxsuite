@@ -1,13 +1,15 @@
-import { expect } from 'vitest';
-import {
-  ImageData,
-  ToMatchImageOptions,
-  ToMatchPdfSnapshotOptions,
-  toMatchImage,
-  buildToMatchPdfSnapshot,
-} from '@votingworks/image-utils';
+import { expect, vi } from 'vitest';
+import type { ImageData, ToMatchImageOptions, ToMatchPdfSnapshotOptions } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { setGracefulCleanup } from 'tmp';
+
+// Loaded with `importActual` rather than imported: this file runs before any
+// `vi.mock` is registered, so a module-scope import would instantiate
+// image-utils's dependency graph inside vitest's module runner too early and
+// leave those modules holding unmocked bindings for the rest of the run.
+const { toMatchImage, buildToMatchPdfSnapshot } = await vi.importActual<
+  typeof import('@votingworks/image-utils')
+>('@votingworks/image-utils');
 
 // ensure tmp files are cleaned up
 setGracefulCleanup();

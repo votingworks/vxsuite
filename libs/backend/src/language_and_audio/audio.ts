@@ -10,15 +10,15 @@ import {
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
-import { SpeechSynthesizer } from './speech_synthesizer';
+import { SpeechSynthesizer } from './speech_synthesizer.js';
 import {
   audioIdForText,
   cleanText,
   forEachUiString,
   prepareTextForSpeechSynthesis,
   setUiStringAudioIds,
-} from './utils';
-import { convertHtmlToAudioCues } from './rich_text';
+} from './utils.js';
+import { convertHtmlToAudioCues } from './rich_text.js';
 
 /**
  * Generates audio IDs and clips for all app and election strings provided with

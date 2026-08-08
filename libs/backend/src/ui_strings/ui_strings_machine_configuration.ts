@@ -5,8 +5,8 @@ import {
   ElectionPackageZip,
   ParsedElectionPackage,
   streamElectionPackageAudioClips,
-} from '../election_package/election_package_io';
-import { UiStringsStore } from './ui_strings_store';
+} from '../election_package/election_package_io.js';
+import { UiStringsStore } from './ui_strings_store.js';
 
 /** Input for {@link configureUiStrings}. */
 export interface ElectionPackageProcessorInput {

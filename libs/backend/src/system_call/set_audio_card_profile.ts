@@ -1,7 +1,7 @@
 import { ok, Result, sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import type { NODE_ENV } from '../scan_globals';
-import { pactl } from './pulse_audio';
+import type { NODE_ENV } from '../scan_globals.js';
+import { pactl } from './pulse_audio.js';
 
 /** {@link setAudioCardProfile} params. */
 export interface SetAudioCardProfileParams {

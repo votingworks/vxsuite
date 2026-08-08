@@ -3,7 +3,7 @@ import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
-import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
+import { getBatteryInfo, parseBatteryInfo } from './get_battery_info.js';
 
 vi.mock(import('node:fs'), async (importActual) => ({
   ...(await importActual()),

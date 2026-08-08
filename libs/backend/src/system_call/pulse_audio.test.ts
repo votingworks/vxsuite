@@ -3,8 +3,8 @@ import { expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { pactl } from './pulse_audio';
+import { execFile } from '../exec.js';
+import { pactl } from './pulse_audio.js';
 
 vi.mock(import('../exec.js'));
 const mockExecFile = vi.mocked(execFile);

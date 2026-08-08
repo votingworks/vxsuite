@@ -4,8 +4,8 @@ import * as mockFs from 'node:fs/promises';
 import { mockLogger } from '@votingworks/logging';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { MaybePromise, Optional, sleep } from '@votingworks/basics';
-import { getTopCpuProcesses, startCpuMetricsLogging } from './cpu_metrics';
-import { execFile } from './exec';
+import { getTopCpuProcesses, startCpuMetricsLogging } from './cpu_metrics.js';
+import { execFile } from './exec.js';
 
 vi.mock(import('./exec.js'));
 vi.mock(import('node:fs/promises'));

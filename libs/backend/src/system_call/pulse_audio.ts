@@ -3,8 +3,8 @@ import util from 'node:util';
 import { err, ok, Result } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { execFile } from '../exec.js';
+import { NODE_ENV } from '../scan_globals.js';
 
 /**
  * Pulse Audio special name for the default sink for the currently active audio

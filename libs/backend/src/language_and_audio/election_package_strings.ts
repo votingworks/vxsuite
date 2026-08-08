@@ -3,9 +3,9 @@ import {
   Election,
   UiStringsPackage,
 } from '@votingworks/types';
-import { GoogleCloudTranslator } from './translator';
-import { translateAppStrings } from './app_strings';
-import { translateElectionAndHmpbStrings } from './ballot_strings';
+import { GoogleCloudTranslator } from './translator.js';
+import { translateAppStrings } from './app_strings.js';
+import { translateElectionAndHmpbStrings } from './ballot_strings.js';
 
 /**
  * Helper function to generate all necessary strings used in an election package.

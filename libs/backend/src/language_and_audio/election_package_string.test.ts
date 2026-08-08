@@ -5,10 +5,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { getAllStringsForElectionPackage } from './election_package_strings';
-import { GoogleCloudTranslator } from './translator';
-import { makeMockGoogleCloudTranslationClient } from './test_utils';
-import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog';
+import { getAllStringsForElectionPackage } from './election_package_strings.js';
+import { GoogleCloudTranslator } from './translator.js';
+import { makeMockGoogleCloudTranslationClient } from './test_utils.js';
+import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog.js';
 
 const allBallotLanguages: BallotLanguageConfigs = [
   {
@@ -24,7 +24,7 @@ const allBallotLanguages: BallotLanguageConfigs = [
 const appStringsCatalog = JSON.parse(
   fs.readFileSync(
     path.join(
-      __dirname,
+      import.meta.dirname,
       `../../../ui/src/ui_strings/app_strings_catalog/latest.json`
     ),
     'utf-8'

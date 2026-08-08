@@ -1,5 +1,5 @@
 import { isIntegrationTest } from '@votingworks/utils';
-import { execFile } from './exec';
+import { execFile } from './exec.js';
 
 /**
  * Configures system audio settings for audio-enabled precinct machines.
