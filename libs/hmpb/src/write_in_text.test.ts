@@ -12,8 +12,8 @@ import {
   safeParseElection,
 } from '@votingworks/types';
 
-import { fixturesDir } from './ballot_fixtures';
-import { gridSpacing } from './marking';
+import { fixturesDir } from './ballot_fixtures.js';
+import { gridSpacing } from './marking.js';
 import {
   drawWriteInText,
   fitWriteInText,
@@ -21,7 +21,7 @@ import {
   WRITE_IN_FONT_SIZE_MIN,
   WriteInArea,
   writeInLineBaselineOffset,
-} from './write_in_text';
+} from './write_in_text.js';
 
 let font: PDFFont;
 
@@ -29,7 +29,7 @@ beforeAll(async () => {
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontKit);
   font = await doc.embedFont(
-    fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`)
+    fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`)
   );
 });
 
@@ -214,7 +214,7 @@ async function renderWriteInArea(
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontKit);
   const robotoBold = await doc.embedFont(
-    fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`)
+    fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`)
   );
 
   // Leave a margin around the area so that any text escaping it is visible in

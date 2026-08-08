@@ -1,6 +1,6 @@
 /* istanbul ignore file */
-export * from './combine_page_interpretations_for_sheet';
-export * from './interpret';
-export * from './bubble-ballot-ts';
-export * from './save_images';
-export * from './types';
+export * from './combine_page_interpretations_for_sheet.js';
+export * from './interpret.js';
+export * from './bubble-ballot-ts/index.js';
+export * from './save_images.js';
+export * from './types.js';

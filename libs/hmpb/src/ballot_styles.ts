@@ -16,8 +16,8 @@ import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-import { BallotTemplateId } from './ballot_templates';
-import { getAllPossibleCandidateOrderings } from './ballot_rotation';
+import { BallotTemplateId } from './ballot_templates/index.js';
+import { getAllPossibleCandidateOrderings } from './ballot_rotation.js';
 
 /**
  * - For general elections, generates ballot styles based on geography data

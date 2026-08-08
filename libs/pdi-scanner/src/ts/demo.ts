@@ -1,5 +1,5 @@
 import { sleep } from '@votingworks/basics';
-import { createPdiScannerClient } from './scanner_client';
+import { createPdiScannerClient } from './scanner_client.js';
 
 /**
  * A simple demo that continuously scans ballots.

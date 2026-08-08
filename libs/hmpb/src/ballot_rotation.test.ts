@@ -5,8 +5,8 @@ import {
   getCandidateOrderingByPrecinctAlphabetical,
   getAllPossibleCandidateOrderings,
   deduplicateIdenticalOrderingsAcrossPrecincts,
-} from './ballot_rotation';
-import { RotationParams, CandidateOrdering } from './types';
+} from './ballot_rotation.js';
+import { RotationParams, CandidateOrdering } from './types.js';
 
 const electionGeneral = readElectionGeneral();
 

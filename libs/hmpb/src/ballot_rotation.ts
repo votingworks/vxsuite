@@ -10,9 +10,9 @@ import {
   OrderedCandidateOption,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
-import { CandidateOrdering, RotationParams } from './types';
-import { getCandidateOrderingSetsForNhBallot } from './ballot_templates/nh_ballot_template';
-import { BallotTemplateId } from './ballot_templates';
+import { CandidateOrdering, RotationParams } from './types.js';
+import { getCandidateOrderingSetsForNhBallot } from './ballot_templates/nh_ballot_template.js';
+import { BallotTemplateId } from './ballot_templates/index.js';
 
 /**
  * Helper function that orders candidates alphabetically by name,

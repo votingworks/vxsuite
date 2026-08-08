@@ -23,10 +23,10 @@ import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
 import { promises as fs } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { once } from 'node:stream';
+import { once } from 'node:events';
 import { styleText } from 'node:util';
-import { interpret } from './interpret';
-import { InterpretedBallotCard, InterpretError } from './types';
+import { interpret } from './interpret.js';
+import { InterpretedBallotCard, InterpretError } from './types.js';
 
 interface IO {
   stdout: NodeJS.WritableStream;

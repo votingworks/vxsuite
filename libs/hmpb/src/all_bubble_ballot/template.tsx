@@ -9,19 +9,19 @@ import {
   BallotPageTemplate,
   ContentComponentResult,
   BallotLayoutError,
-} from '../render_ballot';
+} from '../render_ballot.js';
 import {
   Bubble,
   Page,
   pageMarginsInches,
   TimingMarkGrid,
-} from '../ballot_components';
-import { PixelDimensions } from '../types';
-import { RenderScratchpad } from '../renderer';
-import { allBubbleBallotConfig } from './config';
-import { candidateId, contestId } from './election';
-import { Footer } from './footer';
-import { BaseStyles } from '../base_styles';
+} from '../ballot_components.js';
+import { PixelDimensions } from '../types.js';
+import { RenderScratchpad } from '../renderer.js';
+import { allBubbleBallotConfig } from './config.js';
+import { candidateId, contestId } from './election.js';
+import { Footer } from './footer.js';
+import { BaseStyles } from '../base_styles.js';
 
 export function allBubbleBallotTemplate(
   paperSize: HmpbBallotPaperSize

@@ -1,11 +1,11 @@
 /* istanbul ignore file */
 import { ImageData } from 'canvas';
-import { napi } from './napi';
-import { TimingMarks } from './types';
+import { napi } from './napi.js';
+import { TimingMarks } from './types.js';
 
-export * from './diagnostic';
-export * from './interpret';
-export * from './types';
+export * from './diagnostic.js';
+export * from './interpret.js';
+export * from './types.js';
 
 export async function findTimingMarkGrid(
   image: string | ImageData,

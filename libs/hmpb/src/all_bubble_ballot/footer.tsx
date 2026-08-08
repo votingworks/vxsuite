@@ -4,10 +4,10 @@ import {
   Box,
   DualLanguageText,
   QrCodeSlot,
-} from '../ballot_components';
-import { hmpbStrings } from '../hmpb_strings';
-import { ArrowRightCircle } from '../svg_assets';
-import { RenderDocument } from '../renderer';
+} from '../ballot_components.js';
+import { hmpbStrings } from '../hmpb_strings.js';
+import { ArrowRightCircle } from '../svg_assets.js';
+import { RenderDocument } from '../renderer.js';
 
 function FooterMetadataContent({
   label,

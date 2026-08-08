@@ -5,8 +5,8 @@ import {
   DEFAULT_MARK_THRESHOLDS,
   PageInterpretation,
 } from '@votingworks/types';
-import { normalizeBallotMode } from './validation';
-import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation.js';
+import { InterpreterOptions } from './types.js';
 
 const BLANK_INTERPRETATION: PageInterpretation = { type: 'BlankPage' };
 

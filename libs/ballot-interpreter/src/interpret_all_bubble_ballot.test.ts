@@ -11,8 +11,11 @@ import {
   ElectionDefinition,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
-import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
+import {
+  pdfToPageImages,
+  sortVotesDict,
+} from '../test/helpers/interpretation.js';
+import { interpretSheet } from './interpret.js';
 
 describe.each(Object.values(HmpbBallotPaperSize))(
   'Interpret - HMPB - All bubble ballot (%s)',

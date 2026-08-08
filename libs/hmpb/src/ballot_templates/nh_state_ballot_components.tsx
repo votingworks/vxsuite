@@ -1,6 +1,6 @@
 import React from 'react';
 import { Buffer } from 'node:buffer';
-import styled, { css } from 'styled-components';
+import { css } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import {
   Election,
@@ -11,13 +11,14 @@ import {
   Party,
 } from '@votingworks/types';
 import { electionStrings } from '@votingworks/ui';
+import { styled } from '../styled.js';
 import {
   BallotHashSlot,
   BubbleShape,
   pageMarginsInches,
   QrCodeSlot,
   TIMING_MARK_DIMENSIONS,
-} from '../ballot_components';
+} from '../ballot_components.js';
 
 export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
   isHandCount?: boolean;

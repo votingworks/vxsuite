@@ -4,7 +4,7 @@ import type {
   BridgeDecodeBmdResult,
   BridgeInterpretResult,
   TimingMarks,
-} from './src/bubble-ballot-ts/types';
+} from './src/bubble-ballot-ts/types.js';
 import type { Election } from '@votingworks/types';
 
 export interface BridgeInterpretOptions {
