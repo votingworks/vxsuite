@@ -9,7 +9,8 @@
     ".": {
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "build"
