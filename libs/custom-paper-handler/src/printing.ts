@@ -1,8 +1,8 @@
 import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { ImageData } from '@votingworks/image-utils';
-import { BitArray, bitArrayToByte, Uint8Max } from './bits';
-import { PaperHandlerBitmap } from './driver/coders';
+import { BitArray, bitArrayToByte, Uint8Max } from './bits.js';
+import { PaperHandlerBitmap } from './driver/coders.js';
 
 export interface BinaryBitmap {
   width: number;

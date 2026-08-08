@@ -7,7 +7,7 @@ import {
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
 import type { Election } from '@votingworks/types';
-import { postToApi } from './api';
+import { postToApi } from './api.js';
 
 async function postToApiOrThrow(page: Page, method: string): Promise<void> {
   const response = await postToApi(page, method);

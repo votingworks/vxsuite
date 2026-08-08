@@ -4,8 +4,8 @@ import { StraightPartyContest as StraightPartyContestInterface } from '@votingwo
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { act } from '@testing-library/react';
-import { screen, within, render } from '../../test/react_testing_library';
-import { StraightPartyContest } from './straight_party_contest';
+import { screen, within, render } from '../../test/react_testing_library.js';
+import { StraightPartyContest } from './straight_party_contest.js';
 
 const election = readElectionStraightParty();
 const contest = find(

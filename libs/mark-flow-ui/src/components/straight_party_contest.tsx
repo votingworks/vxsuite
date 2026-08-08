@@ -22,9 +22,9 @@ import {
   PageNavigationButtonId,
 } from '@votingworks/ui';
 import { find } from '@votingworks/basics';
-import { UpdateVoteFunction } from '../config/types';
-import { ContestHeader } from './contest_header';
-import { ChoicesGrid } from './contest_screen_layout';
+import { UpdateVoteFunction } from '../config/types.js';
+import { ContestHeader } from './contest_header.js';
+import { ChoicesGrid } from './contest_screen_layout.js';
 
 interface Props {
   election: Election;

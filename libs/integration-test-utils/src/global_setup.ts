@@ -1,6 +1,6 @@
 import { sleep } from '@votingworks/basics';
 import { methodUrl } from '@votingworks/grout';
-import { BASE_URL } from './constants';
+import { BASE_URL } from './constants.js';
 
 /**
  * Side-effect-free grout method posted to probe backend readiness. Present in

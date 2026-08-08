@@ -1,2 +1,2 @@
-export * from './generate_election';
-export * from './config';
+export * from './generate_election.js';
+export * from './config.js';

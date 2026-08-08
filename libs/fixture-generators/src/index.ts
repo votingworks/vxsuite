@@ -1,1 +1,1 @@
-export * from './generate-cvrs/generate_cvrs';
+export * from './generate-cvrs/generate_cvrs.js';

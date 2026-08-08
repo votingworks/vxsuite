@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ImageData, writeImageData } from '@votingworks/image-utils';
 
-import { PaperHandlerStatus } from './coders';
+import { PaperHandlerStatus } from './coders.js';
 import {
   MockPaperHandlerDriver,
   MockPaperHandlerStatus,
   isMockPaperHandler,
-} from './mock_driver';
-import * as statusHelpers from './scanner_status';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
-import { PaperHandlerDriver } from './driver';
+} from './mock_driver.js';
+import * as statusHelpers from './scanner_status.js';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
+import { PaperHandlerDriver } from './driver.js';
 
 vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
   ...(await importActual()),

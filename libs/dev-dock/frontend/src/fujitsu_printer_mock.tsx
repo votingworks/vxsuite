@@ -7,7 +7,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { useApiClient } from './api_client';
+import { useApiClient } from './api_client.js';
 
 const MOCK_PRINTER_STATUS_OPTIONS: Record<string, PrinterStatus> = {
   idle: {

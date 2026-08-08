@@ -39,7 +39,7 @@ import * as fs from 'node:fs/promises';
 import { basename, join, parse } from 'node:path';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { renderMarkedBallots } from './ballots';
+import { renderMarkedBallots } from './ballots.js';
 
 /** Specifies a single ballot to include in a generated cast vote record export. */
 export interface CastVoteRecordSpec {

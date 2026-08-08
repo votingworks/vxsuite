@@ -15,7 +15,7 @@ import {
 import { SizeMode } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
-import { VoterSettingsButton } from './voter_settings_button';
+import { VoterSettingsButton } from './voter_settings_button.js';
 
 export interface VoterHelpScreenProps {
   onClose: () => void;

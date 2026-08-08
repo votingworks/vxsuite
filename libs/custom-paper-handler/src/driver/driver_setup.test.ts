@@ -5,9 +5,9 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { getPaperHandlerWebDevice, PaperHandlerDriver } from './driver';
-import { setUpMockWebUsbDevice } from './test_utils';
-import { MaxPrintWidthDots } from './constants';
+import { getPaperHandlerWebDevice, PaperHandlerDriver } from './driver.js';
+import { setUpMockWebUsbDevice } from './test_utils.js';
+import { MaxPrintWidthDots } from './constants.js';
 
 vi.mock('usb');
 const findByIdsMock = findByIds as MockedFunction<typeof findByIds>;
