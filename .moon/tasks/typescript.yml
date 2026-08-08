@@ -19,16 +19,16 @@ tasks:
     inputs:
       - '@group(sources)'
       - 'tsconfig.build.json'
-    # `tsc --build` writes incremental state to `tsconfig.build.tsbuildinfo` at
-    # the package root (outside build/). Cache it ALONGSIDE build/ so a cache hit
-    # restores a consistent pair; otherwise a restored build/ next to a stale/
-    # missing tsbuildinfo desyncs and tsc skips re-emitting, producing a
-    # version-skewed build/. (We intentionally don't move it into build/ via
-    # `tsBuildInfoFile` — validate-monorepo forbids setting that in
-    # tsconfig.build.json.)
+    # Only `build/` is declared as an output. With `outDir: build` and no
+    # explicit `tsBuildInfoFile` (validate-monorepo forbids setting that in
+    # tsconfig.build.json), `tsc --build` writes the incremental state to
+    # `build/tsconfig.build.tsbuildinfo` — i.e. INSIDE build/ — so caching build/
+    # already captures it, and a cache hit restores build/ and its tsbuildinfo as
+    # a consistent pair. Declaring a package-root `tsconfig.build.tsbuildinfo`
+    # output (as an earlier revision did) is wrong: that file doesn't exist for a
+    # clean build, so moon fails the task with `missing_outputs`.
     outputs:
       - 'build'
-      - 'tsconfig.build.tsbuildinfo'
     deps:
       - '^:build'
 

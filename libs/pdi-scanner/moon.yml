@@ -17,7 +17,6 @@ tasks:
       CARGO_BUILD_JOBS: '6'
     outputs:
       - 'build'
-      - 'tsconfig.build.tsbuildinfo'
       - 'target/release/pdictl'
     inputs:
       - 'Cargo.toml'
