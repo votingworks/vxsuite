@@ -171,6 +171,10 @@ export function buildApi(ctx: Context) {
       auth.getAuthStatus(constructAuthMachineState(workspace)),
   });
 
+  function endCardlessVoterSessionIfAny() {
+    auth.endCardlessVoterSession(constructAuthMachineState(workspace));
+  }
+
   return grout.createApi({
     getMachineConfig,
 
@@ -256,7 +260,7 @@ export function buildApi(ctx: Context) {
     },
 
     endCardlessVoterSession() {
-      return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
+      endCardlessVoterSessionIfAny();
     },
 
     getElectionRecord(): ElectionRecord | null {
@@ -268,6 +272,7 @@ export function buildApi(ctx: Context) {
     },
 
     async unconfigureMachine() {
+      endCardlessVoterSessionIfAny();
       workspace.store.reset();
       // Re-enable USB ports in case they were auto-disabled while an alarm was
       // active (see setup_printer_page). Otherwise they remain silently
@@ -531,6 +536,7 @@ export function buildApi(ctx: Context) {
     },
 
     setTestMode(input: { isTestMode: boolean }) {
+      endCardlessVoterSessionIfAny();
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
       store.setBallotsPrintedCount(0);
@@ -545,6 +551,7 @@ export function buildApi(ctx: Context) {
       const { election } = electionDefinition;
       const { name } = pollingPlaceFromElection(election, input.id);
 
+      endCardlessVoterSessionIfAny();
       store.setPollingPlaceId(input.id);
       store.setBallotsPrintedCount(0);
 

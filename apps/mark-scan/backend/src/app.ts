@@ -83,6 +83,10 @@ export function buildApi(
 ) {
   const { store } = workspace;
 
+  function endCardlessVoterSessionIfAny() {
+    auth.endCardlessVoterSession(constructAuthMachineState(workspace));
+  }
+
   return grout.createApi({
     getMachineConfig,
 
@@ -135,7 +139,7 @@ export function buildApi(
 
     endCardlessVoterSession() {
       stateMachine?.reset();
-      return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
+      endCardlessVoterSessionIfAny();
     },
 
     getElectionRecord(): ElectionRecord | null {
@@ -147,6 +151,7 @@ export function buildApi(
     },
 
     async unconfigureMachine() {
+      endCardlessVoterSessionIfAny();
       workspace.store.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
@@ -387,6 +392,7 @@ export function buildApi(
         message: `Toggling from ${logMessage} mode`,
         isTestMode: input.isTestMode,
       });
+      endCardlessVoterSessionIfAny();
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
       store.setBallotsPrintedCount(0);
@@ -406,6 +412,7 @@ export function buildApi(
       const { election } = electionDefinition;
       const { name } = pollingPlaceFromElection(election, input.id);
 
+      endCardlessVoterSessionIfAny();
       store.setPollingPlaceId(input.id);
       store.setBallotsPrintedCount(0);
 

@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
+import { assertDefined } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -12,7 +13,10 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
+import {
+  generateSignedHashValidationQrCodeValue,
+  InsertedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
 import { configureApp, createApp } from '../test/app_helpers.js';
 
@@ -138,6 +142,40 @@ test('endCardlessVoterSession', async () => {
     jurisdiction,
     machineType,
   });
+});
+
+test('changing a relevant setting force ends any cardless voter session', async () => {
+  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
+  const authMachineState: InsertedSmartCardAuthMachineState = {
+    ...systemSettings.auth,
+    electionKey,
+    jurisdiction,
+    machineType,
+  };
+
+  await apiClient.setTestMode({ isTestMode: false });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    1,
+    authMachineState
+  );
+
+  const pollingPlace = assertDefined(election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    2,
+    authMachineState
+  );
+
+  // Ended before the store is reset, so the machine state still describes the
+  // election the session was started for.
+  await apiClient.unconfigureMachine();
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(
+    3,
+    authMachineState
+  );
+
+  expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(3);
 });
 
 test('getAuthStatus before election definition has been configured', async () => {

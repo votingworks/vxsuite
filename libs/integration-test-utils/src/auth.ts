@@ -48,11 +48,14 @@ export interface InsertedSmartCardAuthConfig {
    */
   pinDigitSelector?: 'button' | 'text';
   /**
-   * Whether `forceLogOutAndResetElectionDefinition` should first end a lingering
-   * cardless voter session. VxMark and VxMarkScan need this; see the workaround
-   * note on the internal `endCardlessVoterSession`.
+   * Whether the app's auth allows cardless voter sessions (VxMark and
+   * VxMarkScan). Resetting those apps has to end any active voter session
+   * explicitly: `logOut` only ends the session belonging to a card, so a
+   * cardless voter session leaves the machine reporting a logged-in voter with
+   * no card inserted. Apps that don't allow such sessions can't make the call
+   * at all - their auth asserts on it.
    */
-  endsCardlessVoterSession?: boolean;
+  allowsCardlessVoterSessions?: boolean;
 }
 
 export interface InsertedSmartCardAuthHelpers {
@@ -73,7 +76,7 @@ export function buildInsertedSmartCardAuthHelpers(
   const {
     appName,
     pinDigitSelector = 'button',
-    endsCardlessVoterSession: endsSession = false,
+    allowsCardlessVoterSessions = false,
   } = config;
 
   async function enterPin(page: Page): Promise<void> {
@@ -109,22 +112,13 @@ export function buildInsertedSmartCardAuthHelpers(
     await postToApiOrThrow(page, 'logOut');
   }
 
-  /**
-   * Ends any active cardless voter session, bypassing the UI. Needed before
-   * unconfiguring: a session left active when the machine is unconfigured (and
-   * later reconfigured with a different election) references a now-missing
-   * ballot style and crashes the app on boot. Workaround for
-   * https://github.com/votingworks/vxsuite/issues/8553 — remove once fixed.
-   */
-  async function endCardlessVoterSession(page: Page): Promise<void> {
-    await postToApiOrThrow(page, 'endCardlessVoterSession');
-  }
-
   async function forceLogOutAndResetElectionDefinition(
     page: Page
   ): Promise<void> {
-    if (endsSession) {
-      await endCardlessVoterSession(page);
+    // Has to happen before waitForLoggedOut below: a cardless voter session
+    // outlives logOut, leaving the machine logged in as a voter with no card.
+    if (allowsCardlessVoterSessions) {
+      await postToApiOrThrow(page, 'endCardlessVoterSession');
     }
     await forceLogOut(page);
     await page.goto('/');

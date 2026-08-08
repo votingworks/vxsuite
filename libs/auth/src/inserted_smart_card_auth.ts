@@ -319,6 +319,13 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   endCardlessVoterSession(): void {
     assert(this.config.allowCardlessVoterSessions);
 
+    // Callers that end a session defensively - e.g. on unconfigure, where a
+    // dangling session is invisible to them because an election manager is
+    // logged in - shouldn't produce a logout event when there was no session.
+    if (!this.cardlessVoterUser) {
+      return;
+    }
+
     this.cardlessVoterUser = undefined;
 
     this.logger.log(LogEventId.AuthLogout, 'cardless_voter', {
