@@ -115,6 +115,32 @@ test('district filter', () => {
   );
 });
 
+test('polling place filter', () => {
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
+      filter={{ pollingPlaceIds: ['23-polling-place'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Polling Place: North Lincoln'
+  );
+});
+
+test('multiple polling place filter', () => {
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
+      filter={{ pollingPlaceIds: ['23-polling-place', 'central-scanning'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Polling Places: North Lincoln, Central Scanning'
+  );
+});
+
 test('party filter', () => {
   const electionTwoPartyPrimaryDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();

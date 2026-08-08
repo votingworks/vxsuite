@@ -9,6 +9,7 @@ import {
   ElectionDefinition,
   BallotStyleGroup,
   Party,
+  PollingPlace,
   Precinct,
   PrecinctId,
   getBallotStyle,
@@ -58,6 +59,17 @@ export const getDistrictById = createElectionMetadataLookupFunction(
       districtLookup[district.id] = district;
     }
     return districtLookup;
+  }
+);
+
+export const getPollingPlaceById = createElectionMetadataLookupFunction(
+  (election) => {
+    const { pollingPlaces } = election;
+    const pollingPlaceLookup: Record<string, PollingPlace> = {};
+    for (const pollingPlace of pollingPlaces) {
+      pollingPlaceLookup[pollingPlace.id] = pollingPlace;
+    }
+    return pollingPlaceLookup;
   }
 );
 

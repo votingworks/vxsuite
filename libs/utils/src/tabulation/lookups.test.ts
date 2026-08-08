@@ -8,6 +8,7 @@ import {
 import {
   getContestById,
   getPartyById,
+  getPollingPlaceById,
   getBallotStyleById,
   getParentBallotStyleById,
   getPrecinctById,
@@ -53,6 +54,19 @@ test('getPrecinctById', () => {
   expect(getPrecinctById(electionDefinition, 'precinct-1').name).toEqual(
     'Precinct 1'
   );
+});
+
+test('getPollingPlaceById', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  expect(
+    getPollingPlaceById(electionDefinition, 'precinct-1-polling-place').name
+  ).toEqual('Precinct 1');
+  expect(
+    getPollingPlaceById(electionDefinition, 'precinct-2-polling-place').name
+  ).toEqual('Precinct 2');
+  expect(() =>
+    getPollingPlaceById(electionDefinition, 'nonexistent-polling-place')
+  ).toThrowError();
 });
 
 test('getPartyById', () => {

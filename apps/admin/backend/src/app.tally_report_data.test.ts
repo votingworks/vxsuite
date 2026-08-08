@@ -1311,3 +1311,73 @@ test('combined ballot primary, crossover ballots write-ins excluded from partisa
   expect(repContest.ballots).toEqual(0);
   expect(repContest.tallies[repCandidate.id]).toBeUndefined();
 });
+
+test('primary, filtered by polling place', async () => {
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  // Precinct 1 and Precinct 4 are covered by different polling places and have
+  // different ballot styles, so they see different congressional contests.
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1-Ma',
+      batchId: 'precinct-1-batch',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-c1-w1-1',
+      pollingPlaceId: 'precinct-c1-w1-1-polling-place',
+      votingMethod: 'precinct',
+      votes: {},
+      card: { type: 'bmd' },
+      multiplier: 9,
+    },
+    {
+      ballotStyleGroupId: '3-Ma',
+      batchId: 'precinct-4-batch',
+      scannerId: 'scanner-2',
+      precinctId: 'precinct-c2',
+      pollingPlaceId: 'precinct-c2-polling-place',
+      votingMethod: 'precinct',
+      votes: {},
+      card: { type: 'bmd' },
+      multiplier: 4,
+    },
+  ];
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+    pollingPlaceId: 'precinct-c1-w1-1-polling-place',
+  });
+
+  const [report] = await apiClient.getResultsForTallyReports({
+    filter: { pollingPlaceIds: ['precinct-c1-w1-1-polling-place'] },
+    groupBy: {},
+  });
+  assert(report);
+  assert(report.hasPartySplits);
+
+  // only ballots scanned at that polling place are counted
+  expect(report.cardCountsByParty).toEqual({
+    '0': { bmd: [9], hmpb: [] },
+    '1': { bmd: [], hmpb: [] },
+  });
+
+  // contests are scoped to those that could appear at that polling place, so
+  // the congressional-2 and water-2 contests are excluded
+  expect([...report.contestIds].sort()).toEqual([
+    'congressional-1-fish',
+    'congressional-1-mammal',
+    'county-leader-fish',
+    'county-leader-mammal',
+    'water-1-fishing',
+  ]);
+});

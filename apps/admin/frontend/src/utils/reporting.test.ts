@@ -29,6 +29,7 @@ test('canonicalizeFilter', () => {
       partyIds: [],
       adjudicationFlags: [],
       districtIds: [],
+      pollingPlaceIds: [],
     })
   ).toEqual({});
   expect(
@@ -41,6 +42,7 @@ test('canonicalizeFilter', () => {
       partyIds: ['b', 'a'],
       adjudicationFlags: ['isBlank', 'hasOvervote'],
       districtIds: ['district-2', 'district-1'],
+      pollingPlaceIds: ['precinct-2-polling-place', 'precinct-1-polling-place'],
     })
   ).toEqual({
     precinctIds: ['a', 'b'],
@@ -51,6 +53,7 @@ test('canonicalizeFilter', () => {
     partyIds: ['a', 'b'],
     adjudicationFlags: ['hasOvervote', 'isBlank'],
     districtIds: ['district-1', 'district-2'],
+    pollingPlaceIds: ['precinct-1-polling-place', 'precinct-2-polling-place'],
   });
 });
 
@@ -292,6 +295,23 @@ test('generateTallyReportPdfFilename', () => {
       expectedFilename:
         'TEST-unofficial-district-1-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
     },
+    {
+      filter: {
+        pollingPlaceIds: ['precinct-1-polling-place'],
+      },
+      expectedFilename:
+        'unofficial-precinct-1-tally-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        pollingPlaceIds: [
+          'precinct-1-polling-place',
+          'precinct-2-polling-place',
+        ],
+      },
+      expectedFilename:
+        'unofficial-custom-tally-report__2023-12-09_15-59-32.pdf',
+    },
   ];
 
   for (const testCase of testCases) {
@@ -342,4 +362,5 @@ test('isFilterEmpty', () => {
   expect(isFilterEmpty({ batchIds: [] })).toEqual(false);
   expect(isFilterEmpty({ adjudicationFlags: [] })).toEqual(false);
   expect(isFilterEmpty({ districtIds: [] })).toEqual(false);
+  expect(isFilterEmpty({ pollingPlaceIds: [] })).toEqual(false);
 });
