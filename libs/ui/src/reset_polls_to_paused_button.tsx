@@ -1,8 +1,8 @@
 import { assert } from '@votingworks/basics';
 import React, { useState } from 'react';
-import { Button } from './button';
-import { Modal } from './modal';
-import { H1, P } from './typography';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { H1, P } from './typography.js';
 
 interface Props {
   resetPollsToPausedText: string;

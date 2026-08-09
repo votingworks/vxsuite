@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { exec } from '../utils/exec';
-import { getConnectedDeviceUris, LPINFO_ARGS } from './device_uri';
+import { exec } from '../utils/exec.js';
+import { getConnectedDeviceUris, LPINFO_ARGS } from './device_uri.js';
 
 vi.mock('../utils/exec');
 

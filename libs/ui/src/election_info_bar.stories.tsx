@@ -2,7 +2,7 @@ import { Meta } from '@storybook/react';
 import { safeParseElectionDefinition } from '@votingworks/types';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import { assertDefined } from '@votingworks/basics';
-import { ElectionInfoBar, ElectionInfoBarProps } from './election_info_bar';
+import { ElectionInfoBar, ElectionInfoBarProps } from './election_info_bar.js';
 
 const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
   electionTwoPartyPrimaryData

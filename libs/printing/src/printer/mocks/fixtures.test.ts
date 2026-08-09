@@ -1,9 +1,12 @@
 import { expect, test } from 'vitest';
-import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '..';
+import {
+  CITIZEN_THERMAL_PRINTER_CONFIG,
+  HP_LASER_PRINTER_CONFIG,
+} from '../index.js';
 import {
   MOCK_PRINTER_RICH_STATUS,
   getMockConnectedPrinterStatus,
-} from './fixtures';
+} from './fixtures.js';
 
 test('getMockConnectedPrinterStatus', () => {
   expect(getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)).toEqual({

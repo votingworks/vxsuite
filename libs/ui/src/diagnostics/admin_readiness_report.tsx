@@ -1,16 +1,16 @@
 import { ThemeProvider } from 'styled-components';
-import { PrinterSection, PrinterSectionProps } from './printer_section';
-import { PrintedReport } from '../reports/layout';
-import { makeTheme } from '../themes/make_theme';
-import { ReadinessReportHeader } from './report_header';
+import { PrinterSection, PrinterSectionProps } from './printer_section.js';
+import { PrintedReport } from '../reports/layout.js';
+import { makeTheme } from '../themes/make_theme.js';
+import { ReadinessReportHeader } from './report_header.js';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
-} from './configuration_section';
-import { ReportContents } from './components';
-import { BatterySection, BatterySectionProps } from './battery_section';
-import { StorageSection, StorageSectionProps } from './storage_section';
-import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
+} from './configuration_section.js';
+import { ReportContents } from './components.js';
+import { BatterySection, BatterySectionProps } from './battery_section.js';
+import { StorageSection, StorageSectionProps } from './storage_section.js';
+import { BallotStyleReadinessReport } from './ballot_style_readiness_report.js';
 
 type ReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &

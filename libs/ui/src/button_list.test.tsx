@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { Button } from './button';
-import { ButtonList } from './button_list';
+import { Button } from './button.js';
+import { ButtonList } from './button_list.js';
 
 test('Renders ButtonList with defaults', () => {
   const onPressFoo = vi.fn();

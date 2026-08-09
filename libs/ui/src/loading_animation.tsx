@@ -1,4 +1,5 @@
-import styled, { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
+import { styled } from './styled.js';
 
 const SvgContainer = styled.svg`
   fill: ${(p) => p.theme.colors.onBackground};

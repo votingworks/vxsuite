@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/react';
 import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
 import { safeParseElection } from '@votingworks/types';
-import { Seal, SealProps } from './seal';
+import { Seal, SealProps } from './seal.js';
 
 const electionGeneral = safeParseElection(electionGeneralData).unsafeUnwrap();
 

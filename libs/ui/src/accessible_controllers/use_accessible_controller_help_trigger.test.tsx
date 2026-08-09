@@ -1,7 +1,10 @@
 import { expect, test } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { simulateKeyPress, useAccessibleControllerHelpTrigger } from '.';
-import { KEYBINDINGS, Keybinding } from '../keybindings';
+import {
+  simulateKeyPress,
+  useAccessibleControllerHelpTrigger,
+} from './index.js';
+import { KEYBINDINGS, Keybinding } from '../keybindings.js';
 
 test('toggles "off" to "on" for single keypress', () => {
   const { result } = renderHook(useAccessibleControllerHelpTrigger);

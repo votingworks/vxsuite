@@ -11,6 +11,10 @@ export default defineConfig({
         branches: -104,
       },
       exclude: [
+        // Dev-only CLI entry points, compiled so the `scripts/` launchers can
+        // import them rather than transpiling sources at run time. They lived
+        // outside `src/` before, so they were never counted.
+        'src/scripts/**',
         'src/reports/index.ts',
         'src/diagnostics/test_utils.ts',
         '**/*.stories.ts',

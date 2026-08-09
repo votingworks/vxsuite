@@ -11,14 +11,14 @@ import {
   pollingPlaceTypeName,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   AllBallotStylesSection,
   ConfigurationSection,
   MarkThresholdsSection,
   PollingPlaceSection,
-} from './configuration_section';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
+} from './configuration_section.js';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
 
 test('no election', async () => {
   render(<ConfigurationSection />);

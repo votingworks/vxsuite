@@ -15,10 +15,10 @@ import {
   MOCK_PRINTER_OUTPUT_DIR,
   MockFilePrinter,
   getMockFilePrinterHandler,
-} from './file_printer';
-import { HP_LASER_PRINTER_CONFIG } from '../supported';
-import { PrintSides } from '../types';
-import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
+} from './file_printer.js';
+import { HP_LASER_PRINTER_CONFIG } from '../supported.js';
+import { PrintSides } from '../types.js';
+import { MOCK_PRINTER_RICH_STATUS } from './fixtures.js';
 
 beforeEach(() => {
   getMockFilePrinterHandler().cleanup();

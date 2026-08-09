@@ -1,5 +1,5 @@
 import { safeParseInt } from '@votingworks/types';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 // if we used a number input here, there is default browser behavior that
 // increases and decreases the value on scroll. instead of preventing this

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Keybinding } from '../keybindings';
+import { Keybinding } from '../keybindings.js';
 
 export interface UseAccessibleControllerHelpTriggerResult {
   shouldShowControllerSandbox: boolean;

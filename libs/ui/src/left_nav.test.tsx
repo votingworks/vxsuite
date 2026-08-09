@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Link, Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from './user_event.js';
 import {
   AppLogo,
   LeftNav,
@@ -9,8 +9,8 @@ import {
   NavLink,
   NavList,
   NavListItem,
-} from './left_nav';
-import { render, screen } from '../test/react_testing_library';
+} from './left_nav.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 test('LeftNav renders a list of nav items in a sidebar', () => {
   const history = createMemoryHistory();

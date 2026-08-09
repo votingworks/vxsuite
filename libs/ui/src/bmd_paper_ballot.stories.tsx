@@ -11,26 +11,26 @@ import {
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
-import styled from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { assert, find } from '@votingworks/basics';
 import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
+import { styled } from './styled.js';
 import {
   BmdPaperBallot as Component,
   BmdPaperBallotProps,
   MAX_BMD_PAPER_BALLOT_CONTESTS,
-} from './bmd_paper_ballot';
+} from './bmd_paper_ballot.js';
 import {
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from './hooks/ui_strings_api';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query';
-import { UiStringsContextProvider } from './ui_strings';
+} from './hooks/ui_strings_api.js';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
+import { UiStringsContextProvider } from './ui_strings/index.js';
 import {
   generateCandidateVotes,
   generateYesNoVote,
-} from './bmd_paper_ballot_test_utils';
-import { TouchscreenPalette } from './themes/make_theme';
+} from './bmd_paper_ballot_test_utils.js';
+import { TouchscreenPalette } from './themes/make_theme.js';
 
 const electionGeneral = safeParseElection(electionGeneralData).unsafeUnwrap();
 const ORIGINAL_CONTESTS = electionGeneral.contests;

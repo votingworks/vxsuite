@@ -3,7 +3,7 @@ import { Meta } from '@storybook/react';
 import {
   VoterContestSummary,
   VoterContestSummaryProps,
-} from './voter_contest_summary';
+} from './voter_contest_summary.js';
 
 const initialProps: VoterContestSummaryProps = {
   districtName: 'East Fullerton',

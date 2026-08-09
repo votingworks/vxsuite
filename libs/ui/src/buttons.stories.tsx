@@ -9,9 +9,9 @@ import {
   BUTTON_VARIANTS,
   Button,
   ButtonProps,
-} from './button';
-import { H1, H4, P } from './typography';
-import { Card } from './card';
+} from './button.js';
+import { H1, H4, P } from './typography.js';
+import { Card } from './card.js';
 
 const loremIpsum = new LoremIpsum({
   sentencesPerParagraph: { max: 3, min: 3 },

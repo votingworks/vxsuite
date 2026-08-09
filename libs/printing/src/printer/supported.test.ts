@@ -6,7 +6,7 @@ import {
   deriveM404nPpd,
   HP_LASER_PRINTER_CONFIG,
   M404N_PRINTER_CONFIG,
-} from './supported';
+} from './supported.js';
 
 // test also confirms that the configs.json file is valid
 test('referenced PPD files exist and are valid', async () => {

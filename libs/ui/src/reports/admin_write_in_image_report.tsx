@@ -5,22 +5,27 @@ import {
   ContestId,
   ElectionDefinition,
 } from '@votingworks/types';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import { styled } from '../styled.js';
 import {
   ContestHeading,
   ContestSection,
   WriteInGrid,
   WriteInImage,
   WriteInTextBox,
-} from './write_in_report_styles';
-import { LogoMark } from '../logo_mark';
-import { Font, P } from '../typography';
-import { PrintedReport, printedReportThemeFn } from './layout';
-import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
-import { prefixedTitle } from './utils';
-import { WriteInEntry } from './precinct_scanner_write_in_image_report';
-import { Icons } from '../icons';
+} from './write_in_report_styles.js';
+import { LogoMark } from '../logo_mark.js';
+import { Font, P } from '../typography.js';
+import { PrintedReport, printedReportThemeFn } from './layout.js';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportTitle,
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
+import { prefixedTitle } from './utils.js';
+import { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
+import { Icons } from '../icons.js';
 
 const WRITE_IN_REACT_KEY_MAX_LENGTH = 64;
 

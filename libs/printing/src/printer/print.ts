@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
-import { rootDebug } from '../utils/debug';
-import { PrintProps, PrintSides } from './types';
-import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
-import { exec } from '../utils/exec';
-import { M404N_INPUT_SLOT_OPTION } from './supported';
+import { rootDebug } from '../utils/debug.js';
+import { PrintProps, PrintSides } from './types.js';
+import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
+import { exec } from '../utils/exec.js';
+import { M404N_INPUT_SLOT_OPTION } from './supported.js';
 
 const debug = rootDebug.extend('status');
 

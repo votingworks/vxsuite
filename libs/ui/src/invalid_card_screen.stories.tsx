@@ -1,5 +1,5 @@
 import { Meta } from '@storybook/react';
-import { InvalidCardScreen, Props } from './invalid_card_screen';
+import { InvalidCardScreen, Props } from './invalid_card_screen.js';
 
 const args: Props = {
   reasonAndContext: {

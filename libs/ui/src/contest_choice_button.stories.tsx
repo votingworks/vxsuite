@@ -4,7 +4,7 @@ import { Meta } from '@storybook/react';
 import {
   ContestChoiceButton as Component,
   ContestChoiceButtonProps as Props,
-} from './contest_choice_button';
+} from './contest_choice_button.js';
 
 const initialProps: Props<string> = {
   onPress: () => undefined,

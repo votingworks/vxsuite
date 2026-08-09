@@ -7,10 +7,11 @@ import Select, {
   OptionProps,
   StylesConfig,
 } from 'react-select';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import React from 'react';
-import { Button, buttonStyles, StyledButtonProps } from './button';
-import { Icons } from './icons';
+import { styled } from './styled.js';
+import { Button, buttonStyles, StyledButtonProps } from './button.js';
+import { Icons } from './icons.js';
 
 // The react-select DropdownIndicator component toggles the menu from its own
 // mousedown/touchend handlers, so this has to be a plain button rather than our

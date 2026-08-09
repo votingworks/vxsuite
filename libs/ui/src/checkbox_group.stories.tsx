@@ -3,7 +3,7 @@ import { Meta } from '@storybook/react';
 import {
   CheckboxGroupProps,
   CheckboxGroup as Component,
-} from './checkbox_group';
+} from './checkbox_group.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/CheckboxGroup',

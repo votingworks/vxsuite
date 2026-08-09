@@ -1,11 +1,11 @@
-import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { DiskSpaceSummary } from '@votingworks/utils';
+import { userEvent } from './user_event.js';
 
-import { screen, within } from '../test/react_testing_library';
-import { newTestContext } from '../test/test_context';
-import { LowDiskSpaceWarning } from './low_disk_space_warning';
-import { DISK_SPACE_POLLING_INTERVAL_MS } from './system_call_api';
+import { screen, within } from '../test/react_testing_library.js';
+import { newTestContext } from '../test/test_context.js';
+import { LowDiskSpaceWarning } from './low_disk_space_warning.js';
+import { DISK_SPACE_POLLING_INTERVAL_MS } from './system_call_api.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 

@@ -1,9 +1,9 @@
 /* istanbul ignore file */
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import type { CpuMetrics } from '@votingworks/backend';
-import { Sparkline } from './sparkline';
+import { styled } from './styled.js';
+import { Sparkline } from './sparkline.js';
 
 // Landscape mode - horizontal top bar (single row)
 const TopBar = styled.div<{ portrait?: boolean }>`

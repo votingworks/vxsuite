@@ -1,12 +1,12 @@
 import React from 'react';
 import { SizeMode, TouchSizeMode } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
-import { SettingsPane } from './settings_pane';
-import { RadioGroup } from '../radio_group';
-import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
-import { ThemeLabel } from './theme_label';
-import { useScreenInfo } from '../hooks/use_screen_info';
-import { appStrings } from '../ui_strings';
+import { SettingsPane } from './settings_pane.js';
+import { RadioGroup } from '../radio_group.js';
+import { VoterSettingsManagerContext } from '../voter_settings_manager_context.js';
+import { ThemeLabel } from './theme_label.js';
+import { useScreenInfo } from '../hooks/use_screen_info.js';
+import { appStrings } from '../ui_strings/index.js';
 
 export interface SizeSettingsProps {
   /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */

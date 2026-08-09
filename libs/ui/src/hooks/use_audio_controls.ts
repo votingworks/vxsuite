@@ -1,6 +1,6 @@
 import { AudioControls } from '@votingworks/types';
-import { useAudioContext } from '../ui_strings/audio_context';
-import { useUiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader';
+import { useAudioContext } from '../ui_strings/audio_context.js';
+import { useUiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader.js';
 
 function noOp() {}
 

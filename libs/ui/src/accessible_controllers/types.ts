@@ -1,4 +1,4 @@
-import { Keybinding } from '../keybindings';
+import { Keybinding } from '../keybindings.js';
 
 export const MARK_SCAN_CONTROLLER_KEYBINDINGS = [
   Keybinding.PLAYBACK_RATE_DOWN,

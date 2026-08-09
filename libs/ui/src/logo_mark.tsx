@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 const LogoMarkStyled = styled.svg`
   float: right;

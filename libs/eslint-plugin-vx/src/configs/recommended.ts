@@ -201,6 +201,23 @@ export = {
       },
     },
     {
+      // vitest setup files run before the test file, so anything they import at
+      // module scope is instantiated before any `vi.mock` is registered. For an
+      // ESM workspace package that means its dependency graph is loaded inside
+      // vitest's module runner too early, and those modules keep unmocked
+      // bindings for the rest of the run — silently, in every test file.
+      files: [
+        '**/setupTests.ts',
+        '**/setupTests.tsx',
+        '**/test/setup.ts',
+        '**/test/setup_custom_matchers.ts',
+        '**/test/set_env_vars.ts',
+      ],
+      rules: {
+        'vx/no-esm-workspace-import-in-test-setup': 'error',
+      },
+    },
+    {
       files: ['**/*.stories.ts', '**/*.stories.tsx'],
       rules: {
         // Default exports are required in the Common Story Format (CSF) used by storybook.js

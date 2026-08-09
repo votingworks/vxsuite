@@ -25,7 +25,7 @@ import {
   filterVotesForContests,
   BackendLanguageContextProvider,
 } from '@votingworks/ui';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
+import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium.js';
 
 /**
  * Represents a single page of a summary ballot layout.

@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React, { act } from 'react';
-import { ReadOnIdle } from './read_on_idle';
-import { render, screen } from '../../test/react_testing_library';
-import { UiStringsAudioContext } from './audio_context';
-import { UiStringScreenReaderContext } from './ui_string_screen_reader';
+import { ReadOnIdle } from './read_on_idle.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { UiStringsAudioContext } from './audio_context.js';
+import { UiStringScreenReaderContext } from './ui_string_screen_reader.js';
 import {
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from '../hooks/ui_strings_api';
-import { DEFAULT_AUDIO_VOLUME } from './audio_volume';
-import { PlaybackRate } from './audio_playback_rate';
-import { newTestContext } from '../../test/test_context';
+} from '../hooks/ui_strings_api.js';
+import { DEFAULT_AUDIO_VOLUME } from './audio_volume.js';
+import { PlaybackRate } from './audio_playback_rate.js';
+import { newTestContext } from '../../test/test_context.js';
 
 const DELAY_MS = 5_000;
 

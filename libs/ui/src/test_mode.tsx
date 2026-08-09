@@ -1,13 +1,14 @@
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import { isTouchSizeMode } from '@votingworks/types';
+import { styled } from './styled.js';
 import {
   DesktopPalette,
   makeTheme,
   TouchscreenPalette,
-} from './themes/make_theme';
-import { Icons } from './icons';
-import { TextOnly } from './ui_strings';
-import { H3 } from './typography';
+} from './themes/make_theme.js';
+import { Icons } from './icons.js';
+import { TextOnly } from './ui_strings/index.js';
+import { H3 } from './typography.js';
 
 const BannerStrip = styled.div`
   display: flex;

@@ -12,9 +12,9 @@ import {
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';
 import { format, getGroupedBallotStyles } from '@votingworks/utils';
-import { Caption, H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { Table } from '../table';
+import { Caption, H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
+import { Table } from '../table.js';
 
 function truncate(num: number, decimals: number): number {
   return Math.trunc(num * 10 ** decimals) / 10 ** decimals;

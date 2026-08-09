@@ -14,7 +14,15 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
-vi.mock('node:fs', () => ({
+// Only `readFileSync` is stubbed, and it defaults to the real implementation:
+// modules that load later in this file's lifetime — `@votingworks/printing`
+// reads its printer configs when it is imported — must still see working file
+// I/O. Individual tests override the return value.
+const { readFileSync: actualReadFileSync } =
+  await vi.importActual<typeof import('node:fs')>('node:fs');
+
+vi.mock('node:fs', async (importActual) => ({
+  ...(await importActual<typeof import('node:fs')>()),
   readFileSync: vi.fn(),
 }));
 
@@ -25,6 +33,7 @@ const originalNodeEnv = process.env.NODE_ENV;
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
   vi.mocked(fs.readFileSync).mockReset();
+  vi.mocked(fs.readFileSync).mockImplementation(actualReadFileSync);
   (process.env.VX_CONFIG_ROOT as string) = TEST_CONFIG_ROOT;
   // Default tests to the production code path (where the file gate applies).
   (process.env.NODE_ENV as string) = 'production';
@@ -32,6 +41,7 @@ beforeEach(() => {
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
+  vi.mocked(fs.readFileSync).mockImplementation(actualReadFileSync);
   if (originalConfigRoot === undefined) {
     delete (process.env as { VX_CONFIG_ROOT?: string }).VX_CONFIG_ROOT;
   } else {
