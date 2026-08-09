@@ -1,6 +1,5 @@
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
-import { createInterface } from 'node:readline';
 import {
   Result,
   assert,
@@ -12,7 +11,7 @@ import {
 } from '@votingworks/basics';
 import { ImageData } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
-import { SheetOf, mapSheet } from '@votingworks/types';
+import { SheetOf } from '@votingworks/types';
 import makeDebug from 'debug';
 
 const debug = makeDebug('pdi-scanner');
@@ -26,6 +25,48 @@ const PDICTL_PATH = path.join(
  * The width of the image produced by the scanner.
  */
 export const SCAN_IMAGE_WIDTH = 1728;
+
+/**
+ * `pdictl` frames its stdout messages as TLV: a 1-byte frame type, a 4-byte
+ * little-endian payload length, and the payload. These constants must stay in
+ * sync with `main.rs`.
+ */
+const FRAME_TYPE_LENGTH = 1;
+
+/**
+ * Byte length of a little-endian `u32` in the framing layout.
+ */
+const UINT32_LENGTH = Uint32Array.BYTES_PER_ELEMENT;
+
+const FRAME_HEADER_LENGTH = FRAME_TYPE_LENGTH + UINT32_LENGTH;
+
+/**
+ * Byte length of the per-image prefix in a scanComplete payload: a `u32`
+ * width followed by a `u32` height.
+ */
+const IMAGE_DIMENSIONS_LENGTH = 2 * UINT32_LENGTH;
+
+/**
+ * TLV frame type for a JSON-encoded response or event (everything except scan
+ * results).
+ */
+const FRAME_TYPE_JSON = 1;
+
+/**
+ * TLV frame type for a completed scan. The payload contains, for each side
+ * (top then bottom): a 4-byte little-endian width, a 4-byte little-endian
+ * height, and `width * height` grayscale pixel bytes. Sending image data as
+ * raw bytes rather than JSON avoids base64-encoding multi-megabyte scans and
+ * parsing them back out of a giant JSON document.
+ */
+const FRAME_TYPE_SCAN_COMPLETE = 2;
+
+/**
+ * A frame payload larger than this cannot be legitimate (a duplex scan of the
+ * longest supported ballot is ~8MB), so it indicates a corrupt or desynced
+ * stream. Failing fast beats buffering garbage indefinitely.
+ */
+const MAX_FRAME_PAYLOAD_LENGTH = 64 * 1024 * 1024;
 
 /**
  * The status of the PDI scanner.
@@ -180,12 +221,13 @@ type PdictlResponse =
 
 /**
  * Internal type to represent the JSON messages received from `pdictl` as
- * unsolicited events (i.e. not in response to a command).
+ * unsolicited events (i.e. not in response to a command). Completed scans are
+ * not JSON messages — they arrive in their own binary frame (see
+ * {@link FRAME_TYPE_SCAN_COMPLETE}).
  */
 export type PdictlEvent =
   | ({ event: 'error' } & ScannerError)
   | { event: 'scanStart' }
-  | { event: 'scanComplete'; imageData: [string, string] }
   | { event: 'coverOpen' }
   | { event: 'coverClosed' }
   | { event: 'ejectPaused' }
@@ -207,16 +249,40 @@ function isResponse(message: PdictlMessage): message is PdictlResponse {
   return 'response' in message;
 }
 
-function loggableMessage(message: PdictlMessage) {
-  if (isEvent(message) && message.event === 'scanComplete') {
+/**
+ * Parses the payload of a {@link FRAME_TYPE_SCAN_COMPLETE} frame into the two
+ * scanned page images. The image data is a zero-copy view over the payload's
+ * memory.
+ */
+function parseScanCompletePayload(payload: Buffer): SheetOf<ImageData> {
+  let offset = 0;
+  function readImage() {
+    const width = payload.readUInt32LE(offset);
+    const height = payload.readUInt32LE(offset + UINT32_LENGTH);
+    const byteLength = width * height;
+    const data = new Uint8ClampedArray(
+      payload.buffer,
+      payload.byteOffset + offset + IMAGE_DIMENSIONS_LENGTH,
+      byteLength
+    );
+    offset += IMAGE_DIMENSIONS_LENGTH + byteLength;
     return {
-      ...message,
-      imageData: message.imageData.map(
-        (imageData) => `${imageData.length} bytes`
-      ),
+      width,
+      height,
+      data,
+
+      // Define `toJSON` such that `JSON.stringify` does not try to
+      // serialize all the bytes in `data` as an array of numbers.
+      // eslint-disable-next-line vx/gts-identifiers
+      toJSON: () => `[ImageData ${width}x${height}]`,
     };
   }
-  return message;
+  const images: SheetOf<ImageData> = [readImage(), readImage()];
+  assert(
+    offset === payload.length,
+    `scanComplete payload length mismatch: expected ${offset}, got ${payload.length}`
+  );
+  return images;
 }
 
 /**
@@ -249,12 +315,8 @@ export function createPdiScannerClient() {
   // time, so we track the commands we sent in a queue.
   const pendingResponseQueue = deferredQueue<PdictlResponse>();
 
-  // Listen for output from pdictl. We may receive either a response to a
-  // command or an unsolicited event.
-  const rl = createInterface(pdictl.stdout);
-  rl.on('line', (line) => {
-    const message = JSON.parse(line) as PdictlMessage;
-    debug('received: %o', loggableMessage(message));
+  function handleJsonMessage(message: PdictlMessage): void {
+    debug('received: %o', message);
 
     if (isResponse(message)) {
       pendingResponseQueue.resolve(message);
@@ -263,38 +325,7 @@ export function createPdiScannerClient() {
 
     assert(isEvent(message));
     switch (message.event) {
-      case 'scanStart': {
-        emit(message);
-        break;
-      }
-      case 'scanComplete': {
-        emit({
-          event: 'scanComplete',
-          images: mapSheet(message.imageData, (imageData) => {
-            const buffer = Buffer.from(imageData, 'base64');
-            // Create a Uint8ClampedArray view over the same memory
-            // instead of copying with Uint8ClampedArray.from(buffer)
-            const data = new Uint8ClampedArray(
-              buffer.buffer,
-              buffer.byteOffset,
-              buffer.byteLength
-            );
-            const width = SCAN_IMAGE_WIDTH;
-            const height = data.length / SCAN_IMAGE_WIDTH;
-            return {
-              width,
-              height,
-              data,
-
-              // Define `toJSON` such that `JSON.stringify` does not try to
-              // serialize all the bytes in `data` as an array of numbers.
-              // eslint-disable-next-line vx/gts-identifiers
-              toJSON: () => `[ImageData ${width}x${height}]`,
-            };
-          }),
-        });
-        break;
-      }
+      case 'scanStart':
       case 'error':
       case 'coverOpen':
       case 'coverClosed':
@@ -310,6 +341,98 @@ export function createPdiScannerClient() {
       default: {
         /* istanbul ignore next */
         throwIllegalValue(message, 'event');
+      }
+    }
+  }
+
+  function handleFrame(frameType: number, payload: Buffer): void {
+    switch (frameType) {
+      case FRAME_TYPE_JSON: {
+        handleJsonMessage(JSON.parse(payload.toString('utf-8')));
+        break;
+      }
+      case FRAME_TYPE_SCAN_COMPLETE: {
+        debug('received: scanComplete (%d payload bytes)', payload.length);
+        emit({
+          event: 'scanComplete',
+          images: parseScanCompletePayload(payload),
+        });
+        break;
+      }
+      default: {
+        throw new Error(`unknown frame type: ${frameType}`);
+      }
+    }
+  }
+
+  // Listen for output from pdictl, reassembling TLV frames from the stream.
+  // We may receive either a response to a command or an unsolicited event.
+  const header = Buffer.alloc(FRAME_HEADER_LENGTH);
+  let headerFilled = 0;
+  let payload: Buffer | undefined;
+  let payloadFilled = 0;
+  let streamIsCorrupt = false;
+
+  // A malformed frame means we've lost track of where frames begin, so no
+  // further output can be trusted. Report the error and ignore the rest of
+  // the stream; the consumer is expected to treat this as unrecoverable.
+  function handleCorruptStream(error: unknown): void {
+    streamIsCorrupt = true;
+    debug('corrupt pdictl output stream: %o', error);
+    emit({
+      event: 'error',
+      code: 'other',
+      message: `corrupt pdictl output stream: ${error}`,
+    });
+  }
+
+  pdictl.stdout.on('data', (chunk: Buffer) => {
+    if (streamIsCorrupt) return;
+    let offset = 0;
+    for (;;) {
+      if (payload === undefined) {
+        const bytesCopied = chunk.copy(
+          header,
+          headerFilled,
+          offset,
+          Math.min(chunk.length, offset + (FRAME_HEADER_LENGTH - headerFilled))
+        );
+        headerFilled += bytesCopied;
+        offset += bytesCopied;
+        if (headerFilled < FRAME_HEADER_LENGTH) {
+          return;
+        }
+        const payloadLength = header.readUInt32LE(FRAME_TYPE_LENGTH);
+        if (payloadLength > MAX_FRAME_PAYLOAD_LENGTH) {
+          handleCorruptStream(
+            new Error(`frame payload too large: ${payloadLength} bytes`)
+          );
+          return;
+        }
+        // Since the payload length is known upfront, each payload byte is
+        // copied exactly once from the incoming chunks into its final buffer.
+        payload = Buffer.allocUnsafe(payloadLength);
+        payloadFilled = 0;
+      }
+      const bytesCopied = chunk.copy(
+        payload,
+        payloadFilled,
+        offset,
+        Math.min(chunk.length, offset + (payload.length - payloadFilled))
+      );
+      payloadFilled += bytesCopied;
+      offset += bytesCopied;
+      if (payloadFilled < payload.length) {
+        return;
+      }
+      const framePayload = payload;
+      headerFilled = 0;
+      payload = undefined;
+      try {
+        handleFrame(header.readUInt8(0), framePayload);
+      } catch (error) {
+        handleCorruptStream(error);
+        return;
       }
     }
   });

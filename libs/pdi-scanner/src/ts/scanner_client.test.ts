@@ -10,7 +10,6 @@ import { Buffer } from 'node:buffer';
 import {
   createPdiScannerClient,
   DoubleFeedDetectionCalibrationConfig,
-  PdictlEvent,
   SCAN_IMAGE_WIDTH,
   ScannerEvent,
   ScannerStatus,
@@ -24,9 +23,44 @@ beforeEach(() => {
   vi.mocked(spawn).mockImplementation(() => mockChildProcess);
 });
 
+// The frame layout below intentionally re-states the protocol from main.rs
+// rather than reusing scanner_client's internals, so an encode/decode bug
+// can't cancel itself out.
+const FRAME_TYPE_JSON = 1;
+const FRAME_TYPE_SCAN_COMPLETE = 2;
+const FRAME_TYPE_LENGTH = 1;
+const UINT32_LENGTH = Uint32Array.BYTES_PER_ELEMENT;
+const FRAME_HEADER_LENGTH = FRAME_TYPE_LENGTH + UINT32_LENGTH;
+const IMAGE_DIMENSIONS_LENGTH = 2 * UINT32_LENGTH;
+
+function frame(frameType: number, payload: Buffer): Buffer {
+  const header = Buffer.alloc(FRAME_HEADER_LENGTH);
+  header.writeUInt8(frameType, 0);
+  header.writeUInt32LE(payload.length, FRAME_TYPE_LENGTH);
+  return Buffer.concat([header, payload]);
+}
+
+function jsonFrame(message: object): Buffer {
+  return frame(FRAME_TYPE_JSON, Buffer.from(JSON.stringify(message), 'utf-8'));
+}
+
+function scanCompleteFrame(images: Array<{ width: number; data: Buffer }>) {
+  return frame(
+    FRAME_TYPE_SCAN_COMPLETE,
+    Buffer.concat(
+      images.flatMap(({ width, data }) => {
+        const dimensions = Buffer.alloc(IMAGE_DIMENSIONS_LENGTH);
+        dimensions.writeUInt32LE(width, 0);
+        dimensions.writeUInt32LE(data.length / width, UINT32_LENGTH);
+        return [dimensions, data];
+      })
+    )
+  );
+}
+
 function mockStdoutResponse(response: object): void {
   setTimeout(() => {
-    mockChildProcess.stdout.emit('data', `${JSON.stringify(response)}\n`);
+    mockChildProcess.stdout.emit('data', jsonFrame(response));
   });
 }
 
@@ -282,7 +316,7 @@ test('listeners can add new listeners that dont receive the same event', async (
   expect(listener2).not.toHaveBeenCalled();
 });
 
-test('converts image data from scanComplete event', async () => {
+test('converts image data from scanComplete frame', async () => {
   const client = createPdiScannerClient();
   const listener = vi.fn();
   client.addListener(listener);
@@ -293,14 +327,15 @@ test('converts image data from scanComplete event', async () => {
       .take(SCAN_IMAGE_WIDTH * imageHeight)
       .toArray()
   );
-  const scanCompleteEvent: PdictlEvent = {
-    event: 'scanComplete',
-    imageData: [
-      rawImageGrayscalePixels.toString('base64'),
-      rawImageGrayscalePixels.toString('base64'),
-    ],
-  };
-  mockStdoutResponse(scanCompleteEvent);
+  setTimeout(() => {
+    mockChildProcess.stdout.emit(
+      'data',
+      scanCompleteFrame([
+        { width: SCAN_IMAGE_WIDTH, data: rawImageGrayscalePixels },
+        { width: SCAN_IMAGE_WIDTH, data: rawImageGrayscalePixels },
+      ])
+    );
+  });
   await backendWaitFor(() => {
     expect(listener).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -318,6 +353,145 @@ test('converts image data from scanComplete event', async () => {
       `"[ImageData ${SCAN_IMAGE_WIDTH}x${imageHeight}]"`
     );
     expect(back.data).toEqual(front.data);
+  });
+});
+
+test('reassembles frames split across many chunks', async () => {
+  const client = createPdiScannerClient();
+  const listener = vi.fn();
+  client.addListener(listener);
+
+  const imageHeight = 2;
+  const topPixels = Buffer.alloc(SCAN_IMAGE_WIDTH * imageHeight, 7);
+  const bottomPixels = Buffer.alloc(SCAN_IMAGE_WIDTH * imageHeight, 9);
+  const stream = Buffer.concat([
+    jsonFrame({ event: 'scanStart' }),
+    scanCompleteFrame([
+      { width: SCAN_IMAGE_WIDTH, data: topPixels },
+      { width: SCAN_IMAGE_WIDTH, data: bottomPixels },
+    ]),
+    jsonFrame({ event: 'coverOpen' }),
+  ]);
+
+  // Deliver the frames in chunks that split both headers and payloads,
+  // including a chunk containing the end of one frame and the start of the
+  // next.
+  setTimeout(() => {
+    const chunkSize = 1000;
+    for (let offset = 0; offset < stream.length; offset += chunkSize) {
+      mockChildProcess.stdout.emit(
+        'data',
+        stream.subarray(offset, offset + chunkSize)
+      );
+    }
+  });
+
+  await backendWaitFor(() => {
+    expect(listener).toHaveBeenCalledTimes(3);
+  });
+  expect(listener).toHaveBeenNthCalledWith(1, { event: 'scanStart' });
+  const [scanCompleteEvent] = listener.mock.calls[1] as [
+    ScannerEvent & { event: 'scanComplete' },
+  ];
+  const [top, bottom] = scanCompleteEvent.images;
+  expect([top.width, top.height]).toEqual([SCAN_IMAGE_WIDTH, imageHeight]);
+  expect(top.data).toEqual(Uint8ClampedArray.from(topPixels));
+  expect([bottom.width, bottom.height]).toEqual([
+    SCAN_IMAGE_WIDTH,
+    imageHeight,
+  ]);
+  expect(bottom.data).toEqual(Uint8ClampedArray.from(bottomPixels));
+  expect(listener).toHaveBeenNthCalledWith(3, { event: 'coverOpen' });
+});
+
+test('emits an error and ignores further output on an unknown frame type', async () => {
+  const client = createPdiScannerClient();
+  const listener = vi.fn();
+  client.addListener(listener);
+
+  setTimeout(() => {
+    mockChildProcess.stdout.emit('data', frame(255, Buffer.from('garbage')));
+  });
+
+  await backendWaitFor(() => {
+    expect(listener).toHaveBeenCalledWith({
+      event: 'error',
+      code: 'other',
+      message: 'corrupt pdictl output stream: Error: unknown frame type: 255',
+    });
+  });
+
+  // Frames received after the corrupt frame are not processed
+  mockChildProcess.stdout.emit('data', jsonFrame({ event: 'scanStart' }));
+  await sleep(0);
+  expect(listener).toHaveBeenCalledTimes(1);
+});
+
+test('emits an error on a JSON frame that is neither a response nor an event', async () => {
+  const client = createPdiScannerClient();
+  const listener = vi.fn();
+  client.addListener(listener);
+
+  setTimeout(() => {
+    mockChildProcess.stdout.emit('data', jsonFrame({ unexpected: true }));
+  });
+
+  await backendWaitFor(() => {
+    expect(listener).toHaveBeenCalledWith({
+      event: 'error',
+      code: 'other',
+      message: expect.stringContaining('corrupt pdictl output stream'),
+    });
+  });
+});
+
+test('emits an error on an implausibly large frame length', async () => {
+  const client = createPdiScannerClient();
+  const listener = vi.fn();
+  client.addListener(listener);
+
+  setTimeout(() => {
+    const header = Buffer.alloc(FRAME_HEADER_LENGTH);
+    header.writeUInt8(FRAME_TYPE_JSON, 0);
+    header.writeUInt32LE(0xffff_ffff, FRAME_TYPE_LENGTH);
+    mockChildProcess.stdout.emit('data', header);
+  });
+
+  await backendWaitFor(() => {
+    expect(listener).toHaveBeenCalledWith({
+      event: 'error',
+      code: 'other',
+      message:
+        'corrupt pdictl output stream: Error: frame payload too large: 4294967295 bytes',
+    });
+  });
+});
+
+test('emits an error on a scanComplete payload length mismatch', async () => {
+  const client = createPdiScannerClient();
+  const listener = vi.fn();
+  client.addListener(listener);
+
+  setTimeout(() => {
+    const validPayload = Buffer.concat([
+      scanCompleteFrame([
+        { width: 2, data: Buffer.alloc(4) },
+        { width: 2, data: Buffer.alloc(4) },
+      ]).subarray(5),
+      Buffer.from([0]), // extra trailing byte
+    ]);
+    mockChildProcess.stdout.emit(
+      'data',
+      frame(FRAME_TYPE_SCAN_COMPLETE, validPayload)
+    );
+  });
+
+  await backendWaitFor(() => {
+    expect(listener).toHaveBeenCalledWith({
+      event: 'error',
+      code: 'other',
+      message: expect.stringContaining('scanComplete payload length mismatch'),
+    });
   });
 });
 
