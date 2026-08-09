@@ -158,7 +158,7 @@ export function buildApi({
     async configureFromElectionPackageOnUsbDrive(): Promise<
       Result<void, ElectionPackageConfigurationError>
     > {
-      assert(!store.getElectionRecord(), 'Already configured');
+      assert(!store.hasElection(), 'Already configured');
 
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace.store)
