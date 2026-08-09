@@ -6,7 +6,7 @@ import {
   DistrictId,
   Election,
 } from '@votingworks/types';
-import { AllBubbleBallotConfig } from './config';
+import { AllBubbleBallotConfig } from './config.js';
 
 export function contestId(page: number): string {
   return `test-contest-page-${page}`;

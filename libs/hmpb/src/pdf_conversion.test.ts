@@ -15,13 +15,16 @@ import {
   StandardFonts,
 } from 'pdf-lib';
 import { assert, assertDefined } from '@votingworks/basics';
-import { convertPdfToGrayscale, convertPdfToSpotColor } from './pdf_conversion';
-import { fixturesDir } from './ballot_fixtures';
-import { Colors } from './ballot_components';
+import {
+  convertPdfToGrayscale,
+  convertPdfToSpotColor,
+} from './pdf_conversion.js';
+import { fixturesDir } from './ballot_fixtures.js';
+import { Colors } from './ballot_components.js';
 import {
   ColorTints,
   NhStateSpotColors,
-} from './ballot_templates/nh_state_primary_ballot_template';
+} from './ballot_templates/nh_state_primary_ballot_template.js';
 
 const PMS_293 = NhStateSpotColors.BLUE;
 

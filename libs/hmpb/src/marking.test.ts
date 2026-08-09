@@ -9,13 +9,13 @@ import {
   toImageBuffer,
 } from '@votingworks/image-utils';
 
-import { generateMarkOverlay } from './marking';
+import { generateMarkOverlay } from './marking.js';
 import {
   miGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   nhStateGeneralElectionFixtures,
   vxGeneralElectionFixtures,
-} from './ballot_fixtures';
+} from './ballot_fixtures.js';
 
 test('places marks consistently', async () => {
   const fixture = find(

@@ -19,6 +19,9 @@ pnpm build
 
 ## CLI
 
+The commands below run this package's compiled output, so run `pnpm build` first
+— and again after changing anything under `src/`.
+
 ### bin/interpret
 
 Currently, the CLI only works for HMPB.
@@ -229,6 +232,7 @@ algorithm performs template matching against
    searches within a small radius in all directions.
 
 2. **Match Score Computation**: For each position in the search area:
+
    - Crop the scanned image to the bubble template size
    - Apply binary thresholding using the ballot's global threshold
    - Compute a difference image between the thresholded crop and the template

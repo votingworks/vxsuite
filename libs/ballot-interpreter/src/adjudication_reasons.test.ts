@@ -16,7 +16,7 @@ import {
 } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
-import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
+import { getAllPossibleAdjudicationReasons } from './adjudication_reasons.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

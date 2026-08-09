@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { BallotType, PageInterpretation, SheetOf } from '@votingworks/types';
-import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation';
+import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
 const BLANK_PAGE: PageInterpretation = { type: 'BlankPage' };
 

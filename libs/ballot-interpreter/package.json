@@ -4,8 +4,14 @@
   "private": true,
   "description": "Interpreter for scanned ballot images",
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
-  "types": "build/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build",
     "index.js",
@@ -18,7 +24,7 @@
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
-    "build:rust-addon": "napi build --platform --release",
+    "build:rust-addon": "napi build --platform --release --esm",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",

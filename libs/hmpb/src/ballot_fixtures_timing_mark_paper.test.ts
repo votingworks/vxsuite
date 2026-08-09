@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, test, vi } from 'vitest';
-import { expectToMatchSavedPdf } from '../test/helpers';
-import { timingMarkPaperFixtures } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { SingletonRenderer } from './renderer';
+import { expectToMatchSavedPdf } from '../test/helpers.js';
+import { timingMarkPaperFixtures } from './ballot_fixtures.js';
+import { createPlaywrightRenderer } from './playwright_renderer.js';
+import { SingletonRenderer } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 120_000,
