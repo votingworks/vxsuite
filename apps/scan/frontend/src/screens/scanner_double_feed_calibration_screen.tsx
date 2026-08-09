@@ -15,7 +15,6 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import { endDoubleFeedCalibration, getScannerStatus } from '../api.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 
 function CalibrationScreen({ children }: { children: React.ReactNode }) {
   return (
@@ -33,9 +32,7 @@ function CalibrationScreen({ children }: { children: React.ReactNode }) {
 }
 
 export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
-  const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const endDoubleFeedCalibrationMutation =
     endDoubleFeedCalibration.useMutation();
 

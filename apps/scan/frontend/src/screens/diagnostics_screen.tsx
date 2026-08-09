@@ -25,7 +25,6 @@ import {
 import { PrintTestPageButton } from '../components/printer_management/print_test_page_button.js';
 import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button.js';
 import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen.js';
 
 export function DiagnosticsScreen({
@@ -46,9 +45,7 @@ export function DiagnosticsScreen({
   const mostRecentUpsDiagnosticQuery = getMostRecentUpsDiagnostic.useQuery();
   const logUpsDiagnosticOutcomeMutation = logUpsDiagnosticOutcome.useMutation();
 
-  const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const beginScannerDiagnosticMutation = beginScannerDiagnostic.useMutation();
   const endScannerDiagnosticMutation = endScannerDiagnostic.useMutation();
   const mostRecentScannerDiagnosticQuery =

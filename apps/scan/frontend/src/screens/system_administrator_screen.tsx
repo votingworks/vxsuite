@@ -19,7 +19,6 @@ import {
   beginImageSensorCalibration,
 } from '../api.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 
 interface SystemAdministratorScreenProps {
   electionDefinition?: ElectionDefinition;
@@ -38,9 +37,7 @@ export function SystemAdministratorScreen({
   const resetPollsToPausedMutation = resetPollsToPaused.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
-  const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const beginImageSensorCalibrationMutation =
     beginImageSensorCalibration.useMutation();
 

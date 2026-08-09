@@ -3,7 +3,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener, useScreenReaderActive } from '@votingworks/ui';
 import { useEffect, useRef, useState } from 'react';
 import { getScannerStatus, readyForNextBallot, playSound } from '../api.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 import { InsertBallotScreen } from './insert_ballot_screen.js';
 import { ScanBusyScreen } from './scan_busy_screen.js';
 import { ScanErrorScreen } from './scan_error_screen.js';
@@ -33,16 +32,7 @@ export function VoterScreen({
   isTestMode,
   isSoundMuted,
 }: VoterScreenProps): JSX.Element | null {
-  const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: (status) =>
-      // In order to make the perceived speed of scanning as fast as possible,
-      // we poll more frequently when a scan is in progress so we can find out
-      // promptly when it's done. Experimentally, 100ms hit a sweet spot between
-      // finding out quickly and adding too much overhead.
-      status?.state === 'scanning'
-        ? 100
-        : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const playSoundMutate = playSound.useMutation().mutate;
 
   useScanFeedbackAudio({

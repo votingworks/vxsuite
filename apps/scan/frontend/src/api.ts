@@ -409,6 +409,13 @@ export const getScannerStatus = {
   queryKey(): QueryKey {
     return ['getScannerStatus'];
   },
+  /**
+   * AppRoot (which is always mounted) is the only component that should pass
+   * a `refetchInterval`. react-query runs a separate refetch timer for every
+   * observer that sets one, so a second polling component would double the
+   * request rate to the backend. Everything else should subscribe with
+   * `useQuery()` and receive updates through the shared query cache.
+   */
   useQuery(options?: UseQueryOptions<PrecinctScannerStatus>) {
     const apiClient = useApiClient();
     return useQuery(
