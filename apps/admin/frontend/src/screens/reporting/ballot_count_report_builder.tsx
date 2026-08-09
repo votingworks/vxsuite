@@ -54,6 +54,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     'ballot-style',
     'batch',
     'precinct',
+    'polling-place',
     'scanner',
     'voting-method',
     'adjudication-status',
@@ -67,9 +68,6 @@ export function BallotCountReportBuilder(): JSX.Element {
     'groupByScanner',
     'groupByVotingMethod',
   ];
-  if (election.pollingPlaces.length > 0) {
-    allowedFilters.push('polling-place');
-  }
   if (electionDefinition.election.type === 'primary') {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');

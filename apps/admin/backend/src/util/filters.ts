@@ -8,29 +8,31 @@ import { getGroupedBallotStyles } from '@votingworks/utils';
 import { ScannerBatch } from '../types.js';
 
 /**
- * Narrows an existing filter dimension to the values implied by a
- * higher-level frontend filter. If the dimension wasn't already filtered on,
- * the implied values become the filter.
+ * Intersects two lists of values. The second list is optional; when it is
+ * omitted, the first list is returned unchanged.
  */
-function intersect<T>(existing: T[] | undefined, implied: T[]): T[] {
-  return existing
-    ? existing.filter((value) => implied.includes(value))
-    : implied;
+function intersect<T>(values: T[], otherValues?: T[]): T[] {
+  return otherValues
+    ? values.filter((value) => otherValues.includes(value))
+    : values;
 }
 
 /**
- * The frontend filter interface allows filtering on geographical district,
- * which has a many-to-many relationship with ballot styles. In this helper,
- * we reduce the district filters into ballot style filters.
+ * Reduces the higher-level dimensions the frontend filter interface offers
+ * into the lower-level cast vote record dimensions that tabulation can query
+ * on, intersecting with any filter the user already placed on those lower-level
+ * dimensions.
  *
- * It also allows filtering on polling place, which is not an attribute of a
- * cast vote record but of the batch it was scanned in. We reduce it to the
- * batches attributed to those polling places, plus the precincts those polling
- * places cover. The precinct component is redundant for selecting cast vote
- * records - every ballot in those batches is necessarily from one of those
- * precincts - but it scopes the contests and expected groups of the report,
- * which are derived from the election definition rather than from the cast
- * vote records.
+ * District has a many-to-many relationship with ballot styles, so district
+ * filters reduce to ballot style filters.
+ *
+ * Polling place is not an attribute of a cast vote record at all, but of the
+ * batch it was scanned in, so polling place filters reduce to the batches
+ * attributed to those polling places, plus the precincts those polling places
+ * cover. The precinct component is redundant for selecting cast vote records -
+ * every ballot in those batches is necessarily from one of those precincts -
+ * but it will be used later on in the reporting pipeline to filter the list of
+ * contests that appear in the report.
  */
 export function convertFrontendFilter(
   frontendFilter: Admin.FrontendReportingFilter,
@@ -52,8 +54,8 @@ export function convertFrontendFilter(
     filter = {
       ...filter,
       ballotStyleGroupIds: intersect(
-        filter.ballotStyleGroupIds,
-        districtBallotStyleGroupIds
+        districtBallotStyleGroupIds,
+        filter.ballotStyleGroupIds
       ),
     };
   }
@@ -67,6 +69,10 @@ export function convertFrontendFilter(
       )
       .map((batch) => batch.batchId);
 
+    // A polling place that covers only some splits of a precinct still
+    // contributes the whole precinct here, so its report may list contests
+    // that only the precinct's other splits vote on. We accept that
+    // imprecision rather than reducing to ballot styles.
     const pollingPlacePrecinctIdList = pollingPlaceIds.flatMap(
       (pollingPlaceId) => [
         ...pollingPlacePrecinctIds(
@@ -77,8 +83,8 @@ export function convertFrontendFilter(
 
     filter = {
       ...filter,
-      batchIds: intersect(filter.batchIds, pollingPlaceBatchIds),
-      precinctIds: intersect(filter.precinctIds, pollingPlacePrecinctIdList),
+      batchIds: intersect(pollingPlaceBatchIds, filter.batchIds),
+      precinctIds: intersect(pollingPlacePrecinctIdList, filter.precinctIds),
     };
   }
 

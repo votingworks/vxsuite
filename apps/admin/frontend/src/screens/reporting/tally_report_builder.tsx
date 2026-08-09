@@ -49,13 +49,11 @@ export function TallyReportBuilder(): JSX.Element {
     'ballot-style',
     'batch',
     'precinct',
+    'polling-place',
     'scanner',
     'voting-method',
     'district',
   ]; // omits party
-  if (election.pollingPlaces.length > 0) {
-    allowedFilters.push('polling-place');
-  }
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
