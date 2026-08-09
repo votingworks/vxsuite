@@ -235,10 +235,13 @@ const FRAME_HEADER_LENGTH: usize = FRAME_TYPE_LENGTH + size_of::<u32>();
 struct Output<W: Write> {
     stdout: W,
     // We reject sending a command while a scan is in progress because it will
-    // interrupt the scan. To ensure this flag gets reset whenever a scan stops
-    // (whether successfully or with an error or disconnection), we manage this
-    // flag in the send_response/send_event methods, since they are called in
-    // basically every case when the scanner state changes.
+    // interrupt the scan. The flag is set by the scan start event and cleared
+    // by every other scanner event (any event during a scan — completion,
+    // scan failure, double feed, cover open — means the scan is over or
+    // aborted) and by scanner disconnection. Responses must NOT clear it:
+    // the only response possible while scanning is the ScanInProgress
+    // rejection itself, and clearing on it would disarm the guard after
+    // blocking a single command.
     scan_in_progress: bool,
 }
 
@@ -273,7 +276,6 @@ impl<W: Write> Output<W> {
 
     fn send_response(&mut self, response: Response) -> color_eyre::Result<()> {
         tracing::debug!("sending response: {response:?}");
-        self.scan_in_progress = false;
         self.send_to_stdout(&Message::Response(response))
     }
 
@@ -533,6 +535,11 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                     Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Disconnected)) => {
                         tracing::debug!("scanner channel disconnected");
                         client = None;
+                        // No event is emitted on this path, so clear the scan
+                        // flag directly: a disconnected scanner is not
+                        // scanning, and a stuck flag would reject every
+                        // command forever.
+                        output.scan_in_progress = false;
                         continue;
                     }
                     Err(e) => {
@@ -1112,6 +1119,19 @@ mod tests {
                         json!({"response": "error", "code": "scanInProgress", "message": null})
                     );
 
+                    // The rejection must not disarm the guard: a second
+                    // command during the same scan is also rejected.
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"getScannerStatus"}"#,
+                    )
+                    .await;
+                    assert_eq!(
+                        msg,
+                        json!({"response": "error", "code": "scanInProgress", "message": null})
+                    );
+
                     send_exit(&mut stdin_write).await;
                 }
             )
@@ -1227,6 +1247,54 @@ mod tests {
                         &mut stdin_write,
                         &mut output_rx,
                         r#"{"command":"disableScanning"}"#,
+                    )
+                    .await;
+                    assert_eq!(
+                        msg,
+                        json!({"response": "error", "code": "disconnected", "message": null})
+                    );
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn disconnect_during_scan_clears_scan_in_progress() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Start a scan, then disconnect the scanner mid-scan (no
+                    // event is emitted on this path).
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+                    drop(harness.events_tx);
+
+                    // Commands must report the disconnection, not get stuck
+                    // behind a scan that will never finish.
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"getScannerStatus"}"#,
                     )
                     .await;
                     assert_eq!(
