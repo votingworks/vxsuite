@@ -440,6 +440,9 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                     paper_length_inches,
                                 },
                             ) => {
+                                // Discard any leftover image data from an
+                                // aborted scan before a new scan session.
+                                raw_image_data.clear();
                                 let double_feed_detection_mode = if double_feed_detection_enabled {
                                     DoubleFeedDetectionMode::RejectDoubleFeeds
                                 } else {
@@ -550,8 +553,14 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                 };
 
                 match packet {
+                    // Note: the accumulator is deliberately NOT reset here.
+                    // The USB task polls the image data endpoint ahead of the
+                    // primary endpoint, so the first image chunks of a scan
+                    // can be forwarded before the begin event that the
+                    // scanner physically emitted first; resetting here would
+                    // drop them. The accumulator is cleared after each scan
+                    // is decoded and when scanning is enabled.
                     Incoming::BeginScanEvent => {
-                        raw_image_data = RawImageData::new();
                         output.send_event(Event::ScanStart)?;
                     }
                     Incoming::ImageData(image_data) => {
@@ -593,6 +602,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 })?;
                             }
                         }
+                        raw_image_data.clear();
                     }
                     Incoming::CoverOpenEvent => {
                         output.send_event(Event::CoverOpen)?;
@@ -1290,17 +1300,30 @@ mod tests {
                     drop(harness.events_tx);
 
                     // Commands must report the disconnection, not get stuck
-                    // behind a scan that will never finish.
-                    let msg = send_command(
-                        &mut stdin_write,
-                        &mut output_rx,
-                        r#"{"command":"getScannerStatus"}"#,
-                    )
-                    .await;
-                    assert_eq!(
-                        msg,
-                        json!({"response": "error", "code": "disconnected", "message": null})
-                    );
+                    // behind a scan that will never finish. The event loop
+                    // may serve a command before it observes the closed
+                    // channel, in which case the scan guard still rejects it;
+                    // it must never wedge on scanInProgress forever.
+                    let mut attempts = 0;
+                    loop {
+                        let msg = send_command(
+                            &mut stdin_write,
+                            &mut output_rx,
+                            r#"{"command":"getScannerStatus"}"#,
+                        )
+                        .await;
+                        if msg
+                            == json!({"response": "error", "code": "disconnected", "message": null})
+                        {
+                            break;
+                        }
+                        assert_eq!(
+                            msg,
+                            json!({"response": "error", "code": "scanInProgress", "message": null})
+                        );
+                        attempts += 1;
+                        assert!(attempts < 10, "never observed the disconnection");
+                    }
 
                     send_exit(&mut stdin_write).await;
                 }
@@ -2012,6 +2035,70 @@ mod tests {
         ];
 
         replay_recording(&entries).await;
+    }
+
+    /// The USB task polls the image data endpoint ahead of the primary
+    /// endpoint, so image chunks can be forwarded before the begin scan event
+    /// that physically preceded them. They must still end up in the decoded
+    /// scan.
+    #[tokio::test]
+    async fn image_data_arriving_before_begin_scan_event_is_not_dropped() {
+        use pdi_scanner::protocol::image::DEFAULT_IMAGE_WIDTH;
+
+        const WIDTH: usize = DEFAULT_IMAGE_WIDTH as usize;
+        const HEIGHT: usize = 4;
+
+        let (client, harness) =
+            setup_connected_client_with_calibration(&[u8::MAX; WIDTH], &[0; WIDTH]);
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    let mut data = Vec::with_capacity(2 * WIDTH * HEIGHT);
+                    for _ in 0..(WIDTH * HEIGHT) {
+                        data.push(7);
+                        data.push(9);
+                    }
+                    let (first_chunk, rest) = data.split_at(2 * WIDTH);
+
+                    // The first chunk beats the begin scan event
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::ImageData(ImageData(first_chunk.to_vec()))))
+                        .unwrap();
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::ImageData(ImageData(rest.to_vec()))))
+                        .unwrap();
+                    harness.events_tx.send(Ok(Incoming::EndScanEvent)).unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "scanComplete");
+                    assert_eq!(msg["images"][0]["height"], HEIGHT);
+                    assert_eq!(msg["images"][1]["height"], HEIGHT);
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
     }
 
     #[tokio::test]
