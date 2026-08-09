@@ -3,6 +3,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   makeTemporaryFile,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -22,6 +23,7 @@ import {
 } from './csv_tally_report.js';
 import { iterableToString, mockFileName, parseCsv } from '../../test/csv.js';
 import { Store } from '../store.js';
+import { convertFrontendFilter } from '../util/filters.js';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
@@ -840,4 +842,62 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
   expect(getBallotsCast('best-animal-fish')).toEqual('1');
   // non-partisan contest on both styles: 4 ballots
   expect(getBallotsCast('fishing')).toEqual('4');
+});
+
+test('filter reduced to no values exports a CSV with no rows', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition = readElectionGeneralDefinition();
+  const { electionData, election } = electionDefinition;
+  const electionId = await store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '12',
+        batchId: 'batch-1',
+        scannerId: 'scanner-1',
+        precinctId: '23',
+        votingMethod: 'precinct',
+        votes: {},
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+    ],
+    store,
+    pollingPlaceId: '23-polling-place',
+  });
+
+  // District 2 is served only by ballot style 12, so combining it with ballot
+  // style 5 leaves no ballot styles at all. The report matches nothing, which
+  // must export cleanly rather than being mistaken for a single-value filter.
+  const filter = convertFrontendFilter(
+    {
+      districtIds: ['district-2'],
+      ballotStyleGroupIds: ['5'] as BallotStyleGroupId[],
+    },
+    election
+  );
+  expect(filter).toEqual({ ballotStyleGroupIds: [] });
+
+  const fileContents = await iterableToString(
+    generateTallyReportCsv({ store, filter, filename: mockFileName() })
+  );
+  const { headers, rows } = parseCsv(fileContents);
+
+  expect(rows).toEqual([]);
+  expect(headers).toEqual([
+    'Included Ballot Styles',
+    'Contest',
+    'Contest ID',
+    'Selection',
+    'Selection ID',
+    'Total Votes',
+  ]);
 });
