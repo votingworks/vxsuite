@@ -238,11 +238,8 @@ fn find_pdi_device() -> Result<nusb::Device> {
 /// data and errors) on the other. Outgoing commands are serialized, written
 /// to the USB OUT endpoint, and acknowledged via their one-shot channel.
 ///
-/// # Panics
-///
-/// If the in-process channel between the scanner and the client becomes
-/// disconnected.
-#[allow(clippy::unwrap_used)]
+/// If the client side of the channels is dropped, the task logs and stops
+/// rather than panicking.
 #[allow(clippy::too_many_lines)]
 fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Duration) -> Scanner {
     let (host_to_scanner_tx, mut host_to_scanner_rx) =
@@ -284,7 +281,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         if recording::is_enabled() {
                             recording::record(&recording::Entry::scanner_to_host_error(&err));
                         }
-                        events_tx.send(Err(err)).unwrap();
+                        let _ = events_tx.send(Err(err));
                         break;
                     }
                     let data = completion.data;
@@ -296,9 +293,13 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             &data,
                         ));
                     }
-                    events_tx
+                    if events_tx
                         .send(Ok(packets::Incoming::ImageData(packets::ImageData(data))))
-                        .unwrap();
+                        .is_err()
+                    {
+                        tracing::debug!("client dropped; stopping USB task");
+                        break;
+                    }
 
                     // Resubmit a fresh transfer buffer: the received data was
                     // moved into the channel rather than copied, trading a
@@ -315,7 +316,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         if recording::is_enabled() {
                             recording::record(&recording::Entry::scanner_to_host_error(&err));
                         }
-                        events_tx.send(Err(err)).unwrap();
+                        let _ = events_tx.send(Err(err));
                         break;
                     }
                     let data = completion.data;
@@ -333,10 +334,17 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                     match parsers::any_incoming(&data) {
                         Ok(([], packet)) => {
                             tracing::debug!("Received incoming packet: {packet:?}");
-                            if matches!(packet.message_type(), IncomingType::Response) {
-                                responses_tx.send(packet).unwrap();
+                            let send_result = if matches!(
+                                packet.message_type(),
+                                IncomingType::Response
+                            ) {
+                                responses_tx.send(packet).map_err(|_| ())
                             } else {
-                                events_tx.send(Ok(packet)).unwrap();
+                                events_tx.send(Ok(packet)).map_err(|_| ())
+                            };
+                            if send_result.is_err() {
+                                tracing::debug!("client dropped; stopping USB task");
+                                break;
                             }
                         }
                         Ok((remaining, packet)) => {
@@ -345,18 +353,14 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                                     len = remaining.len(),
                                     remaining = String::from_utf8_lossy(remaining)
                                 );
-                            events_tx
-                                .send(Ok(Incoming::Unknown(data.clone())))
-                                .unwrap();
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
                         }
                         Err(err) => {
                             tracing::error!(
                                 "Error parsing packet: {data:?} (err={err})",
                                 data = String::from_utf8_lossy(&data)
                             );
-                            events_tx
-                                .send(Ok(Incoming::Unknown(data.clone())))
-                                .unwrap();
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
                         }
                     }
 
@@ -398,7 +402,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             if recording::is_enabled() {
                                 recording::record(&recording::Entry::scanner_to_host_error(&err));
                             }
-                            events_tx.send(Err(err)).unwrap();
+                            let _ = events_tx.send(Err(err));
                             break;
                         }
                         Err(_) => {
@@ -412,7 +416,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             if recording::is_enabled() {
                                 recording::record(&recording::Entry::scanner_to_host_error(&err));
                             }
-                            events_tx.send(Err(err)).unwrap();
+                            let _ = events_tx.send(Err(err));
                             break;
                         }
                     }

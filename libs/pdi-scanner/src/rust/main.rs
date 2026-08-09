@@ -531,10 +531,6 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         tracing::debug!("PACKET: {packet:?}");
                         packet
                     },
-                    Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Empty)) => {
-                        tracing::debug!("scanner channel received empty packet");
-                        continue;
-                    },
                     Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Disconnected)) => {
                         tracing::debug!("scanner channel disconnected");
                         client = None;
@@ -988,7 +984,7 @@ mod tests {
         assert_eq!(
             messages,
             vec![
-                json!({"response": "error", "code": "other", "message": "failed to serialize JSON: expected ident at line 1 column 2"})
+                json!({"response": "error", "code": "other", "message": "JSON error: expected ident at line 1 column 2"})
             ]
         );
     }
