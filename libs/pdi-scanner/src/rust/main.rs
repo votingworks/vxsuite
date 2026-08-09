@@ -582,8 +582,8 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         match raw_image_data.try_decode_scan(
                             DEFAULT_IMAGE_WIDTH,
                             ScanSideMode::Duplex,
-                            &image_calibration_tables
-                                .clone()
+                            image_calibration_tables
+                                .as_ref()
                                 .expect("image calibration tables not set"),
                         ) {
                             Ok(Sheet::Duplex(top, bottom)) => {

@@ -297,11 +297,14 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         ));
                     }
                     events_tx
-                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.clone()))))
+                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data))))
                         .unwrap();
 
-                    // resubmit the transfer to receive more data
-                    in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
+                    // Resubmit a fresh transfer buffer: the received data was
+                    // moved into the channel rather than copied, trading a
+                    // memcpy of up to 1MiB per transfer for a cheap
+                    // uninitialized allocation.
+                    in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
                 }
 
                 completion = in_primary_queue.next_complete() => {
