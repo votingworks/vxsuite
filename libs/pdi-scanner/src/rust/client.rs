@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{collections::VecDeque, io, time::Duration};
+use std::{io, time::Duration};
 use tokio::{
     sync::mpsc::error::TryRecvError,
     time::{sleep, timeout},
@@ -44,8 +44,6 @@ pub struct ImageCalibrationTables {
 }
 
 pub struct Client {
-    id: usize,
-    unhandled_packets: VecDeque<Incoming>,
     scanner: Scanner,
 }
 
@@ -62,36 +60,34 @@ impl Client {
 
     #[must_use]
     pub fn from_scanner(scanner: Scanner) -> Self {
-        Self {
-            id: 0,
-            unhandled_packets: VecDeque::new(),
-            scanner,
-        }
+        Self { scanner }
     }
 
     async fn send(&mut self, packet: Outgoing) -> Result<()> {
-        self.clear_unhandled_solicited_packets();
+        self.discard_stale_responses();
 
-        let id = self.id;
-        self.id = self.id.wrapping_add(1);
+        let (ack_tx, ack_rx) = tokio::sync::oneshot::channel();
         self.scanner
             .host_to_scanner_tx
-            .send((id, packet))
+            .send((packet, ack_tx))
             .map_err(|_| {
                 Error::from(nusb::Error::new(
                     io::ErrorKind::ConnectionAborted,
                     "failed to send packet to scanner (host to scanner channel closed)",
                 ))
             })?;
-        let Some(ack_id) = self.scanner.host_to_scanner_ack_rx.recv().await else {
-            return Err(nusb::Error::new(
+        // The USB task acks each successful write on the command's one-shot
+        // channel. If the write fails, the task reports the error as an event
+        // and shuts down, dropping the ack sender — which we observe here as
+        // the channel closing. If *we* are cancelled while waiting (e.g. by a
+        // caller's timeout), the dropped receiver leaves no shared state
+        // behind to confuse a later command.
+        ack_rx.await.map_err(|_| {
+            Error::from(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
-            )
-            .into());
-        };
-        assert_eq!(id, ack_id);
-        Ok(())
+            ))
+        })
     }
 
     // There should only be one command/response occurring at a time, so before
@@ -103,19 +99,10 @@ impl Client {
     // delay sending a response to a command (e.g. when the "eject pause"
     // feature pauses the scanner, it will queue commands received during that
     // time).
-    fn clear_unhandled_solicited_packets(&mut self) {
-        let mut unhandled_packets = VecDeque::with_capacity(self.unhandled_packets.len());
-        std::mem::swap(&mut unhandled_packets, &mut self.unhandled_packets);
-
-        let (unsolicited_packets, solicited_packets): (Vec<_>, Vec<_>) = unhandled_packets
-            .into_iter()
-            .partition(|packet| packet.message_type().is_unsolicited());
-
-        if !solicited_packets.is_empty() {
-            tracing::debug!("clearing unhandled solicited packets: {solicited_packets:?}");
+    fn discard_stale_responses(&mut self) {
+        while let Ok(packet) = self.scanner.responses_rx.try_recv() {
+            tracing::debug!("discarding stale response: {packet:?}");
         }
-
-        self.unhandled_packets.extend(unsolicited_packets);
     }
 
     /// Enables CRC checking on the scanner.
@@ -607,70 +594,43 @@ impl Client {
             .await
     }
 
-    /// Returns the next unhandled packet from the internal queue or awaits
-    /// a packet from the scanner if the internal queue is empty.
+    /// Awaits the next unsolicited event from the scanner: scan and
+    /// calibration events, image data, unknown packets, and errors that shut
+    /// down the USB task. Solicited responses never arrive here — they are
+    /// routed to the commands awaiting them.
     ///
     /// # Errors
     ///
     /// If the channel to the scanner has closed, this function will return
     /// [`Error::TryRecvError`].
     pub async fn recv(&mut self) -> Result<Incoming> {
-        if let Some(packet) = self.unhandled_packets.pop_front() {
-            tracing::debug!("returning unhandled packet: {packet:?}");
-            return Ok(packet);
-        }
-
-        match self.scanner.scanner_to_host_rx.recv().await {
+        match self.scanner.events_rx.recv().await {
             Some(result) => result,
             None => Err(Error::TryRecvError(TryRecvError::Disconnected)),
         }
     }
 
-    /// Receives packets from the scanner until a call to the provided function
-    /// returns [`Ok`] with the data to return from this call. If the packet does
-    /// not match it should be returned from the function using [`Err`], and it
-    /// will be added to the list of unhandled packets to be tried on subsequent
-    /// calls to [`Self::recv_matching`].
+    /// Receives response packets from the scanner until a call to the provided
+    /// function returns [`Ok`] with the data to return from this call. If the
+    /// packet does not match it should be returned from the function using
+    /// [`Err`]; it is a stale response (e.g. a delayed response to a previous
+    /// command that timed out) and is discarded.
     ///
     /// # Errors
     ///
     /// This function will return an error if a communication error occurs.
-    #[allow(clippy::missing_panics_doc)]
     async fn recv_matching<P>(
         &mut self,
         filter_map: impl Fn(Incoming) -> Result<P, Incoming>,
     ) -> Result<P> {
-        let mut unhandled_packets = VecDeque::with_capacity(self.unhandled_packets.len());
-        std::mem::swap(&mut unhandled_packets, &mut self.unhandled_packets);
-
-        let mut received_value = None;
-
-        for packet in unhandled_packets {
-            if received_value.is_some() {
-                self.unhandled_packets.push_back(packet);
-            } else {
-                match filter_map(packet) {
-                    Ok(value) => {
-                        received_value = Some(value);
-                    }
-                    Err(packet) => {
-                        self.unhandled_packets.push_back(packet);
-                    }
-                }
-            }
-        }
-
-        if let Some(value) = received_value {
-            return Ok(value);
-        }
-
         loop {
-            match self.scanner.scanner_to_host_rx.recv().await {
-                Some(Ok(packet)) => match filter_map(packet) {
+            match self.scanner.responses_rx.recv().await {
+                Some(packet) => match filter_map(packet) {
                     Ok(value) => return Ok(value),
-                    Err(packet) => self.unhandled_packets.push_back(packet),
+                    Err(packet) => {
+                        tracing::debug!("discarding non-matching response: {packet:?}");
+                    }
                 },
-                Some(Err(error)) => return Err(error),
                 None => return Err(Error::TryRecvError(TryRecvError::Disconnected)),
             }
         }
@@ -1149,10 +1109,11 @@ impl Client {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use std::time::Duration;
 
-    use tokio::time::timeout;
+    use tokio::{sync::mpsc, time::timeout};
 
     use crate::{
         protocol::packets::{ImageData, Incoming, Outgoing},
@@ -1161,19 +1122,40 @@ mod tests {
 
     use super::Client;
 
+    struct MockScannerHarness {
+        /// Packets successfully "written" to the scanner, in order.
+        outgoing_rx: mpsc::UnboundedReceiver<Outgoing>,
+        responses_tx: mpsc::UnboundedSender<Incoming>,
+        events_tx: mpsc::UnboundedSender<crate::Result<Incoming>>,
+    }
+
+    /// Creates a client whose mock USB task acknowledges every write
+    /// immediately and forwards the written packets for assertions.
+    fn mock_client() -> (Client, MockScannerHarness) {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) =
+            mpsc::unbounded_channel::<crate::scanner::OutgoingCommand>();
+        let (responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (events_tx, events_rx) = mpsc::unbounded_channel();
+        let (outgoing_tx, outgoing_rx) = mpsc::unbounded_channel();
+        tokio::spawn(async move {
+            while let Some((packet, ack)) = host_to_scanner_rx.recv().await {
+                let _ = outgoing_tx.send(packet);
+                let _ = ack.send(());
+            }
+        });
+        (
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx)),
+            MockScannerHarness {
+                outgoing_rx,
+                responses_tx,
+                events_tx,
+            },
+        )
+    }
+
     #[tokio::test]
     async fn test_enable_crc_checking_sends_expected_packet() {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
-            tokio::sync::mpsc::unbounded_channel();
-        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
-
-        host_to_scanner_ack_tx.send(0).unwrap();
+        let (mut client, mut harness) = mock_client();
 
         timeout(Duration::from_millis(10), client.enable_crc_checking())
             .await
@@ -1181,85 +1163,58 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (0, Outgoing::EnableCrcCheckingRequest)
+            harness.outgoing_rx.recv().await.unwrap(),
+            Outgoing::EnableCrcCheckingRequest
         );
     }
 
     #[tokio::test]
     async fn test_wait_until_ready_enables_crc_before_retrying_get_test_string() {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
-            tokio::sync::mpsc::unbounded_channel();
-        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let (mut client, mut harness) = mock_client();
 
-        // Each loop iteration sends enable_crc_checking then get_test_string,
-        // so we need two ACKs per iteration.
-        host_to_scanner_ack_tx.send(0).unwrap();
-        host_to_scanner_ack_tx.send(1).unwrap();
-        host_to_scanner_ack_tx.send(2).unwrap();
-        host_to_scanner_ack_tx.send(3).unwrap();
+        // Only answer the second get_test_string: the first times out
+        // internally, which is what makes wait_until_ready retry. Respond
+        // reactively, since a response sent before the command would be
+        // discarded as stale.
+        let responses_tx = harness.responses_tx.clone();
+        let (seen_tx, mut seen_rx) = mpsc::unbounded_channel();
+        tokio::spawn(async move {
+            let mut test_string_requests = 0;
+            while let Some(packet) = harness.outgoing_rx.recv().await {
+                if packet == Outgoing::GetTestStringRequest {
+                    test_string_requests += 1;
+                    if test_string_requests == 2 {
+                        let _ =
+                            responses_tx.send(Incoming::GetTestStringResponse("test".to_owned()));
+                    }
+                }
+                let _ = seen_tx.send(packet);
+            }
+        });
 
-        // First get_test_string fails, second succeeds.
-        scanner_to_host_tx
-            .send(Err(crate::Error::RecvTimeout))
-            .unwrap();
-        scanner_to_host_tx
-            .send(Ok(Incoming::GetTestStringResponse("test".to_owned())))
-            .unwrap();
-
-        timeout(Duration::from_millis(500), client.wait_until_ready())
+        timeout(Duration::from_secs(1), client.wait_until_ready())
             .await
             .unwrap();
 
-        // Iteration 1: enable_crc_checking, then get_test_string (fails)
-        assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (0, Outgoing::EnableCrcCheckingRequest)
-        );
-        assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (1, Outgoing::GetTestStringRequest)
-        );
-        // Iteration 2: enable_crc_checking again, then get_test_string (succeeds)
-        assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (2, Outgoing::EnableCrcCheckingRequest)
-        );
-        assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (3, Outgoing::GetTestStringRequest)
-        );
+        // Iteration 1: enable_crc_checking, then get_test_string (times out);
+        // iteration 2: enable_crc_checking again, then get_test_string
+        // (answered).
+        for expected in [
+            Outgoing::EnableCrcCheckingRequest,
+            Outgoing::GetTestStringRequest,
+            Outgoing::EnableCrcCheckingRequest,
+            Outgoing::GetTestStringRequest,
+        ] {
+            assert_eq!(seen_rx.recv().await.unwrap(), expected);
+        }
     }
 
     #[tokio::test]
     async fn test_wait_until_ready_retries_indefinitely_until_caller_timeout() {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
-            tokio::sync::mpsc::unbounded_channel();
-        let (_scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let (mut client, mut harness) = mock_client();
 
-        // Each loop iteration sends enable_crc_checking + get_test_string,
-        // so we need two ACKs per iteration. Provide enough for several
-        // iterations but never send a successful response so
-        // wait_until_ready never returns on its own.
-        let iteration_count: usize = 3;
-        for ack_id in 0..(iteration_count * 2) {
-            host_to_scanner_ack_tx.send(ack_id).unwrap();
-        }
-
-        // The caller's timeout is what stops wait_until_ready, not an
-        // internal attempt limit.
+        // Never respond, so wait_until_ready never returns on its own: the
+        // caller's timeout is what stops it, not an internal attempt limit.
         let result = timeout(Duration::from_secs(1), client.wait_until_ready()).await;
         assert!(
             result.is_err(),
@@ -1267,99 +1222,132 @@ mod tests {
         );
 
         // Verify it sent enable_crc_checking + get_test_string pairs.
-        for iteration in 0..iteration_count {
-            let base_id = iteration * 2;
+        for _ in 0..3 {
             assert_eq!(
-                host_to_scanner_rx.recv().await.unwrap(),
-                (base_id, Outgoing::EnableCrcCheckingRequest)
+                harness.outgoing_rx.recv().await.unwrap(),
+                Outgoing::EnableCrcCheckingRequest
             );
             assert_eq!(
-                host_to_scanner_rx.recv().await.unwrap(),
-                (base_id + 1, Outgoing::GetTestStringRequest)
+                harness.outgoing_rx.recv().await.unwrap(),
+                Outgoing::GetTestStringRequest
             );
         }
     }
 
-    #[tokio::test]
-    async fn test_pending_image_data_is_not_dropped_on_new_request() {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
-            tokio::sync::mpsc::unbounded_channel();
-        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
-        let mut client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+    /// Runs a command on a spawned task, sending its response only once the
+    /// outgoing packet is observed (a response sent earlier would be
+    /// discarded as stale).
+    async fn get_test_string_with_response(
+        mut client: Client,
+        harness: &mut MockScannerHarness,
+        response: &str,
+    ) -> Client {
+        let command_task = tokio::spawn(async move {
+            let result = timeout(Duration::from_millis(100), client.get_test_string())
+                .await
+                .unwrap();
+            (client, result)
+        });
+        assert_eq!(
+            harness.outgoing_rx.recv().await.unwrap(),
+            Outgoing::GetTestStringRequest
+        );
+        harness
+            .responses_tx
+            .send(Incoming::GetTestStringResponse(response.to_owned()))
+            .unwrap();
+        let (client, result) = command_task.await.unwrap();
+        assert_eq!(result.unwrap(), response);
+        client
+    }
 
-        // add some image data to the incoming queue of data
-        scanner_to_host_tx
+    #[tokio::test]
+    async fn test_image_data_is_not_consumed_by_commands() {
+        let (mut client, mut harness) = mock_client();
+
+        // Image data arrives (as an unsolicited event) before any command
+        // traffic.
+        harness
+            .events_tx
             .send(Ok(Incoming::ImageData(ImageData(vec![0x00]))))
             .unwrap();
 
-        // set up response to `get_test_string`
-        scanner_to_host_tx
-            .send(Ok(Incoming::GetTestStringResponse("test".to_owned())))
-            .unwrap();
-        host_to_scanner_ack_tx.send(0).unwrap();
+        // Commands get their responses, unaffected by the image data.
+        client = get_test_string_with_response(client, &mut harness, "test").await;
+        client = get_test_string_with_response(client, &mut harness, "test2").await;
 
-        // make sure the response came through okay, and force the above
-        // `Incoming::ImageData` into the `unhandled_packets` queue
+        // The image data is still waiting on the events channel.
         assert_eq!(
-            timeout(Duration::from_millis(10), client.get_test_string())
+            timeout(Duration::from_millis(10), client.recv())
                 .await
                 .unwrap()
                 .unwrap(),
-            "test"
+            Incoming::ImageData(ImageData(vec![0x00]))
         );
+    }
 
-        // check the data sent to the scanner
-        assert_eq!(
-            host_to_scanner_rx.recv().await.unwrap(),
-            (0, Outgoing::GetTestStringRequest)
-        );
+    #[tokio::test]
+    async fn test_stale_responses_are_discarded_and_skipped() {
+        let (mut client, mut harness) = mock_client();
 
-        // make sure the image data is in the queue
-        assert_eq!(
-            client.unhandled_packets.front().cloned(),
-            Some(Incoming::ImageData(ImageData(vec![0x00])))
-        );
-
-        // set up another response to `get_test_string`
-        scanner_to_host_tx
-            .send(Ok(Incoming::GetTestStringResponse("test2".to_owned())))
+        // A stale response that arrived before the command is sent gets
+        // drained by discard_stale_responses; one that arrives while the
+        // command is awaiting its response gets skipped by recv_matching.
+        // Either way the command matches its own response.
+        harness
+            .responses_tx
+            .send(Incoming::GetTestStringResponse("stale".to_owned()))
             .unwrap();
-        host_to_scanner_ack_tx.send(1).unwrap();
 
-        // make sure the second response came through and didn't discard
-        // the image data as a side effect of this request
-        assert_eq!(
-            timeout(Duration::from_millis(10), client.get_test_string())
+        let command_task = tokio::spawn(async move {
+            let result = timeout(Duration::from_millis(100), client.get_test_string())
                 .await
-                .unwrap()
-                .unwrap(),
-            "test2"
-        );
+                .unwrap();
+            (client, result)
+        });
 
-        // make sure the image data was not discarded
+        // Once the outgoing packet is observed, the command is in flight (and
+        // the pre-existing stale response has been drained), so these arrive
+        // while it awaits its response.
         assert_eq!(
-            client.unhandled_packets.front().cloned(),
-            Some(Incoming::ImageData(ImageData(vec![0x00])))
+            harness.outgoing_rx.recv().await.unwrap(),
+            Outgoing::GetTestStringRequest
         );
+        harness
+            .responses_tx
+            .send(Incoming::GetSetRequiredInputSensorsResponse {
+                current_sensors_required: 2,
+                total_sensors_available: 5,
+            })
+            .unwrap();
+        harness
+            .responses_tx
+            .send(Incoming::GetTestStringResponse("real".to_owned()))
+            .unwrap();
 
-        // make sure we can retreive the image data
-        assert_eq!(
-            timeout(
-                Duration::from_millis(10),
-                client.recv_matching(|packet| match packet {
-                    Incoming::ImageData(image_data) => Ok(image_data),
-                    packet => Err(packet),
-                })
-            )
+        let (_client, result) = command_task.await.unwrap();
+        assert_eq!(result.unwrap(), "real");
+    }
+
+    #[tokio::test]
+    async fn test_send_fails_when_usb_task_is_gone() {
+        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (_responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (_events_tx, events_rx) = mpsc::unbounded_channel();
+        let mut client =
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx));
+
+        // Simulate the USB task shutting down after a failed write: the
+        // command channel (and with it the pending ack) is dropped.
+        drop(host_to_scanner_rx);
+
+        let error = timeout(Duration::from_millis(100), client.enable_crc_checking())
             .await
             .unwrap()
-            .unwrap(),
-            ImageData(vec![0x00])
+            .unwrap_err();
+        assert!(
+            error.to_string().contains("failed to send packet"),
+            "{error}"
         );
     }
 }
