@@ -232,8 +232,15 @@ const FRAME_HEADER_LENGTH: usize = FRAME_TYPE_LENGTH + size_of::<u32>();
 /// payload length, and the payload. Sending image data as raw bytes rather
 /// than JSON avoids base64-encoding multi-megabyte scans and parsing them
 /// back out of a giant JSON document on the Node side.
-struct Output<W: Write> {
-    stdout: W,
+///
+/// Frames are written by a dedicated thread so that a slow reader (e.g. Node
+/// busy interpreting the previous sheet) never stalls the command/event loop,
+/// which must keep servicing scanner packets and commands. Frames are queued
+/// unbounded; dropping `Output` closes the queue and joins the thread, so
+/// everything queued is flushed before the process exits.
+struct Output {
+    frames_tx: Option<std::sync::mpsc::Sender<Vec<u8>>>,
+    writer_thread: Option<std::thread::JoinHandle<()>>,
     // We reject sending a command while a scan is in progress because it will
     // interrupt the scan. The flag is set by the scan start event and cleared
     // by every other scanner event (any event during a scan — completion,
@@ -245,27 +252,50 @@ struct Output<W: Write> {
     scan_in_progress: bool,
 }
 
-impl<W: Write> Output<W> {
+impl Output {
+    fn new<W: Write + Send + 'static>(mut stdout: W) -> Self {
+        let (frames_tx, frames_rx) = std::sync::mpsc::channel::<Vec<u8>>();
+        let writer_thread = std::thread::spawn(move || {
+            for frame in frames_rx {
+                // Stdout is line-buffered and frames don't end in newlines,
+                // so flush explicitly or the frame may sit in the buffer
+                // indefinitely.
+                if let Err(error) = stdout.write_all(&frame).and_then(|()| stdout.flush()) {
+                    tracing::error!("failed to write frame to stdout: {error}");
+                    // Dropping the receiver makes subsequent write_frame
+                    // calls fail, which shuts down the main loop.
+                    break;
+                }
+            }
+        });
+        Self {
+            frames_tx: Some(frames_tx),
+            writer_thread: Some(writer_thread),
+            scan_in_progress: false,
+        }
+    }
+
     fn write_frame(&mut self, frame_type: u8, payload_parts: &[&[u8]]) -> color_eyre::Result<()> {
         let payload_length: usize = payload_parts.iter().map(|part| part.len()).sum();
+        let mut frame = Vec::with_capacity(FRAME_HEADER_LENGTH + payload_length);
+        frame.push(frame_type);
+        frame.extend_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
+        for part in payload_parts {
+            frame.extend_from_slice(part);
+        }
         #[cfg(feature = "recording")]
         if recording::is_enabled() {
-            let mut payload = Vec::with_capacity(payload_length);
-            for part in payload_parts {
-                payload.extend_from_slice(part);
-            }
-            recording::record(&recording::Entry::stdout_frame(frame_type, &payload));
+            recording::record(&recording::Entry::stdout_frame(
+                frame_type,
+                &frame[FRAME_HEADER_LENGTH..],
+            ));
         }
-        let mut header = [0u8; FRAME_HEADER_LENGTH];
-        header[0] = frame_type;
-        header[FRAME_TYPE_LENGTH..].copy_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
-        self.stdout.write_all(&header)?;
-        for part in payload_parts {
-            self.stdout.write_all(part)?;
+        let Some(frames_tx) = self.frames_tx.as_ref() else {
+            bail!("stdout writer thread is not running");
+        };
+        if frames_tx.send(frame).is_err() {
+            bail!("stdout writer thread stopped");
         }
-        // Stdout is line-buffered and frames don't end in newlines, so flush
-        // explicitly or the frame may sit in the buffer indefinitely.
-        self.stdout.flush()?;
         Ok(())
     }
 
@@ -329,20 +359,33 @@ impl<W: Write> Output<W> {
     }
 }
 
+impl Drop for Output {
+    fn drop(&mut self) {
+        // Close the queue so the writer thread drains what remains and exits,
+        // then wait for it: nothing already queued is lost on shutdown.
+        drop(self.frames_tx.take());
+        if let Some(writer_thread) = self.writer_thread.take() {
+            if writer_thread.join().is_err() {
+                tracing::error!("stdout writer thread panicked");
+            }
+        }
+    }
+}
+
 /// Runs the main command/event loop. Reads newline-delimited JSON commands
 /// from `stdin`, writes TLV-framed responses and events to `stdout` (see
 /// [`Output`]), and uses `connect` to create new scanner connections.
 #[allow(clippy::too_many_lines)]
-async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write>(
+async fn handle_commands_and_events<
+    R: tokio::io::AsyncBufRead + Unpin,
+    W: Write + Send + 'static,
+>(
     stdin: R,
     stdout: W,
     mut connect: impl FnMut() -> pdi_scanner::Result<Client>,
 ) -> color_eyre::Result<()> {
     let mut stdin_lines = stdin.lines();
-    let mut output = Output {
-        stdout,
-        scan_in_progress: false,
-    };
+    let mut output = Output::new(stdout);
 
     let mut client: Option<Client> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
