@@ -410,7 +410,7 @@ function PrecinctTallySection({
                   key={contest.id}
                   election={election}
                   contest={contest}
-                  scannedContestResults={currentContestResults}
+                  contestResults={currentContestResults}
                 />
               );
             })}

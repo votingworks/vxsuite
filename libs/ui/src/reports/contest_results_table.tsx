@@ -7,7 +7,11 @@ import {
   Tabulation,
   Contest,
 } from '@votingworks/types';
-import { format, getTallyReportCandidateRows } from '@votingworks/utils';
+import {
+  format,
+  getSeparatedTallyReportCandidateRows,
+  getTallyReportCandidateRows,
+} from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional, find } from '@votingworks/basics';
 
 import { ReportTable } from './layout';
@@ -95,52 +99,52 @@ const Muted = styled.span`
 function ContestOptionRow({
   testId,
   optionLabel,
-  scannedTally,
-  showManualTally,
-  manualTally,
+  tally,
+  separateManualTally,
 }: {
   testId: string;
   optionLabel: string;
-  scannedTally: number;
-  showManualTally: boolean;
-  manualTally: number;
+  tally: number;
+  separateManualTally?: number;
 }): JSX.Element {
-  if (showManualTally) {
+  if (separateManualTally === undefined) {
     return (
       <tr data-testid={testId}>
-        <th className="option-label">{optionLabel.replace('-', '‑')}</th>
-        <td>{format.count(scannedTally)}</td>
-        <td>
-          {manualTally === 0 ? (
-            <Muted>{format.count(manualTally)}</Muted>
-          ) : (
-            format.count(manualTally)
-          )}
-        </td>
-        <td>
-          <strong>{format.count(scannedTally + manualTally)}</strong>
-        </td>
+        <th colSpan={3}>{optionLabel}</th>
+        <td>{format.count(tally)}</td>
       </tr>
     );
   }
 
   return (
     <tr data-testid={testId}>
-      <th colSpan={3}>{optionLabel}</th>
-      <td>{format.count(scannedTally)}</td>
+      {/* the narrow label column needs a non-breaking hyphen to keep names
+          like "Smith-Jones" from wrapping mid-name */}
+      <th className="option-label">{optionLabel.replace('-', '‑')}</th>
+      <td>{format.count(tally)}</td>
+      <td>
+        {separateManualTally === 0 ? (
+          <Muted>{format.count(separateManualTally)}</Muted>
+        ) : (
+          format.count(separateManualTally)
+        )}
+      </td>
+      <td>
+        <strong>{format.count(tally + separateManualTally)}</strong>
+      </td>
     </tr>
   );
 }
 
 function ContestMetadataRow({
   label,
-  scannedTally,
-  manualTally,
+  tally,
+  separateManualTally,
   isLast,
 }: {
   label: string;
-  scannedTally: number;
-  manualTally: number;
+  tally: number;
+  separateManualTally: number;
   isLast?: boolean;
 }): JSX.Element {
   return (
@@ -148,16 +152,16 @@ function ContestMetadataRow({
       <th>
         <em>{label}</em>
       </th>
-      <td>{format.count(scannedTally)}</td>
+      <td>{format.count(tally)}</td>
       <td>
-        {manualTally === 0 ? (
-          <Muted>{format.count(manualTally)}</Muted>
+        {separateManualTally === 0 ? (
+          <Muted>{format.count(separateManualTally)}</Muted>
         ) : (
-          format.count(manualTally)
+          format.count(separateManualTally)
         )}
       </td>
       <td>
-        <strong>{format.count(scannedTally + manualTally)}</strong>
+        <strong>{format.count(tally + separateManualTally)}</strong>
       </td>
     </tr>
   );
@@ -166,9 +170,21 @@ function ContestMetadataRow({
 interface Props {
   election: Election;
   contest: Contest;
-  scannedContestResults: Tabulation.ContestResults;
-  manualContestResults?: Tabulation.ContestResults;
+  contestResults: Tabulation.ContestResults;
+  /**
+   * Manually entered results to show in a column of their own, alongside the
+   * results they supplement. Without them, the table shows a single column of
+   * tallies, whatever their provenance.
+   */
+  separateManualContestResults?: Tabulation.ContestResults;
   aggregateInsignificantWriteIns?: boolean;
+}
+
+interface CandidateOptionRow {
+  id: string;
+  name: string;
+  tally: number;
+  separateManualTally?: number;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -179,13 +195,13 @@ function assertIsOptional<T>(_value?: unknown): asserts _value is Optional<T> {
 export function ContestResultsTable({
   election,
   contest,
-  scannedContestResults,
-  manualContestResults,
+  contestResults,
+  separateManualContestResults,
   aggregateInsignificantWriteIns = true,
 }: Props): JSX.Element {
-  // When there are manual results, the metadata is included as table rows
-  // rather than as an above table caption.
-  const contestTableRows: JSX.Element[] = manualContestResults
+  // When the manual results have a column of their own, the metadata is
+  // included as table rows rather than as an above table caption.
+  const contestTableRows: JSX.Element[] = separateManualContestResults
     ? [
         <tr className="metadata header" key={`${contest.id}-header`}>
           <th> </th>
@@ -198,57 +214,65 @@ export function ContestResultsTable({
         <ContestMetadataRow
           label="Ballots Cast"
           key={`${contest.id}-ballots-cast`}
-          scannedTally={scannedContestResults.ballots}
-          manualTally={manualContestResults.ballots}
+          tally={contestResults.ballots}
+          separateManualTally={separateManualContestResults.ballots}
         />,
         <ContestMetadataRow
           label="Overvotes"
           key={`${contest.id}-overvotes`}
-          scannedTally={scannedContestResults.overvotes}
-          manualTally={manualContestResults.overvotes}
+          tally={contestResults.overvotes}
+          separateManualTally={separateManualContestResults.overvotes}
         />,
         <ContestMetadataRow
           label="Undervotes"
           key={`${contest.id}-undervotes`}
-          scannedTally={scannedContestResults.undervotes}
-          manualTally={manualContestResults.undervotes}
+          tally={contestResults.undervotes}
+          separateManualTally={separateManualContestResults.undervotes}
           isLast
         />,
       ]
     : [];
 
-  const hasManualResults = Boolean(manualContestResults);
-
   switch (contest.type) {
     case 'candidate': {
-      assert(scannedContestResults.contestType === 'candidate');
+      assert(contestResults.contestType === 'candidate');
       assertIsOptional<Tabulation.CandidateContestResults>(
-        manualContestResults
+        separateManualContestResults
       );
-      const candidateReportTallies = getTallyReportCandidateRows({
-        contest,
-        scannedContestResults,
-        manualContestResults,
-        aggregateInsignificantWriteIns,
-      });
-      for (const candidateReportTally of candidateReportTallies) {
-        const key = `${contest.id}-${candidateReportTally.id}`;
+      const candidateRows: CandidateOptionRow[] = separateManualContestResults
+        ? getSeparatedTallyReportCandidateRows({
+            contest,
+            contestResults,
+            separateManualContestResults,
+            aggregateInsignificantWriteIns,
+          }).map(({ manualTally, ...row }) => ({
+            ...row,
+            separateManualTally: manualTally,
+          }))
+        : getTallyReportCandidateRows({
+            contest,
+            contestResults,
+            aggregateInsignificantWriteIns,
+          });
+      for (const candidateRow of candidateRows) {
+        const key = `${contest.id}-${candidateRow.id}`;
         contestTableRows.push(
           <ContestOptionRow
             key={key}
             testId={key}
-            optionLabel={candidateReportTally.name}
-            scannedTally={candidateReportTally.scannedTally}
-            manualTally={candidateReportTally.manualTally}
-            showManualTally={hasManualResults}
+            optionLabel={candidateRow.name}
+            tally={candidateRow.tally}
+            separateManualTally={candidateRow.separateManualTally}
           />
         );
       }
       break;
     }
     case 'yesno': {
-      assert(scannedContestResults.contestType === 'yesno');
-      assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
+      assert(contestResults.contestType === 'yesno');
+      assertIsOptional<Tabulation.YesNoContestResults>(
+        separateManualContestResults
+      );
       for (const option of contest.options) {
         const key = `${contest.id}-${option.id}`;
         contestTableRows.push(
@@ -256,18 +280,21 @@ export function ContestResultsTable({
             key={key}
             testId={key}
             optionLabel={option.label}
-            scannedTally={scannedContestResults.tallies[option.id] ?? 0}
-            manualTally={manualContestResults?.tallies[option.id] ?? 0}
-            showManualTally={hasManualResults}
+            tally={contestResults.tallies[option.id] ?? 0}
+            separateManualTally={
+              separateManualContestResults
+                ? separateManualContestResults.tallies[option.id] ?? 0
+                : undefined
+            }
           />
         );
       }
       break;
     }
     case 'straight-party': {
-      assert(scannedContestResults.contestType === 'straight-party');
+      assert(contestResults.contestType === 'straight-party');
       assertIsOptional<Tabulation.StraightPartyContestResults>(
-        manualContestResults
+        separateManualContestResults
       );
       for (const partyId of contest.optionIds) {
         const key = `${contest.id}-${partyId}`;
@@ -278,9 +305,12 @@ export function ContestResultsTable({
             optionLabel={
               find(election.parties, (party) => party.id === partyId).fullName
             }
-            scannedTally={scannedContestResults.tallies[partyId]}
-            manualTally={manualContestResults?.tallies[partyId] ?? 0}
-            showManualTally={hasManualResults}
+            tally={contestResults.tallies[partyId]}
+            separateManualTally={
+              separateManualContestResults
+                ? separateManualContestResults.tallies[partyId] ?? 0
+                : undefined
+            }
           />
         );
       }
@@ -304,28 +334,28 @@ export function ContestResultsTable({
           )}
         </ContestMetadata>
       )}
-      {!hasManualResults && (
+      {!separateManualContestResults && (
         <MetadataLabel>
           <Font noWrap>
-            {`${format.count(scannedContestResults.ballots)} ${pluralize(
+            {`${format.count(contestResults.ballots)} ${pluralize(
               'ballots',
-              scannedContestResults.ballots
+              contestResults.ballots
             )}`}{' '}
             cast /
           </Font>{' '}
           <Font noWrap>
             {' '}
-            {`${format.count(scannedContestResults.overvotes)} ${pluralize(
+            {`${format.count(contestResults.overvotes)} ${pluralize(
               'overvotes',
-              scannedContestResults.overvotes
+              contestResults.overvotes
             )}`}{' '}
             /
           </Font>{' '}
           <Font noWrap>
             {' '}
-            {`${format.count(scannedContestResults.undervotes)} ${pluralize(
+            {`${format.count(contestResults.undervotes)} ${pluralize(
               'undervotes',
-              scannedContestResults.undervotes
+              contestResults.undervotes
             )}`}
           </Font>
         </MetadataLabel>

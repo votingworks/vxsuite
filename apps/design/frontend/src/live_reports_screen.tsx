@@ -1102,7 +1102,7 @@ function LiveReportsResultsScreen({
                           key={contest.id}
                           election={aggregatedResults.election}
                           contest={contest}
-                          scannedContestResults={currentContestResults}
+                          contestResults={currentContestResults}
                         />
                       );
                     })}

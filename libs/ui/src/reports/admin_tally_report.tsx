@@ -5,6 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
+import { getScannedBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -22,6 +23,7 @@ import {
   ReportTitle,
   ReportElectionInfo,
   TestModeReportBanner,
+  ManualResultsReportBanner,
   ReportSubtitle,
 } from './report_header';
 import { ReportGeneratedMetadata } from './report_generated_metadata';
@@ -70,6 +72,10 @@ export function AdminTallyReport({
     ...scannedElectionResults.cardCounts,
     manual: manualElectionResults?.ballotCount,
   };
+  const scannedBallotCount = getScannedBallotCount(cardCounts);
+  const manualBallotCount = cardCounts.manual ?? 0;
+  const separateManualResults = scannedBallotCount > 0 && manualBallotCount > 0;
+  const isManualOnly = scannedBallotCount === 0 && manualBallotCount > 0;
   const reportTitle = prefixedTitle({
     isOfficial,
     isForLogicAndAccuracyTesting,
@@ -80,6 +86,7 @@ export function AdminTallyReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
         {isTest && <TestModeReportBanner />}
+        {isManualOnly && <ManualResultsReportBanner />}
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>
@@ -115,8 +122,14 @@ export function AdminTallyReport({
                 key={contest.id}
                 election={election}
                 contest={contest}
-                scannedContestResults={scannedContestResults}
-                manualContestResults={manualContestResults}
+                contestResults={
+                  isManualOnly
+                    ? manualContestResults ?? scannedContestResults
+                    : scannedContestResults
+                }
+                separateManualContestResults={
+                  separateManualResults ? manualContestResults : undefined
+                }
                 aggregateInsignificantWriteIns={aggregateInsignificantWriteIns}
               />
             );

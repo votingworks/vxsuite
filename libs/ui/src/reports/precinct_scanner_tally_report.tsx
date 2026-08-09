@@ -84,7 +84,7 @@ export function PrecinctScannerTallyReport({
                 key={contest.id}
                 election={election}
                 contest={contest}
-                scannedContestResults={scannedContestResults}
+                contestResults={scannedContestResults}
               />
             );
           })}

@@ -8,7 +8,10 @@ import { assertDefined, iter } from '@votingworks/basics';
 import { combineCandidateContestResults } from './tabulation';
 
 type TallyReportCandidateRow = Candidate & {
-  scannedTally: number;
+  tally: number;
+};
+
+type SeparatedTallyReportCandidateRow = TallyReportCandidateRow & {
   manualTally: number;
 };
 
@@ -32,14 +35,14 @@ function addWriteInLabelToName(
 
 function getAllWriteInRows({
   combinedContestResults,
-  scannedContestResults,
-  manualContestResults,
+  contestResults,
+  separateManualContestResults,
 }: {
   combinedContestResults: Tabulation.CandidateContestResults;
-  scannedContestResults: Tabulation.CandidateContestResults;
-  manualContestResults?: Tabulation.CandidateContestResults;
-}): TallyReportCandidateRow[] {
-  const rows: TallyReportCandidateRow[] = [];
+  contestResults: Tabulation.CandidateContestResults;
+  separateManualContestResults?: Tabulation.CandidateContestResults;
+}): SeparatedTallyReportCandidateRow[] {
+  const rows: SeparatedTallyReportCandidateRow[] = [];
   const writeInCandidateTallies: Tabulation.CandidateTally[] = [];
   const otherWriteInTallies: Tabulation.CandidateTally[] = [];
 
@@ -60,9 +63,9 @@ function getAllWriteInRows({
   ]) {
     rows.push({
       ...candidateTally,
-      scannedTally:
-        scannedContestResults.tallies[candidateTally.id]?.tally ?? 0,
-      manualTally: manualContestResults?.tallies[candidateTally.id]?.tally ?? 0,
+      tally:
+        contestResults.tallies[candidateTally.id]?.tally ?? 0,
+      manualTally: separateManualContestResults?.tallies[candidateTally.id]?.tally ?? 0,
     });
   }
 
@@ -90,14 +93,14 @@ function getInsignificantWriteInCount({
 function getAggregatedWriteInRows({
   contest,
   combinedContestResults,
-  scannedContestResults,
-  manualContestResults,
+  contestResults,
+  separateManualContestResults,
 }: {
   contest: CandidateContest;
   combinedContestResults: Tabulation.CandidateContestResults;
-  scannedContestResults: Tabulation.CandidateContestResults;
-  manualContestResults?: Tabulation.CandidateContestResults;
-}): TallyReportCandidateRow[] {
+  contestResults: Tabulation.CandidateContestResults;
+  separateManualContestResults?: Tabulation.CandidateContestResults;
+}): SeparatedTallyReportCandidateRow[] {
   const candidateTalliesDescending = Object.values(
     combinedContestResults.tallies
   )
@@ -120,7 +123,7 @@ function getAggregatedWriteInRows({
       candidateTally.tally >= leastNumberVotesForWinner
   );
 
-  const rows: TallyReportCandidateRow[] = [];
+  const rows: SeparatedTallyReportCandidateRow[] = [];
   let hasSomeWriteInRow = false;
 
   // each significant write-in candidate gets its own row
@@ -128,8 +131,8 @@ function getAggregatedWriteInRows({
     hasSomeWriteInRow = true;
     rows.push({
       ...addWriteInLabelToName(candidate),
-      scannedTally: scannedContestResults.tallies[candidate.id]?.tally ?? 0,
-      manualTally: manualContestResults?.tallies[candidate.id]?.tally ?? 0,
+      tally: contestResults.tallies[candidate.id]?.tally ?? 0,
+      manualTally: separateManualContestResults?.tallies[candidate.id]?.tally ?? 0,
     });
   }
 
@@ -137,19 +140,19 @@ function getAggregatedWriteInRows({
   const significantWriteInCandidateIds = significantWriteInCandidates.map(
     (c) => c.id
   );
-  const scannedInsignificantWriteInCount = getInsignificantWriteInCount({
-    contestResults: scannedContestResults,
+  const insignificantWriteInCount = getInsignificantWriteInCount({
+    contestResults: contestResults,
     significantWriteInCandidateIds,
   });
-  const manualInsignificantWriteInCount = manualContestResults
+  const separateManualInsignificantWriteInCount = separateManualContestResults
     ? getInsignificantWriteInCount({
-        contestResults: manualContestResults,
+        contestResults: separateManualContestResults,
         significantWriteInCandidateIds,
       })
     : 0;
   if (
-    scannedInsignificantWriteInCount > 0 ||
-    manualInsignificantWriteInCount > 0
+    insignificantWriteInCount > 0 ||
+    separateManualInsignificantWriteInCount > 0
   ) {
     hasSomeWriteInRow = true;
     rows.push({
@@ -158,14 +161,14 @@ function getAggregatedWriteInRows({
         significantWriteInCandidateIds.length > 0
           ? 'Other Write-In'
           : Tabulation.GENERIC_WRITE_IN_NAME,
-      scannedTally: scannedInsignificantWriteInCount,
-      manualTally: manualInsignificantWriteInCount,
+      tally: insignificantWriteInCount,
+      manualTally: separateManualInsignificantWriteInCount,
     });
   }
 
   // separately include pending or generic write-ins
   const nonCandidateWriteInTallies = Object.values(
-    scannedContestResults.tallies
+    contestResults.tallies
   )
     .filter(isNonCandidateWriteInTally)
     .filter((ct) => ct.tally > 0);
@@ -173,7 +176,7 @@ function getAggregatedWriteInRows({
     hasSomeWriteInRow = true;
     rows.push({
       ...nonCandidateWriteInTally,
-      scannedTally: nonCandidateWriteInTally.tally,
+      tally: nonCandidateWriteInTally.tally,
       manualTally: 0,
     });
   }
@@ -183,7 +186,7 @@ function getAggregatedWriteInRows({
   if (!hasSomeWriteInRow && contest.allowWriteIns) {
     rows.push({
       ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
-      scannedTally: 0,
+      tally: 0,
       manualTally: 0,
     });
   }
@@ -191,33 +194,33 @@ function getAggregatedWriteInRows({
   return rows;
 }
 
-export function getTallyReportCandidateRows({
+function getCandidateRows({
   contest,
-  scannedContestResults,
-  manualContestResults,
+  contestResults,
+  separateManualContestResults,
   aggregateInsignificantWriteIns,
 }: {
   contest: CandidateContest;
-  scannedContestResults: Tabulation.CandidateContestResults;
-  manualContestResults?: Tabulation.CandidateContestResults;
+  contestResults: Tabulation.CandidateContestResults;
+  separateManualContestResults?: Tabulation.CandidateContestResults;
   aggregateInsignificantWriteIns: boolean;
-}): TallyReportCandidateRow[] {
-  const combinedContestResults = manualContestResults
+}): SeparatedTallyReportCandidateRow[] {
+  const combinedContestResults = separateManualContestResults
     ? combineCandidateContestResults({
         contest,
-        allContestResults: [scannedContestResults, manualContestResults],
+        allContestResults: [contestResults, separateManualContestResults],
       })
-    : scannedContestResults;
+    : contestResults;
 
-  const rows: TallyReportCandidateRow[] = [];
+  const rows: SeparatedTallyReportCandidateRow[] = [];
 
   // official candidates are always listed, in election definition order
   for (const candidate of contest.candidates) {
     rows.push({
       ...candidate,
-      scannedTally: assertDefined(scannedContestResults.tallies[candidate.id])
+      tally: assertDefined(contestResults.tallies[candidate.id])
         .tally,
-      manualTally: manualContestResults?.tallies[candidate.id]?.tally ?? 0,
+      manualTally: separateManualContestResults?.tallies[candidate.id]?.tally ?? 0,
     });
   }
 
@@ -226,16 +229,16 @@ export function getTallyReportCandidateRows({
       ...getAggregatedWriteInRows({
         contest,
         combinedContestResults,
-        scannedContestResults,
-        manualContestResults,
+        contestResults,
+        separateManualContestResults,
       })
     );
   } else {
     rows.push(
       ...getAllWriteInRows({
         combinedContestResults,
-        scannedContestResults,
-        manualContestResults,
+        contestResults,
+        separateManualContestResults,
       })
     );
   }
@@ -243,9 +246,58 @@ export function getTallyReportCandidateRows({
   return rows;
 }
 
+/**
+ * Rows for a tally report that shows a single column of tallies.
+ */
+export function getTallyReportCandidateRows({
+  contest,
+  contestResults,
+  aggregateInsignificantWriteIns,
+}: {
+  contest: CandidateContest;
+  contestResults: Tabulation.CandidateContestResults;
+  aggregateInsignificantWriteIns: boolean;
+}): TallyReportCandidateRow[] {
+  return getCandidateRows({
+    contest,
+    contestResults,
+    aggregateInsignificantWriteIns,
+  }).map(({ manualTally, ...row }) => row);
+}
+
+/**
+ * Rows for a tally report that shows the manually entered tallies in their own
+ * column, alongside the tallies they were entered to supplement.
+ */
+export function getSeparatedTallyReportCandidateRows({
+  contest,
+  contestResults,
+  separateManualContestResults,
+  aggregateInsignificantWriteIns,
+}: {
+  contest: CandidateContest;
+  contestResults: Tabulation.CandidateContestResults;
+  separateManualContestResults: Tabulation.CandidateContestResults;
+  aggregateInsignificantWriteIns: boolean;
+}): SeparatedTallyReportCandidateRow[] {
+  return getCandidateRows({
+    contest,
+    contestResults,
+    separateManualContestResults,
+    aggregateInsignificantWriteIns,
+  });
+}
+
 // for testing only
 export function shorthandTallyReportCandidateRow(
   row: TallyReportCandidateRow
-): [id: string, name: string, scannedTally: number, manualTally: number] {
-  return [row.id, row.name, row.scannedTally, row.manualTally];
+): [id: string, name: string, tally: number] {
+  return [row.id, row.name, row.tally];
+}
+
+// for testing only
+export function shorthandSeparatedTallyReportCandidateRow(
+  row: SeparatedTallyReportCandidateRow
+): [id: string, name: string, tally: number, manualTally: number] {
+  return [row.id, row.name, row.tally, row.manualTally];
 }
