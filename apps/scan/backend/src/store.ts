@@ -638,13 +638,9 @@ export class Store {
   getBallotsCounted(): number {
     const row = this.client.one(`
       select
-        count(sheets.id) as ballotsCounted
-      from
-        sheets inner join batches
-      on
-        sheets.batch_id = batches.id
-      and
-        sheets.rejected_at is null
+        count(*) as ballotsCounted
+      from sheets
+      where rejected_at is null
     `) as { ballotsCounted: number } | undefined;
 
     return row?.ballotsCounted ?? 0;

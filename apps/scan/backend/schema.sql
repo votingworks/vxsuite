@@ -51,6 +51,11 @@ create table sheets (
     on delete cascade
 );
 
+-- Supports counting ballots and batch sheet counts without reading full sheet
+-- rows, which would require decoding past the large interpretation JSON blobs.
+create index idx_sheets_unrejected on sheets (batch_id)
+  where rejected_at is null;
+
 create table system_settings (
   -- Enforce singleton table
   id integer primary key check (id = 1),
