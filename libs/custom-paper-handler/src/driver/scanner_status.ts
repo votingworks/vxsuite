@@ -1,4 +1,4 @@
-import { PaperHandlerStatus } from './coders';
+import { PaperHandlerStatus } from './coders.js';
 
 export function isPaperReadyToLoad(
   paperHandlerStatus: PaperHandlerStatus

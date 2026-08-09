@@ -5,8 +5,8 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { PollsState } from '@votingworks/types';
 import { ElectionInfoBar, ElectionInfoBarProps } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen } from '../../test/react_testing_library';
-import { InsertCardScreen } from './insert_card_screen';
+import { render, screen } from '../../test/react_testing_library.js';
+import { InsertCardScreen } from './insert_card_screen.js';
 
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),

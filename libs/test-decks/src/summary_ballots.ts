@@ -9,7 +9,7 @@ import React from 'react';
 import { BmdPaperBallot, filterVotesForContests } from '@votingworks/ui';
 import { randomUUID as uuid } from 'node:crypto';
 import { concatenatePdfs } from '@votingworks/hmpb';
-import { TestDeckBallot } from './test_decks';
+import { TestDeckBallot } from './test_decks.js';
 
 /**
  * Creates a test deck of summary BMD ballots for the given ballot specs.

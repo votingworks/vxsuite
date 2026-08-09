@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
 import { createApi, createClient } from '@votingworks/grout';
-import { createMockClient } from './mock_client';
+import { createMockClient } from './mock_client.js';
 
 // Mirrors normal grout usage: build the API to derive its type via `typeof`.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

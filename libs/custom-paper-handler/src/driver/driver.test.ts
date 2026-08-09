@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { arrayBufferFrom, assert, assertDefined } from '@votingworks/basics';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
-import { MockWebUsbDevice } from '../test-utils';
+import { MockWebUsbDevice } from '../test-utils/index.js';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -12,22 +12,22 @@ import {
   PaperHandlerDriver,
   ReturnCodes,
   GENERIC_ENDPOINT_IN,
-} from './driver';
+} from './driver.js';
 import {
   TOKEN,
   NULL_CODE,
   OK_NO_MORE_DATA,
   RealTimeRequestIds,
   MaxPrintWidthDots,
-} from './constants';
-import { setUpMockWebUsbDevice } from './test_utils';
+} from './constants.js';
+import { setUpMockWebUsbDevice } from './test_utils.js';
 import {
   INVALID_ARGUMENT_RESPONSE_CODE,
   LoadPaperCommand,
   PaperHandlerBitmap,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
-} from './coders';
+} from './coders.js';
 
 vi.mock('usb');
 const findByIdsMock = vi.mocked(findByIds);

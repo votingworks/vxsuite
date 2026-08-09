@@ -5,7 +5,7 @@ import type {
   PageScreenshotOptions,
   TestInfo,
 } from '@playwright/test';
-import { SCREENSHOTS_DIR } from './constants';
+import { SCREENSHOTS_DIR } from './constants.js';
 
 /**
  * Builds ordered, collision-free filename stems for the screenshots captured

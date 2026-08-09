@@ -1,7 +1,7 @@
 import { Optional } from '@votingworks/basics';
-import { PaperHandlerDriverInterface } from './driver_interface';
-import { PaperHandlerDriver, getPaperHandlerWebDevice } from './driver';
-import { MaxPrintWidthDots } from './constants';
+import { PaperHandlerDriverInterface } from './driver_interface.js';
+import { PaperHandlerDriver, getPaperHandlerWebDevice } from './driver.js';
+import { MaxPrintWidthDots } from './constants.js';
 
 interface GetPaperHandlerDriverProps {
   maxPrintWidth: MaxPrintWidthDots;

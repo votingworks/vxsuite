@@ -25,8 +25,8 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen.js';
 
 const wobbleKeyframes = keyframes`
   0%, 93% { transform: rotate(0deg); }

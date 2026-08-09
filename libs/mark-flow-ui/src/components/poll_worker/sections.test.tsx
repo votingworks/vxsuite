@@ -7,12 +7,12 @@ import {
   pollingPlaceMembers,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen } from '../../../test/react_testing_library';
-import { SectionSessionStart } from './sections';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { SectionSessionStart } from './sections.js';
 import {
   BallotStyleSelect,
   BallotStyleSelectProps,
-} from './ballot_style_select';
+} from './ballot_style_select.js';
 
 const fixtures = electionFamousNames2021Fixtures;
 const electionDefinition = fixtures.readElectionDefinition();

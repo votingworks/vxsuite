@@ -1,4 +1,4 @@
-import { MachineConfig } from '../config/types';
+import { MachineConfig } from '../config/types.js';
 
 interface ScreenOrientationReturnType {
   isLandscape: boolean;

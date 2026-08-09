@@ -11,7 +11,7 @@ import {
 import { Button, Font, P, SearchSelect } from '@votingworks/ui';
 import { getBallotStyleGroupsForPrecinctOrSplit } from '@votingworks/utils';
 import { useState } from 'react';
-import { ButtonGrid } from './elements';
+import { ButtonGrid } from './elements.js';
 
 export type OnBallotStyleSelect = (
   precinctId: PrecinctId,
