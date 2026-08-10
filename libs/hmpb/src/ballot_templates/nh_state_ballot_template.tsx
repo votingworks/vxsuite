@@ -11,6 +11,7 @@ import {
   BaseStyles,
   isFederalOfficeContest,
   NhStateBallotProps,
+  NhStateBallotVariant,
 } from './nh_state_ballot_components';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
@@ -31,7 +32,9 @@ function contestsForBallot(props: NhStateBallotProps): readonly Contest[] {
     getBallotStyle({ election, ballotStyleId })
   );
   return getContests({ election, ballotStyle }).filter((contest) =>
-    props.isFederalOfficeOnly ? isFederalOfficeContest(contest) : true
+    props.variant === 'federalOfficeOnly'
+      ? isFederalOfficeContest(contest)
+      : true
   );
 }
 
@@ -40,8 +43,8 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
   contests,
   scratchpad
 ) => {
-  // Federal-office-only ballots should not include blank placeholder pages
-  if (contests.length === 0 && props.isFederalOfficeOnly) {
+  // Federal-office-only and UOCAVA ballots should not include blank placeholder pages
+  if (contests.length === 0 && props.variant) {
     return ok(undefined);
   }
   switch (props.election.type) {
@@ -55,7 +58,7 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
   }
 };
 
-export type { NhStateBallotProps };
+export type { NhStateBallotProps, NhStateBallotVariant };
 
 export const nhStateBallotTemplate: BallotPageTemplate<NhStateBallotProps> = {
   frameComponent: BallotPageFrame,

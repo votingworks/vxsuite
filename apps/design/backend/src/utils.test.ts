@@ -26,12 +26,24 @@ test('getBallotPdfFileName includes ballotAuditId when present', () => {
   );
 });
 
-test('getBallotPdfFileName appends -foo when isFederalOfficeOnly is true', () => {
+test('getBallotPdfFileName appends -foo for federalOfficeOnly variant', () => {
   const props: NhStateBallotProps = {
     ...baseProps,
-    isFederalOfficeOnly: true,
+    ballotType: BallotType.Absentee,
+    variant: 'federalOfficeOnly',
   };
   expect(getBallotPdfFileName(props)).toEqual(
-    'official-precinct-ballot-Center_Springfield-12-foo.pdf'
+    'official-absentee-ballot-Center_Springfield-12-foo.pdf'
+  );
+});
+
+test('getBallotPdfFileName appends -uocava for uocava variant', () => {
+  const props: NhStateBallotProps = {
+    ...baseProps,
+    ballotType: BallotType.Absentee,
+    variant: 'uocava',
+  };
+  expect(getBallotPdfFileName(props)).toEqual(
+    'official-absentee-ballot-Center_Springfield-12-uocava.pdf'
   );
 });

@@ -119,7 +119,7 @@ test('shows a PDF ballot preview', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -183,7 +183,7 @@ test('changes ballot type', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -214,7 +214,7 @@ test('changes ballot type', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -235,7 +235,7 @@ test('changes tabulation mode', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -270,7 +270,7 @@ test('changes tabulation mode', async () => {
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -295,7 +295,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -331,7 +331,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
       precinctId: precinct.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
-      isFederalOfficeOnly: undefined,
+      variant: undefined,
     })
     .resolves(
       ok({
@@ -349,7 +349,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
       precinctId: precinct.id,
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
-      isFederalOfficeOnly: true,
+      variant: 'federalOfficeOnly',
     })
     .resolves(
       ok({
@@ -381,7 +381,7 @@ describe('Ballot rendering error handling', () => {
         precinctId: precinct.id,
         ballotType: BallotType.Precinct,
         ballotMode: 'official',
-        isFederalOfficeOnly: undefined,
+        variant: undefined,
       })
       .resolves(
         err({
@@ -479,7 +479,7 @@ describe('Ballot rendering error handling', () => {
           precinctId: precinct.id,
           ballotType: BallotType.Precinct,
           ballotMode: 'official',
-          isFederalOfficeOnly: undefined,
+          variant: undefined,
         })
         .resolves(
           err({

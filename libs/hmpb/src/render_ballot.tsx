@@ -675,10 +675,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
     // don't need to share bubble positions with the scanned ballots
     .filter(
       (ballot) =>
-        !(
-          'isFederalOfficeOnly' in ballot.props &&
-          ballot.props.isFederalOfficeOnly
-        ) && !('isHandCount' in ballot.props && ballot.props.isHandCount)
+        !('variant' in ballot.props && ballot.props.variant) &&
+        !('isHandCount' in ballot.props && ballot.props.isHandCount)
     )
     .map((ballot) => ballot.ballotStylePositions)
     .toMap((positions) => positions.ballotStyleId);

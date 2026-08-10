@@ -897,7 +897,8 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     (props) => ({
       ...props,
       ballotType: BallotType.Absentee,
-      isFederalOfficeOnly: true,
+      ballotMode: 'official' as const,
+      variant: 'federalOfficeOnly' as const,
     })
   );
   const combinedBallotProps: NhStateBallotProps[] = [
@@ -960,7 +961,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
           props.ballotStyleId === ballotStyle.id &&
           props.precinctId === precinctId &&
           !props.isHandCount &&
-          !props.isFederalOfficeOnly,
+          !props.variant,
         { blankPath: blankBallotPath, markedPath: markedBallotPath }
       );
       const handCountResult = await renderBallotPdf(
@@ -974,7 +975,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         (props) =>
           props.ballotStyleId === ballotStyle.id &&
           props.precinctId === precinctId &&
-          Boolean(props.isFederalOfficeOnly),
+          props.variant === 'federalOfficeOnly',
         { blankPath: federalOfficeOnlyBlankBallotPath }
       );
 
@@ -1106,7 +1107,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     precinctId: demParty.precinctId,
     ballotType: BallotType.Absentee,
     ballotMode: 'official',
-    isFederalOfficeOnly: true,
+    variant: 'federalOfficeOnly',
   };
   const combinedBallotProps: NhStateBallotProps[] = [
     ...allBallotProps,
@@ -1177,7 +1178,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           props.ballotStyleId === demParty.ballotStyleId &&
           props.precinctId === demParty.precinctId &&
           !props.isHandCount &&
-          !props.isFederalOfficeOnly,
+          !props.variant,
         blankPath: demParty.blankBallotPath,
         markedPath: demParty.markedBallotPath,
         votes: demParty.votes,
@@ -1188,7 +1189,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           props.ballotStyleId === repParty.ballotStyleId &&
           props.precinctId === repParty.precinctId &&
           !props.isHandCount &&
-          !props.isFederalOfficeOnly,
+          !props.variant,
         blankPath: repParty.blankBallotPath,
         markedPath: repParty.markedBallotPath,
         votes: repParty.votes,
@@ -1205,7 +1206,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         match: (props) =>
           props.ballotStyleId === demParty.ballotStyleId &&
           props.precinctId === demParty.precinctId &&
-          Boolean(props.isFederalOfficeOnly),
+          props.variant === 'federalOfficeOnly',
         blankPath: demFederalOfficeOnlyBlankBallotPath,
       });
 

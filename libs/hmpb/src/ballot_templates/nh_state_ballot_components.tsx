@@ -19,10 +19,23 @@ import {
   TIMING_MARK_DIMENSIONS,
 } from '../ballot_components';
 
+// Federal Office Only (FOO) and UOCAVA absentee ballot variants
+// FOO: only federal-level offices
+// UOCAVA: overseas and military voters
+// These ballots aren't tabulated
+export type NhStateBallotVariant = 'federalOfficeOnly' | 'uocava';
+
 export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
+  // Hand-count towns need ballots that are not tabulatable (no timing marks, no QR code)
   isHandCount?: boolean;
-  isFederalOfficeOnly?: boolean;
-};
+} & (
+    | { variant?: undefined }
+    | {
+        variant: NhStateBallotVariant;
+        ballotType: BallotType.Absentee;
+        ballotMode: 'official';
+      }
+  );
 
 const FONT_DECLARATIONS = css`
   @font-face {
@@ -333,13 +346,13 @@ export function Footer({
   totalPages,
   ballotMode,
   isHandCount,
-  isFederalOfficeOnly,
+  variant,
 }: {
   pageNumber: number;
   totalPages?: number;
   ballotMode: BallotMode;
   isHandCount?: boolean;
-  isFederalOfficeOnly?: boolean;
+  variant?: NhStateBallotVariant;
 }): JSX.Element {
   return (
     <div
@@ -352,7 +365,7 @@ export function Footer({
       <div
         style={{
           // Ballots that don't get tabulated by a scanner don't need metadata.
-          display: isHandCount || isFederalOfficeOnly ? 'none' : undefined,
+          display: isHandCount || variant !== undefined ? 'none' : undefined,
           // Sample ballots also don't have metadata, but need to exactly match
           // the layout of their official counterparts, so we hide the metadata
           // instead of omitting it so it still takes up space in the layout.

@@ -277,7 +277,7 @@ export function BallotPageFrame({
   children,
   watermark,
   isHandCount,
-  isFederalOfficeOnly,
+  variant,
 }: NhStateBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -311,7 +311,7 @@ export function BallotPageFrame({
         <TimingMarkGrid
           pageDimensions={pageDimensions}
           hideTimingMarks={
-            ballotMode === 'sample' || isHandCount || isFederalOfficeOnly
+            ballotMode === 'sample' || isHandCount || variant !== undefined
           }
         >
           <div
@@ -341,7 +341,7 @@ export function BallotPageFrame({
                     // name (precinct.name) on the ballot.
                     election.precincts.length > 1 ? precinct : undefined
                   }
-                  isFederalOfficeOnly={isFederalOfficeOnly}
+                  isFederalOfficeOnly={variant === 'federalOfficeOnly'}
                 />
               </div>
             )}
@@ -355,7 +355,7 @@ export function BallotPageFrame({
               }}
             >
               {children}
-              {isHandCount && !isFederalOfficeOnly && (
+              {isHandCount && !variant && (
                 <HandCountInsignia
                   pageNumber={pageNumber}
                   totalPages={totalPages}
@@ -372,7 +372,7 @@ export function BallotPageFrame({
               totalPages={totalPages}
               ballotMode={ballotMode}
               isHandCount={isHandCount}
-              isFederalOfficeOnly={isFederalOfficeOnly}
+              variant={variant}
             />
           </div>
         </TimingMarkGrid>

@@ -301,8 +301,8 @@ export async function generateElectionPackageAndBallots(
     compact
   );
   // eslint-disable-next-line array-callback-return
-  allBallotProps = allBallotProps.filter((props) => {
-    switch (props.ballotMode) {
+  allBallotProps = allBallotProps.filter(({ ballotMode }) => {
+    switch (ballotMode) {
       case 'official':
         return true;
 
@@ -314,7 +314,7 @@ export async function generateElectionPackageAndBallots(
 
       default: {
         /* istanbul ignore next */
-        throwIllegalValue(props.ballotMode);
+        throwIllegalValue(ballotMode);
       }
     }
   });
@@ -432,8 +432,9 @@ export async function generateElectionPackageAndBallots(
   // Add ballots to ZIP files, grouped by ballot type:
   for (const { props, ballotPdf } of normalizedBallotPdfs) {
     const fileName = getBallotPdfFileName(props);
+    const { ballotMode } = props;
 
-    switch (props.ballotMode) {
+    switch (ballotMode) {
       case 'official':
         officialBallotsZip.file(fileName, ballotPdf);
         break;
@@ -448,7 +449,7 @@ export async function generateElectionPackageAndBallots(
 
       default: {
         /* istanbul ignore next */
-        throwIllegalValue(props.ballotMode);
+        throwIllegalValue(ballotMode);
       }
     }
   }

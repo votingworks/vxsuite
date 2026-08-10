@@ -327,7 +327,7 @@ test('ballot measure contest editing with additional contest options', async () 
   expect(updatedContest.options.slice(2)).toEqual(additionalOptions);
 });
 
-test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOfficeOnly is true', async () => {
+test('getBallotPreviewPdf routes Federal Office Only ballots for federalOfficeOnly variant', async () => {
   // Use the NH state general election fixture so the election has the contest
   // titles that NhStateBallot's isFederalOfficeContest matcher recognizes
   const { election } = nhStateGeneralElectionFixtures.allBallotProps[0];
@@ -367,7 +367,7 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
       ballotStyleId: ballotStyle.id,
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
-      isFederalOfficeOnly: false,
+      variant: undefined,
     })
   ).unsafeUnwrap();
   expect(nonFooResult.fileName).not.toMatch(/-foo\.pdf$/);
@@ -379,7 +379,7 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
       ballotStyleId: ballotStyle.id,
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
-      isFederalOfficeOnly: true,
+      variant: 'federalOfficeOnly',
     })
   ).unsafeUnwrap();
   expect(fooResult.fileName).toMatch(/-foo\.pdf$/);
