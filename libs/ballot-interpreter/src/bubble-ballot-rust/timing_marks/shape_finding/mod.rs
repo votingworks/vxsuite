@@ -112,8 +112,6 @@ fn find_timing_mark_shapes(
         }
     };
 
-    // Scan the search area row by row rather than column by column since the
-    // image data is stored row-major, making this far more cache-friendly.
     // Track the current run of black pixels in each column, merging runs that
     // have only a few pixels of white between them. This allows us to detect
     // timing marks that have a fold line through them (fold lines sometimes
