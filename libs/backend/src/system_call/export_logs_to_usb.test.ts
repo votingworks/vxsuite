@@ -74,7 +74,7 @@ test('exportLogsToUsb without logs directory', async () => {
   ).toEqual<LogsExportError>({ code: 'no-logs-directory' });
 
   // now we have the filesystem entry, but it's a file not a directory
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(false);
   vi.mocked(fs.stat).mockResolvedValue(mockStats);
 
@@ -104,7 +104,7 @@ test('exportLogsToUsb without USB', async () => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.removeUsbDrive();
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValue(mockStats);
 
@@ -125,7 +125,7 @@ test('exportLogsToUsb with unknown failure', async () => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
 
@@ -166,7 +166,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
 
@@ -219,7 +219,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
@@ -254,7 +254,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
@@ -302,7 +302,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
@@ -391,7 +391,7 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
-  const mockStats = new Stats();
+  const mockStats = Object.create(Stats.prototype) as Stats;
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<

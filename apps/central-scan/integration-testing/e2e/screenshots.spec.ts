@@ -20,11 +20,10 @@ import {
   withOvervote,
   withUndervote,
 } from '@votingworks/integration-test-utils';
+import type { CandidateContest, SystemSettings } from '@votingworks/types';
 import {
   AdjudicationReason,
-  CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
 } from '@votingworks/types';
 import {
   forceLogOutAndResetElectionDefinition,

@@ -1,4 +1,5 @@
-import { Page, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { test } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
@@ -11,11 +12,8 @@ import {
   captureReadinessReport,
   createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  ElectionDefinition,
-} from '@votingworks/types';
+import type { Election, ElectionDefinition } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   forceLogOutAndResetElectionDefinition,

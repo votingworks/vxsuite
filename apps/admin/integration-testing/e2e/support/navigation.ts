@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-jsdoc */
-import { Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export function getPrimaryButton(page: Page): Locator {
   return page.locator('button[data-variant="primary"]');

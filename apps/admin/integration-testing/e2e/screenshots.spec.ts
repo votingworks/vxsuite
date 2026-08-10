@@ -1,12 +1,11 @@
-import { expect, Page, test } from '@playwright/test';
-import {
-  getMockUsbDriveHandler,
-  MockUsbDriveHandler,
-} from '@votingworks/usb-drive';
+import type { Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import type { MockUsbDriveHandler } from '@votingworks/usb-drive';
+import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
+import type { MockFilePrinterHandler } from '@votingworks/printing';
 import {
   HP_4001_PRINTER_CONFIG,
   getMockFilePrinterHandler,
-  MockFilePrinterHandler,
 } from '@votingworks/printing';
 import {
   SCANNER_RESULTS_FOLDER,
@@ -30,18 +29,20 @@ import {
   type ScreenshotNamer,
   withWriteIns,
 } from '@votingworks/integration-test-utils';
+import type {
+  CandidateContest,
+  ElectionDefinition,
+  ElectionRegisteredVoterCounts,
+  SystemSettings,
+  VotesDict,
+} from '@votingworks/types';
 import {
   AdjudicationReason,
   BallotType,
-  CandidateContest,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
   ElectionPackageFileName,
-  ElectionRegisteredVoterCounts,
   LATEST_METADATA,
-  SystemSettings,
-  VotesDict,
 } from '@votingworks/types';
 import {
   mockBlankCard,

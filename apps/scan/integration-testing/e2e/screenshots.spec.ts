@@ -18,13 +18,15 @@ import {
   withUndervote,
   withWriteIns,
 } from '@votingworks/integration-test-utils';
-import {
-  AdjudicationReason,
+import type {
   CandidateContest,
-  DEFAULT_SYSTEM_SETTINGS,
   PollingPlace,
   SystemSettings,
   VotesDict,
+} from '@votingworks/types';
+import {
+  AdjudicationReason,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
