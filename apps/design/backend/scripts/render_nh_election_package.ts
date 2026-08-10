@@ -227,8 +227,17 @@ async function renderTownPackage(
     election,
     /* compact */ false
   ) as NhStateBallotProps[];
+  // The matrix emits a sample variant per ballot type, but both map to the
+  // same deliverable path ("sample" folder), so the two writes race and the
+  // absentee-sample (stamped ABSENTEE) usually clobbers the precinct one.
+  // NH's sample ballot is the precinct ballot, so keep only that variant
+  // (matching the proofs from render_nh_batch).
   const props = allProps
-    .filter((p) => p.ballotMode === 'official' || p.ballotMode === 'sample')
+    .filter(
+      (p) =>
+        p.ballotMode === 'official' ||
+        (p.ballotMode === 'sample' && p.ballotType === BallotType.Precinct)
+    )
     .map((p) => ({ ...p, isHandCount }));
 
   // 6. Render all ballots + build the v4.0 election definition.
