@@ -26,5 +26,6 @@ module.exports = {
       ? [`eslint --cache --quiet --fix ${filtered.join(' ')}`]
       : [];
   },
+  '*.rs': base['*.rs'],
   'package.json': ['sort-package-json'],
 };
