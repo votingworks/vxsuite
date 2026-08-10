@@ -16,6 +16,12 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;
 
+// Chromium's print layout can come out a few pixels taller than the same
+// content measured in the browser viewport (observed to be a constant ~5px
+// with Chromium 140). Pad the measured height so content sized to fit a
+// single roll page isn't split onto a second page.
+const CONTENT_HEIGHT_PADDING_PX = 8;
+
 let cachedBrowser: Browser | undefined;
 
 export type PdfError = 'content-too-large';
@@ -211,7 +217,8 @@ export async function renderToPdf(
     const isLetterRoll = height === PAPER_DIMENSIONS.LetterRoll.height;
 
     const contentHeight =
-      (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
+      ((await getContentHeight(page)) + CONTENT_HEIGHT_PADDING_PX) /
+        PLAYWRIGHT_PIXELS_PER_INCH +
       verticalMargin;
 
     const headerHtml =
