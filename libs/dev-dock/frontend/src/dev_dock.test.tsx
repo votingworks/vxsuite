@@ -87,7 +87,7 @@ beforeEach(() => {
   mockApiClient.getUsbDriveStatus
     .expectRepeatedCallsWith()
     .resolves({ diskPath: mockDiskPath, status: 'removed' });
-  mockApiClient.getAvailableElections.expectCallWith().resolves([
+  mockApiClient.getAvailableElections.expectRepeatedCallsWith().resolves([
     {
       title: 'electionGeneral',
       inputPath: './libs/fixtures/data/electionGeneral/election.json',
@@ -106,6 +106,7 @@ beforeEach(() => {
     inputPath: './libs/fixtures/data/electionGeneral/election.json',
     resolvedPath: '/full-path',
     arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: false,
   });
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -262,6 +263,7 @@ test('election selector', async () => {
     inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
     resolvedPath: '/full-path',
     arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: false,
   });
   userEvent.selectOptions(
     electionSelector,
@@ -884,3 +886,114 @@ describe('batch scanner mock', () => {
 function renderDock(api: MockClient<Api>) {
   return render(<DevDock apiClient={api} enableAccessibleNav />);
 }
+
+function enableQuickConfigurePreconditions() {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
+  );
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({
+    hasQuickConfigure: true,
+  });
+}
+
+function expectSelectedElectionPackage() {
+  mockApiClient.getElection.reset();
+  mockApiClient.getElection.expectCallWith().resolves({
+    title: 'Famous Names',
+    inputPath: '/design/exports/election-package-abc-123.zip',
+    resolvedPath: '/full-path',
+    arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: true,
+  });
+}
+
+test('quick configure button', async () => {
+  enableQuickConfigurePreconditions();
+  expectSelectedElectionPackage();
+
+  renderDock(mockApiClient);
+  const quickConfigureButton = await screen.findByRole('button', {
+    name: 'Quick Configure',
+  });
+  await waitFor(() => expect(quickConfigureButton).toBeEnabled());
+
+  // Quick configure throws rather than returning an error.
+  mockApiClient.quickConfigure
+    .expectCallWith()
+    .throws(new Error('Election package exceeds system limits'));
+  userEvent.click(quickConfigureButton);
+  await screen.findByText('Election package exceeds system limits');
+
+  // A successful one reloads the page so the app picks up its new election.
+  const reload = vi.fn();
+  vi.spyOn(window, 'location', 'get').mockReturnValue({
+    ...window.location,
+    reload,
+  });
+  mockApiClient.quickConfigure.expectCallWith().resolves();
+  userEvent.click(quickConfigureButton);
+  await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+});
+
+test('quick configure button is disabled without an election package', async () => {
+  enableQuickConfigurePreconditions();
+  // The default mocked election is a bare election definition.
+
+  renderDock(mockApiClient);
+  const quickConfigureButton = await screen.findByRole('button', {
+    name: 'Quick Configure',
+  });
+  expect(quickConfigureButton).toBeDisabled();
+  await screen.findByText('Select an election package');
+});
+
+test('quick configure button is hidden unless its preconditions are met', async () => {
+  renderDock(mockApiClient);
+  await screen.findByRole('button', { name: 'Election Manager' });
+  expect(screen.queryByRole('button', { name: 'Quick Configure' })).toBeNull();
+});
+
+test('quick configure button is hidden in apps that do not support it', async () => {
+  enableQuickConfigurePreconditions();
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec.expectCallWith().resolves({});
+  expectSelectedElectionPackage();
+
+  renderDock(mockApiClient);
+  await screen.findByRole('button', { name: 'Election Manager' });
+  expect(screen.queryByRole('button', { name: 'Quick Configure' })).toBeNull();
+});
+
+test('polls for newly exported elections', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+
+  renderDock(mockApiClient);
+  await screen.findByRole('option', { name: /electionGeneral/ });
+  expect(
+    screen.queryByRole('option', { name: 'VxDesign: election-package-new.zip' })
+  ).toBeNull();
+
+  // A VxDesign export made after the dock loaded should appear on its own.
+  mockApiClient.getAvailableElections.reset();
+  mockApiClient.getAvailableElections.expectRepeatedCallsWith().resolves([
+    {
+      title: 'VxDesign: election-package-new.zip',
+      inputPath: '/design/exports/election-package-new.zip',
+    },
+    {
+      title: 'electionGeneral',
+      inputPath: './libs/fixtures/data/electionGeneral/election.json',
+    },
+  ]);
+
+  await vi.advanceTimersByTimeAsync(5000);
+  await screen.findByRole('option', {
+    name: 'VxDesign: election-package-new.zip',
+  });
+
+  vi.useRealTimers();
+});

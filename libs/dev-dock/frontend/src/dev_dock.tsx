@@ -9,7 +9,13 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import { assert, assertDefined, sleep, uniqueBy } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+  sleep,
+  uniqueBy,
+} from '@votingworks/basics';
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -18,6 +24,7 @@ import {
   faCaretUp,
   faCircleDown,
   faGamepad,
+  faGift,
   faPrint,
   faQrcode,
   faXmark,
@@ -64,6 +71,8 @@ const ElectionControlSelect = styled.select`
   }
 `;
 
+const AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS = 5000;
+
 function ElectionControl(): JSX.Element | null {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -71,9 +80,11 @@ function ElectionControl(): JSX.Element | null {
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
   );
+  // Polled so that a fresh VxDesign export shows up without reloading the app.
   const availableElectionsQuery = useQuery(
     ['getAvailableElections'],
-    async () => (await apiClient.getAvailableElections()) ?? null
+    async () => (await apiClient.getAvailableElections()) ?? null,
+    { refetchInterval: AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS }
   );
   const availableElections = availableElectionsQuery.data || [];
   const setElectionMutation = useMutation(apiClient.setElection, {
@@ -557,7 +568,7 @@ function ScreenshotControls({
   );
 }
 
-const PrinterButton = styled.button<{ isConnected: boolean }>`
+const IconButton = styled.button<{ isActive: boolean }>`
   position: relative;
   background-color: white;
   width: 80px;
@@ -569,10 +580,10 @@ const PrinterButton = styled.button<{ isConnected: boolean }>`
   justify-content: center;
   padding: 5px;
   border: ${(props) =>
-    props.isConnected
+    props.isActive
       ? `4px solid ${Colors.ACTIVE}`
       : `1px solid ${Colors.BORDER}`};
-  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
+  color: ${(props) => (props.isActive ? Colors.ACTIVE : Colors.TEXT)};
   &:disabled {
     color: ${Colors.DISABLED};
     border-color: ${Colors.DISABLED};
@@ -612,9 +623,9 @@ function PrinterMockControl() {
 
   const isConnected = status?.connected === true;
   return (
-    <PrinterButton
+    <IconButton
       onClick={onPrinterClick}
-      isConnected={isConnected}
+      isActive={isConnected}
       disabled={disabled}
       aria-label="Printer"
     >
@@ -624,31 +635,60 @@ function PrinterMockControl() {
           <p>Printer mock disabled</p>
         </UsbMocksDisabledMessage>
       )}
-    </PrinterButton>
+    </IconButton>
   );
 }
 
-const HardwareIconButton = styled.button<{ isConnected: boolean }>`
-  position: relative;
-  background-color: white;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border: ${(props) =>
-    props.isConnected
-      ? `4px solid ${Colors.ACTIVE}`
-      : `1px solid ${Colors.BORDER}`};
-  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
-  &:disabled {
-    color: ${Colors.DISABLED};
-    border-color: ${Colors.DISABLED};
-  }
-`;
+function QuickConfigureButton(): JSX.Element {
+  const apiClient = useApiClient();
+  const [error, setError] = useState<string>();
+  // Shares a query key with ElectionControl, so this stays in sync as the
+  // election dropdown changes.
+  const getElectionQuery = useQuery(
+    ['getElection'],
+    async () => (await apiClient.getElection()) ?? null
+  );
+  const quickConfigureMutation = useMutation(apiClient.quickConfigure, {
+    onSuccess: () => {
+      // The app's election queries aren't polled, so its UI would go on showing
+      // the previous election. Reloading picks up the new configuration.
+      window.location.reload();
+    },
+    // Quick configure throws rather than returning an error, e.g. when the
+    // election package exceeds the machine's system limits.
+    onError: (mutationError) => setError(extractErrorMessage(mutationError)),
+  });
+
+  // Machines can only be configured from an election package, so a bare
+  // election definition has nothing to configure from.
+  const isElectionPackageSelected = Boolean(
+    getElectionQuery.data?.isElectionPackage
+  );
+
+  return (
+    <IconButton
+      isActive={quickConfigureMutation.isLoading}
+      disabled={!isElectionPackageSelected}
+      onClick={() => {
+        setError(undefined);
+        quickConfigureMutation.mutate();
+      }}
+      aria-label="Quick Configure"
+    >
+      <FontAwesomeIcon icon={faGift} size="2xl" />
+      {!isElectionPackageSelected && (
+        <UsbMocksDisabledMessage>
+          <p>Select an election package</p>
+        </UsbMocksDisabledMessage>
+      )}
+      {isElectionPackageSelected && error && (
+        <UsbMocksDisabledMessage>
+          <p>{error}</p>
+        </UsbMocksDisabledMessage>
+      )}
+    </IconButton>
+  );
+}
 
 function HardwareMockControls() {
   const queryClient = useQueryClient();
@@ -696,8 +736,8 @@ function HardwareMockControls() {
   };
   return (
     <>
-      <HardwareIconButton
-        isConnected={status.barcodeConnected}
+      <IconButton
+        isActive={status.barcodeConnected}
         disabled={!isBarcodeMockEnabled}
         onClick={() =>
           setBarcodeConnectedMutation.mutate({
@@ -712,9 +752,9 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
-      <HardwareIconButton
-        isConnected={status.patInputConnected}
+      </IconButton>
+      <IconButton
+        isActive={status.patInputConnected}
         disabled={!isXkeysMockEnabled}
         onClick={() =>
           setPatInputConnectedMutation.mutate({
@@ -729,9 +769,9 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
-      <HardwareIconButton
-        isConnected={status.accessibleControllerConnected}
+      </IconButton>
+      <IconButton
+        isActive={status.accessibleControllerConnected}
         disabled={!isAccessibleControllerMockEnabled}
         onClick={() =>
           setAccessibleConnectedMutation.mutate({
@@ -746,7 +786,7 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
+      </IconButton>
     </>
   );
 }
@@ -1013,6 +1053,26 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   if (!getMockSpecQuery.isSuccess) return null;
   const mockSpec = getMockSpecQuery.data;
 
+  // Quick configure stages an election package on the mock USB drive, programs
+  // an election manager card for it, and lets the machine configure itself. Each
+  // of these flags is a precondition for one step of that sequence:
+  //
+  // - SKIP_ELECTION_PACKAGE_AUTHENTICATION: the package comes straight from
+  //   VxDesign, so it has no VxAdmin signature for the machine to verify.
+  // - USE_MOCK_USB_DRIVE: the package is staged on the simulated USB drive. With
+  //   a real drive the machine reads hardware and never sees it.
+  // - USE_MOCK_CARDS: the election manager card is programmed by writing the
+  //   mock card file, which only a mock card reader reads.
+  // - SKIP_PIN_ENTRY: otherwise the election manager card lands in `checking_pin`
+  //   and configuration stalls until someone types the PIN.
+  const isQuickConfigureEnabled =
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    ) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY);
+
   return (
     <Container
       aria-hidden={!enableAccessibleNav}
@@ -1041,6 +1101,9 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
                 mockSpec.printerConfig !== 'fujitsu' && <PrinterMockControl />}
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
                 <HardwareMockControls />
+              )}
+              {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
+                <QuickConfigureButton />
               )}
             </IconsGrid>
           </Column>
