@@ -10,9 +10,14 @@ import {
 import { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
+  ELECTION_PACKAGE_FOLDER,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  createElectionPackageZipArchive,
+  getMostRecentElectionPackageFilepath,
+  mockElectionPackageFileTree,
+} from '@votingworks/backend';
 import {
   backendWaitFor,
   mockElectionManagerUser,
@@ -20,7 +25,7 @@ import {
   mockSystemAdministratorUser,
   zipFile,
 } from '@votingworks/test-utils';
-import { DEV_JURISDICTION } from '@votingworks/auth';
+import { DEV_JURISDICTION, readFromMockFile } from '@votingworks/auth';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
@@ -28,7 +33,7 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
-import { assert, typedAs } from '@votingworks/basics';
+import { Optional, assert, typedAs } from '@votingworks/basics';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
@@ -45,7 +50,9 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import {
+  getMockUsbDirPath,
   getMockUsbDriveHandler,
+  SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
@@ -56,6 +63,10 @@ import {
   DEV_DOCK_ELECTION_FILE_NAME,
   PdiScannerStatus,
 } from './dev_dock_api';
+import {
+  QUICK_CONFIGURE_ELECTION_DIR,
+  STAGED_ELECTION_PACKAGE_FILE_NAME,
+} from './quick_configure';
 
 const electionGeneral = readElectionGeneral();
 
@@ -90,15 +101,18 @@ let server: Server;
 
 function setup(
   mockSpec: MockSpec = {},
-  devDockDir: string = makeTemporaryDirectory({ prefix: 'dev-dock-test-' })
+  devDockDir: string = makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+  designExportDir: string = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  })
 ) {
   const app = express();
-  useDevDockRouter(app, express, mockSpec, devDockDir);
+  useDevDockRouter(app, express, mockSpec, devDockDir, designExportDir);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
   const apiClient = grout.createClient<Api>({ baseUrl });
-  return { apiClient, devDockDir };
+  return { apiClient, devDockDir, designExportDir };
 }
 
 beforeEach(() => {
@@ -432,6 +446,273 @@ test('usb drive mock endpoints', async () => {
   });
 });
 
+test("mounts with a default VxDesign export directory, since apps don't provide one", async () => {
+  const app = express();
+  useDevDockRouter(
+    app,
+    express,
+    {},
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' })
+  );
+  server = app.listen();
+  const { port } = server.address() as AddressInfo;
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${port}/dock`,
+  });
+
+  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+    status: 'removed',
+  });
+});
+
+async function writeVxDesignElectionPackage(
+  designExportDir: string,
+  fileName = 'election-package-aaa-111.zip'
+): Promise<string> {
+  const jurisdictionDir = join(designExportDir, 'dev-jurisdiction-DEMO');
+  fs.mkdirSync(jurisdictionDir, { recursive: true });
+  const packagePath = join(jurisdictionDir, fileName);
+  fs.writeFileSync(
+    packagePath,
+    await createElectionPackageZipArchive(
+      electionFamousNames2021Fixtures.toElectionPackage()
+    )
+  );
+  return packagePath;
+}
+
+test('lists the latest VxDesign election package', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  await writeVxDesignElectionPackage(
+    designExportDir,
+    'election-package-old.zip'
+  );
+  const latestPath = await writeVxDesignElectionPackage(
+    designExportDir,
+    'election-package-new.zip'
+  );
+  fs.utimesSync(latestPath, new Date('2030-01-01'), new Date('2030-01-01'));
+
+  const { apiClient } = setup(
+    {},
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+
+  const elections = await apiClient.getAvailableElections();
+  expect(elections[0]).toEqual({
+    title: 'VxDesign: election-package-new.zip',
+    inputPath: latestPath,
+  });
+});
+
+test('defaults the selected election to the latest VxDesign package', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+
+  const { apiClient } = setup(
+    {},
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+
+  await backendWaitFor(async () => {
+    expect(await apiClient.getElection()).toMatchObject({
+      inputPath: packagePath,
+      isElectionPackage: true,
+    });
+  });
+});
+
+test('quickConfigure requires an election package to be selected', async () => {
+  const { apiClient } = setup();
+  await apiClient.setElection({
+    inputPath: './libs/fixtures/data/electionGeneral/election.json',
+  });
+
+  await expect(apiClient.quickConfigure()).rejects.toThrow();
+  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+    status: 'removed',
+  });
+});
+
+// Note: This test overwrites the global mock card state.
+test('quickConfigure clears the card and unconfigures after staging, before programming the new card', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const stagedElectionPackagePath = join(
+    getMockUsbDriveHandler().getDataPath(),
+    QUICK_CONFIGURE_ELECTION_DIR,
+    ELECTION_PACKAGE_FOLDER,
+    STAGED_ELECTION_PACKAGE_FILE_NAME
+  );
+
+  let isPackageStagedAtUnconfigure = false;
+  let cardStatusAtUnconfigure: Optional<string>;
+  const unconfigure = vi.fn(() => {
+    isPackageStagedAtUnconfigure = fs.existsSync(stagedElectionPackagePath);
+    cardStatusAtUnconfigure = readFromMockFile().cardStatus.status;
+    return Promise.resolve();
+  });
+
+  const { apiClient } = setup(
+    { quickConfigure: { unconfigure, configure: () => Promise.resolve() } },
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+  await apiClient.setElection({ inputPath: packagePath });
+  await apiClient.insertCard({ role: 'election_manager' });
+
+  // Stand in for the machine mounting the drive, which configuring waits for.
+  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
+  const mounter = setInterval(() => {
+    const partition = platform
+      .getSimulatedDrives()
+      .find((drive) => drive.present)?.partition;
+    if (partition && !partition.mountpoint) {
+      void platform.mountPartition(partition.partPath);
+    }
+  }, 10);
+
+  await apiClient.quickConfigure();
+  clearInterval(mounter);
+
+  expect(unconfigure).toHaveBeenCalledTimes(1);
+  expect(isPackageStagedAtUnconfigure).toEqual(true);
+  // The stale card is removed first, so the newly unconfigured machine can't
+  // try to configure itself before the dock has programmed a matching card.
+  expect(cardStatusAtUnconfigure).toEqual('no_card');
+});
+
+// Note: This test overwrites the global mock card state.
+test('quickConfigure configures the machine once its drive is mounted, then removes the card', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+
+  const usbDriveHandler = getMockUsbDriveHandler();
+  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
+
+  let cardRoleAtConfigure: Optional<string>;
+  const configure = vi.fn(() => {
+    // Configuring reads the package off the drive, so it has to be mounted by
+    // now, with an election manager card inserted to authorize it.
+    expect(usbDriveHandler.status().status).toEqual('mounted');
+    const { cardStatus } = readFromMockFile();
+    cardRoleAtConfigure =
+      cardStatus.status === 'ready'
+        ? cardStatus.cardDetails.user?.role
+        : undefined;
+    return Promise.resolve();
+  });
+
+  const { apiClient } = setup(
+    { quickConfigure: { unconfigure: () => Promise.resolve(), configure } },
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+  await apiClient.setElection({ inputPath: packagePath });
+
+  // Stand in for the machine, which mounts an attached drive asynchronously.
+  // The delay outlasts the rest of the sequence, so quick configure has to wait
+  // for the mount rather than configuring as soon as it attaches the drive.
+  const mountDelay = setTimeout(() => {
+    const partition = platform
+      .getSimulatedDrives()
+      .find((drive) => drive.present)?.partition;
+    assert(partition);
+    void platform.mountPartition(partition.partPath);
+  }, 1_500);
+
+  await apiClient.quickConfigure();
+  clearTimeout(mountDelay);
+
+  expect(configure).toHaveBeenCalledTimes(1);
+  expect(cardRoleAtConfigure).toEqual('election_manager');
+  await expect(apiClient.getCardStatus()).resolves.toEqual({
+    status: 'no_card',
+  });
+});
+
+test('quickConfigure works for apps that do not support it', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+
+  const { apiClient } = setup(
+    {},
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+  await apiClient.setElection({ inputPath: packagePath });
+
+  await apiClient.quickConfigure();
+});
+
+// Note: This test overwrites the global mock card state.
+test('quickConfigure stages the selected election package and keeps it selected', async () => {
+  const designExportDir = makeTemporaryDirectory({
+    prefix: 'design-export-test-',
+  });
+  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const electionPackage = electionFamousNames2021Fixtures.toElectionPackage();
+
+  const { apiClient, devDockDir } = setup(
+    {},
+    makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
+    designExportDir
+  );
+  await apiClient.setElection({ inputPath: packagePath });
+
+  await apiClient.quickConfigure();
+  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+    status: 'inserted',
+  });
+
+  // The machine finds the staged copy on the drive using its own reader.
+  const usbDriveDataPath = getMockUsbDriveHandler().getDataPath();
+  const foundPath =
+    await getMostRecentElectionPackageFilepath(usbDriveDataPath);
+  expect(foundPath.unsafeUnwrap()).toEqual(
+    join(
+      usbDriveDataPath,
+      QUICK_CONFIGURE_ELECTION_DIR,
+      ELECTION_PACKAGE_FOLDER,
+      STAGED_ELECTION_PACKAGE_FILE_NAME
+    )
+  );
+
+  // The selection still points at what the developer picked, not the staged
+  // copy, so the dev dock keeps showing their choice.
+  await expect(apiClient.getElection()).resolves.toEqual({
+    title: electionPackage.electionDefinition.election.title,
+    inputPath: packagePath,
+    resolvedPath: join(devDockDir, DEV_DOCK_ELECTION_FILE_NAME),
+    arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: true,
+  });
+
+  await expect(apiClient.getCardStatus()).resolves.toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: mockElectionManagerUser({
+        electionKey: constructElectionKey(
+          electionPackage.electionDefinition.election
+        ),
+        jurisdiction: DEV_JURISDICTION,
+      }),
+    },
+  });
+});
+
 test('mock spec', async () => {
   const { apiClient: apiClient1 } = setup({ printerConfig: 'fujitsu' });
   expect(await apiClient1.getMockSpec()).toEqual({
@@ -441,6 +722,7 @@ test('mock spec', async () => {
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
     hasPatInputMock: false,
+    hasQuickConfigure: false,
   });
 
   const { apiClient: apiClient2 } = setup({
@@ -451,6 +733,10 @@ test('mock spec', async () => {
     setBarcodeConnected: vi.fn(),
     getPatInputConnected: vi.fn(),
     setPatInputConnected: vi.fn(),
+    quickConfigure: {
+      unconfigure: () => Promise.resolve(),
+      configure: () => Promise.resolve(),
+    },
   });
   expect(await apiClient2.getMockSpec()).toEqual({
     mockPdiScanner: false,
@@ -459,6 +745,7 @@ test('mock spec', async () => {
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
     hasPatInputMock: true,
+    hasQuickConfigure: true,
   });
 });
 
