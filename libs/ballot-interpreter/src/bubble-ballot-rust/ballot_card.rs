@@ -1,10 +1,10 @@
 use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf, sync::LazyLock};
 
 use crate::{
-    image_utils::{otsu_level, threshold},
+    image_utils::{crop_to_image, otsu_level, threshold},
     qr_code::SearchStrategy,
 };
-use image::{imageops::rotate180_in_place, GenericImageView, GrayImage};
+use image::{imageops::rotate180_in_place, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
 
@@ -92,14 +92,13 @@ impl BallotImage {
             });
         }
 
-        let image = image
-            .view(
-                border_inset.left,
-                border_inset.top,
-                image.width() - border_inset.left - border_inset.right,
-                image.height() - border_inset.top - border_inset.bottom,
-            )
-            .to_image();
+        let image = crop_to_image(
+            &image,
+            border_inset.left,
+            border_inset.top,
+            image.width() - border_inset.left - border_inset.right,
+            image.height() - border_inset.top - border_inset.bottom,
+        );
 
         // Re-compute the threshold after cropping to ensure future
         // re-interpretations based on the saved image are consistent with the

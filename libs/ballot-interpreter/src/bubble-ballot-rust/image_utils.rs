@@ -163,6 +163,36 @@ pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) 
     counted
 }
 
+/// Copies a rectangular region of the given image into a new image.
+///
+/// Equivalent to `image.view(x, y, width, height).to_image()`, but copies
+/// whole rows at a time rather than pixel by pixel, which measures about an
+/// order of magnitude faster.
+///
+/// # Panics
+///
+/// Panics if the region extends beyond the image bounds.
+pub(crate) fn crop_to_image(
+    image: &GrayImage,
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+) -> GrayImage {
+    assert!(
+        x + width <= image.width() && y + height <= image.height(),
+        "crop region must be within the image bounds"
+    );
+    let src_stride = image.width() as usize;
+    let raw = image.as_raw();
+    let mut out = Vec::with_capacity(width as usize * height as usize);
+    for row in 0..height as usize {
+        let start = (y as usize + row) * src_stride + x as usize;
+        out.extend_from_slice(&raw[start..start + width as usize]);
+    }
+    GrayImage::from_vec(width, height, out).expect("buffer length matches dimensions")
+}
+
 /// Finds the inset of a scanned document in an image such that each side of the
 /// inset has more than `min_ratio_above_threshold` of its pixels above the
 /// given threshold.
@@ -627,6 +657,26 @@ mod test {
                 expected[p as usize] += 1;
             }
             assert_eq!(histogram(&pixels), expected);
+        }
+
+        #[test]
+        fn crop_to_image_matches_view_to_image(
+            img_w in 1u32..50,
+            img_h in 1u32..50,
+            crop in proptest::num::u32::ANY,
+            seed in proptest::collection::vec(proptest::num::u8::ANY, 50 * 50),
+        ) {
+            use image::GenericImageView;
+            let image = GrayImage::from_fn(img_w, img_h, |x, y| {
+                Luma([seed[(y * img_w + x) as usize]])
+            });
+            let x = crop % img_w;
+            let y = (crop >> 8) % img_h;
+            let width = (crop >> 16) % (img_w - x) + 1;
+            let height = (crop >> 24) % (img_h - y) + 1;
+            let expected = image.view(x, y, width, height).to_image();
+            let actual = crop_to_image(&image, x, y, width, height);
+            assert_eq!(actual.as_raw(), expected.as_raw());
         }
     }
 
