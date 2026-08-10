@@ -671,15 +671,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // can still compute positions for them, and it's important that their bubble positions match
   // official ballots.
   const positionsByBallotStyle = iter(ballotLayouts)
-    // NH state ballots have a "federal office only" variant that only includes
-    // federal offices, which of course changes the layout of the bubbles. These
-    // ballots aren't tabulated, so we can simply filter them out.
+    // NH state ballots have variants that aren't tabulated by machine and so
+    // don't need to share bubble positions with the scanned ballots
     .filter(
       (ballot) =>
         !(
           'isFederalOfficeOnly' in ballot.props &&
           ballot.props.isFederalOfficeOnly
-        )
+        ) && !('isHandCount' in ballot.props && ballot.props.isHandCount)
     )
     .map((ballot) => ballot.ballotStylePositions)
     .toMap((positions) => positions.ballotStyleId);

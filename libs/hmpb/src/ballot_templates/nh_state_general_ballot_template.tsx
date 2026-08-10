@@ -286,6 +286,7 @@ export function BallotPageFrame({
             <Footer
               pageNumber={pageNumber}
               totalPages={totalPages}
+              ballotMode={ballotMode}
               isHandCount={isHandCount}
               isFederalOfficeOnly={isFederalOfficeOnly}
             />

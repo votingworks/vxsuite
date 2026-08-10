@@ -331,11 +331,13 @@ const arrowNextPage = (
 export function Footer({
   pageNumber,
   totalPages,
+  ballotMode,
   isHandCount,
   isFederalOfficeOnly,
 }: {
   pageNumber: number;
   totalPages?: number;
+  ballotMode: BallotMode;
   isHandCount?: boolean;
   isFederalOfficeOnly?: boolean;
 }): JSX.Element {
@@ -347,8 +349,17 @@ export function Footer({
         gap: '1rem',
       }}
     >
-      <div>
-        <QrCodeSlot hideQrCode={isHandCount || isFederalOfficeOnly} />
+      <div
+        style={{
+          // Ballots that don't get tabulated by a scanner don't need metadata.
+          display: isHandCount || isFederalOfficeOnly ? 'none' : undefined,
+          // Sample ballots also don't have metadata, but need to exactly match
+          // the layout of their official counterparts, so we hide the metadata
+          // instead of omitting it so it still takes up space in the layout.
+          visibility: ballotMode === 'sample' ? 'hidden' : undefined,
+        }}
+      >
+        <QrCodeSlot />
         <div
           style={{
             fontSize: '8pt',
