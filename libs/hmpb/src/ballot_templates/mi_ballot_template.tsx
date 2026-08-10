@@ -995,25 +995,30 @@ async function CombinedBallotPrimaryContestColumns({
   };
 }
 
-async function BallotPageContent(
-  props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
-  scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<BaseBallotProps>> {
-  if (!props) {
-    return ok({
-      currentPageElement: <BlankPageMessage />,
-      nextPageProps: undefined,
-    });
-  }
-
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+function contestsForBallot(props: BaseBallotProps): readonly ContestStruct[] {
+  const { election, ballotStyleId } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
-  const contests = getContests({ election, ballotStyle });
+  return getContests({ election, ballotStyle });
+}
+
+async function BallotPageContent(
+  props: BaseBallotProps & { dimensions: PixelDimensions },
+  contests: readonly ContestStruct[],
+  scratchpad: RenderScratchpad
+): Promise<ContentComponentResult> {
   if (contests.length === 0) {
-    throw new Error('No contests assigned to this precinct.');
+    return ok({
+      currentPageElement: <BlankPageMessage />,
+      leftoverContests: [],
+    });
   }
+
+  const { election, ballotStyleId, dimensions } = props;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
 
   const { leftoverContests, sectionsElement } = isCombinedBallotPrimary(
     election
@@ -1040,26 +1045,15 @@ async function BallotPageContent(
     });
   }
 
-  const nextPageProps =
-    leftoverContests.length > 0
-      ? {
-          ...restProps,
-          ballotStyleId,
-          election: {
-            ...election,
-            contests: leftoverContests,
-          },
-        }
-      : undefined;
-
   return ok({
     currentPageElement: sectionsElement,
-    nextPageProps,
+    leftoverContests,
   });
 }
 
 export const miBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
+  contestsForBallot,
   contentComponent: BallotPageContent,
 };

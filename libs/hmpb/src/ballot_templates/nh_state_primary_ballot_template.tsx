@@ -18,7 +18,6 @@ import {
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
-  getContests,
   getPartyForBallotStyle,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
@@ -53,7 +52,6 @@ import {
   allCaps,
   HandCountInsignia,
   Instructions,
-  isFederalOfficeContest,
   Footer,
   NhStateBallotProps,
   isDemocraticParty,
@@ -615,9 +613,17 @@ function Contest({
 
 export async function BallotPageContent(
   props: NhStateBallotProps & { dimensions: PixelDimensions },
+  contests: readonly ContestStruct[],
   scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<NhStateBallotProps>> {
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+): Promise<ContentComponentResult> {
+  if (contests.length === 0) {
+    return ok({
+      currentPageElement: <React.Fragment />,
+      leftoverContests: [],
+    });
+  }
+
+  const { election, ballotStyleId, dimensions } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -625,15 +631,8 @@ export async function BallotPageContent(
     getPartyForBallotStyle({ election, ballotStyleId })
   );
   const colorTint = colorTintForParty(party);
-  const contests = getContests({ election, ballotStyle });
-  if (contests.length === 0) {
-    throw new Error('No contests assigned to this precinct.');
-  }
   // One section for candidate contests, one for ballot measures
   const contestSections = iter(contests)
-    .filter((contest) =>
-      restProps.isFederalOfficeOnly ? isFederalOfficeContest(contest) : true
-    )
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
@@ -723,11 +722,11 @@ export async function BallotPageContent(
     );
   }
 
-  const contestsLeftToLayout = contestSections.flat();
+  const leftoverContests = contestSections.flat();
   if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
-      contest: contestsLeftToLayout[0],
+      contest: leftoverContests[0],
     });
   }
 
@@ -745,20 +744,8 @@ export async function BallotPageContent(
     ) : (
       <React.Fragment />
     );
-  const nextPageProps =
-    contestSections.length > 0
-      ? {
-          ...restProps,
-          ballotStyleId,
-          election: {
-            ...election,
-            contests: contestSections.flat(),
-          },
-        }
-      : undefined;
-
   return ok({
     currentPageElement,
-    nextPageProps,
+    leftoverContests,
   });
 }
