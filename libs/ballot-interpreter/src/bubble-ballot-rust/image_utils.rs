@@ -404,12 +404,43 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
     streaks
 }
 
+/// Builds a luma histogram of the given pixels.
+///
+/// Accumulates into several interleaved shard histograms and sums them at the
+/// end. Scanned ballots contain long runs of identical pixel values (blank
+/// paper, black borders), and with a single histogram every increment in such
+/// a run depends on the store of the previous one, so the CPU executes them
+/// serially. Sharding gives each of the `HISTOGRAM_SHARDS` consecutive pixels
+/// an independent histogram to increment, breaking the dependency chain. This
+/// measured about twice as fast as a single histogram on real ballot scans.
+/// The result is identical to a single histogram since the counts commute.
+pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
+    const HISTOGRAM_SHARDS: usize = 8;
+
+    let mut shards = [[0u32; 256]; HISTOGRAM_SHARDS];
+    let chunks = pixels.chunks_exact(HISTOGRAM_SHARDS);
+    let remainder = chunks.remainder();
+    for chunk in chunks {
+        for (shard, &p) in shards.iter_mut().zip(chunk.iter()) {
+            shard[p as usize] += 1;
+        }
+    }
+    for &p in remainder {
+        shards[0][p as usize] += 1;
+    }
+
+    let mut hist = [0u32; 256];
+    for i in 0..hist.len() {
+        for shard in &shards {
+            hist[i] += shard[i];
+        }
+    }
+    hist
+}
+
 /// Computes Otsu's threshold for a grayscale image.
 pub(crate) fn otsu_level(image: &GrayImage) -> u8 {
-    let mut hist = [0u32; 256];
-    for &p in image.as_raw() {
-        hist[p as usize] += 1;
-    }
+    let hist = histogram(image.as_raw());
     let total = f64::from(image.width()) * f64::from(image.height());
     let sum: f64 = hist
         .iter()
@@ -582,6 +613,20 @@ mod test {
                     assert!(gap > 1, "adjacent/overlapping streaks should coalesce");
                 }
             }
+        }
+    }
+
+    proptest::proptest! {
+        // Covers all `len % 8` remainder cases via the arbitrary length.
+        #[test]
+        fn histogram_matches_naive_single_histogram(
+            pixels in proptest::collection::vec(proptest::num::u8::ANY, 0..2048),
+        ) {
+            let mut expected = [0u32; 256];
+            for &p in &pixels {
+                expected[p as usize] += 1;
+            }
+            assert_eq!(histogram(&pixels), expected);
         }
     }
 
