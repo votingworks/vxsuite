@@ -1,4 +1,4 @@
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, ok, throwIllegalValue } from '@votingworks/basics';
 import { Contest, getBallotStyle, getContests } from '@votingworks/types';
 import {
   BallotPageTemplate,
@@ -35,11 +35,15 @@ function contestsForBallot(props: NhStateBallotProps): readonly Contest[] {
   );
 }
 
-const BallotPageContent: ContentComponent<NhStateBallotProps> = (
+const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
   props,
   contests,
   scratchpad
 ) => {
+  // Federal-office-only ballots should not include blank placeholder pages
+  if (contests.length === 0 && props.isFederalOfficeOnly) {
+    return ok(undefined);
+  }
   switch (props.election.type) {
     case 'general':
       return General.BallotPageContent(props, contests, scratchpad);

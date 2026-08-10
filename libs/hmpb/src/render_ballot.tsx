@@ -84,7 +84,7 @@ interface MissingSignatureError {
 export type BallotLayoutError = ContestTooLongError | MissingSignatureError;
 
 export type ContentComponentResult = Result<
-  PaginatedContent,
+  PaginatedContent | undefined,
   BallotLayoutError
 >;
 
@@ -175,7 +175,7 @@ async function paginateBallotContent<P extends object>(
     if (pageResult.isErr()) {
       return pageResult;
     }
-    const page = pageResult.ok();
+    const page = assertDefined(pageResult.ok());
     // If the leftover contests are the same as the given contests, we're in an
     // infinite loop.  This can happen if the content is too tall to fit on a
     // page. We expect the contentComponent to handle this case and throw a
@@ -217,16 +217,18 @@ async function paginateBallotContent<P extends object>(
       return blankPageResult;
     }
     const blankPage = blankPageResult.ok();
-    const lastFrameResult = frameComponent({
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...props,
-      pageNumber: pages.length + 1,
-      children: blankPage.currentPageElement,
-    });
-    if (lastFrameResult.isErr()) {
-      return lastFrameResult;
+    if (blankPage) {
+      const lastFrameResult = frameComponent({
+        // eslint-disable-next-line vx/gts-spread-like-types
+        ...props,
+        pageNumber: pages.length + 1,
+        children: blankPage.currentPageElement,
+      });
+      if (lastFrameResult.isErr()) {
+        return lastFrameResult;
+      }
+      framedPages.push(lastFrameResult.ok());
     }
-    framedPages.push(lastFrameResult.ok());
   }
 
   return ok(framedPages);
