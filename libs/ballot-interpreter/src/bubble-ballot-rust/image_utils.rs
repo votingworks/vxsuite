@@ -423,9 +423,9 @@ pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
     }
 
     let mut hist = [0u32; 256];
-    for shard in &shards {
-        for (total, &count) in hist.iter_mut().zip(shard.iter()) {
-            *total += count;
+    for i in 0..hist.len() {
+        for shard in &shards {
+            hist[i] += shard[i];
         }
     }
     hist
