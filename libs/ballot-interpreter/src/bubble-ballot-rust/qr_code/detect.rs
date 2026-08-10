@@ -33,7 +33,7 @@ impl<'a> DetectionArea<'a> {
     /// [`DetectionArea::image`], so areas that are never scanned (because a
     /// QR code was already found in an earlier area) are never copied.
     #[must_use]
-    pub fn with_crop(
+    pub fn new(
         img: &'a GrayImage,
         origin: Point<PixelUnit>,
         size: Size<PixelUnit>,
@@ -105,8 +105,8 @@ pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let top_right_origin = Point::new(width - crop_size.width, 0);
 
     vec![
-        DetectionArea::with_crop(img, bottom_left_origin, crop_size, Orientation::Portrait),
-        DetectionArea::with_crop(
+        DetectionArea::new(img, bottom_left_origin, crop_size, Orientation::Portrait),
+        DetectionArea::new(
             img,
             top_right_origin,
             crop_size,
@@ -140,8 +140,8 @@ pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     };
 
     vec![
-        DetectionArea::with_crop(img, bottom_origin, bottom_size, Orientation::Portrait),
-        DetectionArea::with_crop(img, top_origin, top_size, Orientation::PortraitReversed),
+        DetectionArea::new(img, bottom_origin, bottom_size, Orientation::Portrait),
+        DetectionArea::new(img, top_origin, top_size, Orientation::PortraitReversed),
     ]
 }
 
