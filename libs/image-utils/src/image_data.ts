@@ -266,9 +266,15 @@ export function fromGrayScale(
 }
 
 function createCanvasWithImageData(imageData: ImageData) {
+  // `putImageData` reads `width * height * RGBA_CHANNEL_COUNT` bytes from the
+  // buffer without checking its length, so passing a grayscale image reads past
+  // the end of the allocation, producing garbage pixels or segfaulting.
+  const rgbaImageData = isRgba(imageData)
+    ? ensureImageData(imageData)
+    : fromGrayScale(imageData.data, imageData.width, imageData.height);
   const canvas = createCanvas(imageData.width, imageData.height);
   const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  context.putImageData(rgbaImageData, 0, 0);
   return canvas;
 }
 
@@ -369,9 +375,7 @@ export function toImageBuffer(
   imageData: ImageData,
   mimeType: 'image/png' | 'image/jpeg' = 'image/png'
 ): Buffer {
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  const canvas = createCanvasWithImageData(imageData);
   // Help TS match the union type branches to overloaded function signatures
   return mimeType === 'image/png'
     ? canvas.toBuffer(mimeType)

@@ -21,7 +21,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { ImageData } from '@votingworks/image-utils';
+import { ImageData, RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import {
   Listener,
@@ -43,7 +43,10 @@ import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app.js';
 import { Player as AudioPlayer } from '../../src/audio/player.js';
-import { createPrecinctScannerStateMachine, delays } from '../../src/scanner.js';
+import {
+  createPrecinctScannerStateMachine,
+  delays,
+} from '../../src/scanner.js';
 import { Store } from '../../src/store.js';
 import { Workspace, createWorkspace } from '../../src/util/workspace.js';
 import {
@@ -220,6 +223,18 @@ export const POLLING_PLACE_ID_OVERVOTE_HMPB = POLLING_PLACE_ID_COMPLETE_HMPB;
 export const POLLING_PLACE_ID_COMPETE_BMD =
   DEFAULT_FAMOUS_NAMES_POLLING_PLACE_ID;
 
+/**
+ * Reshapes RGBA image data into the grayscale (one byte per pixel) image data
+ * the real PDI scanner client emits. See `libs/pdi-scanner/src/ts/scanner_client.ts`.
+ */
+function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
+  const pixels = new Uint8ClampedArray(width * height);
+  for (let i = 0; i < pixels.length; i += 1) {
+    pixels[i] = data[i * RGBA_CHANNEL_COUNT];
+  }
+  return { width, height, data: pixels };
+}
+
 export const ballotImages = {
   completeHmpb: async () =>
     pdfToImageSheet(
@@ -272,6 +287,10 @@ export const ballotImages = {
   blankSheet: async () => [
     await sampleBallotImages.blankPage.asImageData(),
     await sampleBallotImages.blankPage.asImageData(),
+  ],
+  blankSheetGrayscale: async () => [
+    toGrayscaleImageData(await sampleBallotImages.blankPage.asImageData()),
+    toGrayscaleImageData(await sampleBallotImages.blankPage.asImageData()),
   ],
 } satisfies Record<string, () => Promise<SheetOf<ImageData>>>;
 

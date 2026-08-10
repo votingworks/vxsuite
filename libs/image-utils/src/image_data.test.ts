@@ -2,10 +2,10 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
-import { err, ok, MaybePromise } from '@votingworks/basics';
+import { err, ok, iter, MaybePromise, range } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
@@ -188,6 +188,63 @@ test('toDataUrl image/jpeg', async () => {
       }
     )
   );
+});
+
+test('canvas encoders accept grayscale image data', async () => {
+  // Scanner clients emit grayscale image data (one byte per pixel), but
+  // `putImageData` reads four bytes per pixel regardless of the buffer length.
+  // Encoding grayscale without converting it first reads past the end of the
+  // allocation, which yields garbage pixels or crashes the process, so assert
+  // that the pixels survive the round trip rather than expecting a throw.
+  const width = 64;
+  const height = 64;
+  const grayscaleImageData: ImageData = {
+    width,
+    height,
+    data: Uint8ClampedArray.from(range(0, width * height), (i) => i % 0x100),
+  };
+
+  const encoders: Array<[string, () => MaybePromise<Buffer>]> = [
+    [
+      'writeImageData',
+      async () => {
+        const filePath = makeTemporaryFile({ postfix: '.png' });
+        await writeImageData(filePath, grayscaleImageData);
+        return await readFile(filePath);
+      },
+    ],
+    ['encodeImageData', () => encodeImageData(grayscaleImageData, 'image/png')],
+    ['toImageBuffer', () => toImageBuffer(grayscaleImageData, 'image/png')],
+    [
+      'toDataUrl',
+      () =>
+        Buffer.from(
+          toDataUrl(grayscaleImageData, 'image/png').replace(
+            /^data:image\/png;base64,/,
+            ''
+          ),
+          'base64'
+        ),
+    ],
+  ];
+
+  for (const [name, encode] of encoders) {
+    const decoded = (await loadImageData(await encode())).unsafeUnwrap();
+    expect({ name, width: decoded.width, height: decoded.height }).toEqual({
+      name,
+      width,
+      height,
+    });
+
+    const decodedGray = iter(decoded.data)
+      .chunks(RGBA_CHANNEL_COUNT)
+      .map(([red]) => red)
+      .toArray();
+    expect({ name, pixels: decodedGray }).toEqual({
+      name,
+      pixels: [...grayscaleImageData.data],
+    });
+  }
 });
 
 test('ensureImageData', () => {
@@ -381,7 +438,9 @@ test('loadImageMetadata on JPEG truncated before segment length', async () => {
 test('loadImageMetadata on JPEG with invalid segment length', async () => {
   // SOI + APP0 marker (FF E0) + 2-byte length field of 1, which is less than
   // the minimum valid value of 2 (the length field includes itself)
-  const result = await loadImageMetadata(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01]));
+  const result = await loadImageMetadata(
+    Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01])
+  );
   expect(result).toEqual(
     err({ type: 'invalid-image-file', message: expect.any(String) })
   );
