@@ -75,7 +75,7 @@ test('start passes context to `buildApp`', async () => {
     logger,
   });
 
-  expect(buildAppMock).toHaveBeenCalledWith({
+  expect(buildAppMock.mock.lastCall?.[0]).toEqual({
     audioPlayer: mockAudioPlayer,
     auth: expect.anything(),
     machine: expect.anything(),

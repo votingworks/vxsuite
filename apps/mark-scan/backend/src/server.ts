@@ -19,7 +19,7 @@ import {
   startCpuMetricsLogging,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { buildApp } from './app';
+import { buildApi, buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 import { getDefaultAuth, getUserRole } from './util/auth';
@@ -114,16 +114,32 @@ export async function start({
 
   await initializeSystemAudio();
 
+  const api = buildApi(
+    resolvedAuth,
+    usbDrive,
+    logger,
+    workspace,
+    stateMachine,
+    driver
+  );
   const app = buildApp(
     resolvedAuth,
     logger,
     workspace,
     usbDrive,
     stateMachine,
-    driver
+    driver,
+    api
   );
 
-  useDevDockRouter(app, express, {});
+  useDevDockRouter(app, express, {
+    quickConfigure: {
+      unconfigure: () => api.methods().unconfigureMachine(),
+      configure: async () => {
+        (await api.methods().configureElectionPackageFromUsb()).unsafeUnwrap();
+      },
+    },
+  });
 
   // Start periodic CPU metrics logging
   startCpuMetricsLogging(logger);

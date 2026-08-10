@@ -679,25 +679,8 @@ export function buildApi({
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp({
-  audioPlayer,
-  auth,
-  machine,
-  workspace,
-  usbDrive,
-  printer,
-  logger,
-}: {
-  audioPlayer: AudioPlayerInterface;
-  auth: InsertedSmartCardAuthApi;
-  machine: PrecinctScannerStateMachine;
-  workspace: Workspace;
-  printer: FujitsuThermalPrinterInterface;
-  usbDrive: UsbDrive;
-  logger: Logger;
-}): Application {
-  const app: Application = express();
-  const api = buildApi({
+export function buildApp(
+  {
     audioPlayer,
     auth,
     machine,
@@ -705,7 +688,27 @@ export function buildApp({
     usbDrive,
     printer,
     logger,
-  });
+  }: {
+    audioPlayer: AudioPlayerInterface;
+    auth: InsertedSmartCardAuthApi;
+    machine: PrecinctScannerStateMachine;
+    workspace: Workspace;
+    printer: FujitsuThermalPrinterInterface;
+    usbDrive: UsbDrive;
+    logger: Logger;
+  },
+  /* istanbul ignore next */
+  api = buildApi({
+    audioPlayer,
+    auth,
+    machine,
+    workspace,
+    usbDrive,
+    printer,
+    logger,
+  })
+): Application {
+  const app: Application = express();
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

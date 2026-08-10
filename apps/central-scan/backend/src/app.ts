@@ -56,7 +56,8 @@ export interface AppOptions {
   usbDrive: UsbDrive;
 }
 
-function buildApi({
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildApi({
   auth,
   workspace,
   logger,
@@ -452,23 +453,12 @@ export type Api = ReturnType<typeof buildApi>;
  * Builds an express application, using `store` and `importer` to do the heavy
  * lifting.
  */
-export function buildCentralScannerApp({
-  auth,
-  scanner,
-  importer,
-  workspace,
-  logger,
-  usbDrive,
-}: AppOptions): Application {
+export function buildCentralScannerApp(
+  { auth, scanner, importer, workspace, logger, usbDrive }: AppOptions,
+  /* istanbul ignore next */
+  api = buildApi({ auth, workspace, logger, usbDrive, scanner, importer })
+): Application {
   const app: Application = express();
-  const api = buildApi({
-    auth,
-    workspace,
-    logger,
-    usbDrive,
-    scanner,
-    importer,
-  });
   app.use('/api', grout.buildRouter(api, express));
 
   return app;

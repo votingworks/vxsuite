@@ -17,6 +17,7 @@ import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import {
   DEFAULT_DEV_DOCK_DIR,
+  QuickConfigureApi,
   useDevDockRouter,
 } from '@votingworks/dev-dock-backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
@@ -24,7 +25,7 @@ import { Importer } from './importer';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
 import { MockBatchScanner } from './mock_batch_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './app';
+import { buildApi, buildCentralScannerApp } from './app';
 import { getUserRole } from './util/auth';
 
 export interface StartOptions {
@@ -85,6 +86,8 @@ export function start({
   resolvedWorkspace.store.cleanupIncompleteBatches();
 
   let resolvedApp = app;
+  // Absent when a caller supplied its own app, since then there's no api here.
+  let quickConfigure: QuickConfigureApi | undefined;
   let mockBatchScanner: MockBatchScanner | undefined;
   /* istanbul ignore next */
   if (!resolvedApp) {
@@ -129,18 +132,31 @@ export function start({
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
 
-    resolvedApp = buildCentralScannerApp({
+    const context: Parameters<typeof buildApi>[0] = {
       auth,
       scanner: resolvedBatchScanner,
       importer: resolvedImporter,
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
-    });
+    };
+    const api = buildApi(context);
+    resolvedApp = buildCentralScannerApp(context, api);
+    quickConfigure = {
+      unconfigure: () =>
+        // Ballots counted outside test mode would otherwise block this.
+        api.methods().unconfigure({ ignoreBackupRequirement: true }),
+      configure: async () => {
+        (
+          await api.methods().configureFromElectionPackageOnUsbDrive()
+        ).unsafeUnwrap();
+      },
+    };
   }
 
   useDevDockRouter(resolvedApp, express, {
     mockBatchScanner,
+    quickConfigure,
   });
 
   // Start periodic CPU metrics logging
