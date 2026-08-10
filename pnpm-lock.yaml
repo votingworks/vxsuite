@@ -8,8 +8,9 @@ overrides:
   '@babel/traverse': 7.23.2
   brace-expansion@1: ^1.1.13
   brace-expansion@2: ^2.0.2
+  canvas: 3.2.3
   graceful-fs: ^4.2.9
-  nan: ^2.20.0
+  nan: ^2.28.0
   typescript: npm:@typescript/typescript6@6.0.2
 
 pnpmfileChecksum: sha256-eJokq7EzJEMySZukx+IFLhIhOHaScrqbyNUKycTI+/k=
@@ -145,7 +146,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/backend:
     dependencies:
@@ -262,8 +263,8 @@ importers:
         specifier: ^4.0.10
         version: 4.0.10
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
@@ -302,7 +303,7 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       lodash.set:
         specifier: ^4.3.2
         version: 4.3.2
@@ -311,7 +312,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend:
     dependencies:
@@ -371,7 +372,7 @@ importers:
         version: 3.0.7
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -440,8 +441,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -507,10 +508,10 @@ importers:
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend/prodserver:
     dependencies:
@@ -576,8 +577,8 @@ importers:
         version: 0.2.7
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -642,8 +643,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/utils
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -679,8 +680,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -704,13 +705,13 @@ importers:
         version: 5.1.1
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend:
     dependencies:
@@ -791,8 +792,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -855,7 +856,7 @@ importers:
         version: 4.10.1
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0
@@ -864,10 +865,10 @@ importers:
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -918,8 +919,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1027,8 +1028,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/pg':
         specifier: ^8.11.10
         version: 8.11.10
@@ -1067,13 +1068,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/design/frontend:
     dependencies:
@@ -1269,7 +1270,7 @@ importers:
         version: 4.10.1
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0
@@ -1281,10 +1282,10 @@ importers:
         version: 0.2.7
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/backend:
     dependencies:
@@ -1383,8 +1384,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/node-hid':
         specifier: ^1.3.2
         version: 1.3.2
@@ -1417,13 +1418,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend:
     dependencies:
@@ -1595,10 +1596,10 @@ importers:
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -1646,8 +1647,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1743,8 +1744,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/node-hid':
         specifier: ^1.3.2
         version: 1.3.2
@@ -1777,13 +1778,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend:
     dependencies:
@@ -1946,16 +1947,16 @@ importers:
         version: 9.11.0(node-fetch@2.7.0)
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2009,8 +2010,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2066,8 +2067,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/utils
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       csv-parse:
         specifier: ^5.5.0
         version: 5.5.0
@@ -2106,7 +2107,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2127,8 +2128,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2161,7 +2162,7 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2348,10 +2349,10 @@ importers:
         version: 0.2.7
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/pollbook/frontend/prodserver:
     dependencies:
@@ -2432,7 +2433,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2453,8 +2454,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2487,7 +2488,7 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2629,10 +2630,10 @@ importers:
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/print/frontend/prodserver:
     dependencies:
@@ -2689,8 +2690,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2758,8 +2759,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
@@ -2804,8 +2805,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -2826,13 +2827,13 @@ importers:
         version: link:../../../libs/eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -2934,8 +2935,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2989,7 +2990,7 @@ importers:
         version: 4.10.1
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0
@@ -2998,10 +2999,10 @@ importers:
         version: 1.53.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/scan/frontend/prodserver:
     dependencies:
@@ -3052,8 +3053,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -3064,8 +3065,8 @@ importers:
   docs/exercises:
     dependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3083,7 +3084,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/@types/compress-commons:
     dependencies:
@@ -3098,8 +3099,8 @@ importers:
   libs/@types/stream-chopper:
     dependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
 
   libs/@types/zip-stream:
     dependencies:
@@ -3190,7 +3191,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3277,8 +3278,8 @@ importers:
         specifier: ^4.0.10
         version: 4.0.10
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/stream-chopper':
         specifier: workspace:*
         version: link:../@types/stream-chopper
@@ -3317,7 +3318,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-encoder:
     dependencies:
@@ -3329,8 +3330,8 @@ importers:
         version: link:../types
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/text-encoding':
         specifier: ^0.0.35
         version: 0.0.35
@@ -3351,7 +3352,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-interpreter:
     dependencies:
@@ -3374,11 +3375,11 @@ importers:
         specifier: workspace:*
         version: link:../utils
       better-sqlite3:
-        specifier: 8.2.0
-        version: 8.2.0
+        specifier: 12.11.1
+        version: 12.11.1
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -3394,10 +3395,10 @@ importers:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
-        version: 3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@20.19.43)(node-addon-api@8.3.1)
+        version: 3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.13.3)(node-addon-api@8.3.1)
       '@types/better-sqlite3':
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 9.6.0
+        version: 9.6.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -3408,8 +3409,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/node-quirc':
         specifier: workspace:*
         version: link:../@types/node-quirc
@@ -3448,13 +3449,13 @@ importers:
         version: 11.1.1
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/basics:
     dependencies:
@@ -3469,8 +3470,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3485,7 +3486,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -3534,7 +3535,7 @@ importers:
         version: link:../eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3549,7 +3550,7 @@ importers:
         version: 0.12.4
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/cdf-schema-builder:
     dependencies:
@@ -3558,7 +3559,7 @@ importers:
         version: link:../basics
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       json-schema:
         specifier: ^0.4.0
         version: 0.4.0
@@ -3573,8 +3574,8 @@ importers:
         specifier: ^7.0.9
         version: 7.0.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3586,7 +3587,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/custom-paper-handler:
     dependencies:
@@ -3622,8 +3623,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/w3c-web-usb':
         specifier: 1.0.8
         version: 1.0.8
@@ -3641,7 +3642,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/db:
     dependencies:
@@ -3655,21 +3656,21 @@ importers:
         specifier: workspace:*
         version: link:../utils
       better-sqlite3:
-        specifier: 8.2.0
-        version: 8.2.0
+        specifier: 12.11.1
+        version: 12.11.1
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
     devDependencies:
       '@types/better-sqlite3':
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 9.6.0
+        version: 9.6.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -3687,7 +3688,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/backend:
     dependencies:
@@ -3732,8 +3733,8 @@ importers:
         specifier: 4.17.14
         version: 4.17.14
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -3760,7 +3761,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/frontend:
     dependencies:
@@ -3811,8 +3812,8 @@ importers:
         specifier: workspace:*
         version: link:../../@types/kiosk-browser
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3845,7 +3846,7 @@ importers:
         version: 2.23.2
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3857,7 +3858,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/eslint-plugin-vx:
     dependencies:
@@ -3920,8 +3921,8 @@ importers:
         version: 8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5)
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3939,7 +3940,7 @@ importers:
         version: 18.3.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixture-generators:
     dependencies:
@@ -3993,8 +3994,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4018,7 +4019,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixtures:
     dependencies:
@@ -4029,15 +4030,15 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       csv-writer:
         specifier: ^1.6.0
         version: 1.6.0
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4049,7 +4050,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fs:
     dependencies:
@@ -4082,8 +4083,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4113,7 +4114,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fujitsu-thermal-printer:
     dependencies:
@@ -4152,8 +4153,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/w3c-web-usb':
         specifier: 1.0.8
         version: 1.0.8
@@ -4171,7 +4172,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/grout:
     dependencies:
@@ -4214,7 +4215,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -4242,7 +4243,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/hmpb:
     dependencies:
@@ -4311,8 +4312,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -4348,7 +4349,7 @@ importers:
         version: 2.23.2
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4357,10 +4358,10 @@ importers:
         version: 0.12.4
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/image-utils:
     dependencies:
@@ -4377,14 +4378,14 @@ importers:
         specifier: workspace:*
         version: link:../utils
       canvas:
-        specifier: 2.11.2
-        version: 2.11.2
+        specifier: 3.2.3
+        version: 3.2.3
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       pdfjs-dist:
         specifier: 5.4.296
         version: 5.4.296
@@ -4402,8 +4403,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/pixelmatch':
         specifier: ^5.2.6
         version: 5.2.6
@@ -4430,7 +4431,7 @@ importers:
         version: 2.23.2
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/integration-test-utils:
     dependencies:
@@ -4472,8 +4473,8 @@ importers:
         version: link:../utils
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4485,7 +4486,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging:
     dependencies:
@@ -4521,8 +4522,8 @@ importers:
         specifier: workspace:*
         version: link:../@types/kiosk-browser
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
@@ -4552,13 +4553,13 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging-utils:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
-        version: 3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@20.19.43)(node-addon-api@8.3.1)
+        version: 3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.13.3)(node-addon-api@8.3.1)
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4585,7 +4586,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/mark-flow-ui:
     dependencies:
@@ -4630,8 +4631,8 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -4685,7 +4686,7 @@ importers:
         version: 4.10.1
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -4709,10 +4710,10 @@ importers:
         version: 0.12.4
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/message-coder:
     dependencies:
@@ -4721,8 +4722,8 @@ importers:
         version: link:../basics
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4734,7 +4735,7 @@ importers:
         version: 2.23.2
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/monorepo-utils:
     dependencies:
@@ -4743,8 +4744,8 @@ importers:
         version: link:../basics
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4762,7 +4763,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/networking:
     dependencies:
@@ -4780,8 +4781,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4805,7 +4806,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/pdi-scanner:
     dependencies:
@@ -4832,8 +4833,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
@@ -4848,7 +4849,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/printing:
     dependencies:
@@ -4911,8 +4912,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -4945,13 +4946,13 @@ importers:
         version: link:../eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-decks:
     dependencies:
@@ -4987,8 +4988,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5021,13 +5022,13 @@ importers:
         version: link:../eslint-plugin-vx
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-utils:
     dependencies:
@@ -5066,8 +5067,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5085,7 +5086,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/types:
     dependencies:
@@ -5115,8 +5116,8 @@ importers:
         specifier: ^4.3.7
         version: 4.3.7
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5152,7 +5153,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ui:
     dependencies:
@@ -5293,8 +5294,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -5375,10 +5376,10 @@ importers:
         version: 4.10.1
       jest-image-snapshot:
         specifier: ^6.4.0
-        version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
+        version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.11.2)
+        version: 20.0.1(canvas@3.2.3)
       lorem-ipsum:
         specifier: ^2.0.8
         version: 2.0.8
@@ -5411,10 +5412,10 @@ importers:
         version: 0.12.4
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       vitest-styled-components:
         specifier: ^1.0.0
         version: 1.0.0(styled-components@5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1))
@@ -5453,8 +5454,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -5475,7 +5476,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/utils:
     dependencies:
@@ -5523,8 +5524,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       '@types/randombytes':
         specifier: ^2.0.0
         version: 2.0.0
@@ -5557,7 +5558,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   script:
     dependencies:
@@ -5581,8 +5582,8 @@ importers:
         version: 5.0.0
     devDependencies:
       '@types/node':
-        specifier: 20.19.43
-        version: 20.19.43
+        specifier: 24.13.3
+        version: 24.13.3
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -7445,10 +7446,6 @@ packages:
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
-
-  '@mapbox/node-pre-gyp@1.0.9':
-    resolution: {integrity: sha512-aDF3S3rK9Q2gey/WAttUlISduDItz5BU3306M9Eyv6/oS40aMprnopshtlKTykxRNIBEZuRMaZAnbrQ4QtKGyw==}
-    hasBin: true
 
   '@mdx-js/react@2.2.1':
     resolution: {integrity: sha512-YdXcMcEnqZhzql98RNrqYo9cEhTTesBiCclEtoiQUbJwx87q9453GTapYU6kJ8ZZ2ek1Vp25SiAXEFy5O/eAPw==}
@@ -9384,8 +9381,8 @@ packages:
   '@types/base64-js@1.3.0':
     resolution: {integrity: sha512-ZmI0sZGAUNXUfMWboWwi4LcfpoVUYldyN6Oe0oJ5cCsHDU/LlRq8nQKPXhYLOx36QYSW9bNIb1vvRrD6K7Llgw==}
 
-  '@types/better-sqlite3@7.6.3':
-    resolution: {integrity: sha512-YS64N9SNDT/NAvou3QNdzAu3E2om/W/0dhORimtPGLef+zSK5l1vDzfsWb4xgXOgfhtOI5ZDTRxnvRPb22AIVQ==}
+  '@types/better-sqlite3@9.6.0':
+    resolution: {integrity: sha512-ZEEwBSgMu7GYJOynoagg5X9JbxfL6dTJDsgViJIqh67jV44kyOr9RXfmFjLK5rzC4MWssP06t9hu/JwGDnUbCg==}
 
   '@types/body-parser@1.19.2':
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
@@ -9582,8 +9579,8 @@ packages:
   '@types/node@16.18.23':
     resolution: {integrity: sha512-XAMpaw1s1+6zM+jn2tmw8MyaRDIJfXxqmIQIS0HfoGYPuf7dUWeiUKopwq13KFX9lEp1+THGtlaaYx39Nxr58g==}
 
-  '@types/node@20.19.43':
-    resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
+  '@types/node@24.13.3':
+    resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
 
   '@types/normalize-package-data@2.4.1':
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -10122,9 +10119,6 @@ packages:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     deprecated: Use your platform's native atob() and btoa() methods instead
 
-  abbrev@1.1.1:
-    resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
-
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
@@ -10245,17 +10239,9 @@ packages:
   app-root-dir@1.0.2:
     resolution: {integrity: sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==}
 
-  aproba@2.0.0:
-    resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
-
   archiver-utils@2.1.0:
     resolution: {integrity: sha512-bEL/yUb/fNNiNTuUz979Z0Yg5L+LzLxGJz8x79lYmR54fmTIb6ob/hNQgkQnIUDWIFjZVQwl9Xs356I6BAMHfw==}
     engines: {node: '>= 6'}
-
-  are-we-there-yet@2.0.0:
-    resolution: {integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==}
-    engines: {node: '>=10'}
-    deprecated: This package is no longer supported.
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -10473,8 +10459,9 @@ packages:
     resolution: {integrity: sha512-aVNobHnJqLiUelTaHat9DZ1qM2w0C0Eym4LPI/3JxOnSokGVdsl1T1kN7TFvsEAD8G47A6VKQ0TVHqbBnYMJlQ==}
     engines: {node: '>=12.0.0'}
 
-  better-sqlite3@8.2.0:
-    resolution: {integrity: sha512-8eTzxGk9535SB3oSNu0tQ6I4ZffjVCBUjKHN9QeeIFtphBX0sEd0NxAuglBNR9TO5ThnxBB7GqzfcYo9kjadJQ==}
+  better-sqlite3@12.11.1:
+    resolution: {integrity: sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==}
+    engines: {node: 20.x || 22.x || 23.x || 24.x || 25.x || 26.x}
 
   big-integer@1.6.51:
     resolution: {integrity: sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==}
@@ -10635,9 +10622,9 @@ packages:
   caniuse-lite@1.0.30001807:
     resolution: {integrity: sha512-daRXJ9EB/rdRgu7kV+TTl1YUKtlsMWblPl2sLnpg9DZae16QCegol6A1SmCE31Lm9mXC1sRWGt/krouH+/dl7Q==}
 
-  canvas@2.11.2:
-    resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
-    engines: {node: '>=6'}
+  canvas@3.2.3:
+    resolution: {integrity: sha512-PzE5nJZPz72YUAfo8oTp0u3fqqY7IzlTubneAihqDYAUcBk7ryeCmBbdJBEdaH0bptSOe2VT2Zwcb3UaFyaSWw==}
+    engines: {node: ^18.12.0 || >= 20.9.0}
 
   chai@6.2.2:
     resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
@@ -10786,10 +10773,6 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  color-support@1.1.3:
-    resolution: {integrity: sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==}
-    hasBin: true
-
   colord@2.9.3:
     resolution: {integrity: sha512-jeC1axXpnb0/2nn/Y1LPuLdgXBLH7aDcHu4KEKfqw3CUhX7ZpfBSlPKyqXE6btIgEzfWtrX3/tyBCaCvXvMkOw==}
 
@@ -10864,9 +10847,6 @@ packages:
 
   confusing-browser-globals@1.0.11:
     resolution: {integrity: sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==}
-
-  console-control-strings@1.1.0:
-    resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}
 
   content-disposition@0.5.4:
     resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
@@ -11089,10 +11069,6 @@ packages:
   decimal.js@10.4.1:
     resolution: {integrity: sha512-F29o+vci4DodHYT9UrR5IEbfBw9pE5eSapIJdTqXK5+6hq+t8VRxwQyKlW2i+KDKFkkJQRvFyI/QXD83h8LyQw==}
 
-  decompress-response@4.2.1:
-    resolution: {integrity: sha512-jOSne2qbyE+/r8G1VU+G/82LBs2Fs4LAsTiLSHOCOMZQl2OKZ6i8i4IyHemTe+/yIXOtTcRQMzPcgyhoFlqPkw==}
-    engines: {node: '>=8'}
-
   decompress-response@6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
     engines: {node: '>=10'}
@@ -11156,9 +11132,6 @@ packages:
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
-
-  delegates@1.0.0:
-    resolution: {integrity: sha512-bd2L678uiWATM6m5Z1VzNCErI3jiGzt6HGY8OVICs40JQq/HALfbyNJmp0UDakEY4pMMaN0Ly5om/B1VI/+xfQ==}
 
   depd@1.1.2:
     resolution: {integrity: sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==}
@@ -11958,11 +11931,6 @@ packages:
     resolution: {integrity: sha512-SewY5KdMpaoCeh7jachEWFsh1nNlaDjNHZXWqL5IGwtpEYHTgkr2+AMCgNwKWkcc0wpSYrZfR7he4WdmHFtDxQ==}
     engines: {node: '>=8'}
 
-  gauge@3.0.2:
-    resolution: {integrity: sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==}
-    engines: {node: '>=10'}
-    deprecated: This package is no longer supported.
-
   gaxios@6.1.1:
     resolution: {integrity: sha512-bw8smrX+XlAoo9o1JAksBwX+hi/RG15J+NTSxmNPIclKC3ZVK6C2afwY8OSdRvOK0+ZLecUJYtj2MmjOt3Dm0w==}
     engines: {node: '>=14'}
@@ -12207,9 +12175,6 @@ packages:
   has-tostringtag@1.0.2:
     resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
     engines: {node: '>= 0.4'}
-
-  has-unicode@2.0.1:
-    resolution: {integrity: sha512-8Rf9Y83NBReMnx0gFzA8JImQACstCYWUplepDa9xprwwtmgEZUF0h/i5xSA625zB/I37EtrswSST6OXxwaaIJQ==}
 
   has@1.0.3:
     resolution: {integrity: sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==}
@@ -12961,7 +12926,7 @@ packages:
     resolution: {integrity: sha512-pksjj7Rqoa+wdpkKcLzQRHhJCEE42qQhl/xLMUKHgoSejaKOdaXEAnqs6uDNwMl/fciHTzKeR8Wm8cw7N+g98A==}
     engines: {node: '>=14'}
     peerDependencies:
-      canvas: ^2.5.0
+      canvas: 3.2.3
     peerDependenciesMeta:
       canvas:
         optional: true
@@ -13468,10 +13433,6 @@ packages:
     resolution: {integrity: sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==}
     engines: {node: '>=4'}
 
-  mimic-response@2.1.0:
-    resolution: {integrity: sha512-wXqjST+SLt7R009ySCglWBCFpjUygmCIfD790/kVbiGmUgfYGuB14PiTd5DwVxSV4NcYHjzMkoj5LjQZwTQLEA==}
-    engines: {node: '>=8'}
-
   mimic-response@3.1.0:
     resolution: {integrity: sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==}
     engines: {node: '>=10'}
@@ -13560,8 +13521,8 @@ packages:
     resolution: {integrity: sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  nan@2.20.0:
-    resolution: {integrity: sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==}
+  nan@2.28.0:
+    resolution: {integrity: sha512-fTsDz99OTq2sVePhGdp4qQhggZFtKr64ZNVyVajRKtMOkJxYekplBh577PiJB12v/D3s2E5cGtOI45LWp6rnLQ==}
 
   nanoid@3.3.15:
     resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
@@ -13575,6 +13536,9 @@ packages:
 
   napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
+
+  napi-build-utils@2.0.0:
+    resolution: {integrity: sha512-GEbrYkbfF7MoNaoh2iGG84Mnf/WZfB0GdGEsM8wz7Expx/LlWf5U8t9nvJKXSp3qr5IsEbK04cBGhol/KwOsWA==}
 
   napi-postinstall@0.3.4:
     resolution: {integrity: sha512-PHI5f1O0EP5xJ9gQmFGMS6IZcrVvTjpXjz7Na41gTE7eE2hK11lg04CECCYEEjdc17EV4DO+fkGEtt7TpTaTiQ==}
@@ -13597,6 +13561,9 @@ packages:
 
   node-addon-api@3.2.1:
     resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}
+
+  node-addon-api@7.1.1:
+    resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
   node-addon-api@8.3.1:
     resolution: {integrity: sha512-lytcDEdxKjGJPTLEfW4mYMigRezMlyJY8W4wxJK8zE533Jlb8L8dRuObJFWg2P+AuOIxoCgKF+2Oq4d4Zd0OUA==}
@@ -13673,11 +13640,6 @@ packages:
   noms@0.0.0:
     resolution: {integrity: sha512-lNDU9VJaOPxUmXcLb+HQFeUgQQPtMI24Gt6hgfuMHRJgMRHMF/qZ4HJD3GDru4sSw9IQl2jPjAYnQrdIeLbwow==}
 
-  nopt@5.0.0:
-    resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
-    engines: {node: '>=6'}
-    hasBin: true
-
   normalize-package-data@2.5.0:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
 
@@ -13704,10 +13666,6 @@ packages:
   npm-run-path@5.1.0:
     resolution: {integrity: sha512-sJOdmRGrY2sjNTRMbSvluQqg+8X7ZK61yvzBEIDhz4f8z1TZFYABsqjjCBd/0PUNE9M6QDgHJXQkGUEm7Q+l9Q==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  npmlog@5.0.1:
-    resolution: {integrity: sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==}
-    deprecated: This package is no longer supported.
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
@@ -14166,6 +14124,12 @@ packages:
 
   prebuild-install@7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
+    engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+    hasBin: true
+
+  prebuild-install@7.1.3:
+    resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
     deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
@@ -14859,9 +14823,6 @@ packages:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
     engines: {node: '>= 0.8.0'}
 
-  set-blocking@2.0.0:
-    resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
-
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -14933,9 +14894,6 @@ packages:
 
   simple-concat@1.0.1:
     resolution: {integrity: sha512-cSFtAPtRhljv69IK0hTVZQ+OfE9nePi/rtJmw5UjHeVyVroEqJXP1sFztKUy1qU+xvz3u/sfYJLa947b7nAN2Q==}
-
-  simple-get@3.1.1:
-    resolution: {integrity: sha512-CQ5LTKGfCpvE1K0n2us+kuMPbk/q0EKl82s4aheV9oXjFEz6W/Y7oQFVJuU6QG77hRT4Ghb5RURteF5vnWjupA==}
 
   simple-get@4.0.1:
     resolution: {integrity: sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==}
@@ -15526,6 +15484,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
   undici@7.29.0:
     resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
@@ -15922,9 +15883,6 @@ packages:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
     hasBin: true
-
-  wide-align@1.1.5:
-    resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
 
   wordwrap@1.0.0:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
@@ -18044,7 +18002,7 @@ snapshots:
   '@grpc/grpc-js@1.9.9':
     dependencies:
       '@grpc/proto-loader': 0.7.10
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@grpc/proto-loader@0.7.10':
     dependencies:
@@ -18083,122 +18041,122 @@ snapshots:
 
   '@inquirer/ansi@2.0.3': {}
 
-  '@inquirer/checkbox@5.1.0(@types/node@20.19.43)':
+  '@inquirer/checkbox@5.1.0(@types/node@24.13.3)':
     dependencies:
       '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
       '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/confirm@6.0.8(@types/node@20.19.43)':
+  '@inquirer/confirm@6.0.8(@types/node@24.13.3)':
     dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/core@11.1.5(@types/node@20.19.43)':
+  '@inquirer/core@11.1.5(@types/node@24.13.3)':
     dependencies:
       '@inquirer/ansi': 2.0.3
       '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.0
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/editor@5.0.8(@types/node@20.19.43)':
+  '@inquirer/editor@5.0.8(@types/node@24.13.3)':
     dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/external-editor': 2.0.3(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/external-editor': 2.0.3(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/expand@5.0.8(@types/node@20.19.43)':
+  '@inquirer/expand@5.0.8(@types/node@24.13.3)':
     dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/external-editor@2.0.3(@types/node@20.19.43)':
+  '@inquirer/external-editor@2.0.3(@types/node@24.13.3)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@inquirer/figures@2.0.3': {}
 
-  '@inquirer/input@5.0.8(@types/node@20.19.43)':
+  '@inquirer/input@5.0.8(@types/node@24.13.3)':
     dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/number@4.0.8(@types/node@20.19.43)':
+  '@inquirer/number@4.0.8(@types/node@24.13.3)':
     dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/password@5.0.8(@types/node@20.19.43)':
-    dependencies:
-      '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
-    optionalDependencies:
-      '@types/node': 20.19.43
-
-  '@inquirer/prompts@8.3.0(@types/node@20.19.43)':
-    dependencies:
-      '@inquirer/checkbox': 5.1.0(@types/node@20.19.43)
-      '@inquirer/confirm': 6.0.8(@types/node@20.19.43)
-      '@inquirer/editor': 5.0.8(@types/node@20.19.43)
-      '@inquirer/expand': 5.0.8(@types/node@20.19.43)
-      '@inquirer/input': 5.0.8(@types/node@20.19.43)
-      '@inquirer/number': 4.0.8(@types/node@20.19.43)
-      '@inquirer/password': 5.0.8(@types/node@20.19.43)
-      '@inquirer/rawlist': 5.2.4(@types/node@20.19.43)
-      '@inquirer/search': 4.1.4(@types/node@20.19.43)
-      '@inquirer/select': 5.1.0(@types/node@20.19.43)
-    optionalDependencies:
-      '@types/node': 20.19.43
-
-  '@inquirer/rawlist@5.2.4(@types/node@20.19.43)':
-    dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
-    optionalDependencies:
-      '@types/node': 20.19.43
-
-  '@inquirer/search@4.1.4(@types/node@20.19.43)':
-    dependencies:
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
-    optionalDependencies:
-      '@types/node': 20.19.43
-
-  '@inquirer/select@5.1.0(@types/node@20.19.43)':
+  '@inquirer/password@5.0.8(@types/node@24.13.3)':
     dependencies:
       '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.5(@types/node@20.19.43)
-      '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@20.19.43)
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
-  '@inquirer/type@4.0.3(@types/node@20.19.43)':
+  '@inquirer/prompts@8.3.0(@types/node@24.13.3)':
+    dependencies:
+      '@inquirer/checkbox': 5.1.0(@types/node@24.13.3)
+      '@inquirer/confirm': 6.0.8(@types/node@24.13.3)
+      '@inquirer/editor': 5.0.8(@types/node@24.13.3)
+      '@inquirer/expand': 5.0.8(@types/node@24.13.3)
+      '@inquirer/input': 5.0.8(@types/node@24.13.3)
+      '@inquirer/number': 4.0.8(@types/node@24.13.3)
+      '@inquirer/password': 5.0.8(@types/node@24.13.3)
+      '@inquirer/rawlist': 5.2.4(@types/node@24.13.3)
+      '@inquirer/search': 4.1.4(@types/node@24.13.3)
+      '@inquirer/select': 5.1.0(@types/node@24.13.3)
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
+
+  '@inquirer/rawlist@5.2.4(@types/node@24.13.3)':
+    dependencies:
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
+    optionalDependencies:
+      '@types/node': 24.13.3
+
+  '@inquirer/search@4.1.4(@types/node@24.13.3)':
+    dependencies:
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/figures': 2.0.3
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
+    optionalDependencies:
+      '@types/node': 24.13.3
+
+  '@inquirer/select@5.1.0(@types/node@24.13.3)':
+    dependencies:
+      '@inquirer/ansi': 2.0.3
+      '@inquirer/core': 11.1.5(@types/node@24.13.3)
+      '@inquirer/figures': 2.0.3
+      '@inquirer/type': 4.0.3(@types/node@24.13.3)
+    optionalDependencies:
+      '@types/node': 24.13.3
+
+  '@inquirer/type@4.0.3(@types/node@24.13.3)':
+    optionalDependencies:
+      '@types/node': 24.13.3
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -18225,7 +18183,7 @@ snapshots:
   '@jest/console@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       jest-message-util: 29.7.0
       jest-util: 29.7.0
@@ -18239,14 +18197,14 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.9.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      jest-config: 29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
       jest-regex-util: 29.6.3
@@ -18272,7 +18230,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       jest-mock: 29.7.0
     optional: true
 
@@ -18292,7 +18250,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -18316,7 +18274,7 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit: 0.1.2
@@ -18389,7 +18347,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/yargs': 16.0.5
       chalk: 4.1.2
 
@@ -18398,7 +18356,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/yargs': 17.0.22
       chalk: 4.1.2
 
@@ -18433,21 +18391,6 @@ snapshots:
   '@juggle/resize-observer@3.4.0': {}
 
   '@kurkle/color@0.3.4': {}
-
-  '@mapbox/node-pre-gyp@1.0.9':
-    dependencies:
-      detect-libc: 2.1.2
-      https-proxy-agent: 5.0.1
-      make-dir: 3.1.0
-      node-fetch: 2.7.0
-      nopt: 5.0.0
-      npmlog: 5.0.1
-      rimraf: 3.0.2
-      semver: 7.7.4
-      tar: 6.1.13
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
 
   '@mdx-js/react@2.2.1(react@18.3.1)':
     dependencies:
@@ -18502,9 +18445,9 @@ snapshots:
       '@napi-rs/canvas-win32-arm64-msvc': 0.1.100
       '@napi-rs/canvas-win32-x64-msvc': 0.1.100
 
-  '@napi-rs/cli@3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@20.19.43)(node-addon-api@8.3.1)':
+  '@napi-rs/cli@3.5.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.13.3)(node-addon-api@8.3.1)':
     dependencies:
-      '@inquirer/prompts': 8.3.0(@types/node@20.19.43)
+      '@inquirer/prompts': 8.3.0(@types/node@24.13.3)
       '@napi-rs/cross-toolchain': 1.0.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@napi-rs/wasm-tools': 1.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@octokit/rest': 22.0.1
@@ -20957,14 +20900,14 @@ snapshots:
 
   '@types/base64-js@1.3.0': {}
 
-  '@types/better-sqlite3@7.6.3':
+  '@types/better-sqlite3@9.6.0':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.36
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/braces@3.0.1': {}
 
@@ -20972,7 +20915,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/responselike': 1.0.3
 
   '@types/caseless@0.12.4': {}
@@ -20984,15 +20927,15 @@ snapshots:
 
   '@types/combined-stream@1.0.3':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/connect@3.4.36':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/cross-spawn@6.0.2':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/debug@4.1.12':
     dependencies:
@@ -21016,7 +20959,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.31':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -21034,16 +20977,16 @@ snapshots:
   '@types/fs-extra@11.0.1':
     dependencies:
       '@types/jsonfile': 6.1.1
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/graceful-fs@4.1.6':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/history@4.7.11': {}
 
@@ -21056,7 +20999,7 @@ snapshots:
 
   '@types/http-proxy@1.17.15':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/istanbul-lib-coverage@2.0.4': {}
 
@@ -21084,7 +21027,7 @@ snapshots:
 
   '@types/jsdom@20.0.0':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/tough-cookie': 4.0.2
       parse5: 7.3.0
 
@@ -21096,11 +21039,11 @@ snapshots:
 
   '@types/jsonfile@6.1.1':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/linkify-it@5.0.0': {}
 
@@ -21165,22 +21108,22 @@ snapshots:
 
   '@types/mysql@2.15.26':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/node-fetch@2.6.4':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       form-data: 3.0.1
 
   '@types/node-hid@1.3.2':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/node@16.18.23': {}
 
-  '@types/node@20.19.43':
+  '@types/node@24.13.3':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 7.18.2
 
   '@types/normalize-package-data@2.4.1': {}
 
@@ -21194,19 +21137,19 @@ snapshots:
 
   '@types/pg@8.11.10':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       pg-protocol: 1.7.0
       pg-types: 4.0.2
 
   '@types/pg@8.6.1':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       pg-protocol: 1.7.0
       pg-types: 2.2.0
 
   '@types/pixelmatch@5.2.6':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/pluralize@0.0.29': {}
 
@@ -21218,7 +21161,7 @@ snapshots:
 
   '@types/randombytes@2.0.0':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/range-parser@1.2.4': {}
 
@@ -21252,19 +21195,19 @@ snapshots:
 
   '@types/readable-stream@2.3.9':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       safe-buffer: 5.2.1
 
   '@types/request@2.48.11':
     dependencies:
       '@types/caseless': 0.12.4
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@types/tough-cookie': 4.0.2
       form-data: 2.5.1
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/sanitize-html@2.13.0':
     dependencies:
@@ -21275,7 +21218,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 2.0.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/setimmediate@1.0.2': {}
 
@@ -21293,7 +21236,7 @@ snapshots:
 
   '@types/tedious@4.0.14':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@types/testing-library__jest-dom@5.14.9':
     dependencies:
@@ -21323,7 +21266,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   '@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)':
     dependencies:
@@ -21673,7 +21616,7 @@ snapshots:
       magicast: 0.5.3
       obug: 2.1.1
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -21685,7 +21628,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)
       typescript: '@typescript/typescript6@6.0.2'
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -21698,13 +21641,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.1.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.1.6':
     dependencies:
@@ -21752,8 +21695,6 @@ snapshots:
       '@yornaath/batshit-devtools': 1.6.0
 
   abab@2.0.6: {}
-
-  abbrev@1.1.1: {}
 
   abort-controller@3.0.0:
     dependencies:
@@ -21861,8 +21802,6 @@ snapshots:
 
   app-root-dir@1.0.2: {}
 
-  aproba@2.0.0: {}
-
   archiver-utils@2.1.0:
     dependencies:
       glob: 7.2.3
@@ -21875,11 +21814,6 @@ snapshots:
       lodash.union: 4.6.0
       normalize-path: 3.0.0
       readable-stream: 2.3.8
-
-  are-we-there-yet@2.0.0:
-    dependencies:
-      delegates: 1.0.0
-      readable-stream: 3.6.2
 
   argparse@1.0.10:
     dependencies:
@@ -22153,7 +22087,7 @@ snapshots:
     dependencies:
       open: 8.4.0
 
-  better-sqlite3@8.2.0:
+  better-sqlite3@12.11.1:
     dependencies:
       bindings: 1.5.0
       prebuild-install: 7.1.1
@@ -22364,14 +22298,10 @@ snapshots:
 
   caniuse-lite@1.0.30001807: {}
 
-  canvas@2.11.2:
+  canvas@3.2.3:
     dependencies:
-      '@mapbox/node-pre-gyp': 1.0.9
-      nan: 2.20.0
-      simple-get: 3.1.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
+      node-addon-api: 7.1.1
+      prebuild-install: 7.1.3
 
   chai@6.2.2: {}
 
@@ -22528,8 +22458,6 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  color-support@1.1.3: {}
-
   colord@2.9.3: {}
 
   colorette@2.0.20: {}
@@ -22604,8 +22532,6 @@ snapshots:
 
   confusing-browser-globals@1.0.11: {}
 
-  console-control-strings@1.1.0: {}
-
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
@@ -22664,13 +22590,13 @@ snapshots:
       crc-32: 1.2.2
       readable-stream: 3.6.2
 
-  create-jest@29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0):
+  create-jest@29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0):
     dependencies:
       '@jest/types': 29.6.3
       chalk: 4.1.2
       exit: 0.1.2
       graceful-fs: 4.2.11
-      jest-config: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      jest-config: 29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
       jest-util: 29.7.0
       prompts: 2.4.2
     transitivePeerDependencies:
@@ -22821,10 +22747,6 @@ snapshots:
 
   decimal.js@10.4.1: {}
 
-  decompress-response@4.2.1:
-    dependencies:
-      mimic-response: 2.1.0
-
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
@@ -22885,8 +22807,6 @@ snapshots:
       slash: 3.0.0
 
   delayed-stream@1.0.0: {}
-
-  delegates@1.0.0: {}
 
   depd@1.1.2: {}
 
@@ -24003,18 +23923,6 @@ snapshots:
 
   futoin-hkdf@1.5.3: {}
 
-  gauge@3.0.2:
-    dependencies:
-      aproba: 2.0.0
-      color-support: 1.1.3
-      console-control-strings: 1.1.0
-      has-unicode: 2.0.1
-      object-assign: 4.1.1
-      signal-exit: 3.0.7
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
-      wide-align: 1.1.5
-
   gaxios@6.1.1:
     dependencies:
       extend: 3.0.2
@@ -24324,8 +24232,6 @@ snapshots:
   has-tostringtag@1.0.2:
     dependencies:
       has-symbols: 1.1.0
-
-  has-unicode@2.0.1: {}
 
   has@1.0.3:
     dependencies:
@@ -24938,7 +24844,7 @@ snapshots:
       '@jest/expect': 29.7.0
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.2(babel-plugin-macros@3.1.0)
@@ -24959,16 +24865,16 @@ snapshots:
       - supports-color
     optional: true
 
-  jest-cli@29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0):
+  jest-cli@29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0):
     dependencies:
       '@jest/core': 29.7.0(babel-plugin-macros@3.1.0)
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
       chalk: 4.1.2
-      create-jest: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      create-jest: 29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
       exit: 0.1.2
       import-local: 3.2.0
-      jest-config: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      jest-config: 29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
       jest-util: 29.7.0
       jest-validate: 29.7.0
       yargs: 17.7.1
@@ -24979,7 +24885,7 @@ snapshots:
       - ts-node
     optional: true
 
-  jest-config@29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0):
+  jest-config@29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0):
     dependencies:
       '@babel/core': 7.29.7
       '@jest/test-sequencer': 29.7.0
@@ -25004,7 +24910,7 @@ snapshots:
       slash: 3.0.0
       strip-json-comments: 3.1.1
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -25036,7 +24942,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       jest-mock: 29.7.0
       jest-util: 29.7.0
     optional: true
@@ -25047,7 +24953,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.6
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -25059,7 +24965,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  jest-image-snapshot@6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0)):
+  jest-image-snapshot@6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0)):
     dependencies:
       chalk: 4.1.2
       get-stdin: 5.0.1
@@ -25070,7 +24976,7 @@ snapshots:
       rimraf: 2.7.1
       ssim.js: 3.5.0
     optionalDependencies:
-      jest: 29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      jest: 29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
 
   jest-leak-detector@29.7.0:
     dependencies:
@@ -25100,12 +25006,12 @@ snapshots:
   jest-mock@27.5.1:
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
 
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       jest-util: 29.7.0
     optional: true
 
@@ -25144,7 +25050,7 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       emittery: 0.13.1
       graceful-fs: 4.2.11
@@ -25173,7 +25079,7 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       cjs-module-lexer: 1.4.3
       collect-v8-coverage: 1.0.3
@@ -25221,7 +25127,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -25241,7 +25147,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -25251,17 +25157,17 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
-  jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0):
+  jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0):
     dependencies:
       '@jest/core': 29.7.0(babel-plugin-macros@3.1.0)
       '@jest/types': 29.6.3
       import-local: 3.2.0
-      jest-cli: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)
+      jest-cli: 29.7.0(@types/node@24.13.3)(babel-plugin-macros@3.1.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -25327,7 +25233,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  jsdom@20.0.1(canvas@2.11.2):
+  jsdom@20.0.1(canvas@3.2.3):
     dependencies:
       abab: 2.0.6
       acorn: 8.10.0
@@ -25356,7 +25262,7 @@ snapshots:
       ws: 8.15.1
       xml-name-validator: 4.0.0
     optionalDependencies:
-      canvas: 2.11.2
+      canvas: 3.2.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -25829,8 +25735,6 @@ snapshots:
 
   mimic-response@1.0.1: {}
 
-  mimic-response@2.1.0: {}
-
   mimic-response@3.1.0: {}
 
   min-indent@1.0.1: {}
@@ -25902,13 +25806,15 @@ snapshots:
 
   mute-stream@3.0.0: {}
 
-  nan@2.20.0: {}
+  nan@2.28.0: {}
 
   nanoid@3.3.15: {}
 
   nanoid@3.3.17: {}
 
   napi-build-utils@1.0.2: {}
+
+  napi-build-utils@2.0.0: {}
 
   napi-postinstall@0.3.4: {}
 
@@ -25923,6 +25829,8 @@ snapshots:
       semver: 7.8.5
 
   node-addon-api@3.2.1: {}
+
+  node-addon-api@7.1.1: {}
 
   node-addon-api@8.3.1: {}
 
@@ -25973,7 +25881,7 @@ snapshots:
   node-quirc@2.3.0:
     dependencies:
       bindings: 1.5.0
-      nan: 2.20.0
+      nan: 2.28.0
 
   node-releases@2.0.53: {}
 
@@ -25994,10 +25902,6 @@ snapshots:
     dependencies:
       inherits: 2.0.4
       readable-stream: 1.0.34
-
-  nopt@5.0.0:
-    dependencies:
-      abbrev: 1.1.1
 
   normalize-package-data@2.5.0:
     dependencies:
@@ -26028,13 +25932,6 @@ snapshots:
   npm-run-path@5.1.0:
     dependencies:
       path-key: 4.0.0
-
-  npmlog@5.0.1:
-    dependencies:
-      are-we-there-yet: 2.0.0
-      console-control-strings: 1.1.0
-      gauge: 3.0.2
-      set-blocking: 2.0.0
 
   nth-check@2.1.1:
     dependencies:
@@ -26299,7 +26196,7 @@ snapshots:
   pcsclite@1.0.1:
     dependencies:
       bindings: 1.5.0
-      nan: 2.20.0
+      nan: 2.28.0
 
   pdf-lib@1.17.1:
     dependencies:
@@ -26502,6 +26399,21 @@ snapshots:
       tar-fs: 2.1.1
       tunnel-agent: 0.6.0
 
+  prebuild-install@7.1.3:
+    dependencies:
+      detect-libc: 2.1.2
+      expand-template: 2.0.3
+      github-from-package: 0.0.0
+      minimist: 1.2.8
+      mkdirp-classic: 0.5.3
+      napi-build-utils: 2.0.0
+      node-abi: 3.15.0
+      pump: 3.0.0
+      rc: 1.2.8
+      simple-get: 4.0.1
+      tar-fs: 2.1.1
+      tunnel-agent: 0.6.0
+
   prelude-ls@1.2.1: {}
 
   prettier@2.8.8: {}
@@ -26670,7 +26582,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       long: 5.2.3
 
   proxy-addr@2.0.7:
@@ -27384,8 +27296,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  set-blocking@2.0.0: {}
-
   set-function-length@1.2.2:
     dependencies:
       define-data-property: 1.1.4
@@ -27465,12 +27375,6 @@ snapshots:
   signal-exit@4.1.0: {}
 
   simple-concat@1.0.1: {}
-
-  simple-get@3.1.1:
-    dependencies:
-      decompress-response: 4.2.1
-      once: 1.4.0
-      simple-concat: 1.0.1
 
   simple-get@4.0.1:
     dependencies:
@@ -28183,6 +28087,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici-types@7.18.2: {}
+
   undici@7.29.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.0: {}
@@ -28409,7 +28315,7 @@ snapshots:
       replace-ext: 2.0.0
       teex: 1.0.1
 
-  vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2):
+  vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -28417,7 +28323,7 @@ snapshots:
       rolldown: 1.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       esbuild: 0.28.1
       fsevents: 2.3.3
       yaml: 2.8.2
@@ -28428,10 +28334,10 @@ snapshots:
       css-tree: 3.1.0
       styled-components: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
 
-  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)):
+  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
     dependencies:
       '@vitest/expect': 4.1.6
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
+      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/pretty-format': 4.1.6
       '@vitest/runner': 4.1.6
       '@vitest/snapshot': 4.1.6
@@ -28448,13 +28354,13 @@ snapshots:
       tinyexec: 1.1.2
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
-      '@types/node': 20.19.43
+      '@types/node': 24.13.3
       '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.6)
-      jsdom: 20.0.1(canvas@2.11.2)
+      jsdom: 20.0.1(canvas@3.2.3)
     transitivePeerDependencies:
       - msw
 
@@ -28605,10 +28511,6 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
-
-  wide-align@1.1.5:
-    dependencies:
-      string-width: 4.2.3
 
   wordwrap@1.0.0: {}
 

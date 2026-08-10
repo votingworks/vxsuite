@@ -23,13 +23,13 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "better-sqlite3": "8.2.0",
+    "better-sqlite3": "12.11.1",
     "debug": "4.3.4"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "7.6.3",
+    "@types/better-sqlite3": "9.6.0",
     "@types/debug": "4.1.12",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",

@@ -52,7 +52,7 @@
     "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/micromatch": "^4.0.10",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/stream-chopper": "workspace:*",
     "@types/tmp": "0.2.4",
     "@types/yauzl": "2.10.3",

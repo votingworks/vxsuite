@@ -22,7 +22,7 @@
     "@votingworks/basics": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",

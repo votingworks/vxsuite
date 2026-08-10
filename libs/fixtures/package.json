@@ -27,11 +27,11 @@
   "dependencies": {
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
-    "canvas": "2.11.2",
+    "canvas": "3.2.3",
     "csv-writer": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0",

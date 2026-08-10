@@ -63,7 +63,7 @@
     "@types/express": "4.17.14",
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
     "@vitest/coverage-istanbul": "^4.1.6",
