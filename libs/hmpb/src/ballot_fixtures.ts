@@ -807,6 +807,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     dir,
     'federal-office-only-blank-ballot.pdf'
   );
+  const uocavaBlankBallotPath = join(dir, 'uocava-blank-ballot.pdf');
 
   const baseElection = readElectionGeneral();
   // Rename contests so the NH state template's isFederalOfficeContest matcher
@@ -901,10 +902,19 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       variant: 'federalOfficeOnly' as const,
     })
   );
+  const uocavaBallotProps: NhStateBallotProps[] = allBallotProps.map(
+    (props) => ({
+      ...props,
+      ballotType: BallotType.Absentee,
+      ballotMode: 'official' as const,
+      variant: 'uocava' as const,
+    })
+  );
   const combinedBallotProps: NhStateBallotProps[] = [
     ...allBallotProps,
     ...handCountBallotProps,
     ...federalOfficeOnlyBallotProps,
+    ...uocavaBallotProps,
   ];
 
   return {
@@ -914,6 +924,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     markedBallotPath,
     handCountBlankBallotPath,
     federalOfficeOnlyBlankBallotPath,
+    uocavaBlankBallotPath,
     allBallotProps: combinedBallotProps,
     precinctId,
     ballotStyleId: ballotStyle.id,
@@ -930,7 +941,10 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
 
       async function renderBallotPdf(
         match: (props: NhStateBallotProps) => boolean,
-        paths: { blankPath: string; markedPath?: string }
+        paths: {
+          blankPath: string;
+          markedPath?: string;
+        }
       ) {
         const [contents, chosenProps] = assertDefined(
           iter(layout.ballotContents)
@@ -978,6 +992,13 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
           props.variant === 'federalOfficeOnly',
         { blankPath: federalOfficeOnlyBlankBallotPath }
       );
+      const uocavaResult = await renderBallotPdf(
+        (props) =>
+          props.ballotStyleId === ballotStyle.id &&
+          props.precinctId === precinctId &&
+          props.variant === 'uocava',
+        { blankPath: uocavaBlankBallotPath }
+      );
 
       return {
         electionDefinition: layout.electionDefinition,
@@ -985,6 +1006,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         markedBallotPdf: assertDefined(defaultResult.markedPdf),
         handCountBlankBallotPdf: handCountResult.blankPdf,
         federalOfficeOnlyBlankBallotPdf: federalOfficeOnlyResult.blankPdf,
+        uocavaBlankBallotPdf: uocavaResult.blankPdf,
       };
     },
   };
@@ -1109,15 +1131,25 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     ballotMode: 'official',
     variant: 'federalOfficeOnly',
   };
+  const demUocavaBallotProps: NhStateBallotProps = {
+    election,
+    ballotStyleId: demParty.ballotStyleId,
+    precinctId: demParty.precinctId,
+    ballotType: BallotType.Absentee,
+    ballotMode: 'official',
+    variant: 'uocava',
+  };
   const combinedBallotProps: NhStateBallotProps[] = [
     ...allBallotProps,
     demHandCountBallotProps,
     demFederalOfficeOnlyBallotProps,
+    demUocavaBallotProps,
   ];
   const demFederalOfficeOnlyBlankBallotPath = join(
     dir,
     'dem-federal-office-only-blank-ballot.pdf'
   );
+  const demUocavaBlankBallotPath = join(dir, 'dem-uocava-blank-ballot.pdf');
 
   return {
     dir,
@@ -1127,6 +1159,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     repParty,
     demHandCountBlankBallotPath,
     demFederalOfficeOnlyBlankBallotPath,
+    demUocavaBlankBallotPath,
 
     async generate(rendererPool: RendererPool) {
       const layout = await layOutBallotsAndCreateElectionDefinition(
@@ -1209,6 +1242,13 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           props.variant === 'federalOfficeOnly',
         blankPath: demFederalOfficeOnlyBlankBallotPath,
       });
+      const demUocavaResult = await renderBallotPdf({
+        match: (props) =>
+          props.ballotStyleId === demParty.ballotStyleId &&
+          props.precinctId === demParty.precinctId &&
+          props.variant === 'uocava',
+        blankPath: demUocavaBlankBallotPath,
+      });
 
       return {
         electionDefinition: layout.electionDefinition,
@@ -1224,6 +1264,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         },
         demHandCountBlankBallotPdf: demHandCountResult.blankPdf,
         demFederalOfficeOnlyBlankBallotPdf: demFederalOfficeOnlyResult.blankPdf,
+        demUocavaBlankBallotPdf: demUocavaResult.blankPdf,
       };
     },
   };
