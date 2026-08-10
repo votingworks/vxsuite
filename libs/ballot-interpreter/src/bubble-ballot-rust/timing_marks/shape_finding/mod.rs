@@ -90,45 +90,62 @@ fn find_timing_mark_shapes(
         return vec![];
     };
 
-    let x_range = search_area.left() as u32..=search_area.right() as u32;
+    let x_start = search_area.left() as u32;
     let y_range = search_area.top() as u32..=search_area.bottom() as u32;
+    let column_count = search_area.width() as usize;
 
-    for x in x_range {
-        for range in y_range
-            .clone()
-            .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
-            .into_iter()
-            .filter(|(is_black, _)| *is_black)
-            .map(|(_, group)| group.collect_vec())
-            // Merge black pixel groups that have only a few pixels of white
-            // between them. This allows us to detect timing marks that have a
-            // fold line through them (fold lines sometimes expose the white
-            // paper underneath the black ink).
-            .coalesce(|group1, group2| {
-                let last_of_group1 = group1.last().expect("Pixel group can't be empty");
-                let first_of_group2 = group2.first().expect("Pixel group can't be empty");
-                if first_of_group2 - last_of_group1 - 1 <= allowed_white_gap_within_timing_mark {
-                    let mut merged = group1;
-                    merged.extend(group2);
-                    Ok(merged)
-                } else {
-                    Err((group1, group2))
-                }
-            })
-            .filter_map(|group| {
-                let [first, .., last] = group.as_slice() else {
-                    return None;
-                };
+    let raw = ballot_image.image().as_raw();
+    let image_width = ballot_image.width() as usize;
+    let luma_threshold = ballot_image.threshold();
 
-                if !allowed_timing_mark_height_range.contains(&last.abs_diff(*first)) {
-                    return None;
-                }
+    // The (start, last) y coordinates of the in-progress run of black pixels
+    // in each column, relative to `x_start`.
+    let mut column_runs: Vec<Option<(u32, u32)>> = vec![None; column_count];
+    let mut slices: Vec<(u32, RangeInclusive<u32>)> = vec![];
 
-                Some((*first)..=(*last))
-            })
-        {
-            shape_list_builder.add_slice(x, range);
+    // A run of black pixels is a possible vertical slice of a timing mark if
+    // it spans more than one pixel and is approximately the height of a
+    // timing mark.
+    let mut push_slice = |x: u32, start: u32, last: u32| {
+        if last > start && allowed_timing_mark_height_range.contains(&(last - start)) {
+            slices.push((x, start..=last));
         }
+    };
+
+    // Track the current run of black pixels in each column, merging runs that
+    // have only a few pixels of white between them. This allows us to detect
+    // timing marks that have a fold line through them (fold lines sometimes
+    // expose the white paper underneath the black ink).
+    for y in y_range {
+        let row_start = y as usize * image_width + x_start as usize;
+        let row = &raw[row_start..row_start + column_count];
+        for (i, (&luma, run)) in row.iter().zip(column_runs.iter_mut()).enumerate() {
+            if luma <= luma_threshold {
+                match run {
+                    Some((_, last)) if y - *last <= allowed_white_gap_within_timing_mark + 1 => {
+                        *last = y;
+                    }
+                    Some((start, last)) => {
+                        push_slice(x_start + i as u32, *start, *last);
+                        *run = Some((y, y));
+                    }
+                    None => *run = Some((y, y)),
+                }
+            }
+        }
+    }
+
+    for (i, run) in column_runs.into_iter().enumerate() {
+        if let Some((start, last)) = run {
+            push_slice(x_start + i as u32, start, last);
+        }
+    }
+
+    // Add the slices in column-major order (matching the order a per-column
+    // scan would produce) so the resulting shape list is identical.
+    slices.sort_unstable_by_key(|(x, range)| (*x, *range.start()));
+    for (x, range) in slices {
+        shape_list_builder.add_slice(x, range);
     }
 
     // These values were chosen based on experimentation to merge timing mark
@@ -338,6 +355,164 @@ impl DefaultForGeometry for Options {
                 top: geometry.pixels_per_inch,
                 bottom: geometry.pixels_per_inch,
             },
+        }
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::cast_possible_truncation)]
+mod tests {
+    use image::{GrayImage, Luma};
+    use itertools::Itertools;
+    use proptest::prelude::*;
+
+    use super::*;
+    use crate::ballot_card::PaperInfo;
+
+    /// The previous column-major implementation of [`find_timing_mark_shapes`],
+    /// kept as a reference to verify that the row-major scan produces exactly
+    /// the same shapes.
+    fn find_timing_mark_shapes_column_major(
+        ballot_image: &BallotImage,
+        geometry: &Geometry,
+        search_area: Rect,
+        options: &Options,
+    ) -> Vec<TimingMarkShape> {
+        let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
+        let allowed_white_gap_within_timing_mark =
+            (geometry.timing_mark_height_pixels() / 3.0) as u32;
+
+        let mut shape_list_builder = ShapeListBuilder::new(geometry.clone());
+        let image_bounds = Rect::new(0, 0, ballot_image.width(), ballot_image.height());
+
+        let Some(search_area) = search_area.intersect(&image_bounds) else {
+            return vec![];
+        };
+
+        let x_range = search_area.left() as u32..=search_area.right() as u32;
+        let y_range = search_area.top() as u32..=search_area.bottom() as u32;
+
+        for x in x_range {
+            for range in y_range
+                .clone()
+                .group_by(|&y| ballot_image.get_pixel(x, y).is_foreground())
+                .into_iter()
+                .filter(|(is_black, _)| *is_black)
+                .map(|(_, group)| group.collect_vec())
+                .coalesce(|group1, group2| {
+                    let last_of_group1 = group1.last().expect("Pixel group can't be empty");
+                    let first_of_group2 = group2.first().expect("Pixel group can't be empty");
+                    if first_of_group2 - last_of_group1 - 1 <= allowed_white_gap_within_timing_mark
+                    {
+                        let mut merged = group1;
+                        merged.extend(group2);
+                        Ok(merged)
+                    } else {
+                        Err((group1, group2))
+                    }
+                })
+                .filter_map(|group| {
+                    let [first, .., last] = group.as_slice() else {
+                        return None;
+                    };
+
+                    if !allowed_timing_mark_height_range.contains(&last.abs_diff(*first)) {
+                        return None;
+                    }
+
+                    Some((*first)..=(*last))
+                })
+            {
+                shape_list_builder.add_slice(x, range);
+            }
+        }
+
+        shape_list_builder.combine_adjacent_shapes(4, 2);
+
+        shape_list_builder
+            .into_iter()
+            .filter_map(|shape| {
+                let shape = shape.smoothed();
+                let bounds = shape.bounds();
+
+                if !rect_could_be_timing_mark(geometry, &bounds) {
+                    return None;
+                }
+
+                if (bounds.left() == image_bounds.left() && bounds.top() == image_bounds.top())
+                    || (bounds.left() == image_bounds.left()
+                        && bounds.bottom() == image_bounds.bottom())
+                    || (bounds.right() == image_bounds.right()
+                        && bounds.top() == image_bounds.top())
+                    || (bounds.right() == image_bounds.right()
+                        && bounds.bottom() == image_bounds.bottom())
+                {
+                    return None;
+                }
+
+                Some(shape)
+            })
+            .collect()
+    }
+
+    #[derive(Debug, Clone)]
+    struct BlackRect {
+        x: u32,
+        y: u32,
+        width: u32,
+        height: u32,
+    }
+
+    fn black_rect_strategy(
+        image_width: u32,
+        image_height: u32,
+    ) -> impl Strategy<Value = BlackRect> {
+        (0..image_width, 0..image_height, 1..=40u32, 1..=30u32).prop_map(|(x, y, width, height)| {
+            BlackRect {
+                x,
+                y,
+                width,
+                height,
+            }
+        })
+    }
+
+    proptest! {
+        #[test]
+        fn row_major_scan_matches_column_major_reference(
+            rects in proptest::collection::vec(black_rect_strategy(120, 220), 0..20),
+            noise in proptest::collection::vec((0..120u32, 0..220u32), 0..200),
+        ) {
+            const WIDTH: u32 = 120;
+            const HEIGHT: u32 = 220;
+
+            let mut image = GrayImage::from_pixel(WIDTH, HEIGHT, Luma([255]));
+            for rect in rects {
+                for y in rect.y..(rect.y + rect.height).min(HEIGHT) {
+                    for x in rect.x..(rect.x + rect.width).min(WIDTH) {
+                        image.put_pixel(x, y, Luma([0]));
+                    }
+                }
+            }
+            for (x, y) in noise {
+                image.put_pixel(x, y, Luma([0]));
+            }
+
+            let ballot_image = BallotImage::for_testing(image, 128);
+            let geometry = PaperInfo::scanned_letter().compute_geometry();
+            let options = Options::default_for_geometry(&geometry);
+            let search_area = Rect::new(0, 0, WIDTH, HEIGHT);
+
+            let actual =
+                find_timing_mark_shapes(&ballot_image, &geometry, search_area, &options);
+            let expected = find_timing_mark_shapes_column_major(
+                &ballot_image,
+                &geometry,
+                search_area,
+                &options,
+            );
+
+            prop_assert_eq!(actual, expected);
         }
     }
 }
