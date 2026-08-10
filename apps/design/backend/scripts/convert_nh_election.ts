@@ -420,7 +420,10 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
       const order: OrderedCandidateOption[] = [];
       for (const info of namedCandidateInfos) {
         const name = candidateName(info);
-        const candidateKey = `${contestKey}|${name}`;
+        // Two candidates in one contest can share a name across parties (it
+        // happens in the general-election mock data), so the party is part of
+        // a candidate's identity.
+        const candidateKey = `${contestKey}|${name}|${info.Party ?? ''}`;
         let candidateId = candidateIdsByKey.get(candidateKey);
         if (!candidateId) {
           candidateId = generateId();
@@ -516,7 +519,11 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
 
   const election: Election = {
     id: generateId(),
-    type: partiesByName.size > 0 ? 'primary' : 'general',
+    // Primary files carry the ballot's party in the header; general files
+    // leave it empty (their candidates carry parties instead).
+    type: headerInfos.some((header) => header.PartyName)
+      ? 'primary'
+      : 'general',
     title,
     date,
     state: 'NH',
@@ -644,7 +651,9 @@ export function convertNhElection(nhBallotStyles: NhBallotStyle[]): Election {
   // in libs/utils deepEquals the two) and silently drops a ballot style from
   // precinct-scoped UI -- e.g. manual tally entry -- when it doesn't hold. NH
   // precincts have no splits, so comparing against the precinct suffices.
-  function districtKey(ids: readonly string[]) { return [...ids].sort().join(',') };
+  function districtKey(ids: readonly string[]) {
+    return [...ids].sort().join(',');
+  }
   for (const ballotStyle of ballotStyles) {
     const precinct = assertDefined(precinctsById.get(ballotStyle.precincts[0]));
     if (
