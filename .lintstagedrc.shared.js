@@ -5,6 +5,10 @@ const base = {
     'prettier --write',
   ],
   '*.+(js|jsx|ts|tsx)': ['eslint --cache --quiet --fix'],
+  // skip_children keeps rustfmt from recursively formatting a staged file's
+  // out-of-line child modules, which may not be staged. The parser edition
+  // comes from the root rustfmt.toml.
+  '*.rs': ['rustfmt --config skip_children=true'],
   'package.json': ['sort-package-json'],
 };
 
