@@ -66,7 +66,21 @@ tasks:
       - '^:build'
 
   type-check:
-    command: 'tsc --build tsconfig.json'
+    # `tsc -p … --noEmit`, NOT `tsc --build`. Build mode walks the project
+    # references and REBUILDS each dependency, comparing restored-from-cache
+    # `build/` + tsbuildinfo mtimes against fresh-checkout source — a
+    # non-deterministic desync (a dep gets partially recompiled against a stale
+    # cached `.d.ts`), which produced spurious CI-only errors like
+    # `utils/src/polls.ts … TS2345 … not assignable to 'never'` while the source
+    # was actually exhaustive. `-p` (non-build) never recompiles a referenced
+    # project: it type-checks THIS project's own sources against each
+    # dependency's already-built `.d.ts` (deps built via `^:build`). Each project
+    # validates its own code; dependents trust the `.d.ts` a dep's own
+    # `type-check` task already verified — a cleaner separation than build mode's
+    # redundant whole-graph recheck, and immune to the cache desync. It writes a
+    # local `tsconfig.tsbuildinfo` (composite ⇒ incremental) but that's gitignored
+    # and NOT a moon output, so it is never cached/restored across machines.
+    command: 'tsc -p tsconfig.json --noEmit'
     inputs:
       - '@group(sources)'
       - 'test/**/*'
