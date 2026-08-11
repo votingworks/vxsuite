@@ -318,6 +318,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.
 **Machines:** vx-admin
+### delete-cvr-file-init
+**Type:** [user-action](#user-action)
+**Description:** Cast vote records from a single import are being deleted.
+**Machines:** vx-admin
+### delete-cvr-file-complete
+**Type:** [user-action](#user-action)
+**Description:** Cast vote records from a single import have been deleted (or failed to be deleted). Success or failure indicated by disposition.
+**Machines:** vx-admin
 ### clear-imported-cast-vote-records-init
 **Type:** [user-action](#user-action)
 **Description:** Imported cast vote records are being cleared.

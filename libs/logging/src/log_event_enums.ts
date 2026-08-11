@@ -142,6 +142,8 @@ export enum LogEventId {
   ImportCastVoteRecordsInit = 'import-cast-vote-records-init',
   ImportCastVoteRecordsMarkScoreDistribution = 'import-cast-vote-records-mark-score-distribution',
   ImportCastVoteRecordsComplete = 'import-cast-vote-records-complete',
+  DeleteCvrFileInit = 'delete-cvr-file-init',
+  DeleteCvrFileComplete = 'delete-cvr-file-complete',
   ClearImportedCastVoteRecordsInit = 'clear-imported-cast-vote-records-init',
   ClearImportedCastVoteRecordsComplete = 'clear-imported-cast-vote-records-complete',
   ManualTallyDataEdited = 'manual-tally-data-edited',
@@ -769,6 +771,22 @@ const ImportCastVoteRecordsComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const DeleteCvrFileInit: LogDetails = {
+  eventId: LogEventId.DeleteCvrFileInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records from a single import are being deleted.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const DeleteCvrFileComplete: LogDetails = {
+  eventId: LogEventId.DeleteCvrFileComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records from a single import have been deleted (or failed to be deleted). Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1675,6 +1693,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ImportCastVoteRecordsMarkScoreDistribution;
     case LogEventId.ImportCastVoteRecordsComplete:
       return ImportCastVoteRecordsComplete;
+    case LogEventId.DeleteCvrFileInit:
+      return DeleteCvrFileInit;
+    case LogEventId.DeleteCvrFileComplete:
+      return DeleteCvrFileComplete;
     case LogEventId.ClearImportedCastVoteRecordsInit:
       return ClearImportedCastVoteRecordsInit;
     case LogEventId.ClearImportedCastVoteRecordsComplete:

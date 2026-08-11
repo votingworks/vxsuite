@@ -267,6 +267,10 @@ pub enum EventId {
     ImportCastVoteRecordsMarkScoreDistribution,
     #[serde(rename = "import-cast-vote-records-complete")]
     ImportCastVoteRecordsComplete,
+    #[serde(rename = "delete-cvr-file-init")]
+    DeleteCvrFileInit,
+    #[serde(rename = "delete-cvr-file-complete")]
+    DeleteCvrFileComplete,
     #[serde(rename = "clear-imported-cast-vote-records-init")]
     ClearImportedCastVoteRecordsInit,
     #[serde(rename = "clear-imported-cast-vote-records-complete")]
