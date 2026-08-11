@@ -76,7 +76,7 @@ const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
 const TEST_UPS_USER_FAIL_REASON =
   'UPS not connected or not fully charged per user.';
 
-interface Context {
+export interface Context {
   audioPlayer?: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   barcodeClient: barcodes.BarcodeReader;
@@ -663,9 +663,12 @@ export function buildApi(ctx: Context) {
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(ctx: Context): Application {
+export function buildApp(
+  ctx: Context,
+  /* istanbul ignore next */
+  api = buildApi(ctx)
+): Application {
   const app: Application = express();
-  const api = buildApi(ctx);
   app.use('/api', grout.buildRouter(api, express));
 
   setUpBarcodeActivation(ctx);

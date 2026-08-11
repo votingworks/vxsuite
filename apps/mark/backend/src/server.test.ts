@@ -98,7 +98,7 @@ test('start passes context to `buildApp`', async () => {
     workspace,
   });
 
-  expect(buildAppMock).toHaveBeenCalledWith({
+  expect(buildAppMock.mock.lastCall?.[0]).toEqual({
     audioPlayer: mockAudioPlayer,
     auth: expect.anything(),
     barcodeClient: expect.anything(),
