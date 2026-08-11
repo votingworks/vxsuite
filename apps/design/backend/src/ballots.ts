@@ -20,7 +20,7 @@ import {
   NhStateBallotProps,
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { getStateFeaturesConfig } from './features.js';
 import { Jurisdiction } from './types.js';
@@ -104,14 +104,28 @@ export function formatElectionForExport(
   const signatureImageBySplit = splitPrecincts.flatMap((p) =>
     p.splits.flatMap((split) =>
       split.clerkSignatureImage
-        ? [[`${p.id}-${split.id}`, sha256(split.clerkSignatureImage)]]
+        ? [
+            [
+              `${p.id}-${split.id}`,
+              createHash('sha256')
+                .update(split.clerkSignatureImage)
+                .digest('hex'),
+            ],
+          ]
         : []
     )
   );
   const sealOverrideBySplit = splitPrecincts.flatMap((p) =>
     p.splits.flatMap((split) =>
       split.electionSealOverride
-        ? [[`${p.id}-${split.id}`, sha256(split.electionSealOverride)]]
+        ? [
+            [
+              `${p.id}-${split.id}`,
+              createHash('sha256')
+                .update(split.electionSealOverride)
+                .digest('hex'),
+            ],
+          ]
         : []
     )
   );

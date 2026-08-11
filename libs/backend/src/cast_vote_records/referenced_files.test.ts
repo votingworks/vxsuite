@@ -1,8 +1,8 @@
+import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
-import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { err, ok, Result } from '@votingworks/basics';
@@ -24,7 +24,9 @@ vi.mock(import('node:fs/promises'), async (importActual) => ({
 }));
 
 const imageContents = Buffer.of();
-const expectedImageHash = sha256(imageContents);
+const expectedImageHash = createHash('sha256')
+  .update(imageContents)
+  .digest('hex');
 
 const layout: BallotPageLayout = {
   contests: [],
@@ -39,10 +41,14 @@ const layout: BallotPageLayout = {
   pageSize: { height: 1, width: 1 },
 };
 const layoutFileContents = JSON.stringify(layout);
-const expectedLayoutFileHash = sha256(layoutFileContents);
+const expectedLayoutFileHash = createHash('sha256')
+  .update(layoutFileContents)
+  .digest('hex');
 const invalidLayout = {} as const;
 const invalidLayoutFileContents = JSON.stringify(invalidLayout);
-const expectedInvalidLayoutFileHash = sha256(invalidLayoutFileContents);
+const expectedInvalidLayoutFileHash = createHash('sha256')
+  .update(invalidLayoutFileContents)
+  .digest('hex');
 
 let tempDirectoryPath: string;
 let imagePath: string;

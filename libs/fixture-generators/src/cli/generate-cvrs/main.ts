@@ -17,7 +17,7 @@ import yargs from 'yargs/yargs';
 import { encodeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import {
   generateBallotPageLayouts,
   generateCvrs,
@@ -239,7 +239,10 @@ export async function main(
           height * pageDpi
         );
         const contents = await encodeImageData(imageData, 'image/jpeg');
-        image = { contents, sha256: sha256(contents) };
+        image = {
+          contents,
+          sha256: createHash('sha256').update(contents).digest('hex'),
+        };
         imagesByPaperSize.set(election.ballotLayout.paperSize, image);
       }
       referencedFiles.push({
@@ -248,14 +251,18 @@ export async function main(
       });
 
       const layout = layouts[i];
-      let layoutFileHash = sha256('bmd-ballot');
+      let layoutFileHash = createHash('sha256')
+        .update('bmd-ballot')
+        .digest('hex');
       if (layout) {
         const layoutFileContents = JSON.stringify(layout);
         referencedFiles.push({
           fileName: layoutFileName,
           contents: layoutFileContents,
         });
-        layoutFileHash = sha256(layoutFileContents);
+        layoutFileHash = createHash('sha256')
+          .update(layoutFileContents)
+          .digest('hex');
       }
 
       populateImageAndLayoutFileHashes(

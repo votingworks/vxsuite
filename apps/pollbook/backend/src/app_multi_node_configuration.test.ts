@@ -8,7 +8,7 @@ import { AddressInfo } from 'node:net';
 import { err, ok } from '@votingworks/basics';
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import {
   extendedWaitFor,
@@ -133,7 +133,9 @@ test('one pollbook can be configured from another pollbook', async () => {
       electionBallotHash: singlePrecinctElectionDefinition.ballotHash,
       electionId: singlePrecinctElectionDefinition.election.id,
       electionTitle: singlePrecinctElectionDefinition.election.title,
-      pollbookPackageHash: sha256(new Uint8Array(validZip)),
+      pollbookPackageHash: createHash('sha256')
+        .update(new Uint8Array(validZip))
+        .digest('hex'),
       machineId: 'test-1',
       codeVersion: 'test',
     });
@@ -378,7 +380,9 @@ test('one pollbook can be configured from another pollbook automatically as an e
           electionBallotHash: singlePrecinctElectionDefinition.ballotHash,
           electionId: singlePrecinctElectionDefinition.election.id,
           electionTitle: singlePrecinctElectionDefinition.election.title,
-          pollbookPackageHash: sha256(new Uint8Array(validZip)),
+          pollbookPackageHash: createHash('sha256')
+            .update(new Uint8Array(validZip))
+            .digest('hex'),
           machineId: 'test-1',
         });
         const election = await pollbookContext2.localApiClient.getElection();

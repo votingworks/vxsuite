@@ -25,8 +25,7 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "js-sha256": "^0.9.0"
+    "@votingworks/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.19.43",

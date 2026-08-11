@@ -1,4 +1,3 @@
-import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
 import crypto, { randomUUID as uuid } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -171,9 +170,7 @@ async function remotelyCreateCardCert(
 ): Promise<Buffer> {
   const randomId =
     optionsOverride?.randomId ??
-    /* istanbul ignore next */ crypto
-      .randomBytes(3)
-      .toString('hex');
+    /* istanbul ignore next */ crypto.randomBytes(3).toString('hex');
   const workingDirectory =
     optionsOverride?.workingDirectory ??
     /* istanbul ignore next */ os.homedir();
@@ -246,8 +243,7 @@ export class JavaCard implements Card {
     configOverride?: JavaCardConfig
   ) {
     const config =
-      configOverride ??
-      /* istanbul ignore next */ constructJavaCardConfig();
+      configOverride ?? /* istanbul ignore next */ constructJavaCardConfig();
     this.cardProgrammingConfig = config.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card_reader' };
     this.generateChallenge =
@@ -774,7 +770,10 @@ export class JavaCard implements Card {
 
     // Have the private key sign a "challenge"
     const challenge = this.generateChallenge();
-    const challengeHash = Buffer.from(sha256(challenge), 'hex');
+    const challengeHash = crypto
+      .createHash('sha256')
+      .update(challenge)
+      .digest();
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,

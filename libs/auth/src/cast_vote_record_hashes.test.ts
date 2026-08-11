@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import * as fs from 'node:fs';
-import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { iter } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
+import { createHash } from 'node:crypto';
 import { CastVoteRecordExportFileName } from '@votingworks/types';
 
 import {
@@ -19,6 +19,10 @@ import {
   readableFileFromDisk,
   updateCastVoteRecordHashes,
 } from './cast_vote_record_hashes';
+
+function sha256(data: string): string {
+  return createHash('sha256').update(data).digest('hex');
+}
 
 let tempDirectoryPath: string;
 

@@ -1,3 +1,4 @@
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import { expect, test, vi } from 'vitest';
 import {
   AdjudicationReason,
@@ -13,17 +14,19 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
-import { randomUUID as uuid } from 'node:crypto';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect.js';
 import { Store } from './store.js';
+
+function sha256(data: string): string {
+  return createHash('sha256').update(data).digest('hex');
+}
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({

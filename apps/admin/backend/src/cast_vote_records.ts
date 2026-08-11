@@ -1,6 +1,5 @@
-import { sha256 } from 'js-sha256';
 import path from 'node:path';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
   isTestReport,
   readCastVoteRecordExport,
@@ -226,7 +225,9 @@ export async function importCastVoteRecords(
   const exportDirectoryName = path.basename(exportDirectoryPath);
   // Hashing the export metadata, which includes a root hash of all the individual cast vote
   // records, gives us a complete hash of the entire export
-  const exportHash = sha256(JSON.stringify(castVoteRecordExportMetadata));
+  const exportHash = createHash('sha256')
+    .update(JSON.stringify(castVoteRecordExportMetadata))
+    .digest('hex');
   const exportedTimestamp = castVoteRecordReportMetadata.GeneratedDate;
 
   // Ensure that the records to be imported match the mode (test vs. official) of previously

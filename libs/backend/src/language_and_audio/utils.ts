@@ -1,4 +1,4 @@
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   UiStringAudioIdsPackage,
@@ -23,7 +23,10 @@ export function audioIdForText(
   languageCode: LanguageCode,
   text: string
 ): string {
-  return sha256([languageCode, text].join(':')).slice(0, 10);
+  return createHash('sha256')
+    .update([languageCode, text].join(':'))
+    .digest('hex')
+    .slice(0, 10);
 }
 
 /**

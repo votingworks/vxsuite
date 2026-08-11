@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@antongolub/iso8601": "^1.2.1",
+    "@noble/hashes": "^1.8.0",
     "@votingworks/basics": "workspace:*",
-    "js-sha256": "^0.9.0",
     "util": "^0.12.4",
     "zod": "4.4.3"
   },

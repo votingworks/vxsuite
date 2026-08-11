@@ -1,5 +1,5 @@
 import { IteratorPlus, assert, iter } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import {
   BallotPageLayout,
   Contest,
@@ -204,5 +204,8 @@ export const BATCH_ID_LENGTH = 10;
  * them whenever a fixture needs to be refreshed.
  */
 export function getBatchIdForScannerId(scannerId: string): string {
-  return sha256(scannerId).slice(0, BATCH_ID_LENGTH);
+  return createHash('sha256')
+    .update(scannerId)
+    .digest('hex')
+    .slice(0, BATCH_ID_LENGTH);
 }
