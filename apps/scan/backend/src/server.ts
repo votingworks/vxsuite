@@ -106,6 +106,7 @@ export async function start({
   const api = buildApi(context);
   const app = buildApp(context, api);
 
+  /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureElection(),

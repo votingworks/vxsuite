@@ -132,6 +132,7 @@ export async function start({
     api
   );
 
+  /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureMachine(),

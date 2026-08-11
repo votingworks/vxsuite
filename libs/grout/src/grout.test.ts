@@ -612,6 +612,17 @@ test('can access methods directly for testing', async () => {
   } as const;
   const api = createApi(methods);
   expect(api.methods()).toEqual(methods);
+
+  // Also allowed in development, where dev-only tooling drives an app's own API
+  // rather than duplicating its logic.
+  vi.stubEnv('NODE_ENV', 'development');
+  expect(api.methods()).toEqual(methods);
+
+  // But not in production, where it would bypass middleware.
+  vi.stubEnv('NODE_ENV', 'production');
+  expect(() => api.methods()).toThrow();
+
+  vi.unstubAllEnvs();
 });
 
 test('client can handle various JS language property gets without triggering RPC', async () => {
