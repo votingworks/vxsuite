@@ -74,6 +74,20 @@ projects:
   usb-drive: libs/usb-drive
   utils: libs/utils
 
+hasher:
+  # Test snapshot fixtures/artifacts written under `src/`, not source:
+  # `__snapshots__` (vitest `.snap` file snapshots), `__image_snapshots__`
+  # (jest-image-snapshot baselines), and `__diff_output__` (image failure diffs).
+  # moon hashes untracked-but-unignored files that match a task's input globs
+  # (`src/**`), so an auto-written baseline for a missing snapshot, or a diff PNG
+  # from a render that differs under load, would perturb the task hash and cause
+  # spurious cache misses. Exclude these paths from input hashing (workspace-
+  # relative globs). Inline snapshots live in the test source and stay hashed.
+  ignorePatterns:
+    - '**/__snapshots__/**'
+    - '**/__image_snapshots__/**'
+    - '**/__diff_output__/**'
+
 vcs:
   defaultBranch: main
   provider: github

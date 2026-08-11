@@ -35,3 +35,6 @@ junit.xml
 # moon
 .moon/cache
 .moon/docker
+
+# jest-image-snapshot failure diffs (ephemeral output, never committed)
+**/__diff_output__/
