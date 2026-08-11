@@ -10,7 +10,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { buildApp } from './app.js';
+import { buildApp, buildApi, Context } from './app.js';
 import { Workspace } from './util/workspace.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { BarcodeClient } from './barcodes/index.js';
@@ -65,7 +65,7 @@ export async function start({
   const audioInfo = await initializeAudio(logger);
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
 
-  const app = buildApp({
+  const context: Context = {
     audioPlayer,
     auth: resolvedAuth,
     barcodeClient,
@@ -73,7 +73,9 @@ export async function start({
     workspace,
     usbDrive,
     printer,
-  });
+  };
+  const api = buildApi(context);
+  const app = buildApp(context, api);
 
   /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
@@ -91,6 +93,12 @@ export async function start({
     getPatInputConnected: () => getMockPatInputConnected(),
     setPatInputConnected: (connected: boolean) =>
       setMockPatInputConnected(connected),
+    quickConfigure: {
+      unconfigure: () => api.methods().unconfigureMachine(),
+      configure: async () => {
+        (await api.methods().configureElectionPackageFromUsb()).unsafeUnwrap();
+      },
+    },
   });
 
   // Start periodic CPU metrics logging
