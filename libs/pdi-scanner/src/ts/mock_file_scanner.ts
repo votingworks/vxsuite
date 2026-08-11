@@ -1,7 +1,7 @@
 import { iter } from '@votingworks/basics';
 import {
   ImageData,
-  createImageData,
+  RGBA_CHANNEL_COUNT,
   pdfToImages,
 } from '@votingworks/image-utils';
 import { asSheet, SheetOf } from '@votingworks/types';
@@ -29,6 +29,27 @@ const MOCK_STATE_DIR = join(
   'pdi-scanner'
 );
 const COMMAND_FILE = join(MOCK_STATE_DIR, 'command.json');
+
+/**
+ * Reshapes RGBA image data into the grayscale (one byte per pixel) image data
+ * the real scanner client emits (see `scanner_client.ts`), so that mock scans
+ * exercise the same downstream image handling as real hardware.
+ */
+function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
+  const pixels = new Uint8ClampedArray(width * height);
+  for (let i = 0; i < pixels.length; i += 1) {
+    pixels[i] = data[i * RGBA_CHANNEL_COUNT] as number;
+  }
+  return { width, height, data: pixels };
+}
+
+function blankGrayscalePage(width: number, height: number): ImageData {
+  return {
+    width,
+    height,
+    data: new Uint8ClampedArray(width * height).fill(0xff),
+  };
+}
 
 type Command =
   | { type: 'insert'; path: string }
@@ -125,11 +146,12 @@ export function createMockFilePdiScanner(): MockScanner {
         for await (const sheet of iter(
           pdfToImages(pdfData, { scale: 200 / 72 })
         )
-          .map(({ page }: { page: ImageData }) => page)
+          .map(({ page }: { page: ImageData }) => toGrayscaleImageData(page))
           .chunks(2)
           .map((pages: [ImageData] | [ImageData, ImageData]) => {
             const front = pages[0];
-            const back = pages[1] ?? createImageData(front.width, front.height);
+            const back =
+              pages[1] ?? blankGrayscalePage(front.width, front.height);
             return asSheet([front, back]);
           })) {
           inner.insertSheet(sheet);
