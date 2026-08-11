@@ -35,28 +35,16 @@ test('generateConfig', () => {
   );
   expect(mainConfig).toContain('only: main');
 
-  // The experimental moon jobs are added to the full config as non-blocking
-  // additions: moon-ci + one e2e job per app (incl. mark-scan, which gets a
-  // `make build` step for its hardware daemons).
+  // The experimental `moon-ci` job is added to the full config as a non-blocking
+  // addition. The per-app `moon-e2e-*` jobs were removed.
   expect(mainConfig).toContain('moon-ci:');
-  expect(mainConfig).toContain('moon-e2e-mark-scan:');
-  expect(mainConfig).toContain(
-    'make -C apps/mark-scan/integration-testing build'
-  );
-  expect(mainConfig).toContain('moon run admin-integration-testing:test');
+  expect(mainConfig).not.toContain('moon-e2e-');
+  expect(mainConfig).not.toContain('integration-testing:test');
 
-  // The moon jobs are experiment-only: each workflow entry carries a branch
-  // filter so they run only on branches whose name contains "moon".
+  // The moon job is experiment-only: its workflow entry carries a branch filter
+  // so it runs only on branches whose name contains "moon".
   expect(mainConfig).toContain(
     '      - moon-ci:\n' +
-      '          context:\n' +
-      '            - screenshots-publishing\n' +
-      '          filters:\n' +
-      '            branches:\n' +
-      '              only: /.*moon.*/'
-  );
-  expect(mainConfig).toContain(
-    '      - moon-e2e-admin:\n' +
       '          context:\n' +
       '            - screenshots-publishing\n' +
       '          filters:\n' +
@@ -96,14 +84,9 @@ test('generateAllConfigs moon prototype mode', () => {
   // The measurement-only baseline job is gone now that we've chosen
   // single-container.
   expect(config).not.toContain('moon-ci-baseline:');
-  // Non-required e2e lane: one job per app, each installing Chromium and running
-  // its Playwright suite via `moon run` (runInCI:false so `moon ci` skips it).
-  expect(config).toContain('playwright install chromium');
-  expect(config).toContain('moon-e2e-admin:');
-  expect(config).toContain('moon-e2e-central-scan:');
-  expect(config).toContain('moon-e2e-print:');
-  expect(config).toContain('moon run admin-integration-testing:test');
-  expect(config).toContain('moon run print-integration-testing:test');
+  // The per-app e2e jobs were removed — only moon-ci remains.
+  expect(config).not.toContain('moon-e2e-');
+  expect(config).not.toContain('integration-testing:test');
   // The prototype workflow also filters to moon-named branches.
   expect(config).toContain('only: /.*moon.*/');
   // ...and none of the per-package / rust jobs.

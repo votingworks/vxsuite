@@ -510,82 +510,12 @@ function generateMoonCiJob(): string[] {
   ];
 }
 
-// Apps whose Playwright integration-testing suite is wired into moon (as a
-// `runInCI: false` e2e task). Extend as more apps are wired. (mark-scan's e2e
-// needs hardware daemons via `make`, so it is intentionally not here.)
-const MOON_E2E_APPS = [
-  'admin',
-  'central-scan',
-  'mark',
-  'scan',
-  'print',
-  'mark-scan',
-];
-
-// One "non-required" e2e job PER app (parallel across CircleCI containers), so
-// the total e2e wall is the slowest single suite rather than the sum. Each app's
-// Playwright suite is excluded from `moon ci` (its task is `runInCI: false`), so
-// this runs it explicitly with `moon run`; the remote cache is kept ON so the app
-// builds the suite depends on hydrate instead of rebuilding (only the e2e task
-// itself is uncached, `cache: false`). Mark every `moon-e2e-*` job NON-required
-// in GitHub branch protection so flaky/slow e2e doesn't block merges.
-function generateMoonE2eAppJob(app: string): string[] {
-  const dir = `apps/${app}/integration-testing`;
-  return [
-    `moon-e2e-${app}:`,
-    `  executor: nodejs`,
-    `  resource_class: xlarge`,
-    `  steps:`,
-    `    - checkout-and-install:`,
-    `        is_node_package: true`,
-    ...moonInstallSteps(),
-    `    - run:`,
-    `        name: Install Playwright Chromium`,
-    `        command: |`,
-    `          pnpm --dir ${dir} exec playwright install-deps`,
-    `          pnpm --dir ${dir} exec playwright install chromium`,
-    // mark-scan's suite drives the accessible-controller/PAT daemons, which the
-    // moon dep builds don't produce; build them (and the app) via make, matching
-    // the per-package integration-testing job.
-    ...(app === 'mark-scan'
-      ? [
-          `    - run:`,
-          `        name: Build mark-scan app + hardware daemons (make)`,
-          `        no_output_timeout: 20m`,
-          `        command: make -C ${dir} build`,
-        ]
-      : []),
-    `    - run:`,
-    `        name: moon run e2e (non-required)`,
-    `        no_output_timeout: 20m`,
-    `        command: |`,
-    `          set +e`,
-    `          if [ -n "\${MOON_REMOTE_HOST:-}" ]; then`,
-    `            MOON_REMOTE_HOST="$(printf '%s' "$MOON_REMOTE_HOST" | sed -e 's/^[[:space:]"'"'"']*//' -e 's/[[:space:]"'"'"']*$//')"`,
-    `            export MOON_REMOTE_HOST`,
-    `          fi`,
-    // The e2e task is `runInCI: false` so `moon ci` (required lane) skips it.
-    // moon 2.4.6 has no `--ignore-ci-checks` on `moon run`, and it honors runInCI
-    // in a CI env (would report "No tasks found"). moon detects CI via the
-    // CI/CI_NAME/AZURE_PIPELINES env vars, so unset CI for just this command to
-    // let the explicit `moon run` execute it. Dep builds still hydrate from the
-    // remote cache (MOON_REMOTE_HOST exported above).
-    `          env -u CI moon run ${app}-integration-testing:test`,
-    `          echo $? > /tmp/moon-exit-code`,
-    `          exit 0`,
-    `    - store_test_results:`,
-    `        path: ${dir}/test-results`,
-    `    - store_artifacts:`,
-    `        path: ${dir}/test-results`,
-    `        destination: e2e-test-results`,
-    `    - run:`,
-    `        name: Propagate moon run exit code`,
-    `        command: |`,
-    `          code=$(cat /tmp/moon-exit-code)`,
-    `          echo "moon run exit code: $code"`,
-    `          exit "$code"`,
-  ];
-}
+// NOTE: the per-app `moon-e2e-*` Playwright jobs were removed — the moon
+// variants of the e2e suites weren't stable enough to be useful while we're not
+// focusing on CI. `moon-ci` (build/test/lint/type-check) is the only moon lane.
+// The apps' integration-testing moon projects stay wired (their `test` task is
+// `runInCI: false`, so `moon ci` skips them); re-add per-app jobs here if/when
+// the moon e2e path is worth revisiting.
 
 // PROTOTYPE ONLY: a slim config that runs *just* the experimental `moon-ci` job,
 // so we don't spend compute on the ~60 per-package jobs while iterating on the
@@ -615,11 +545,6 @@ jobs:
 ${generateMoonCiJob()
   .map((line) => `  ${line}`)
   .join('\n')}
-${MOON_E2E_APPS.map((app) =>
-  generateMoonE2eAppJob(app)
-    .map((line) => `  ${line}`)
-    .join('\n')
-).join('\n')}
 
 workflows:
   moon-experiment:
@@ -630,12 +555,6 @@ workflows:
           filters:
             branches:
               only: ${MOON_BRANCH_FILTER}
-      # NON-REQUIRED lane (one job per app) — mark every moon-e2e-* job's status
-      # non-required in branch protection so slow/flaky e2e doesn't block merges.
-${MOON_E2E_APPS.map(
-  (app) =>
-    `      - moon-e2e-${app}:\n          context:\n            - screenshots-publishing\n          filters:\n            branches:\n              only: ${MOON_BRANCH_FILTER}`
-).join('\n')}
 
 commands:
   checkout-and-install:
@@ -758,31 +677,19 @@ export function generateAllConfigs(
     `              only: main`,
   ].join('\n');
 
-  // The experimental moon jobs, added as NON-BLOCKING additions to the real CI
-  // to watch/learn from. They re-run the same tests the per-package jobs do until
-  // those are retired. Mark each moon-* job's status non-required in branch
-  // protection.
-  //
-  // They carry a `branches` filter (MOON_BRANCH_FILTER) so they only run on
-  // branches whose name contains "moon" — the integration adds no cost to other
-  // PRs while we iterate. Widen the filter when moon graduates.
-  const moonJobBlocks = [
-    generateMoonCiJob(),
-    ...MOON_E2E_APPS.map((app) => generateMoonE2eAppJob(app)),
-  ]
-    .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-    .join('\n\n');
-
-  const moonBranchFilter = `\n          filters:\n            branches:\n              only: ${MOON_BRANCH_FILTER}`;
-  const moonWorkflowEntries = [
-    'moon-ci',
-    ...MOON_E2E_APPS.map((app) => `moon-e2e-${app}`),
-  ]
-    .map(
-      (jobId) =>
-        `      - ${jobId}:\n          context:\n            - screenshots-publishing${moonBranchFilter}`
-    )
+  // The experimental `moon-ci` job, added as a NON-BLOCKING addition to the real
+  // CI to watch/learn from. It re-runs the same build/test/lint/type-check the
+  // per-package jobs do until those are retired. Mark it non-required in branch
+  // protection. It carries a `branches` filter (MOON_BRANCH_FILTER) so it only
+  // runs on branches whose name contains "moon" — no cost to other PRs while we
+  // iterate. Widen the filter when moon graduates.
+  const moonJobBlocks = generateMoonCiJob()
+    .map((line) => `  ${line}`)
     .join('\n');
+
+  const moonWorkflowEntries =
+    `      - moon-ci:\n          context:\n            - screenshots-publishing` +
+    `\n          filters:\n            branches:\n              only: ${MOON_BRANCH_FILTER}`;
 
   const baseConfig = `
 # THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.

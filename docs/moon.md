@@ -18,11 +18,11 @@ production.** Everything works exactly as before without it:
 - The required CI checks (the ~60 per-package jobs, `validate-monorepo`,
   `shellcheck`, rust) do not use moon.
 
-Moon only runs inside its own dedicated, **non-blocking** CI jobs (`moon-ci` and
-the `moon-e2e-*` jobs), and only on branches whose name contains `moon` — so
-other PRs and `main` never run them. Those jobs install moon themselves (only if
-it isn't already present). The moon config files (`.moon/`, the per-project
-`moon.yml` files, `.prototools`) are inert unless you run `moon` yourself.
+Moon only runs inside its own dedicated, **non-blocking** `moon-ci` job, and
+only on branches whose name contains `moon` — so other PRs and `main` never run
+it. That job installs moon itself (only if it isn't already present). The moon
+config files (`.moon/`, the per-project `moon.yml` files, `.prototools`) are
+inert unless you run `moon` yourself.
 
 If you want to run the moon task graph locally (to reproduce a `moon-ci`
 failure, or to try the caching), read on.
@@ -127,38 +127,40 @@ hand. Edit `libs/monorepo-utils/src/circleci.ts` and regenerate:
 pnpm -w generate-circleci-config
 ```
 
-The moon jobs are added to the full config as **non-blocking additions** we can
-watch and learn from while the existing per-package jobs keep gating PRs. There
-are two families:
+The moon job is added to the full config as a **non-blocking addition** we can
+watch and learn from while the existing per-package jobs keep gating PRs:
 
-- **`moon-ci`** — the required-style lane, sharded across 3 containers
-  (`--job/--job-total`). Sharding is positional, so it is only sound _with_ the
-  remote cache (a shard may be assigned a test whose dependency built on another
-  shard; it hydrates that from the cache instead of rebuilding).
-- **`moon-e2e-<app>`** — one Playwright lane per app. These tasks are
-  `runInCI: false` (so `moon ci` skips them) and are run explicitly with
-  `moon run`. `mark-scan` additionally builds its hardware daemons with
-  `make -C apps/mark-scan/integration-testing build` first.
+- **`moon-ci`** — the required-style lane (build/test/lint/type-check), sharded
+  across 3 containers (`--job/--job-total`). Sharding is positional, so it is
+  only sound _with_ the remote cache (a shard may be assigned a test whose
+  dependency built on another shard; it hydrates that from the cache instead of
+  rebuilding).
 
-Two properties keep them cheap and unobtrusive while the integration is young:
+> The per-app `moon-e2e-*` Playwright jobs were removed — the moon variants of
+> the e2e suites weren't stable enough to be worth running while we're not
+> focusing on CI. The apps' integration-testing moon projects stay wired (their
+> `test` task is `runInCI: false`, so `moon ci` skips them); re-add per-app jobs
+> in `circleci.ts` if that path is worth revisiting.
 
-- **They only run on `moon`-named branches.** Every moon job carries a
-  `branches: only: /.*moon.*/` filter, so they run on branches whose name
+Two properties keep it cheap and unobtrusive while the integration is young:
+
+- **It only runs on `moon`-named branches.** The `moon-ci` job carries a
+  `branches: only: /.*moon.*/` filter, so it runs on branches whose name
   contains `moon` (e.g. `moon-experiment`) and nowhere else — no cost added to
   other PRs or to `main`. The filter lives in `MOON_BRANCH_FILTER` in
   `circleci.ts`; widen it (or drop it) when moon graduates from experiment.
-- **They install moon only if it isn't already present.** The "Install moon"
-  step is `if command -v moon; then …; else curl … | bash; fi`, so it self-
-  installs the pinned version today but becomes a no-op the day moon is baked
-  into the CI image or provided via proto.
+- **It installs moon only if it isn't already present.** The "Install moon" step
+  is `if command -v moon; then …; else curl … | bash; fi`, so it installs the
+  pinned version itself today but becomes a no-op the day moon is baked into the
+  CI image or provided via proto.
 
 ### Generator knobs
 
 - **`MOON_CI_PROTOTYPE`** — an environment variable read by
-  `bin/generate-circleci-config`. Emits a slim config containing _only_ the moon
-  jobs (skips the ~60 per-package jobs). Useful for fast iteration on moon
-  config without waiting for the whole suite. Regenerate without it to restore
-  the full config:
+  `bin/generate-circleci-config`. Emits a slim config containing _only_ the
+  `moon-ci` job (skips the ~60 per-package jobs). Useful for fast iteration on
+  moon config without waiting for the whole suite. Regenerate without it to
+  restore the full config:
 
   ```sh
   MOON_CI_PROTOTYPE=1 pnpm -w generate-circleci-config
@@ -168,8 +170,8 @@ The `moon`-branch filter is not a knob — it is always applied (see
 `MOON_BRANCH_FILTER` above). To run the moon jobs on more branches, change that
 constant and regenerate.
 
-> The moon jobs must be marked **non-required** in the GitHub branch-protection
-> settings, or they'll block PRs despite being experimental.
+> The `moon-ci` job must be marked **non-required** in the GitHub
+> branch-protection settings, or it'll block PRs despite being experimental.
 
 ## Diagnosing moon CI failures
 
@@ -180,9 +182,11 @@ constant and regenerate.
 - **Test results.** JUnit is collected via `store_test_results`, so failures
   show up in the CircleCI "Tests" tab for tasks that actually ran. Cached tasks
   don't re-report (they passed unchanged).
-- **"No tasks found" for an e2e job.** The e2e tasks are `runInCI: false` and
-  moon honors that in a CI environment. The jobs deliberately run them with
-  `env -u CI moon run …` to unset the CI flag; moon 2.4.6 has no
+- **"No tasks found" running an e2e task.** The integration-testing `test` tasks
+  are `runInCI: false`, and moon honors that in any CI environment (it detects
+  CI via the `CI`/`CI_NAME`/`AZURE_PIPELINES` env vars). To run one anyway —
+  locally under a CI-like env, or if you re-add an e2e job — use
+  `env -u CI moon run …` to unset the flag; moon 2.4.6 has no
   `--ignore-ci-checks`.
 - **Remote cache silently off.** moon rewrites `grpc://` → `http://` and rejects
   a malformed URI — a stray char/newline in `MOON_REMOTE_HOST` disables the
