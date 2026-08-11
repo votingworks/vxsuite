@@ -9,7 +9,13 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import { assert, assertDefined, sleep, uniqueBy } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+  sleep,
+  uniqueBy,
+} from '@votingworks/basics';
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -18,6 +24,7 @@ import {
   faCaretUp,
   faCircleDown,
   faGamepad,
+  faGift,
   faPrint,
   faQrcode,
   faXmark,
@@ -64,6 +71,8 @@ const ElectionControlSelect = styled.select`
   }
 `;
 
+const AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS = 5000;
+
 function ElectionControl(): JSX.Element | null {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -71,9 +80,11 @@ function ElectionControl(): JSX.Element | null {
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
   );
+  // Polled so that a fresh VxDesign export shows up without reloading the app.
   const availableElectionsQuery = useQuery(
     ['getAvailableElections'],
-    async () => (await apiClient.getAvailableElections()) ?? null
+    async () => (await apiClient.getAvailableElections()) ?? null,
+    { refetchInterval: AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS }
   );
   const availableElections = availableElectionsQuery.data || [];
   const setElectionMutation = useMutation(apiClient.setElection, {
@@ -628,6 +639,53 @@ function PrinterMockControl() {
   );
 }
 
+function QuickConfigureButton(): JSX.Element {
+  const apiClient = useApiClient();
+  const [error, setError] = useState<string>();
+  // Shares a query key with ElectionControl, so this stays in sync as the
+  // election dropdown changes.
+  const getElectionQuery = useQuery(
+    ['getElection'],
+    async () => (await apiClient.getElection()) ?? null
+  );
+  const quickConfigureMutation = useMutation(apiClient.quickConfigure, {
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (mutationError) => setError(extractErrorMessage(mutationError)),
+  });
+
+  // Machines can only be configured from an election package, so a bare
+  // election definition has nothing to configure from.
+  const isElectionPackageSelected = Boolean(
+    getElectionQuery.data?.isElectionPackage
+  );
+
+  return (
+    <IconButton
+      isActive={quickConfigureMutation.isLoading}
+      disabled={!isElectionPackageSelected}
+      onClick={() => {
+        setError(undefined);
+        quickConfigureMutation.mutate();
+      }}
+      aria-label="Quick Configure"
+    >
+      <FontAwesomeIcon icon={faGift} size="2xl" />
+      {!isElectionPackageSelected && (
+        <UsbMocksDisabledMessage>
+          <p>Select an election package</p>
+        </UsbMocksDisabledMessage>
+      )}
+      {isElectionPackageSelected && error && (
+        <UsbMocksDisabledMessage>
+          <p>{error}</p>
+        </UsbMocksDisabledMessage>
+      )}
+    </IconButton>
+  );
+}
+
 function HardwareMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -1043,6 +1101,22 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   if (!getMockSpecQuery.isSuccess) return null;
   const mockSpec = getMockSpecQuery.data;
 
+  // Quick configure stages an election package on the mock USB drive, programs
+  // an election manager card for it, and lets the machine configure itself.
+  // The following flags are required:
+  //
+  // - SKIP_ELECTION_PACKAGE_AUTHENTICATION: package is not assumed to be signed.
+  // - USE_MOCK_USB_DRIVE, USE_MOCK_CARDS: only the mock drive and mock cards
+  //   are supported for quick configure.
+  // - SKIP_PIN_ENTRY: pin entry screen is not automatically handled by this flow.
+  const isQuickConfigureEnabled =
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+    ) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) &&
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY);
+
   return (
     <Container
       aria-hidden={!enableAccessibleNav}
@@ -1071,6 +1145,9 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
                 mockSpec.printerConfig !== 'fujitsu' && <PrinterMockControl />}
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
                 <HardwareMockControls />
+              )}
+              {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
+                <QuickConfigureButton />
               )}
             </IconsGrid>
           </Column>
