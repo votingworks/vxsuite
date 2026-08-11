@@ -73,13 +73,21 @@ const ElectionControlSelect = styled.select`
 
 const AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS = 5000;
 
-function ElectionControl(): JSX.Element | null {
-  const queryClient = useQueryClient();
+/**
+ * The election selected in the dev dock
+ */
+function useElectionQuery() {
   const apiClient = useApiClient();
-  const getElectionQuery = useQuery(
+  return useQuery(
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
   );
+}
+
+function ElectionControl(): JSX.Element | null {
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  const getElectionQuery = useElectionQuery();
   // Polled so that a fresh VxDesign export shows up without reloading the app.
   const availableElectionsQuery = useQuery(
     ['getAvailableElections'],
@@ -642,12 +650,7 @@ function PrinterMockControl() {
 function QuickConfigureButton(): JSX.Element {
   const apiClient = useApiClient();
   const [error, setError] = useState<string>();
-  // Shares a query key with ElectionControl, so this stays in sync as the
-  // election dropdown changes.
-  const getElectionQuery = useQuery(
-    ['getElection'],
-    async () => (await apiClient.getElection()) ?? null
-  );
+  const getElectionQuery = useElectionQuery();
   const quickConfigureMutation = useMutation(apiClient.quickConfigure, {
     onSuccess: () => {
       window.location.reload();
