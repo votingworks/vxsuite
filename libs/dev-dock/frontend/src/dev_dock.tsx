@@ -667,9 +667,7 @@ function QuickConfigureButton(): JSX.Element {
   return (
     <IconButton
       isActive={quickConfigureMutation.isLoading}
-      disabled={
-        !isElectionPackageSelected || quickConfigureMutation.isLoading
-      }
+      disabled={!isElectionPackageSelected || quickConfigureMutation.isLoading}
       onClick={() => {
         setError(undefined);
         quickConfigureMutation.mutate();
