@@ -92,6 +92,11 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
    * settings).
    */
   arePollWorkerCardPinsEnabled: boolean;
+  /**
+   * Whether the input is an election package rather than a bare election
+   * definition. Only election packages can be used to configure a machine.
+   */
+  isElectionPackage: boolean;
 }
 
 export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
@@ -186,8 +191,8 @@ async function setElection(
   let resolvedPath: string | undefined;
   let systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
-  // Check if the file is a zip file
-  if (extname(inputAbsolutePath).toLowerCase() === '.zip') {
+  const isElectionPackage = extname(inputAbsolutePath).toLowerCase() === '.zip';
+  if (isElectionPackage) {
     // Read the zip file
     const zipContents = fs.readFileSync(inputAbsolutePath);
     const zipFile = await openZip(zipContents);
@@ -229,6 +234,7 @@ async function setElection(
     resolvedPath,
     arePollWorkerCardPinsEnabled:
       systemSettings.auth.arePollWorkerCardPinsEnabled,
+    isElectionPackage,
   };
 
   const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
