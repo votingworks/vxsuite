@@ -174,6 +174,12 @@ export function cleanLogData(key: string, value: unknown): unknown {
       data: value.data.length,
     };
   }
+  // Grayscale scan images from the scanner client are plain objects, not
+  // `ImageData` instances, so catch their pixel buffers directly rather than
+  // serializing millions of bytes as JSON numbers.
+  if (value instanceof Uint8ClampedArray) {
+    return `[${value.length} bytes]`;
+  }
   if (value instanceof Error) {
     return { ...value, message: value.message, stack: value.stack };
   }

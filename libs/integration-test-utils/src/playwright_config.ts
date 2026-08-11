@@ -63,7 +63,12 @@ export function defineIntegrationTestPlaywrightConfig(
       },
     ],
     webServer: {
-      command: 'make run',
+      // The backends log every state-machine event and transition to stdout,
+      // which floods the test output with large JSON lines. Redirect stdout
+      // to a file so the logs stay available for debugging without drowning
+      // out the test results; stderr still streams through so server crashes
+      // are visible.
+      command: `mkdir -p ${OUTPUT_DIR} && make run > ${OUTPUT_DIR}/server-output.log`,
       url: BASE_URL,
       reuseExistingServer: !isCi,
       stdout: 'pipe',

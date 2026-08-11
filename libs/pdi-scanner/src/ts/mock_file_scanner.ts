@@ -40,15 +40,39 @@ function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
   for (let i = 0; i < pixels.length; i += 1) {
     pixels[i] = data[i * RGBA_CHANNEL_COUNT] as number;
   }
-  return { width, height, data: pixels };
+  return grayscaleImageData(width, height, pixels);
 }
 
 function blankGrayscalePage(width: number, height: number): ImageData {
-  return {
+  return grayscaleImageData(
     width,
     height,
-    data: new Uint8ClampedArray(width * height).fill(0xff),
+    new Uint8ClampedArray(width * height).fill(0xff)
+  );
+}
+
+interface LoggableImageData extends ImageData {
+  // eslint-disable-next-line vx/gts-identifiers
+  toJSON(): string;
+}
+
+function grayscaleImageData(
+  width: number,
+  height: number,
+  data: Uint8ClampedArray
+): ImageData {
+  const image: LoggableImageData = {
+    width,
+    height,
+    data,
+
+    // Define `toJSON` such that `JSON.stringify` does not try to serialize
+    // all the bytes in `data` as an array of numbers, matching the real
+    // scanner client (see `scanner_client.ts`).
+    // eslint-disable-next-line vx/gts-identifiers
+    toJSON: () => `[ImageData ${width}x${height}]`,
   };
+  return image;
 }
 
 type Command =
