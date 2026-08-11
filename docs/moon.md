@@ -100,13 +100,15 @@ moon check auth
 
 Total worker threads under moon are roughly
 `MOON_CONCURRENCY × per-task-workers`. moon 2.4.6 has **no committable
-concurrency setting** and defaults to using **all cores**; combined with the
-committed `vitest --maxWorkers=2`, a bare `moon run :test` oversubscribes the
-CPU ~2× and flakes timing-sensitive tests (crypto signing that shells out to
-`openssl`, jsdom render timeouts).
+concurrency setting** and defaults to using **all cores**, so a bare
+`moon run :test` runs a suite on every core at once and oversubscribes the CPU —
+flaking timing-sensitive tests (crypto signing that shells out to `openssl`,
+jsdom render timeouts).
 
 **`script/moon` handles this** — it defaults `MOON_CONCURRENCY` to ~cores/2 (and
-respects one you set). If you invoke `moon` directly, set it yourself:
+respects one you set). With the committed `vitest --maxWorkers=1` (one worker
+per suite) that keeps total test threads ~= cores. If you invoke `moon`
+directly, set it yourself:
 
 ```sh
 MOON_CONCURRENCY=8 moon run :test   # ~cores/2 on a 16-core machine
@@ -114,7 +116,7 @@ MOON_CONCURRENCY=8 moon run :test   # ~cores/2 on a 16-core machine
 
 Other committed caps (they travel with the repo):
 
-- `vitest run --maxWorkers=2` — in `.moon/tasks/typescript.yml`.
+- `vitest run --maxWorkers=1` — in `.moon/tasks/typescript.yml`.
 - `CARGO_BUILD_JOBS` — env on each native Rust build task.
 
 See [`MOON_NOTES.md`](../MOON_NOTES.md) for the full reasoning and the CircleCI

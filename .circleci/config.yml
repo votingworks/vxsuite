@@ -1627,7 +1627,7 @@ jobs:
     resource_class: xlarge
     parallelism: 5
     environment:
-      MOON_CONCURRENCY: '3'
+      MOON_CONCURRENCY: '6'
     steps:
       - checkout-and-install:
           is_node_package: true

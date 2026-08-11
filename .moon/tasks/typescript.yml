@@ -40,11 +40,15 @@ tasks:
     # the color-free committed snapshots. `script` (not `command`) so the inline
     # env assignment is honored by the shell.
     #
-    # maxWorkers=2 caps vitest's own worker pool: moon runs up to MOON_CONCURRENCY
-    # test tasks at once and each vitest otherwise sizes its pool to all cores, so
-    # N suites x cores oversubscribes the CPU and flakes timing-sensitive tests.
-    # Test-phase threads are then ~= MOON_CONCURRENCY x 2; keep MOON_CONCURRENCY
-    # around cores/2 (env-only; moon has no committable concurrency setting).
+    # maxWorkers=1 caps vitest's own worker pool to ONE: moon runs up to
+    # MOON_CONCURRENCY test tasks at once and each vitest otherwise sizes its pool
+    # to all cores, so N suites x cores oversubscribes the CPU and flakes timing-
+    # sensitive tests (crypto that shells out to openssl, jsdom render timeouts).
+    # With 1 worker per suite, total test threads ~= MOON_CONCURRENCY, so
+    # `script/moon` (MOON_CONCURRENCY ~= cores/2) keeps load ~cores. (2 workers x
+    # cores/2 concurrency was ~1.5x oversubscribed once coverage/jsdom overhead is
+    # counted, and still tripped 5s timeouts. moon has no committable concurrency
+    # setting, so the runner concurrency is env-only.)
     #
     # `--coverage` matches each package's real `test:ci` and enforces the shared
     # 100% line/branch thresholds — WITHOUT it moon runs a bare `vitest run` and
@@ -55,7 +59,7 @@ tasks:
     # with `missing_outputs`. CI still collects junit for tasks that actually ran
     # (see the moon-ci job's store_test_results); cached tasks don't re-report,
     # which is fine — they passed unchanged.
-    script: 'FORCE_COLOR=0 vitest run --coverage --maxWorkers=2'
+    script: 'FORCE_COLOR=0 vitest run --coverage --maxWorkers=1'
     env:
       TZ: America/Anchorage
     inputs:

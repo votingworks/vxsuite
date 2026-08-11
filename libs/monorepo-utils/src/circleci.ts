@@ -440,14 +440,14 @@ function generateMoonCiJob(): string[] {
     // containers per run; fine for this non-required lane while we tune it.
     `  parallelism: 5`,
     `  environment:`,
-    // Concurrency is RAM-bound, not CPU-bound, on this lane: the heavy jsdom
-    // frontend suites (design/admin/scan) + backend suites each spawn a
-    // 2-worker vitest pool, and running 4 at once on an xlarge's ~16GB
-    // intermittently starves one into a mock-ordering/timeout flake. Dropped
-    // 4 -> 3 to cut peak concurrent heavy suites; the cold-wall cost is small
-    // (warm runs are cache-dominated) and buys flake-resistance on this
-    // required-style lane. Go to 2 if flakes persist. See MOON_NOTES.md.
-    `    MOON_CONCURRENCY: '3'`,
+    // The shared test task now runs vitest with --maxWorkers=1 (one worker per
+    // suite; see .moon/tasks/typescript.yml), so a suite spawns ~1 worker process
+    // instead of 2. Set MOON_CONCURRENCY=6 to keep the same footprint as the old
+    // 3-concurrency x 2-worker setup (~6 worker processes / ~6 CPU threads / same
+    // peak RAM) on the xlarge (8 vCPU, ~16GB). Concurrency here is RAM-bound (each
+    // jsdom/backend suite's footprint), not CPU-bound; drop it if heavy suites
+    // starve into timeout/mock-ordering flakes. See MOON_NOTES.md.
+    `    MOON_CONCURRENCY: '6'`,
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: true`,
