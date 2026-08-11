@@ -1,15 +1,16 @@
-# Playwright e2e suite (same shape as admin-integration-testing): non-required
-# lane. test = Playwright, runInCI:false (excluded from `moon ci`) + cache:false,
-# shared 'e2e-servers' mutex, depending on the mark-scan app builds. build/
-# type-check excluded; lint gets an explicit build gate so eslint-plugin-vx is
+# Playwright e2e suite (same shape as admin-integration-testing): the `e2e` task
+# is Playwright, runInCI:false (excluded from `moon ci`) + cache:false, shared
+# 'e2e-servers' mutex, depending on the mark-scan app builds. build/type-check/
+# test are excluded (test excluded so `moon run :test` stays unit-only; run e2e
+# with `moon run :e2e`); lint gets an explicit build gate so eslint-plugin-vx is
 # built first. NOTE: mark-scan's suite also needs the accessible-controller/PAT
-# daemons — the moon-e2e-mark-scan CI job runs `make build` before this.
+# daemons built via `make` before Playwright can drive them.
 workspace:
   inheritedTasks:
-    exclude: ['build', 'type-check']
+    exclude: ['build', 'type-check', 'test']
 
 tasks:
-  test:
+  e2e:
     script: 'playwright test'
     options:
       mergeArgs: replace

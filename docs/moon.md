@@ -70,41 +70,52 @@ This is exactly what the CI jobs do.
 
 ## Using moon locally
 
-Run from the repo root.
+Run from the repo root. **Prefer `script/moon` over bare `moon`** for
+whole-graph runs — it sets a sane `MOON_CONCURRENCY` (see below).
 
 ```sh
-# run the full affected task graph the way CI does (build + test + lint +
-# type-check for everything wired into .moon/workspace.yml)
-moon ci
+# run the affected task graph (build + test + lint + type-check for everything
+# wired into .moon/workspace.yml). moon ci skips runInCI:false tasks (the e2e
+# suites), so this is the command for a local "does everything pass" check.
+script/moon ci
 
-# run a single task for a single project (project ids are the keys in
-# .moon/workspace.yml, e.g. `auth`, `admin-backend`, `admin-frontend`)
+# run one task for one project (project ids are the keys in .moon/workspace.yml,
+# e.g. `auth`, `admin-backend`, `admin-frontend`)
 moon run auth:test
 moon run admin-backend:build
 
 # run a task across all projects
-moon run :lint
+script/moon run :test      # unit tests (vitest) only
+script/moon run :lint
+
+# run the Playwright end-to-end suites (separate task; NOT part of :test — they
+# start real servers, so keep them out of bulk unit runs)
+script/moon run :e2e
 
 # see what moon thinks is affected / cached without running
 moon check auth
 ```
 
-### Concurrency knobs (important)
+### Concurrency (important)
 
 Total worker threads under moon are roughly
-`MOON_CONCURRENCY × per-task-workers`, and both vitest and cargo otherwise
-auto-size to all cores — so without limits, N concurrent suites × cores each
-oversubscribes the CPU and flakes timing-sensitive tests. Two knobs are
-committed (they travel with the repo); the outer one is per-environment:
+`MOON_CONCURRENCY × per-task-workers`. moon 2.4.6 has **no committable
+concurrency setting** and defaults to using **all cores**; combined with the
+committed `vitest --maxWorkers=2`, a bare `moon run :test` oversubscribes the
+CPU ~2× and flakes timing-sensitive tests (crypto signing that shells out to
+`openssl`, jsdom render timeouts).
 
-- `vitest run --maxWorkers=2` — committed in `.moon/tasks/typescript.yml`.
-- `CARGO_BUILD_JOBS` — committed as env on each native Rust build task.
-- `MOON_CONCURRENCY` — **you set this**; moon 2.4.6 has no committable setting.
-  Use roughly **cores / 2**, e.g. on a 16-core dev machine:
+**`script/moon` handles this** — it defaults `MOON_CONCURRENCY` to ~cores/2 (and
+respects one you set). If you invoke `moon` directly, set it yourself:
 
-  ```sh
-  MOON_CONCURRENCY=8 moon ci
-  ```
+```sh
+MOON_CONCURRENCY=8 moon run :test   # ~cores/2 on a 16-core machine
+```
+
+Other committed caps (they travel with the repo):
+
+- `vitest run --maxWorkers=2` — in `.moon/tasks/typescript.yml`.
+- `CARGO_BUILD_JOBS` — env on each native Rust build task.
 
 See [`MOON_NOTES.md`](../MOON_NOTES.md) for the full reasoning and the CircleCI
 `nproc` gotcha (the Docker executor reports host cores, not the resource-class
@@ -140,7 +151,7 @@ watch and learn from while the existing per-package jobs keep gating PRs:
 > The per-app `moon-e2e-*` Playwright jobs were removed — the moon variants of
 > the e2e suites weren't stable enough to be worth running while we're not
 > focusing on CI. The apps' integration-testing moon projects stay wired (their
-> `test` task is `runInCI: false`, so `moon ci` skips them); re-add per-app jobs
+> `e2e` task is `runInCI: false`, so `moon ci` skips them); re-add per-app jobs
 > in `circleci.ts` if that path is worth revisiting.
 
 Two properties keep it cheap and unobtrusive while the integration is young:

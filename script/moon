@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Wrapper around `moon` that defaults MOON_CONCURRENCY to roughly half the
+# machine's cores.
+#
+# moon 2.4.6 has no committable concurrency setting and defaults to using ALL
+# cores. Combined with the committed `vitest --maxWorkers=2`, a full local run
+# (e.g. `script/moon run :test`) otherwise oversubscribes the CPU ~2x and flakes
+# timing-sensitive tests (crypto signing that shells out to openssl, jsdom
+# render timeouts). Half the cores keeps total worker threads ~= cores.
+#
+# An explicitly-set MOON_CONCURRENCY is respected. Use exactly as you would
+# `moon`, e.g. `script/moon run :test` or `script/moon ci`.
+
+if [[ -z "${MOON_CONCURRENCY:-}" ]]; then
+  if command -v nproc >/dev/null 2>&1; then
+    cores="$(nproc)"
+  else
+    cores="$(sysctl -n hw.ncpu 2>/dev/null || echo 4)"
+  fi
+  concurrency=$((cores / 2))
+  if ((concurrency < 1)); then
+    concurrency=1
+  fi
+  export MOON_CONCURRENCY="$concurrency"
+fi
+
+exec moon "$@"

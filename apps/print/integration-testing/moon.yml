@@ -5,10 +5,10 @@
 # explicit build gate so eslint-plugin-vx is built first.
 workspace:
   inheritedTasks:
-    exclude: ['build', 'type-check']
+    exclude: ['build', 'type-check', 'test']
 
 tasks:
-  test:
+  e2e:
     script: 'playwright test'
     options:
       mergeArgs: replace
