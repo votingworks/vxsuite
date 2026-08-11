@@ -434,8 +434,14 @@ function generateMoonCiJob(): string[] {
     // the remote cache (MOON_REMOTE_HOST); without it shared deps rebuild per shard.
     `  parallelism: 3`,
     `  environment:`,
-    `    # cores/2 for an xlarge (8 vCPU); see MOON_NOTES.md.`,
-    `    MOON_CONCURRENCY: '4'`,
+    // Concurrency is RAM-bound, not CPU-bound, on this lane: the heavy jsdom
+    // frontend suites (design/admin/scan) + backend suites each spawn a
+    // 2-worker vitest pool, and running 4 at once on an xlarge's ~16GB
+    // intermittently starves one into a mock-ordering/timeout flake. Dropped
+    // 4 -> 3 to cut peak concurrent heavy suites; the cold-wall cost is small
+    // (warm runs are cache-dominated) and buys flake-resistance on this
+    // required-style lane. Go to 2 if flakes persist. See MOON_NOTES.md.
+    `    MOON_CONCURRENCY: '3'`,
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: true`,
