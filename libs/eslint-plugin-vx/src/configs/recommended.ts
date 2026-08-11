@@ -186,6 +186,8 @@ export default function buildRecommended(
           {
             argsIgnorePattern: '^_',
             varsIgnorePattern: '^_',
+            // typescript-eslint v8 changed the default from 'none' to 'all';
+            // keep the pre-v8 behavior of ignoring unused catch bindings.
             caughtErrors: 'none',
           },
         ],
@@ -315,9 +317,6 @@ export default function buildRecommended(
       },
     },
 
-    // Prettier must come last to turn off conflicting style rules.
-    eslintConfigPrettier,
-
     // ── Test file overrides ───────────────────────────────────────
     {
       files: ['**/*.test.ts', '**/*.test.tsx'],
@@ -349,5 +348,8 @@ export default function buildRecommended(
         'vx/gts-no-default-exports': 'off',
       },
     },
+
+    // Prettier must come last to turn off conflicting style rules.
+    eslintConfigPrettier,
   ];
 }
