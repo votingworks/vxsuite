@@ -21,6 +21,7 @@ export type MockCastVoteRecordFile = Array<
     multiplier?: number;
     scannerMachineType?: ScannerMachineType;
     pollingPlaceId?: string;
+    ballotId?: string;
   }
 >;
 
@@ -48,11 +49,13 @@ const mockPageLayout: BallotPageLayout = {
  */
 export function addMockCvrFileToStore({
   electionId,
+  exportedTimestamp,
   pollingPlaceId,
   mockCastVoteRecordFile,
   store,
 }: {
   electionId: Id;
+  exportedTimestamp?: Date;
   pollingPlaceId: Id;
   mockCastVoteRecordFile: MockCastVoteRecordFile;
   store: Store;
@@ -78,10 +81,11 @@ export function addMockCvrFileToStore({
     electionId,
     isTestMode: true,
     filename: 'mock-cvr-file',
-    exportedTimestamp: new Date().toISOString(),
+    exportedTimestamp: (exportedTimestamp || new Date()).toISOString(),
     sha256Hash: 'mock-hash',
     scannerIds,
     pollingPlaceIds: new Set(pollingPlaceId),
+    batchIds: mockCastVoteRecordFile.map((f) => f.batchId),
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));
@@ -127,7 +131,7 @@ export function addMockCvrFileToStore({
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId,
-        ballotId: uuid(),
+        ballotId: mockCastVoteRecord.ballotId || uuid(),
         cvr: { ...mockCastVoteRecord, votes: filteredVotes },
         adjudicationFlags,
       });
