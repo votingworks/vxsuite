@@ -69,9 +69,12 @@ export interface Api<
   /** @private Grout internal use only */
   _middlewares?: Middlewares<Context>;
   /**
-   * Expose `methods()` for testing the API methods directly without having to
+   * Expose `methods()` for calling the API methods directly without having to
    * run a server. Note that using this approach will bypass any middleware, so
    * it's not recommended for most testing.
+   *
+   * Allowed in development as well as tests, so that dev-only tooling (e.g. the
+   * dev dock) can drive an app's own API instead of duplicating its logic.
    */
   methods(): Readonly<Methods>;
 }
@@ -172,7 +175,10 @@ export function createApi<
     _methods: methods,
     _middlewares: middlewares,
     methods(): Readonly<Methods> {
-      assert(process.env.NODE_ENV === 'test');
+      assert(
+        process.env.NODE_ENV === 'test' ||
+          process.env.NODE_ENV === 'development'
+      );
       return methods;
     },
   };
