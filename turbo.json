@@ -9,6 +9,7 @@
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
+      "env": ["REACT_APP_*"],
       "outputs": ["build/**", "*.node"]
     },
     "type-check": {
