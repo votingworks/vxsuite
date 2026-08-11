@@ -519,17 +519,11 @@ export function buildApp(
   workspace: Workspace,
   usbDrive: UsbDrive,
   stateMachine?: PaperHandlerStateMachine,
-  paperHandler?: PaperHandlerDriverInterface
+  paperHandler?: PaperHandlerDriverInterface,
+  /* istanbul ignore next */
+  api = buildApi(auth, usbDrive, logger, workspace, stateMachine, paperHandler)
 ): Application {
   const app: Application = express();
-  const api = buildApi(
-    auth,
-    usbDrive,
-    logger,
-    workspace,
-    stateMachine,
-    paperHandler
-  );
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }
