@@ -1,5 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "tsconfig.shared.json",
+    "vitest.config.shared.mts",
+    ".prettierrc.js",
+    "stylelint.shared.js"
+  ],
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
@@ -13,10 +19,12 @@
       "dependsOn": ["^build:self"]
     },
     "test:run": {
-      "dependsOn": ["build:self"]
+      "dependsOn": ["build:self"],
+      "passThroughEnv": ["VX_TEST_WORKERS"]
     },
     "test:ci": {
-      "dependsOn": ["build:self"]
+      "dependsOn": ["build:self"],
+      "passThroughEnv": ["VX_TEST_WORKERS"]
     },
     "clean:self": {
       "cache": false
