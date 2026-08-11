@@ -1,20 +1,23 @@
 import React from 'react';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, groupBy } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
   BallotStyle,
   Candidate,
   CandidateContest,
+  Contest,
   Election,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
   getPrecinctById,
   HmpbBallotPaperSize,
+  Party,
   PartyId,
+  YesNoContest,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { CandidatePartyList } from '@votingworks/ui';
 import { RenderDocument, Renderer } from '../renderer';
 import { BaseStyles } from '../base_styles';
@@ -25,6 +28,11 @@ import {
   pageMarginsInches,
 } from '../ballot_components';
 import { ColorTints } from './nh_state_primary_ballot_template';
+import {
+  BaseStyles as NhStateBaseStyles,
+  isDemocraticParty,
+  isRepublicanParty,
+} from './nh_state_ballot_components';
 
 const Header = styled.div`
   display: flex;
@@ -34,7 +42,6 @@ const Header = styled.div`
 `;
 
 const SignatureLine = styled.div`
-  flex: 1;
   margin-top: 2em;
   border-bottom: 1px solid #000;
 `;
@@ -122,14 +129,22 @@ const ContestTable = styled.table`
   }
 `;
 
-function Field({ label }: { label: React.ReactNode }): JSX.Element {
+function Field({
+  label,
+  inverse,
+}: {
+  label: React.ReactNode;
+  inverse?: boolean;
+}): JSX.Element {
   return (
     <div
       style={{
+        // Inverse fields split the row evenly but never narrower than their
+        // one-line label; the default lets labels wrap instead.
         flex: 1,
-        minWidth: '8rem',
+        minWidth: inverse ? 'fit-content' : '8rem',
         backgroundColor: 'white',
-        border: `1px solid ${Colors.DARKER_GRAY}`,
+        border: `1px solid ${inverse ? Colors.BLACK : Colors.DARKER_GRAY}`,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -137,16 +152,31 @@ function Field({ label }: { label: React.ReactNode }): JSX.Element {
       <div
         style={{
           fontWeight: '500',
-          fontSize: '0.8rem',
+          fontSize: inverse ? '1rem' : '0.8rem',
           padding: '0.125rem 0.25rem',
-          borderBottom: `1px solid ${Colors.DARK_GRAY}`,
+          whiteSpace: inverse ? 'nowrap' : undefined,
+          ...(inverse
+            ? { backgroundColor: Colors.BLACK, color: Colors.WHITE }
+            : { borderBottom: `1px solid ${Colors.DARK_GRAY}` }),
         }}
       >
         {label}
       </div>
-      <div style={{ flex: 1, minHeight: '1.5rem' }} />
+      <div style={{ flex: 1, minHeight: inverse ? '2rem' : '1.5rem' }} />
     </div>
   );
+}
+
+function ConditionalWrapper({
+  wrap,
+  wrapper,
+  children,
+}: {
+  wrap: boolean;
+  wrapper: (children: JSX.Element) => JSX.Element;
+  children: JSX.Element;
+}): JSX.Element {
+  return wrap ? wrapper(children) : children;
 }
 
 function PageFooter({
@@ -286,6 +316,276 @@ const GENERAL_INSTRUCTIONS =
   'reflect the vote counts determined by the moderator and sign the form. ' +
   'Return on ELECTION NIGHT to the Secretary of State.';
 
+// General election tally layout: mirrors the general ballot template's matrix
+// of full-width contest rows (nh_state_general_ballot_template.tsx) so clerks
+// can visually match the ballot to the form. The ballot's write-in column is
+// replaced by an Undervotes/Overvotes column; write-in details go on the
+// separate write-in pages, as in the primary form.
+const matrixRowStyles = css`
+  display: grid;
+  grid-template-columns: 0.9fr repeat(3, 1fr) 0.9fr;
+`;
+
+const MatrixSectionHeader = styled.div`
+  ${matrixRowStyles}
+  > div {
+    background-color: ${Colors.BLACK};
+    color: ${Colors.WHITE};
+    &:not(:last-child) {
+      border-right: 1px solid ${Colors.WHITE};
+    }
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem 0.125rem;
+    font-weight: bold;
+    font-size: 14pt;
+    line-height: 0.9;
+  }
+`;
+
+const MatrixQuestionSectionHeader = styled.div`
+  background-color: ${Colors.BLACK};
+  color: ${Colors.WHITE};
+  text-align: center;
+  font-weight: bold;
+  font-size: 14pt;
+  line-height: 0.9;
+  padding: 0.25rem;
+`;
+
+const MatrixRow = styled.div`
+  ${matrixRowStyles}
+  border-bottom: 2px solid ${Colors.BLACK};
+  &:last-child {
+    border-bottom: none;
+  }
+  > div:not(:last-child) {
+    border-right: 1px solid ${Colors.BLACK};
+  }
+`;
+
+function MatrixOfficeCell({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '0.25rem',
+        lineHeight: 1.1,
+      }}
+    >
+      <div>{children}</div>
+    </div>
+  );
+}
+
+// Each candidate gets the full width of the party column: name on top, open
+// space below for writing the count, and a dividing line between candidates.
+function MatrixCandidateList({
+  candidates,
+  parties,
+  showPartyLabels,
+}: {
+  candidates: Candidate[];
+  parties: readonly Party[];
+  showPartyLabels?: boolean;
+}): JSX.Element {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {candidates.map((candidate, i) => (
+        <div
+          key={candidate.id}
+          style={{
+            flex: 1,
+            minHeight: '2.5rem',
+            padding: '0.125rem 0.25rem',
+            borderBottom:
+              i < candidates.length - 1
+                ? `1px solid ${Colors.BLACK}`
+                : undefined,
+          }}
+        >
+          <div style={{ fontWeight: 'bold', fontSize: '12pt', lineHeight: 1 }}>
+            {showPartyLabels && candidate.partyIds?.[0] && (
+              <div style={{ fontWeight: 'normal', fontSize: '7.5pt' }}>
+                {parties.find((p) => p.id === candidate.partyIds?.[0])?.name}
+              </div>
+            )}
+            {cleanCandidateName(candidate.name)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UnderOverVotesCell(): JSX.Element {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {['Undervotes', 'Overvotes'].map((label, i) => (
+        <div
+          key={label}
+          style={{
+            flex: 1,
+            minHeight: '1.6rem',
+            padding: '0.125rem 0.25rem',
+            borderBottom: i === 0 ? `1px solid ${Colors.BLACK}` : undefined,
+          }}
+        >
+          <div style={{ fontStyle: 'italic' }}>{label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MatrixContestRow({
+  election,
+  contest,
+}: {
+  election: Election;
+  contest: CandidateContest;
+}): JSX.Element {
+  const { parties } = election;
+  const democraticPartyId = parties.find(isDemocraticParty)?.id;
+  const republicanPartyId = parties.find(isRepublicanParty)?.id;
+  // Bucket candidates by first party, matching the general ballot template, so
+  // cross-endorsed candidates appear once, in the same column as on the ballot.
+  const candidatesByParty = groupBy(
+    [...contest.candidates],
+    (candidate) => candidate.partyIds?.[0]
+  );
+  const democraticCandidates =
+    candidatesByParty.find(([partyId]) => partyId === democraticPartyId)?.[1] ??
+    [];
+  const republicanCandidates =
+    candidatesByParty.find(([partyId]) => partyId === republicanPartyId)?.[1] ??
+    [];
+  const otherCandidates = candidatesByParty
+    .filter(
+      ([partyId]) =>
+        !(partyId === democraticPartyId || partyId === republicanPartyId)
+    )
+    .flatMap(([, candidates]) => candidates);
+  return (
+    <MatrixRow data-rov-contest="tally">
+      <MatrixOfficeCell>
+        <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>
+          {contestTitleWithForPrefix(contest.title)}
+        </div>
+        <div style={{ fontSize: '8.75pt' }}>
+          {contest.seats === 1 ? (
+            <>Vote for not more than 1</>
+          ) : (
+            <>
+              Vote for up to {contest.seats}; {SEATS_WORD[contest.seats]} will
+              be elected
+            </>
+          )}
+          {contest.termDescription && <span> • {contest.termDescription}</span>}
+        </div>
+      </MatrixOfficeCell>
+      <MatrixCandidateList
+        candidates={democraticCandidates}
+        parties={parties}
+      />
+      <MatrixCandidateList
+        candidates={republicanCandidates}
+        parties={parties}
+      />
+      <MatrixCandidateList
+        candidates={otherCandidates}
+        parties={parties}
+        showPartyLabels
+      />
+      <UnderOverVotesCell />
+    </MatrixRow>
+  );
+}
+
+function MatrixQuestionRow({
+  contest,
+  questionNumber,
+}: {
+  contest: YesNoContest;
+  questionNumber: number;
+}): JSX.Element {
+  return (
+    <MatrixRow data-rov-contest="tally">
+      <MatrixOfficeCell>
+        <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>
+          Question {questionNumber}
+        </div>
+      </MatrixOfficeCell>
+      {contest.options.slice(0, 2).map((option) => (
+        <div
+          key={option.id}
+          style={{ minHeight: '2.5rem', padding: '0.125rem 0.25rem' }}
+        >
+          <div style={{ fontWeight: 'bold', fontSize: '12pt' }}>
+            {option.label}
+          </div>
+        </div>
+      ))}
+      <div />
+      <UnderOverVotesCell />
+    </MatrixRow>
+  );
+}
+
+function GeneralContestMatrix({
+  election,
+  contests,
+}: {
+  election: Election;
+  contests: readonly Contest[];
+}): JSX.Element {
+  const candidateContests = contests.filter(
+    (contest): contest is CandidateContest => contest.type === 'candidate'
+  );
+  const yesnoContests = contests.filter(
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  );
+  return (
+    <div style={{ border: `1px solid ${Colors.BLACK}` }}>
+      <MatrixSectionHeader>
+        <div>Offices</div>
+        <div>Democratic Candidates</div>
+        <div>Republican Candidates</div>
+        <div>Other Candidates</div>
+        <div>Undervotes / Overvotes</div>
+      </MatrixSectionHeader>
+      {candidateContests.map((contest) => (
+        <MatrixContestRow
+          key={contest.id}
+          election={election}
+          contest={contest}
+        />
+      ))}
+      {yesnoContests.length > 0 && (
+        <MatrixQuestionSectionHeader>
+          Constitutional Amendment Questions
+        </MatrixQuestionSectionHeader>
+      )}
+      {yesnoContests.map((contest, i) => (
+        <MatrixQuestionRow
+          key={contest.id}
+          contest={contest}
+          questionNumber={i + 1}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function NhRovForm({
   election,
   ballotStyle,
@@ -303,7 +603,16 @@ export function NhRovForm({
   );
   const dimensions = ballotPaperDimensions(paperSize);
   const colorTint = party ? partyColorTint(party.fullName) : undefined;
-  const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
+  // The general form matches the ballot's black-and-white look: no background
+  // tint behind the header, black box borders, and an inverse "Ballots Cast"
+  // bar. The primary form keeps its party-tinted boxes.
+  const isGeneral = election.type === 'general';
+  const headerBgColor = isGeneral
+    ? undefined
+    : colorTint
+    ? ColorTints[colorTint]
+    : Colors.LIGHT_GRAY;
+  const boxBorderColor = isGeneral ? Colors.BLACK : Colors.DARKER_GRAY;
   const instructions = partyId ? PRIMARY_INSTRUCTIONS : GENERAL_INSTRUCTIONS;
   const ballotsCastPrefix = party ? `${party.name} ` : '';
   return (
@@ -320,13 +629,27 @@ export function NhRovForm({
       >
         <div
           style={{
-            border: `1px solid ${Colors.DARKER_GRAY}`,
+            border: `1px solid ${boxBorderColor}`,
             backgroundColor: headerBgColor,
           }}
         >
-          <Header style={{ padding: '0.5rem' }}>
+          {/* On the general form the attestation box sits flush against the
+              header box's top/right edges, sharing its border; the primary
+              keeps it floating inside the header padding. */}
+          <Header
+            style={
+              isGeneral
+                ? { padding: 0, alignItems: 'stretch' }
+                : { padding: '0.5rem' }
+            }
+          >
             <div
-              style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}
+              style={{
+                display: 'flex',
+                gap: '0.375rem',
+                alignItems: 'center',
+                padding: isGeneral ? '0.5rem' : undefined,
+              }}
             >
               <img
                 src={`data:image/svg+xml;base64,${Buffer.from(
@@ -348,8 +671,14 @@ export function NhRovForm({
             <div
               style={{
                 fontSize: '0.8rem',
-                border: '1px solid black',
                 backgroundColor: 'white',
+                ...(isGeneral
+                  ? {
+                      borderLeft: '1px solid black',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }
+                  : { border: '1px solid black' }),
               }}
             >
               <div style={{ padding: '0.25rem 0.375rem' }}>
@@ -360,6 +689,14 @@ export function NhRovForm({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                   borderBottom: `1px solid ${Colors.DARK_GRAY}`,
                   padding: '0.25rem 0.375rem',
+                  ...(isGeneral
+                    ? {
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
+                      }
+                    : {}),
                 }}
               >
                 <SignatureLine>
@@ -382,41 +719,57 @@ export function NhRovForm({
             style={{
               fontSize: '0.8rem',
               padding: '0.375rem',
-              borderTop: `1px solid ${Colors.DARKER_GRAY}`,
+              borderTop: `1px solid ${boxBorderColor}`,
             }}
           >
             <strong>Instructions:</strong> {instructions}
           </div>
         </div>
-        <div
-          style={{
-            border: `1px solid ${Colors.DARKER_GRAY}`,
-            backgroundColor: headerBgColor,
-          }}
+        {/* On the general form the fields stand alone (their labels all say
+            "... Ballots Cast"); the primary keeps the titled, tinted box. */}
+        <ConditionalWrapper
+          wrap={!isGeneral}
+          wrapper={(children) => (
+            <div
+              style={{
+                border: `1px solid ${boxBorderColor}`,
+                backgroundColor: headerBgColor,
+              }}
+            >
+              <h4
+                style={{
+                  padding: '0.375rem 0.5rem',
+                  borderBottom: `1px solid ${Colors.DARKER_GRAY}`,
+                }}
+              >
+                Ballots Cast
+              </h4>
+              {children}
+            </div>
+          )}
         >
-          <h4
-            style={{
-              padding: '0.375rem 0.5rem',
-              borderBottom: `1px solid ${Colors.DARKER_GRAY}`,
-            }}
-          >
-            Ballots Cast
-          </h4>
           <div
             style={{
               display: 'flex',
               gap: '0.75rem',
               alignItems: 'stretch',
-              padding: '0.5rem',
+              padding: isGeneral ? undefined : '0.5rem',
             }}
           >
             <Field
               label={<>{ballotsCastPrefix}Election Day Ballots&nbsp;Cast</>}
+              inverse={isGeneral}
             />
             <h2 style={{ alignSelf: 'center' }}>+</h2>
-            <Field label={<>{ballotsCastPrefix}Absentee Ballots&nbsp;Cast</>} />
+            <Field
+              label={<>{ballotsCastPrefix}Absentee Ballots&nbsp;Cast</>}
+              inverse={isGeneral}
+            />
             <h2 style={{ alignSelf: 'center' }}>=</h2>
-            <Field label={<>{ballotsCastPrefix}Total Ballots&nbsp;Cast</>} />
+            <Field
+              label={<>{ballotsCastPrefix}Total Ballots&nbsp;Cast</>}
+              inverse={isGeneral}
+            />
             <div
               style={{
                 borderLeft: '1px solid black',
@@ -426,106 +779,111 @@ export function NhRovForm({
               label={
                 <>{ballotsCastPrefix}Federal Office Only Ballots&nbsp;Cast</>
               }
+              inverse={isGeneral}
             />
           </div>
-        </div>
-        <div
-          style={{
-            columns: 3,
-            columnGap: '0.5rem',
-          }}
-        >
-          {contests.map((contest) => (
-            <div
-              key={contest.id}
-              data-rov-contest="tally"
-              style={{
-                marginBottom: '0.375rem',
-                border: `1px solid ${Colors.DARKER_GRAY}`,
-              }}
-            >
-              <ContestTable style={{ fontSize: '0.8rem' }}>
-                <thead>
-                  <tr>
-                    <th
-                      colSpan={2}
-                      style={
-                        colorTint
-                          ? { backgroundColor: ColorTints[colorTint] }
-                          : undefined
-                      }
-                    >
-                      <h4 style={{ fontSize: '1rem' }}>
-                        {contestTitleWithForPrefix(contest.title)}
-                      </h4>
-                      {contest.type === 'candidate' && (
-                        <div>
-                          {contest.seats === 1 ? (
-                            <>Vote for not more than 1</>
-                          ) : (
-                            <>
-                              Vote for up to {contest.seats};{' '}
-                              {SEATS_WORD[contest.seats]} will be elected
-                            </>
-                          )}
-                          {contest.termDescription && (
-                            <span> • {contest.termDescription}</span>
-                          )}
-                        </div>
-                      )}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {contest.type === 'candidate' &&
-                    mergeCrossEndorsedCandidates(
-                      getOrderedCandidatesForContestInBallotStyle({
-                        contest,
-                        ballotStyle,
-                      })
-                    ).map((candidate) => (
-                      <tr key={candidate.id}>
-                        <td>
-                          {cleanCandidateName(candidate.name)}
-                          {!partyId &&
-                            (candidate.partyIds?.length ?? 0) > 0 && (
-                              <div style={{ fontWeight: '400' }}>
-                                <CandidatePartyList
-                                  candidate={candidate}
-                                  electionParties={election.parties}
-                                />
-                              </div>
+        </ConditionalWrapper>
+        {election.type === 'general' ? (
+          <GeneralContestMatrix election={election} contests={contests} />
+        ) : (
+          <div
+            style={{
+              columns: 3,
+              columnGap: '0.5rem',
+            }}
+          >
+            {contests.map((contest) => (
+              <div
+                key={contest.id}
+                data-rov-contest="tally"
+                style={{
+                  marginBottom: '0.375rem',
+                  border: `1px solid ${Colors.DARKER_GRAY}`,
+                }}
+              >
+                <ContestTable style={{ fontSize: '0.8rem' }}>
+                  <thead>
+                    <tr>
+                      <th
+                        colSpan={2}
+                        style={
+                          colorTint
+                            ? { backgroundColor: ColorTints[colorTint] }
+                            : undefined
+                        }
+                      >
+                        <h4 style={{ fontSize: '1rem' }}>
+                          {contestTitleWithForPrefix(contest.title)}
+                        </h4>
+                        {contest.type === 'candidate' && (
+                          <div>
+                            {contest.seats === 1 ? (
+                              <>Vote for not more than 1</>
+                            ) : (
+                              <>
+                                Vote for up to {contest.seats};{' '}
+                                {SEATS_WORD[contest.seats]} will be elected
+                              </>
                             )}
-                        </td>
-                        <td></td>
-                      </tr>
-                    ))}
-                  {contest.type === 'yesno' &&
-                    contest.options.map((option) => (
-                      <tr key={option.id}>
-                        <td>{option.label}</td>
-                        <td></td>
-                      </tr>
-                    ))}
-                  <tr>
-                    <td
-                      colSpan={2}
-                      style={{
-                        fontStyle: 'italic',
-                        fontWeight: 'normal',
-                      }}
-                    >
-                      <div style={{ display: 'flex', width: '100%' }}>
-                        <div style={{ flex: 1 }}>Undervotes:</div>
-                        <div style={{ flex: 1 }}>Overvotes:</div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </ContestTable>
-            </div>
-          ))}
-        </div>
+                            {contest.termDescription && (
+                              <span> • {contest.termDescription}</span>
+                            )}
+                          </div>
+                        )}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contest.type === 'candidate' &&
+                      mergeCrossEndorsedCandidates(
+                        getOrderedCandidatesForContestInBallotStyle({
+                          contest,
+                          ballotStyle,
+                        })
+                      ).map((candidate) => (
+                        <tr key={candidate.id}>
+                          <td>
+                            {cleanCandidateName(candidate.name)}
+                            {!partyId &&
+                              (candidate.partyIds?.length ?? 0) > 0 && (
+                                <div style={{ fontWeight: '400' }}>
+                                  <CandidatePartyList
+                                    candidate={candidate}
+                                    electionParties={election.parties}
+                                  />
+                                </div>
+                              )}
+                          </td>
+                          <td></td>
+                        </tr>
+                      ))}
+                    {contest.type === 'yesno' &&
+                      contest.options.map((option) => (
+                        <tr key={option.id}>
+                          <td>{option.label}</td>
+                          <td></td>
+                        </tr>
+                      ))}
+                    <tr>
+                      <td
+                        colSpan={2}
+                        style={{
+                          fontStyle: 'italic',
+                          fontWeight: 'normal',
+                        }}
+                      >
+                        <div style={{ display: 'flex', width: '100%' }}>
+                          <div style={{ flex: 1 }}>Undervotes:</div>
+                          <div style={{ flex: 1 }}>Overvotes:</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </ContestTable>
+              </div>
+            ))}
+          </div>
+        )}
         <PageFooter pageNumber={1} totalPages={totalPages} />
       </div>
     </Page>
@@ -583,7 +941,7 @@ const GENERAL_WRITE_IN_INSTRUCTIONS = (
 // single stacked column of slots. Border hierarchy: a darker border outlines
 // the contest, divides the two slot columns, and stacks the slots; a lighter
 // border separates the number box from the name box within each slot.
-const WriteInContestTable = styled.table`
+const WriteInContestTable = styled.table<{ inverse?: boolean }>`
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -607,20 +965,23 @@ const WriteInContestTable = styled.table`
        'double' (not 'solid') so this border wins border-collapse conflict
        resolution against the lighter vertical dividers and renders unbroken
        through the intersections. At 1px it still draws as a single line. */
-    border-top: 1px double ${Colors.DARKER_GRAY};
+    border-top: 1px double
+      ${(p) => (p.inverse ? Colors.BLACK : Colors.DARKER_GRAY)};
   }
 
   /* The vote-count box: the only light border -- it separates the count box
      from its name box within a slot. Its width (one quarter of each slot) is
      set on the <colgroup>. */
   td.count {
-    border-left: 1px solid ${Colors.DARK_GRAY};
+    border-left: 1px solid
+      ${(p) => (p.inverse ? Colors.BLACK : Colors.DARK_GRAY)};
   }
 
   /* The second slot column: a dark divider separates the two slot columns,
      matching the contest outline. */
   td.slot-divider {
-    border-left: 1px solid ${Colors.DARKER_GRAY};
+    border-left: 1px solid
+      ${(p) => (p.inverse ? Colors.BLACK : Colors.DARKER_GRAY)};
   }
 
   tr.total td {
@@ -632,7 +993,7 @@ const WriteInContestTable = styled.table`
 
 // 'open' slot layout: one big empty slot per row, no internal divisions -- just
 // dark row separators matching the contest outline.
-const OpenWriteInContestTable = styled.table`
+const OpenWriteInContestTable = styled.table<{ inverse?: boolean }>`
   width: 100%;
   border-collapse: collapse;
   break-inside: avoid;
@@ -651,7 +1012,8 @@ const OpenWriteInContestTable = styled.table`
 
   td {
     padding: 0.125rem 0.375rem;
-    border-top: 1px solid ${Colors.INVERSE_GRAY};
+    border-top: 1px solid
+      ${(p) => (p.inverse ? Colors.BLACK : Colors.INVERSE_GRAY)};
   }
 
   tr.total td {
@@ -666,24 +1028,32 @@ function WriteInContest({
   headerColor,
   blankRows,
   slotStyle,
+  inverse,
 }: {
   title: string;
   headerColor?: string;
   blankRows: number;
   slotStyle: 'split' | 'open';
+  /** Black header bar and unshaded total row (the general form's style). */
+  inverse?: boolean;
 }): JSX.Element {
   const titleText = contestTitleWithForPrefix(title);
-  const headerBg = headerColor ? { backgroundColor: headerColor } : undefined;
+  const headerBg = inverse
+    ? { backgroundColor: Colors.BLACK, color: Colors.WHITE }
+    : headerColor
+    ? { backgroundColor: headerColor }
+    : undefined;
+  const totalBg = inverse ? { backgroundColor: 'transparent' } : undefined;
   return (
     <div
       data-rov-contest="write-in"
       style={{
         marginBottom: '0.375rem',
-        border: `1px solid ${Colors.DARKER_GRAY}`,
+        border: `1px solid ${inverse ? Colors.BLACK : Colors.DARKER_GRAY}`,
       }}
     >
       {slotStyle === 'open' ? (
-        <OpenWriteInContestTable>
+        <OpenWriteInContestTable inverse={inverse}>
           <tbody>
             <tr>
               <th style={headerBg}>{titleText}</th>
@@ -694,12 +1064,12 @@ function WriteInContest({
               </tr>
             ))}
             <tr className="total">
-              <td>Total Write-In Votes:</td>
+              <td style={totalBg}>Total Write-In Votes:</td>
             </tr>
           </tbody>
         </OpenWriteInContestTable>
       ) : (
-        <WriteInContestTable>
+        <WriteInContestTable inverse={inverse}>
           {/* Each slot: name box (3/4) + count box (1/4); two slots per row. */}
           <colgroup>
             <col style={{ width: '37.5%' }} />
@@ -722,7 +1092,9 @@ function WriteInContest({
               </tr>
             ))}
             <tr className="total">
-              <td colSpan={4}>Total Write-In Votes:</td>
+              <td colSpan={4} style={totalBg}>
+                Total Write-In Votes:
+              </td>
             </tr>
           </tbody>
         </WriteInContestTable>
@@ -794,7 +1166,13 @@ function NhWriteInPages({
   if (writeInContests.length === 0) return null;
 
   const colorTint = party ? partyColorTint(party.fullName) : undefined;
-  const headerBgColor = colorTint ? ColorTints[colorTint] : Colors.LIGHT_GRAY;
+  const isGeneral = election.type === 'general';
+  const headerBgColor = isGeneral
+    ? undefined
+    : colorTint
+    ? ColorTints[colorTint]
+    : Colors.LIGHT_GRAY;
+  const boxBorderColor = isGeneral ? Colors.BLACK : Colors.DARKER_GRAY;
 
   const contestPages = splitContestsIntoPages(writeInContests);
   assert(contestPages.length > 0);
@@ -824,17 +1202,24 @@ function NhWriteInPages({
               {/* Header + Instructions box (matches ROV form structure) */}
               <div
                 style={{
-                  border: `1px solid ${Colors.DARKER_GRAY}`,
+                  border: `1px solid ${boxBorderColor}`,
                   backgroundColor: headerBgColor,
                   marginBottom: '0.375rem',
                 }}
               >
-                <Header style={{ padding: '0.5rem' }}>
+                <Header
+                  style={
+                    isGeneral
+                      ? { padding: 0, alignItems: 'stretch' }
+                      : { padding: '0.5rem' }
+                  }
+                >
                   <div
                     style={{
                       display: 'flex',
                       gap: '0.375rem',
                       alignItems: 'center',
+                      padding: isGeneral ? '0.5rem' : undefined,
                     }}
                   >
                     <img
@@ -872,9 +1257,15 @@ function NhWriteInPages({
                   <div
                     style={{
                       fontSize: '0.8rem',
-                      border: '1px solid black',
                       backgroundColor: 'white',
                       minWidth: '22rem',
+                      ...(isGeneral
+                        ? {
+                            borderLeft: '1px solid black',
+                            display: 'flex',
+                            flexDirection: 'column',
+                          }
+                        : { border: '1px solid black' }),
                     }}
                   >
                     <div style={{ padding: '0.25rem 0.375rem' }}>
@@ -884,6 +1275,14 @@ function NhWriteInPages({
                       style={{
                         borderTop: `1px solid ${Colors.DARK_GRAY}`,
                         padding: '0.25rem 0.375rem',
+                        ...(isGeneral
+                          ? {
+                              flex: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'flex-end',
+                            }
+                          : {}),
                       }}
                     >
                       <SignatureLine>
@@ -897,7 +1296,7 @@ function NhWriteInPages({
                   style={{
                     fontSize: '0.8rem',
                     padding: '0.375rem',
-                    borderTop: `1px solid ${Colors.DARKER_GRAY}`,
+                    borderTop: `1px solid ${boxBorderColor}`,
                   }}
                 >
                   <strong>Instructions:</strong>{' '}
@@ -936,6 +1335,7 @@ function NhWriteInPages({
                     headerColor={colorTint ? ColorTints[colorTint] : undefined}
                     blankRows={writeInBlankRows}
                     slotStyle={writeInSlotStyle}
+                    inverse={isGeneral}
                   />
                 ))}
               </div>
@@ -993,7 +1393,12 @@ export async function render(
   renderer: Renderer,
   props: NhRovFormProps
 ): Promise<RenderDocument> {
-  const scratchpad = await renderer.createScratchpad(<BaseStyles />);
+  // The general ROV form uses the same base styles as the general ballot
+  // (Helvetica Condensed, 10pt root) so it visually echoes the ballot; the
+  // primary form keeps the generic hmpb styles (Roboto, 12pt root).
+  const scratchpad = await renderer.createScratchpad(
+    props.election.type === 'general' ? <NhStateBaseStyles /> : <BaseStyles />
+  );
   const document = scratchpad.convertToDocument();
   const writeInContests = getWriteInContests(props.election, props.ballotStyle);
   const numWriteInPages =
