@@ -3,7 +3,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import pluginN from 'eslint-plugin-n';
-import pluginVitest from 'eslint-plugin-vitest';
+import pluginVitest from '@vitest/eslint-plugin';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import { FlatCompat } from '@eslint/eslintrc';
@@ -97,7 +97,10 @@ export default function buildRecommended(
         n: pluginN as unknown as Record<string, unknown>,
         ...(react
           ? {
-              'react-hooks': pluginReactHooks,
+              'react-hooks': pluginReactHooks as unknown as Record<
+                string,
+                unknown
+              >,
             }
           : {}),
       },
@@ -333,7 +336,8 @@ export default function buildRecommended(
         'vitest/no-import-node-test': 'error',
         'vitest/require-local-test-context-for-concurrent-snapshots': 'error',
         'vitest/valid-describe-callback': 'error',
-        'vitest/valid-expect': 'error',
+        // vitest's expect() accepts an optional failure-message second arg.
+        'vitest/valid-expect': ['error', { maxArgs: 2 }],
         'vitest/valid-title': 'error',
         'vitest/no-focused-tests': 'error',
 

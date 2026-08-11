@@ -37,36 +37,34 @@
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.4",
-    "@typescript-eslint/parser": "8.59.2",
-    "@typescript-eslint/utils": "8.59.2",
+    "@eslint/js": "^9.39.5",
+    "@typescript-eslint/parser": "8.67.0",
+    "@typescript-eslint/utils": "8.67.0",
+    "@vitest/eslint-plugin": "^1.6.27",
     "comment-parser": "^1.4.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-node": "^0.3.9",
-    "eslint-import-resolver-typescript": "3.6.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-n": "^17",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5",
-    "eslint-plugin-vitest": "^0.5.4",
+    "eslint-plugin-react-hooks": "^7",
     "globals": "^17.4.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.59.2"
+    "typescript-eslint": "8.67.0"
   },
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/react": "18.3.3",
-    "@typescript-eslint/rule-tester": "8.59.2",
+    "@typescript-eslint/rule-tester": "8.67.0",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "eslint": "9.39.5",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
     "vitest": "^4.1.6"
-  },
-  "peerDependencies": {
-    "eslint": ">=9"
   },
   "packageManager": "pnpm@10.34.5"
 }

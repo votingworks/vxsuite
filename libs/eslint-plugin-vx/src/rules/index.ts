@@ -1,4 +1,4 @@
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import gtsArrayTypeStyle from './gts_array_type_style';
 import gtsConstants from './gts_constants';
 import gtsDirectModuleExportAccessOnly from './gts_direct_module_export_access_only';
