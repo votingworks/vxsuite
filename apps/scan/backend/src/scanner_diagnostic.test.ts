@@ -97,35 +97,6 @@ test('scanner diagnostic, unconfigured - pass', async () => {
   });
 });
 
-test('scanner diagnostic, grayscale scan images - pass', async () => {
-  await withApp(async ({ apiClient, mockScanner, mockAuth }) => {
-    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_in',
-      user: mockSystemAdministratorUser(),
-      sessionExpiresAt: mockSessionExpiresAt(),
-    });
-    await expectStatus(apiClient, { state: 'paused' });
-
-    await apiClient.beginScannerDiagnostic();
-    await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
-
-    mockScanner.emitEvent({ event: 'scanStart' });
-    mockScanner.emitEvent({
-      event: 'scanComplete',
-      images: await ballotImages.blankSheetGrayscale(),
-    });
-    await waitForStatus(apiClient, { state: 'scanner_diagnostic.done' });
-
-    await apiClient.endScannerDiagnostic();
-    await waitForStatus(apiClient, { state: 'paused' });
-    expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual({
-      type: 'blank-sheet-scan',
-      outcome: 'pass',
-      timestamp: expect.any(Number),
-    });
-  });
-});
-
 test('scanner diagnostic, configured - fail', async () => {
   const electionPackage =
     electionFamousNames2021Fixtures.electionJson.toElectionPackage();
