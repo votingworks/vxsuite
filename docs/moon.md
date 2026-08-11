@@ -131,10 +131,11 @@ The moon job is added to the full config as a **non-blocking addition** we can
 watch and learn from while the existing per-package jobs keep gating PRs:
 
 - **`moon-ci`** — the required-style lane (build/test/lint/type-check), sharded
-  across 3 containers (`--job/--job-total`). Sharding is positional, so it is
-  only sound _with_ the remote cache (a shard may be assigned a test whose
-  dependency built on another shard; it hydrates that from the cache instead of
-  rebuilding).
+  across 5 containers (`--job/--job-total`). Sharding is positional with no
+  cost-balancing, so it is only sound _with_ the remote cache (a shard may be
+  assigned a test whose dependency built on another shard; it hydrates that from
+  the cache instead of rebuilding), and the shard count is tuned to spread the
+  heavy test suites so the slowest shard doesn't dominate the wall.
 
 > The per-app `moon-e2e-*` Playwright jobs were removed — the moon variants of
 > the e2e suites weren't stable enough to be worth running while we're not

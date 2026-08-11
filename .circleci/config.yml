@@ -1625,7 +1625,7 @@ jobs:
   moon-ci:
     executor: nodejs
     resource_class: xlarge
-    parallelism: 3
+    parallelism: 5
     environment:
       MOON_CONCURRENCY: '3'
     steps:

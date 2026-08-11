@@ -75,7 +75,7 @@ test('generateAllConfigs moon prototype mode', () => {
   // Required check: sharded moon ci (spreads load across containers) with test
   // results collected.
   expect(config).toContain('moon-ci:');
-  expect(config).toContain('parallelism: 3');
+  expect(config).toContain('parallelism: 5');
   expect(config).toContain(
     'moon ci --job "$CIRCLE_NODE_INDEX" --job-total "$CIRCLE_NODE_TOTAL" --downstream none'
   );

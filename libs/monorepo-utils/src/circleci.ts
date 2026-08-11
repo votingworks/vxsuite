@@ -425,14 +425,20 @@ function generateMoonCiJob(): string[] {
     `moon-ci:`,
     `  executor: nodejs`,
     `  resource_class: xlarge`,
-    // Shard the affected task graph across 3 containers (CircleCI sets
+    // Shard the affected task graph across containers (CircleCI sets
     // CIRCLE_NODE_INDEX / CIRCLE_NODE_TOTAL; \`moon ci --job/--job-total\`
-    // partitions positionally). Beyond faster cold wall, spreading the ~50 test
-    // suites across containers keeps each box's RAM/CPU load down — a single
-    // xlarge running them all at MOON_CONCURRENCY=4 hit contention timeouts
-    // (e.g. a heavy ballot-interpreter test). Cross-shard build deps hydrate from
-    // the remote cache (MOON_REMOTE_HOST); without it shared deps rebuild per shard.
-    `  parallelism: 3`,
+    // partitions positionally). Cross-shard build deps hydrate from the remote
+    // cache (MOON_REMOTE_HOST); without it shared deps rebuild per shard.
+    //
+    // 5, not 3: moon partitions POSITIONALLY with no cost-balancing, so at 3
+    // shards the ~11 heavy test suites clumped badly (measured on a 686s run:
+    // one shard had 1311s of fresh work vs another's 436s — 3x imbalance). More
+    // shards spread the heavy suites thinner so the slowest shard — which sets
+    // the wall — carries fewer of them. Overlap is cheap: the only task that
+    // reran across shards was ballot-interpreter:build (a cold-run cache race),
+    // everything else hydrates cached-from-remote. Cost is more xlarge
+    // containers per run; fine for this non-required lane while we tune it.
+    `  parallelism: 5`,
     `  environment:`,
     // Concurrency is RAM-bound, not CPU-bound, on this lane: the heavy jsdom
     // frontend suites (design/admin/scan) + backend suites each spawn a
