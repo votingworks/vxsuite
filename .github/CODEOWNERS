@@ -9,5 +9,3 @@ libs/ballot-interpreter/ @eventualbuddha
 libs/eslint-plugin-vx/ @eventualbuddha
 .github/ @arsalansufi
 libs/auth/ @arsalansufi
-libs/dev-dock/ @jonahkagan
-libs/grout/ @jonahkagan
