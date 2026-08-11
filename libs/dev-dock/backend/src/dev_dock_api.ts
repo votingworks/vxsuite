@@ -510,10 +510,12 @@ function buildApi(
 
       // Re-configure with the selected election.
       await insertCard('election_manager', devDockDir);
-      await waitForUsbDriveToMount(usbDriveHandler);
-      await mockSpec.quickConfigure.configure();
-
-      await removeCard();
+      try {
+        await waitForUsbDriveToMount(usbDriveHandler);
+        await mockSpec.quickConfigure.configure();
+      } finally {
+        await removeCard();
+      }
     },
 
     async saveScreenshotForApp({
