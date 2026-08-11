@@ -242,6 +242,30 @@ function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
     .electionInfo;
 }
 
+async function insertCard(
+  role: DevDockUserRole,
+  devDockDir: string
+): Promise<void> {
+  const electionInfo = getElection(devDockDir);
+  assert(electionInfo !== undefined);
+
+  const cardType =
+    role === 'poll_worker' && electionInfo.arePollWorkerCardPinsEnabled
+      ? 'poll-worker-with-pin'
+      : role.replace('_', '-');
+
+  await execFile(MOCK_CARD_SCRIPT_PATH, [
+    '--card-type',
+    cardType,
+    '--electionDefinition',
+    electionInfo.resolvedPath,
+  ]);
+}
+
+async function removeCard(): Promise<void> {
+  await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
+}
+
 interface PdiScannerSheetQueueStatus {
   total: number;
   inserted: number;
@@ -345,26 +369,11 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     async insertCard(input: { role: DevDockUserRole }): Promise<void> {
-      const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
-      const { electionInfo } = readDevDockFileContents(devDockFilePath);
-      assert(electionInfo !== undefined);
-
-      const cardType =
-        input.role === 'poll_worker' &&
-        electionInfo.arePollWorkerCardPinsEnabled
-          ? 'poll-worker-with-pin'
-          : input.role.replace('_', '-');
-
-      await execFile(MOCK_CARD_SCRIPT_PATH, [
-        '--card-type',
-        cardType,
-        '--electionDefinition',
-        electionInfo.resolvedPath,
-      ]);
+      await insertCard(input.role, devDockDir);
     },
 
     async removeCard(): Promise<void> {
-      await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
+      await removeCard();
     },
 
     getUsbDriveStatus(): DevDockUsbDriveInfo {
