@@ -1,6 +1,6 @@
 use clap::Parser;
 use color_eyre::eyre::bail;
-use image::EncodableLayout;
+use image::{EncodableLayout, GrayImage};
 use std::{
     fmt::Debug,
     future::pending,
@@ -13,7 +13,6 @@ use tokio::{
 };
 use tracing_subscriber::prelude::*;
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_scanner::{
     client::{Client, DoubleFeedDetectionCalibrationConfig, ImageCalibrationTables},
     protocol::{
@@ -143,8 +142,6 @@ enum Event {
 
     ScanStart,
 
-    ScanComplete(ScanComplete),
-
     CoverOpen,
     CoverClosed,
 
@@ -158,27 +155,6 @@ enum Event {
     ImageSensorCalibrationFailed {
         error: Incoming,
     },
-}
-
-#[derive(serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-struct ScanComplete {
-    image_data: (String, String),
-}
-
-impl Debug for ScanComplete {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ScanComplete")
-            .field(
-                "top",
-                &format_args!("{}…", self.image_data.0.get(..20).unwrap_or("utf-8 error")),
-            )
-            .field(
-                "bottom",
-                &format_args!("{}…", self.image_data.1.get(..20).unwrap_or("utf-8 error")),
-            )
-            .finish()
-    }
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -232,6 +208,27 @@ async fn initialize_connected_scanner(
     Ok((client, calibration_tables))
 }
 
+/// TLV frame type for a JSON-encoded [`Message`] (all responses and events
+/// except scan results). Must stay in sync with `scanner_client.ts`.
+const FRAME_TYPE_JSON: u8 = 1;
+
+/// TLV frame type for a completed scan. The payload contains, for each side
+/// (top then bottom): a 4-byte little-endian width, a 4-byte little-endian
+/// height, and `width * height` grayscale pixel bytes. Must stay in sync with
+/// `scanner_client.ts`.
+const FRAME_TYPE_SCAN_COMPLETE: u8 = 2;
+
+/// Byte length of the frame type field in a TLV frame header.
+const FRAME_TYPE_LENGTH: usize = 1;
+
+/// Byte length of a TLV frame header: the frame type followed by a
+/// little-endian `u32` payload length.
+const FRAME_HEADER_LENGTH: usize = FRAME_TYPE_LENGTH + size_of::<u32>();
+
+/// Writes TLV frames to stdout: a 1-byte frame type, a 4-byte little-endian
+/// payload length, and the payload. Sending image data as raw bytes rather
+/// than JSON avoids base64-encoding multi-megabyte scans and parsing them
+/// back out of a giant JSON document on the Node side.
 struct Output<W: Write> {
     stdout: W,
     // We reject sending a command while a scan is in progress because it will
@@ -243,10 +240,24 @@ struct Output<W: Write> {
 }
 
 impl<W: Write> Output<W> {
-    fn send_to_stdout(&mut self, message: &Message) -> color_eyre::Result<()> {
-        serde_json::to_writer(&mut self.stdout, message)?;
-        self.stdout.write_all(b"\n")?;
+    fn write_frame(&mut self, frame_type: u8, payload_parts: &[&[u8]]) -> color_eyre::Result<()> {
+        let payload_length: usize = payload_parts.iter().map(|part| part.len()).sum();
+        let mut header = [0u8; FRAME_HEADER_LENGTH];
+        header[0] = frame_type;
+        header[FRAME_TYPE_LENGTH..].copy_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
+        self.stdout.write_all(&header)?;
+        for part in payload_parts {
+            self.stdout.write_all(part)?;
+        }
+        // Stdout is line-buffered and frames don't end in newlines, so flush
+        // explicitly or the frame may sit in the buffer indefinitely.
+        self.stdout.flush()?;
         Ok(())
+    }
+
+    fn send_to_stdout(&mut self, message: &Message) -> color_eyre::Result<()> {
+        let payload = serde_json::to_vec(message)?;
+        self.write_frame(FRAME_TYPE_JSON, &[&payload])
     }
 
     fn send_response(&mut self, response: Response) -> color_eyre::Result<()> {
@@ -259,6 +270,37 @@ impl<W: Write> Output<W> {
         tracing::debug!("sending event: {event:?}");
         self.scan_in_progress = matches!(event, Event::ScanStart);
         self.send_to_stdout(&Message::Event(event))
+    }
+
+    fn send_scan_complete(
+        &mut self,
+        top: &GrayImage,
+        bottom: &GrayImage,
+    ) -> color_eyre::Result<()> {
+        tracing::debug!(
+            "sending scanComplete: top {}x{}, bottom {}x{}",
+            top.width(),
+            top.height(),
+            bottom.width(),
+            bottom.height()
+        );
+        // A completed scan ends the scan in progress, just like the events
+        // handled in send_event.
+        self.scan_in_progress = false;
+        let (top_width, top_height) = (top.width().to_le_bytes(), top.height().to_le_bytes());
+        let (bottom_width, bottom_height) =
+            (bottom.width().to_le_bytes(), bottom.height().to_le_bytes());
+        self.write_frame(
+            FRAME_TYPE_SCAN_COMPLETE,
+            &[
+                &top_width,
+                &top_height,
+                top.as_bytes(),
+                &bottom_width,
+                &bottom_height,
+                bottom.as_bytes(),
+            ],
+        )
     }
 
     fn send_error_response(&mut self, error: &Error) -> color_eyre::Result<()> {
@@ -274,9 +316,9 @@ impl<W: Write> Output<W> {
     }
 }
 
-/// Runs the main command/event loop. Reads JSON commands from `stdin`,
-/// writes JSON responses and events to `stdout`, and uses `connect` to
-/// create new scanner connections.
+/// Runs the main command/event loop. Reads newline-delimited JSON commands
+/// from `stdin`, writes TLV-framed responses and events to `stdout` (see
+/// [`Output`]), and uses `connect` to create new scanner connections.
 #[allow(clippy::too_many_lines)]
 async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write>(
     stdin: R,
@@ -514,12 +556,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 .expect("image calibration tables not set"),
                         ) {
                             Ok(Sheet::Duplex(top, bottom)) => {
-                                output.send_event(Event::ScanComplete(ScanComplete {
-                                    image_data: (
-                                        STANDARD.encode(top.as_bytes()),
-                                        STANDARD.encode(bottom.as_bytes()),
-                                    ),
-                                }))?;
+                                output.send_scan_complete(&top, &bottom)?;
                             }
                             Ok(_) => unreachable!(
                                 "try_decode_scan called with {:?} returned non-duplex sheet",
@@ -601,12 +638,14 @@ mod tests {
         time::timeout,
     };
 
-    use super::handle_commands_and_events;
+    use super::{handle_commands_and_events, FRAME_HEADER_LENGTH, FRAME_TYPE_LENGTH};
 
     const TEST_TIMEOUT: Duration = Duration::from_secs(3);
 
-    /// A Write impl that sends each newline-delimited JSON message to a
-    /// channel, allowing the test to await individual messages.
+    /// A Write impl that decodes each TLV frame and sends it to a channel as
+    /// a JSON value, allowing the test to await individual messages. Scan
+    /// complete frames are decoded into
+    /// `{"event": "scanComplete", "images": [{"width", "height", "data"}, …]}`.
     struct ChannelWriter {
         tx: mpsc::UnboundedSender<Value>,
         buf: Vec<u8>,
@@ -625,12 +664,48 @@ mod tests {
         }
     }
 
+    const U32_LENGTH: usize = size_of::<u32>();
+    const IMAGE_DIMENSIONS_LENGTH: usize = 2 * U32_LENGTH;
+
+    fn read_u32_le(bytes: &[u8], offset: usize) -> usize {
+        u32::from_le_bytes(bytes[offset..offset + U32_LENGTH].try_into().unwrap()) as usize
+    }
+
+    fn decode_scan_complete_payload(payload: &[u8]) -> Value {
+        let mut images = Vec::new();
+        let mut offset = 0;
+        while offset < payload.len() {
+            let width = read_u32_le(payload, offset);
+            let height = read_u32_le(payload, offset + U32_LENGTH);
+            let data_start = offset + IMAGE_DIMENSIONS_LENGTH;
+            let data = &payload[data_start..data_start + width * height];
+            images.push(json!({ "width": width, "height": height, "data": data }));
+            offset = data_start + width * height;
+        }
+        json!({ "event": "scanComplete", "images": images })
+    }
+
     impl io::Write for ChannelWriter {
         fn write(&mut self, data: &[u8]) -> io::Result<usize> {
             self.buf.extend_from_slice(data);
-            while let Some(pos) = self.buf.iter().position(|&b| b == b'\n') {
-                let line: Vec<u8> = self.buf.drain(..=pos).collect();
-                let value: Value = serde_json::from_slice(&line).unwrap();
+            loop {
+                if self.buf.len() < FRAME_HEADER_LENGTH {
+                    break;
+                }
+                let payload_length = read_u32_le(&self.buf, FRAME_TYPE_LENGTH);
+                if self.buf.len() < FRAME_HEADER_LENGTH + payload_length {
+                    break;
+                }
+                let frame: Vec<u8> = self
+                    .buf
+                    .drain(..FRAME_HEADER_LENGTH + payload_length)
+                    .collect();
+                let (frame_type, payload) = (frame[0], &frame[FRAME_HEADER_LENGTH..]);
+                let value: Value = match frame_type {
+                    super::FRAME_TYPE_JSON => serde_json::from_slice(payload).unwrap(),
+                    super::FRAME_TYPE_SCAN_COMPLETE => decode_scan_complete_payload(payload),
+                    _ => panic!("unknown frame type: {frame_type}"),
+                };
                 let _ = self.tx.send(value);
             }
             Ok(data.len())
@@ -648,6 +723,13 @@ mod tests {
     }
 
     fn setup_connected_client() -> (Client, ConnectedTestHarness) {
+        setup_connected_client_with_calibration(&[], &[])
+    }
+
+    fn setup_connected_client_with_calibration(
+        white_calibration_table: &[u8],
+        black_calibration_table: &[u8],
+    ) -> (Client, ConnectedTestHarness) {
         use pdi_scanner::protocol::types::Register;
 
         let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
@@ -673,12 +755,12 @@ mod tests {
                 register_9, 0x200, // BootEjectMotion::None (2) << 8
             ))))
             .unwrap();
-        let empty_cal = || Incoming::GetCalibrationInformationResponse {
-            white_calibration_table: vec![],
-            black_calibration_table: vec![],
+        let cal = || Incoming::GetCalibrationInformationResponse {
+            white_calibration_table: white_calibration_table.to_vec(),
+            black_calibration_table: black_calibration_table.to_vec(),
         };
-        scanner_to_host_tx.send(Ok(empty_cal())).unwrap();
-        scanner_to_host_tx.send(Ok(empty_cal())).unwrap();
+        scanner_to_host_tx.send(Ok(cal())).unwrap();
+        scanner_to_host_tx.send(Ok(cal())).unwrap();
 
         let client = Client::from_scanner(Scanner::mock(
             host_to_scanner_tx,
@@ -1130,6 +1212,88 @@ mod tests {
                 json!({"response": "error", "code": "other", "message": "timed out receiving data"})
             ]
         );
+    }
+
+    #[tokio::test]
+    async fn scan_complete_sends_image_frame() {
+        use pdi_scanner::protocol::{image::DEFAULT_IMAGE_WIDTH, packets::ImageData};
+
+        const WIDTH: usize = DEFAULT_IMAGE_WIDTH as usize;
+        const HEIGHT: usize = 4;
+        const TOP_PIXEL: u8 = 7;
+        const BOTTOM_PIXEL: u8 = 9;
+
+        // White = 255 and black = 0 make image calibration the identity
+        // function, so decoded pixels equal the raw pixels.
+        let (client, mut harness) =
+            setup_connected_client_with_calibration(&[u8::MAX; WIDTH], &[0; WIDTH]);
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Drain init commands
+                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+
+                    // Duplex image data alternates top and bottom pixels
+                    let mut data = Vec::with_capacity(2 * WIDTH * HEIGHT);
+                    for _ in 0..(WIDTH * HEIGHT) {
+                        data.push(TOP_PIXEL);
+                        data.push(BOTTOM_PIXEL);
+                    }
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::ImageData(ImageData(data))))
+                        .unwrap();
+
+                    // EndScan needs an ack for the feeder disable command
+                    harness.host_to_scanner_ack_tx.send(5).unwrap();
+                    harness
+                        .scanner_to_host_tx
+                        .send(Ok(Incoming::EndScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(
+                        msg,
+                        json!({
+                            "event": "scanComplete",
+                            "images": [
+                                {
+                                    "width": WIDTH,
+                                    "height": HEIGHT,
+                                    "data": vec![TOP_PIXEL; WIDTH * HEIGHT],
+                                },
+                                {
+                                    "width": WIDTH,
+                                    "height": HEIGHT,
+                                    "data": vec![BOTTOM_PIXEL; WIDTH * HEIGHT],
+                                },
+                            ],
+                        })
+                    );
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
     }
 
     #[tokio::test]
