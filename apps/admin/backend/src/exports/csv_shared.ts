@@ -57,6 +57,13 @@ type Multiplicity = 'single' | 'multi' | 'all';
  * alongside which we want to add additional related metadata. The "multi"
  * attributes are only to ensure the CSV is self-documenting when there are
  * filters selecting for multiple values.
+ *
+ * An attribute filtered on *no* values is also treated as "multi". Filters that
+ * select nothing arise when the frontend filter is reduced to cast vote record
+ * dimensions and the reduction has no overlap with what the user already
+ * selected - e.g. a district combined with a ballot style outside it. Such a
+ * report matches no ballots and so has no rows, but the attribute is still not
+ * "single": there is no lone value to report alongside.
  */
 export type CsvMetadataStructure = {
   [K in CsvMetadataAttribute]: Multiplicity;
@@ -74,32 +81,32 @@ export function determineCsvMetadataStructure({
 }): CsvMetadataStructure {
   const filterStructure: CsvMetadataStructure = {
     precinct: filter.precinctIds
-      ? filter.precinctIds.length > 1
+      ? filter.precinctIds.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
     ballotStyle: filter.ballotStyleGroupIds
-      ? filter.ballotStyleGroupIds.length > 1
+      ? filter.ballotStyleGroupIds.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
     party: filter.partyIds
-      ? filter.partyIds.length > 1
+      ? filter.partyIds.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
     votingMethod: filter.votingMethods
-      ? filter.votingMethods.length > 1
+      ? filter.votingMethods.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
     scanner: filter.scannerIds
-      ? filter.scannerIds.length > 1
+      ? filter.scannerIds.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
     batch: filter.batchIds
-      ? filter.batchIds.length > 1
+      ? filter.batchIds.length !== 1
         ? 'multi'
         : 'single'
       : 'all',
