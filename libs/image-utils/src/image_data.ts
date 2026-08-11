@@ -266,6 +266,12 @@ export function fromGrayScale(
 }
 
 function createCanvasWithImageData(imageData: ImageData) {
+  assert(
+    isRgba(imageData),
+    `Expected RGBA image data, got ${getImageChannelCount(
+      imageData
+    )} channel(s)`
+  );
   const canvas = createCanvas(imageData.width, imageData.height);
   const context = canvas.getContext('2d');
   context.putImageData(ensureImageData(imageData), 0, 0);
@@ -369,9 +375,7 @@ export function toImageBuffer(
   imageData: ImageData,
   mimeType: 'image/png' | 'image/jpeg' = 'image/png'
 ): Buffer {
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  const canvas = createCanvasWithImageData(imageData);
   // Help TS match the union type branches to overloaded function signatures
   return mimeType === 'image/png'
     ? canvas.toBuffer(mimeType)

@@ -247,7 +247,11 @@ export function createMockPdiScanner(
         on: {
           EJECT_DOCUMENT: [
             {
-              cond: (_, event) => event.motion === 'toFrontAndHold',
+              // The mock doesn't model holding, so ejecting to the front with
+              // or without holding both leave the sheet in front of the
+              // scanner, where it can be removed with REMOVE_SHEET.
+              cond: (_, event) =>
+                event.motion === 'toFront' || event.motion === 'toFrontAndHold',
               target: 'ejectingToFrontAndHold',
             },
             {
@@ -266,6 +270,9 @@ export function createMockPdiScanner(
               target: 'ejectingToRear',
             },
           ],
+          // pdictl accepts disabling scanning at any time; scanning is
+          // already effectively disabled with a sheet in front
+          DISABLE_SCANNING: {},
           // pdictl disables scanning after ejecting, and we had to eject
           // previously for the paper to be in front
           REMOVE_SHEET: 'idleScanningDisabled',

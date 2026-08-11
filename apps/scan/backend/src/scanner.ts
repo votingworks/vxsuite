@@ -47,9 +47,7 @@ import {
   spawn,
 } from 'xstate';
 import type { Clock } from 'xstate/lib/interpreter.js';
-import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
-import { writeImageData } from '@votingworks/image-utils';
-import { join } from 'node:path';
+import { runBlankPaperDiagnosticFromImage } from '@votingworks/ballot-interpreter';
 import { isReadyToScan } from './app_flow.js';
 import { interpret } from './interpret.js';
 import { InterpretationResult, PrecinctScannerStateMachine } from './types.js';
@@ -176,6 +174,12 @@ export function cleanLogData(key: string, value: unknown): unknown {
       data: value.data.length,
     };
   }
+  // Grayscale scan images from the scanner client are plain objects, not
+  // `ImageData` instances, so catch their pixel buffers directly rather than
+  // serializing millions of bytes as JSON numbers.
+  if (value instanceof Uint8ClampedArray) {
+    return `[${value.length} bytes]`;
+  }
   if (value instanceof Error) {
     return { ...value, message: value.message, stack: value.stack };
   }
@@ -269,26 +273,10 @@ function anyFrontSensorCovered(status: ScannerStatus): boolean {
   );
 }
 
-async function runScannerDiagnostic(
-  workspace: Workspace,
-  scanImages: SheetOf<ImageData>
-) {
-  const sheetId = uuid();
-  const [frontPath, backPath] = await mapSheet(
-    scanImages,
-    async (image, side) => {
-      const path = join(
-        workspace.scannedImagesPath,
-        `diagnostic-${sheetId}-${side}.png`
-      );
-      await writeImageData(path, image);
-      return path;
-    }
+async function runScannerDiagnostic(scanImages: SheetOf<ImageData>) {
+  const [frontPassed, backPassed] = await mapSheet(scanImages, (image) =>
+    runBlankPaperDiagnosticFromImage(image)
   );
-  const [frontPassed, backPassed] = await Promise.all([
-    runBlankPaperDiagnostic(frontPath),
-    runBlankPaperDiagnostic(backPath),
-  ]);
   return frontPassed && backPassed;
 }
 
@@ -1372,7 +1360,7 @@ function buildMachine({
             runningDiagnostic: {
               invoke: {
                 src: ({ scanImages }) =>
-                  runScannerDiagnostic(workspace, assertDefined(scanImages)),
+                  runScannerDiagnostic(assertDefined(scanImages)),
                 onDone: {
                   actions: assign({
                     error: (_, { data }) =>

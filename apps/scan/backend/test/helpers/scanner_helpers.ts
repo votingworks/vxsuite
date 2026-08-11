@@ -21,7 +21,7 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { ImageData } from '@votingworks/image-utils';
+import { ImageData, RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import {
   Listener,
@@ -43,7 +43,10 @@ import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app.js';
 import { Player as AudioPlayer } from '../../src/audio/player.js';
-import { createPrecinctScannerStateMachine, delays } from '../../src/scanner.js';
+import {
+  createPrecinctScannerStateMachine,
+  delays,
+} from '../../src/scanner.js';
 import { Store } from '../../src/store.js';
 import { Workspace, createWorkspace } from '../../src/util/workspace.js';
 import {
@@ -220,10 +223,34 @@ export const POLLING_PLACE_ID_OVERVOTE_HMPB = POLLING_PLACE_ID_COMPLETE_HMPB;
 export const POLLING_PLACE_ID_COMPETE_BMD =
   DEFAULT_FAMOUS_NAMES_POLLING_PLACE_ID;
 
+/**
+ * Reshapes RGBA image data into the grayscale (one byte per pixel) image data
+ * the real PDI scanner client emits. See `libs/pdi-scanner/src/ts/scanner_client.ts`.
+ * Assumes the RGBA image was actually expanded from a grayscale image originally.
+ */
+function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
+  const pixels = new Uint8ClampedArray(width * height);
+  for (let i = 0; i < pixels.length; i += 1) {
+    pixels[i] = data[i * RGBA_CHANNEL_COUNT];
+  }
+  return { width, height, data: pixels };
+}
+
+function toGrayscaleSheet(sheet: SheetOf<ImageData>): SheetOf<ImageData> {
+  return mapSheet(sheet, toGrayscaleImageData);
+}
+
+/**
+ * Scan images as the scanner client emits them: grayscale, one byte per
+ * pixel. The fixtures render as RGBA, so each sheet is reshaped to match real
+ * hardware.
+ */
 export const ballotImages = {
   completeHmpb: async () =>
-    pdfToImageSheet(
-      Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
+    toGrayscaleSheet(
+      await pdfToImageSheet(
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
+      )
     ),
   completeHmpbInvalidScale: async () => {
     const scale = 0.95;
@@ -237,42 +264,51 @@ export const ballotImages = {
       sheet[0].width / scale,
       sheet[0].height / scale
     );
-    return mapSheet(sheet, (page) => {
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.putImageData(
-        page,
-        Math.round((canvas.width - page.width) / 2),
-        Math.round((canvas.height - page.height) / 2)
-      );
-      return ctx.getImageData(0, 0, canvas.width, canvas.height);
-    });
+    return toGrayscaleSheet(
+      mapSheet(sheet, (page) => {
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.putImageData(
+          page,
+          Math.round((canvas.width - page.width) / 2),
+          Math.round((canvas.height - page.height) / 2)
+        );
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+      })
+    );
   },
   completeBmd: async () =>
-    pdfToImageSheet(
-      await renderBmdBallotFixture({
-        electionDefinition:
-          electionFamousNames2021Fixtures.readElectionDefinition(),
-        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-        votes: DEFAULT_FAMOUS_NAMES_VOTES,
-      })
+    toGrayscaleSheet(
+      await pdfToImageSheet(
+        await renderBmdBallotFixture({
+          electionDefinition:
+            electionFamousNames2021Fixtures.readElectionDefinition(),
+          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+          votes: DEFAULT_FAMOUS_NAMES_VOTES,
+        })
+      )
     ),
   overvoteHmpb: async () =>
-    pdfToImageSheet(
-      Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath))
+    toGrayscaleSheet(
+      await pdfToImageSheet(
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath))
+      )
     ),
   wrongElectionBmd: async () =>
-    pdfToImageSheet(
-      await renderBmdBallotFixture({
-        electionDefinition: readElectionGeneralDefinition(),
-      })
+    toGrayscaleSheet(
+      await pdfToImageSheet(
+        await renderBmdBallotFixture({
+          electionDefinition: readElectionGeneralDefinition(),
+        })
+      )
     ),
-  blankSheet: async () => [
-    await sampleBallotImages.blankPage.asImageData(),
-    await sampleBallotImages.blankPage.asImageData(),
-  ],
+  blankSheet: async () =>
+    toGrayscaleSheet([
+      await sampleBallotImages.blankPage.asImageData(),
+      await sampleBallotImages.blankPage.asImageData(),
+    ]),
 } satisfies Record<string, () => Promise<SheetOf<ImageData>>>;
 
 export async function scanBallot(

@@ -190,6 +190,31 @@ test('toDataUrl image/jpeg', async () => {
   );
 });
 
+test('canvas encoders reject non-RGBA image data', async () => {
+  const width = 4;
+  const height = 4;
+  const grayscaleImageData: ImageData = {
+    width,
+    height,
+    data: new Uint8ClampedArray(width * height),
+  };
+  const expectedError = 'Expected RGBA image data, got 1 channel(s)';
+
+  const filePath = makeTemporaryFile({ postfix: '.png' });
+  await expect(writeImageData(filePath, grayscaleImageData)).rejects.toThrow(
+    expectedError
+  );
+  await expect(
+    encodeImageData(grayscaleImageData, 'image/png')
+  ).rejects.toThrow(expectedError);
+  expect(() => toImageBuffer(grayscaleImageData, 'image/png')).toThrow(
+    expectedError
+  );
+  expect(() => toDataUrl(grayscaleImageData, 'image/png')).toThrow(
+    expectedError
+  );
+});
+
 test('ensureImageData', () => {
   const imageData = createImageData(1, 1);
   expect(ensureImageData(imageData) === imageData).toBeTruthy();
@@ -381,7 +406,9 @@ test('loadImageMetadata on JPEG truncated before segment length', async () => {
 test('loadImageMetadata on JPEG with invalid segment length', async () => {
   // SOI + APP0 marker (FF E0) + 2-byte length field of 1, which is less than
   // the minimum valid value of 2 (the length field includes itself)
-  const result = await loadImageMetadata(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01]));
+  const result = await loadImageMetadata(
+    Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x01])
+  );
   expect(result).toEqual(
     err({ type: 'invalid-image-file', message: expect.any(String) })
   );
