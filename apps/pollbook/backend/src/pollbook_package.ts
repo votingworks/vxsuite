@@ -1,6 +1,6 @@
 import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
-import { sha256 } from 'js-sha256';
+import { createHash } from 'node:crypto';
 import {
   Election,
   safeParseElectionDefinition,
@@ -224,7 +224,7 @@ export async function readPollbookPackage(
     const zipFile = await openZip(fileContents);
     const zipName = 'pollbook package';
     const entries = getEntries(zipFile);
-    const packageHash = sha256(fileContents);
+    const packageHash = createHash('sha256').update(fileContents).digest('hex');
 
     const electionEntry = getFilePrefixedByName(
       entries,

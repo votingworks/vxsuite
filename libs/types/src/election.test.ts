@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
-import { sha256 } from 'js-sha256';
 import { assert, find, ok } from '@votingworks/basics';
+import { sha256 } from './sha256';
 import {
   ballotPaperDimensions,
   getBallotStyle,

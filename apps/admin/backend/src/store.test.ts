@@ -20,8 +20,8 @@ import {
 } from '@votingworks/types';
 import { assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { zipFile } from '@votingworks/test-utils';
-import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
@@ -69,7 +69,9 @@ test('add an election', async () => {
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: systemSettingsData,
   });
-  const electionPackageHash = sha256(electionPackageFileContents);
+  const electionPackageHash = createHash('sha256')
+    .update(electionPackageFileContents)
+    .digest('hex');
 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = await store.addElection({

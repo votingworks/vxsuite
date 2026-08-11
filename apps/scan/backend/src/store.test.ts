@@ -1,3 +1,4 @@
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
   AcceptedSheet,
   doesUsbDriveRequireCastVoteRecordSync,
@@ -24,13 +25,15 @@ import {
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { getFeatureFlagMock } from '@votingworks/utils';
-import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
-import { randomUUID as uuid } from 'node:crypto';
 import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
 import { Store } from './store.js';
+
+function sha256(data: string): string {
+  return createHash('sha256').update(data).digest('hex');
+}
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({ testTimeout: 20000 });

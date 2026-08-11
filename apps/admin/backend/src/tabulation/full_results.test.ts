@@ -1,6 +1,6 @@
+import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { sha256 } from 'js-sha256';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionStraightPartyFixtures,
@@ -1007,7 +1007,9 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
 
   function buildStraightPartyCvr(id: string, votes: VotesDict) {
     const dummyImageContents = Buffer.from('dummy-ballot-image');
-    const dummyImageHash = sha256(dummyImageContents);
+    const dummyImageHash = createHash('sha256')
+      .update(dummyImageContents)
+      .digest('hex');
     const ballotId = unsafeParse(BallotIdSchema, id);
     const interpretation: InterpretedBmdPage = {
       type: 'InterpretedBmdPage',

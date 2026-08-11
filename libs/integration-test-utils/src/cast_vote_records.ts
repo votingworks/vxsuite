@@ -32,8 +32,7 @@ import {
   unsafeParse,
   VotesDict,
 } from '@votingworks/types';
-import { sha256 } from 'js-sha256';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import { basename, join, parse } from 'node:path';
@@ -63,7 +62,7 @@ export interface GenerateCastVoteRecordExportOptions {
 const BATCH_NUMBER = 1;
 
 function sha256Hex(contents: Buffer | string): string {
-  return sha256(contents);
+  return createHash('sha256').update(contents).digest('hex');
 }
 
 function restoreEnv(key: string, priorValue?: string): void {
@@ -227,7 +226,10 @@ export async function generateCastVoteRecordExport(
       }`
   );
 
-  const batchId = sha256(scannerId).slice(0, 8);
+  const batchId = createHash('sha256')
+    .update(scannerId)
+    .digest('hex')
+    .slice(0, 8);
   const batches: BatchInfo[] = [
     {
       id: batchId,

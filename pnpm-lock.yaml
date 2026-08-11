@@ -198,9 +198,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       lodash.memoize:
         specifier: ^4.1.2
         version: 4.1.2
@@ -648,9 +645,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1002,9 +996,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -2129,9 +2120,6 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       jsbarcode:
         specifier: ^3.11.6
         version: 3.11.6
@@ -2839,9 +2827,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3221,9 +3206,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3330,9 +3312,6 @@ importers:
       dotenv-expand:
         specifier: 9.0.0
         version: 9.0.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3424,9 +3403,6 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
     devDependencies:
       '@types/node':
         specifier: 20.19.43
@@ -4091,9 +4067,6 @@ importers:
       esbuild-runner:
         specifier: 2.2.2
         version: 2.2.2(esbuild@0.28.1)
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -4155,9 +4128,6 @@ importers:
       csv-writer:
         specifier: ^1.6.0
         version: 1.6.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
     devDependencies:
       '@types/node':
         specifier: 20.19.43
@@ -4418,9 +4388,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13
@@ -4618,9 +4585,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
     devDependencies:
       '@types/node':
         specifier: 20.19.43
@@ -5254,9 +5218,6 @@ importers:
       jest-diff:
         specifier: ^29.6.2
         version: 29.7.0
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -5303,12 +5264,12 @@ importers:
       '@antongolub/iso8601':
         specifier: ^1.2.1
         version: 1.2.1
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -8085,6 +8046,10 @@ packages:
 
   '@ndelangen/get-tarball@3.0.9':
     resolution: {integrity: sha512-9JKTEik4vq+yGosHYhZ1tiH/3WpUS0Nh0kej4Agndhox8pAdWhEx5knFVRcb/ya9knCRCs1rPxNrSXTDdfVqpA==}
+
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
+    engines: {node: ^14.21.3 || >=16}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -12861,9 +12826,6 @@ packages:
 
   js-file-download@0.4.12:
     resolution: {integrity: sha512-rML+NkoD08p5Dllpjo0ffy4jRHeY6Zsapvr/W86N7E0yuzAO6qa5X9+xog6zQNlH102J7IXljNY2FtS6Lj3ucg==}
-
-  js-sha256@0.9.0:
-    resolution: {integrity: sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -18623,6 +18585,8 @@ snapshots:
       gunzip-maybe: 1.4.2
       pump: 3.0.0
       tar-fs: 2.1.1
+
+  '@noble/hashes@1.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -24826,8 +24790,6 @@ snapshots:
   jose@4.15.9: {}
 
   js-file-download@0.4.12: {}
-
-  js-sha256@0.9.0: {}
 
   js-tokens@4.0.0: {}
 

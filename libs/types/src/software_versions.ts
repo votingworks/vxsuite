@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
+import { sha256 } from './sha256';
 import {
   BallotStyle,
   BallotStyleId,

@@ -54,7 +54,6 @@ import {
   ElectionRegisteredVoterCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits';
 
@@ -356,7 +355,9 @@ export async function readElectionPackageFromBuffer(
     if (result.isErr()) {
       return result;
     }
-    const electionPackageHash = sha256(fileContents);
+    const electionPackageHash = createHash('sha256')
+      .update(fileContents)
+      .digest('hex');
     return ok({ electionPackage: result.ok(), electionPackageHash });
   } catch (error) {
     return err({

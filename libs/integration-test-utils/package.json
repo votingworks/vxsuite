@@ -37,8 +37,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "js-sha256": "^0.9.0"
+    "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.19.43",

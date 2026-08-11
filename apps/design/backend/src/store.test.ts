@@ -9,10 +9,10 @@ import {
   LATEST_SOFTWARE_VERSION,
   TtsEditKey,
 } from '@votingworks/types';
+import { createHash } from 'node:crypto';
 import * as types from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { sha256 } from 'js-sha256';
 import {
   allBaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
@@ -575,7 +575,9 @@ test('getExportedElectionDefinition returns the exported election including reor
       }),
   };
   const reorderedElectionData = JSON.stringify(reorderedElection);
-  const reorderedBallotHash = sha256(reorderedElectionData);
+  const reorderedBallotHash = createHash('sha256')
+    .update(reorderedElectionData)
+    .digest('hex');
   const reorderedElectionDefinition: ElectionDefinition = {
     ...baseElectionDefinition,
     election: reorderedElection,

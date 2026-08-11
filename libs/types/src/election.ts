@@ -1,6 +1,6 @@
 import { Optional, DateWithoutTime, iter } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
+import { sha256 } from './sha256';
 import {
   Sha256Hash,
   Id,

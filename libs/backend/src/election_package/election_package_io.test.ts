@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
@@ -59,7 +60,6 @@ import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 import { Readable } from 'node:stream';
 import { writeMockFileTree } from '@votingworks/usb-drive';
-import { sha256 } from 'js-sha256';
 import {
   createElectionPackageZipArchive,
   mockElectionPackageFileTree,
@@ -149,7 +149,9 @@ test('readElectionPackageFromFile reads an election package without system setti
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
     },
-    electionPackageHash: sha256(fileContents),
+    electionPackageHash: createHash('sha256')
+      .update(fileContents)
+      .digest('hex'),
   });
 });
 
@@ -174,7 +176,9 @@ test('readElectionPackageFromFile reads an election package with system settings
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: electionDefinition.election.ballotStrings,
     },
-    electionPackageHash: sha256(fileContents),
+    electionPackageHash: createHash('sha256')
+      .update(fileContents)
+      .digest('hex'),
   });
 });
 
@@ -389,7 +393,7 @@ test('readElectionPackageFromBuffer parses registered voter counts', async () =>
       uiStrings: electionDefinition.election.ballotStrings,
       registeredVoterCounts,
     },
-    electionPackageHash: sha256(pkg),
+    electionPackageHash: createHash('sha256').update(pkg).digest('hex'),
   });
 });
 

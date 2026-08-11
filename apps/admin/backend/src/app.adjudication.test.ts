@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -28,7 +29,6 @@ import {
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
-import { sha256 } from 'js-sha256';
 import { readdirSync } from 'node:fs';
 import {
   buildTestEnvironment,
@@ -555,9 +555,9 @@ test('getBallotImages when image is corrupted', async () => {
               ...cvr.BallotImage[0],
               Hash: {
                 ...cvr.BallotImage[0].Hash,
-                Value: `${sha256(
-                  corruptedImageFileContents
-                )}-${layoutFileHash}`,
+                Value: `${createHash('sha256')
+                  .update(corruptedImageFileContents)
+                  .digest('hex')}-${layoutFileHash}`,
               },
             },
             cvr.BallotImage[1],

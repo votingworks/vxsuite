@@ -1,6 +1,6 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
 import { z } from 'zod/v4';
+import { sha256 } from './sha256';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
 import { Election, ElectionDefinition, ElectionSchema } from './election';
