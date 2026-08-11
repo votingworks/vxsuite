@@ -1633,10 +1633,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - restore_cache:
           keys:
             - moon-{{ .Environment.CIRCLE_NODE_INDEX }}-{{ .Branch }}-{{ .Revision }}
@@ -1698,10 +1702,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -1738,10 +1746,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -1778,10 +1790,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -1818,10 +1834,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -1858,10 +1878,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -1898,10 +1922,14 @@ jobs:
       - checkout-and-install:
           is_node_package: true
       - run:
-          name: Install moon
+          name: Install moon (if not already available)
           command: |
-            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
-            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            if command -v moon >/dev/null 2>&1; then
+              echo "moon already available: $(moon --version)"
+            else
+              curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=2.4.6 bash
+              echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"
+            fi
       - run:
           name: Install Playwright Chromium
           command: |
@@ -2141,24 +2169,45 @@ workflows:
       - moon-ci:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-admin:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-central-scan:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-mark:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-scan:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-print:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
       - moon-e2e-mark-scan:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: /.*moon.*/
 
 commands:
   checkout-and-install:

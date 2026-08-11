@@ -358,6 +358,32 @@ function generateCircleCiFilteredAppConfigForPackage(
 // team develops against (and eventually bake into the CI Docker image).
 const MOON_VERSION = '2.4.6';
 
+// Branch filter for the experimental moon jobs. They only run on branches whose
+// name contains "moon" (e.g. `moon-experiment`), so the integration doesn't add
+// cost to every PR while we iterate. CircleCI branch regexes are anchored and
+// must match the whole branch name, so `.*moon.*` is "contains moon". Widen this
+// (or drop the filter) once moon graduates from experiment.
+const MOON_BRANCH_FILTER = '/.*moon.*/';
+
+// Install the pinned moon binary — but only if one isn't already on PATH. "Use
+// moon if available, otherwise install it": this stays a no-op the day moon is
+// baked into the CI image or provided via proto, and self-installs until then.
+// When we do install, moon lands in `$HOME/.moon/bin`, so add that to PATH for
+// subsequent steps via BASH_ENV.
+function moonInstallSteps(): string[] {
+  return [
+    `    - run:`,
+    `        name: Install moon (if not already available)`,
+    `        command: |`,
+    `          if command -v moon >/dev/null 2>&1; then`,
+    `            echo "moon already available: $(moon --version)"`,
+    `          else`,
+    `            curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
+    `            echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    `          fi`,
+  ];
+}
+
 // Experimental job that runs the whole affected task graph via `moon ci` (which
 // is affected-by-default), sharded across containers. It reuses
 // `checkout-and-install` for pnpm + rust-addon setup/caching, installs the
@@ -413,11 +439,7 @@ function generateMoonCiJob(): string[] {
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: true`,
-    `    - run:`,
-    `        name: Install moon`,
-    `        command: |`,
-    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
-    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    ...moonInstallSteps(),
     // Cache keys are namespaced by shard index so parallel shards don't clobber
     // each other's save_cache (and a shard only restores its own prior cache).
     `    - restore_cache:`,
@@ -510,11 +532,7 @@ function generateMoonE2eAppJob(app: string): string[] {
     `  steps:`,
     `    - checkout-and-install:`,
     `        is_node_package: true`,
-    `    - run:`,
-    `        name: Install moon`,
-    `        command: |`,
-    `          curl -fsSL https://moonrepo.dev/install/moon.sh | MOON_VERSION=${MOON_VERSION} bash`,
-    `          echo 'export PATH="$HOME/.moon/bin:$PATH"' >> "$BASH_ENV"`,
+    ...moonInstallSteps(),
     `    - run:`,
     `        name: Install Playwright Chromium`,
     `        command: |`,
@@ -603,11 +621,14 @@ workflows:
       - moon-ci:
           context:
             - screenshots-publishing
+          filters:
+            branches:
+              only: ${MOON_BRANCH_FILTER}
       # NON-REQUIRED lane (one job per app) — mark every moon-e2e-* job's status
       # non-required in branch protection so slow/flaky e2e doesn't block merges.
 ${MOON_E2E_APPS.map(
   (app) =>
-    `      - moon-e2e-${app}:\n          context:\n            - screenshots-publishing`
+    `      - moon-e2e-${app}:\n          context:\n            - screenshots-publishing\n          filters:\n            branches:\n              only: ${MOON_BRANCH_FILTER}`
 ).join('\n')}
 
 commands:
@@ -674,7 +695,7 @@ commands:
  */
 export function generateAllConfigs(
   pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
-  options: { moonPrototype?: boolean; moonJobsMainOnly?: boolean } = {}
+  options: { moonPrototype?: boolean } = {}
 ): Map<string, string> {
   if (options.moonPrototype) {
     return new Map([[CIRCLECI_CONFIG_PATH, generateMoonPrototypeConfig()]]);
@@ -736,13 +757,9 @@ export function generateAllConfigs(
   // those are retired. Mark each moon-* job's status non-required in branch
   // protection.
   //
-  // `moonJobsMainOnly` gates whether they carry a `branches: only: main` filter.
-  // While we're still iterating on moon config it defaults to false so the jobs
-  // run on every branch (including the experiment branch) and we get feedback on
-  // each push. Flip it to true (env `MOON_JOBS_MAIN_ONLY=1` when regenerating)
-  // once the config is stable and we only want them watching `main` to avoid
-  // adding cost to every PR.
-  const moonJobsMainOnly = options.moonJobsMainOnly ?? false;
+  // They carry a `branches` filter (MOON_BRANCH_FILTER) so they only run on
+  // branches whose name contains "moon" — the integration adds no cost to other
+  // PRs while we iterate. Widen the filter when moon graduates.
   const moonJobBlocks = [
     generateMoonCiJob(),
     ...MOON_E2E_APPS.map((app) => generateMoonE2eAppJob(app)),
@@ -750,9 +767,7 @@ export function generateAllConfigs(
     .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
     .join('\n\n');
 
-  const moonBranchFilter = moonJobsMainOnly
-    ? '\n          filters:\n            branches:\n              only: main'
-    : '';
+  const moonBranchFilter = `\n          filters:\n            branches:\n              only: ${MOON_BRANCH_FILTER}`;
   const moonWorkflowEntries = [
     'moon-ci',
     ...MOON_E2E_APPS.map((app) => `moon-e2e-${app}`),

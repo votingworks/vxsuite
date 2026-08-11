@@ -19,9 +19,10 @@ production.** Everything works exactly as before without it:
   `shellcheck`, rust) do not use moon.
 
 Moon only runs inside its own dedicated, **non-blocking** CI jobs (`moon-ci` and
-the `moon-e2e-*` jobs), which install moon themselves. The moon config files
-(`.moon/`, the per-project `moon.yml` files, `.prototools`) are inert unless you
-run `moon` yourself.
+the `moon-e2e-*` jobs), and only on branches whose name contains `moon` — so
+other PRs and `main` never run them. Those jobs install moon themselves (only if
+it isn't already present). The moon config files (`.moon/`, the per-project
+`moon.yml` files, `.prototools`) are inert unless you run `moon` yourself.
 
 If you want to run the moon task graph locally (to reproduce a `moon-ci`
 failure, or to try the caching), read on.
@@ -139,24 +140,33 @@ are two families:
   `moon run`. `mark-scan` additionally builds its hardware daemons with
   `make -C apps/mark-scan/integration-testing build` first.
 
+Two properties keep them cheap and unobtrusive while the integration is young:
+
+- **They only run on `moon`-named branches.** Every moon job carries a
+  `branches: only: /.*moon.*/` filter, so they run on branches whose name
+  contains `moon` (e.g. `moon-experiment`) and nowhere else — no cost added to
+  other PRs or to `main`. The filter lives in `MOON_BRANCH_FILTER` in
+  `circleci.ts`; widen it (or drop it) when moon graduates from experiment.
+- **They install moon only if it isn't already present.** The "Install moon"
+  step is `if command -v moon; then …; else curl … | bash; fi`, so it self-
+  installs the pinned version today but becomes a no-op the day moon is baked
+  into the CI image or provided via proto.
+
 ### Generator knobs
 
-Both are environment variables read by `bin/generate-circleci-config`:
-
-- **`MOON_JOBS_MAIN_ONLY`** — when set, the moon jobs get a
-  `branches: only: main` filter so they only run on `main`. **Defaults off**
-  while we iterate, so the jobs run on every branch (including the experiment
-  branch) and we get feedback on each push. Turn it on once the config is stable
-  and we only want moon watching `main`:
+- **`MOON_CI_PROTOTYPE`** — an environment variable read by
+  `bin/generate-circleci-config`. Emits a slim config containing _only_ the moon
+  jobs (skips the ~60 per-package jobs). Useful for fast iteration on moon
+  config without waiting for the whole suite. Regenerate without it to restore
+  the full config:
 
   ```sh
-  MOON_JOBS_MAIN_ONLY=1 pnpm -w generate-circleci-config
+  MOON_CI_PROTOTYPE=1 pnpm -w generate-circleci-config
   ```
 
-- **`MOON_CI_PROTOTYPE`** — emits a slim config containing _only_ the moon jobs
-  (skips the ~60 per-package jobs). Useful for fast iteration on moon config
-  without waiting for the whole suite. Regenerate without it to restore the full
-  config.
+The `moon`-branch filter is not a knob — it is always applied (see
+`MOON_BRANCH_FILTER` above). To run the moon jobs on more branches, change that
+constant and regenerate.
 
 > The moon jobs must be marked **non-required** in the GitHub branch-protection
 > settings, or they'll block PRs despite being experimental.

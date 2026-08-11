@@ -17,14 +17,10 @@ async function main() {
   const packageInfo = getWorkspacePackageInfo(workspaceRoot);
   // MOON_CI_PROTOTYPE=1 emits a slim config that runs only the experimental
   // moon-ci job (skipping the ~60 per-package jobs) while iterating on the moon
-  // migration.
-  //
-  // MOON_JOBS_MAIN_ONLY=1 restricts the (non-blocking) moon jobs in the full
-  // config to the `main` branch. It defaults off while we're iterating so the
-  // jobs run on every branch; flip it on once the moon config is stable.
+  // migration. In the full config, the (non-blocking) moon jobs always carry a
+  // branch filter so they only run on branches whose name contains "moon".
   const configs = generateAllConfigs(packageInfo, {
     moonPrototype: Boolean(process.env.MOON_CI_PROTOTYPE),
-    moonJobsMainOnly: Boolean(process.env.MOON_JOBS_MAIN_ONLY),
   });
   for (const [filePath, fileContents] of configs.entries()) {
     console.log(`Writing CircleCI config to ${filePath}`);

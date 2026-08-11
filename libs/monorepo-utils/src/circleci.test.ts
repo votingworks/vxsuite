@@ -45,38 +45,29 @@ test('generateConfig', () => {
   );
   expect(mainConfig).toContain('moon run admin-integration-testing:test');
 
-  // By default (`moonJobsMainOnly` off) the moon jobs run on EVERY branch, so
-  // their workflow entries carry NO branch filter — the entry goes straight from
-  // its context to the next job. (The `only: main` matches elsewhere are the
-  // notify-gallery / screenshot filters, not these.)
-  expect(mainConfig).toContain(
-    '      - moon-ci:\n' +
-      '          context:\n' +
-      '            - screenshots-publishing\n' +
-      '      - moon-e2e-admin:'
-  );
-});
-
-test('generateAllConfigs moonJobsMainOnly restricts moon jobs to main', () => {
-  const root = join(__dirname, '../../..');
-  const configs = generateAllConfigs(getWorkspacePackageInfo(root), {
-    moonJobsMainOnly: true,
-  });
-  const keys = Array.from(configs.keys());
-  assert(keys[0] !== undefined);
-  const mainConfig = configs.get(keys[0]);
-  assert(mainConfig !== undefined);
-
-  // With the flag on, each moon workflow entry gains a `branches: only: main`
-  // filter so the jobs only run on `main`.
+  // The moon jobs are experiment-only: each workflow entry carries a branch
+  // filter so they run only on branches whose name contains "moon".
   expect(mainConfig).toContain(
     '      - moon-ci:\n' +
       '          context:\n' +
       '            - screenshots-publishing\n' +
       '          filters:\n' +
       '            branches:\n' +
-      '              only: main'
+      '              only: /.*moon.*/'
   );
+  expect(mainConfig).toContain(
+    '      - moon-e2e-admin:\n' +
+      '          context:\n' +
+      '            - screenshots-publishing\n' +
+      '          filters:\n' +
+      '            branches:\n' +
+      '              only: /.*moon.*/'
+  );
+
+  // moon is installed only if it isn't already on PATH (so a future image/proto
+  // install makes this a no-op).
+  expect(mainConfig).toContain('if command -v moon >/dev/null 2>&1; then');
+  expect(mainConfig).toContain('moonrepo.dev/install/moon.sh');
 });
 
 test('generateAllConfigs moon prototype mode', () => {
@@ -113,6 +104,8 @@ test('generateAllConfigs moon prototype mode', () => {
   expect(config).toContain('moon-e2e-print:');
   expect(config).toContain('moon run admin-integration-testing:test');
   expect(config).toContain('moon run print-integration-testing:test');
+  // The prototype workflow also filters to moon-named branches.
+  expect(config).toContain('only: /.*moon.*/');
   // ...and none of the per-package / rust jobs.
   expect(config).not.toContain('test-libs-basics');
   expect(config).not.toContain('test-rust-crates');
