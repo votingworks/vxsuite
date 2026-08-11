@@ -1,10 +1,15 @@
-import { expect, test, vi } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Client, DbConnectionOptions, Statement } from './client';
+import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 test('file database client', () => {
   const dbFile = makeTemporaryFile();
@@ -165,6 +170,17 @@ test('reset file database client', () => {
     (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
       .count
   ).toEqual(0);
+});
+
+test('reset file database client that has not connected yet', () => {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+
+  client.reset();
+
+  client.exec('create table muppets (name varchar(255) not null)');
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  expect(client.all('select * from muppets')).toEqual([{ name: 'Kermit' }]);
 });
 
 test('memory database client, reset', () => {
@@ -385,6 +401,207 @@ test('connect errors', () => {
     mockBaseLogger({ fn: vi.fn })
   );
   expect(() => client.connect()).toThrow();
+});
+
+const SCHEMA_V1 = 'create table users (id text primary key);';
+const SCHEMA_V2 = 'create table users (id text primary key, name text);';
+
+function makeSchemaFile(content: string): string {
+  return makeTemporaryFile({ content });
+}
+
+function makeDbWithSchema(schemaPath: string): string {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaPath
+  );
+  client.run(`insert into users (id) values (?)`, 'kermit');
+  return dbFile;
+}
+
+function stubProductionEnv(): void {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('REACT_APP_VX_DEV', '');
+  vi.stubEnv('REACT_APP_IS_INTEGRATION_TEST', '');
+  vi.stubEnv('IS_INTEGRATION_TEST', '');
+  vi.stubEnv('DEPLOY_ENV', '');
+}
+
+function backupFilesFor(dbFile: string): string[] {
+  return fs
+    .readdirSync(dirname(dbFile))
+    .filter((name) => name.startsWith(`${basename(dbFile)}.backup-`));
+}
+
+test('stores the schema digest in the database rather than a sidecar file', () => {
+  const schemaFile = makeSchemaFile(SCHEMA_V1);
+  const dbFile = makeDbWithSchema(schemaFile);
+
+  expect(fs.existsSync(`${dbFile}.digest`)).toEqual(false);
+
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
+  expect(client.one('select digest from vx_schema_digest')).toEqual({
+    digest: expect.stringMatching(/^[0-9a-f]{64}$/),
+  });
+
+  // reopening with an unchanged schema preserves the data
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 1,
+  });
+});
+
+test('reopens a database whose digest is stored inside it even with no sidecar', () => {
+  const schemaFile = makeSchemaFile(SCHEMA_V1);
+  const dbFile = makeDbWithSchema(schemaFile);
+
+  // a stale sidecar left over from older software is ignored in favor of the
+  // digest stored in the database
+  fs.writeFileSync(`${dbFile}.digest`, 'stale-digest-from-older-software');
+
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 1,
+  });
+  expect(backupFilesFor(dbFile)).toEqual([]);
+});
+
+test('resets the database when the schema changes outside production', () => {
+  const dbFile = makeDbWithSchema(makeSchemaFile(SCHEMA_V1));
+
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    makeSchemaFile(SCHEMA_V2)
+  );
+
+  // reset to the new schema, losing the old data
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 0,
+  });
+  client.run(`insert into users (id, name) values (?, ?)`, 'fozzie', 'Fozzie');
+
+  // the old database was preserved alongside it
+  expect(backupFilesFor(dbFile)).toHaveLength(1);
+});
+
+test('refuses to reset the database when the schema changes in production', () => {
+  const dbFile = makeDbWithSchema(makeSchemaFile(SCHEMA_V1));
+  const contentsBefore = fs.readFileSync(dbFile);
+
+  stubProductionEnv();
+
+  expect(() =>
+    Client.fileClient(
+      dbFile,
+      mockBaseLogger({ fn: vi.fn }),
+      makeSchemaFile(SCHEMA_V2)
+    )
+  ).toThrow(SchemaDigestMismatchError);
+
+  // the database is left exactly as it was
+  expect(fs.readFileSync(dbFile)).toEqual(contentsBefore);
+  expect(backupFilesFor(dbFile)).toEqual([]);
+});
+
+test('adopts a legacy schema digest sidecar written by older software', () => {
+  const schemaFile = makeSchemaFile(SCHEMA_V1);
+  const dbFile = makeDbWithSchema(schemaFile);
+
+  // simulate a database created by software that stored the digest alongside
+  // the database instead of inside it
+  const { digest } = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  ).one('select digest from vx_schema_digest') as { digest: string };
+  const clientToStrip = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  clientToStrip.exec('drop table vx_schema_digest');
+  fs.writeFileSync(`${dbFile}.digest`, digest);
+
+  stubProductionEnv();
+
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
+
+  // the data survives, the digest moves into the database, and the sidecar goes
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 1,
+  });
+  expect(client.one('select digest from vx_schema_digest')).toEqual({ digest });
+  expect(fs.existsSync(`${dbFile}.digest`)).toEqual(false);
+});
+
+test('treats a stale legacy sidecar as a schema mismatch', () => {
+  const dbFile = makeDbWithSchema(makeSchemaFile(SCHEMA_V1));
+  const clientToStrip = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  clientToStrip.exec('drop table vx_schema_digest');
+  fs.writeFileSync(`${dbFile}.digest`, 'digest-from-an-older-schema');
+
+  stubProductionEnv();
+
+  expect(() =>
+    Client.fileClient(
+      dbFile,
+      mockBaseLogger({ fn: vi.fn }),
+      makeSchemaFile(SCHEMA_V1)
+    )
+  ).toThrow(SchemaDigestMismatchError);
+});
+
+test('refuses to reset an unreadable database in production', () => {
+  const dbFile = makeTemporaryFile({
+    content: 'this is not a sqlite database',
+  });
+
+  stubProductionEnv();
+
+  expect(() =>
+    Client.fileClient(
+      dbFile,
+      mockBaseLogger({ fn: vi.fn }),
+      makeSchemaFile(SCHEMA_V1)
+    )
+  ).toThrow(SchemaDigestMismatchError);
+  expect(fs.readFileSync(dbFile, 'utf-8')).toEqual(
+    'this is not a sqlite database'
+  );
+});
+
+test('creates the schema in an empty database file', () => {
+  const dbFile = makeTemporaryFile();
+  fs.writeFileSync(`${dbFile}.digest`, 'stale-sidecar');
+
+  stubProductionEnv();
+
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    makeSchemaFile(SCHEMA_V1)
+  );
+
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 0,
+  });
+  expect(fs.existsSync(`${dbFile}.digest`)).toEqual(false);
 });
 
 test('vacuuming reduces file size', () => {

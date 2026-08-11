@@ -3748,6 +3748,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../utils
       better-sqlite3:
         specifier: 8.2.0
         version: 8.2.0
