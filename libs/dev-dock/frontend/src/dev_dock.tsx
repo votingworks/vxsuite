@@ -557,7 +557,7 @@ function ScreenshotControls({
   );
 }
 
-const PrinterButton = styled.button<{ isConnected: boolean }>`
+const IconButton = styled.button<{ isActive: boolean }>`
   position: relative;
   background-color: white;
   width: 80px;
@@ -569,10 +569,10 @@ const PrinterButton = styled.button<{ isConnected: boolean }>`
   justify-content: center;
   padding: 5px;
   border: ${(props) =>
-    props.isConnected
+    props.isActive
       ? `4px solid ${Colors.ACTIVE}`
       : `1px solid ${Colors.BORDER}`};
-  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
+  color: ${(props) => (props.isActive ? Colors.ACTIVE : Colors.TEXT)};
   &:disabled {
     color: ${Colors.DISABLED};
     border-color: ${Colors.DISABLED};
@@ -612,9 +612,9 @@ function PrinterMockControl() {
 
   const isConnected = status?.connected === true;
   return (
-    <PrinterButton
+    <IconButton
       onClick={onPrinterClick}
-      isConnected={isConnected}
+      isActive={isConnected}
       disabled={disabled}
       aria-label="Printer"
     >
@@ -624,31 +624,9 @@ function PrinterMockControl() {
           <p>Printer mock disabled</p>
         </UsbMocksDisabledMessage>
       )}
-    </PrinterButton>
+    </IconButton>
   );
 }
-
-const HardwareIconButton = styled.button<{ isConnected: boolean }>`
-  position: relative;
-  background-color: white;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border: ${(props) =>
-    props.isConnected
-      ? `4px solid ${Colors.ACTIVE}`
-      : `1px solid ${Colors.BORDER}`};
-  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
-  &:disabled {
-    color: ${Colors.DISABLED};
-    border-color: ${Colors.DISABLED};
-  }
-`;
 
 function HardwareMockControls() {
   const queryClient = useQueryClient();
@@ -696,8 +674,8 @@ function HardwareMockControls() {
   };
   return (
     <>
-      <HardwareIconButton
-        isConnected={status.barcodeConnected}
+      <IconButton
+        isActive={status.barcodeConnected}
         disabled={!isBarcodeMockEnabled}
         onClick={() =>
           setBarcodeConnectedMutation.mutate({
@@ -712,9 +690,9 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
-      <HardwareIconButton
-        isConnected={status.patInputConnected}
+      </IconButton>
+      <IconButton
+        isActive={status.patInputConnected}
         disabled={!isXkeysMockEnabled}
         onClick={() =>
           setPatInputConnectedMutation.mutate({
@@ -729,9 +707,9 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
-      <HardwareIconButton
-        isConnected={status.accessibleControllerConnected}
+      </IconButton>
+      <IconButton
+        isActive={status.accessibleControllerConnected}
         disabled={!isAccessibleControllerMockEnabled}
         onClick={() =>
           setAccessibleConnectedMutation.mutate({
@@ -746,7 +724,7 @@ function HardwareMockControls() {
             <p>Hardware mock disabled</p>
           </UsbMocksDisabledMessage>
         )}
-      </HardwareIconButton>
+      </IconButton>
     </>
   );
 }
