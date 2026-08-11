@@ -16,7 +16,9 @@ build-backend:
 	make -C $(APP)/backend install; \
 	make -C $(APP)/backend build; \
 
-build: build-frontend build-backend
+# Building the frontend also builds the backend (the frontend depends on
+# it), so a separate build-backend step is a redundant no-op.
+build: build-frontend
 
 run:
 	rm -rf $(PRINT_WORKSPACE)
