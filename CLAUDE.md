@@ -182,7 +182,7 @@ Tasks and their wiring (`turbo.json`):
 
 | Task         | Depends on    | Cached outputs                                     |
 | ------------ | ------------- | -------------------------------------------------- |
-| `build:self` | `^build:self` | `build/**`, `tsconfig.build.tsbuildinfo`, `*.node` |
+| `build:self` | `^build:self` | `build/**`, `*.node`                               |
 | `type-check` | `^build:self` | `tsconfig.tsbuildinfo`                             |
 | `lint`       | `^build:self` | (logs only)                                        |
 | `test:run`   | `build:self`  | (logs only)                                        |
@@ -195,13 +195,32 @@ Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
 (`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm test:ci`,
 `pnpm clean`) wrap the corresponding Turbo task across all packages.
 
+Each package's `build:self` writes its incremental `tsc` build-info to
+`build/tsconfig.build.tsbuildinfo` (inside `build/`, enforced by
+`validate-monorepo`), so it's captured by the `build/**` output and removed
+atomically by `rm -rf build`. Keeping it there avoids a stale build-info making
+`tsc` skip re-emitting after `build/` is deleted.
+
 **Cross-worktree cache:** Turbo automatically shares its local cache across git
 worktrees of this repo (stored under the shared `.git` directory), so artifacts
-built in one worktree are reused in another with no configuration.
+built in one worktree are reused in another with no configuration. The cache is
+per-machine (not shared between developers) and unbounded — see
+[docs/turborepo.md](docs/turborepo.md) for how to clear it, force a rebuild, and
+other troubleshooting.
 
 **CI caching:** CI currently runs Turbo tasks per package without a shared
 remote cache (each job builds fresh). Enabling Turbo remote caching in CI is a
 planned follow-up.
+
+**Tooling scripts:** repo tooling that depends on built workspace packages
+(`configure-env`, `generate-circleci-config`) is a shell `bin/` in the package
+that owns it (e.g. `libs/monorepo-utils/bin/generate-circleci-config`,
+`libs/utils/bin/configure-env`), which builds that package with turbo first
+(cached, so ~instant when warm), then runs its built CLI in `build/bin/`. The
+CLI logic lives in `src/bin/` so it's type-checked, linted, and built like the
+rest of the package (excluded from coverage). Root `package.json` points the
+`pnpm -w <name>` scripts straight at those bins. This is why the tools work from
+a fresh checkout without a prior full build.
 
 ## Testing
 
