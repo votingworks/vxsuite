@@ -790,9 +790,6 @@ export class LocalStore extends Store {
     const checkInEventRows = this.client.all(
       `SELECT * FROM event_log WHERE event_type = '${EventType.VoterCheckIn}' ORDER BY physical_time, logical_counter, machine_id`
     ) as EventDbRow[];
-    if (checkInEventRows.length === 0) {
-      return [];
-    }
     const events = convertDbRowsToPollbookEvents(checkInEventRows);
     const checkInEvents = events.filter(
       (event): event is VoterCheckInEvent =>
@@ -809,6 +806,9 @@ export class LocalStore extends Store {
           partyFilter === 'ALL' ||
           e.checkInData.ballotParty === partyFilter)
     );
+    if (filteredCheckInEvents.length === 0) {
+      return [];
+    }
 
     const orderedByEventMachineTime = [...filteredCheckInEvents].sort((a, b) =>
       a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)

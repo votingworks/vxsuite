@@ -1442,6 +1442,70 @@ test('getThroughputStatistics returns empty array when no check-ins exist', () =
   expect(throughputStats).toEqual([]);
 });
 
+test('getThroughputStatistics returns empty array when no check-ins match the party filter', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('10', 'Dylan', `O'Brien`, {
+      middleName: 'MiD',
+      suffix: 'I',
+      precinct: 'precinct-1',
+      party: 'DEM',
+    }),
+  ];
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  localStore.recordVoterCheckIn({
+    voterId: voters[0].voterId,
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+
+  expect(localStore.getThroughputStatistics(60, 'REP')).toEqual([]);
+});
+
+test('getThroughputStatistics returns empty array when the only check-ins are absentee', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('10', 'Dylan', `O'Brien`, {
+      middleName: 'MiD',
+      suffix: 'I',
+      precinct: 'precinct-1',
+      party: 'DEM',
+    }),
+  ];
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  localStore.setIsAbsenteeMode(true);
+  localStore.recordVoterCheckIn({
+    voterId: voters[0].voterId,
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+  localStore.setIsAbsenteeMode(false);
+
+  // Absentee check-ins are excluded from throughput stats, so even the 'ALL'
+  // filter has no events left to report on.
+  expect(localStore.getThroughputStatistics(60, 'ALL')).toEqual([]);
+});
+
 test('getThroughputStatistics returns correct throughput data for single interval', () => {
   // Use fake timers to control check-in times
   vi.useFakeTimers();
