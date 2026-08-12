@@ -1,5 +1,6 @@
 import {
   AdminReadinessReportContents,
+  Loading,
   SaveReadinessReportButton,
 } from '@votingworks/ui';
 
@@ -14,7 +15,6 @@ import {
   getUsbDriveStatus,
 } from '../api.js';
 import { systemCallApi } from '../shared_api.js';
-import { Loading } from '../components/loading.js';
 import { PrintTestPageButton } from '../components/print_test_page_button.js';
 import { AppContext } from '../contexts/app_context.js';
 
