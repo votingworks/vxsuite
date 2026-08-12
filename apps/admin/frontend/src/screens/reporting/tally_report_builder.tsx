@@ -48,11 +48,11 @@ export function TallyReportBuilder(): JSX.Element {
   const allowedFilters: FilterType[] = [
     'ballot-style',
     'batch',
-    'precinct',
+    'district',
     'polling-place',
+    'precinct',
     'scanner',
     'voting-method',
-    'district',
   ]; // omits party
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
