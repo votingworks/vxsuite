@@ -96,7 +96,7 @@ export function PollWorkerScreen({
         resetVoterSessionButton={
           <Button
             variant="danger"
-            icon="Cancel"
+            icon="Undo"
             onPress={resetCardlessVoterSession}
           >
             Reset Ballot

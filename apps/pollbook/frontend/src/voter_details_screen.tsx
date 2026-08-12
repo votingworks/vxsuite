@@ -116,7 +116,7 @@ function ConfirmUndoCheckInModal({
       actions={
         <React.Fragment>
           <Button
-            icon="Cancel"
+            icon="Undo"
             variant="danger"
             onPress={() => {
               undoVoterCheckInMutation.mutate(
@@ -669,7 +669,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 Reprint Receipt
               </Button>
               <Button
-                icon="Cancel"
+                icon="Undo"
                 onPress={() => setShowUndoCheckinFlow(true)}
                 color="danger"
                 fill="outlined"

@@ -101,6 +101,7 @@ import {
   faVolumeDown,
   faClock,
   faHeadphones,
+  faRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -599,6 +600,10 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faCircleQuestion} />;
   },
 
+  Redo(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateRight} />;
+  },
+
   Rotate(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faRotate} />;
   },
@@ -679,6 +684,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faUnderline} />;
+  },
+
+  Undo(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateLeft} />;
   },
 
   UsbDrive(props) {

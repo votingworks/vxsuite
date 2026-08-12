@@ -42,7 +42,7 @@ export function UndoCheckInReceipt({
           </div>
         </div>
 
-        <ReceiptIcon icon="Cancel" />
+        <ReceiptIcon icon="Undo" />
       </div>
 
       <div>
