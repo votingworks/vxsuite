@@ -135,6 +135,9 @@ export enum LogEventId {
   PasswdChange = 'password-change',
   SaveElectionPackageInit = 'save-election-package-init',
   SaveElectionPackageComplete = 'save-election-package-complete',
+  BackupCreateInit = 'backup-create-init',
+  BackupCreateProgress = 'backup-create-progress',
+  BackupCreateComplete = 'backup-create-complete',
   SmartCardProgramInit = 'smart-card-program-init',
   SmartCardProgramComplete = 'smart-card-program-complete',
   SmartCardUnprogramInit = 'smart-card-unprogram-init',
@@ -715,6 +718,30 @@ const SaveElectionPackageComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Saving the election package completed, success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupCreateInit: LogDetails = {
+  eventId: LogEventId.BackupCreateInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A backup of the election data is being written to a backup drive.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupCreateProgress: LogDetails = {
+  eventId: LogEventId.BackupCreateProgress,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A backup of the election data has reached a new stage, e.g. copying files or verifying what was written. Logged once per stage so that a backup that fails part way through records how far it got.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupCreateComplete: LogDetails = {
+  eventId: LogEventId.BackupCreateComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A backup of the election data has been written to a backup drive (or failed to be written), as indicated by the disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1687,6 +1714,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SaveElectionPackageInit;
     case LogEventId.SaveElectionPackageComplete:
       return SaveElectionPackageComplete;
+    case LogEventId.BackupCreateInit:
+      return BackupCreateInit;
+    case LogEventId.BackupCreateProgress:
+      return BackupCreateProgress;
+    case LogEventId.BackupCreateComplete:
+      return BackupCreateComplete;
     case LogEventId.SmartCardProgramInit:
       return SmartCardProgramInit;
     case LogEventId.SmartCardProgramComplete:

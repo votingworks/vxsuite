@@ -143,7 +143,15 @@ export class BaseLogger {
 
   constructor(
     private readonly source: LogSource,
-    private readonly kiosk?: KioskBrowser.Kiosk
+    private readonly kiosk?: KioskBrowser.Kiosk,
+    // Server processes log to stdout because that is what their service
+    // manager collects. A program run by hand needs somewhere else to put log
+    // lines, so that whatever it writes to stdout for the person running it
+    // stays usable on its own.
+    private readonly writeLogLine: (logLine: string) => void = (logLine) => {
+      // eslint-disable-next-line no-console
+      console.log(logLine);
+    }
   ) {
     this.repeatLogTracker = new RepeatLogTracker();
   }
@@ -212,8 +220,7 @@ export class BaseLogger {
         );
       }
     } else {
-      // eslint-disable-next-line no-console
-      console.log(JSON.stringify(logLine));
+      this.writeLogLine(JSON.stringify(logLine));
     }
   }
 }

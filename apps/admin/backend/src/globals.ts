@@ -22,13 +22,17 @@ export const NODE_ENV = unsafeParse(
 );
 
 /**
+ * The workspace this package uses when run from a source checkout. Identifying
+ * it is what lets the `backups` CLI tell a development machine from a real one.
+ */
+export const DEV_WORKSPACE = join(import.meta.dirname, '../dev-workspace');
+
+/**
  * Path for the database file and other files
  */
 export const ADMIN_WORKSPACE =
   process.env.ADMIN_WORKSPACE ??
-  (NODE_ENV === 'development'
-    ? join(import.meta.dirname, '../dev-workspace')
-    : undefined);
+  (NODE_ENV === 'development' ? DEV_WORKSPACE : undefined);
 
 /**
  * Default port for the admin API.

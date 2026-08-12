@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+
+// This package is ESM and has no TypeScript loader available at runtime, so the
+// CLI runs from the build output. Run `pnpm build:self` first if this fails.
+//
+// An unrecognized NODE_ENV is rejected before anything else is imported:
+// modules across the monorepo parse it as they load, and one of them throws a
+// raw `ZodError` at a value it doesn't know, which would be the first thing a
+// person saw. An absent one is the CLI's business, not this file's.
+import { checkNodeEnvIfSet } from '../build/backup/node_env.js';
+
+const nodeEnvError = checkNodeEnvIfSet();
+if (nodeEnvError !== undefined) {
+  process.stderr.write(`${nodeEnvError}\n`);
+  process.exit(1);
+}
+
+const { execFile } = await import('@votingworks/backend');
+const { main } = await import('../build/backup/cli.js');
+const { createSyslogWriter } = await import('../build/backup/syslog.js');
+
+const syslog = createSyslogWriter({ exec: execFile });
+
+main(process.argv, process, { syslog })
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch(async (error) => {
+    console.error(error);
+    // Each log line is a separate `logger(1)` call, so exiting here would
+    // discard whatever is still queued — including the lines explaining what
+    // the run had managed to do before this.
+    await syslog.flush();
+    process.exitCode = 1;
+  });

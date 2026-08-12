@@ -197,6 +197,15 @@ export class Store implements BaseStore {
   }
 
   /**
+   * Writes a consistent snapshot of the database to `filePath`, which must not
+   * already exist. The snapshot is compacted, so it is usually smaller than the
+   * database it was taken from.
+   */
+  backupDatabase(filePath: string): void {
+    this.client.backup(filePath);
+  }
+
+  /**
    * Builds and returns a new store whose data is kept in memory. A
    * `persistenceDirPath` must be provided, but may be a temporary directory if
    * desired.
@@ -222,6 +231,32 @@ export class Store implements BaseStore {
   ): Store {
     return new Store(
       DbClient.fileClient(dbPath, logger, SchemaPath),
+      ballotImagesPath,
+      electionPackagesPath
+    );
+  }
+
+  /**
+   * Opens an existing database without giving `libs/db` the schema to compare
+   * against, which is what decides whether the database is stamped, reset, or
+   * refused when its schema digest doesn't match the running software.
+   *
+   * This is for reading a workspace that belongs to someone else — a backup,
+   * where the point is to copy whatever is there. Outside production a mismatch
+   * would otherwise rename the database aside and leave an empty one in its
+   * place, so the command asked to copy a workspace would instead reset it.
+   *
+   * A restore must NOT use this: it writes a database and then opens it, and the
+   * digest check is what proves what it wrote matches the running schema.
+   */
+  static existingFileStore(
+    dbPath: string,
+    ballotImagesPath: string,
+    electionPackagesPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(dbPath, logger),
       ballotImagesPath,
       electionPackagesPath
     );

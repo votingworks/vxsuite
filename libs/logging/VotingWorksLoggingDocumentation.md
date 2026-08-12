@@ -290,6 +290,18 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** Saving the election package completed, success or failure is indicated by the disposition.
 **Machines:** vx-admin
+### backup-create-init
+**Type:** [user-action](#user-action)
+**Description:** A backup of the election data is being written to a backup drive.
+**Machines:** vx-admin
+### backup-create-progress
+**Type:** [application-status](#application-status)
+**Description:** A backup of the election data has reached a new stage, e.g. copying files or verifying what was written. Logged once per stage so that a backup that fails part way through records how far it got.
+**Machines:** vx-admin
+### backup-create-complete
+**Type:** [user-action](#user-action)
+**Description:** A backup of the election data has been written to a backup drive (or failed to be written), as indicated by the disposition.
+**Machines:** vx-admin
 ### smart-card-program-init
 **Type:** [user-action](#user-action)
 **Description:** A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.

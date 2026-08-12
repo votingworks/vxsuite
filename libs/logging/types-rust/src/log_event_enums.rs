@@ -253,6 +253,12 @@ pub enum EventId {
     SaveElectionPackageInit,
     #[serde(rename = "save-election-package-complete")]
     SaveElectionPackageComplete,
+    #[serde(rename = "backup-create-init")]
+    BackupCreateInit,
+    #[serde(rename = "backup-create-progress")]
+    BackupCreateProgress,
+    #[serde(rename = "backup-create-complete")]
+    BackupCreateComplete,
     #[serde(rename = "smart-card-program-init")]
     SmartCardProgramInit,
     #[serde(rename = "smart-card-program-complete")]

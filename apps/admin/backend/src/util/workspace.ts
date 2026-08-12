@@ -54,6 +54,29 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
 }
 
 /**
+ * Returns a Workspace for reading a workspace that already exists, creating
+ * nothing and leaving its database exactly as it was found. For commands that
+ * only read — see {@link Store.existingFileStore} for why that matters.
+ */
+export function openExistingWorkspace(
+  root: string,
+  logger: BaseLogger
+): Workspace {
+  const resolvedRoot = resolve(root);
+
+  return {
+    path: resolvedRoot,
+    store: Store.existingFileStore(
+      join(resolvedRoot, 'data.db'),
+      join(resolvedRoot, 'ballot-images'),
+      join(resolvedRoot, 'election-packages'),
+      logger
+    ),
+    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
+  };
+}
+
+/**
  * Returns a client Workspace with in-memory connection state.
  */
 export function createClientWorkspace(root: string): ClientWorkspace {
