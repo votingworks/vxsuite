@@ -431,7 +431,7 @@ export const Icons = {
   },
 
   Delete(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faXmarkCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTrashCan} />;
   },
 
   Disabled(props) {
