@@ -882,7 +882,8 @@ test('filter reduced to no values exports a CSV with no rows', async () => {
       districtIds: ['district-2'],
       ballotStyleGroupIds: ['5'] as BallotStyleGroupId[],
     },
-    election
+    election,
+    store.getScannerBatches(electionId)
   );
   expect(filter).toEqual({ ballotStyleGroupIds: [] });
 
