@@ -663,11 +663,7 @@ export function buildApi(ctx: Context) {
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(
-  ctx: Context,
-  /* istanbul ignore next */
-  api = buildApi(ctx)
-): Application {
+export function buildApp(ctx: Context, api = buildApi(ctx)): Application {
   const app: Application = express();
   app.use('/api', grout.buildRouter(api, express));
 

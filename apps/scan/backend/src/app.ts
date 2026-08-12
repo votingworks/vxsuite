@@ -711,7 +711,6 @@ export function buildApp(
     usbDrive: UsbDrive;
     logger: Logger;
   },
-  /* istanbul ignore next */
   api = buildApi({
     audioPlayer,
     auth,
