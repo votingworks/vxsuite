@@ -40,6 +40,7 @@ export type ReportingFilter = Tabulation.Filter & {
  */
 export type FrontendReportingFilter = ReportingFilter & {
   districtIds?: string[];
+  pollingPlaceIds?: string[];
 };
 
 /**

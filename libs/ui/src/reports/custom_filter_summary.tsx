@@ -125,6 +125,22 @@ export function CustomFilterSummary({
             .join(', ')}
         </FilterDisplayRow>
       )}
+      {filter.pollingPlaceIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Polling Place', filter.pollingPlaceIds.length)}:
+          </Font>{' '}
+          {filter.pollingPlaceIds
+            .map(
+              (pollingPlaceId) =>
+                CachedElectionLookups.getPollingPlaceById(
+                  electionDefinition,
+                  pollingPlaceId
+                ).name
+            )
+            .join(', ')}
+        </FilterDisplayRow>
+      )}
       {filter.partyIds && (
         <FilterDisplayRow>
           <Font weight="semiBold">

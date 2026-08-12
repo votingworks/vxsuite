@@ -8,7 +8,10 @@ import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { FilterEditor } from './filter_editor.js';
 import { screen, within } from '../../../test/react_testing_library.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -324,6 +327,36 @@ test('district filter', () => {
   userEvent.click(screen.getByText('District 1'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     districtIds: ['district-1'],
+  });
+});
+
+test('polling place filter', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const onChange = vi.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['polling-place']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Polling Place'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { pollingPlaceIds: [] });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  // labeled with the polling place type to disambiguate places that share a
+  // name with their precinct
+  userEvent.click(screen.getByText('Precinct 1 (Election Day)'));
+  expect(onChange).toHaveBeenNthCalledWith(2, {
+    pollingPlaceIds: ['precinct-1-polling-place'],
   });
 });
 

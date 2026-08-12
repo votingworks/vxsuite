@@ -9,10 +9,16 @@ import {
 import { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
-import { FilterEditor } from '../../components/reporting/filter_editor.js';
+import {
+  FilterEditor,
+  FilterType,
+} from '../../components/reporting/filter_editor.js';
 import { GroupByEditor } from '../../components/reporting/group_by_editor.js';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer.js';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting.js';
+import {
+  canonicalizeFilter,
+  canonicalizeGroupBy,
+} from '../../utils/reporting.js';
 import {
   ReportBuilderControls,
   ControlLabel,
@@ -39,6 +45,16 @@ export function TallyReportBuilder(): JSX.Element {
     setGroupBy(canonicalizeGroupBy(newGroupBy));
   }
 
+  const allowedFilters: FilterType[] = [
+    'ballot-style',
+    'batch',
+    'district',
+    'polling-place',
+    'precinct',
+    'scanner',
+    'voting-method',
+  ]; // omits party
+
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
     <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
@@ -50,14 +66,7 @@ export function TallyReportBuilder(): JSX.Element {
             <FilterEditor
               election={election}
               onChange={updateFilter}
-              allowedFilters={[
-                'ballot-style',
-                'batch',
-                'precinct',
-                'scanner',
-                'voting-method',
-                'district',
-              ]} // omits party
+              allowedFilters={allowedFilters}
             />
           </div>
           <div>

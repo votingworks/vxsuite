@@ -51,13 +51,14 @@ export function BallotCountReportBuilder(): JSX.Element {
   }
 
   const allowedFilters: FilterType[] = [
+    'adjudication-status',
     'ballot-style',
     'batch',
+    'district',
+    'polling-place',
     'precinct',
     'scanner',
     'voting-method',
-    'adjudication-status',
-    'district',
   ];
   const allowedGroupBys: GroupByEditorOption[] = [
     'groupByBallotStyle',

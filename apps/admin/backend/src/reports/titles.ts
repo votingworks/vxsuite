@@ -24,7 +24,8 @@ function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
       (filter.scannerIds && filter.scannerIds.length > 1) ||
       (filter.votingMethods && filter.votingMethods.length > 1) ||
       (filter.adjudicationFlags && filter.adjudicationFlags.length > 1) ||
-      (filter.districtIds && filter.districtIds.length > 1)
+      (filter.districtIds && filter.districtIds.length > 1) ||
+      (filter.pollingPlaceIds && filter.pollingPlaceIds.length > 1)
   );
 }
 
@@ -40,7 +41,8 @@ function getFilterRank(filter: Admin.FrontendReportingFilter): number {
     (filter.votingMethods?.[0] ? 1 : 0) +
     (filter.partyIds?.[0] ? 1 : 0) +
     (filter.adjudicationFlags?.[0] ? 1 : 0) +
-    (filter.districtIds?.[0] ? 1 : 0)
+    (filter.districtIds?.[0] ? 1 : 0) +
+    (filter.pollingPlaceIds?.[0] ? 1 : 0)
   );
 }
 
@@ -81,6 +83,7 @@ export function generateTitleForReport({
   const partyId = filter.partyIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
   const districtId = filter.districtIds?.[0];
+  const pollingPlaceId = filter.pollingPlaceIds?.[0];
 
   const reportSuffix = (() => {
     if (precinctId) {
@@ -149,6 +152,13 @@ export function generateTitleForReport({
       return CachedElectionLookups.getDistrictById(
         electionDefinition,
         districtId
+      ).name;
+    }
+
+    if (pollingPlaceId) {
+      return CachedElectionLookups.getPollingPlaceById(
+        electionDefinition,
+        pollingPlaceId
       ).name;
     }
   })();

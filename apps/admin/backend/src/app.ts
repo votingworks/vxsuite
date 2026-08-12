@@ -230,7 +230,11 @@ function buildApi({
     const {
       electionDefinition: { election },
     } = assertDefined(store.getElection(electionId));
-    return convertFrontendFilterUtil(filter, election);
+    return convertFrontendFilterUtil(
+      filter,
+      election,
+      store.getScannerBatches(electionId)
+    );
   }
 
   async function getTallyReportResults(

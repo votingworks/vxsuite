@@ -8,6 +8,7 @@ import {
   Admin,
   Election,
   isCombinedBallotPrimary,
+  pollingPlaceTypeName,
   Tabulation,
 } from '@votingworks/types';
 import { useState } from 'react';
@@ -66,7 +67,8 @@ export type FilterType =
   | 'batch'
   | 'party'
   | 'adjudication-status'
-  | 'district';
+  | 'district'
+  | 'polling-place';
 
 interface FilterRow {
   rowId: number;
@@ -84,6 +86,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   party: 'Party',
   'adjudication-status': 'Adjudication Status',
   district: 'District',
+  'polling-place': 'Polling Place',
 };
 
 const NO_PARTY_FILTER_VALUE = '__NO_PARTY_FILTER__';
@@ -181,6 +184,13 @@ function generateOptionsForFilter({
         value: district.id,
         label: district.name,
       }));
+    case 'polling-place':
+      return election.pollingPlaces.map((pollingPlace) => ({
+        value: pollingPlace.id,
+        label: `${pollingPlace.name} (${pollingPlaceTypeName(
+          pollingPlace.type
+        )})`,
+      }));
     default: {
       /* istanbul ignore next - compile-time check for completeness */
       throwIllegalValue(filterType);
@@ -224,6 +234,9 @@ function convertFilterRowsToTabulationFilter(
         break;
       case 'district':
         filter.districtIds = filterValues;
+        break;
+      case 'polling-place':
+        filter.pollingPlaceIds = filterValues;
         break;
       default: {
         /* istanbul ignore next - compile-time check for completeness */

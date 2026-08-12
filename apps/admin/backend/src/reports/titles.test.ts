@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
   electionCombinedBallotPrimaryFixtures,
+  readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
@@ -79,6 +80,13 @@ test('generateTitleForReport', () => {
     },
     {
       ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
+    },
+    {
+      pollingPlaceIds: ['precinct-1-polling-place', 'precinct-2-polling-place'],
+    },
+    {
+      pollingPlaceIds: ['precinct-1-polling-place'],
+      votingMethods: ['absentee'],
     },
   ];
 
@@ -163,6 +171,17 @@ test('generateTitleForReport', () => {
       })
     ).toEqual(ok(title));
   }
+
+  // uses an election whose polling place names differ from its precinct names,
+  // so the title is unambiguously derived from the polling place
+  expect(
+    generateTitleForReport({
+      filter: { pollingPlaceIds: ['23-polling-place'] },
+      electionDefinition: readElectionGeneralDefinition(),
+      scannerBatches: MOCK_SCANNER_BATCHES,
+      reportType: 'Tally',
+    })
+  ).toEqual(ok('Tally Report • Center Springfield'));
 
   const ballotCountFilters: Array<
     [filter: Admin.FrontendReportingFilter, title: string]
