@@ -1,17 +1,41 @@
 import { assert } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
+import {
+  isIntegrationTest,
+  isNodeEnvProduction,
+  isStagingDeploy,
+  isVxDev,
+} from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { dirname, join } from 'node:path';
+import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
 
 type Database = Database.Database;
 
 const debug = makeDebug('db-client');
 
 const MEMORY_DB_PATH = ':memory:';
+
+/**
+ * Table holding the digest of the schema the database was created with. It is
+ * stored inside the database rather than in a sidecar file so that it cannot
+ * become separated from the data it describes, e.g. when a database file is
+ * copied, moved, or restored from a backup.
+ */
+const SCHEMA_DIGEST_TABLE = 'vx_schema_digest';
+
+function shouldResetOnSchemaDigestMismatch(): boolean {
+  return (
+    !isNodeEnvProduction() ||
+    isVxDev() ||
+    isIntegrationTest() ||
+    isStagingDeploy()
+  );
+}
 
 /**
  * Types supported for database values, i.e. what can be passed to `one`, `all`,
@@ -54,7 +78,7 @@ export class Client {
     private readonly logger: BaseLogger,
     private readonly schemaPath?: string,
     private readonly connectionOptions?: DbConnectionOptions
-  ) { }
+  ) {}
 
   /**
    * Gets the path to the SQLite database file.
@@ -77,6 +101,48 @@ export class Client {
     assert(typeof this.schemaPath === 'string', 'schemaPath is required');
     const schemaSql = fs.readFileSync(this.schemaPath, 'utf-8');
     return createHash('sha256').update(schemaSql).digest('hex');
+  }
+
+  /**
+   * Reads the schema digest stored in the database, if any.
+   */
+  private readStoredSchemaDigest(): string | undefined {
+    try {
+      const table = this.one(
+        `select name from sqlite_master where type = 'table' and name = ?`,
+        SCHEMA_DIGEST_TABLE
+      ) as { name: string } | undefined;
+
+      if (!table) {
+        return undefined;
+      }
+
+      const row = this.one(`select digest from ${SCHEMA_DIGEST_TABLE}`) as
+        | { digest: string }
+        | undefined;
+      return row?.digest;
+    } catch (error) {
+      // An unreadable or corrupt database has no usable digest, which is
+      // treated the same as a mismatched one: reset outside production, refuse
+      // to touch it in production.
+      debug('could not read stored schema digest: %s', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Stores the digest of the current schema file in the database, replacing any
+   * previously stored digest.
+   */
+  private writeSchemaDigest(): void {
+    this.exec(
+      `create table if not exists ${SCHEMA_DIGEST_TABLE} (digest text not null)`
+    );
+    this.run(`delete from ${SCHEMA_DIGEST_TABLE}`);
+    this.run(
+      `insert into ${SCHEMA_DIGEST_TABLE} (digest) values (?)`,
+      this.getSchemaDigest()
+    );
   }
 
   /**
@@ -117,45 +183,97 @@ export class Client {
       return client;
     }
 
-    const schemaDigestPath = `${dbPath}.digest`;
-    let schemaDigest: string | undefined;
-    try {
-      schemaDigest = fs.readFileSync(schemaDigestPath, 'utf-8').trim();
-    } catch {
-      debug(
-        'could not read %s, assuming the database needs to be created',
-        schemaDigestPath
-      );
-    }
     const newSchemaDigest = client.getSchemaDigest();
-    const shouldResetDatabase = newSchemaDigest !== schemaDigest;
 
-    if (shouldResetDatabase) {
-      debug(
-        'database schema has changed (%s ≉ %s)',
-        schemaDigest,
-        newSchemaDigest
-      );
-
-      try {
-        const backupPath = `${dbPath}.backup-${new Date()
-          .toISOString()
-          .replace(/[^\d]+/g, '-')
-          .replace(/-+$/, '')}`;
-        fs.renameSync(dbPath, backupPath);
-        debug('backed up database to be reset to %s', backupPath);
-      } catch {
-        // ignore for now
-      }
-
-      debug('resetting database to updated schema');
-      client.reset();
-      fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
-    } else {
-      debug('database schema appears to be up to date');
+    // A zero-length file is treated as no database at all: it holds no data, so
+    // creating the schema in place loses nothing. Maybe creating the database
+    // was interrupted before anything could be written.
+    if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
+      debug('no database at %s, creating it', dbPath);
+      client.create();
+      fs.rmSync(client.legacySchemaDigestSidecarPath(), { force: true });
+      return client;
     }
+
+    const schemaDigest =
+      client.readStoredSchemaDigest() ??
+      client.adoptLegacySchemaDigestSidecar(newSchemaDigest);
+
+    if (schemaDigest === newSchemaDigest) {
+      debug('database schema appears to be up to date');
+      return client;
+    }
+
+    debug(
+      'database schema has changed (%s ≉ %s)',
+      schemaDigest,
+      newSchemaDigest
+    );
+
+    if (!shouldResetOnSchemaDigestMismatch()) {
+      client.logger.log(
+        LogEventId.DatabaseSchemaMismatch,
+        'system',
+        {
+          message:
+            `Database at ${dbPath} was created with a different schema than ` +
+            `the currently running software expects. Refusing to reset it in ` +
+            `production because that would discard its data.`,
+          expectedDigest: newSchemaDigest,
+          actualDigest: schemaDigest,
+          disposition: 'failure',
+        },
+        debug
+      );
+      throw new SchemaDigestMismatchError(
+        dbPath,
+        newSchemaDigest,
+        schemaDigest
+      );
+    }
+
+    const backupPath = `${dbPath}.backup-${new Date()
+      .toISOString()
+      .replace(/[^\d]+/g, '-')
+      .replace(/-+$/, '')}`;
+    fs.renameSync(dbPath, backupPath);
+    debug('backed up database to be reset to %s', backupPath);
+
+    debug('resetting database to updated schema');
+    client.reset();
 
     return client;
+  }
+
+  private legacySchemaDigestSidecarPath(): string {
+    return `${this.dbPath}.digest`;
+  }
+
+  /**
+   * Adopts the digest from a legacy `<dbPath>.digest` sidecar file written by
+   * older software, storing it in the database and removing the sidecar. Older
+   * software wrote the digest alongside the database rather than inside it,
+   * which meant the two could become separated. Returns the adopted digest, or
+   * `undefined` if there is no sidecar to adopt.
+   */
+  private adoptLegacySchemaDigestSidecar(
+    currentSchemaDigest: string
+  ): string | undefined {
+    const sidecarPath = this.legacySchemaDigestSidecarPath();
+    let sidecarDigest: string;
+    try {
+      sidecarDigest = fs.readFileSync(sidecarPath, 'utf-8').trim();
+    } catch {
+      debug('no legacy schema digest sidecar at %s', sidecarPath);
+      return undefined;
+    }
+
+    debug('adopting legacy schema digest sidecar at %s', sidecarPath);
+    if (sidecarDigest === currentSchemaDigest) {
+      this.writeSchemaDigest();
+    }
+    fs.rmSync(sidecarPath, { force: true });
+    return sidecarDigest;
   }
 
   /**
@@ -444,6 +562,7 @@ export class Client {
     if (this.schemaPath) {
       const schema = fs.readFileSync(this.schemaPath, 'utf-8');
       this.exec(schema);
+      this.writeSchemaDigest();
     }
     this.logger.log(
       LogEventId.DatabaseCreateComplete,

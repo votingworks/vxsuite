@@ -400,6 +400,11 @@ eventId = "database-reset-complete"
 eventType = "system-action"
 documentationMessage = "Database reset. Success or failure indicated by disposition."
 
+[Events.DatabaseSchemaMismatch]
+eventId = "database-schema-mismatch"
+eventType = "system-action"
+documentationMessage = "An existing database was created with a different schema than the currently running software expects. Outside of production the database is reset, but in production it is left untouched and the application refuses to start."
+
 [Events.FileReadError]
 eventId = "file-read-error"
 eventType = "system-action"

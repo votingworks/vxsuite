@@ -215,6 +215,8 @@ pub enum EventId {
     DatabaseResetInit,
     #[serde(rename = "database-reset-complete")]
     DatabaseResetComplete,
+    #[serde(rename = "database-schema-mismatch")]
+    DatabaseSchemaMismatch,
     #[serde(rename = "file-read-error")]
     FileReadError,
     #[serde(rename = "dmverity-boot")]

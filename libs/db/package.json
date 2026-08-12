@@ -25,6 +25,7 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "better-sqlite3": "8.2.0",
     "debug": "4.3.4"
   },

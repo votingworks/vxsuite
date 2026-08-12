@@ -116,6 +116,7 @@ export enum LogEventId {
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseResetInit = 'database-reset-init',
   DatabaseResetComplete = 'database-reset-complete',
+  DatabaseSchemaMismatch = 'database-schema-mismatch',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
@@ -586,6 +587,13 @@ const DatabaseResetComplete: LogDetails = {
   eventType: LogEventType.SystemAction,
   documentationMessage:
     'Database reset. Success or failure indicated by disposition.',
+};
+
+const DatabaseSchemaMismatch: LogDetails = {
+  eventId: LogEventId.DatabaseSchemaMismatch,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'An existing database was created with a different schema than the currently running software expects. Outside of production the database is reset, but in production it is left untouched and the application refuses to start.',
 };
 
 const FileReadError: LogDetails = {
@@ -1623,6 +1631,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseResetInit;
     case LogEventId.DatabaseResetComplete:
       return DatabaseResetComplete;
+    case LogEventId.DatabaseSchemaMismatch:
+      return DatabaseSchemaMismatch;
     case LogEventId.FileReadError:
       return FileReadError;
     case LogEventId.DmVerityBoot:

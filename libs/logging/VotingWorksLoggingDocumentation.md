@@ -214,6 +214,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)
 **Description:** Database reset. Success or failure indicated by disposition.
 **Machines:** All
+### database-schema-mismatch
+**Type:** [system-action](#system-action)
+**Description:** An existing database was created with a different schema than the currently running software expects. Outside of production the database is reset, but in production it is left untouched and the application refuses to start.
+**Machines:** All
 ### file-read-error
 **Type:** [system-action](#system-action)
 **Description:** A system action failed to read a file from disk.
