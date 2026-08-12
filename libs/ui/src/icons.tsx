@@ -303,12 +303,8 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faBold} />;
   },
 
-  SimCard(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
-  },
-
-  Sitemap(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
+  Cancel(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faXmarkCircle} />;
   },
 
   CaretDown(props) {
@@ -621,6 +617,14 @@ export const Icons = {
 
   Settings(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faGear} />;
+  },
+
+  SimCard(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
+  },
+
+  Sitemap(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
   },
 
   Sort(props) {

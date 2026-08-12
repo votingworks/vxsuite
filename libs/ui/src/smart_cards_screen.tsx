@@ -467,7 +467,7 @@ export function CardDetailsAndActions({
                   <Button
                     onPress={() => unprogramCard(role)}
                     disabled={unprogramDisabled || actionInProgress}
-                    icon="Delete"
+                    icon="Cancel"
                     variant={unprogramVariant}
                   >
                     Unprogram Card

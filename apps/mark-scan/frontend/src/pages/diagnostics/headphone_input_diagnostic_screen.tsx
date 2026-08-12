@@ -80,7 +80,7 @@ export function HeadphoneInputDiagnosticScreen({
           <Button icon="Done" onPress={passTest}>
             Sound Is Audible
           </Button>
-          <Button icon="Delete" onPress={failTest}>
+          <Button icon="Cancel" onPress={failTest}>
             Sound Is Not Audible
           </Button>
         </ButtonBar>

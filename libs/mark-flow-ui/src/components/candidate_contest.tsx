@@ -585,7 +585,7 @@ export function CandidateContest({
             <React.Fragment>
               <Button
                 variant="danger"
-                icon="Delete"
+                icon="Cancel"
                 onPress={confirmRemovePendingWriteInCandidate}
               >
                 {appStrings.buttonYes()}

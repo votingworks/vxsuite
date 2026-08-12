@@ -25,7 +25,7 @@ export function UninterruptiblePowerSupplyScreen({
           <Button icon="Done" onPress={passTest}>
             UPS Is Fully Charged
           </Button>
-          <Button icon="Delete" onPress={failTest}>
+          <Button icon="Cancel" onPress={failTest}>
             UPS Is Not Fully Charged
           </Button>
         </ButtonBar>

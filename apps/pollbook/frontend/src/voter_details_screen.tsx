@@ -42,6 +42,8 @@ import {
   hasMailingAddress,
   MailingAddressChange,
   VoterStatusLabel,
+  VoterRegistrationDeleted,
+  VoterInactive,
 } from './shared_components.js';
 import { UpdateAddressFlow } from './update_address_flow.js';
 import { UpdateMailingAddressFlow } from './update_mailing_address_flow.js';
@@ -114,7 +116,7 @@ function ConfirmUndoCheckInModal({
       actions={
         <React.Fragment>
           <Button
-            icon="Delete"
+            icon="Cancel"
             variant="danger"
             onPress={() => {
               undoVoterCheckInMutation.mutate(
@@ -167,7 +169,7 @@ function ConfirmMarkInactiveModal({
       actions={
         <React.Fragment>
           <Button
-            icon="Delete"
+            icon="Cancel"
             variant="danger"
             onPress={async () => {
               const result = await markInactiveMutation.mutateAsync({
@@ -572,12 +574,12 @@ export function VoterDetailsScreen(): JSX.Element | null {
           <Card color="neutral">
             {voter.isInactive && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
-                <Icons.Delete /> Voter Inactive
+                <VoterInactive />
               </H2>
             )}
             {voter.isInvalidatedRegistration && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
-                <Icons.Delete /> Registration Deleted
+                <VoterRegistrationDeleted />
               </H2>
             )}
             {!voter.checkIn &&
@@ -631,7 +633,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
             !voter.isInvalidatedRegistration &&
             !voter.registrationEvent && (
               <Button
-                icon="Delete"
+                icon="Cancel"
                 color="danger"
                 disabled={
                   !configuredPrecinctId ||
@@ -667,7 +669,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 Reprint Receipt
               </Button>
               <Button
-                icon="Delete"
+                icon="Cancel"
                 onPress={() => setShowUndoCheckinFlow(true)}
                 color="danger"
                 fill="outlined"

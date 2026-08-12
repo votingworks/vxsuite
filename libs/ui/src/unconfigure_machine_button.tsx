@@ -57,7 +57,7 @@ export function UnconfigureMachineButton({
     <React.Fragment>
       <Button
         color="danger"
-        icon="Delete"
+        icon="Cancel"
         onPress={openConfirmationModal}
         disabled={!isMachineConfigured}
       >

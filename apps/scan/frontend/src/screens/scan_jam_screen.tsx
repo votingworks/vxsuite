@@ -36,7 +36,7 @@ export function ScanJamScreen({
         }
         image={
           <FullScreenIconWrapper>
-            <Icons.Delete color="danger" />
+            <Icons.Cancel color="danger" />
           </FullScreenIconWrapper>
         }
       >

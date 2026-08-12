@@ -136,7 +136,7 @@ export function ScanErrorScreen({
         title={title}
         image={
           <FullScreenIconWrapper>
-            <Icons.Delete color="danger" />
+            <Icons.Cancel color="danger" />
           </FullScreenIconWrapper>
         }
       >
