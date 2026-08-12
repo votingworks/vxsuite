@@ -151,7 +151,7 @@ export function ProofingStatus(): React.ReactNode {
         <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>
           <Button
             disabled={unfinalizing || approving}
-            icon="Cancel"
+            icon="Undo"
             onPress={() => setShowUnfinalizeModal(true)}
             variant="danger"
           >
@@ -246,7 +246,7 @@ export function ProofingStatus(): React.ReactNode {
             <React.Fragment>
               <Button
                 disabled={!reasonForUnfinalizing.trim() || unfinalizing}
-                icon="Cancel"
+                icon="Undo"
                 onPress={() => {
                   unfinalize.mutate(
                     {
