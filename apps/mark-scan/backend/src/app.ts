@@ -520,7 +520,6 @@ export function buildApp(
   usbDrive: UsbDrive,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface,
-  /* istanbul ignore next */
   api = buildApi(auth, usbDrive, logger, workspace, stateMachine, paperHandler)
 ): Application {
   const app: Application = express();
