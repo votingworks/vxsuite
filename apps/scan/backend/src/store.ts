@@ -135,6 +135,9 @@ export type ElectricalTestingComponent =
  * interpreted by reading the sheets.
  */
 export class Store {
+  private cachedElectionRecord?: ElectionRecord | null;
+  private cachedSystemSettings?: SystemSettings | null;
+
   private constructor(
     private readonly client: DbClient,
     private readonly uiStringsStore: UiStringsStore,
@@ -185,6 +188,8 @@ export class Store {
    * Resets the database and any cached data in the store.
    */
   reset(): void {
+    this.cachedElectionRecord = undefined;
+    this.cachedSystemSettings = undefined;
     this.client.reset();
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
@@ -193,30 +198,34 @@ export class Store {
    * Gets whether an election is currently configured.
    */
   hasElection(): boolean {
-    return Boolean(this.client.one('select id from election'));
+    return this.getElectionRecord() !== undefined;
   }
 
   /**
    * Gets the current election definition and election package hash.
    */
   getElectionRecord(): ElectionRecord | undefined {
-    const electionRow = this.client.one(
-      `
+    if (this.cachedElectionRecord === undefined) {
+      const electionRow = this.client.one(
+        `
       select
         election_data as electionData,
         election_package_hash as electionPackageHash
       from election
       `
-    ) as { electionData: string; electionPackageHash: string } | undefined;
+      ) as { electionData: string; electionPackageHash: string } | undefined;
 
-    return (
-      electionRow && {
-        electionDefinition: safeParseElectionDefinition(
-          electionRow.electionData
-        ).unsafeUnwrap(),
-        electionPackageHash: electionRow.electionPackageHash,
-      }
-    );
+      this.cachedElectionRecord = electionRow
+        ? {
+            electionDefinition: safeParseElectionDefinition(
+              electionRow.electionData
+            ).unsafeUnwrap(),
+            electionPackageHash: electionRow.electionPackageHash,
+          }
+        : null;
+    }
+
+    return this.cachedElectionRecord ?? undefined;
   }
 
   /**
@@ -271,6 +280,7 @@ export class Store {
     jurisdiction: string;
     electionPackageHash: string;
   }): void {
+    this.cachedElectionRecord = undefined;
     this.client.run('delete from election');
     if (input) {
       this.client.run(
@@ -628,13 +638,9 @@ export class Store {
   getBallotsCounted(): number {
     const row = this.client.one(`
       select
-        count(sheets.id) as ballotsCounted
-      from
-        sheets inner join batches
-      on
-        sheets.batch_id = batches.id
-      and
-        sheets.rejected_at is null
+        count(*) as ballotsCounted
+      from sheets
+      where rejected_at is null
     `) as { ballotsCounted: number } | undefined;
 
     return row?.ballotsCounted ?? 0;
@@ -900,6 +906,7 @@ export class Store {
    * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
+    this.cachedSystemSettings = undefined;
     this.client.run('delete from system_settings');
     this.client.run(
       `
@@ -913,12 +920,17 @@ export class Store {
    * Retrieves the system settings.
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(`select data from system_settings`) as
-      | { data: string }
-      | undefined;
+    if (this.cachedSystemSettings === undefined) {
+      const result = this.client.one(`select data from system_settings`) as
+        | { data: string }
+        | undefined;
 
-    if (!result) return undefined;
-    return safeParseSystemSettings(result.data).unsafeUnwrap();
+      this.cachedSystemSettings = result
+        ? safeParseSystemSettings(result.data).unsafeUnwrap()
+        : null;
+    }
+
+    return this.cachedSystemSettings ?? undefined;
   }
 
   /**

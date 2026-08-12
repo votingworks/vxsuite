@@ -147,6 +147,30 @@ test('get/set system settings', () => {
   expect(store.getSystemSettings()).toEqual(systemSettings);
 });
 
+test('reset clears cached election record and system settings', () => {
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+
+  store.setElectionAndJurisdiction({
+    electionData:
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
+        .electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  store.setSystemSettings(
+    safeParseSystemSettings(
+      electionTwoPartyPrimaryFixtures.systemSettings.asText()
+    ).unsafeUnwrap()
+  );
+  expect(store.getElectionRecord()).toBeDefined();
+  expect(store.getSystemSettings()).toBeDefined();
+
+  store.reset();
+
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getSystemSettings()).toBeUndefined();
+});
+
 test('get/set test mode', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 

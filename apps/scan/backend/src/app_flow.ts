@@ -25,10 +25,8 @@ export async function isReadyToScan({
     return false;
   }
 
-  const electionDefinition = store.getElectionRecord();
-
-  // If there is no election definition, we can't scan.
-  if (!electionDefinition) {
+  // If there is no election, we can't scan.
+  if (!store.hasElection()) {
     return false;
   }
 
