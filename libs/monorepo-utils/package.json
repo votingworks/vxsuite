@@ -23,7 +23,6 @@
   "devDependencies": {
     "@types/node": "20.19.43",
     "@vitest/coverage-istanbul": "^4.1.6",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",

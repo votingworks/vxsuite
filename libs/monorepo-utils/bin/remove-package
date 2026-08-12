@@ -1,45 +1,12 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
+set -euo pipefail
 
-// @ts-check
+bin_dir="$(dirname "${BASH_SOURCE[0]}")"
+cd "$bin_dir/../../.."
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+if ! out="$(pnpm exec turbo run build:self --filter=@votingworks/monorepo-utils 2>&1)"; then
+  printf '%s\n' "$out" >&2
+  exit 1
+fi
 
-const { join } = require('path');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-const { findAllMonorepoDependencies } = require('../src/dependencies');
-const { rmSync } = require('fs');
-
-/**
- * @param {readonly string[]} names
- */
-function removePackages(names) {
-  for (const name of names) {
-    const pkgs = getWorkspacePackageInfo(join(__dirname, '..', '..', '..'));
-    const pkgToRemove = pkgs.get(name);
-
-    if (!pkgToRemove) {
-      console.error(`Package ${name} not found!`);
-      process.exit(1);
-    }
-
-    for (const pkg of pkgs.values()) {
-      if (pkg !== pkgToRemove) {
-        for (const dep of findAllMonorepoDependencies(pkgs, pkg)) {
-          if (dep === pkgToRemove) {
-            console.error(
-              `Package ${pkgToRemove.name} is depended on by ${pkg.name}!`
-            );
-            process.exit(1);
-          }
-        }
-      }
-    }
-
-    console.log(`Removing ${pkgToRemove.name}…`);
-    rmSync(pkgToRemove.path, { recursive: true, force: true });
-  }
-}
-
-removePackages(process.argv.slice(2));
+exec node libs/monorepo-utils/build/bin/remove_package.js "$@"

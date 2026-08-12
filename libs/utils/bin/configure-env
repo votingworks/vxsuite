@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bin_dir="$(dirname "${BASH_SOURCE[0]}")"
+cd "$bin_dir/../../.."
+
+if ! out="$(pnpm exec turbo run build:self --filter=@votingworks/utils 2>&1)"; then
+  printf '%s\n' "$out" >&2
+  exit 1
+fi
+
+exec node libs/utils/build/scripts/generate_env_file.js "$@"

@@ -1,28 +1,12 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
+set -euo pipefail
 
-// @ts-check
+bin_dir="$(dirname "${BASH_SOURCE[0]}")"
+cd "$bin_dir/../../.."
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+if ! out="$(pnpm exec turbo run build:self --filter=@votingworks/monorepo-utils 2>&1)"; then
+  printf '%s\n' "$out" >&2
+  exit 1
+fi
 
-const { join } = require('path');
-const { generateAllConfigs } = require('../src/circleci');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-const { writeFileSync } = require('fs');
-
-const workspaceRoot = join(__dirname, '..', '..', '..');
-
-async function main() {
-  const packageInfo = getWorkspacePackageInfo(workspaceRoot);
-  const configs = generateAllConfigs(packageInfo);
-  for (const [filePath, fileContents] of configs.entries()) {
-    console.log(`Writing CircleCI config to ${filePath}`);
-    writeFileSync(filePath, fileContents);
-  }
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+exec node libs/monorepo-utils/build/bin/generate_circleci_config.js "$@"
