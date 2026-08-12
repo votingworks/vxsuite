@@ -76,6 +76,7 @@ export function* checkTsconfig(
     outDir,
     declaration,
     declarationMap,
+    tsBuildInfoFile,
     ...otherCompilerOptions
   } = tsconfig.compilerOptions ?? {};
 
@@ -127,6 +128,20 @@ export function* checkTsconfig(
         propertyKeyPath: 'compilerOptions.declarationMap',
         actualValue: declarationMap,
         expectedValue: 'true or undefined',
+      };
+    }
+
+    // Keep the incremental build-info file inside `build/` so it's removed
+    // atomically with `rm -rf build`. If it sat beside `build/`, deleting
+    // `build/` alone would leave a stale build-info that makes `tsc` skip
+    // re-emitting, leaving an empty output.
+    if (tsBuildInfoFile !== 'build/tsconfig.build.tsbuildinfo') {
+      yield {
+        kind: ValidationIssueKind.InvalidPropertyValue,
+        tsconfigPath,
+        propertyKeyPath: 'compilerOptions.tsBuildInfoFile',
+        actualValue: tsBuildInfoFile,
+        expectedValue: 'build/tsconfig.build.tsbuildinfo',
       };
     }
 
