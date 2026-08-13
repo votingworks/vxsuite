@@ -1,4 +1,4 @@
-import { Button } from '@votingworks/ui';
+import { Button, Icons } from '@votingworks/ui';
 import React from 'react';
 
 export interface FilterInputProps
@@ -13,12 +13,23 @@ export function FilterInput({
   const filterRef = React.useRef<HTMLInputElement>(null);
   return (
     <div style={{ ...(props.style ?? {}), position: 'relative' }}>
+      <span
+        style={{
+          position: 'absolute',
+          left: '0.75rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        <Icons.Search color="neutralMuted" />
+      </span>
       <input
         {...props}
         ref={filterRef}
         type="text"
         onChange={(e) => onChange(e.target.value)}
-        style={{ width: '100%' }}
+        style={{ width: '100%', paddingLeft: '2.25rem' }}
       />
       <Button
         style={{
