@@ -168,15 +168,14 @@ pnpm start
 Each app frontend's `start` script runs `turbo watch` over the frontend's Vite
 dev server (`dev:server`) and its backend service (`dev`). Because `turbo watch`
 re-runs a task when the package **or any of its dependencies** change, editing a
-shared library rebuilds it and restarts the backend automatically — including
-transitive dependency changes, which the previous `nodemon` setup missed. Vite
-keeps running across library changes and handles its own HMR.
+shared library rebuilds it and restarts the backend automatically, including
+transitive dependency changes. Vite keeps running across library changes and
+handles its own HMR.
 
 ## Turborepo
 
 Task orchestration and caching are handled by [Turborepo](https://turborepo.com)
-(`turbo.json` at the repo root). It replaces the previous homegrown
-`is-ci`/`build:ci`/`build:dev` + `pnpm --filter …` recursion.
+(`turbo.json` at the repo root).
 
 Tasks and their wiring (`turbo.json`):
 

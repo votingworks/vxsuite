@@ -30,10 +30,9 @@ export const base: vitest.ViteUserConfig = {
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     coverage: {
       // Collect coverage (and enforce thresholds) in CI only; locally, tests
-      // run without coverage for speed. This — together with vitest's built-in
-      // watch-when-interactive default — is what lets a single `test` script
-      // (`vitest`) watch locally and run-once-with-coverage in CI, replacing
-      // the previous is-ci `test:ci`/`test:watch` split.
+      // run without coverage for speed. Together with vitest's built-in
+      // watch-when-interactive default, this lets a single `test` script
+      // (`vitest`) watch locally and run once with coverage in CI.
       enabled: isCI,
       thresholds: {
         lines: 100,
@@ -48,11 +47,9 @@ export const base: vitest.ViteUserConfig = {
     maxWorkers: isCI ? 6 : localMaxWorkers,
     reporters: isCI ? ['verbose', 'junit'] : [],
     outputFile: isCI ? 'reports/junit.xml' : undefined,
-    // 10s everywhere. Locally, a full-workspace `pnpm test` runs many suites at
-    // once and briefly oversubscribes the CPU; vitest's bare 5s default would
-    // give local runs *less* headroom than CI despite more contention, causing
-    // nondeterministic timeout flakes in otherwise-fast tests. Matching CI's
-    // budget absorbs those transient spikes.
+    // 10s everywhere. A full-workspace `pnpm test` runs many suites at once and
+    // briefly oversubscribes the CPU, so a tighter budget would flake
+    // otherwise-fast tests under that transient load.
     testTimeout: 10_000,
   },
 };

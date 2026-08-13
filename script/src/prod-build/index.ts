@@ -33,9 +33,8 @@ export function main({ stdout }: IO): void {
   const prodPackages = getProductionPackages(root);
 
   // Build the app packages via turbo, which orders and caches the whole
-  // dependency graph. This replaces the previous per-package `make build`
-  // (which re-derived build order by hand). `pnpm exec` resolves turbo from the
-  // workspace without relying on it being on PATH.
+  // dependency graph. `pnpm exec` resolves turbo from the workspace without
+  // relying on it being on PATH.
   const buildFilters = appPackages.map((pkg) => `--filter=${pkg.name}`);
   stdout.write(
     `🔨 Building ${appPackages.map((pkg) => pkg.name).join(', ')}\n`
