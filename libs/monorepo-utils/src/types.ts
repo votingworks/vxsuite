@@ -7,6 +7,7 @@ export interface PackageJson {
   readonly license?: string;
   readonly main?: string;
   readonly module?: string;
+  readonly exports?: string | Record<string, unknown>;
   readonly scripts?: { [name: string]: string };
   readonly dependencies?: { [name: string]: string };
   readonly devDependencies?: { [name: string]: string };
