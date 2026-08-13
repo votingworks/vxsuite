@@ -81,9 +81,18 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
     true
   );
 
+  // This test counts tabulations rather than inspecting them, so it only needs
+  // enough cast vote records to produce non-zero results and one write-in to
+  // adjudicate. Importing the whole export twice costs three quarters of the
+  // test's runtime.
+  const castVoteRecordExportPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    { numCastVoteRecordsToKeep: 10 }
+  );
+
   // adding a CVR file should should clear the cache
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordExport.asDirectoryPath(),
+    path: castVoteRecordExportPath,
   });
   expect(loadFileResult).toEqual(ok(expect.anything()));
   const resultsExport = await getParsedExport({
@@ -101,15 +110,12 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
 
   // adding another CVR file should should clear the cache again
   const loadFileAgainResult = await apiClient.addCastVoteRecordFile({
-    path: await modifyCastVoteRecordExport(
-      castVoteRecordExport.asDirectoryPath(),
-      {
-        castVoteRecordModifier: (castVoteRecord) => ({
-          ...castVoteRecord,
-          UniqueId: `${castVoteRecord.UniqueId}'`,
-        }),
-      }
-    ),
+    path: await modifyCastVoteRecordExport(castVoteRecordExportPath, {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        UniqueId: `${castVoteRecord.UniqueId}'`,
+      }),
+    }),
   });
   loadFileAgainResult.assertOk('load file failed');
   const doubledResultsExport = await getParsedExport({

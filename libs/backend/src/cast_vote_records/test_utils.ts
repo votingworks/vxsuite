@@ -82,26 +82,34 @@ export async function modifyCastVoteRecordExport(
     numCastVoteRecordsToKeep,
   } = modifications;
 
+  const castVoteRecordIds = new Set(
+    await getExportedCastVoteRecordIds(exportDirectoryPath)
+  );
+  const castVoteRecordIdsToKeep = new Set(
+    [...castVoteRecordIds].sort().slice(0, numCastVoteRecordsToKeep)
+  );
+
   const modifiedExportDirectoryPath = `${exportDirectoryPath}-modified`;
+  // Skip the cast vote records being dropped rather than copying them and
+  // deleting them afterward. An export runs to hundreds of records and tens of
+  // megabytes of ballot images, so a fixture that keeps a handful of them
+  // spends nearly all of its time on the copy.
   fs.cpSync(exportDirectoryPath, modifiedExportDirectoryPath, {
     recursive: true,
+    filter: (source) => {
+      const entryName = path.relative(exportDirectoryPath, source);
+      return (
+        !castVoteRecordIds.has(entryName) ||
+        castVoteRecordIdsToKeep.has(entryName)
+      );
+    },
   });
 
-  const castVoteRecordIds = await getExportedCastVoteRecordIds(
-    modifiedExportDirectoryPath
-  );
-  for (const [i, castVoteRecordId] of [...castVoteRecordIds].sort().entries()) {
+  for (const castVoteRecordId of castVoteRecordIdsToKeep) {
     const castVoteRecordDirectoryPath = path.join(
       modifiedExportDirectoryPath,
       castVoteRecordId
     );
-    if (
-      numCastVoteRecordsToKeep !== undefined &&
-      i >= numCastVoteRecordsToKeep
-    ) {
-      fs.rmSync(castVoteRecordDirectoryPath, { recursive: true });
-      continue;
-    }
 
     const { castVoteRecord, castVoteRecordReportContents } = readCastVoteRecord(
       castVoteRecordDirectoryPath
