@@ -8,7 +8,7 @@ import {
   STAGED_ELECTION_PACKAGE_FILE_NAME,
   findLatestVxDesignElectionPackage,
   stageElectionPackageOnMockUsbDrive,
-} from './quick_configure';
+} from './quick_configure.js';
 
 function writeFileWithModifiedTime(path: string, mtime: Date): void {
   fs.mkdirSync(join(path, '..'), { recursive: true });
