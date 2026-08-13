@@ -62,7 +62,8 @@ libraries — follows a pattern like this:
 
 1. Mark the package as ESM by adding `"type": "module"` to `package.json`. A
    library also gets an `exports` map (and drops the now-redundant
-   `main`/`types`); an app that nothing imports just gets `"type": "module"`.
+   `main`/`types`), including a `"./package.json"` entry; an app that nothing
+   imports just gets `"type": "module"`.
 2. Give relative imports the extension of the built file
    (`import { foo } from './foo.js'`) and reference `index.js` files explicitly
    instead of the directories that contain them.
@@ -93,6 +94,49 @@ stay CJS can get its own `package.json` containing `{ "type": "commonjs" }`,
 which is how VxDesign's node-pg-migrate migrations keep working: the runner
 loads them with `require`, and renaming 50 files would have tripped the
 migration-immutability guard that tracks them by name.
+
+That directory `package.json` is then a new file in a directory some tool
+enumerates, and it may not be ignored. node-pg-migrate's default ignore pattern
+only skips dotfiles, so it loaded `migrations/package.json` as a migration named
+`package` with timestamp `0`, which sorts ahead of every real migration and
+makes its `checkOrder` check throw. Tests stayed green because the programmatic
+runner in `src/db/client.ts` already passed an `ignorePattern`; it was the CLI
+invocations in `package.json` scripts that broke, and with them the Heroku
+release phase that runs `db:migrations:run`. Whenever this trick is used, pass
+the ignore pattern everywhere the tool is invoked, not just where it was already
+needed.
+
+### The `exports` map and the tooling that reads `package.json`
+
+Step 1 changes the shape of a library's `package.json`: it gains an `exports`
+map and loses `main`. Both halves of that break tooling, in ways no build,
+type-check or test notices.
+
+- **An `exports` map turns off extension-adding and unlisted subpaths.**
+  `prod-build` walks the workspace dependency graph with
+  ``resolveFrom(path, `${name}/package`)`` and relies on NodeJS adding `.json`.
+  Against a converted package that resolution fails with
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`, so building any app for production dies at
+  the first converted dependency. Two changes are needed and neither works
+  alone: ask for `${name}/package.json`, since an exports map matches subpaths
+  exactly, and declare `"./package.json": "./package.json"` in the map so that
+  subpath resolves at all. Exporting `./package.json` is conventional and worth
+  having regardless — reading `<pkg>/package.json` is a common thing for tooling
+  to do. The codemod emits the subpath and `validate-monorepo` enforces it,
+  because otherwise every remaining library reintroduces the problem as it
+  converts and only prod-build, which CI never runs, would notice.
+- **Tooling that sniffs `main`/`module` stops recognizing converted packages.**
+  `getWorkspacePackageInfo()` decided a workspace package was a library — and so
+  should be aliased to its TypeScript source in the app Vite configs — by
+  checking `main`/`module`, so the batch-1 libraries silently lost their aliases
+  and Vite resolved them to `build/` output instead of source. For the bundled
+  frontend libs that meant serving `tsc` output compiled with the production JSX
+  runtime, whose `react/jsx-runtime` import the dev-time dependency scanner
+  never sees; Vite handed the browser React's raw CJS shim and every app
+  frontend crashed on load with `module is not defined`. The fix is a one-line
+  `|| packageJson.exports`, but finding it required starting a dev server, which
+  nothing in CI does. Expect a similar check anywhere else that infers "library"
+  from `main`.
 
 ### Entry points and CLIs
 
@@ -194,6 +238,12 @@ exhaustively rather than at the entry point:
 - **Run every entry point and CLI.** VxDesign's server and worker could not
   start at all — three separate causes — while its tests, lint, type-check and
   full CI were green, because only vitest ever loaded them.
+- **Run the builds and servers CI doesn't.** `prod-build` and the frontend dev
+  servers are the two consumers of a package's `package.json` shape that no CI
+  job exercises, and each has already shipped a break: prod-build failing at the
+  first converted dependency, and every app frontend crashing on load after the
+  libraries lost their Vite source aliases. Building one app for production and
+  loading one app frontend in a browser catches both in a few minutes.
 
 Two vitest-specific effects are worth expecting rather than debugging:
 
