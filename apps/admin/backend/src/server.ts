@@ -111,7 +111,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   } = options;
 
   debug('starting server...');
-  detectDevices({ logger: baseLogger });
+  const stopDetectingDevices = detectDevices({ logger: baseLogger });
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
@@ -274,5 +274,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   // (USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS); no socket-level timeout is needed.
   server.timeout = 0;
 
+  server.on('close', stopDetectingDevices);
   return server;
 }
