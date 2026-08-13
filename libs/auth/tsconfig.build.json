@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
+    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,

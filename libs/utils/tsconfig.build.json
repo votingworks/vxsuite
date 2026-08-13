@@ -3,6 +3,7 @@
   "include": ["src", "src/**/*.json", "src/data/*.zip"],
   "exclude": ["**/*.test.ts"],
   "compilerOptions": {
+    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",

@@ -8,6 +8,7 @@
     "**/*.stories.tsx"
   ],
   "compilerOptions": {
+    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
