@@ -1,8 +1,7 @@
-import { AdminClientReadinessReportContents } from '@votingworks/ui';
+import { AdminClientReadinessReportContents, Loading } from '@votingworks/ui';
 import { useContext } from 'react';
 import { NavigationScreen } from '../../components/navigation_screen.js';
 import { systemCallApi } from '../../shared_api.js';
-import { Loading } from '../../components/loading.js';
 import { AppContext } from '../../contexts/app_context.js';
 
 export function ClientDiagnosticsScreen(): JSX.Element {
