@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Stops VxSuite dev servers started by `pnpm start`, including any left running
+# by a non-graceful stop.
+#
+# `pnpm start` runs `turbo watch`, which spawns each dev server (the Vite
+# frontend and the backend) in its own process group. turbo tears them down
+# only when *its own* process receives SIGINT/SIGTERM — e.g. pressing Ctrl-C in
+# the terminal running `pnpm start`. Killing the `pnpm start` process instead,
+# a SIGKILL of turbo, or an editor "stop" button leaves the servers running
+# detached, still holding ports 3000/3001/3002. This stops them regardless.
+#
+# It stops *all* dev sessions on this machine, not just one app's.
+
+set -euo pipefail
+
+DEV_PORTS=(3000 3001 3002)
+
+echo "Signalling turbo watch dev sessions..."
+# SIGTERM to the turbo binary, whose handler tears down the dev task
+# process-groups. Matches the `turbo watch @votingworks/...#dev...` argv.
+# `pkill` exits non-zero when nothing matches, which is fine here.
+pkill -TERM -f 'turbo watch @votingworks' || true
+
+# Give turbo a moment to shut its tasks down before sweeping any survivors.
+sleep 1
+
+echo "Sweeping orphaned dev servers..."
+# Frontend Vite dev servers are launched as `vite --clearScreen false`; this
+# catches an orphaned one even on a non-default FRONTEND_PORT.
+pkill -TERM -f 'vite --clearScreen false' || true
+
+# Anything still listening on the default dev ports — e.g. an orphaned backend,
+# for which there is no distinctive argv to match. Servers on a custom
+# FRONTEND_PORT range are not covered; stop those manually.
+if command -v lsof > /dev/null 2>&1; then
+  port_spec="$(
+    IFS=,
+    echo "${DEV_PORTS[*]}"
+  )"
+  mapfile -t pids < <(lsof -ti "tcp:${port_spec}" -sTCP:LISTEN 2> /dev/null || true)
+  if [[ "${#pids[@]}" -gt 0 ]]; then
+    echo "  killing PIDs on ports ${port_spec}: ${pids[*]}"
+    kill -TERM "${pids[@]}" 2> /dev/null || true
+  fi
+fi
+
+echo "Done."

@@ -110,10 +110,10 @@ will hang.
 Each package's `test` script watches locally (vitest, preceded by a Turbo build
 of its dependencies); `test:run` runs once and is what CI runs. Both build the
 package's dependencies first via Turbo — see the `:self` split in the
-`## Turborepo` section for how. Coverage is enabled only in CI, keyed on the `CI`
-env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so `test:run`
-is fast locally and enforces the 100% thresholds in CI. VxDesign keeps a
-dedicated `test:ci` for its Postgres/migration CI steps.
+`## Turborepo` section for how. Coverage is enabled only in CI, keyed on the
+`CI` env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so
+`test:run` is fast locally and enforces the 100% thresholds in CI. VxDesign
+keeps a dedicated `test:ci` for its Postgres/migration CI steps.
 
 ### Linting & Formatting
 
@@ -172,6 +172,16 @@ re-runs a task when the package **or any of its dependencies** change, editing a
 shared library rebuilds it and restarts the backend automatically, including
 transitive dependency changes. Vite keeps running across library changes and
 handles its own HMR.
+
+**Stopping dev servers.** `turbo watch` spawns each dev server (Vite and the
+backend) in its own process group and tears them down only when **turbo itself**
+receives the signal. Pressing **Ctrl-C** in the terminal running `pnpm start`
+stops everything cleanly. But `kill`ing the `pnpm start` process (it doesn't
+forward the signal), a `SIGKILL`/editor "stop" button, or a `pkill` that hits a
+wrapper instead of turbo can leave the servers running detached, holding ports
+3000/3001/3002. To force-stop everything and free those ports, run
+`pnpm kill-dev` (`script/kill-dev`) — it signals `turbo watch` and sweeps up any
+orphaned Vite/backend processes.
 
 ## Turborepo
 

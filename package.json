@@ -9,6 +9,7 @@
     "configure-env": "libs/utils/bin/configure-env",
     "configure-vxdev-env": "libs/utils/bin/configure-env --isVxDev -o /vx/config/.env.local",
     "generate-circleci-config": "libs/monorepo-utils/bin/generate-circleci-config",
+    "kill-dev": "script/kill-dev",
     "lint": "turbo run lint:self",
     "prepare": "husky install",
     "shellcheck": "script/shellcheck",

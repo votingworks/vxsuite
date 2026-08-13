@@ -40,6 +40,26 @@ Run an app's dev servers (frontend + backend) with `pnpm start` from the app's
 frontend directory. This uses `turbo watch`, so editing a shared library
 rebuilds it and restarts the backend automatically.
 
+### Stopping dev servers
+
+`turbo watch` runs each dev server (Vite and the backend) in its own process
+group, and cleans them up only when **turbo itself** gets the stop signal.
+Pressing **Ctrl-C** in the `pnpm start` terminal is clean. Other ways of
+stopping are not: `kill`ing the `pnpm start` process (it doesn't forward the
+signal), a `SIGKILL` or editor "stop" button, or a `pkill` that lands on a
+wrapper rather than turbo can leave the servers running detached and still
+holding ports 3000/3001/3002. If that happens (a new `pnpm start` fails with the
+port in use, or a server won't die), run:
+
+```sh
+pnpm kill-dev
+```
+
+It signals `turbo watch` and then sweeps up any orphaned Vite/backend processes,
+including anything still listening on 3000/3001/3002. It stops **all** dev
+sessions on the machine, not just one app's. (Servers on a custom
+`FRONTEND_PORT` range aren't covered — stop those manually.)
+
 ## Caching, including across worktrees
 
 A cache hit replays a task's logs and restores its outputs instead of re-running
