@@ -134,6 +134,9 @@ importers:
       stylelint-config-standard:
         specifier: ^34.0.0
         version: 34.0.0(stylelint@15.10.2)
+      turbo:
+        specifier: 2.10.5
+        version: 2.10.5
       typescript:
         specifier: npm:@typescript/typescript6@6.0.2
         version: '@typescript/typescript6@6.0.2'
@@ -288,18 +291,12 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
       lodash.set:
         specifier: ^4.3.2
         version: 4.3.2
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -493,9 +490,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       pdfjs-dist:
         specifier: 5.4.296
         version: 5.4.296
@@ -696,15 +690,9 @@ importers:
       get-port:
         specifier: '5'
         version: 5.1.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -853,9 +841,6 @@ importers:
       history:
         specifier: 4.10.1
         version: 4.10.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -1068,15 +1053,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1276,9 +1255,6 @@ importers:
       history:
         specifier: 4.10.1
         version: 4.10.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -1427,15 +1403,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1608,9 +1578,6 @@ importers:
       fetch-mock:
         specifier: 9.11.0
         version: 9.11.0(node-fetch@2.7.0)
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1796,15 +1763,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1965,18 +1926,12 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
       fetch-mock:
         specifier: 9.11.0
         version: 9.11.0(node-fetch@2.7.0)
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -2192,15 +2147,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2376,9 +2325,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0
@@ -2527,15 +2473,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2669,9 +2609,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       react-app-polyfill:
         specifier: 3.0.0
         version: 3.0.0
@@ -2875,15 +2812,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3044,9 +2975,6 @@ importers:
       history:
         specifier: 4.10.1
         version: 4.10.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -3138,9 +3066,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3248,9 +3173,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3372,9 +3294,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       lodash.set:
         specifier: ^4.3.2
         version: 4.3.2
@@ -3415,9 +3334,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3518,9 +3434,6 @@ importers:
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -3555,9 +3468,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3610,9 +3520,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -3662,9 +3569,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3723,9 +3627,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -3769,9 +3670,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -3845,9 +3743,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3936,9 +3831,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -4030,9 +3922,6 @@ importers:
       eslint:
         specifier: 9.39.5
         version: 9.39.5
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4112,9 +4001,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -4146,9 +4032,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4207,9 +4090,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       memory-streams:
         specifier: ^0.1.3
         version: 0.1.3
@@ -4277,9 +4157,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -4320,9 +4197,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4351,9 +4225,6 @@ importers:
       expect-type:
         specifier: ^0.15.0
         version: 0.15.0
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4463,9 +4334,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -4548,9 +4416,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -4603,9 +4468,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4673,9 +4535,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4709,12 +4568,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -4818,9 +4671,6 @@ importers:
       history:
         specifier: 4.10.1
         version: 4.10.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.11.2)
@@ -4870,9 +4720,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -4889,15 +4736,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       prettier:
         specifier: 3.0.3
         version: 3.0.3
@@ -4941,9 +4782,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
@@ -4993,9 +4831,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@20.19.43)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@2.11.2))(vite@8.0.16(@types/node@20.19.43)(esbuild@0.28.1)(yaml@2.8.2))
@@ -5093,9 +4928,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -5172,9 +5004,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -5236,9 +5065,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -5300,9 +5126,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       lodash.clonedeep:
         specifier: ^4.5.0
         version: 4.5.0
@@ -5535,9 +5358,6 @@ importers:
       history:
         specifier: 4.10.1
         version: 4.10.1
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@20.19.43)(babel-plugin-macros@3.1.0))
@@ -5635,9 +5455,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -5720,9 +5537,6 @@ importers:
       fetch-mock:
         specifier: 9.11.0
         version: 9.11.0(node-fetch@2.7.0)
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -5741,9 +5555,6 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../libs/monorepo-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       matcher:
         specifier: '4'
         version: 4.0.0
@@ -9492,6 +9303,36 @@ packages:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
 
+  '@turbo/darwin-64@2.10.5':
+    resolution: {integrity: sha512-ENvPwy3x5yS7MwNYHeWjqOBXkwIMp39Pd+/zXC6PoiNzF8EIvvLZOZZ+ny6L9x4WgS5vxUii2LM5gM+zjPdnWw==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@turbo/darwin-arm64@2.10.5':
+    resolution: {integrity: sha512-rqROo9zsF/P9RqsdtbLD1nFJicjSrYyvQ9kNJC38AbxA3pAs6VAlATvtvOFx7bqOv6vicf20SP9kF33avJjy2w==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@turbo/linux-64@2.10.5':
+    resolution: {integrity: sha512-RoSSiNFUxi27zLJuM9F6GyWWjHgLch9t6nwD6K0FkXRirZkTLlzIj6IhFnK8H9++nefLtdFqylE4vGjZAv6AAA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@turbo/linux-arm64@2.10.5':
+    resolution: {integrity: sha512-4ZComcpzmHGmVynQqvvi+iZOSq/tBvY1SltXB8g4NZRsrA01W8E+yRL8RNM+PLoyWsrCnJa8xa+DkWkv+xg4iQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@turbo/windows-64@2.10.5':
+    resolution: {integrity: sha512-eL2Iyj4DbMINq1Sr1w0iAi6nAiZOF16KSlRGwCJpVh+IWZeY33MAsLHVOBMj1xoFtncVJXclCVpTPL2nBoYkFg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@turbo/windows-arm64@2.10.5':
+    resolution: {integrity: sha512-sog+wP+8YSJrdWZ/rUJg8xghVTrwoG+BrSlDQpnK5fzSgJHn1INRWXbVWRH0d3vX8dBI01E3yxXRre9Dn+OXQA==}
+    cpu: [arm64]
+    os: [win32]
+
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
 
@@ -10835,9 +10676,6 @@ packages:
   chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
-
-  ci-info@2.0.0:
-    resolution: {integrity: sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==}
 
   ci-info@3.8.0:
     resolution: {integrity: sha512-eXTggHWSooYhq49F2opQhuHWgzucfF2YgODK4e1566GQs5BIfP30B0oenwBJHfWxAs2fyPB1s7Mg949zLf61Yw==}
@@ -12499,9 +12337,6 @@ packages:
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
-  ignore-by-default@1.0.1:
-    resolution: {integrity: sha512-Ius2VYcGNk7T90CppJqcIkS5ooHUZyIQK+ClZfMfMNFEF9VSE73Fq+906u/CWu92x4gzZMWOwfFYckPObzdEbA==}
-
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
@@ -12623,15 +12458,6 @@ packages:
   is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
     engines: {node: '>= 0.4'}
-
-  is-ci-cli@2.2.0:
-    resolution: {integrity: sha512-Xg97ZGDzU0a9gPTAli+TNegMk+PI3x0KLRYCfBa2LAboF1YyuA03Gwdc9vpu3VRNU+lFFNkvXnIQuJ0PgB120Q==}
-    engines: {node: '>=8'}
-    hasBin: true
-
-  is-ci@2.0.0:
-    resolution: {integrity: sha512-YfJT7rkpQB0updsdHLGWrvhBJfcfzNNawYDNIyQXJz0IViGf75O8EBPKSdvw2rF+LGCsX4FZ8tcr3b19LcZq4w==}
-    hasBin: true
 
   is-core-module@2.16.1:
     resolution: {integrity: sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==}
@@ -13818,17 +13644,8 @@ packages:
     resolution: {integrity: sha512-D9UOmYG3UH1V+ENW56t5QXBwJw1YEY18ruVeus89Rw+SyIgjPkCO84bRzO3uNIYosJbNwiabWVn48o3uJLjxFQ==}
     engines: {node: '>=18'}
 
-  nodemon@3.1.7:
-    resolution: {integrity: sha512-hLj7fuMow6f0lbB0cD14Lz2xNjwsyruH251Pk4t/yIitCFJbmY1myuLlHm/q06aST4jg6EgAh74PIBBrRqpVAQ==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   noms@0.0.0:
     resolution: {integrity: sha512-lNDU9VJaOPxUmXcLb+HQFeUgQQPtMI24Gt6hgfuMHRJgMRHMF/qZ4HJD3GDru4sSw9IQl2jPjAYnQrdIeLbwow==}
-
-  nopt@1.0.10:
-    resolution: {integrity: sha512-NWmpvLSqUrgrAC9HCuxEvb+PSloHpqVu+FqcO4eeF2h5qYRhA7ev6KvelyQAKtegUbC6RypJnlEOhd8vloNKYg==}
-    hasBin: true
 
   nopt@5.0.0:
     resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
@@ -14457,9 +14274,6 @@ packages:
 
   psl@1.9.0:
     resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
-
-  pstree.remy@1.1.8:
-    resolution: {integrity: sha512-77DZwxQmxKnu3aR542U+X8FypNzbfJ+C5XQDk3uWjWxn6151aIMGthWYRXTqT1E5oJvg+ljaa2OJi+VfvCOQ8w==}
 
   pump@2.0.1:
     resolution: {integrity: sha512-ruPMNRkN3MHP1cWJc9OWr+T/xDP0jhXYCLfJcBuX54hhfIBnaQmAUMfDcG4DM5UMWByBbJY69QSphm3jtDKIkA==}
@@ -15515,10 +15329,6 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
 
-  touch@3.1.0:
-    resolution: {integrity: sha512-WBx8Uy5TLtOSRtIq+M03/sKDrXCLHxwDcquSP2c43Le03/9serjQBIztjRz6FkJez9D/hleyAXTBGLwwZUw9lA==}
-    hasBin: true
-
   tough-cookie@4.1.2:
     resolution: {integrity: sha512-G9fqXWoYFZgTc2z8Q5zaHy/vJMjm+WV0AkAeHxVCQiEB1b+dGvWzFW6QV07cY5jQ5gRkeid2qIkzkxUnmoQZUQ==}
     engines: {node: '>=6'}
@@ -15576,6 +15386,10 @@ packages:
 
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
+
+  turbo@2.10.5:
+    resolution: {integrity: sha512-07Y/C7OUp23l4P92PJoYtFNbHjLhftrZH5Ce7dbczS4kX2Re+wtbXvZLoxn/pUtzgsQaRCBaRuZPJp4zmAn0WQ==}
+    hasBin: true
 
   typanion@3.14.0:
     resolution: {integrity: sha512-ZW/lVMRabETuYCd9O9ZvMhAh8GslSqaUjxmK/JLPCh6l73CvLBiuXswj/+7LdnWOgYsQ130FqLzFz5aGT4I3Ug==}
@@ -15669,9 +15483,6 @@ packages:
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
-
-  undefsafe@2.0.5:
-    resolution: {integrity: sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==}
 
   underscore.string@3.3.6:
     resolution: {integrity: sha512-VoC83HWXmCrF6rgkyxS9GHv8W9Q5nhMKho+OadDJGzL2oDYbYEppBaCMH6pFlwLeqj2QS+hhkw2kpXkSdD1JxQ==}
@@ -21037,6 +20848,24 @@ snapshots:
 
   '@tootallnate/once@2.0.0': {}
 
+  '@turbo/darwin-64@2.10.5':
+    optional: true
+
+  '@turbo/darwin-arm64@2.10.5':
+    optional: true
+
+  '@turbo/linux-64@2.10.5':
+    optional: true
+
+  '@turbo/linux-arm64@2.10.5':
+    optional: true
+
+  '@turbo/windows-64@2.10.5':
+    optional: true
+
+  '@turbo/windows-arm64@2.10.5':
+    optional: true
+
   '@tybys/wasm-util@0.10.3':
     dependencies:
       tslib: 2.8.1
@@ -22578,8 +22407,6 @@ snapshots:
   chownr@1.1.4: {}
 
   chownr@2.0.0: {}
-
-  ci-info@2.0.0: {}
 
   ci-info@3.8.0: {}
 
@@ -24659,8 +24486,6 @@ snapshots:
 
   ieee754@1.2.1: {}
 
-  ignore-by-default@1.0.1: {}
-
   ignore@5.3.2: {}
 
   ignore@7.0.5: {}
@@ -24784,15 +24609,6 @@ snapshots:
       semver: 7.8.5
 
   is-callable@1.2.7: {}
-
-  is-ci-cli@2.2.0:
-    dependencies:
-      cross-spawn: 7.0.3
-      is-ci: 2.0.0
-
-  is-ci@2.0.0:
-    dependencies:
-      ci-info: 2.0.0
 
   is-core-module@2.16.1:
     dependencies:
@@ -26123,27 +25939,10 @@ snapshots:
 
   node-releases@2.0.53: {}
 
-  nodemon@3.1.7:
-    dependencies:
-      chokidar: 3.5.3
-      debug: 4.3.4(supports-color@5.5.0)
-      ignore-by-default: 1.0.1
-      minimatch: 3.1.2
-      pstree.remy: 1.1.8
-      semver: 7.7.4
-      simple-update-notifier: 2.0.0
-      supports-color: 5.5.0
-      touch: 3.1.0
-      undefsafe: 2.0.5
-
   noms@0.0.0:
     dependencies:
       inherits: 2.0.4
       readable-stream: 1.0.34
-
-  nopt@1.0.10:
-    dependencies:
-      abbrev: 1.1.1
 
   nopt@5.0.0:
     dependencies:
@@ -26831,8 +26630,6 @@ snapshots:
   proxy-from-env@1.0.0: {}
 
   psl@1.9.0: {}
-
-  pstree.remy@1.1.8: {}
 
   pump@2.0.1:
     dependencies:
@@ -28134,10 +27931,6 @@ snapshots:
 
   toidentifier@1.0.1: {}
 
-  touch@3.1.0:
-    dependencies:
-      nopt: 1.0.10
-
   tough-cookie@4.1.2:
     dependencies:
       psl: 1.9.0
@@ -28195,6 +27988,15 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  turbo@2.10.5:
+    optionalDependencies:
+      '@turbo/darwin-64': 2.10.5
+      '@turbo/darwin-arm64': 2.10.5
+      '@turbo/linux-64': 2.10.5
+      '@turbo/linux-arm64': 2.10.5
+      '@turbo/windows-64': 2.10.5
+      '@turbo/windows-arm64': 2.10.5
 
   typanion@3.14.0: {}
 
@@ -28316,8 +28118,6 @@ snapshots:
       has-bigints: 1.0.2
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
-
-  undefsafe@2.0.5: {}
 
   underscore.string@3.3.6:
     dependencies:
