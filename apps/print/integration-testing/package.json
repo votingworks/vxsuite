@@ -11,8 +11,8 @@
     "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "eslint --cache --fix .",
     "lint:self": "eslint --cache .",
-    "test": "playwright test",
-    "test:watch": "playwright test --ui"
+    "test": "pnpm build && playwright test",
+    "test:watch": "pnpm build && playwright test --ui"
   },
   "dependencies": {
     "@playwright/test": "^1.48.1",
