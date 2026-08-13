@@ -262,6 +262,7 @@ export async function importCastVoteRecords(
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
     const pollingPlaceIds = new Set<string>();
+    const batchIds: string[] = [];
 
     for (const batch of batchManifest) {
       store.addScannerBatch({
@@ -277,6 +278,7 @@ export async function importCastVoteRecords(
 
       scannerIds.add(batch.scannerId);
       pollingPlaceIds.add(batch.pollingPlaceId);
+      batchIds.push(batch.id);
     }
 
     // Create a top-level record for the import
@@ -289,6 +291,7 @@ export async function importCastVoteRecords(
       isTestMode: isTestReport(castVoteRecordReportMetadata),
       pollingPlaceIds,
       scannerIds,
+      batchIds,
       sha256Hash: exportHash,
     });
 

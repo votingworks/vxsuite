@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -18,13 +19,16 @@ import {
   ElectionRegisteredVoterCounts,
   SystemSettings,
 } from '@votingworks/types';
-import { assertDefined, find, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { zipFile } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
+import {
+  addMockCvrFileToStore,
+  MockCastVoteRecordFile,
+} from '../test/mock_cvr_file.js';
 import { Store } from './store.js';
 import {
   ElectionRecord,
@@ -1237,4 +1241,351 @@ describe('machine ballot adjudication assignments', () => {
       Admin.ClientMachineStatus.Active
     );
   });
+});
+
+describe('deleteCvrFile', () => {
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const electionDef = fixtures.readElectionDefinition();
+  const electionDefId = electionDef.election.id;
+
+  const { election } = electionDef;
+  const ballotStyle = assertDefined(election.ballotStyles[0]);
+  const precinctId = assertDefined(ballotStyle.precincts[0]);
+  const scannerId = 'scanner-1';
+
+  test('is no-op if no matching file found', async () => {
+    const { store, electionId } = await newStore();
+    const res = store.deleteCvrFile({ electionId, fileId: 'missing' });
+    expect(res).toBeUndefined();
+  });
+
+  test('is no-op for mismatched election ID', async () => {
+    const { store, electionId } = await newStore();
+
+    addMockCvrFileToStore({
+      electionId,
+      exportedTimestamp: new Date('2021-01-01'),
+      mockCastVoteRecordFile: [mockCvr({ batchId: '1', votes: {} })],
+      pollingPlaceId: 'polling-place-1',
+      store,
+    });
+
+    const [file] = store.getCvrFiles(electionId);
+    assert(file);
+
+    const res = store.deleteCvrFile({ electionId: 'invalid', fileId: file.id });
+    expect(res).toBeUndefined();
+  });
+
+  test('preserves CVRs shared with other files', async () => {
+    const { store, electionId } = await newStore();
+
+    const contest = find(
+      election.contests,
+      (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
+    );
+
+    const batch1 = mockBatch({ electionId, batchId: '1', label: 'Batch 1' });
+    const batch2 = mockBatch({ electionId, batchId: '2', label: 'Batch 2' });
+    const batch3 = mockBatch({ electionId, batchId: '3', label: 'Batch 3' });
+
+    const writeInOptionId1 = 'write-in-from-batch-1';
+    const writeInOptionId2 = 'write-in-from-batch-3';
+    const writeInOptionId3 = 'write-in-from-batch-2';
+
+    const writeInName1 = 'WRITE-IN 1';
+
+    const [cvrId1a, cvrId1b] = addMockCvrFileToStore({
+      electionId,
+      exportedTimestamp: new Date('2021-01-01'),
+      mockCastVoteRecordFile: [
+        mockCvr({
+          batchId: batch1.batchId,
+          votes: { [contest.id]: [assertDefined(contest.candidates[0]).id] },
+        }),
+        mockCvr({
+          batchId: batch2.batchId,
+          votes: { [contest.id]: [assertDefined(contest.candidates[1]).id] },
+        }),
+      ],
+      pollingPlaceId: 'polling-place-1',
+      store,
+    });
+
+    const [cvrId2a, cvrId2b] = addMockCvrFileToStore({
+      electionId,
+      exportedTimestamp: new Date('2021-01-02'),
+      mockCastVoteRecordFile: [
+        mockCvr({
+          batchId: batch2.batchId, // Duplicates batch2 in the first import.
+          votes: { [contest.id]: [assertDefined(contest.candidates[1]).id] },
+        }),
+        mockCvr({
+          batchId: batch3.batchId,
+          votes: { [contest.id]: [assertDefined(contest.candidates[2]).id] },
+        }),
+      ],
+      pollingPlaceId: 'polling-place-1',
+      store,
+    });
+
+    assert(!!cvrId1a && !!cvrId1b && !!cvrId2a && !!cvrId2b);
+
+    addBallotImages(store, cvrId1a);
+    addBallotImages(store, cvrId1b);
+    expect(cvrId2a).toEqual(cvrId1b); // Duplicate CVR already has images.
+    addBallotImages(store, cvrId2b);
+
+    const writeInIds: Id[] = [];
+    for (const [cvrId, writeInId] of [
+      [cvrId1a, writeInOptionId1],
+      [cvrId1b, writeInOptionId2],
+      [cvrId2b, writeInOptionId3],
+    ]) {
+      const id = store.addWriteIn({
+        castVoteRecordId: assertDefined(cvrId),
+        optionId: assertDefined(writeInId),
+
+        contestId: contest.id,
+        electionId,
+        isUndetected: false,
+      });
+      writeInIds.push(id);
+    }
+
+    const { id: writeInCandidateId } = store.addWriteInCandidate({
+      contestId: contest.id,
+      electionId,
+      name: writeInName1,
+    });
+    store.setWriteInRecordUnofficialCandidate({
+      candidateId: writeInCandidateId,
+      type: 'write-in-candidate',
+      writeInId: assertDefined(writeInIds[0]),
+    });
+
+    expect(store.getScannerBatches(electionId)).toEqual([
+      batch1,
+      batch2,
+      batch3,
+    ]);
+
+    const files = store.getCvrFiles(electionId);
+    expect(files).toHaveLength(2);
+
+    const [file2, file1] = files; // Results ordered most recent first.
+    assert(!!file1 && !!file2);
+
+    expectCvr(store, { electionId, cvrId: cvrId1a });
+    expectCvr(store, { electionId, cvrId: cvrId1b });
+    expectCvr(store, { electionId, cvrId: cvrId2a });
+    expectCvr(store, { electionId, cvrId: cvrId2b });
+
+    expectBallotImages(store, { cvrId: cvrId1a });
+    expectBallotImages(store, { cvrId: cvrId1b });
+    expectBallotImages(store, { cvrId: cvrId2a });
+    expectBallotImages(store, { cvrId: cvrId2b });
+
+    expectWriteIns(store, {
+      electionId,
+      optionIds: [writeInOptionId1, writeInOptionId2, writeInOptionId3],
+    });
+
+    expectWriteInCandidates(store, { electionId, names: [writeInName1] });
+
+    const res = store.deleteCvrFile({ electionId, fileId: file1.id });
+    expect(res).toEqual({
+      filename: expect.any(String),
+      batchIds: [batch1.batchId], // `batch2` is shared with remaining CVR file.
+    });
+
+    // batch2 is preserved because it still has a CVR shared with file2.
+    expect(store.getScannerBatches(electionId)).toEqual([batch2, batch3]);
+
+    expectNoCvr(store, { electionId, cvrId: cvrId1a });
+    expectCvr(store, { electionId, cvrId: cvrId1b });
+    expectCvr(store, { electionId, cvrId: cvrId2a });
+    expectCvr(store, { electionId, cvrId: cvrId2b });
+
+    expectNoBallotImages(store, { cvrId: cvrId1a });
+    expectBallotImages(store, { cvrId: cvrId1b });
+    expectBallotImages(store, { cvrId: cvrId2a });
+
+    expectWriteIns(store, {
+      electionId,
+      optionIds: [writeInOptionId2, writeInOptionId3],
+    });
+
+    // The sole write-in candidate was linked to a write-in from the deleted CVR
+    // import (writeInOptionId1).
+    expectWriteInCandidates(store, { electionId, names: [] });
+  });
+
+  test('preserves qualified write-ins', async () => {
+    const settings: SystemSettings = {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      areWriteInCandidatesQualified: true,
+    };
+
+    const { store, electionId } = await newStore(JSON.stringify(settings));
+
+    const contest = find(
+      election.contests,
+      (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
+    );
+
+    const batch = mockBatch({ electionId, batchId: '1', label: 'Batch 1' });
+    const writeInOptionId = 'write-in-from-batch-1';
+    const writeInName = 'WRITE-IN 1';
+
+    const [cvrId1a] = addMockCvrFileToStore({
+      electionId,
+      exportedTimestamp: new Date('2021-01-01'),
+      mockCastVoteRecordFile: [
+        mockCvr({
+          batchId: batch.batchId,
+          votes: { [contest.id]: [assertDefined(contest.candidates[0]).id] },
+        }),
+      ],
+      pollingPlaceId: 'polling-place-1',
+      store,
+    });
+
+    assert(!!cvrId1a);
+
+    const writeInId = store.addWriteIn({
+      castVoteRecordId: cvrId1a,
+      contestId: contest.id,
+      electionId,
+      isUndetected: false,
+      optionId: writeInOptionId,
+    });
+
+    const { id: writeInCandidateId } = store.addWriteInCandidate({
+      contestId: contest.id,
+      electionId,
+      name: writeInName,
+    });
+    store.setWriteInRecordUnofficialCandidate({
+      candidateId: writeInCandidateId,
+      type: 'write-in-candidate',
+      writeInId,
+    });
+
+    expectWriteIns(store, { electionId, optionIds: [writeInOptionId] });
+    expectWriteInCandidates(store, { electionId, names: [writeInName] });
+
+    const cvrFile = assertDefined(store.getCvrFiles(electionId)[0]);
+    const res = store.deleteCvrFile({ electionId, fileId: cvrFile.id });
+    expect(res).toEqual({
+      filename: expect.any(String),
+      batchIds: [batch.batchId],
+    });
+
+    expectNoCvr(store, { electionId, cvrId: cvrId1a });
+    expectNoBallotImages(store, { cvrId: cvrId1a });
+
+    expectWriteIns(store, { electionId, optionIds: [] });
+    expectWriteInCandidates(store, { electionId, names: [writeInName] });
+  });
+
+  async function newStore(
+    settingsData: string = systemSettingsData
+  ): Promise<{ store: Store; electionId: Id }> {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const electionId = await store.addElection({
+      electionData: fixtures.electionJson.asText(),
+      systemSettingsData: settingsData,
+      electionPackageSourceFilePath: makeTemporaryFile(),
+      electionPackageHash: 'test-election-package-hash',
+    });
+    return { store, electionId };
+  }
+
+  function addBallotImages(store: Store, cvrId: string) {
+    for (const side of ['front', 'back'] as const) {
+      store.addBallotImage({
+        cvrId,
+        electionDefinitionId: electionDefId,
+        imageData: Buffer.from([]),
+        side,
+      });
+    }
+  }
+
+  function expectBallotImages(store: Store, p: { cvrId: string }) {
+    store.getBallotImagesAndLayouts(p);
+  }
+
+  function expectNoBallotImages(store: Store, p: { cvrId: string }) {
+    expect(() => store.getBallotImagesAndLayouts(p)).toThrow();
+  }
+
+  function expectCvr(store: Store, p: { cvrId: string; electionId: string }) {
+    store.getCastVoteRecordVoteInfo(p);
+  }
+
+  function expectNoCvr(store: Store, p: { cvrId: string; electionId: string }) {
+    expect(() => store.getCastVoteRecordVoteInfo(p)).toThrow();
+  }
+
+  function expectWriteIns(
+    store: Store,
+    p: { electionId: Id; optionIds: Id[] }
+  ) {
+    const expected = [...p.optionIds]
+      .sort()
+      .map((id) => expect.objectContaining({ optionId: id }));
+
+    const actual = store
+      .getWriteInRecords({ electionId: p.electionId })
+      .sort((a, b) => a.optionId.localeCompare(b.optionId));
+
+    expect(actual).toEqual(expected);
+  }
+
+  function expectWriteInCandidates(
+    store: Store,
+    p: { electionId: Id; names: Id[] }
+  ) {
+    const expected = [...p.names]
+      .sort()
+      .map((name) => expect.objectContaining({ name }));
+
+    const actual = store
+      .getWriteInCandidates({ electionId: p.electionId })
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    expect(actual).toEqual(expected);
+  }
+
+  function mockCvr(p: {
+    batchId: string;
+    votes: Tabulation.Votes;
+  }): MockCastVoteRecordFile[number] {
+    return {
+      batchId: p.batchId,
+      // Using batch ID as a proxy for ballot ID for convenience:
+      ballotId: p.batchId,
+      ballotStyleGroupId: ballotStyle.groupId,
+      scannerId,
+      precinctId,
+      votes: p.votes,
+      votingMethod: 'precinct',
+      card: { type: 'bmd' },
+    };
+  }
+
+  function mockBatch(p: {
+    batchId: string;
+    label: string;
+    electionId: string;
+  }): ScannerBatch {
+    return {
+      ...p,
+      scannerId,
+      pollingPlaceId: 'polling-place-1',
+      startedAt: expect.any(String),
+    };
+  }
 });

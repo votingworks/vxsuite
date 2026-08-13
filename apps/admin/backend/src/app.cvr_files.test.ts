@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
 import { err, ok, assert } from '@votingworks/basics';
@@ -964,3 +964,69 @@ test.each<{
     ).toEqual(expectedResult);
   }
 );
+
+describe('deleteCvrFile', () => {
+  test('logs successful deletions', async () => {
+    const { apiClient, auth, logger } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+    mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
+
+    const fixtures = electionTwoPartyPrimaryFixtures;
+    const exportPath = fixtures.castVoteRecordExport.asDirectoryPath();
+
+    const res = await apiClient.addCastVoteRecordFile({ path: exportPath });
+    const cvrImport = res.unsafeUnwrap();
+
+    await apiClient.deleteCvrFile({ fileId: cvrImport.id });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DeleteCvrFileInit,
+      'election_manager',
+      { message: expect.stringContaining(cvrImport.id) }
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DeleteCvrFileComplete,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'success',
+        message: expect.stringContaining(cvrImport.fileName),
+      })
+    );
+
+    expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
+  });
+
+  test('logs failed deletions', async () => {
+    const { apiClient, auth, logger } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+    mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
+
+    const fixtures = electionTwoPartyPrimaryFixtures;
+    const exportPath = fixtures.castVoteRecordExport.asDirectoryPath();
+
+    const res = await apiClient.addCastVoteRecordFile({ path: exportPath });
+    const cvrImport = res.unsafeUnwrap();
+
+    await apiClient.deleteCvrFile({ fileId: 'non-existent' });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DeleteCvrFileInit,
+      'election_manager',
+      { message: expect.stringContaining('non-existent') }
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DeleteCvrFileComplete,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'failure',
+        message: expect.stringContaining('non-existent'),
+      })
+    );
+
+    expect(await apiClient.getCastVoteRecordFiles()).toEqual([
+      expect.objectContaining({ id: cvrImport.id }),
+    ]);
+  });
+});

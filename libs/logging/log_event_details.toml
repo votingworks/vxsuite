@@ -549,6 +549,18 @@ eventType = "user-action"
 documentationMessage = "Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.DeleteCvrFileInit]
+eventId = "delete-cvr-file-init"
+eventType = "user-action"
+documentationMessage = "Cast vote records from a single import are being deleted."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.DeleteCvrFileComplete]
+eventId = "delete-cvr-file-complete"
+eventType = "user-action"
+documentationMessage = "Cast vote records from a single import have been deleted (or failed to be deleted). Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ClearImportedCastVoteRecordsInit]
 eventId = "clear-imported-cast-vote-records-init"
 eventType = "user-action"

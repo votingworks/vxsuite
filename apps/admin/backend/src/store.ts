@@ -125,6 +125,11 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
+interface DeleteCvrFileResult {
+  filename: string;
+  batchIds: string[];
+}
+
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
@@ -1031,6 +1036,7 @@ export class Store implements BaseStore {
     sha256Hash,
     scannerIds,
     pollingPlaceIds,
+    batchIds,
   }: {
     id: Id;
     electionId: Id;
@@ -1040,6 +1046,7 @@ export class Store implements BaseStore {
     sha256Hash: string;
     scannerIds: Set<string>;
     pollingPlaceIds: Set<string>;
+    batchIds: string[];
   }): void {
     this.client.run(
       `
@@ -1052,9 +1059,10 @@ export class Store implements BaseStore {
           precinct_ids,
           scanner_ids,
           polling_place_ids,
+          batch_ids,
           sha256_hash
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1065,6 +1073,7 @@ export class Store implements BaseStore {
       JSON.stringify([]),
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
+      JSON.stringify(batchIds),
       sha256Hash
     );
   }
@@ -1973,14 +1982,115 @@ export class Store implements BaseStore {
   }
 
   /**
+   * Deletes a single CVR file (import) for an election.
+   *
+   * Deletes:
+   *   - CVRs that are linked to only this file.
+   *   - Write-in records linked to the deleted CVRs.
+   *   - Write-in candidate records left without write-ins.
+   *   - Ballot image files for the deleted CVRs.
+   *   - Empty scanner batches previously attached to the deleted CVRs.
+   *
+   * Preserves:
+   *   — CVRs that have links to other files (links to this file are deleted).
+   *   - All other data associated with the preserved CVRs from this file.
+   *
+   * Returns metadata about the deleted file, or `undefined` if not found.
+   */
+  deleteCvrFile(p: {
+    electionId: Id;
+    fileId: Id;
+  }): Optional<DeleteCvrFileResult> {
+    let deletedCvrs: Array<{ id: Id }> = [];
+    let deletedFile: Optional<DeleteCvrFileResult>;
+
+    const matchingFile = this.client.one(
+      `
+        select
+          filename,
+          batch_ids as batchIds
+        from cvr_files
+        where
+          id = ?
+          and election_id = ?
+      `,
+      p.fileId,
+      p.electionId
+    ) as { filename: string; batchIds: string } | undefined;
+
+    if (!matchingFile) return undefined;
+
+    this.client.transaction(() => {
+      deletedCvrs = this.client.all(
+        `
+          delete from cvrs where id in (
+            select cvr_id from cvr_file_entries
+            where
+              cvr_file_id = ?
+              and not exists (
+                select 1 from cvr_file_entries other
+                where
+                  other.cvr_id = cvr_file_entries.cvr_id
+                  and other.cvr_file_id != ?
+              )
+          )
+          returning id
+        `,
+        p.fileId,
+        p.fileId
+      ) as Array<{ id: Id }>;
+
+      this.client.run(`delete from cvr_files where id = ?`, p.fileId);
+
+      if (!this.getSystemSettings(p.electionId).areWriteInCandidatesQualified) {
+        this.deleteAllWriteInCandidatesNotReferenced();
+      }
+
+      const linkedBatchIds = JSON.parse(matchingFile.batchIds) as string[];
+      const placeholders = linkedBatchIds.map(() => '?').join(', ');
+      const deletedBatches = this.client.all(
+        `
+          delete from scanner_batches
+          where
+            election_id = ?
+            and id in (${placeholders})
+            and not exists (
+              select 1 from cvrs
+              where
+                cvrs.batch_id = scanner_batches.id
+                and cvrs.election_id = scanner_batches.election_id
+            )
+          returning id
+        `,
+        p.electionId,
+        ...linkedBatchIds
+      ) as Array<{ id: Id }>;
+
+      deletedFile = {
+        filename: matchingFile.filename,
+        batchIds: deletedBatches.map((batch) => batch.id),
+      };
+    });
+
+    // [TODO] This is a non-trivial cost for large CVR imports and failing here
+    // leaves ballot images stranded on disk - maybe worth moving to scheduled
+    // cleanup passes instead.
+    const electionDefinitionId = this.getElectionDefinitionId(p.electionId);
+    for (const { id } of deletedCvrs) {
+      for (const side of ['front', 'back'] as const) {
+        rmSync(this.getBallotImageFilePath(electionDefinitionId, id, side), {
+          force: true,
+        });
+      }
+    }
+
+    return deletedFile;
+  }
+
+  /**
    * Deletes all CVR files for an election.
    */
   deleteCastVoteRecordFiles(electionId: Id): void {
-    const { electionDefinitionId } = this.client.one(
-      `select election_data ->> 'id' as electionDefinitionId from elections where id = ?`,
-      electionId
-    ) as { electionDefinitionId: string };
-
     this.client.transaction(() => {
       this.client.run(
         `
@@ -2018,10 +2128,20 @@ export class Store implements BaseStore {
       this.deleteEmptyScannerBatches(electionId);
     });
 
+    const electionDefinitionId = this.getElectionDefinitionId(electionId);
     rmSync(join(this.ballotImagesPath, electionDefinitionId), {
       recursive: true,
       force: true,
     });
+  }
+
+  getElectionDefinitionId(electionId: Id): Id {
+    const res = this.client.one(
+      `select election_data ->> 'id' as id from elections where id = ?`,
+      electionId
+    ) as { id: Id };
+
+    return res.id;
   }
 
   getWriteInCandidates({

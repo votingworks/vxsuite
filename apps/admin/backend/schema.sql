@@ -183,6 +183,7 @@ create table cvr_files (
   precinct_ids text not null,
   scanner_ids text not null,
   polling_place_ids text not null,
+  batch_ids text not null,
   sha256_hash text not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)

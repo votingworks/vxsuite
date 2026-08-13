@@ -810,6 +810,28 @@ function buildApi({
       return importResult;
     },
 
+    async deleteCvrFile(input: { fileId: Id }): Promise<void> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+
+      await logger.logAsCurrentRole(LogEventId.DeleteCvrFileInit, {
+        message: `Removing CVR file ${input.fileId}...`,
+      });
+
+      const deleted = store.deleteCvrFile({ electionId, fileId: input.fileId });
+      if (!deleted) {
+        return logger.logAsCurrentRole(LogEventId.DeleteCvrFileComplete, {
+          disposition: 'failure',
+          message: `CVR file ${input.fileId} not found.`,
+        });
+      }
+
+      const batchIds = deleted.batchIds.join(', ');
+      await logger.logAsCurrentRole(LogEventId.DeleteCvrFileComplete, {
+        disposition: 'success',
+        message: `Removed CVR file ${deleted.filename}, batches ${batchIds}.`,
+      });
+    },
+
     async clearCastVoteRecordFiles(): Promise<void> {
       await logger.logAsCurrentRole(
         LogEventId.ClearImportedCastVoteRecordsInit,
