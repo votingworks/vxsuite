@@ -1,6 +1,6 @@
+import React from 'react';
 import { Candidate, Election } from '@votingworks/types';
 import { appStrings, CandidatePartyList } from '@votingworks/ui';
-import React from 'react';
 
 interface CandidateInfoCaptionProps {
   candidate: Candidate;
@@ -19,7 +19,14 @@ export function CandidateInfoCaption({
   audioOnly,
 }: CandidateInfoCaptionProps): JSX.Element {
   return (
-    <React.Fragment>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: '0.15rem',
+      }}
+    >
+      <span>City Councilmember</span>
       <CandidatePartyList
         candidate={candidate}
         electionParties={election.parties}
@@ -31,6 +38,6 @@ export function CandidateInfoCaption({
         </span>
       )}
       {audioOnly && <React.Fragment>{audioOnly}</React.Fragment>}
-    </React.Fragment>
+    </div>
   );
 }
