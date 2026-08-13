@@ -9,10 +9,10 @@
     "configure-env": "libs/utils/bin/configure-env",
     "configure-vxdev-env": "libs/utils/bin/configure-env --isVxDev -o /vx/config/.env.local",
     "generate-circleci-config": "libs/monorepo-utils/bin/generate-circleci-config",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint:self",
     "prepare": "husky install",
     "shellcheck": "script/shellcheck",
-    "test": "VX_TEST_WORKERS=2 turbo run test:run --concurrency=50% --filter=!@votingworks/exercises",
+    "test": "VX_TEST_WORKERS=2 turbo run test:run:self --concurrency=50% --filter=!@votingworks/exercises",
     "type-check": "turbo run type-check",
     "update-snapshots": "script/update-snapshots"
   },

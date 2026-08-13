@@ -8,8 +8,9 @@
   "scripts": {
     "build": "pnpm install && turbo run build:self --filter=\"$npm_package_name^...\" && make build",
     "format": "prettier --write .",
-    "lint": "eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "eslint --cache --fix .",
+    "lint:self": "eslint --cache .",
     "test": "playwright test",
     "test:watch": "playwright test --ui"
   },

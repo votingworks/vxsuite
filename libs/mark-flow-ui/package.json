@@ -21,12 +21,14 @@
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
-    "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
+    "lint:self": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

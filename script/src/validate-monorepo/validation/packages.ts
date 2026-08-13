@@ -6,6 +6,7 @@ export enum ValidationIssueKind {
   MismatchedPropertyValue = 'MismatchedPropertyValue',
   NoLicenseSpecified = 'NoLicenseSpecified',
   UnexportedPackageJson = 'UnexportedPackageJson',
+  InvalidTaskDelegation = 'InvalidTaskDelegation',
 }
 
 export interface PackageJsonProperty {
@@ -29,10 +30,33 @@ export interface UnexportedPackageJsonIssue {
   readonly packageJsonPath: string;
 }
 
+export interface InvalidTaskDelegationIssue {
+  readonly kind: ValidationIssueKind.InvalidTaskDelegation;
+  readonly packageJsonPath: string;
+  readonly task: string;
+  readonly expected: string;
+  readonly actual?: string;
+}
+
 export type ValidationIssue =
   | MismatchedPropertyIssue
   | NoLicenseSpecifiedIssue
-  | UnexportedPackageJsonIssue;
+  | UnexportedPackageJsonIssue
+  | InvalidTaskDelegationIssue;
+
+/**
+ * Tasks that run through turbo so their workspace dependencies are built first.
+ * Each public script must be a thin delegation to its `:self` counterpart
+ * (which does the real work as a turbo task); running the public script then
+ * builds `^build:self` before the task. Any package that defines the `:self`
+ * task must delegate to it, so a bare `pnpm test:run`/`pnpm lint` can't run
+ * against unbuilt dependencies.
+ */
+const DELEGATED_TASKS: ReadonlyArray<readonly [string, string]> = [
+  ['lint', 'lint:self'],
+  ['test:run', 'test:run:self'],
+  ['test:ci', 'test:ci:self'],
+];
 
 export async function* checkPackageManager({
   workspacePackages,
@@ -139,12 +163,13 @@ export async function* checkPinnedVersions({
   }
 }
 
-export async function* checkEngines(
-  { workspacePackages, nodeVersionFile }: {
-    workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
-    nodeVersionFile: string;
-  }
-): AsyncGenerator<ValidationIssue> {
+export async function* checkEngines({
+  workspacePackages,
+  nodeVersionFile,
+}: {
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+  nodeVersionFile: string;
+}): AsyncGenerator<ValidationIssue> {
   const allEngines = new Map<string, Set<Optional<string>>>();
   const properties: PackageJsonProperty[] = [];
 
@@ -176,21 +201,24 @@ export async function* checkEngines(
   }
 
   for (const [engine, values] of allEngines) {
-    const engineProperties = properties.filter((p) => p.propertyName === `engines.${engine}`);
+    const engineProperties = properties.filter(
+      (p) => p.propertyName === `engines.${engine}`
+    );
 
     if (values.size > 1) {
       yield {
         kind: ValidationIssueKind.MismatchedPropertyValue,
         properties: engineProperties,
-      }
+      };
     } else if (engine === 'node' && values.size === 1) {
-      const propertiesNotMatchingNodeVersionFile = engineProperties.filter((p) => p.value !== nodeVersionFile);
+      const propertiesNotMatchingNodeVersionFile = engineProperties.filter(
+        (p) => p.value !== nodeVersionFile
+      );
       if (propertiesNotMatchingNodeVersionFile.length > 0) {
-
         yield {
           kind: ValidationIssueKind.MismatchedPropertyValue,
           properties: propertiesNotMatchingNodeVersionFile,
-        }
+        };
       }
     }
   }
@@ -218,14 +246,51 @@ export async function* checkPackageJsonIsExported({
       exports?: Record<string, unknown>;
     };
 
-    if (
-      exportsMap &&
-      exportsMap['./package.json'] === undefined
-    ) {
+    if (exportsMap && exportsMap['./package.json'] === undefined) {
       yield {
         kind: ValidationIssueKind.UnexportedPackageJson,
         packageJsonPath,
       };
+    }
+  }
+}
+
+/**
+ * Check that every package defining a `:self` task delegates its public task to
+ * it via turbo, so the task's dependencies are built first.
+ */
+export async function* checkTaskDelegation({
+  workspacePackages,
+}: {
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
+}): AsyncGenerator<ValidationIssue> {
+  for (const pkg of workspacePackages.values()) {
+    const { packageJson, packageJsonPath } = pkg;
+
+    if (!packageJson || !packageJsonPath) {
+      continue;
+    }
+
+    const { scripts } = packageJson;
+    if (!scripts) {
+      continue;
+    }
+
+    for (const [task, selfTask] of DELEGATED_TASKS) {
+      if (scripts[selfTask] === undefined) {
+        continue;
+      }
+
+      const expected = `turbo run ${selfTask} --filter=$npm_package_name --`;
+      if (scripts[task] !== expected) {
+        yield {
+          kind: ValidationIssueKind.InvalidTaskDelegation,
+          packageJsonPath,
+          task,
+          expected,
+          actual: scripts[task],
+        };
+      }
     }
   }
 }

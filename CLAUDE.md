@@ -107,11 +107,13 @@ pnpm test:run -t "test name pattern"
 Do NOT use `pnpm test` or run vitest directly without `--run` — the watch mode
 will hang.
 
-Each package's `test` script is just `vitest` (watches locally); `test:run` runs
-once and is what CI runs. Coverage is enabled only in CI, keyed on the `CI` env
-var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so `test:run` is
-fast locally and enforces the 100% thresholds in CI. VxDesign keeps a dedicated
-`test:ci` for its Postgres/migration CI steps.
+Each package's `test` script watches locally (vitest, preceded by a Turbo build
+of its dependencies); `test:run` runs once and is what CI runs. Both build the
+package's dependencies first via Turbo — see the `:self` split in the
+`## Turborepo` section for how. Coverage is enabled only in CI, keyed on the `CI`
+env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so `test:run`
+is fast locally and enforces the 100% thresholds in CI. VxDesign keeps a
+dedicated `test:ci` for its Postgres/migration CI steps.
 
 ### Linting & Formatting
 
@@ -178,20 +180,35 @@ Task orchestration and caching are handled by [Turborepo](https://turborepo.com)
 
 Tasks and their wiring (`turbo.json`):
 
-| Task         | Depends on    | Cached outputs                                     |
-| ------------ | ------------- | -------------------------------------------------- |
-| `build:self` | `^build:self` | `build/**`, `*.node`                               |
-| `type-check` | `^build:self` | `tsconfig.tsbuildinfo`                             |
-| `lint`       | `^build:self` | (logs only)                                        |
-| `test:run`   | `build:self`  | (logs only)                                        |
-| `test:ci`    | `build:self`  | (logs only; design's Postgres/migration CI steps)  |
-| `clean:self` | —             | not cached                                         |
-| `dev:server` | `^build:self` | not cached (persistent; frontend Vite dev server)  |
-| `dev`        | `build:self`  | not cached (persistent + interruptible; a backend) |
+| Task            | Depends on    | Cached outputs                                     |
+| --------------- | ------------- | -------------------------------------------------- |
+| `build:self`    | `^build:self` | `build/**`, `*.node`                               |
+| `type-check`    | `^build:self` | `tsconfig.tsbuildinfo`                             |
+| `lint:self`     | `^build:self` | (logs only)                                        |
+| `test:run:self` | `build:self`  | (logs only)                                        |
+| `test:ci:self`  | `build:self`  | (logs only; design's Postgres/migration CI steps)  |
+| `clean:self`    | —             | not cached                                         |
+| `dev:server`    | `^build:self` | not cached (persistent; frontend Vite dev server)  |
+| `dev`           | `build:self`  | not cached (persistent + interruptible; a backend) |
 
 Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
-(`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm test:ci`,
-`pnpm clean`) wrap the corresponding Turbo task across all packages.
+(`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm clean`) wrap
+the corresponding Turbo task across all packages.
+
+**The `:self` split for `lint`/`test:run`/`test:ci`:** like
+`build`/`build:self`, each package's public `lint`, `test:run`, and `test:ci`
+scripts are thin delegations to
+`turbo run <task>:self --filter=$npm_package_name --`; the `:self` task does the
+actual work (eslint/vitest) and is what `turbo.json` wires and caches.
+Delegating means running `pnpm test:run` (or `lint`/`test:ci`) in a package
+first builds that package's dependencies (`build:self` / `^build:self`) via
+Turbo, so the task never runs against unbuilt deps. The trailing `--` forwards
+extra args through Turbo to the underlying command, so `pnpm test:run <file>`
+and `pnpm test:run -t "pattern"` still work. `validate-monorepo` enforces that
+any package defining a `:self` task delegates its public task to it. The
+dev-time watcher `pnpm test` is not a Turbo task (it's persistent and
+interactive); it instead prefixes `turbo run build:self` and then execs `vitest`
+directly, so deps are built once up front while the watcher keeps its native UI.
 
 Each package's `build:self` writes its incremental `tsc` build-info to
 `build/tsconfig.build.tsbuildinfo` (inside `build/`, enforced by

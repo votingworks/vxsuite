@@ -21,11 +21,13 @@
     "clean:self": "rm -rf build",
     "dev": "pnpm start",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache .",
     "start": "node ./build/index.js",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

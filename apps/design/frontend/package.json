@@ -17,13 +17,15 @@
     "clean:self": "rm -rf build",
     "dev:server": "vite --clearScreen false",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
+    "lint:self": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
     "start": "turbo watch @votingworks/design-frontend#dev:server @votingworks/design-backend#dev",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "browserslist": {

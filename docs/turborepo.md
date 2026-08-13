@@ -71,8 +71,8 @@ TURBO_FORCE=true pnpm build
 ### Read-only or no cache for one run
 
 ```sh
-turbo run test:run --filter=@votingworks/<pkg> --cache=local:r   # read but don't write
-turbo run test:run --filter=@votingworks/<pkg> --cache=          # ignore cache entirely
+turbo run test:run:self --filter=@votingworks/<pkg> --cache=local:r   # read but don't write
+turbo run test:run:self --filter=@votingworks/<pkg> --cache=          # ignore cache entirely
 ```
 
 ### Clear the on-disk cache

@@ -16,14 +16,14 @@
       "dependsOn": ["^build:self"],
       "outputs": ["tsconfig.tsbuildinfo"]
     },
-    "lint": {
+    "lint:self": {
       "dependsOn": ["^build:self"]
     },
-    "test:run": {
+    "test:run:self": {
       "dependsOn": ["build:self"],
       "passThroughEnv": ["VX_TEST_WORKERS"]
     },
-    "test:ci": {
+    "test:ci:self": {
       "dependsOn": ["build:self"],
       "passThroughEnv": ["VX_TEST_WORKERS"]
     },

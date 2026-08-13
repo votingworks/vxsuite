@@ -56,6 +56,22 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
+      case pkgs.ValidationIssueKind.InvalidTaskDelegation: {
+        const { packageJsonPath, task, expected, actual } = issue;
+        stderr.write(
+          `${relative(
+            cwd,
+            packageJsonPath
+          )}: "${task}" must delegate to its :self task via turbo so dependencies are built first. Expected ${JSON.stringify(
+            expected
+          )}, got ${
+            actual === undefined ? '(missing)' : JSON.stringify(actual)
+          }\n`
+        );
+        errors += 1;
+        break;
+      }
+
       case tsconfig.ValidationIssueKind.MissingConfigFile: {
         const { tsconfigPath } = issue;
         stderr.write(`${tsconfigPath}: missing TypeScript configuration\n`);

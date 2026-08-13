@@ -19,14 +19,16 @@
     "build:self": "tsc --build tsconfig.build.json && copyfiles -u 3 src/custom-paper-handler/diagnostic/*.json build/custom-paper-handler/diagnostic",
     "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
+    "dev": "pnpm start",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache .",
     "start": "node ./build/index.js",
-    "test": "TZ=America/Anchorage vitest",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "type-check": "tsc --build",
-    "dev": "pnpm start"
+    "test": "turbo run build:self --filter=$npm_package_name && TZ=America/Anchorage vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "TZ=America/Anchorage vitest run",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@votingworks/auth": "workspace:*",

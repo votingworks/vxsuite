@@ -20,10 +20,12 @@
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

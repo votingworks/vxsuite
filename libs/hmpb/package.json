@@ -19,11 +19,13 @@
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "generate-fixtures": "DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
     "generate-vxprint-test-print": "./bin/generate-vxprint-test-print",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache .",
     "start": "vite -c vite.config.ts src/preview",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

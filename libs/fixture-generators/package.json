@@ -22,10 +22,12 @@
     "clean:self": "rm -rf build",
     "generate-cvr-fixtures": "pnpm build:self && ./bin/generate-cvr-fixtures",
     "generate-election-packages": "pnpm build:self && ./bin/regenerate-election-packages",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "turbo run build:self --filter=$npm_package_name && vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

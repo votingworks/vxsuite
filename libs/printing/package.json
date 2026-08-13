@@ -13,10 +13,12 @@
     "clean:self": "rm -rf build",
     "generate-m404n-ppd": "./scripts/generate-m404n-ppd",
     "postinstall": "test -f /usr/bin/chromium || playwright install --with-deps chromium",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "turbo run lint:self --filter=$npm_package_name --",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "TZ=America/Anchorage vitest",
-    "test:run": "TZ=America/Anchorage vitest run",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "turbo run build:self --filter=$npm_package_name && TZ=America/Anchorage vitest",
+    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test:run:self": "TZ=America/Anchorage vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {
