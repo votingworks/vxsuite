@@ -29,7 +29,11 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from './ballots.js';
-import { miJurisdiction, msJurisdiction, nhJurisdiction } from '../test/mocks.js';
+import {
+  miJurisdiction,
+  msJurisdiction,
+  nhJurisdiction,
+} from '../test/mocks.js';
 
 const election = readElectionGeneral();
 
@@ -72,20 +76,28 @@ test('createBallotPropsForTemplate', () => {
     election,
     false
   );
-  const [allFooProps, allRegularProps] = iter(nhStateBallotProps).partition(
-    (props) => props.isFederalOfficeOnly
+  const [allDerivedProps, allRegularProps] = iter(nhStateBallotProps).partition(
+    (props) => props.variant !== undefined
   );
   for (const regularProps of allRegularProps) {
-    const matchingFooProps = allFooProps.find((fooProps) =>
-      deepEqual(fooProps, { ...regularProps, isFederalOfficeOnly: true })
+    const matchingFooProps = allDerivedProps.find((derivedProps) =>
+      deepEqual(derivedProps, {
+        ...regularProps,
+        variant: 'federalOfficeOnly',
+      })
+    );
+    const matchingUocavaProps = allDerivedProps.find((derivedProps) =>
+      deepEqual(derivedProps, { ...regularProps, variant: 'uocava' })
     );
     if (
       regularProps.ballotMode === 'official' &&
       regularProps.ballotType === BallotType.Absentee
     ) {
       expect(matchingFooProps).toBeDefined();
+      expect(matchingUocavaProps).toBeDefined();
     } else {
       expect(matchingFooProps).toBeUndefined();
+      expect(matchingUocavaProps).toBeUndefined();
     }
   }
 });

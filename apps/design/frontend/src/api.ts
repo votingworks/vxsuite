@@ -4,6 +4,7 @@ import {
   AuthErrorCode,
   ElectionUpload,
 } from '@votingworks/design-backend';
+import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -788,7 +789,7 @@ interface GetBallotPreviewInput {
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
-  isFederalOfficeOnly?: boolean;
+  variant?: NhStateBallotVariant;
 }
 
 export const getBallotPreviewPdf = {

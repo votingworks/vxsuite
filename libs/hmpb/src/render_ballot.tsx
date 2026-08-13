@@ -84,7 +84,7 @@ interface MissingSignatureError {
 export type BallotLayoutError = ContestTooLongError | MissingSignatureError;
 
 export type ContentComponentResult = Result<
-  PaginatedContent,
+  PaginatedContent | undefined,
   BallotLayoutError
 >;
 
@@ -175,7 +175,7 @@ async function paginateBallotContent<P extends object>(
     if (pageResult.isErr()) {
       return pageResult;
     }
-    const page = pageResult.ok();
+    const page = assertDefined(pageResult.ok());
     // If the leftover contests are the same as the given contests, we're in an
     // infinite loop.  This can happen if the content is too tall to fit on a
     // page. We expect the contentComponent to handle this case and throw a
@@ -217,16 +217,18 @@ async function paginateBallotContent<P extends object>(
       return blankPageResult;
     }
     const blankPage = blankPageResult.ok();
-    const lastFrameResult = frameComponent({
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...props,
-      pageNumber: pages.length + 1,
-      children: blankPage.currentPageElement,
-    });
-    if (lastFrameResult.isErr()) {
-      return lastFrameResult;
+    if (blankPage) {
+      const lastFrameResult = frameComponent({
+        // eslint-disable-next-line vx/gts-spread-like-types
+        ...props,
+        pageNumber: pages.length + 1,
+        children: blankPage.currentPageElement,
+      });
+      if (lastFrameResult.isErr()) {
+        return lastFrameResult;
+      }
+      framedPages.push(lastFrameResult.ok());
     }
-    framedPages.push(lastFrameResult.ok());
   }
 
   return ok(framedPages);
@@ -669,15 +671,12 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // can still compute positions for them, and it's important that their bubble positions match
   // official ballots.
   const positionsByBallotStyle = iter(ballotLayouts)
-    // NH state ballots have a "federal office only" variant that only includes
-    // federal offices, which of course changes the layout of the bubbles. These
-    // ballots aren't tabulated, so we can simply filter them out.
+    // NH state ballots have variants that aren't tabulated by machine and so
+    // don't need to share bubble positions with the scanned ballots
     .filter(
       (ballot) =>
-        !(
-          'isFederalOfficeOnly' in ballot.props &&
-          ballot.props.isFederalOfficeOnly
-        )
+        !('variant' in ballot.props && ballot.props.variant) &&
+        !('isHandCount' in ballot.props && ballot.props.isHandCount)
     )
     .map((ballot) => ballot.ballotStylePositions)
     .toMap((positions) => positions.ballotStyleId);

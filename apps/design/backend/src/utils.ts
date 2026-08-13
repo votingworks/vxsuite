@@ -16,13 +16,21 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
-import { AnyBallotProps } from '@votingworks/hmpb';
+import { AnyBallotProps, NhStateBallotVariant } from '@votingworks/hmpb';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
 import { Jurisdiction, User } from './types.js';
 import { type StateFeaturesConfig } from './features.js';
 
 export function getBallotPdfFileName(props: AnyBallotProps): string {
   const precinct = assertDefined(getPrecinctById(props));
+  const variantSuffixes: Record<NhStateBallotVariant, string> = {
+    federalOfficeOnly: 'foo',
+    uocava: 'uocava',
+  };
+  const variantSuffix =
+    'variant' in props && props.variant
+      ? variantSuffixes[props.variant]
+      : undefined;
   const baseName = [
     props.ballotMode,
     props.ballotType,
@@ -30,7 +38,7 @@ export function getBallotPdfFileName(props: AnyBallotProps): string {
     precinct.name.replaceAll(' ', '_'),
     props.ballotStyleId,
     props.ballotAuditId,
-    'isFederalOfficeOnly' in props && props.isFederalOfficeOnly && 'foo',
+    variantSuffix,
   ]
     .filter(Boolean)
     .join('-');

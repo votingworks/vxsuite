@@ -29,6 +29,7 @@ import {
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   getBallotPreviewPdf,
   getBallotTemplate,
@@ -289,7 +290,7 @@ export function BallotScreen(): JSX.Element | null {
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
-  const [isFederalOfficeOnly, setIsFederalOfficeOnly] = useState<boolean>();
+  const [variant, setVariant] = useState<NhStateBallotVariant>();
   const printIframeRef = useRef<HTMLIFrameElement>(null);
   const getBallotPreviewPdfQuery = getBallotPreviewPdf.useQuery({
     electionId,
@@ -297,7 +298,7 @@ export function BallotScreen(): JSX.Element | null {
     ballotStyleId,
     ballotType,
     ballotMode,
-    isFederalOfficeOnly,
+    variant,
   });
   const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
 
@@ -456,15 +457,19 @@ export function BallotScreen(): JSX.Element | null {
                   label: 'Federal Office Only',
                 },
               ]}
-              value={isFederalOfficeOnly ? 'federal-office-only' : ballotType}
+              value={
+                variant === 'federalOfficeOnly'
+                  ? 'federal-office-only'
+                  : ballotType
+              }
               onChange={(value) => {
                 if (value === 'federal-office-only') {
-                  setIsFederalOfficeOnly(true);
+                  setVariant('federalOfficeOnly');
                   setBallotType(BallotType.Absentee);
                   setBallotMode('official');
                 } else {
                   setBallotType(value);
-                  setIsFederalOfficeOnly(false);
+                  setVariant(undefined);
                 }
               }}
               inverse
@@ -491,7 +496,7 @@ export function BallotScreen(): JSX.Element | null {
             ]}
             value={ballotMode}
             onChange={setBallotMode}
-            disabled={isFederalOfficeOnly}
+            disabled={variant !== undefined}
             inverse
           />
 

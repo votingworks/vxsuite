@@ -181,7 +181,20 @@ export function createBallotPropsForTemplate(
       props,
       ...(props.ballotMode === 'official' &&
       props.ballotType === BallotType.Absentee
-        ? [{ ...props, isFederalOfficeOnly: true }]
+        ? ([
+            {
+              ...props,
+              ballotType: BallotType.Absentee,
+              ballotMode: 'official',
+              variant: 'federalOfficeOnly',
+            },
+            {
+              ...props,
+              ballotType: BallotType.Absentee,
+              ballotMode: 'official',
+              variant: 'uocava',
+            },
+          ] as const)
         : []),
     ];
   }

@@ -19,10 +19,23 @@ import {
   TIMING_MARK_DIMENSIONS,
 } from '../ballot_components';
 
+// Federal Office Only (FOO) and UOCAVA absentee ballot variants
+// FOO: only federal-level offices
+// UOCAVA: overseas and military voters
+// These ballots aren't tabulated
+export type NhStateBallotVariant = 'federalOfficeOnly' | 'uocava';
+
 export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
+  // Hand-count towns need ballots that are not tabulatable (no timing marks, no QR code)
   isHandCount?: boolean;
-  isFederalOfficeOnly?: boolean;
-};
+} & (
+    | { variant?: undefined }
+    | {
+        variant: NhStateBallotVariant;
+        ballotType: BallotType.Absentee;
+        ballotMode: 'official';
+      }
+  );
 
 const FONT_DECLARATIONS = css`
   @font-face {
@@ -282,6 +295,8 @@ export function HandCountInsignia({
           fontFamily: 'Times New Roman',
           fontSize: '18pt',
           fontWeight: 'bold',
+          textAlign: 'center',
+          lineHeight: 1,
         }}
       >
         {electionStrings.jurisdictionName(election.jurisdiction)}
@@ -329,13 +344,15 @@ const arrowNextPage = (
 export function Footer({
   pageNumber,
   totalPages,
+  ballotMode,
   isHandCount,
-  isFederalOfficeOnly,
+  variant,
 }: {
   pageNumber: number;
   totalPages?: number;
+  ballotMode: BallotMode;
   isHandCount?: boolean;
-  isFederalOfficeOnly?: boolean;
+  variant?: NhStateBallotVariant;
 }): JSX.Element {
   return (
     <div
@@ -345,8 +362,17 @@ export function Footer({
         gap: '1rem',
       }}
     >
-      <div>
-        <QrCodeSlot hideQrCode={isHandCount || isFederalOfficeOnly} />
+      <div
+        style={{
+          // Ballots that don't get tabulated by a scanner don't need metadata.
+          display: isHandCount || variant !== undefined ? 'none' : undefined,
+          // Sample ballots also don't have metadata, but need to exactly match
+          // the layout of their official counterparts, so we hide the metadata
+          // instead of omitting it so it still takes up space in the layout.
+          visibility: ballotMode === 'sample' ? 'hidden' : undefined,
+        }}
+      >
+        <QrCodeSlot />
         <div
           style={{
             fontSize: '8pt',

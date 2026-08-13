@@ -61,6 +61,7 @@ import {
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   NhStateBallotProps,
+  NhStateBallotVariant,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings, execFile } from '@votingworks/backend';
@@ -837,7 +838,7 @@ export function buildApi(ctx: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
-      isFederalOfficeOnly?: boolean;
+      variant?: NhStateBallotVariant;
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
@@ -867,8 +868,7 @@ export function buildApi(ctx: AppContext) {
           props.ballotType === input.ballotType &&
           props.ballotMode === input.ballotMode &&
           (ballotTemplateId === 'NhStateBallot'
-            ? Boolean((props as NhStateBallotProps).isFederalOfficeOnly) ===
-              Boolean(input.isFederalOfficeOnly)
+            ? (props as NhStateBallotProps).variant === input.variant
             : true)
       );
       const renderer = await createPlaywrightRenderer();
