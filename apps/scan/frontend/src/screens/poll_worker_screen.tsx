@@ -91,7 +91,7 @@ const BallotsAlreadyScannedScreen = (
       title="Ballots Already Scanned"
       image={
         <FullScreenIconWrapper>
-          <Icons.Delete color="danger" />
+          <Icons.Cancel color="danger" />
         </FullScreenIconWrapper>
       }
     >
@@ -673,8 +673,9 @@ function PollWorkerScreenContents({
           <Screen>
             <h4 style={{ marginTop: 0, marginBottom: '0.3em' }}>
               {reports.length === 1
-                ? `Scan the QR code to send 
-              ${getPollsReportTitle(pollsInfo.lastPollsTransition.type)}`
+                ? `Scan the QR code to send ${getPollsReportTitle(
+                    pollsInfo.lastPollsTransition.type
+                  )}`
                 : `Scan all ${
                     reports.length
                   } QR codes to send ${getPollsReportTitle(

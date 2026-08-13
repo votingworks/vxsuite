@@ -8,7 +8,7 @@ interface Props {
   /** @default 'Deactivate Voting Session' */
   children?: React.ReactNode;
 
-  /** @default 'Delete' */
+  /** @default 'Cancel' */
   icon?: ButtonProps['icon'];
 
   /** @default 'danger' */
@@ -19,7 +19,7 @@ export type { Props as ResetVoterSessionButtonProps };
 export function ResetVoterSessionButton(props: Props): React.ReactNode {
   const {
     children = 'Deactivate Voting Session',
-    icon = 'Delete',
+    icon = 'Cancel',
     variant = 'danger',
   } = props;
 

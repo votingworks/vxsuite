@@ -28,7 +28,7 @@ export function ScanDoubleSheetScreen({
         title={appStrings.titleScannerMultipleSheetsDetected()}
         image={
           <FullScreenIconWrapper>
-            <Icons.Delete color="danger" />
+            <Icons.Cancel color="danger" />
           </FullScreenIconWrapper>
         }
       >

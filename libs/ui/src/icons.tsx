@@ -101,6 +101,7 @@ import {
   faVolumeDown,
   faClock,
   faHeadphones,
+  faRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -303,12 +304,8 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faBold} />;
   },
 
-  SimCard(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
-  },
-
-  Sitemap(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
+  Cancel(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faXmarkCircle} />;
   },
 
   CaretDown(props) {
@@ -434,7 +431,7 @@ export const Icons = {
   },
 
   Delete(props) {
-    return <FaIcon {...props} flipInRtlMode={false} type={faXmarkCircle} />;
+    return <FaIcon {...props} flipInRtlMode={false} type={faTrashCan} />;
   },
 
   Disabled(props) {
@@ -603,6 +600,10 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faCircleQuestion} />;
   },
 
+  Redo(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateRight} />;
+  },
+
   Rotate(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faRotate} />;
   },
@@ -621,6 +622,14 @@ export const Icons = {
 
   Settings(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faGear} />;
+  },
+
+  SimCard(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
+  },
+
+  Sitemap(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
   },
 
   Sort(props) {
@@ -675,6 +684,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faUnderline} />;
+  },
+
+  Undo(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faRotateLeft} />;
   },
 
   UsbDrive(props) {

@@ -89,7 +89,7 @@ export function BarcodeReaderDiagnosticScreen({
         </P>
         <P>Waiting for barcode scan...</P>
         <ButtonBar style={{ marginTop: '0.5rem' }}>
-          <Button icon="Delete" onPress={failTest}>
+          <Button icon="Cancel" onPress={failTest}>
             Barcode Reader Is Not Working
           </Button>
         </ButtonBar>

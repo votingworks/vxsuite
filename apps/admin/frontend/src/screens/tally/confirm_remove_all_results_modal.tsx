@@ -34,7 +34,7 @@ export function ConfirmRemoveAllResultsModal({
           <Button
             onPress={removeAllResults}
             icon="Delete"
-            color="danger"
+            variant="danger"
             disabled={isAnyMutationLoading}
           >
             Remove All Tallies

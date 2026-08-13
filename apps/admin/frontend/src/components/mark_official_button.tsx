@@ -119,7 +119,7 @@ export function RevertResultsToUnofficialButton(): JSX.Element {
   return (
     <React.Fragment>
       <Button
-        icon="Delete"
+        icon="Undo"
         color="danger"
         fill="outlined"
         disabled={!isOfficialResults}
@@ -139,7 +139,7 @@ export function RevertResultsToUnofficialButton(): JSX.Element {
           actions={
             <React.Fragment>
               <Button
-                icon="Delete"
+                icon="Undo"
                 variant="danger"
                 onPress={revertToUnofficial}
                 disabled={revertResultsToUnofficialMutation.isLoading}

@@ -1,3 +1,4 @@
+import React from 'react';
 import type {
   Voter,
   VoterAddressChange,
@@ -257,6 +258,22 @@ export function VoterMailingAddress({
   );
 }
 
+export function VoterInactive(): JSX.Element {
+  return (
+    <React.Fragment>
+      <Icons.Cancel /> Voter Inactive
+    </React.Fragment>
+  );
+}
+
+export function VoterRegistrationDeleted(): JSX.Element {
+  return (
+    <React.Fragment>
+      <Icons.Delete /> Registration Deleted
+    </React.Fragment>
+  );
+}
+
 export function VoterStatusLabel({
   voter,
 }: {
@@ -265,14 +282,14 @@ export function VoterStatusLabel({
   if (voter.isInvalidatedRegistration) {
     return (
       <Caption>
-        <Icons.Delete /> Registration Deleted
+        <VoterRegistrationDeleted />
       </Caption>
     );
   }
   if (voter.isInactive) {
     return (
       <Caption>
-        <Icons.Delete /> Voter Inactive
+        <VoterInactive />
       </Caption>
     );
   }
