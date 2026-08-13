@@ -18,6 +18,14 @@ pub enum Error {
     #[error("usb error: {source}\nBacktrace:\n{trace}")]
     Usb { source: UsbError, trace: Trace },
 
+    /// Another process already has the scanner, detected via either the
+    /// advisory lock or the USB interface claim.
+    #[error("the scanner is in use by another process")]
+    ScannerInUse,
+
+    #[error("scanner lock file error: {0}")]
+    LockFile(std::io::Error),
+
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
 

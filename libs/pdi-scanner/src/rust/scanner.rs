@@ -1,8 +1,14 @@
-use std::{future::Future, sync::Arc, time::Duration};
+use std::{
+    fs::{File, TryLockError},
+    future::Future,
+    path::Path,
+    sync::Arc,
+    time::Duration,
+};
 
 use nusb::transfer::{Completion, RequestBuffer, TransferError};
 
-use crate::{protocol::parsers, Result, UsbError};
+use crate::{protocol::parsers, Error, Result, UsbError};
 
 use super::protocol::packets::{self, Incoming};
 
@@ -69,6 +75,10 @@ pub struct Scanner {
     pub(crate) scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
     stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
     task_handle: Option<tokio::task::JoinHandle<()>>,
+    /// Advisory inter-process lock on the scanner, held for the lifetime of
+    /// the connection and released when this handle is dropped (the OS also
+    /// releases it if the process dies).
+    lock_file: Option<File>,
 }
 
 impl Scanner {
@@ -78,11 +88,14 @@ impl Scanner {
     ///
     /// # Errors
     ///
-    /// Fails if the device cannot be found, the connection cannot be opened, or
-    /// the interface cannot be claimed.
+    /// Fails if another process has the scanner, the device cannot be found,
+    /// the connection cannot be opened, or the interface cannot be claimed.
     pub fn connect() -> Result<Self> {
+        let lock_file = acquire_scanner_lock(Path::new(SCANNER_LOCK_PATH))?;
         let interface = Arc::new(open_usb_interface()?);
-        Ok(poll_scanner(&interface, Duration::from_secs(1)))
+        let mut scanner = poll_scanner(&interface, Duration::from_secs(1));
+        scanner.lock_file = Some(lock_file);
+        Ok(scanner)
     }
 
     /// Creates a scanner with mock channels and no background task. The
@@ -100,6 +113,7 @@ impl Scanner {
             scanner_to_host_rx,
             stop_tx: None,
             task_handle: None,
+            lock_file: None,
         }
     }
 
@@ -119,16 +133,59 @@ impl Scanner {
     }
 }
 
+/// Path of the lock file guarding exclusive access to the scanner across
+/// processes. `/run/lock` is world-writable on Debian, so any user's process
+/// can create and lock it.
+const SCANNER_LOCK_PATH: &str = "/run/lock/pdictl-scanner.lock";
+
+/// Takes an exclusive advisory lock on `path`, creating the file if needed.
+/// The lock lasts until the returned handle is dropped; the file itself is
+/// never deleted (deleting would let a third process lock a new file with the
+/// same name while the old one is still locked).
+///
+/// # Errors
+///
+/// Fails with [`Error::ScannerInUse`] if another process holds the lock.
+fn acquire_scanner_lock(path: &Path) -> Result<File> {
+    let file = File::create(path).map_err(Error::LockFile)?;
+    match file.try_lock() {
+        Ok(()) => Ok(file),
+        Err(TryLockError::WouldBlock) => Err(Error::ScannerInUse),
+        Err(TryLockError::Error(error)) => Err(Error::LockFile(error)),
+    }
+}
+
+/// Maps an interface claim failure to [`Error::ScannerInUse`] when the kernel
+/// reports the interface as already claimed (`EBUSY`).
+fn claim_error(error: nusb::Error) -> Error {
+    if error.kind() == std::io::ErrorKind::ResourceBusy {
+        Error::ScannerInUse
+    } else {
+        UsbError::Nusb(error).into()
+    }
+}
+
 /// Finds the PDI scanner on the USB bus, opens it, and claims its interface.
 ///
 /// # Errors
 ///
 /// Fails if the device is not found, cannot be opened, or the interface
-/// cannot be claimed.
+/// cannot be claimed, including when another process has it claimed.
 fn open_usb_interface() -> Result<nusb::Interface> {
     const INTERFACE: u8 = 0;
 
     let device = find_pdi_device()?;
+
+    // Probe the interface claim before resetting: a usbfs reset silently
+    // revokes a claim held by another process, so claim first — failing with
+    // ScannerInUse while the scanner is in use — and release the claim again
+    // for the post-reset claim below. The advisory lock in `connect` already
+    // excludes other pdictl processes; this catches everything else.
+    drop(
+        device
+            .detach_and_claim_interface(INTERFACE)
+            .map_err(claim_error)?,
+    );
 
     // Reset the USB device to prevent possible image corruption on the first
     // scan after reconnection. Without this, the first scan may produce images
@@ -140,7 +197,9 @@ fn open_usb_interface() -> Result<nusb::Interface> {
     // reset() invalidates the device handle, so re-find the device.
     let device = find_pdi_device()?;
     device.set_configuration(1)?;
-    let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
+    let scanner_interface = device
+        .detach_and_claim_interface(INTERFACE)
+        .map_err(claim_error)?;
     tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
 
     Ok(scanner_interface)
@@ -304,6 +363,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
         scanner_to_host_rx,
         stop_tx: Some(stop_tx),
         task_handle: Some(task_handle),
+        lock_file: None,
     }
 }
 
@@ -325,8 +385,8 @@ mod tests {
     };
 
     use super::{
-        poll_scanner, BulkInQueue, Scanner, UsbInterface, ENDPOINT_IN_IMAGE_DATA,
-        ENDPOINT_IN_PRIMARY, ENDPOINT_OUT,
+        acquire_scanner_lock, claim_error, poll_scanner, BulkInQueue, Scanner, UsbInterface,
+        ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY, ENDPOINT_OUT,
     };
 
     const TEST_TIMEOUT: Duration = Duration::from_millis(100);
@@ -744,5 +804,36 @@ mod tests {
             .unwrap();
         let _ = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv()).await;
         assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 3);
+    }
+
+    #[test]
+    fn scanner_lock_excludes_a_second_holder() {
+        let path =
+            std::env::temp_dir().join(format!("pdictl-scanner-lock-test-{}", std::process::id()));
+        let first = acquire_scanner_lock(&path).unwrap();
+        assert!(matches!(
+            acquire_scanner_lock(&path),
+            Err(Error::ScannerInUse)
+        ));
+        drop(first);
+        let reacquired = acquire_scanner_lock(&path);
+        assert!(reacquired.is_ok());
+        drop(reacquired);
+        std::fs::remove_file(&path).unwrap();
+    }
+
+    #[test]
+    fn claim_error_maps_busy_to_scanner_in_use() {
+        assert!(matches!(
+            claim_error(std::io::ErrorKind::ResourceBusy.into()),
+            Error::ScannerInUse
+        ));
+        assert!(matches!(
+            claim_error(std::io::ErrorKind::PermissionDenied.into()),
+            Error::Usb {
+                source: UsbError::Nusb(_),
+                ..
+            }
+        ));
     }
 }
