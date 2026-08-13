@@ -1,5 +1,5 @@
-import { unique } from '@votingworks/basics';
-import { H1, MainContent, Table } from '@votingworks/ui';
+import { throwIllegalValue, unique } from '@votingworks/basics';
+import { Caption, H1, Icons, MainContent } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -19,6 +19,12 @@ import { routes } from './routes.js';
 import { CloneElectionButton } from './clone_election_button.js';
 import { LoadElectionButton } from './load_election_button.js';
 import { FilterInput } from './filter_input.js';
+import {
+  CardList,
+  CardListItem,
+  CardListItemSubtitle,
+  CardListItemTitle,
+} from './card_list.js';
 
 export const ElectionRow = styled.tr`
   & td {
@@ -53,6 +59,62 @@ export function LinkCell(
   );
 }
 
+const StatusContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 4rem;
+`;
+
+const StatusIcon = styled.div`
+  font-size: 1.5rem;
+`;
+
+function Status({
+  icon,
+  label,
+}: {
+  icon: React.ReactNode;
+  label: string;
+}): JSX.Element {
+  return (
+    <StatusContainer>
+      <StatusIcon>{icon}</StatusIcon>
+      <Caption style={{ lineHeight: 1 }}>{label}</Caption>
+    </StatusContainer>
+  );
+}
+
+function ElectionStatus({
+  election,
+}: {
+  election: ElectionListing;
+}): JSX.Element {
+  switch (election.status) {
+    case 'notStarted':
+    case 'inProgress':
+      return (
+        <Status icon={<Icons.Contrast color="warning" />} label="In Progress" />
+      );
+    case 'ballotsFinalized':
+    case 'ballotsApproved':
+      return <Status icon={<Icons.Done color="primary" />} label="Finalized" />;
+    /* istanbul ignore next */
+    default: {
+      throwIllegalValue(election.status);
+    }
+  }
+}
+
+const ContentContainer = styled.div`
+  margin-top: -0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+`;
+
 function ElectionsList({
   elections,
   hasMultipleJurisdictions,
@@ -60,45 +122,37 @@ function ElectionsList({
   elections: ElectionListing[];
   hasMultipleJurisdictions: boolean;
 }): JSX.Element | null {
+  const history = useHistory();
+
   return (
-    <Table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Date</th>
-          {hasMultipleJurisdictions && <th>Jurisdiction</th>}
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {elections.map((election) => (
-          <ElectionRow key={election.electionId}>
-            <LinkCell election={election}>
-              {election.title || 'Untitled Election'}
-            </LinkCell>
-
-            <LinkCell election={election}>
-              {election.date &&
-                format.localeDate(
-                  election.date.toMidnightDatetimeWithSystemTimezone()
+    <CardList>
+      {elections.map((election) => (
+        <CardListItem
+          key={election.electionId}
+          onPress={() => history.push(`/elections/${election.electionId}`)}
+          leadingSlot={<ElectionStatus election={election} />}
+          contentSlot={
+            <ContentContainer>
+              <CardListItemTitle>
+                {election.title || 'Untitled Election'}
+              </CardListItemTitle>
+              <CardListItemSubtitle>
+                {election.date &&
+                  format.localeDate(
+                    election.date.toMidnightDatetimeWithSystemTimezone()
+                  )}
+                {hasMultipleJurisdictions && (
+                  <React.Fragment>
+                    {` • ${election.jurisdictionName}`}
+                  </React.Fragment>
                 )}
-            </LinkCell>
-
-            {hasMultipleJurisdictions && (
-              <LinkCell election={election}>
-                {election.jurisdictionName}
-              </LinkCell>
-            )}
-
-            <td>
-              <Row style={{ justifyContent: 'flex-end' }}>
-                <CloneElectionButton election={election} />
-              </Row>
-            </td>
-          </ElectionRow>
-        ))}
-      </tbody>
-    </Table>
+              </CardListItemSubtitle>
+            </ContentContainer>
+          }
+          trailingSlot={<CloneElectionButton election={election} />}
+        />
+      ))}
+    </CardList>
   );
 }
 
@@ -143,15 +197,8 @@ export function ElectionsScreen({
         <H1>Elections</H1>
       </Header>
       <MainContent>
-        <Column style={{ gap: '1rem', height: '100%', overflow: 'hidden' }}>
-          <Row
-            style={{
-              gap: '0.5rem',
-              // Leave space for focus outlines on buttons/input, which
-              // otherwise overflow and are hidden
-              margin: '0.125rem',
-            }}
-          >
+        <Column style={{ gap: '1rem' }}>
+          <Row style={{ gap: '0.5rem' }}>
             <FilterInput
               value={filterText}
               onChange={setFilterText}
@@ -171,12 +218,10 @@ export function ElectionsScreen({
             <LoadElectionButton disabled={anyMutationIsLoading} />
           </Row>
 
-          <div style={{ overflow: 'auto' }}>
-            <ElectionsList
-              elections={filteredElections}
-              hasMultipleJurisdictions={hasMultipleJurisdictions}
-            />
-          </div>
+          <ElectionsList
+            elections={filteredElections}
+            hasMultipleJurisdictions={hasMultipleJurisdictions}
+          />
         </Column>
       </MainContent>
     </NavScreen>

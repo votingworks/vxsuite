@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useState } from 'react';
-import { ok } from '@votingworks/basics';
+import { assertDefined, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
@@ -20,7 +20,12 @@ import {
   generalElectionRecord,
   primaryElectionRecord,
 } from '../test/fixtures.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { ElectionsScreen } from './elections_screen.js';
 import { routes } from './routes.js';
@@ -172,6 +177,17 @@ test('clone buttons are rendered', async () => {
   ]);
 });
 
+function getElectionItem(title: string): HTMLElement {
+  const heading = screen.getByRole('heading', { name: title });
+  return assertDefined(heading.closest<HTMLElement>('[role="button"]'));
+}
+
+function getElectionItemTitles() {
+  return screen
+    .getAllByRole('heading', { level: 3 })
+    .map((heading) => heading.textContent);
+}
+
 test('single jurisdiction elections list', async () => {
   const [general, primary] = [
     generalElectionRecord(jurisdiction.id),
@@ -185,29 +201,67 @@ test('single jurisdiction elections list', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const table = screen.getByRole('table');
-
-  // Verify the single jurisdiction table headers (no Status or Jurisdiction columns)
-  const headers = within(table).getAllByRole('columnheader');
-  expect(headers.map((header) => header.textContent)).toEqual([
-    'Title',
-    'Date',
-    '', // Clone button column
+  expect(getElectionItemTitles()).toEqual([
+    general.election.title,
+    primary.election.title,
   ]);
 
-  // Verify elections are displayed correctly
-  const rows = within(table).getAllByRole('row').slice(1);
-  expect(rows).toHaveLength(2);
+  const generalRow = getElectionItem(general.election.title);
+  within(generalRow).getByText('Nov 3, 2020');
+  within(generalRow).getByText('In Progress');
+  // No jurisdiction shown for single-jurisdiction users
+  expect(generalRow).not.toHaveTextContent('jurisdiction1 Name');
 
-  // Check first election row content
-  const firstRowCells = within(rows[0]).getAllByRole('cell');
-  expect(firstRowCells[0]).toHaveTextContent(general.election.title);
-  expect(firstRowCells[1]).toHaveTextContent('Nov 3, 2020');
+  const primaryRow = getElectionItem(primary.election.title);
+  within(primaryRow).getByText('Sep 8, 2021');
+  within(primaryRow).getByText('In Progress');
+});
 
-  // Check second election row content
-  const secondRowCells = within(rows[1]).getAllByRole('cell');
-  expect(secondRowCells[0]).toHaveTextContent(primary.election.title);
-  expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
+test('clicking an election item navigates to the election', async () => {
+  const general = generalElectionRecord(jurisdiction.id);
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections.expectCallWith().resolves([electionListing(general)]);
+
+  const { history } = renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  userEvent.click(getElectionItem(general.election.title));
+  expect(history.location.pathname).toEqual(
+    `/elections/${general.election.id}`
+  );
+});
+
+test('election status indicators', async () => {
+  const general = generalElectionRecord(jurisdiction.id);
+  function listing(
+    electionId: string,
+    title: string,
+    status: ElectionListing['status']
+  ): ElectionListing {
+    return {
+      ...electionListing(general),
+      electionId: unsafeParse(ElectionIdSchema, electionId),
+      title,
+      status,
+    };
+  }
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections
+    .expectCallWith()
+    .resolves([
+      listing('not-started', 'Not Started Election', 'notStarted'),
+      listing('in-progress', 'In Progress Election', 'inProgress'),
+      listing('finalized', 'Finalized Election', 'ballotsFinalized'),
+      listing('approved', 'Approved Election', 'ballotsApproved'),
+    ]);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  within(getElectionItem('Not Started Election')).getByText('In Progress');
+  within(getElectionItem('In Progress Election')).getByText('In Progress');
+  within(getElectionItem('Finalized Election')).getByText('Finalized');
+  within(getElectionItem('Approved Election')).getByText('Finalized');
 });
 
 test('elections list for user with multiple jurisdictions', async () => {
@@ -224,36 +278,28 @@ test('elections list for user with multiple jurisdictions', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const table = screen.getByRole('table');
-
-  const headers = within(table).getAllByRole('columnheader');
-  expect(headers.map((header) => header.textContent)).toEqual([
-    'Title',
-    'Date',
-    'Jurisdiction',
-    '', // Clone button column
+  expect(getElectionItemTitles()).toEqual([
+    generalJurisdiction1.election.title,
+    'Untitled Election',
   ]);
 
-  const rows = within(table).getAllByRole('row').slice(1);
-  expect(rows).toHaveLength(2);
+  // Rows show each election's jurisdiction in the subtitle
+  const firstRow = getElectionItem(generalJurisdiction1.election.title);
+  within(firstRow).getByText(/jurisdiction1 Name/);
 
-  const firstRowCells = within(rows[0]).getAllByRole('cell');
-  expect(firstRowCells[2]).toHaveTextContent('jurisdiction1 Name');
-  const secondRowCells = within(rows[1]).getAllByRole('cell');
-  expect(secondRowCells[0]).toHaveTextContent('Untitled Election');
-  expect(secondRowCells[1]).toHaveTextContent(
-    format.localeDate(
-      generalJurisdiction2.election.date.toMidnightDatetimeWithSystemTimezone()
+  const secondRow = getElectionItem('Untitled Election');
+  within(secondRow).getByText(
+    new RegExp(
+      format.localeDate(
+        generalJurisdiction2.election.date.toMidnightDatetimeWithSystemTimezone()
+      )
     )
   );
-  expect(secondRowCells[2]).toHaveTextContent('jurisdiction2 Name');
+  within(secondRow).getByText(/jurisdiction2 Name/);
 
   // Can filter by jurisdiction name
   const filterInput = screen.getByLabelText(/filter elections/i);
   userEvent.type(filterInput, 'jurisdiction2 Name');
 
-  const filteredRows = within(table).getAllByRole('row').slice(1);
-  expect(filteredRows).toHaveLength(1);
-  const filteredRowCells = within(filteredRows[0]).getAllByRole('cell');
-  expect(filteredRowCells[2]).toHaveTextContent('jurisdiction2 Name');
+  expect(getElectionItemTitles()).toEqual(['Untitled Election']);
 });
