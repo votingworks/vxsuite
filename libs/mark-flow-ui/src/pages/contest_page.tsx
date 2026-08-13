@@ -24,11 +24,11 @@ import {
   deriveStraightPartyVotesForContest,
   selectedStraightPartyId,
 } from '@votingworks/utils';
-import { Contest, ContestProps } from '../components/contest';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
-import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen';
-import { numVotesRemaining } from '../utils/vote';
+import { Contest, ContestProps } from '../components/contest.js';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header.js';
+import { VoterHelpScreenType, VoterScreen } from '../components/voter_screen.js';
+import { numVotesRemaining } from '../utils/vote.js';
 
 export interface ContestPageProps {
   ballotStyleId?: string;

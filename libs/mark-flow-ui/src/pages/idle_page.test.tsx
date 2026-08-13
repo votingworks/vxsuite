@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { IdlePage } from './idle_page';
-import { IDLE_RESET_TIMEOUT_SECONDS } from '../config/globals';
+import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import { IdlePage } from './idle_page.js';
+import { IDLE_RESET_TIMEOUT_SECONDS } from '../config/globals.js';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });

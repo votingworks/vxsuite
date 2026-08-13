@@ -4,11 +4,11 @@ import {
   type PlaywrightTestConfig,
 } from '@playwright/test';
 import { join } from 'node:path';
-import { BASE_URL, OUTPUT_DIR } from './constants';
+import { BASE_URL, OUTPUT_DIR } from './constants.js';
 
 // Resolves to the built `global_setup.js` alongside this compiled module, so
 // the path is correct regardless of which app loads the shared config.
-const GLOBAL_SETUP_PATH = join(__dirname, 'global_setup.js');
+const GLOBAL_SETUP_PATH = join(import.meta.dirname, 'global_setup.js');
 
 /** Options for {@link defineIntegrationTestPlaywrightConfig}. */
 export interface IntegrationTestPlaywrightConfigOptions {

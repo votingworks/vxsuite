@@ -18,7 +18,7 @@ import {
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
   idleTimeoutWarningStringFn,
-} from '../config/globals';
+} from '../config/globals.js';
 
 const timeoutSeconds = IDLE_RESET_TIMEOUT_SECONDS;
 

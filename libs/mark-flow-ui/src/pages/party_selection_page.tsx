@@ -18,8 +18,8 @@ import {
   ReadOnLoad,
   WithScrollButtons,
 } from '@votingworks/ui';
-import { VoterScreen } from '../components/voter_screen';
-import { useIsReviewMode } from './contest_page';
+import { VoterScreen } from '../components/voter_screen.js';
+import { useIsReviewMode } from './contest_page.js';
 
 const Header = styled.div`
   padding: 0.5rem;

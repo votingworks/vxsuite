@@ -2,8 +2,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionInfoBar, ElectionInfoBarProps } from '@votingworks/ui';
-import { UnconfiguredPollingPlaceScreen } from './unconfigured_polling_place_screen';
-import { render, screen } from '../../test/react_testing_library';
+import { UnconfiguredPollingPlaceScreen } from './unconfigured_polling_place_screen.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),
