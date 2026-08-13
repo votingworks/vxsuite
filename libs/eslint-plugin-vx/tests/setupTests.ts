@@ -1,5 +1,5 @@
-import { describe, test } from 'vitest';
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { afterAll, describe, it } from 'vitest';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 
 // `@typescript-eslint/parser` switches to "single-run" program management when
 // `CI=true`, which causes our `RuleTester` runs to read fixture files from
@@ -8,6 +8,7 @@ import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
 // regardless of how tests are invoked.
 process.env['TSESTREE_SINGLE_RUN'] = 'false';
 
+RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;
-RuleTester.it = test;
-RuleTester.itOnly = test.only;
+RuleTester.it = it;
+RuleTester.itOnly = it.only;

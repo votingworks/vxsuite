@@ -103,7 +103,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
   create(context) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
     const forEachStack: TransformableForEach[] = [];
     let functionLevel = 0;
 

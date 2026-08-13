@@ -8,7 +8,6 @@ import { createPlaywrightRenderer } from './playwright_renderer';
 import { renderBallotPreviewToPdf } from './render_ballot';
 import { Renderer } from './renderer';
 
-// eslint-disable-next-line vitest/valid-title
 const rendererTest = test.extend<{ renderer: Renderer }>({
   // eslint-disable-next-line no-empty-pattern
   renderer: async ({}, use) => {

@@ -1,14 +1,15 @@
-import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
 import rule from '../../src/rules/gts_array_type_style';
 
 const ruleTester = new RuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    tsconfigRootDir: join(__dirname, '../fixtures'),
-    project: './tsconfig.json',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      tsconfigRootDir: join(__dirname, '../fixtures'),
+      project: './tsconfig.json',
+    },
   },
-  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 ruleTester.run('gts-array-type-style', rule, {
@@ -77,17 +78,16 @@ ruleTester.run('gts-array-type-style', rule, {
       errors: [{ messageId: 'useShortArrayType', line: 1 }],
       output: 'const m: Array<string[]>',
     },
-    // FIXME: In these tests, the fixer output only transforms one array type,
-    // not the nested one. This is possibly due to overlap in the fix ranges.
-    // When run using eslint against real files, it works correctly.
     {
       code: 'const k: T<string>[][]',
       errors: [
         { messageId: 'useLongArrayType', line: 1 },
         { messageId: 'useLongArrayType', line: 1 },
       ],
-      output: 'const k: Array<T<string>>[]',
-      // output: 'const k: Array<Array<T<string>>>',
+      output: [
+        'const k: Array<T<string>>[]',
+        'const k: Array<Array<T<string>>>',
+      ],
     },
     {
       code: 'const l: Array<string>[]',
@@ -95,8 +95,7 @@ ruleTester.run('gts-array-type-style', rule, {
         { messageId: 'useLongArrayType', line: 1 },
         { messageId: 'useShortArrayType', line: 1 },
       ],
-      output: 'const l: string[][]',
-      // output: 'const l: Array<string[]>',
+      output: ['const l: string[][]', 'const l: Array<string[]>'],
     },
   ],
 });

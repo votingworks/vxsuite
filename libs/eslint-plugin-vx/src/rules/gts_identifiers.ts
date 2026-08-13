@@ -60,7 +60,6 @@ const rule: TSESLint.RuleModule<
         )
         .join('|')}$`
     );
-    const processedScopes = new Set<ReturnType<(typeof context)['getScope']>>();
 
     function isAllowedName(name: string): boolean {
       return allowedNamesPattern.test(name);
@@ -129,27 +128,29 @@ const rule: TSESLint.RuleModule<
         }
       },
 
-      '*': (): void => {
-        const scope = context.getScope();
-        if (processedScopes.has(scope)) {
-          return;
-        }
-        processedScopes.add(scope);
+      'Program:exit': (node: TSESTree.Node): void => {
+        function visitScope(
+          scope: ReturnType<typeof context.sourceCode.getScope>
+        ): void {
+          for (const variable of scope.variables) {
+            const [id] = variable.identifiers;
+            const [def] = variable.defs;
 
-        for (const variable of scope.variables) {
-          const [id] = variable.identifiers;
-          const [def] = variable.defs;
+            if (!id || !def) {
+              continue;
+            }
 
-          if (!id || !def) {
-            continue;
+            if (def.node.type === AST_NODE_TYPES.ImportSpecifier) {
+              continue;
+            }
+
+            checkIdentifier(id);
           }
-
-          if (def.node.type === AST_NODE_TYPES.ImportSpecifier) {
-            continue;
+          for (const child of scope.childScopes) {
+            visitScope(child);
           }
-
-          checkIdentifier(id);
         }
+        visitScope(context.sourceCode.getScope(node));
       },
     };
   },

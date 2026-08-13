@@ -21,7 +21,7 @@ const rule: TSESLint.RuleModule<'noPublicModifier', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
 
       function reportPublicToken(node: TSESTree.Node): void {
         const [publicToken, nextToken] = sourceCode.getFirstTokens(node, {

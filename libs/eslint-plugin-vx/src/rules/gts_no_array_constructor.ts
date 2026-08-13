@@ -20,7 +20,7 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
 
       function processNode(
         node: TSESTree.CallExpression | TSESTree.NewExpression

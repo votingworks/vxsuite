@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise -- checking `ts.TypeFlags` bit flags */
 import {
   AST_NODE_TYPES,
   ESLintUtils,

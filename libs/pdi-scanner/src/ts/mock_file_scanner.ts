@@ -52,7 +52,6 @@ function blankGrayscalePage(width: number, height: number): ImageData {
 }
 
 interface LoggableImageData extends ImageData {
-  // eslint-disable-next-line vx/gts-identifiers
   toJSON(): string;
 }
 

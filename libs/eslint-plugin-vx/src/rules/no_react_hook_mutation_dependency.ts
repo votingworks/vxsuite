@@ -1,5 +1,4 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
-import assert from 'node:assert';
 import { createRule } from '../util';
 
 const HOOKS_WITH_DEPS = [
@@ -45,20 +44,23 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
           }
 
           const { parserServices } = context.sourceCode;
-          assert(parserServices, `sourceCode.parserServices must be defined`);
+          if (
+            !parserServices?.esTreeNodeToTSNodeMap ||
+            !parserServices?.program
+          ) {
+            return;
+          }
           const tsNodeMap = parserServices.esTreeNodeToTSNodeMap;
-          assert(tsNodeMap, `parserServices.tsNodeMap must be defined`);
-          assert(parserServices.program);
           const typeChecker = parserServices.program.getTypeChecker();
 
           const mutation = deps.elements.find((element) => {
-            /* istanbul ignore next - unsure how to reproduce this */
+            /* istanbul ignore next - unsure how to reproduce this @preserve */
             if (!element) {
               return false;
             }
 
             const type = typeChecker.getTypeAtLocation(tsNodeMap.get(element));
-            /* istanbul ignore next - unsure how to reproduce aliasSymbol in tests */
+            /* istanbul ignore next - unsure how to reproduce aliasSymbol in tests @preserve */
             const typeName = type.symbol?.name ?? type.aliasSymbol?.name;
             return typeName === MUTATION_TYPE_NAME;
           });

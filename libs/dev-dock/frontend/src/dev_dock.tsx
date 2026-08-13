@@ -1139,6 +1139,7 @@ function DevDockWrapper({
       <VxThemeProvider colorMode="desktop" sizeMode="desktop">
         <ApiClientContext.Provider value={apiClient}>
           <DevDock enableAccessibleNav={enableAccessibleNav} />
+          {/* eslint-disable-next-line no-constant-binary-expression */}
           {false && <ReactQueryDevtools initialIsOpen={false} />}
         </ApiClientContext.Provider>
       </VxThemeProvider>

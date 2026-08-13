@@ -1,4 +1,0 @@
-build
-vitest.config.ts
-coverage
-*.config.ts

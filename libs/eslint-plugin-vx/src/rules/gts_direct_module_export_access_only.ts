@@ -24,7 +24,7 @@ const rule: TSESLint.RuleModule<'directAccessOnly', readonly unknown[]> =
         ImportNamespaceSpecifier(
           node: TSESTree.ImportNamespaceSpecifier
         ): void {
-          const scope = context.getScope();
+          const scope = context.sourceCode.getScope(node);
           const variable = scope.set.get(node.local.name);
           assert(variable);
 

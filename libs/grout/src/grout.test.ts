@@ -563,7 +563,6 @@ test('middleware runs before and after RPC method, adding context that can be ac
 });
 
 test('before middleware errors are caught, returned to client, and passed to after middleware', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Context {}
 
   const authMiddleware = vi.fn(() => {

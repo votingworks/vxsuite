@@ -85,7 +85,7 @@ const rule: TSESLint.RuleModule<
   create(context, [options]) {
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
     return {
       ExpressionStatement(node: TSESTree.ExpressionStatement): void {

@@ -56,7 +56,6 @@ export function makeExecError({
  */
 export async function exec(
   file: string,
-  // eslint-disable-next-line default-param-last
   args: readonly string[] = [],
   stdin?:
     | string

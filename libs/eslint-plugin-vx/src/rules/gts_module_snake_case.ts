@@ -35,11 +35,11 @@ const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
     defaultOptions: [],
 
     create(context) {
-      const sourceCode = context.getSourceCode();
+      const { sourceCode } = context;
 
       return {
         Program(node: TSESTree.Program): void {
-          const filePath = context.getFilename();
+          const filePath = context.filename;
 
           if (!shouldBeSnakeCase(filePath)) {
             return;

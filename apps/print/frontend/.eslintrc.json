@@ -1,6 +1,0 @@
-{
-  "extends": ["plugin:vx/react"],
-  "rules": {
-    "vx/gts-jsdoc": "off"
-  }
-}

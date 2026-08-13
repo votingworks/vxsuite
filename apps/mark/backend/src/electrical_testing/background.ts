@@ -43,7 +43,6 @@ export async function runCardReadAndUsbDriveWriteTask({
     workspace.store.setElectricalTestingStatusMessage('card', message);
   });
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     // Exit the loop if both tasks are stopped.
     if (cardTask.isStopped() && usbDriveTask.isStopped()) {
@@ -150,7 +149,6 @@ export async function runPrinterTestTask({
 
   let lastPrintTime = 0;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (printerTask.isStopped()) {
       break;

@@ -1,6 +1,0 @@
-/coverage
-/build
-/src/**/*.js
-*.d.ts
-vitest.config.mts
-/config

@@ -19,7 +19,7 @@ import { SettingsScreen } from './settings_screen.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = vi.hoisted(() => {
-  // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports
+  // eslint-disable-next-line global-require
   const { getFeatureFlagMock } = require('@votingworks/utils');
   return getFeatureFlagMock();
 });
