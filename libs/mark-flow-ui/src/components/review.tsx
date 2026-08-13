@@ -21,7 +21,6 @@ import {
   VoterContestSummary,
   Button,
   appStrings,
-  CandidatePartyList,
   electionStrings,
   NumberString,
   WithAltAudio,
@@ -42,6 +41,7 @@ import {
 } from '../config/types.js';
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { CandidateInfoCaption } from './candidate_info_caption.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
 import {
   deriveStraightPartyVotesFromOrderedCandidates,
@@ -118,24 +118,17 @@ function CandidateContestResult({
           (c) => c.id === candidate.id
         );
         const matchesSelectedStraightParty =
-          selectedStraightPartyId &&
-          candidate.partyIds?.includes(selectedStraightPartyId);
+          !!selectedStraightPartyId &&
+          !!candidate.partyIds?.includes(selectedStraightPartyId);
         return {
           caption: candidate.isWriteIn ? (
             appStrings.labelWriteInParenthesized()
           ) : (
-            <React.Fragment>
-              <CandidatePartyList
-                candidate={candidate}
-                electionParties={election.parties}
-              />
-              {matchesSelectedStraightParty && (
-                <span>
-                  {' - '}
-                  {appStrings.labelStraightPartyVote()}
-                </span>
-              )}
-            </React.Fragment>
+            <CandidateInfoCaption
+              candidate={candidate}
+              election={election}
+              matchesSelectedStraightParty={matchesSelectedStraightParty}
+            />
           ),
           id: candidate.id,
           partyIds: candidate.partyIds,
