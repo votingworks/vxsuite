@@ -1,7 +1,11 @@
-import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { afterEach, expect, test, vi } from 'vitest';
+import { act, render, screen } from '../test/react_testing_library';
 
-import { Loading } from './loading';
+import { FULLSCREEN_LOADING_DELAY_MS, Loading } from './loading';
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 test('Renders Loading with defaults', () => {
   const { container } = render(<Loading />);
@@ -10,6 +14,7 @@ test('Renders Loading with defaults', () => {
 });
 
 test('Renders Loading with: fullscreen, tag, label, and animation duration', () => {
+  vi.useFakeTimers();
   const { container } = render(
     <Loading isFullscreen as="p" animationDurationS={1}>
       Printing
@@ -17,6 +22,13 @@ test('Renders Loading with: fullscreen, tag, label, and animation duration', () 
   );
   expect(container.firstChild).toHaveStyleRule('display', 'flex');
   expect(container.firstChild).toHaveStyleRule('flex', '1');
+
+  // The fullscreen indicator is delayed to avoid flashing on fast loads
+  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  act(() => {
+    vi.advanceTimersByTime(FULLSCREEN_LOADING_DELAY_MS);
+  });
+
   const progressEllipsis = screen.getByText('Printing');
   expect(progressEllipsis).toHaveStyleRule(
     'animation',
