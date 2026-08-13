@@ -91,13 +91,22 @@ pub struct ScoredBubbleMark {
     /// x/y.
     pub location: GridLocation,
 
-    /// The score for the match between the source image and the template. This
-    /// is the highest value found when looking around `expected_bounds` for the
-    /// bubble. 100% is a perfect match.
+    /// The score for the match between the source image and the template: the
+    /// fraction of the template area where the scan does not contradict the
+    /// template. This is the highest value found when looking around
+    /// `expected_bounds` for the bubble. 100% is a perfect match, but the score
+    /// cannot drop below the template's blank-paper fraction (roughly two
+    /// thirds), because those pixels count no matter what the scan holds there.
+    /// Only the ordering of these scores across candidate positions is used;
+    /// see `BubbleRegion` for what the score does and does not measure.
     pub match_score: UnitIntervalScore,
 
-    /// The score for the fill of the bubble at `matched_bounds`. 100% is
-    /// perfectly filled.
+    /// The score for the fill of the bubble at `matched_bounds`: the fraction of
+    /// the template area covered by ink the blank template does not have. Only
+    /// the template's blank-paper pixels can contribute, so the score is capped
+    /// at that fraction of the template area — roughly two thirds — and a
+    /// completely filled bubble scores near that cap rather than at 100%. Mark
+    /// thresholds are calibrated on this scale.
     pub fill_score: UnitIntervalScore,
 
     /// The expected bounds of the bubble mark in the scanned source image.
@@ -242,6 +251,22 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
 /// match score means the bubble outline in the scan aligns well with the
 /// template — used to find the best bubble position within a search window.
 ///
+/// Read the other way around, the *only* pixels that fail that condition are
+/// the ones where the template expects the outline but the scan came back
+/// light, so maximizing the match score is minimizing that single count. The
+/// white pixels contribute the same fixed number at every candidate position,
+/// which is what keeps alignment independent of how filled the bubble is: a
+/// marked bubble and a blank one at the same position score identically. An
+/// equality test (`source_is_dark == template_is_black`) would not — it drags
+/// the search off a filled bubble and onto the surrounding margin, looking for
+/// the blank paper the template expects inside the outline.
+///
+/// One consequence of counting the white pixels unconditionally is that the
+/// score's absolute value carries little information: they put a floor under it
+/// (see [`ScoredBubbleMark::match_score`]). Only the ordering across candidate
+/// positions is used, and adding that fixed count to every candidate cannot
+/// change it.
+///
 /// ## Fill score
 ///
 /// Measures how much ink is present where blank paper is expected. A pixel is
@@ -328,6 +353,203 @@ impl<'a> BubbleRegion<'a> {
     }
 }
 
+/// The best template placement found by a bubble search.
+struct BestMatch {
+    bounds: Rect,
+    score: UnitIntervalScore,
+}
+
+/// Bit-packed view of the pixels a bubble search touches: one `u64` per row
+/// of the search window with bit `c` set when the pixel at window column `c`
+/// is dark, and one `u64` per template row with bit `c` set when the template
+/// pixel is white. The match count at offset `(dx, dy)` — the number of
+/// pixels where `source_is_dark || template_is_white`, exactly as
+/// [`BubbleRegion::match_score`] counts them — is then a `popcount` of
+/// `(window_row >> dx) | template_row` per overlapped row, masked to the
+/// template width.
+struct PackedBubbleWindow {
+    window_rows: Vec<u64>,
+    template_rows: Vec<u64>,
+    template_width_mask: u64,
+    /// Number of candidate offsets along each axis (`2 * search distance`).
+    offsets_per_axis: usize,
+}
+
+impl PackedBubbleWindow {
+    /// Packs the search window whose offset `(0, 0)` places the template's
+    /// top-left corner at `(left - distance, top - distance)`. Returns `None`
+    /// when any candidate placement would fall outside the image (the caller
+    /// must handle edge clipping) or when a window row does not fit in a
+    /// `u64`.
+    fn new(
+        img: &GrayImage,
+        template: &GrayImage,
+        left: PixelPosition,
+        top: PixelPosition,
+        distance: PixelUnit,
+        threshold: u8,
+    ) -> Option<Self> {
+        fn pack_row(row: &[u8], is_set: impl Fn(u8) -> bool) -> u64 {
+            row.iter()
+                .enumerate()
+                .fold(0u64, |bits, (c, &p)| bits | (u64::from(is_set(p)) << c))
+        }
+
+        let (template_width, template_height) = template.dimensions();
+        if template_width == 0 || template_height == 0 || distance == 0 {
+            return None;
+        }
+        let offsets_per_axis = distance as usize * 2;
+        // Offsets range over `-distance..distance`, so the window spans
+        // `template size + 2 * distance - 1` pixels along each axis.
+        let window_width = template_width as usize + offsets_per_axis - 1;
+        let window_height = template_height as usize + offsets_per_axis - 1;
+        if window_width > u64::BITS as usize {
+            return None;
+        }
+
+        let window_left = left.checked_sub(distance as PixelPosition)?;
+        let window_top = top.checked_sub(distance as PixelPosition)?;
+        if window_left < 0
+            || window_top < 0
+            || window_left as usize + window_width > img.width() as usize
+            || window_top as usize + window_height > img.height() as usize
+        {
+            return None;
+        }
+
+        let stride = img.width() as usize;
+        let pixels = img.as_raw();
+        let mut window_rows = Vec::with_capacity(window_height);
+        let mut row_start = window_top as usize * stride + window_left as usize;
+        for _ in 0..window_height {
+            window_rows.push(pack_row(
+                &pixels[row_start..row_start + window_width],
+                |p| p <= threshold,
+            ));
+            row_start += stride;
+        }
+
+        let template_rows = template
+            .as_raw()
+            .chunks_exact(template_width as usize)
+            .map(|row| pack_row(row, |p| p == 255))
+            .collect();
+
+        Some(Self {
+            window_rows,
+            template_rows,
+            template_width_mask: (1u64 << template_width) - 1,
+            offsets_per_axis,
+        })
+    }
+
+    /// Counts matching pixels (`source_is_dark || template_is_white`) with the
+    /// template's top-left corner at window offset `(dx, dy)`.
+    fn match_count(&self, dx: usize, dy: usize) -> u32 {
+        self.window_rows[dy..dy + self.template_rows.len()]
+            .iter()
+            .zip(&self.template_rows)
+            .map(|(&window, &template)| {
+                (((window >> dx) | template) & self.template_width_mask).count_ones()
+            })
+            .sum()
+    }
+
+    /// Finds the offset with the highest match count, scoring every offset.
+    /// Iterates x-major with a strictly-greater update, matching
+    /// [`find_best_match_bytes`]'s tie-breaking exactly.
+    fn find_best(&self) -> Option<(usize, usize, u32)> {
+        let mut best: Option<(usize, usize, u32)> = None;
+        for dx in 0..self.offsets_per_axis {
+            for dy in 0..self.offsets_per_axis {
+                let count = self.match_count(dx, dy);
+                if best.is_none_or(|(_, _, best_count)| count > best_count) {
+                    best = Some((dx, dy, count));
+                }
+            }
+        }
+        best
+    }
+}
+
+/// Finds the best template placement using bit-packed rows and `popcount`.
+/// Returns `None` when any candidate placement would fall outside the image
+/// or a window row would not fit in a `u64`; the caller must then use
+/// [`find_best_match_bytes`], which clips candidates instead. When both are
+/// applicable they produce bit-identical results (see the property test
+/// pinning one against the other).
+fn find_best_match_packed(
+    img: &GrayImage,
+    template: &GrayImage,
+    left: PixelPosition,
+    top: PixelPosition,
+    distance: PixelUnit,
+    threshold: u8,
+) -> Option<BestMatch> {
+    let (width, height) = template.dimensions();
+    let packed = PackedBubbleWindow::new(img, template, left, top, distance, threshold)?;
+    packed.find_best().map(|(dx, dy, count)| BestMatch {
+        bounds: Rect::new(
+            left - distance as PixelPosition + dx as PixelPosition,
+            top - distance as PixelPosition + dy as PixelPosition,
+            width,
+            height,
+        ),
+        score: UnitIntervalScore(count as f32 / (width * height) as f32),
+    })
+}
+
+/// Finds the best template placement by scoring each candidate with the
+/// byte-per-pixel [`BubbleRegion`] loop, skipping candidates that fall
+/// outside the image.
+fn find_best_match_bytes(
+    img: &GrayImage,
+    template: &GrayImage,
+    left: PixelPosition,
+    top: PixelPosition,
+    distance: PixelUnit,
+    threshold: u8,
+) -> Option<BestMatch> {
+    let (width, height) = template.dimensions();
+    let (img_width, img_height) = img.dimensions();
+    let mut best_match: Option<BestMatch> = None;
+
+    for offset_x in -(distance as PixelPosition)..(distance as PixelPosition) {
+        let x = left + offset_x;
+        if x < 0 || x as u32 + width > img_width {
+            continue;
+        }
+
+        for offset_y in -(distance as PixelPosition)..(distance as PixelPosition) {
+            let y = top + offset_y;
+            if y < 0 || y as u32 + height > img_height {
+                continue;
+            }
+
+            let region = BubbleRegion::new(img, template, x as u32, y as u32, threshold);
+            let match_score = region.match_score();
+
+            match best_match {
+                None => {
+                    best_match = Some(BestMatch {
+                        bounds: Rect::new(x, y, width, height),
+                        score: match_score,
+                    });
+                }
+                Some(ref mut best_match) => {
+                    if match_score > best_match.score {
+                        best_match.bounds = Rect::new(x, y, width, height);
+                        best_match.score = match_score;
+                    }
+                }
+            }
+        }
+    }
+
+    best_match
+}
+
 /// Scores a bubble mark within a scanned ballot image.
 ///
 /// Compares the source image to the bubble template image at every pixel location
@@ -347,11 +569,6 @@ pub(crate) fn score_bubble_mark(
     location: &GridLocation,
     maximum_search_distance: PixelUnit,
 ) -> Option<ScoredBubbleMark> {
-    struct Match {
-        bounds: Rect,
-        score: UnitIntervalScore,
-    }
-
     let center_x = expected_bubble_center.x.round() as PixelPosition;
     let center_y = expected_bubble_center.y.round() as PixelPosition;
     let width = bubble_template.width();
@@ -361,48 +578,30 @@ pub(crate) fn score_bubble_mark(
     let expected_bounds = Rect::new(left, top, width, height);
 
     let img = ballot_image.image();
-    let img_width = img.width();
-    let img_height = img.height();
     let threshold_val = ballot_image.threshold();
-    let mut best_match = None;
 
-    for offset_x in
-        -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
-    {
-        let x = left + offset_x;
-        if x < 0 || x as u32 + width > img_width {
-            continue;
-        }
-
-        for offset_y in
-            -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
-        {
-            let y = top + offset_y;
-            if y < 0 || y as u32 + height > img_height {
-                continue;
-            }
-
-            let region = BubbleRegion::new(img, bubble_template, x as u32, y as u32, threshold_val);
-            let match_score = region.match_score();
-
-            match best_match {
-                None => {
-                    best_match = Some(Match {
-                        bounds: Rect::new(x, y, width, height),
-                        score: match_score,
-                    });
-                }
-                Some(ref mut best_match) => {
-                    if match_score > best_match.score {
-                        best_match.bounds = Rect::new(x, y, width, height);
-                        best_match.score = match_score;
-                    }
-                }
-            }
-        }
-    }
-
-    let best_match = best_match?;
+    // The packed search requires every candidate placement to be inside the
+    // image; near the edges it returns `None` and the byte path, which clips
+    // candidates instead, takes over. Interior bubbles — all of them, in
+    // practice — take the packed path.
+    let best_match = find_best_match_packed(
+        img,
+        bubble_template,
+        left,
+        top,
+        maximum_search_distance,
+        threshold_val,
+    )
+    .or_else(|| {
+        find_best_match_bytes(
+            img,
+            bubble_template,
+            left,
+            top,
+            maximum_search_distance,
+            threshold_val,
+        )
+    })?;
     let best_region = BubbleRegion::new(
         img,
         bubble_template,
@@ -756,6 +955,40 @@ mod test {
                 (actual.0 - expected.0).abs() < f32::EPSILON,
                 "compute_fill_score={} != reference={}", actual.0, expected.0
             );
+        }
+
+        /// Whenever the packed search is applicable (the whole search window
+        /// is inside the image), it must be bit-identical to the
+        /// byte-per-pixel search: same bounds, same score, same tie-breaks.
+        /// Placements range past the image edges to also cover the packed
+        /// search declining (returning `None`) so the byte path takes over.
+        #[test]
+        fn packed_search_is_bit_identical_to_byte_search(
+            img_pixels in proptest::collection::vec(proptest::num::u8::ANY, 14_400),
+            tmpl_pixels in proptest::collection::vec(
+                proptest::strategy::Union::new([
+                    proptest::strategy::Just(0u8).boxed(),
+                    proptest::strategy::Just(255u8).boxed(),
+                ]),
+                400,
+            ),
+            threshold_val in 1u8..254,
+            left in -20i32..140,
+            top in -20i32..140,
+            search_dist in 0u32..12,
+        ) {
+            let img = GrayImage::from_raw(120, 120, img_pixels).unwrap();
+            let template = GrayImage::from_raw(20, 20, tmpl_pixels).unwrap();
+
+            if let Some(packed) = find_best_match_packed(
+                &img, &template, left, top, search_dist, threshold_val,
+            ) {
+                let bytes = find_best_match_bytes(
+                    &img, &template, left, top, search_dist, threshold_val,
+                ).unwrap();
+                prop_assert_eq!(bytes.bounds, packed.bounds);
+                prop_assert_eq!(bytes.score.0.to_bits(), packed.score.0.to_bits());
+            }
         }
     }
 }

@@ -229,32 +229,53 @@ algorithm performs template matching against
    searches within a small radius in all directions.
 
 2. **Match Score Computation**: For each position in the search area:
-   - Crop the scanned image to the bubble template size
-   - Apply binary thresholding using the ballot's global threshold
-   - Compute a difference image between the thresholded crop and the template
-   - The match score is the percentage of pixels that are white (matching) in
-     the difference image
+
+   - Threshold the scanned pixels using the ballot's global threshold
+   - Count the pixels where the scan does not contradict the template: the
+     template's blank-paper pixels always count, and the template's outline
+     pixels count only where the scan is dark
+   - The match score is that count over the template area
+
+   Read the other way around, the only pixels that don't count are those where
+   the template expects the printed outline but the scan came back light, so the
+   search is looking for the placement with the fewest of those. Because the
+   blank-paper pixels count regardless of what the scan holds there, ink inside
+   the bubble neither helps nor hurts alignment: a marked bubble and a blank one
+   at the same position score identically. Those pixels also put a floor under
+   the score — roughly two thirds of the template is blank paper, so no
+   placement scores much below that — which is why only the ordering of match
+   scores matters and nothing downstream thresholds the value itself.
 
 3. **Best Match Selection**: The algorithm selects the position with the highest
    match score as the actual bubble location.
+
+Two implementations produce this score. Bubbles whose entire search window falls
+inside the image — all of them, in practice — take a bit-packed path that packs
+each window row and each template row into a `u64` and scores a candidate with a
+shift, an or, a mask, and a popcount per row. Bubbles whose window is clipped by
+the image edge fall back to a byte-per-pixel scan. Where both apply they are
+bit-identical.
 
 #### Fill Scoring
 
 Once the best matching position is found, the algorithm computes how filled the
 bubble is:
 
-1. Crop the scanned image at the best matching bounds
-2. Apply binary thresholding using the ballot's global threshold
-3. Compute a difference image between the template (unfilled bubble) and the
-   thresholded source image
-4. The fill score is the percentage of pixels that are black (filled) in the
-   difference image, representing new dark pixels compared to the template
+1. Threshold the scanned pixels at the best matching bounds using the ballot's
+   global threshold
+2. Count the pixels where the template expects blank paper but the scan is dark
+   — ink the blank template does not have
+3. The fill score is that count over the template area
 
-The fill score represents what percentage of the bubble has been filled in
-beyond what the template shows. A higher fill score indicates a more completely
-filled bubble. The score is later compared to a threshold to determine if the
-bubble should be counted as marked, but the scoring function itself simply
-computes the score and lets the caller decide how to interpret it.
+The fill score represents what percentage of the template area has been filled
+in beyond what the template shows. A higher fill score indicates a more
+completely filled bubble. Note that only the template's blank-paper pixels can
+contribute, so the score is capped at that fraction of the template area —
+roughly two thirds — and a completely filled bubble scores near that cap rather
+than at 100%. Mark thresholds are calibrated on this scale. The score is later
+compared to a threshold to determine if the bubble should be counted as marked,
+but the scoring function itself simply computes the score and lets the caller
+decide how to interpret it.
 
 ### Score Write-Ins
 
