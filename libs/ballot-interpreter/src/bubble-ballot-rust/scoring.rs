@@ -91,13 +91,22 @@ pub struct ScoredBubbleMark {
     /// x/y.
     pub location: GridLocation,
 
-    /// The score for the match between the source image and the template. This
-    /// is the highest value found when looking around `expected_bounds` for the
-    /// bubble. 100% is a perfect match.
+    /// The score for the match between the source image and the template: the
+    /// fraction of the template area where the scan does not contradict the
+    /// template. This is the highest value found when looking around
+    /// `expected_bounds` for the bubble. 100% is a perfect match, but the score
+    /// cannot drop below the template's blank-paper fraction (roughly two
+    /// thirds), because those pixels count no matter what the scan holds there.
+    /// Only the ordering of these scores across candidate positions is used;
+    /// see `BubbleRegion` for what the score does and does not measure.
     pub match_score: UnitIntervalScore,
 
-    /// The score for the fill of the bubble at `matched_bounds`. 100% is
-    /// perfectly filled.
+    /// The score for the fill of the bubble at `matched_bounds`: the fraction of
+    /// the template area covered by ink the blank template does not have. Only
+    /// the template's blank-paper pixels can contribute, so the score is capped
+    /// at that fraction of the template area — roughly two thirds — and a
+    /// completely filled bubble scores near that cap rather than at 100%. Mark
+    /// thresholds are calibrated on this scale.
     pub fill_score: UnitIntervalScore,
 
     /// The expected bounds of the bubble mark in the scanned source image.
@@ -241,6 +250,22 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
 /// This gives the condition: `source_is_dark || template_is_white`. A higher
 /// match score means the bubble outline in the scan aligns well with the
 /// template — used to find the best bubble position within a search window.
+///
+/// Read the other way around, the *only* pixels that fail that condition are
+/// the ones where the template expects the outline but the scan came back
+/// light, so maximizing the match score is minimizing that single count. The
+/// white pixels contribute the same fixed number at every candidate position,
+/// which is what keeps alignment independent of how filled the bubble is: a
+/// marked bubble and a blank one at the same position score identically. An
+/// equality test (`source_is_dark == template_is_black`) would not — it drags
+/// the search off a filled bubble and onto the surrounding margin, looking for
+/// the blank paper the template expects inside the outline.
+///
+/// One consequence of counting the white pixels unconditionally is that the
+/// score's absolute value carries little information: they put a floor under it
+/// (see [`ScoredBubbleMark::match_score`]). Only the ordering across candidate
+/// positions is used, and adding that fixed count to every candidate cannot
+/// change it.
 ///
 /// ## Fill score
 ///

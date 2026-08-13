@@ -567,11 +567,11 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
             (matched_bubble_color, "Matched Bubble Bounds"),
             (
                 match_score_color,
-                "Bubble Match Score (100% = perfect alignment)",
+                "Bubble Match Score (100% = perfect alignment, never below ~2/3)",
             ),
             (
                 fill_score_color,
-                "Bubble Fill Score (0% = no fill, 100% = perfect fill)",
+                "Bubble Fill Score (0% = no fill, ~2/3 = perfect fill)",
             ),
             (GREEN, "Timing Mark Centers"),
         ],

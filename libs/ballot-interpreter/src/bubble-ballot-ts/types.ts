@@ -210,15 +210,24 @@ export interface ScoredBubbleMark {
   location: GridLocation;
 
   /**
-   * The score for the match between the source image and the template. This
-   * is the highest value found when looking around `expectedBounds` for the
-   * bubble. 100% is a perfect match.
+   * The score for the match between the source image and the template: the
+   * fraction of the template area where the scan does not contradict the
+   * template. This is the highest value found when looking around
+   * `expectedBounds` for the bubble. 100% is a perfect match, but the score
+   * cannot drop below the template's blank-paper fraction (roughly two
+   * thirds), because those pixels count no matter what the scan holds there.
+   * Deliberately insensitive to how filled the bubble is — it measures
+   * alignment only.
    */
   matchScore: UnitIntervalScore;
 
   /**
-   * The score for the fill of the bubble at `matchedBounds`. 100% is
-   * perfectly filled.
+   * The score for the fill of the bubble at `matchedBounds`: the fraction of
+   * the template area covered by ink the blank template does not have. Only
+   * the template's blank-paper pixels can contribute, so the score is capped
+   * at that fraction of the template area — roughly two thirds — and a
+   * completely filled bubble scores near that cap rather than at 100%. Mark
+   * thresholds are calibrated on this scale.
    */
   fillScore: UnitIntervalScore;
 
