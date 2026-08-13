@@ -125,6 +125,11 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
+interface DeleteCvrFileResult {
+  filename: string;
+  batchIds: string[];
+}
+
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
@@ -1995,9 +2000,25 @@ export class Store implements BaseStore {
   deleteCvrFile(p: {
     electionId: Id;
     fileId: Id;
-  }): Optional<{ filename: string; batchIds: string[] }> {
+  }): Optional<DeleteCvrFileResult> {
     let deletedCvrs: Array<{ id: Id }> = [];
-    let deletedFile: { filename: string; batchIds: string[] } | undefined;
+    let deletedFile: Optional<DeleteCvrFileResult>;
+
+    const matchingFile = this.client.one(
+      `
+        select
+          filename,
+          batch_ids as batchIds
+        from cvr_files
+        where
+          id = ?
+          and election_id = ?
+      `,
+      p.fileId,
+      p.electionId
+    ) as { filename: string; batchIds: string } | undefined;
+
+    if (!matchingFile) return undefined;
 
     this.client.transaction(() => {
       deletedCvrs = this.client.all(
@@ -2019,38 +2040,13 @@ export class Store implements BaseStore {
         p.fileId
       ) as Array<{ id: Id }>;
 
-      const deletedFileRow = this.client.one(
-        `
-          delete from cvr_files
-          where
-            id = ?
-            and election_id = ?
-          returning
-            filename,
-            batch_ids as batchIds
-        `,
-        p.fileId,
-        p.electionId
-      ) as { filename: string; batchIds: string } | undefined;
-
-      if (!deletedFileRow) return undefined;
+      this.client.run(`delete from cvr_files where id = ?`, p.fileId);
 
       if (!this.getSystemSettings(p.electionId).areWriteInCandidatesQualified) {
-        this.client.run(
-          `
-            delete from write_in_candidates
-            where
-              election_id = ?
-              and not exists (
-                select 1 from write_ins
-                where write_ins.write_in_candidate_id = write_in_candidates.id
-              )
-          `,
-          p.electionId
-        );
+        this.deleteAllWriteInCandidatesNotReferenced();
       }
 
-      const linkedBatchIds = JSON.parse(deletedFileRow.batchIds) as string[];
+      const linkedBatchIds = JSON.parse(matchingFile.batchIds) as string[];
       const placeholders = linkedBatchIds.map(() => '?').join(', ');
       const deletedBatches = this.client.all(
         `
@@ -2071,7 +2067,7 @@ export class Store implements BaseStore {
       ) as Array<{ id: Id }>;
 
       deletedFile = {
-        filename: deletedFileRow.filename,
+        filename: matchingFile.filename,
         batchIds: deletedBatches.map((batch) => batch.id),
       };
     });

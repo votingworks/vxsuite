@@ -1253,6 +1253,30 @@ describe('deleteCvrFile', () => {
   const precinctId = assertDefined(ballotStyle.precincts[0]);
   const scannerId = 'scanner-1';
 
+  test('is no-op if no matching file found', async () => {
+    const { store, electionId } = await newStore();
+    const res = store.deleteCvrFile({ electionId, fileId: 'missing' });
+    expect(res).toBeUndefined();
+  });
+
+  test('is no-op for mismatched election ID', async () => {
+    const { store, electionId } = await newStore();
+
+    addMockCvrFileToStore({
+      electionId,
+      exportedTimestamp: new Date('2021-01-01'),
+      mockCastVoteRecordFile: [mockCvr({ batchId: '1', votes: {} })],
+      pollingPlaceId: 'polling-place-1',
+      store,
+    });
+
+    const [file] = store.getCvrFiles(electionId);
+    assert(file);
+
+    const res = store.deleteCvrFile({ electionId: 'invalid', fileId: file.id });
+    expect(res).toBeUndefined();
+  });
+
   test('preserves CVRs shared with other files', async () => {
     const { store, electionId } = await newStore();
 
