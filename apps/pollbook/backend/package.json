@@ -30,7 +30,7 @@
     "test": "TZ=America/Anchorage vitest",
     "test:run": "TZ=America/Anchorage vitest run",
     "type-check": "tsc --build",
-    "dev": "NODE_ENV=development pnpm start"
+    "dev": "pnpm start"
   },
   "dependencies": {
     "@types/luxon": "^3.0.0",

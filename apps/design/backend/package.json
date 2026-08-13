@@ -37,7 +37,7 @@
     "db:reset-dev": "./scripts/db_reset_dev.sh",
     "db:schema": "pg_dump --schema-only -d",
     "db:schema-dev": "pg_dump --schema-only 'postgres://design:design@localhost:5432/design'",
-    "dev": "NODE_ENV=development pnpm start",
+    "dev": "pnpm start",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "insert-dev-data": "pnpm build:self && node ./build/scripts/insert_dev_data.js",
     "lint": "pnpm type-check && eslint --cache .",

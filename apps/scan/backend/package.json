@@ -22,7 +22,7 @@
     "build:self": "tsc --build tsconfig.build.json && ./scripts/copy_build_assets.sh",
     "clean": "turbo run clean:self --filter=$npm_package_name...",
     "clean:self": "rm -rf build",
-    "dev": "NODE_ENV=development pnpm start",
+    "dev": "pnpm start",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
