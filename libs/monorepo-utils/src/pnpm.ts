@@ -61,7 +61,9 @@ export function getWorkspacePackageInfo(
       main: packageJson.main,
       module: packageJson.module,
       source:
-        (packageJson.main || packageJson.module) &&
+        // ESM packages declare their entry point via `exports` rather than
+        // `main`/`module`, so check all three.
+        (packageJson.main || packageJson.module || packageJson.exports) &&
         existsSync(join(root, path, 'src/index.ts'))
           ? 'src/index.ts'
           : undefined,
