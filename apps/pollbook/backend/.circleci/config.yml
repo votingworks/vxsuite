@@ -102,7 +102,7 @@ jobs:
             - run:
                 name: Test
                 command: |
-                  pnpm --dir apps/pollbook/backend test
+                  pnpm --dir apps/pollbook/backend test:run
                 environment:
                   JEST_JUNIT_OUTPUT_DIR: ./reports/
             - store_test_results:

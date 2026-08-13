@@ -34,11 +34,15 @@ function generateTestJobForNodeJsPackage(
   const snapshotDirs = findImageSnapshotDirsRelativeToSrc(pkg.path);
   const hasSnapshotTests = snapshotDirs.length > 0;
   const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
-  // Most packages' `test` script is plain `vitest`, which runs once with
-  // coverage in CI (see vitest.config.shared.mts). A couple of packages keep a
-  // dedicated `test:ci` for non-vitest CI steps (DB migration validation,
-  // generated-type checks); prefer it when present.
-  const testScript = pkg.packageJson?.scripts?.['test:ci'] ? 'test:ci' : 'test';
+  // CI runs each package's `test:run` (vitest once; coverage enforced via the
+  // shared config's `CI` gate), falling back to `test` for packages without one
+  // (the Playwright integration-testing suites). VxDesign keeps a dedicated
+  // `test:ci` for its Postgres/migration CI steps; prefer it when present.
+  const testScript = pkg.packageJson?.scripts?.['test:ci']
+    ? 'test:ci'
+    : pkg.packageJson?.scripts?.['test:run']
+      ? 'test:run'
+      : 'test';
 
   const lines = [
     `# ${pkg.name}`,

@@ -22,8 +22,7 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "TZ=America/Anchorage vitest",
-    "test:ci": "TZ=America/Anchorage vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
-    "test:run": "TZ=America/Anchorage vitest run",
+    "test:run": "TZ=America/Anchorage vitest run && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
     "type-check": "tsc --build"
   },
   "dependencies": {
