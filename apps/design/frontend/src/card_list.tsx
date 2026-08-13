@@ -38,6 +38,9 @@ export interface CardListItemProps {
 /**
  * A row in a CardList. Has three fillable slots: leading, content, and
  * trailing.
+ *
+ * Any clicks or keyboard activation on the row will trigger the onPress
+ * callback, so you must disable event propagation on any interactive children.
  */
 export function CardListItem({
   onPress,
