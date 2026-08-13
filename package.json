@@ -5,7 +5,7 @@
   "scripts": {
     "build": "turbo run build:self",
     "clean": "turbo run clean:self",
-    "clean-all": "git clean -dfX",
+    "clean-all": "git clean -dfX && rm -rf \"$(git rev-parse --git-common-dir)/../.turbo/cache\"",
     "configure-env": "libs/utils/bin/configure-env",
     "configure-vxdev-env": "libs/utils/bin/configure-env --isVxDev -o /vx/config/.env.local",
     "generate-circleci-config": "libs/monorepo-utils/bin/generate-circleci-config",

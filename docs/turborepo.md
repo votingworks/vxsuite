@@ -28,7 +28,7 @@ turbo run build:self --filter=@votingworks/<pkg>   # equivalent
 ```
 
 Working inside a single package directory, use its own scripts — these bypass
-turbo and are the fastest inner loop:
+turbo:
 
 ```sh
 pnpm build:self   # build just this package (assumes deps are already built)
@@ -88,6 +88,10 @@ rm -rf "$(git rev-parse --git-common-dir)/../.turbo/cache"
 
 (For a normal, non-worktree checkout this is just `.git/../.turbo`, i.e. next to
 your repo.)
+
+`pnpm -w clean-all` also removes the cache, but note it runs `git clean -dfX`
+first, which deletes **all** git-ignored files — `node_modules`, every `build/`,
+etc. — so you'll need a fresh `pnpm install` and rebuild afterward.
 
 ### Reset a package's build outputs
 
