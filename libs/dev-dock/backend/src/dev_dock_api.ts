@@ -10,7 +10,13 @@ import {
   basename,
   dirname,
 } from 'node:path';
-import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
+import {
+  Optional,
+  assert,
+  assertDefined,
+  iter,
+  sleep,
+} from '@votingworks/basics';
 import {
   asSheet,
   DEFAULT_SYSTEM_SETTINGS,
@@ -27,6 +33,7 @@ import {
   readFromMockFile as readFromCardMockFile,
 } from '@votingworks/auth';
 import {
+  getDesignDevWorkspaceDir,
   getMockStateRootDir,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -40,6 +47,7 @@ import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   getMockUsbDirPath,
   getMockUsbDriveHandler,
+  MockUsbDriveHandler,
   SimulatedUsbPlatform,
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
@@ -60,6 +68,10 @@ import {
   writeImageData,
 } from '@votingworks/image-utils';
 import { execFile } from './utils.js';
+import {
+  findLatestVxDesignElectionPackage,
+  stageElectionPackageOnMockUsbDrive,
+} from './quick_configure.js';
 
 export interface MockBatchScannerApi {
   addSheets(sheets: Array<{ frontPath: string; backPath: string }>): void;
@@ -92,6 +104,11 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
    * settings).
    */
   arePollWorkerCardPinsEnabled: boolean;
+  /**
+   * Whether the input is an election package rather than a bare election
+   * definition. Only election packages can be used to configure a machine.
+   */
+  isElectionPackage: boolean;
 }
 
 export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
@@ -113,6 +130,12 @@ const REPO_ROOT = join(import.meta.dirname, '../../../..');
 
 // Directory for dev-dock mock state, namespaced by NODE_ENV for worktree isolation
 export const DEFAULT_DEV_DOCK_DIR = getMockStateRootDir(REPO_ROOT);
+
+/**
+ * Where VxDesign writes its exports in development, one subdirectory per
+ * jurisdiction.
+ */
+export const DESIGN_EXPORT_DIR = getDesignDevWorkspaceDir(REPO_ROOT);
 
 // Convert paths relative to the VxSuite root to absolute paths
 export function electionPathToAbsolute(path: string): string {
@@ -145,6 +168,21 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
   ) as DevDockFileContents;
 }
 
+/**
+ * How the dev dock replaces the host app's election. Both are needed together:
+ * some apps refuse to configure while already configured, so configuring
+ * without unconfiguring first would fail.
+ */
+export interface QuickConfigureApi {
+  /** Removes the app's current election configuration. */
+  unconfigure: () => Promise<void>;
+  /**
+   * Configures the app from the election package on the USB drive, throwing if
+   * it can't.
+   */
+  configure: () => Promise<void>;
+}
+
 export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
   mockPdiScanner?: MockScanner;
@@ -156,6 +194,8 @@ export interface MockSpec {
   setPatInputConnected?: (connected: boolean) => void;
   getAccessibleControllerConnected?: () => boolean;
   setAccessibleControllerConnected?: (connected: boolean) => void;
+  /** Lets the dev dock replace the host app's election. See {@link QuickConfigureApi}. */
+  quickConfigure?: QuickConfigureApi;
 }
 
 interface SerializableMockSpec
@@ -169,12 +209,14 @@ interface SerializableMockSpec
     | 'getBarcodeConnected'
     | 'getAccessibleControllerConnected'
     | 'getPatInputConnected'
+    | 'quickConfigure'
   > {
   mockPdiScanner?: boolean;
   mockBatchScanner?: boolean;
   hasBarcodeMock?: boolean;
   hasPatInputMock?: boolean;
   hasAccessibleControllerMock?: boolean;
+  hasQuickConfigure?: boolean;
 }
 
 async function setElection(
@@ -186,8 +228,8 @@ async function setElection(
   let resolvedPath: string | undefined;
   let systemSettings = DEFAULT_SYSTEM_SETTINGS;
 
-  // Check if the file is a zip file
-  if (extname(inputAbsolutePath).toLowerCase() === '.zip') {
+  const isElectionPackage = extname(inputAbsolutePath).toLowerCase() === '.zip';
+  if (isElectionPackage) {
     // Read the zip file
     const zipContents = fs.readFileSync(inputAbsolutePath);
     const zipFile = await openZip(zipContents);
@@ -229,6 +271,7 @@ async function setElection(
     resolvedPath,
     arePollWorkerCardPinsEnabled:
       systemSettings.auth.arePollWorkerCardPinsEnabled,
+    isElectionPackage,
   };
 
   const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
@@ -240,6 +283,51 @@ async function setElection(
 function getElection(devDockDir: string): Optional<DevDockElectionInfo> {
   return readDevDockFileContents(join(devDockDir, DEV_DOCK_FILE_NAME))
     .electionInfo;
+}
+
+async function insertCard(
+  role: DevDockUserRole,
+  devDockDir: string
+): Promise<void> {
+  const electionInfo = getElection(devDockDir);
+  assert(electionInfo !== undefined);
+
+  const cardType =
+    role === 'poll_worker' && electionInfo.arePollWorkerCardPinsEnabled
+      ? 'poll-worker-with-pin'
+      : role.replace('_', '-');
+
+  await execFile(MOCK_CARD_SCRIPT_PATH, [
+    '--card-type',
+    cardType,
+    '--electionDefinition',
+    electionInfo.resolvedPath,
+  ]);
+}
+
+async function removeCard(): Promise<void> {
+  await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
+}
+
+const USB_DRIVE_MOUNT_TIMEOUT_MS = 5_000;
+const USB_DRIVE_MOUNT_POLL_INTERVAL_MS = 50;
+
+/**
+ * Waits for the host app to mount the mock USB drive, which it does
+ * asynchronously after noticing the drive was attached. Configuring reads the
+ * election package from the mounted drive, so it can't start any earlier.
+ */
+async function waitForUsbDriveToMount(
+  usbDriveHandler: MockUsbDriveHandler
+): Promise<void> {
+  const timeoutTime = Date.now() + USB_DRIVE_MOUNT_TIMEOUT_MS;
+  while (usbDriveHandler.status().status !== 'mounted') {
+    assert(
+      Date.now() < timeoutTime,
+      'Timed out waiting for the machine to mount the mock USB drive'
+    );
+    await sleep(USB_DRIVE_MOUNT_POLL_INTERVAL_MS);
+  }
 }
 
 interface PdiScannerSheetQueueStatus {
@@ -259,7 +347,11 @@ interface PdiScannerSheetQueueState {
   timeoutId: ReturnType<typeof setTimeout>;
 }
 
-function buildApi(devDockDir: string, mockSpec: MockSpec) {
+function buildApi(
+  devDockDir: string,
+  mockSpec: MockSpec,
+  designExportDir: string
+) {
   const printerHandler = getMockFilePrinterHandler();
   const usbDriveHandler = getMockUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
@@ -280,6 +372,7 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         hasPatInputMock:
           Boolean(mockSpec.getPatInputConnected) &&
           Boolean(mockSpec.setPatInputConnected),
+        hasQuickConfigure: Boolean(mockSpec.quickConfigure),
       };
     },
 
@@ -292,7 +385,10 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     async getAvailableElections(): Promise<DevDockElectionOption[]> {
-      const baseFixturePath = join(import.meta.dirname, '../../../../libs/fixtures/data');
+      const baseFixturePath = join(
+        import.meta.dirname,
+        '../../../../libs/fixtures/data'
+      );
       const fixtureElections: DevDockElectionOption[] = fs
         .readdirSync(baseFixturePath, {
           withFileTypes: true,
@@ -337,7 +433,21 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
         })
         .toArray();
 
-      return [...usbElections, ...fixtureElections];
+      const latestVxDesignElectionPackagePath =
+        await findLatestVxDesignElectionPackage(designExportDir);
+      const vxDesignElections: DevDockElectionOption[] =
+        latestVxDesignElectionPackagePath
+          ? [
+              {
+                title: `VxDesign: ${basename(
+                  latestVxDesignElectionPackagePath
+                )}`,
+                inputPath: latestVxDesignElectionPackagePath,
+              },
+            ]
+          : [];
+
+      return [...vxDesignElections, ...usbElections, ...fixtureElections];
     },
 
     getCardStatus(): CardStatus {
@@ -345,26 +455,11 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
     },
 
     async insertCard(input: { role: DevDockUserRole }): Promise<void> {
-      const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
-      const { electionInfo } = readDevDockFileContents(devDockFilePath);
-      assert(electionInfo !== undefined);
-
-      const cardType =
-        input.role === 'poll_worker' &&
-        electionInfo.arePollWorkerCardPinsEnabled
-          ? 'poll-worker-with-pin'
-          : input.role.replace('_', '-');
-
-      await execFile(MOCK_CARD_SCRIPT_PATH, [
-        '--card-type',
-        cardType,
-        '--electionDefinition',
-        electionInfo.resolvedPath,
-      ]);
+      await insertCard(input.role, devDockDir);
     },
 
     async removeCard(): Promise<void> {
-      await execFile(MOCK_CARD_SCRIPT_PATH, ['--card-type', 'no-card']);
+      await removeCard();
     },
 
     getUsbDriveStatus(): DevDockUsbDriveInfo {
@@ -383,6 +478,44 @@ function buildApi(devDockDir: string, mockSpec: MockSpec) {
 
     clearUsbDrive(): void {
       usbDriveHandler.clearData();
+    },
+
+    async quickConfigure(): Promise<void> {
+      // Frontend should prevent the following assert() cases
+      assert(
+        mockSpec.quickConfigure,
+        'Quick configure is not supported by host app'
+      );
+      const electionInfo = getElection(devDockDir);
+      assert(
+        electionInfo?.isElectionPackage,
+        'Quick configure requires an election package to be selected'
+      );
+
+      // Inserting the drive ensures it exists before staging.
+      usbDriveHandler.insert();
+      // Staging while the drive is detached keeps
+      // the machine from reading the package mid-copy.
+      usbDriveHandler.remove();
+
+      stageElectionPackageOnMockUsbDrive(
+        electionPathToAbsolute(electionInfo.inputPath),
+        usbDriveHandler.getDataPath()
+      );
+      usbDriveHandler.insert();
+
+      // Unconfigure the machine. Remove card to avoid possible election key mismatch.
+      await removeCard();
+      await mockSpec.quickConfigure.unconfigure();
+
+      // Re-configure with the selected election.
+      await insertCard('election_manager', devDockDir);
+      try {
+        await waitForUsbDriveToMount(usbDriveHandler);
+        await mockSpec.quickConfigure.configure();
+      } finally {
+        await removeCard();
+      }
     },
 
     async saveScreenshotForApp({
@@ -623,7 +756,9 @@ export function useDevDockRouter(
   express: typeof Express,
   mockSpec: MockSpec,
   /* istanbul ignore next */
-  devDockDir: string = DEFAULT_DEV_DOCK_DIR
+  devDockDir: string = DEFAULT_DEV_DOCK_DIR,
+  /* istanbul ignore next */
+  designExportDir: string = DESIGN_EXPORT_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
@@ -639,7 +774,7 @@ export function useDevDockRouter(
     writeDevDockFileContents(devDockFilePath, {});
   }
 
-  const api = buildApi(devDockDir, mockSpec);
+  const api = buildApi(devDockDir, mockSpec, designExportDir);
 
   // Set a default election if one is not already set
   if (!getElection(devDockDir)) {

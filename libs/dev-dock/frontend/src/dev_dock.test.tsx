@@ -107,6 +107,7 @@ beforeEach(() => {
     inputPath: './libs/fixtures/data/electionGeneral/election.json',
     resolvedPath: '/full-path',
     arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: false,
   });
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -263,6 +264,7 @@ test('election selector', async () => {
     inputPath: './libs/fixtures/data/electionFamousNames2021/election.json',
     resolvedPath: '/full-path',
     arePollWorkerCardPinsEnabled: false,
+    isElectionPackage: false,
   });
   userEvent.selectOptions(
     electionSelector,
