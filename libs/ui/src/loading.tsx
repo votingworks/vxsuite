@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ProgressEllipsis } from './progress_ellipsis';
+
+export const FULLSCREEN_LOADING_DELAY_MS = 200;
 
 const Fullscreen = styled.div`
   display: flex;
@@ -22,6 +24,17 @@ export function Loading({
   isFullscreen = false,
   animationDurationS,
 }: LoadingProps): JSX.Element {
+  const [showIndicator, setShowIndicator] = useState(!isFullscreen);
+
+  useEffect(() => {
+    if (showIndicator) return undefined;
+    const timer = setTimeout(
+      () => setShowIndicator(true),
+      FULLSCREEN_LOADING_DELAY_MS
+    );
+    return () => clearTimeout(timer);
+  }, [showIndicator]);
+
   const content = (
     <div>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}
@@ -35,7 +48,7 @@ export function Loading({
     </div>
   );
   if (isFullscreen) {
-    return <Fullscreen>{content}</Fullscreen>;
+    return <Fullscreen>{showIndicator && content}</Fullscreen>;
   }
   return content;
 }
