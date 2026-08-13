@@ -18,6 +18,7 @@ import {
   authenticateArtifactUsingSignatureFile,
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
+  VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from './artifact_authentication';
 import { ArtifactAuthenticationConfig } from './config';
 
@@ -46,6 +47,10 @@ let castVoteRecords: {
   artifactToImport: ArtifactToImport;
 };
 let electionPackage: {
+  artifactToExport: ArtifactToExport;
+  artifactToImport: ArtifactToImport;
+};
+let vxAdminBackup: {
   artifactToExport: ArtifactToExport;
   artifactToImport: ArtifactToImport;
 };
@@ -119,6 +124,34 @@ beforeEach(() => {
       filePath: electionPackagePath,
     },
   };
+
+  // Prepare a mock VxAdmin backup
+  const vxAdminBackupDirectoryPath = path.join(
+    tempDirectoryPath,
+    '2026-general-election-6f28c0'
+  );
+  fs.mkdirSync(vxAdminBackupDirectoryPath);
+  const manifestFileContents = JSON.stringify({
+    version: 1,
+    files: [{ path: 'data.db', sha256: 'abcd', size: 4 }],
+  });
+  fs.writeFileSync(
+    path.join(vxAdminBackupDirectoryPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME),
+    manifestFileContents
+  );
+  fs.writeFileSync(path.join(vxAdminBackupDirectoryPath, 'data.db'), 'abcd');
+  vxAdminBackup = {
+    artifactToExport: {
+      type: 'vxadmin_backup',
+      context: 'export',
+      manifestFileContents,
+    },
+    artifactToImport: {
+      type: 'vxadmin_backup',
+      context: 'import',
+      directoryPath: vxAdminBackupDirectoryPath,
+    },
+  };
 });
 
 afterEach(() => {
@@ -161,6 +194,22 @@ type ArtifactGenerator = () => {
   artifactToImport: ArtifactToImport;
 };
 
+function backupDirectoryPath(): string {
+  assert(vxAdminBackup.artifactToImport.type === 'vxadmin_backup');
+  return vxAdminBackup.artifactToImport.directoryPath;
+}
+
+/**
+ * Where the consumer of {@link prepareSignatureFile} is expected to write the signature file. A
+ * backup's signature file lives inside the backup directory, next to the manifest it signs; other
+ * artifacts' signature files sit beside them.
+ */
+function signatureFileDirectory(artifact: ArtifactToImport): string {
+  return artifact.type === 'vxadmin_backup'
+    ? artifact.directoryPath
+    : tempDirectoryPath;
+}
+
 test.each<{
   description: string;
   artifactGenerator: ArtifactGenerator;
@@ -179,6 +228,12 @@ test.each<{
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
   },
+  {
+    description: 'VxAdmin backup',
+    artifactGenerator: () => vxAdminBackup,
+    exportingMachineConfig: vxAdminTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+  },
 ])(
   'Preparing signature file and authenticating artifact using signature file - $description',
   async ({
@@ -192,7 +247,10 @@ test.each<{
       exportingMachineConfig
     );
     fs.writeFileSync(
-      path.join(tempDirectoryPath, signatureFile.fileName),
+      path.join(
+        signatureFileDirectory(artifactToImport),
+        signatureFile.fileName
+      ),
       signatureFile.fileContents
     );
     expect(
@@ -446,6 +504,40 @@ test.each<{
     },
     expectedErrorMessage: 'Verification failure',
   },
+  {
+    description: 'VxAdmin backup, altered manifest',
+    artifactGenerator: () => vxAdminBackup,
+    exportingMachineConfig: vxAdminTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {
+      fs.appendFileSync(
+        path.join(backupDirectoryPath(), VXADMIN_BACKUP_MANIFEST_FILE_NAME),
+        '!'
+      );
+    },
+    expectedErrorMessage: 'Verification failure',
+  },
+  {
+    description: 'VxAdmin backup, removed manifest',
+    artifactGenerator: () => vxAdminBackup,
+    exportingMachineConfig: vxAdminTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {
+      fs.rmSync(
+        path.join(backupDirectoryPath(), VXADMIN_BACKUP_MANIFEST_FILE_NAME)
+      );
+    },
+    expectedErrorMessage: 'ENOENT: no such file or directory',
+  },
+  {
+    description: 'VxAdmin backup, signed by a machine that is not a VxAdmin',
+    artifactGenerator: () => vxAdminBackup,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {},
+    expectedErrorMessage:
+      'Signing machine for a VxAdmin backup should be a VxAdmin',
+  },
 ])(
   'Detecting that an artifact has been tampered with - $description',
   async ({
@@ -461,7 +553,10 @@ test.each<{
       exportingMachineConfig
     );
     fs.writeFileSync(
-      path.join(tempDirectoryPath, signatureFile.fileName),
+      path.join(
+        signatureFileDirectory(artifactToImport),
+        signatureFile.fileName
+      ),
       signatureFile.fileContents
     );
     editsAfterWritingSignatureFile();

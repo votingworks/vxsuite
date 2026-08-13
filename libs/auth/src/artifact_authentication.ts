@@ -38,6 +38,12 @@ import { constructPrefixedMessage } from './signatures';
  */
 export const SIGNATURE_FILE_EXTENSION = '.vxsig';
 
+/**
+ * The name of the manifest file at the root of a VxAdmin backup directory. The manifest is the
+ * signed artifact; every other file in the backup is covered by a hash within it.
+ */
+export const VXADMIN_BACKUP_MANIFEST_FILE_NAME = 'manifest.json';
+
 interface CastVoteRecordsToExport {
   type: 'cast_vote_records';
   context: 'export';
@@ -66,24 +72,40 @@ interface ElectionPackageToImport {
 
 type ElectionPackage = ElectionPackageToExport | ElectionPackageToImport;
 
+interface VxAdminBackupToExport {
+  type: 'vxadmin_backup';
+  context: 'export';
+  manifestFileContents: string;
+}
+
+interface VxAdminBackupToImport {
+  type: 'vxadmin_backup';
+  context: 'import';
+  directoryPath: string;
+}
+
+type VxAdminBackup = VxAdminBackupToExport | VxAdminBackupToImport;
+
 /**
  * An export-time representation of an {@link Artifact}
  */
 export type ArtifactToExport =
   | CastVoteRecordsToExport
-  | ElectionPackageToExport;
+  | ElectionPackageToExport
+  | VxAdminBackupToExport;
 
 /**
  * An import-time representation of an {@link Artifact}
  */
 export type ArtifactToImport =
   | CastVoteRecordsToImport
-  | ElectionPackageToImport;
+  | ElectionPackageToImport
+  | VxAdminBackupToImport;
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
  */
-export type Artifact = CastVoteRecords | ElectionPackage;
+export type Artifact = CastVoteRecords | ElectionPackage | VxAdminBackup;
 
 interface ArtifactSignatureBundle {
   signature: Buffer;
@@ -130,6 +152,29 @@ function constructMessage(artifact: Artifact): {
       return {
         artifactStream: fileContents,
         message: constructPrefixedMessage(artifact.type, fileContents),
+      };
+    }
+    case 'vxadmin_backup': {
+      let manifestFileContents: Readable;
+      switch (artifact.context) {
+        case 'export': {
+          manifestFileContents = Readable.from(artifact.manifestFileContents);
+          break;
+        }
+        case 'import': {
+          manifestFileContents = createReadStream(
+            path.join(artifact.directoryPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME)
+          );
+          break;
+        }
+        /* istanbul ignore next: Compile-time check for completeness */
+        default: {
+          throwIllegalValue(artifact, 'context');
+        }
+      }
+      return {
+        artifactStream: manifestFileContents,
+        message: constructPrefixedMessage(artifact.type, manifestFileContents),
       };
     }
     default: {
@@ -238,6 +283,10 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
     case 'election_package': {
       return `${artifact.exportFileName}${SIGNATURE_FILE_EXTENSION}`;
     }
+    case 'vxadmin_backup': {
+      // Written inside the backup directory, adjacent to the manifest it signs
+      return `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`;
+    }
     default: {
       /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(artifact, 'type');
@@ -252,6 +301,12 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
     }
     case 'election_package': {
       return `${artifact.filePath}${SIGNATURE_FILE_EXTENSION}`;
+    }
+    case 'vxadmin_backup': {
+      return path.join(
+        artifact.directoryPath,
+        `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`
+      );
     }
     default: {
       /* istanbul ignore next: Compile-time check for completeness */
@@ -327,6 +382,14 @@ async function performArtifactSpecificAuthenticationChecks(
       assert(
         signingMachineCertDetails.component === 'admin',
         'Signing machine for election package should be a VxAdmin'
+      );
+      break;
+    }
+
+    case 'vxadmin_backup': {
+      assert(
+        signingMachineCertDetails.component === 'admin',
+        'Signing machine for a VxAdmin backup should be a VxAdmin'
       );
       break;
     }
