@@ -3468,8 +3468,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       zedbar:
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^0.4.2
+        version: 0.4.2
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
@@ -15842,8 +15842,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zedbar@0.4.1:
-    resolution: {integrity: sha512-FfmsXIHizX7l4eRW6I/GGyIdHErGJgsdMW5TiQuLUwPi1wNdUipPhm15hRqVRyQek2pgaBVg5g+gT5HcYEvEmA==}
+  zedbar@0.4.2:
+    resolution: {integrity: sha512-nRewVhLwQyykoQ7cySbdT+Y59B1FLe6k40Db5ycFqdWYbYZl67rcBxWImvu2jfb3TRI6tbGHOicE9xHEG5iLmQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -27992,7 +27992,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zedbar@0.4.1: {}
+  zedbar@0.4.2: {}
 
   zip-stream@4.1.0:
     dependencies:

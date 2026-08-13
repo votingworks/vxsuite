@@ -62,7 +62,7 @@ sha2 = "0.10"
 hex = "0.4.3"
 itertools = "0.12.1"
 rqrr = "0.7.1"
-zedbar = { version = "0.4.1", default-features = false, features = ["qrcode"] }
+zedbar = { version = "0.4.2", default-features = false, features = ["qrcode"] }
 base64 = "0.22.0"
 thiserror = "1.0.50"
 tokio = { version = "1.44.2", features = ["fs", "macros"] }
