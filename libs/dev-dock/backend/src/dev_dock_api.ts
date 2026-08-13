@@ -502,7 +502,6 @@ function buildApi(
         electionPathToAbsolute(electionInfo.inputPath),
         usbDriveHandler.getDataPath()
       );
-      usbDriveHandler.insert();
 
       // Unconfigure the machine. Remove card to avoid possible election key mismatch.
       await removeCard();
@@ -510,6 +509,7 @@ function buildApi(
 
       // Re-configure with the selected election.
       await insertCard('election_manager', devDockDir);
+      usbDriveHandler.insert();
       try {
         await waitForUsbDriveToMount(usbDriveHandler);
         await mockSpec.quickConfigure.configure();

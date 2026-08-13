@@ -18,7 +18,7 @@ import {
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
-import { buildApp } from './app.js';
+import { buildApi, buildApp } from './app.js';
 import { NODE_ENV, PORT } from './globals.js';
 import { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
@@ -94,7 +94,7 @@ export async function start({
   );
   await resolvedAudioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
 
-  const app = buildApp({
+  const context: Parameters<typeof buildApi>[0] = {
     audioPlayer: resolvedAudioPlayer,
     auth,
     machine: precinctScannerStateMachine,
@@ -102,9 +102,20 @@ export async function start({
     usbDrive: resolvedUsbDrive,
     printer: resolvedPrinter,
     logger,
-  });
+  };
+  const api = buildApi(context);
+  const app = buildApp(context, api);
 
+  /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
+    quickConfigure: {
+      unconfigure: () => api.methods().unconfigureElection(),
+      configure: async () => {
+        (
+          await api.methods().configureFromElectionPackageOnUsbDrive()
+        ).unsafeUnwrap();
+      },
+    },
     printerConfig: 'fujitsu',
     mockPdiScanner,
   });
