@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './media_mount_dir';
+export * from './sync_filesystem';
 export * from './mocks/memory_usb_drive';
 export * from './mocks/mock_usb_dir';
 export * from './mocks/simulated_usb_platform';

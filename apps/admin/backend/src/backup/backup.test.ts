@@ -15,7 +15,8 @@ import {
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
 } from '@votingworks/auth';
-import { getDiskSpaceSummary, syncFilesystem } from '@votingworks/backend';
+import { getDiskSpaceSummary } from '@votingworks/backend';
+import { syncFilesystem } from '@votingworks/usb-drive';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
@@ -48,12 +49,12 @@ import {
   formatBackupValidationError,
   validateBackup,
 } from './validate_backup.js';
-import { createWorkspace, Workspace } from '../util/workspace.js';
 import { MachineConfig } from '../types.js';
 import {
   BALLOT_IMAGE_CONTENTS,
   BALLOT_IMAGE_PATH,
   makeConfiguredWorkspace,
+  makeUnconfiguredWorkspace,
 } from '../../test/backup.js';
 
 // `vi.spyOn` can't touch `node:fs/promises` exports under ESM, so the two tests
@@ -99,6 +100,13 @@ vi.mock(
   async (importActual): Promise<typeof import('@votingworks/backend')> => ({
     ...(await importActual<typeof import('@votingworks/backend')>()),
     getDiskSpaceSummary: vi.fn(),
+  })
+);
+
+vi.mock(
+  '@votingworks/usb-drive',
+  async (importActual): Promise<typeof import('@votingworks/usb-drive')> => ({
+    ...(await importActual<typeof import('@votingworks/usb-drive')>()),
     syncFilesystem: vi.fn(),
   })
 );
@@ -112,10 +120,6 @@ const machineConfig: MachineConfig = {
 
 function logger() {
   return mockBaseLogger({ fn: vi.fn });
-}
-
-function makeUnconfiguredWorkspace(): Workspace {
-  return createWorkspace(makeTemporaryDirectory(), logger());
 }
 
 function loggedSteps(log: MockBaseLogger): BackupStep[] {
@@ -1425,4 +1429,24 @@ test('refuses to back up a workspace containing a symlinked directory', async ()
   expect(result).toEqual(
     err({ type: 'unsupported_workspace_entry', path: 'linked-images' })
   );
+});
+
+test('clears snapshots left behind by runs that were killed', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  // Each run names its snapshot after the clock, so nothing else would ever
+  // delete these and they are full copies of the election database.
+  writeFileSync(join(workspace.path, 'backup-tmp-1.db'), 'stale snapshot');
+  writeFileSync(join(workspace.path, 'backup-tmp-2.db'), 'stale snapshot');
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: makeTemporaryDirectory(),
+    machineConfig,
+    logger: logger(),
+  });
+  result.unsafeUnwrap();
+
+  expect(
+    readdirSync(workspace.path).filter((name) => name.startsWith('backup-tmp-'))
+  ).toEqual([]);
 });

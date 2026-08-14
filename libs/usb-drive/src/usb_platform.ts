@@ -7,6 +7,7 @@ import {
   isSupportedPartition,
 } from './block_devices';
 import { exec } from './exec';
+import { syncFilesystem } from './sync_filesystem';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
@@ -90,6 +91,6 @@ export class RealUsbPlatform implements UsbPlatform {
   }
 
   async sync(mountpoint: UsbPartitionMountpoint): Promise<void> {
-    await exec('sync', ['-f', mountpoint]);
+    await syncFilesystem(mountpoint);
   }
 }

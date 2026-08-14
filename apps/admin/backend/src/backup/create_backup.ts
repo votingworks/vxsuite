@@ -6,7 +6,8 @@ import { dirname, join, relative, sep } from 'node:path';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { prepareSignatureFile } from '@votingworks/auth';
-import { getDiskSpaceSummary, syncFilesystem } from '@votingworks/backend';
+import { getDiskSpaceSummary } from '@votingworks/backend';
+import { syncFilesystem } from '@votingworks/usb-drive';
 import {
   assertDefined,
   err,
@@ -41,6 +42,11 @@ import { Workspace } from '../util/workspace.js';
  * in the middle of a write.
  */
 const FREE_SPACE_MARGIN_RATIO = 1.05;
+
+/**
+ * The name a database snapshot is written under while a backup is running.
+ */
+const SNAPSHOT_NAME_REGEX = /^backup-tmp-\d+\.db$/;
 
 /**
  * Progress within a backup. Only the stages that read or write every file can
@@ -166,8 +172,24 @@ function isExcludedFromBackup(relativePath: string): boolean {
     relativePath === 'data.db-journal' ||
     relativePath === 'data.db-wal' ||
     relativePath === 'data.db-shm' ||
-    /^backup-tmp-\d+\.db$/.test(relativePath)
+    SNAPSHOT_NAME_REGEX.test(relativePath)
   );
+}
+
+/**
+ * Deletes database snapshots left in the workspace by runs that were killed
+ * before they could clean up after themselves. Each run names its snapshot after
+ * the clock, so nothing else would ever remove them, and they are full copies of
+ * the election database: enough of them fills the internal disk, and the
+ * free-space check only ever reserves room for one more.
+ */
+async function removeStaleSnapshots(workspacePath: string): Promise<void> {
+  const entries = await readdir(workspacePath, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isFile() && SNAPSHOT_NAME_REGEX.test(entry.name)) {
+      await rmQuietly(join(workspacePath, entry.name));
+    }
+  }
 }
 
 /**
@@ -477,7 +499,7 @@ export async function createBackup({
   reportProgress({ step: 'snapshotting_database' });
   let bytesTotal: number;
   try {
-    await rm(snapshotPath, { force: true });
+    await removeStaleSnapshots(workspace.path);
     store.backupDatabase(snapshotPath);
     // Measured from the snapshot rather than the database it came from: a
     // `VACUUM INTO` is usually smaller, and a progress bar whose total is the

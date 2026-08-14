@@ -1,4 +1,4 @@
-import { execFile } from './exec';
+import { exec } from './exec';
 
 /**
  * Flushes everything written to the filesystem containing `path` out to its
@@ -14,5 +14,5 @@ import { execFile } from './exec';
  * drive with `-o sync` costs roughly 9x the write time.
  */
 export async function syncFilesystem(path: string): Promise<void> {
-  await execFile('sync', ['-f', path]);
+  await exec('sync', ['-f', path]);
 }
