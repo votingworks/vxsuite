@@ -59,22 +59,26 @@ export function BatteryStatus({
   );
 }
 
-function useCurrentDate(): Date {
-  const [currentDate, setCurrentDate] = useState(new Date());
+// Polls every second, but stores the formatted text rather than the Date, so
+// that the ~59 out of 60 ticks that don't change the displayed minute are
+// dropped by React's state bailout instead of re-rendering the toolbar.
+function useCurrentDateTimeText(): string {
+  const [currentDateTimeText, setCurrentDateTimeText] = useState(() =>
+    format.clockDateAndTime(new Date())
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentDate(new Date());
+      setCurrentDateTimeText(format.clockDateAndTime(new Date()));
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  return currentDate;
+  return currentDateTimeText;
 }
 
 export function DateTimeDisplay(): JSX.Element {
-  const currentDate = useCurrentDate();
-  return <span>{format.clockDateAndTime(currentDate)}</span>;
+  return <span>{useCurrentDateTimeText()}</span>;
 }
 
 type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
