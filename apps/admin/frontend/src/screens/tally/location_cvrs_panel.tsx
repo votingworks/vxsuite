@@ -9,12 +9,13 @@ import {
   Icons,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
+import { Id, PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
 
 export interface LocationCvrsPanelProps {
   closePanel: () => void;
+  deleteImport?: (id: Id) => void;
   imports: LocationCvrImport[];
   name: string;
   type: PollingPlaceType;
@@ -110,12 +111,16 @@ const Title = styled.div`
 `;
 
 export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
-  const { closePanel, imports, name, type } = props;
+  const { closePanel, deleteImport, imports, name, type } = props;
 
   function scannerDetails(i: LocationCvrImport) {
     return i.scannerIds.length === 1
       ? `Scanner ${i.scannerIds[0]}`
       : `Scanners: ${i.scannerIds.join(', ')}`;
+  }
+
+  function formatExportDate(i: LocationCvrImport) {
+    return format.localeShortDateAndTime(new Date(i.exportTimestamp));
   }
 
   return (
@@ -139,17 +144,23 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
           {imports.map((i) => (
             <Import key={i.id}>
               <Caption weight="semiBold">
-                {format.localeShortDateAndTime(new Date(i.exportTimestamp))}
+                {formatExportDate(i)}
                 <br />
                 <Caption weight="regular">{scannerDetails(i)}</Caption>
               </Caption>
 
               <Font weight="bold">{format.count(i.numCvrsImported)}</Font>
 
-              {/*
-               * [TODO](https://github.com/votingworks/vxsuite/issues/4048)
-               * Add single-import delete button.
-               */}
+              {deleteImport && (
+                <IconButton
+                  aria-label={`Remove CVR File From ${formatExportDate(i)}`}
+                  as={Button<Id>}
+                  color="danger"
+                  icon="Trash"
+                  onPress={deleteImport}
+                  value={i.id}
+                />
+              )}
             </Import>
           ))}
 

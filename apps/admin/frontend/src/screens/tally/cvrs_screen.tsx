@@ -10,6 +10,7 @@ import {
   Icons,
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
+import type { CastVoteRecordFileRecord as CvrImport } from '@votingworks/admin-backend';
 
 import { CvrSummaries } from './cvr_summaries.js';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
@@ -18,6 +19,7 @@ import { RemoveAllCvrsModal } from './remove_all_cvrs_modal.js';
 import { CvrsState, useCvrsState } from './cvrs_state.js';
 import { LocationList } from './location_list.js';
 import { CvrImportPanel } from './cvr_import_panel.js';
+import { RemoveImportModal } from './remove_import_modal.js';
 
 const TEST_MODE_CONTAINER_CSS = css`
   grid-template-rows: min-content min-content 1fr;
@@ -152,12 +154,17 @@ export function ViewPanel(props: {
 }): React.ReactNode {
   const { openImportPanel, state } = props;
 
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmingDeleteAll, setConfirmingDeleteAll] = useState(false);
+  const [importToDelete, setImportToDelete] = React.useState<CvrImport>();
   const [filter, setFilter] = React.useState<LocationFilter>('all');
   const [query, setQuery] = React.useState('');
 
   const showLoad = !state.isOfficialResults;
   const showDelete = state.files.length > 0 && !state.isOfficialResults;
+
+  function startDeleteImport(id: string) {
+    setImportToDelete(state.files.find((f) => f.id === id));
+  }
 
   return (
     <ViewPanelContainer>
@@ -184,22 +191,29 @@ export function ViewPanel(props: {
           <Button
             icon="Trash"
             color="danger"
-            disabled={confirmingDelete}
-            onPress={setConfirmingDelete}
+            disabled={confirmingDeleteAll}
+            onPress={setConfirmingDeleteAll}
             value
           >
             Remove All
           </Button>
         )}
-        {confirmingDelete && (
-          <RemoveAllCvrsModal onClose={() => setConfirmingDelete(false)} />
+        {confirmingDeleteAll && (
+          <RemoveAllCvrsModal onClose={() => setConfirmingDeleteAll(false)} />
         )}
       </ActionBar>
 
       <LocationList
+        deleteImport={state.isOfficialResults ? undefined : startDeleteImport}
         locations={filterLocations(state, filter, query)}
         locationCvrs={state.locationCvrs}
       />
+      {importToDelete && (
+        <RemoveImportModal
+          close={() => setImportToDelete(undefined)}
+          cvrImport={importToDelete}
+        />
+      )}
     </ViewPanelContainer>
   );
 }
