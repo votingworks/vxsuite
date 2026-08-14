@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
+import { act, render, screen } from '../test/react_testing_library';
 
 import {
   BatteryStatus,
@@ -54,6 +54,25 @@ test('DateTimeDisplay renders current date and time', () => {
   vi.setSystemTime(new Date('2026-01-15T14:30:00'));
   render(<DateTimeDisplay />);
   screen.getByText(/Jan 15/);
+});
+
+test('DateTimeDisplay updates when the displayed minute changes', () => {
+  vi.setSystemTime(new Date('2026-01-15T14:30:00'));
+  render(<DateTimeDisplay />);
+  screen.getByText(/2:30 PM/);
+
+  // Ticks within the same minute don't change what's displayed.
+  vi.setSystemTime(new Date('2026-01-15T14:30:30'));
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
+  screen.getByText(/2:30 PM/);
+
+  vi.setSystemTime(new Date('2026-01-15T14:31:00'));
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
+  screen.getByText(/2:31 PM/);
 });
 
 test('LockMachineButton calls onLock when pressed', () => {
