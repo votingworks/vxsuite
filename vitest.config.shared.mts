@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import * as vitest from 'vitest/config';
 
 const isCI = process.env['CI'] === 'true';
@@ -25,8 +26,15 @@ function parseTestWorkers(value: string | undefined): number | undefined {
 
 const localMaxWorkers = parseTestWorkers(process.env['VX_TEST_WORKERS']);
 
+// Resolved from this file rather than the consuming package, since setup file
+// paths are otherwise interpreted relative to each package's root.
+const sharedSetupFile = fileURLToPath(
+  new URL('./vitest.setup.shared.mts', import.meta.url)
+);
+
 export const base: vitest.ViteUserConfig = {
   test: {
+    setupFiles: [sharedSetupFile],
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     coverage: {
       // Collect coverage (and enforce thresholds) in CI only; locally, tests
