@@ -921,6 +921,7 @@ dependencies = [
  "clap",
  "color-eyre",
  "csv",
+ "flate2",
  "image",
  "nom 7.1.3",
  "nusb",
