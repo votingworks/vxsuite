@@ -174,6 +174,8 @@ test('create still backs up when the system log cannot be written to', async () 
 
 test('keeps log lines out of the terminal on a real machine', async () => {
   vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('VX_MACHINE_ID', 'AD-1234');
+  vi.stubEnv('VX_CODE_VERSION', '1.2.3');
 
   const { stderr, logged } = await run([
     'create',
@@ -407,4 +409,43 @@ test('backs up a workspace whose schema digest does not match, rather than reset
   expect(reread.one(`select digest from vx_schema_digest`)).toEqual({
     digest: 'from-another-branch',
   });
+});
+
+test('refuses to sign a real machine’s backup as a development one', async () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('VX_MACHINE_ID', undefined);
+  vi.stubEnv('VX_CODE_VERSION', undefined);
+
+  const { code, stderr } = await run([
+    'create',
+    '--workspace',
+    workspacePath,
+    '--target',
+    targetPath,
+  ]);
+
+  // Otherwise the manifest records machine 0000 running 'dev', and this machine
+  // would later reject the only backup on the drive.
+  expect(code).toEqual(1);
+  expect(stderr).toContain(
+    'Missing required VX_MACHINE_ID and VX_CODE_VERSION'
+  );
+  expect(readdirSync(targetPath)).toEqual([]);
+});
+
+test('does not ask a development machine for a machine ID', async () => {
+  vi.stubEnv('VX_MACHINE_ID', undefined);
+  vi.stubEnv('VX_CODE_VERSION', undefined);
+
+  // A developer has no service manager to set these, and 'dev' is the right
+  // answer there.
+  const { code } = await run([
+    'create',
+    '--workspace',
+    workspacePath,
+    '--target',
+    targetPath,
+  ]);
+
+  expect(code).toEqual(0);
 });

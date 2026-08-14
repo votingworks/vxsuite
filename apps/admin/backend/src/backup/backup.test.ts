@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   existsSync,
   mkdirSync,
@@ -14,7 +14,7 @@ import {
   SIGNATURE_FILE_EXTENSION,
 } from '@votingworks/auth';
 import { getDiskSpaceSummary, syncFilesystem } from '@votingworks/backend';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
@@ -51,6 +51,44 @@ import {
   BALLOT_IMAGE_PATH,
   makeConfiguredWorkspace,
 } from '../../test/backup.js';
+
+// `vi.spyOn` can't touch `node:fs/promises` exports under ESM, so the two tests
+// that need a failing filesystem call swap in an override here.
+type RmFn = (path: unknown, options?: unknown) => Promise<void>;
+
+const overrides = vi.hoisted(() => ({
+  rm: undefined as undefined | RmFn,
+  readManifestContents: undefined as
+    | undefined
+    | ((path: unknown) => Promise<unknown>),
+  realRm: undefined as undefined | RmFn,
+}));
+
+vi.mock('node:fs/promises', async (importActual) => {
+  const actual = await importActual<typeof import('node:fs/promises')>();
+  overrides.realRm = actual.rm as never;
+  return {
+    ...actual,
+    rm: (...args: Parameters<typeof actual.rm>) =>
+      overrides.rm ? overrides.rm(args[0], args[1]) : actual.rm(...args),
+  };
+});
+
+// Reading the manifest is intercepted here rather than at the filesystem,
+// because `libs/auth` reads the same file to check the signature and a
+// filesystem-level override would tamper with that instead.
+vi.mock('./manifest.js', async (importActual) => {
+  const actual = await importActual<typeof import('./manifest.js')>();
+  return {
+    ...actual,
+    readManifestContents: (
+      ...args: Parameters<typeof actual.readManifestContents>
+    ) =>
+      overrides.readManifestContents
+        ? overrides.readManifestContents(args[0])
+        : actual.readManifestContents(...args),
+  };
+});
 
 vi.mock(
   '@votingworks/backend',
@@ -92,6 +130,11 @@ function expectedBackupDirectoryName(): string {
   );
 }
 
+afterEach(() => {
+  overrides.rm = undefined;
+  overrides.readManifestContents = undefined;
+});
+
 beforeEach(() => {
   // 1 TB free everywhere, in the 1K blocks `df` reports.
   vi.mocked(getDiskSpaceSummary).mockResolvedValue({
@@ -128,8 +171,9 @@ test('creates a signed backup that validates', async () => {
     'snapshotting_database',
     'copying_files',
     'signing',
-    'swapping',
+    'flushing',
     'validating',
+    'swapping',
   ]);
 
   expect(manifest.version).toEqual(1);
@@ -191,8 +235,9 @@ test('logs each stage once, however many files it copies', async () => {
     'snapshotting_database',
     'copying_files',
     'signing',
-    'swapping',
+    'flushing',
     'validating',
+    'swapping',
   ]);
 });
 
@@ -208,17 +253,17 @@ test('a failed backup records the stage it got to', async () => {
     logger: testLogger,
   });
   expect(result).toEqual(
-    err({ type: 'swap_failed', message: 'drive went away' })
+    err({ type: 'flush_failed', message: 'drive went away' })
   );
 
-  // Without this the log would say only that the backup failed, not that it
-  // had already written and signed everything and died during the swap.
+  // Without this the log would say only that the backup failed, not that it had
+  // already written and signed everything and died getting it to the drive.
   expect(loggedSteps(testLogger)).toEqual([
     'checking_space',
     'snapshotting_database',
     'copying_files',
     'signing',
-    'swapping',
+    'flushing',
   ]);
 });
 
@@ -297,7 +342,7 @@ test('fails when the drive cannot be flushed', async () => {
     logger: logger(),
   });
   expect(result).toEqual(
-    err({ type: 'swap_failed', message: 'drive went away' })
+    err({ type: 'flush_failed', message: 'drive went away' })
   );
 });
 
@@ -431,10 +476,15 @@ test.each([
   },
   {
     // Validation reads the backup back before it is renamed, so a directory
-    // that vanishes first is caught there rather than by the rename.
+    // that vanishes at that point is caught there.
+    description: 'the read-back',
+    stepToInterruptAt: 'validating' as const,
+    expectedErrorType: 'validation_failed' as const,
+  },
+  {
     description: 'the swap into place',
     stepToInterruptAt: 'swapping' as const,
-    expectedErrorType: 'validation_failed' as const,
+    expectedErrorType: 'swap_failed' as const,
   },
 ])(
   'fails when the backup directory disappears before $description',
@@ -804,6 +854,10 @@ test.each<{ error: BackupValidationError; expectedMessage: string }>([
     expectedMessage: 'does not match the hash',
   },
   {
+    error: { type: 'manifest_changed' },
+    expectedMessage: 'changed while it was being checked',
+  },
+  {
     error: { type: 'unexpected_file', path: 'extra' },
     expectedMessage: 'manifest does not list',
   },
@@ -1120,4 +1174,167 @@ test('the copy reaches the end of its progress bar', async () => {
   expect(assertDefined(lastCopying).bytesTotal).toEqual(
     manifest.files.reduce((sum, file) => sum + file.size, 0)
   );
+});
+
+test('a backup whose old copy cannot be deleted is still a backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const testLogger = logger();
+  const backupDirectoryPath = join(
+    target,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+
+  (
+    await createBackup({
+      workspace,
+      targetDirectoryPath: target,
+      machineConfig,
+      logger: logger(),
+    })
+  ).unsafeUnwrap();
+
+  // Make deleting last time's copy fail after both renames have succeeded, by
+  // which point the new backup is already the one on the drive.
+  let swapped = false;
+  overrides.rm = (path, options) => {
+    if (
+      swapped &&
+      String(path).endsWith('-previous') &&
+      (options as { recursive?: boolean } | undefined)?.recursive
+    ) {
+      return Promise.reject(new Error('EIO'));
+    }
+    return assertDefined(overrides.realRm)(path, options);
+  };
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig,
+    logger: testLogger,
+    onProgress: ({ step }) => {
+      // The cleanup at the start of a run deletes `-previous` too; only the one
+      // after the swap is of interest.
+      swapped = swapped || step === 'swapping';
+    },
+  });
+
+  // Reporting this as a failure would send someone looking for a backup that is
+  // sitting right there.
+  result.unsafeUnwrap();
+  expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
+  expect(vi.mocked(testLogger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: expect.stringContaining('could not be deleted'),
+    })
+  );
+});
+
+test('records the swap as the stage a failed rename reached', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const testLogger = logger();
+  const backupDirectoryPath = join(
+    target,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+
+  (
+    await createBackup({
+      workspace,
+      targetDirectoryPath: target,
+      machineConfig,
+      logger: logger(),
+    })
+  ).unsafeUnwrap();
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig,
+    logger: testLogger,
+    onProgress: ({ step }) => {
+      if (
+        step === 'validating' &&
+        !existsSync(`${backupDirectoryPath}-previous`)
+      ) {
+        mkdirSync(`${backupDirectoryPath}-previous`);
+        writeFileSync(join(`${backupDirectoryPath}-previous`, 'junk'), 'junk');
+      }
+    },
+  });
+  expect(result.err()?.type).toEqual('swap_failed');
+
+  // The log has to say the run died in the swap, not that it never got there.
+  expect(loggedSteps(testLogger)[loggedSteps(testLogger).length - 1]).toEqual(
+    'swapping'
+  );
+});
+
+test('validation rejects a manifest path that climbs out of the backup', async () => {
+  const { backupDirectoryPath, manifest } = await createValidBackup();
+  const escaping: BackupManifest = {
+    ...manifest,
+    files: [
+      { ...assertDefined(manifest.files[0]), path: '../../etc/hostname' },
+    ],
+  };
+  const manifestFileContents = JSON.stringify(escaping);
+  writeFileSync(manifestPath(backupDirectoryPath), manifestFileContents);
+  const signatureFile = await prepareSignatureFile({
+    type: 'vxadmin_backup',
+    context: 'export',
+    manifestFileContents,
+  });
+  writeFileSync(
+    join(backupDirectoryPath, signatureFile.fileName),
+    signatureFile.fileContents
+  );
+
+  // Signed, so the signature check passes: the schema is what has to stop this,
+  // because restore writes every path a manifest lists.
+  expect((await validateBackup({ backupDirectoryPath })).err()).toEqual(
+    expect.objectContaining({ type: 'manifest_unreadable' })
+  );
+});
+
+test.each(['/etc/hostname', 'a/../../b', 'a//b', 'a/./b', 'a\\b', ''])(
+  'rejects the manifest path %o',
+  async (path) => {
+    const { backupDirectoryPath, manifest } = await createValidBackup();
+    writeFileSync(
+      manifestPath(backupDirectoryPath),
+      JSON.stringify({ ...manifest, files: [{ path, sha256: 'a', size: 0 }] })
+    );
+    expect(await readManifest(backupDirectoryPath)).toEqual(
+      err(expect.anything())
+    );
+  }
+);
+
+test('validation rejects a manifest that changes while it is checked', async () => {
+  const { backupDirectoryPath, manifest } = await createValidBackup();
+  let reads = 0;
+  overrides.readManifestContents = () => {
+    reads += 1;
+    // The real bytes first, different bytes on the read that happens after the
+    // signature has been checked — the drive that answers twice differently.
+    return Promise.resolve(
+      ok(
+        reads > 1
+          ? JSON.stringify({ ...manifest, machineId: 'AD-9999' })
+          : JSON.stringify(manifest)
+      )
+    );
+  };
+
+  const result = await validateBackup({ backupDirectoryPath });
+
+  expect(result.err()).toEqual({ type: 'manifest_changed' });
 });

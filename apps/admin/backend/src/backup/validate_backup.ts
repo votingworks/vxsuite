@@ -15,7 +15,8 @@ import {
 import {
   BACKUP_MANIFEST_VERSION,
   BackupManifest,
-  readManifest,
+  parseManifest,
+  readManifestContents,
   sha256File,
 } from './manifest.js';
 
@@ -35,6 +36,7 @@ export interface BackupValidationProgress {
  */
 export type BackupValidationError =
   | { type: 'manifest_unreadable'; message: string }
+  | { type: 'manifest_changed' }
   | { type: 'signature_invalid'; message: string }
   | {
       type: 'manifest_version_unsupported';
@@ -69,6 +71,11 @@ export function formatBackupValidationError(
   switch (error.type) {
     case 'manifest_unreadable':
       return `The backup manifest could not be read: ${error.message}`;
+    case 'manifest_changed':
+      return (
+        'The backup manifest changed while it was being checked, so the drive ' +
+        'cannot be trusted to hold what it reports.'
+      );
     case 'signature_invalid':
       return `The backup manifest's signature is not valid: ${error.message}`;
     case 'manifest_version_unsupported':
@@ -130,7 +137,15 @@ export async function validateBackup({
   expectedSoftwareVersion?: string;
   onProgress?: (progress: BackupValidationProgress) => void;
 }): Promise<Result<BackupManifest, BackupValidationError>> {
-  const manifestResult = await readManifest(backupDirectoryPath);
+  const contentsResult = await readManifestContents(backupDirectoryPath);
+  if (contentsResult.isErr()) {
+    return err({
+      type: 'manifest_unreadable',
+      message: extractErrorMessage(contentsResult.err()),
+    });
+  }
+  const contents = contentsResult.ok();
+  const manifestResult = parseManifest(contents);
   if (manifestResult.isErr()) {
     return err({
       type: 'manifest_unreadable',
@@ -149,6 +164,17 @@ export async function validateBackup({
       type: 'signature_invalid',
       message: extractErrorMessage(authenticationResult.err()),
     });
+  }
+
+  // `libs/auth` opens the manifest itself, so the bytes it verified are not the
+  // bytes parsed above. A drive that serves different bytes on a second read
+  // could otherwise hand us attacker-chosen hashes and the signer a genuine
+  // manifest. Reading it again and insisting it hasn't moved narrows that to the
+  // window between those two reads; closing it entirely needs an import variant
+  // of `authenticateArtifactUsingSignatureFile` that takes the bytes.
+  const recheckResult = await readManifestContents(backupDirectoryPath);
+  if (recheckResult.isErr() || recheckResult.ok() !== contents) {
+    return err({ type: 'manifest_changed' });
   }
 
   // A later format could hash differently, require files this doesn't know

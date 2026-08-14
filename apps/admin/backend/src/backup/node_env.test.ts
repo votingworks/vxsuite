@@ -1,5 +1,9 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { checkNodeEnv, checkNodeEnvIfSet } from './node_env.js';
+import {
+  checkMachineConfigEnv,
+  checkNodeEnv,
+  checkNodeEnvIfSet,
+} from './node_env.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -34,4 +38,22 @@ test('the early check passes over a missing environment', () => {
 test('the early check still rejects a value it does not know', () => {
   vi.stubEnv('NODE_ENV', 'staging');
   expect(checkNodeEnvIfSet()).toContain('NODE_ENV should be one of');
+});
+
+test('asks a real machine for its identity', () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('VX_MACHINE_ID', 'AD-1234');
+  vi.stubEnv('VX_CODE_VERSION', undefined);
+
+  expect(checkMachineConfigEnv()).toContain(
+    'Missing required VX_CODE_VERSION env var.'
+  );
+});
+
+test('accepts a real machine that knows its identity', () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('VX_MACHINE_ID', 'AD-1234');
+  vi.stubEnv('VX_CODE_VERSION', '1.2.3');
+
+  expect(checkMachineConfigEnv()).toBeUndefined();
 });

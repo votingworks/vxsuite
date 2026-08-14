@@ -14,7 +14,7 @@ import {
   isTransientBackupDirectoryName,
   readManifest,
 } from './manifest.js';
-import { checkNodeEnv } from './node_env.js';
+import { checkMachineConfigEnv, checkNodeEnv } from './node_env.js';
 import { formatStepLabel, ProgressDisplay } from './progress_display.js';
 import { SyslogWriter } from './syslog.js';
 import {
@@ -325,6 +325,16 @@ export async function main(
     const nodeEnvError = checkNodeEnv();
     if (nodeEnvError !== undefined) {
       stderr.write(`${nodeEnvError}\n`);
+      return 1;
+    }
+  }
+
+  // Checked here rather than when the manifest is written, for the same reason
+  // as NODE_ENV: by then the copy is done.
+  if (args._[0] === 'create') {
+    const machineConfigError = checkMachineConfigEnv();
+    if (machineConfigError !== undefined) {
+      stderr.write(`${machineConfigError}\n`);
       return 1;
     }
   }

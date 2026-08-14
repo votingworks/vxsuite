@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { z } from 'zod/v4';
 import { VXADMIN_BACKUP_MANIFEST_FILE_NAME } from '@votingworks/auth';
-import { Result, err } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 
 /**
@@ -29,6 +29,24 @@ export const PREVIOUS_DIRECTORY_SUFFIX = '-previous';
  * The format version of the manifest written by this software.
  */
 export const BACKUP_MANIFEST_VERSION = 1;
+
+/**
+ * Whether a manifest path stays inside the backup: relative, `/`-separated, and
+ * free of any `..` that would climb out of it.
+ *
+ * Restore writes every path a manifest lists, so a path that escapes would be
+ * an arbitrary write. Nothing this software signs would contain one, but the
+ * schema is where that stops being a matter of trust.
+ */
+function isContainedRelativePath(path: string): boolean {
+  if (path.length === 0 || path.startsWith('/') || path.includes('\\')) {
+    return false;
+  }
+  const segments = path.split('/');
+  return segments.every(
+    (segment) => segment !== '' && segment !== '.' && segment !== '..'
+  );
+}
 
 /**
  * A single backed-up file, hashed on the internal disk as it was written to the
@@ -72,7 +90,10 @@ export const BackupManifestSchema: z.ZodType<BackupManifest> = z.object({
   }),
   files: z.array(
     z.object({
-      path: z.string(),
+      path: z.string().refine(isContainedRelativePath, {
+        message:
+          'must be a relative path within the backup, using `/` separators',
+      }),
       sha256: z.string(),
       size: z.number().int().nonnegative(),
     })
@@ -94,12 +115,31 @@ export function manifestPath(backupDirectoryPath: string): string {
 export async function readManifest(
   backupDirectoryPath: string
 ): Promise<Result<BackupManifest, Error>> {
-  let contents: string;
+  const contentsResult = await readManifestContents(backupDirectoryPath);
+  if (contentsResult.isErr()) {
+    return contentsResult;
+  }
+  return safeParseJson(contentsResult.ok(), BackupManifestSchema);
+}
+
+/**
+ * Reads the manifest's bytes without parsing them, so that a caller can tie the
+ * manifest it parsed to the bytes a signature was checked against.
+ */
+export async function readManifestContents(
+  backupDirectoryPath: string
+): Promise<Result<string, Error>> {
   try {
-    contents = await readFile(manifestPath(backupDirectoryPath), 'utf-8');
+    return ok(await readFile(manifestPath(backupDirectoryPath), 'utf-8'));
   } catch (error) {
     return err(error as Error);
   }
+}
+
+/**
+ * Parses manifest bytes that a caller has already read.
+ */
+export function parseManifest(contents: string): Result<BackupManifest, Error> {
   return safeParseJson(contents, BackupManifestSchema);
 }
 

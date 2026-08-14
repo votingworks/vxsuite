@@ -50,6 +50,7 @@ export type BackupProgress =
   | { step: 'snapshotting_database' }
   | { step: 'copying_files'; bytesCompleted: number; bytesTotal: number }
   | { step: 'signing' }
+  | { step: 'flushing' }
   | { step: 'swapping' }
   | { step: 'validating'; bytesCompleted: number; bytesTotal: number };
 
@@ -87,6 +88,7 @@ export type BackupError =
       message: string;
     }
   | { type: 'signing_failed'; message: string }
+  | { type: 'flush_failed'; message: string }
   | { type: 'swap_failed'; message: string }
   | {
       type: 'validation_failed';
@@ -116,6 +118,8 @@ export function formatBackupError(error: BackupError): string {
       return `${error.path} could not be written to the backup drive: ${error.message}`;
     case 'signing_failed':
       return `The backup manifest could not be signed: ${error.message}`;
+    case 'flush_failed':
+      return `The backup could not be written out to the drive: ${error.message}`;
     case 'swap_failed':
       return `The new backup could not be moved into place: ${error.message}`;
     case 'validation_failed':
@@ -519,14 +523,19 @@ export async function createBackup({
     });
   }
 
-  // Everything written so far may still be sitting in the page cache. Flush it
-  // before reading any of it back, so that what validation checks is what the
-  // drive holds rather than what the kernel remembers writing.
-  reportProgress({ step: 'swapping' });
+  // Push everything written so far out to the device before reading any of it
+  // back. Note what this does and does not buy: `syncfs(2)` writes dirty pages
+  // to the drive but leaves them in the page cache as clean pages, so the
+  // read-back below is largely served from RAM. Validation therefore catches a
+  // manifest that doesn't describe what was written, a file that never made it,
+  // and corruption on the way out — but it cannot prove the drive itself stored
+  // the bytes, which would need the cache dropped (`posix_fadvise`, `O_DIRECT`)
+  // and Node exposes neither.
+  reportProgress({ step: 'flushing' });
   try {
     await syncFilesystem(targetDirectoryPath);
   } catch (error) {
-    return fail({ type: 'swap_failed', message: extractErrorMessage(error) });
+    return fail({ type: 'flush_failed', message: extractErrorMessage(error) });
   }
 
   // Validation happens before the swap, not after: it exists to catch a drive
@@ -546,19 +555,12 @@ export async function createBackup({
     return fail({ type: 'validation_failed', error: validationResult.err() });
   }
 
+  reportProgress({ step: 'swapping' });
   try {
-    let hasPreviousBackup = false;
-    try {
-      await stat(backupDirectoryPath);
-      hasPreviousBackup = true;
-    } catch {
-      // No backup of this election on this drive yet.
-    }
-    if (hasPreviousBackup) {
+    if (await exists(backupDirectoryPath)) {
       await rename(backupDirectoryPath, previousDirectoryPath);
     }
     await rename(inProgressDirectoryPath, backupDirectoryPath);
-    await rm(previousDirectoryPath, { force: true, recursive: true });
   } catch (error) {
     return fail({
       type: 'swap_failed',
@@ -566,17 +568,35 @@ export async function createBackup({
     });
   }
 
-  // The backup is complete and under its final name from here on: a failure to
-  // flush is worth reporting, but it is not a failed backup, and saying so
-  // would send someone looking for a backup that is actually there.
+  // Past this point the backup is complete and under its final name. Deleting
+  // last time's copy and flushing are both worth reporting if they fail, but
+  // neither makes this a failed backup, and saying so would send someone looking
+  // for a backup that is actually there.
+  const leftovers: string[] = [];
+  try {
+    await rm(previousDirectoryPath, { force: true, recursive: true });
+  } catch (error) {
+    leftovers.push(
+      `${previousDirectoryPath} could not be deleted: ${extractErrorMessage(
+        error
+      )}`
+    );
+  }
+
   try {
     await syncFilesystem(targetDirectoryPath);
   } catch (error) {
+    leftovers.push(
+      `the drive could not be flushed: ${extractErrorMessage(error)}. Do not ` +
+        `remove the drive until the machine is shut down`
+    );
+  }
+
+  if (leftovers.length > 0) {
     logger.log(LogEventId.BackupCreateComplete, 'system', {
       message:
-        `Backed up election data to ${backupDirectoryPath}, but the drive ` +
-        `could not be flushed: ${extractErrorMessage(error)}. Do not remove ` +
-        `the drive until the machine is shut down.`,
+        `Backed up election data to ${backupDirectoryPath}, but ` +
+        `${leftovers.join('; and ')}.`,
       disposition: 'failure',
     });
   }
