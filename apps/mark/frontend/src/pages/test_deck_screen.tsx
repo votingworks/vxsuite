@@ -63,7 +63,7 @@ export function TestDeckScreen({
           </Button>
         </P>
         {!isPrinterConnected && (
-          <P>
+          <P as="div">
             <Callout icon="Warning" color="warning">
               No printer detected. Connect it to print test decks.
             </Callout>
@@ -85,7 +85,7 @@ export function TestDeckScreen({
               : 'Print All Test Decks'}
           </Button>
         </P>
-        <P>
+        <P as="div">
           <SearchSelect
             aria-label="Select a precinct"
             isMulti={false}

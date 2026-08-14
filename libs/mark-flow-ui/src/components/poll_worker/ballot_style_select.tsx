@@ -142,7 +142,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
       )}
 
       {selectedPrecinctOrSplit && (
-        <P>
+        <P as="div">
           <Font weight="semiBold">Select ballot style:</Font>
           <ButtonGrid>
             {getBallotStyleGroupsForPrecinctOrSplit({
