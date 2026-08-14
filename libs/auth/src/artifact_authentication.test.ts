@@ -150,6 +150,7 @@ beforeEach(() => {
       type: 'vxadmin_backup',
       context: 'import',
       directoryPath: vxAdminBackupDirectoryPath,
+      manifestFileContents,
     },
   };
 });
@@ -505,26 +506,31 @@ test.each<{
     expectedErrorMessage: 'Verification failure',
   },
   {
+    // The importer hands over the bytes it read, so this is what a tampered
+    // manifest looks like from here: whether they came off a drive, and whether
+    // the file still says the same thing, is the caller's business.
     description: 'VxAdmin backup, altered manifest',
     artifactGenerator: () => vxAdminBackup,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxAdminTestConfig,
     editsAfterWritingSignatureFile: () => {
-      fs.appendFileSync(
-        path.join(backupDirectoryPath(), VXADMIN_BACKUP_MANIFEST_FILE_NAME),
-        '!'
-      );
+      assert(vxAdminBackup.artifactToImport.type === 'vxadmin_backup');
+      assert(vxAdminBackup.artifactToImport.context === 'import');
+      vxAdminBackup.artifactToImport.manifestFileContents += '!';
     },
     expectedErrorMessage: 'Verification failure',
   },
   {
-    description: 'VxAdmin backup, removed manifest',
+    description: 'VxAdmin backup, removed signature file',
     artifactGenerator: () => vxAdminBackup,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxAdminTestConfig,
     editsAfterWritingSignatureFile: () => {
       fs.rmSync(
-        path.join(backupDirectoryPath(), VXADMIN_BACKUP_MANIFEST_FILE_NAME)
+        path.join(
+          backupDirectoryPath(),
+          `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`
+        )
       );
     },
     expectedErrorMessage: 'ENOENT: no such file or directory',

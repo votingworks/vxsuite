@@ -38,7 +38,6 @@ export interface BackupValidationProgress {
  */
 export type BackupValidationError =
   | { type: 'manifest_unreadable'; message: string }
-  | { type: 'manifest_changed' }
   | { type: 'signature_invalid'; message: string }
   | {
       type: 'manifest_version_unsupported';
@@ -73,11 +72,6 @@ export function formatBackupValidationError(
   switch (error.type) {
     case 'manifest_unreadable':
       return `The backup manifest could not be read: ${error.message}`;
-    case 'manifest_changed':
-      return (
-        'The backup manifest changed while it was being checked, so the drive ' +
-        'cannot be trusted to hold what it reports.'
-      );
     case 'signature_invalid':
       return `The backup manifest's signature is not valid: ${error.message}`;
     case 'manifest_version_unsupported':
@@ -156,27 +150,20 @@ export async function validateBackup({
   }
   const manifest = manifestResult.ok();
 
+  // The bytes parsed above are the bytes whose signature is checked, so there is
+  // no window in which a drive could answer one read with a genuine manifest and
+  // another with attacker-chosen hashes.
   const authenticationResult = await authenticateArtifactUsingSignatureFile({
     type: 'vxadmin_backup',
     context: 'import',
     directoryPath: backupDirectoryPath,
+    manifestFileContents: contents,
   });
   if (authenticationResult.isErr()) {
     return err({
       type: 'signature_invalid',
       message: extractErrorMessage(authenticationResult.err()),
     });
-  }
-
-  // `libs/auth` opens the manifest itself, so the bytes it verified are not the
-  // bytes parsed above. A drive that serves different bytes on a second read
-  // could otherwise hand us attacker-chosen hashes and the signer a genuine
-  // manifest. Reading it again and insisting it hasn't moved narrows that to the
-  // window between those two reads; closing it entirely needs an import variant
-  // of `authenticateArtifactUsingSignatureFile` that takes the bytes.
-  const recheckResult = await readManifestContents(backupDirectoryPath);
-  if (recheckResult.isErr() || recheckResult.ok() !== contents) {
-    return err({ type: 'manifest_changed' });
   }
 
   // A later format could hash differently, require files this doesn't know

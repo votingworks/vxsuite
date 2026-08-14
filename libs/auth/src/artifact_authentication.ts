@@ -81,7 +81,15 @@ interface VxAdminBackupToExport {
 interface VxAdminBackupToImport {
   type: 'vxadmin_backup';
   context: 'import';
+  /** Where the signature file sits, adjacent to the manifest it signs. */
   directoryPath: string;
+  /**
+   * The manifest's bytes, read by the caller. Taking them rather than the path
+   * to read them from is what lets a caller prove that what it parsed is what
+   * was signed: a drive that answers two reads differently cannot hand the
+   * caller one manifest and the signature check another.
+   */
+  manifestFileContents: string;
 }
 
 type VxAdminBackup = VxAdminBackupToExport | VxAdminBackupToImport;
@@ -155,23 +163,9 @@ function constructMessage(artifact: Artifact): {
       };
     }
     case 'vxadmin_backup': {
-      let manifestFileContents: Readable;
-      switch (artifact.context) {
-        case 'export': {
-          manifestFileContents = Readable.from(artifact.manifestFileContents);
-          break;
-        }
-        case 'import': {
-          manifestFileContents = createReadStream(
-            path.join(artifact.directoryPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME)
-          );
-          break;
-        }
-        /* istanbul ignore next: Compile-time check for completeness */
-        default: {
-          throwIllegalValue(artifact, 'context');
-        }
-      }
+      // Both directions sign the manifest's bytes, and both are given those
+      // bytes rather than a path to read them from.
+      const manifestFileContents = Readable.from(artifact.manifestFileContents);
       return {
         artifactStream: manifestFileContents,
         message: constructPrefixedMessage(artifact.type, manifestFileContents),
