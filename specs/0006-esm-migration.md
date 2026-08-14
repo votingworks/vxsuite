@@ -62,7 +62,8 @@ libraries — follows a pattern like this:
 
 1. Mark the package as ESM by adding `"type": "module"` to `package.json`. A
    library also gets an `exports` map (and drops the now-redundant
-   `main`/`types`); an app that nothing imports just gets `"type": "module"`.
+   `main`/`types`), including a `"./package.json"` entry; an app that nothing
+   imports just gets `"type": "module"`.
 2. Give relative imports the extension of the built file
    (`import { foo } from './foo.js'`) and reference `index.js` files explicitly
    instead of the directories that contain them.
@@ -85,7 +86,118 @@ One non-obvious gotcha: config files written as CJS `.js` (e.g.
 `.stylelintrc.js`, `.lintstagedrc.js`) break once `type: module` makes NodeJS
 read them as ESM. Rename them to `.cjs`. They live outside any tsconfig, so
 `tsc` never flags them — a backend's `.lintstagedrc.js` only fails at commit
-time.
+time. Two variations came up in practice. Some tools only look for a `.js`
+config and would never find a `.cjs` one — i18next-parser searches for
+`i18next-parser.config.{js,mjs,json,ts,yaml,yml}` — so that config has to become
+ESM (`export default`) rather than be renamed. And a whole directory that must
+stay CJS can get its own `package.json` containing `{ "type": "commonjs" }`,
+which is how VxDesign's node-pg-migrate migrations keep working: the runner
+loads them with `require`, and renaming 50 files would have tripped the
+migration-immutability guard that tracks them by name.
+
+That directory `package.json` is then a new file in a directory some tool
+enumerates, and it may not be ignored. node-pg-migrate's default ignore pattern
+only skips dotfiles, so it loaded `migrations/package.json` as a migration named
+`package` with timestamp `0`, which sorts ahead of every real migration and
+makes its `checkOrder` check throw. Tests stayed green because the programmatic
+runner in `src/db/client.ts` already passed an `ignorePattern`; it was the CLI
+invocations in `package.json` scripts that broke, and with them the Heroku
+release phase that runs `db:migrations:run`. Whenever this trick is used, pass
+the ignore pattern everywhere the tool is invoked, not just where it was already
+needed.
+
+### The `exports` map and the tooling that reads `package.json`
+
+Step 1 changes the shape of a library's `package.json`: it gains an `exports`
+map and loses `main`. Both halves of that break tooling, in ways no build,
+type-check or test notices.
+
+- **An `exports` map turns off extension-adding and unlisted subpaths.**
+  `prod-build` walks the workspace dependency graph with
+  ``resolveFrom(path, `${name}/package`)`` and relies on NodeJS adding `.json`.
+  Against a converted package that resolution fails with
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`, so building any app for production dies at
+  the first converted dependency. Two changes are needed and neither works
+  alone: ask for `${name}/package.json`, since an exports map matches subpaths
+  exactly, and declare `"./package.json": "./package.json"` in the map so that
+  subpath resolves at all. Exporting `./package.json` is conventional and worth
+  having regardless — reading `<pkg>/package.json` is a common thing for tooling
+  to do. The codemod emits the subpath and `validate-monorepo` enforces it,
+  because otherwise every remaining library reintroduces the problem as it
+  converts and only prod-build, which CI never runs, would notice.
+- **Tooling that sniffs `main`/`module` stops recognizing converted packages.**
+  `getWorkspacePackageInfo()` decided a workspace package was a library — and so
+  should be aliased to its TypeScript source in the app Vite configs — by
+  checking `main`/`module`, so the batch-1 libraries silently lost their aliases
+  and Vite resolved them to `build/` output instead of source. For the bundled
+  frontend libs that meant serving `tsc` output compiled with the production JSX
+  runtime, whose `react/jsx-runtime` import the dev-time dependency scanner
+  never sees; Vite handed the browser React's raw CJS shim and every app
+  frontend crashed on load with `module is not defined`. The fix is a one-line
+  `|| packageJson.exports`, but finding it required starting a dev server, which
+  nothing in CI does. Expect a similar check anywhere else that infers "library"
+  from `main`.
+
+### Entry points and CLIs
+
+Anything NodeJS runs directly needs its own pass; a package can be entirely
+converted and still have every one of its commands broken, because no CI job
+runs them.
+
+- **Extensionless scripts take the package's `type`.** A `bin/foo` with a node
+  shebang and a CommonJS body is parsed as ESM the moment `type: module` lands,
+  and dies on its own `require`.
+- **`require.main === module` doesn't exist.** Compare `process.argv[1]` (NodeJS
+  resolves it to an absolute path, even for `node ./build/index.js`) against
+  `fileURLToPath(import.meta.url)`.
+- **`node -r esbuild-runner/register ./scripts/foo.ts` stops working.** `-r` is
+  a CommonJS preload, and NodeJS routes a `.ts` entry point to the ESM loader
+  once the package is `type: module`, so it fails with
+  `Unknown file extension ".ts"`.
+- **The esbuild-runner hook can't be salvaged.** It is a `require` hook, so it
+  can neither load ESM sources nor resolve the `.js` specifiers those sources
+  now use — it looks for `./foo.js` literally and never finds `foo.ts`. Scripts
+  that transpiled sources on the fly should run the **compiled output** instead,
+  which means their TypeScript has to live somewhere the build compiles (i.e.
+  under `src/`, since `tsconfig.build.json` covers `src` and not `scripts`).
+  Give those modules a narrow `coverage.exclude`: they were outside `src/`
+  before, so they were never counted, and excluding them keeps the status quo
+  rather than lowering the bar.
+- Where a package script wraps a CLI, have it build first
+  (`pnpm build:self && node ./build/...`) so the command stays a single step and
+  can't silently run a stale build.
+
+### Default imports of CommonJS dependencies
+
+`tsc` under `node16` correctly models NodeJS: a default import of a CommonJS
+module is `module.exports`. Three loaders then disagree about the same line.
+
+| loader     | `import x from 'somecjs'` gives                       |
+| ---------- | ----------------------------------------------------- |
+| NodeJS ESM | `module.exports` — the real default is at `.default`  |
+| vitest     | applies its own `interopDefault`, so the real default |
+| Vite       | resolves the package's ESM build, so the real default |
+
+So a fix written for one loader breaks the others, and a library loaded by both
+NodeJS and a bundler — as `ui` is, since backends render reports through it —
+has to accept either shape:
+
+```ts
+const mod = someDefault as unknown as Whatever & { default?: Whatever };
+export const thing: Whatever = mod.default ?? mod;
+```
+
+Normalize once per package rather than at each use site. This came up for
+`styled-components`, `pg`, `use-interval` and `@testing-library/user-event`.
+Note that upgrading doesn't avoid it: styled-components v5, v6 and even the v7
+prereleases all ship without an `exports` map, so NodeJS resolves their CommonJS
+build in every case.
+
+Two traps inside the trap. A package on `bundler` resolution gets **no** `tsc`
+error, so if its output is ever loaded by NodeJS the failure is silent until
+runtime. And some CommonJS packages defeat NodeJS's named-export detection
+entirely (`qrcode.react`, `pg`), so `import { Thing }` type-checks and then
+fails to load — while vitest and Vite surface those names happily.
 
 ### Frontends
 
@@ -114,6 +226,42 @@ export-specifier processors are all satisfied, and they don't necessarily agree:
   runtime. The fix is to default-import the module and read the member off it.
   This class of bug only surfaces by running the built output under `node`.
 - **vitest** tests pass.
+
+Because that third processor is the one nothing else stands in for, check it
+exhaustively rather than at the entry point:
+
+- **Import every module under `build/`** with plain `node`, not just
+  `build/index.js`. A bad interop line sits in whichever module happens to
+  contain it, and importing only the entry misses anything the entry doesn't
+  reach. Sweeping all of `ui`'s 255 modules is what surfaced its `qrcode.react`
+  and `require.resolve` failures; both were invisible to `tsc` and to vitest.
+- **Run every entry point and CLI.** VxDesign's server and worker could not
+  start at all — three separate causes — while its tests, lint, type-check and
+  full CI were green, because only vitest ever loaded them.
+- **Run the builds and servers CI doesn't.** `prod-build` and the frontend dev
+  servers are the two consumers of a package's `package.json` shape that no CI
+  job exercises, and each has already shipped a break: prod-build failing at the
+  first converted dependency, and every app frontend crashing on load after the
+  libraries lost their Vite source aliases. Building one app for production and
+  loading one app frontend in a browser catches both in a few minutes.
+
+Two vitest-specific effects are worth expecting rather than debugging:
+
+- **Converting a library brings it into `vi.mock`'s reach.** While it is
+  CommonJS it is externalized and a dependent's mock never applies inside it; as
+  ESM the mock does apply. That shows up as snapshot churn in _dependent_
+  packages, so it reads like a rendering regression. Confirm it is benign by
+  diffing the regenerated snapshots and showing the change is confined to what
+  the mock controls.
+- **Setup files must not import an ESM workspace package at module scope.**
+  `setupFiles` run before the test file, so before any `vi.mock`; an eager
+  import instantiates part of the graph too early and those modules keep their
+  real bindings, silently disabling mocks across the suite. Load it inside the
+  hook with `vi.importActual` instead, which also resolves the package's own
+  dependencies unmocked. `vx/no-esm-workspace-import-in-test-setup` enforces
+  this, and reports only packages that are already ESM so each one is flagged as
+  it converts. Note that no vitest alias or `deps` configuration fixes this —
+  aliases address module identity, and this is a matter of timing.
 
 ## Alternatives Considered
 
