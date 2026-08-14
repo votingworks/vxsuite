@@ -26,7 +26,7 @@ export function CandidateInfoCaption({
         marginTop: '0.15rem',
       }}
     >
-      <span>City Councilmember</span>
+      {candidate.designation && <span>{candidate.designation}</span>}
       <CandidatePartyList
         candidate={candidate}
         electionParties={election.parties}
