@@ -26,9 +26,31 @@ export const IN_PROGRESS_DIRECTORY_SUFFIX = '-in-progress';
 export const PREVIOUS_DIRECTORY_SUFFIX = '-previous';
 
 /**
+ * The directory within a backup that holds the copied workspace. Keeping it
+ * separate means the manifest and its signature share no namespace with the
+ * files they describe, so a workspace file can never collide with them.
+ */
+export const WORKSPACE_DIRECTORY_NAME = 'workspace';
+
+/**
  * The format version of the manifest written by this software.
  */
 export const BACKUP_MANIFEST_VERSION = 1;
+
+/**
+ * The path within a backup where a manifest entry's file lives. Manifest paths
+ * are workspace-relative, which is the form a restore needs.
+ */
+export function backupFilePath(
+  backupDirectoryPath: string,
+  manifestFilePath: string
+): string {
+  return join(
+    backupDirectoryPath,
+    WORKSPACE_DIRECTORY_NAME,
+    ...manifestFilePath.split('/')
+  );
+}
 
 /**
  * Whether a manifest path stays inside the backup: relative, `/`-separated, and
@@ -50,7 +72,8 @@ function isContainedRelativePath(path: string): boolean {
 
 /**
  * A single backed-up file, hashed on the internal disk as it was written to the
- * backup drive. Paths are relative to the backup directory and always use `/`.
+ * backup drive. Paths are relative to the workspace root and always use `/`, so
+ * a restore can write them straight back.
  */
 export interface BackupManifestFile {
   path: string;

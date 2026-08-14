@@ -20,6 +20,7 @@ import { format, generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
   BACKUP_MANIFEST_VERSION,
   BACKUPS_DIRECTORY_NAME,
+  backupFilePath,
   BackupManifest,
   BackupManifestFile,
   IN_PROGRESS_DIRECTORY_SUFFIX,
@@ -81,6 +82,7 @@ export type BackupError =
       path: string;
       message: string;
     }
+  | { type: 'unsupported_workspace_entry'; path: string }
   | { type: 'database_snapshot_failed'; message: string }
   | {
       type: 'copy_failed';
@@ -112,6 +114,11 @@ export function formatBackupError(error: BackupError): string {
       );
     case 'workspace_unreadable':
       return `The workspace at ${error.path} could not be read: ${error.message}`;
+    case 'unsupported_workspace_entry':
+      return (
+        `${error.path} is not a regular file, so it cannot be backed up. ` +
+        `Remove it from the workspace, or replace it with the file it points to.`
+      );
     case 'database_snapshot_failed':
       return `The election database could not be copied: ${error.message}`;
     case 'copy_failed':
@@ -163,20 +170,44 @@ function isExcludedFromBackup(relativePath: string): boolean {
   );
 }
 
-async function listWorkspaceFiles(workspacePath: string): Promise<string[]> {
+/**
+ * What a workspace holds: the files to copy, and anything that isn't a file or a
+ * directory. VxAdmin workspaces contain neither symlinks nor special files, and
+ * a backup that quietly skipped one would be missing data that nothing would
+ * notice — the manifest and the directory would agree with each other, so
+ * validation would pass and a restore would silently come up short.
+ */
+interface WorkspaceListing {
+  files: string[];
+  unsupported: string[];
+}
+
+async function listWorkspaceFiles(
+  workspacePath: string
+): Promise<WorkspaceListing> {
   const entries = await readdir(workspacePath, {
     withFileTypes: true,
     recursive: true,
   });
-  return entries
-    .filter((entry) => entry.isFile())
-    .map((entry) =>
-      relative(workspacePath, join(entry.parentPath, entry.name))
-        .split(sep)
-        .join('/')
+  const files: string[] = [];
+  const unsupported: string[] = [];
+  for (const entry of entries) {
+    const relativePath = relative(
+      workspacePath,
+      join(entry.parentPath, entry.name)
     )
-    .filter((relativePath) => !isExcludedFromBackup(relativePath))
-    .sort();
+      .split(sep)
+      .join('/');
+    if (isExcludedFromBackup(relativePath)) {
+      continue;
+    }
+    if (entry.isFile()) {
+      files.push(relativePath);
+    } else if (!entry.isDirectory()) {
+      unsupported.push(relativePath);
+    }
+  }
+  return { files: [...files].sort(), unsupported: [...unsupported].sort() };
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -391,10 +422,12 @@ export async function createBackup({
   // Those are backup failures like any other, not exceptions to throw past the
   // caller, which would skip the log line saying how far this got.
   let workspaceFiles: string[];
+  let unsupportedEntries: string[];
   let databaseSize: number;
   let workspaceFilesBytes: number;
   try {
-    workspaceFiles = await listWorkspaceFiles(workspace.path);
+    ({ files: workspaceFiles, unsupported: unsupportedEntries } =
+      await listWorkspaceFiles(workspace.path));
     const workspaceFileSizes = await Promise.all(
       workspaceFiles.map(async (relativePath) => {
         const { size } = await stat(join(workspace.path, relativePath));
@@ -411,6 +444,13 @@ export async function createBackup({
       type: 'workspace_unreadable',
       path: workspace.path,
       message: extractErrorMessage(error),
+    });
+  }
+
+  if (unsupportedEntries.length > 0) {
+    return fail({
+      type: 'unsupported_workspace_entry',
+      path: assertDefined(unsupportedEntries[0]),
     });
   }
 
@@ -464,7 +504,7 @@ export async function createBackup({
   try {
     const database = await copyFileAndHash({
       sourcePath: snapshotPath,
-      destinationPath: join(inProgressDirectoryPath, 'data.db'),
+      destinationPath: backupFilePath(inProgressDirectoryPath, 'data.db'),
       onBytesCopied,
     });
     files.push({ path: 'data.db', ...database });
@@ -473,7 +513,7 @@ export async function createBackup({
       copying = relativePath;
       const copied = await copyFileAndHash({
         sourcePath: join(workspace.path, relativePath),
-        destinationPath: join(inProgressDirectoryPath, relativePath),
+        destinationPath: backupFilePath(inProgressDirectoryPath, relativePath),
         onBytesCopied,
       });
       files.push({ path: relativePath, ...copied });

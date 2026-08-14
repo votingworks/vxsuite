@@ -2,10 +2,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
@@ -33,10 +35,12 @@ import {
 } from './create_backup.js';
 import {
   BACKUPS_DIRECTORY_NAME,
+  backupFilePath,
   BackupManifest,
   isTransientBackupDirectoryName,
   manifestPath,
   readManifest,
+  WORKSPACE_DIRECTORY_NAME,
 } from './manifest.js';
 import {
   BackupValidationError,
@@ -187,9 +191,9 @@ test('creates a signed backup that validates', async () => {
     'machine_mode',
   ]);
   for (const file of manifest.files) {
-    expect(statSync(join(backupDirectoryPath, file.path)).size).toEqual(
-      file.size
-    );
+    expect(
+      statSync(backupFilePath(backupDirectoryPath, file.path)).size
+    ).toEqual(file.size);
   }
 
   // The snapshot the backup was taken from is cleaned up.
@@ -197,7 +201,10 @@ test('creates a signed backup that validates', async () => {
     manifest
   );
   expect(
-    readFileSync(join(backupDirectoryPath, BALLOT_IMAGE_PATH), 'utf-8')
+    readFileSync(
+      backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
+      'utf-8'
+    )
   ).toEqual(BALLOT_IMAGE_CONTENTS);
 
   expect(
@@ -290,7 +297,10 @@ test('a second backup replaces the first, leaving no transient directories', asy
   const { backupDirectoryPath } = second.unsafeUnwrap();
 
   expect(
-    readFileSync(join(backupDirectoryPath, BALLOT_IMAGE_PATH), 'utf-8')
+    readFileSync(
+      backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
+      'utf-8'
+    )
   ).toEqual('different bytes');
   expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
   expect(
@@ -540,10 +550,12 @@ test('fails when the backup on the drive no longer matches what was written', as
         // A drive that quietly changes what it stored, caught by reading it
         // back before it is given the name a restore looks for.
         writeFileSync(
-          join(
-            target,
-            BACKUPS_DIRECTORY_NAME,
-            `${expectedBackupDirectoryName()}-in-progress`,
+          backupFilePath(
+            join(
+              target,
+              BACKUPS_DIRECTORY_NAME,
+              `${expectedBackupDirectoryName()}-in-progress`
+            ),
             BALLOT_IMAGE_PATH
           ),
           'tampered bytes!!!!'
@@ -584,10 +596,12 @@ test('a backup that fails to verify does not cost the drive its last good one', 
     onProgress: ({ step }) => {
       if (step === 'validating') {
         writeFileSync(
-          join(
-            target,
-            BACKUPS_DIRECTORY_NAME,
-            `${expectedBackupDirectoryName()}-in-progress`,
+          backupFilePath(
+            join(
+              target,
+              BACKUPS_DIRECTORY_NAME,
+              `${expectedBackupDirectoryName()}-in-progress`
+            ),
             BALLOT_IMAGE_PATH
           ),
           'tampered bytes!!!!'
@@ -610,7 +624,10 @@ test('a backup that fails to verify does not cost the drive its last good one', 
   ).unsafeUnwrap();
   expect(survivor.createdAt).toEqual(firstManifest.createdAt);
   expect(
-    readFileSync(join(backupDirectoryPath, BALLOT_IMAGE_PATH), 'utf-8')
+    readFileSync(
+      backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
+      'utf-8'
+    )
   ).toEqual(BALLOT_IMAGE_CONTENTS);
 });
 
@@ -696,7 +713,7 @@ test('validation rejects a backup made by different software', async () => {
 
 test('validation rejects a backup with a missing file', async () => {
   const { backupDirectoryPath } = await createValidBackup();
-  rmSync(join(backupDirectoryPath, BALLOT_IMAGE_PATH));
+  rmSync(backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH));
 
   const result = await validateBackup({ backupDirectoryPath });
   expect(result).toEqual(
@@ -712,7 +729,10 @@ test('validation rejects a backup with a resized file', async () => {
   const file = assertDefined(
     manifest.files.find((f) => f.path === BALLOT_IMAGE_PATH)
   );
-  writeFileSync(join(backupDirectoryPath, BALLOT_IMAGE_PATH), 'short');
+  writeFileSync(
+    backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
+    'short'
+  );
 
   const result = await validateBackup({ backupDirectoryPath });
   expect(result).toEqual(
@@ -728,7 +748,7 @@ test('validation rejects a backup with a resized file', async () => {
 test('validation rejects a backup with an altered file', async () => {
   const { backupDirectoryPath } = await createValidBackup();
   writeFileSync(
-    join(backupDirectoryPath, BALLOT_IMAGE_PATH),
+    backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
     'ballot image bytez'
   );
 
@@ -1337,4 +1357,72 @@ test('validation rejects a manifest that changes while it is checked', async () 
   const result = await validateBackup({ backupDirectoryPath });
 
   expect(result.err()).toEqual({ type: 'manifest_changed' });
+});
+
+test('keeps the manifest out of the namespace the workspace files live in', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  // A workspace file named like the manifest would otherwise be copied over it,
+  // permanently breaking every backup of that workspace.
+  writeFileSync(join(workspace.path, 'manifest.json'), 'not the manifest');
+  const target = makeTemporaryDirectory();
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig,
+    logger: logger(),
+  });
+
+  const { backupDirectoryPath, manifest } = result.unsafeUnwrap();
+  expect(manifest.files.map((file) => file.path)).toContain('manifest.json');
+  expect(readdirSync(backupDirectoryPath).sort()).toEqual([
+    'manifest.json',
+    `manifest.json${SIGNATURE_FILE_EXTENSION}`,
+    WORKSPACE_DIRECTORY_NAME,
+  ]);
+  expect(
+    readFileSync(backupFilePath(backupDirectoryPath, 'manifest.json'), 'utf-8')
+  ).toEqual('not the manifest');
+  expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
+});
+
+test('refuses to back up a workspace containing a symbolic link', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const elsewhere = makeTemporaryDirectory();
+  writeFileSync(join(elsewhere, 'relocated'), 'ballot image bytes');
+  symlinkSync(join(elsewhere, 'relocated'), join(workspace.path, 'linked'));
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: makeTemporaryDirectory(),
+    machineConfig,
+    logger: logger(),
+  });
+
+  // Skipping it would produce a backup whose manifest and contents agree with
+  // each other while missing data, so validation would pass and a restore would
+  // come up short.
+  expect(result).toEqual(
+    err({ type: 'unsupported_workspace_entry', path: 'linked' })
+  );
+});
+
+test('refuses to back up a workspace containing a symlinked directory', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const elsewhere = makeTemporaryDirectory();
+  mkdirSync(join(elsewhere, 'images'));
+  writeFileSync(join(elsewhere, 'images', 'front'), 'ballot image bytes');
+  symlinkSync(join(elsewhere, 'images'), join(workspace.path, 'linked-images'));
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: makeTemporaryDirectory(),
+    machineConfig,
+    logger: logger(),
+  });
+
+  // `readdir` doesn't descend into these, so a whole subtree would vanish.
+  expect(result).toEqual(
+    err({ type: 'unsupported_workspace_entry', path: 'linked-images' })
+  );
 });

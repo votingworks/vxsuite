@@ -14,10 +14,12 @@ import {
 } from '@votingworks/basics';
 import {
   BACKUP_MANIFEST_VERSION,
+  backupFilePath,
   BackupManifest,
   parseManifest,
   readManifestContents,
   sha256File,
+  WORKSPACE_DIRECTORY_NAME,
 } from './manifest.js';
 
 /**
@@ -203,7 +205,7 @@ export async function validateBackup({
   onProgress?.({ bytesCompleted, bytesTotal });
 
   for (const file of manifest.files) {
-    const filePath = join(backupDirectoryPath, file.path);
+    const filePath = backupFilePath(backupDirectoryPath, file.path);
     let size: number;
     try {
       ({ size } = await stat(filePath));
@@ -232,7 +234,7 @@ export async function validateBackup({
   }
 
   const expectedPaths = new Set([
-    ...manifest.files.map((file) => file.path),
+    ...manifest.files.map((file) => `${WORKSPACE_DIRECTORY_NAME}/${file.path}`),
     VXADMIN_BACKUP_MANIFEST_FILE_NAME,
     `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`,
   ]);
