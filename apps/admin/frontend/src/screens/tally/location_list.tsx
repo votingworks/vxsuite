@@ -10,6 +10,7 @@ import { LocationStatusCard } from './location_status_card.js';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
 
 export interface LocationListProps {
+  deleteImport?: (id: Id) => void;
   locationCvrs: Map<Id, LocationCvrs>;
   locations: readonly PollingPlace[];
 }
@@ -50,7 +51,7 @@ const ListItems = styled.div`
 `;
 
 export function LocationList(props: LocationListProps): React.ReactNode {
-  const { locationCvrs, locations } = props;
+  const { deleteImport, locationCvrs, locations } = props;
   const [selectedId, setSelectedId] = React.useState<string>();
 
   function toggleSelected(id: string) {
@@ -79,6 +80,7 @@ export function LocationList(props: LocationListProps): React.ReactNode {
         {selected && (
           <LocationCvrsPanel
             closePanel={() => setSelectedId(undefined)}
+            deleteImport={deleteImport}
             imports={assertDefined(locationCvrs.get(selected.id)).files}
             name={selected.name}
             type={selected.type}

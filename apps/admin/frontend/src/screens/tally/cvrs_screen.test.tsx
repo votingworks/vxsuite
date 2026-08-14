@@ -11,13 +11,18 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { CvrsScreen } from './cvrs_screen.js';
 import { createApiMock } from '../../../test/helpers/mock_api_client.js';
-import { screen, waitFor } from '../../../test/react_testing_library.js';
+import {
+  screen,
+  waitFor,
+  within,
+} from '../../../test/react_testing_library.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 
 const nLocations = election.pollingPlaces.length;
 const [place1, place2] = election.pollingPlaces;
+const [precinct1] = election.precincts;
 
 test('renders summary cards', async () => {
   const api = createApiMock();
@@ -239,8 +244,129 @@ describe('cvr modes', () => {
   });
 });
 
+describe('single-import deletion', () => {
+  test('unofficial results - can delete individual imports', async () => {
+    const api = createApiMock();
+
+    const file1 = mockCvrFile({
+      id: 'file1',
+      numCvrsImported: 15,
+      pollingPlaceIds: [place1.id],
+      scannerIds: ['001'],
+    });
+    const file2 = mockCvrFile({
+      id: 'file2',
+      numCvrsImported: 30,
+      pollingPlaceIds: [place1.id],
+      scannerIds: ['002'],
+    });
+
+    api.expectGetCastVoteRecordFileMode('test');
+    api.expectGetCastVoteRecordFiles([file1, file2]);
+
+    renderInAppContext(<CvrsScreen />, {
+      apiMock: api,
+      electionDefinition,
+      isOfficialResults: false,
+    });
+
+    await waitFor(() => api.assertComplete());
+
+    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    const deleteButtons = screen.getAllButtons(/Remove CVR File/);
+    expect(deleteButtons).toHaveLength(2);
+
+    userEvent.click(deleteButtons[1]);
+    const modal = within(await screen.findByRole('alertdialog'));
+    modal.getByText(
+      new RegExp(`${file2.numCvrsImported} CVRs.+will be permanently deleted`)
+    );
+
+    api.apiClient.deleteCvrFile.expectCallWith({ fileId: file2.id }).resolves();
+    api.expectGetCastVoteRecordFileMode('test');
+    api.expectGetCastVoteRecordFiles([file1]);
+
+    userEvent.click(modal.getButton('Remove'));
+    await waitFor(() => api.assertComplete());
+
+    // Expect panel still open and now reflects updated file list (single file):
+    await screen.findButton(/Remove CVR File/);
+  });
+
+  test('unofficial results - can cancel out of confirmation modal', async () => {
+    const api = createApiMock();
+
+    api.expectGetCastVoteRecordFileMode('test');
+    api.expectGetCastVoteRecordFiles([
+      mockCvrFile({
+        id: 'file1',
+        numCvrsImported: 15,
+        pollingPlaceIds: [place1.id],
+        scannerIds: ['001'],
+      }),
+    ]);
+
+    renderInAppContext(<CvrsScreen />, {
+      apiMock: api,
+      electionDefinition,
+      isOfficialResults: false,
+    });
+
+    await waitFor(() => api.assertComplete());
+
+    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    userEvent.click(screen.getButton(/Remove CVR File/));
+
+    const modal = within(await screen.findByRole('alertdialog'));
+    userEvent.click(modal.getButton('Cancel'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+    api.assertComplete();
+
+    await screen.findButton(/Remove CVR File/);
+  });
+
+  test('official results - delete buttons omitted', async () => {
+    const api = createApiMock();
+
+    api.expectGetCastVoteRecordFileMode('test');
+    api.expectGetCastVoteRecordFiles([
+      mockCvrFile({
+        id: 'file1',
+        numCvrsImported: 15,
+        pollingPlaceIds: [place1.id],
+      }),
+    ]);
+
+    renderInAppContext(<CvrsScreen />, {
+      apiMock: api,
+      electionDefinition,
+      isOfficialResults: true,
+    });
+
+    await waitFor(() => api.assertComplete());
+
+    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    expect(screen.queryButton(/Remove CVR File/)).not.toBeInTheDocument();
+  });
+});
+
 function mockCvrFile(
   file: Partial<CastVoteRecordFileRecord>
 ): CastVoteRecordFileRecord {
-  return file as CastVoteRecordFileRecord;
+  const exportTimestamp = new Date().toISOString();
+
+  return {
+    exportTimestamp,
+    id: exportTimestamp,
+    pollingPlaceIds: [place1.id],
+    scannerIds: ['001'],
+    createdAt: exportTimestamp,
+    electionId: election.id,
+    filename: exportTimestamp,
+    numCvrsImported: 1,
+    precinctIds: [precinct1.id],
+    sha256Hash: 'hash',
+    ...file,
+  };
 }
