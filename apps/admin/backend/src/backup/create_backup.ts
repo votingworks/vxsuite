@@ -1,7 +1,5 @@
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -33,6 +31,16 @@ import {
   formatBackupValidationError,
   validateBackup,
 } from './validate_backup.js';
+import {
+  createReadStream,
+  createWriteStream,
+  mkdir,
+  readdir,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from './fs.js';
 import { MachineConfig } from '../types.js';
 import { Workspace } from '../util/workspace.js';
 

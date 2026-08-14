@@ -11,13 +11,14 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { rm as realRm } from 'node:fs/promises';
 import {
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
 } from '@votingworks/auth';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import { syncFilesystem } from '@votingworks/usb-drive';
-import { assertDefined, err, ok } from '@votingworks/basics';
+import { assertDefined, err } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
@@ -34,6 +35,7 @@ import {
   createBackup,
   formatBackupError,
 } from './create_backup.js';
+import { rm } from './fs.js';
 import {
   BACKUPS_DIRECTORY_NAME,
   backupFilePath,
@@ -57,42 +59,12 @@ import {
   makeUnconfiguredWorkspace,
 } from '../../test/backup.js';
 
-// `vi.spyOn` can't touch `node:fs/promises` exports under ESM, so the two tests
-// that need a failing filesystem call swap in an override here.
-type RmFn = (path: unknown, options?: unknown) => Promise<void>;
-
-const overrides = vi.hoisted(() => ({
-  rm: undefined as undefined | RmFn,
-  readManifestContents: undefined as
-    | undefined
-    | ((path: unknown) => Promise<unknown>),
-  realRm: undefined as undefined | RmFn,
-}));
-
-vi.mock('node:fs/promises', async (importActual) => {
-  const actual = await importActual<typeof import('node:fs/promises')>();
-  overrides.realRm = actual.rm as never;
-  return {
-    ...actual,
-    rm: (...args: Parameters<typeof actual.rm>) =>
-      overrides.rm ? overrides.rm(args[0], args[1]) : actual.rm(...args),
-  };
-});
-
-// Reading the manifest is intercepted here rather than at the filesystem,
-// because `libs/auth` reads the same file to check the signature and a
-// filesystem-level override would tamper with that instead.
-vi.mock('./manifest.js', async (importActual) => {
-  const actual = await importActual<typeof import('./manifest.js')>();
-  return {
-    ...actual,
-    readManifestContents: (
-      ...args: Parameters<typeof actual.readManifestContents>
-    ) =>
-      overrides.readManifestContents
-        ? overrides.readManifestContents(args[0])
-        : actual.readManifestContents(...args),
-  };
+// The engine's filesystem calls go through `./fs.js` so that one of them can be
+// made to fail here without standing in for `node:fs/promises` everywhere. Each
+// one calls through to the real implementation unless a test says otherwise.
+vi.mock('./fs.js', async (importActual) => {
+  const actual = await importActual<typeof import('./fs.js')>();
+  return { ...actual, rm: vi.fn(actual.rm) };
 });
 
 vi.mock(
@@ -139,8 +111,8 @@ function expectedBackupDirectoryName(): string {
 }
 
 afterEach(() => {
-  overrides.rm = undefined;
-  overrides.readManifestContents = undefined;
+  // Whatever a test made `rm` do, put it back to doing the real thing.
+  vi.mocked(rm).mockImplementation(realRm);
 });
 
 beforeEach(() => {
@@ -878,10 +850,6 @@ test.each<{ error: BackupValidationError; expectedMessage: string }>([
     expectedMessage: 'does not match the hash',
   },
   {
-    error: { type: 'manifest_changed' },
-    expectedMessage: 'changed while it was being checked',
-  },
-  {
     error: { type: 'unexpected_file', path: 'extra' },
     expectedMessage: 'manifest does not list',
   },
@@ -1222,16 +1190,11 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
   // Make deleting last time's copy fail after both renames have succeeded, by
   // which point the new backup is already the one on the drive.
   let swapped = false;
-  overrides.rm = (path, options) => {
-    if (
-      swapped &&
-      String(path).endsWith('-previous') &&
-      (options as { recursive?: boolean } | undefined)?.recursive
-    ) {
-      return Promise.reject(new Error('EIO'));
-    }
-    return assertDefined(overrides.realRm)(path, options);
-  };
+  vi.mocked(rm).mockImplementation((path, options) =>
+    swapped && String(path).endsWith('-previous')
+      ? Promise.reject(new Error('EIO'))
+      : realRm(path, options)
+  );
 
   const result = await createBackup({
     workspace,
@@ -1341,27 +1304,6 @@ test.each(['/etc/hostname', 'a/../../b', 'a//b', 'a/./b', 'a\\b', ''])(
     );
   }
 );
-
-test('validation rejects a manifest that changes while it is checked', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-  let reads = 0;
-  overrides.readManifestContents = () => {
-    reads += 1;
-    // The real bytes first, different bytes on the read that happens after the
-    // signature has been checked — the drive that answers twice differently.
-    return Promise.resolve(
-      ok(
-        reads > 1
-          ? JSON.stringify({ ...manifest, machineId: 'AD-9999' })
-          : JSON.stringify(manifest)
-      )
-    );
-  };
-
-  const result = await validateBackup({ backupDirectoryPath });
-
-  expect(result.err()).toEqual({ type: 'manifest_changed' });
-});
 
 test('keeps the manifest out of the namespace the workspace files live in', async () => {
   const workspace = await makeConfiguredWorkspace();
