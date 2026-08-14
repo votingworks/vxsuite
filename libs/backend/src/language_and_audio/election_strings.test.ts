@@ -3,11 +3,20 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import {
+  LanguageCode,
+  BallotLanguageConfigs,
+  CandidateContest,
+  Election,
+  ElectionStringKey,
+} from '@votingworks/types';
+import { assert, find } from '@votingworks/basics';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
-import { makeMockGoogleCloudTranslationClient } from './test_utils';
+import {
+  makeMockGoogleCloudTranslationClient,
+  mockCloudTranslatedText,
+} from './test_utils';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },
@@ -51,6 +60,57 @@ describe('extractAndTranslateElectionStrings', () => {
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
     expect(englishResults).toMatchSnapshot();
+  });
+
+  test('should extract and translate candidate designations', async () => {
+    const baseElection = electionTwoPartyPrimaryFixtures.readElection();
+    const contest = find(
+      baseElection.contests,
+      (c): c is CandidateContest => c.type === 'candidate'
+    );
+    const [candidateWithDesignation, ...otherCandidates] = contest.candidates;
+    assert(candidateWithDesignation);
+    assert(otherCandidates.length > 0);
+
+    const election: Election = {
+      ...baseElection,
+      contests: baseElection.contests.map((c) =>
+        c.id === contest.id
+          ? {
+              ...contest,
+              candidates: [
+                { ...candidateWithDesignation, designation: 'Incumbent' },
+                ...otherCandidates,
+              ],
+            }
+          : c
+      ),
+    };
+
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
+    const mockTranslator = new GoogleCloudTranslator({ translationClient });
+    const result = await extractAndTranslateElectionStrings(
+      mockTranslator,
+      election,
+      englishSpanishLanguageConfig
+    );
+
+    // Only candidates with a designation are extracted.
+    expect(
+      result[LanguageCode.ENGLISH]?.[ElectionStringKey.CANDIDATE_DESIGNATION]
+    ).toEqual({ [candidateWithDesignation.id]: 'Incumbent' });
+
+    // Unlike candidate names, designations are translated.
+    expect(
+      result[LanguageCode.SPANISH]?.[ElectionStringKey.CANDIDATE_DESIGNATION]
+    ).toEqual({
+      [candidateWithDesignation.id]: mockCloudTranslatedText(
+        'Incumbent',
+        LanguageCode.SPANISH
+      ),
+    });
   });
 
   test('should extract and translate election strings correctly for multiple languages', async () => {

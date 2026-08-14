@@ -1,6 +1,10 @@
 import React from 'react';
 import { Candidate, Election } from '@votingworks/types';
-import { appStrings, CandidatePartyList } from '@votingworks/ui';
+import {
+  appStrings,
+  CandidatePartyList,
+  electionStrings,
+} from '@votingworks/ui';
 
 interface CandidateInfoCaptionProps {
   candidate: Candidate;
@@ -26,7 +30,9 @@ export function CandidateInfoCaption({
         marginTop: '0.15rem',
       }}
     >
-      {candidate.designation && <span>{candidate.designation}</span>}
+      {candidate.designation && (
+        <span>{electionStrings.candidateDesignation(candidate)}</span>
+      )}
       <CandidatePartyList
         candidate={candidate}
         electionParties={election.parties}
