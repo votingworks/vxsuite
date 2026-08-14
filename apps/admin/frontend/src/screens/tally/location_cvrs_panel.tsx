@@ -119,7 +119,7 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
       : `Scanners: ${i.scannerIds.join(', ')}`;
   }
 
-  function exportDate(i: LocationCvrImport) {
+  function formatExportDate(i: LocationCvrImport) {
     return format.localeShortDateAndTime(new Date(i.exportTimestamp));
   }
 
@@ -144,7 +144,7 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
           {imports.map((i) => (
             <Import key={i.id}>
               <Caption weight="semiBold">
-                {exportDate(i)}
+                {formatExportDate(i)}
                 <br />
                 <Caption weight="regular">{scannerDetails(i)}</Caption>
               </Caption>
@@ -153,7 +153,7 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
 
               {deleteImport && (
                 <IconButton
-                  aria-label={`Remove CVR File From ${exportDate(i)}`}
+                  aria-label={`Remove CVR File From ${formatExportDate(i)}`}
                   as={Button<Id>}
                   color="danger"
                   icon="Trash"
