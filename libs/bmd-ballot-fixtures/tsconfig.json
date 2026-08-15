@@ -13,6 +13,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "references": [
+    { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../printing/tsconfig.build.json" },

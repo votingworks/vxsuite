@@ -12,10 +12,13 @@ import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import {
   BallotStyleId,
+  BallotType,
+  Contest,
   Election,
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -77,6 +80,25 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   const allContests = getContests({ ballotStyle, election });
   const ballotAuditId = uuid();
 
+  function encodePage(
+    pageNumber: number,
+    totalPages: number,
+    contestsForPage: readonly Contest[]
+  ) {
+    return encodeSummaryBallotPage(election, {
+      ballotHash: electionDefinition.ballotHash,
+      ballotStyleId,
+      precinctId,
+      votes,
+      isTestMode: !isLiveMode,
+      ballotType: BallotType.Precinct,
+      pageNumber,
+      totalPages,
+      ballotAuditId,
+      contests: contestsForPage,
+    });
+  }
+
   // Optimistically render as a single-page-equivalent ballot (totalPages: 1)
   const singlePageBallot = (
     <BackendLanguageContextProvider
@@ -93,8 +115,8 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
         machineType="mark"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId={ballotAuditId}
         contestsForPage={allContests}
+        encodedBallot={encodePage(1, 1, allContests)}
       />
     </BackendLanguageContextProvider>
   );
@@ -159,8 +181,12 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
               machineType="mark"
               pageNumber={pageBreak.pageNumber}
               totalPages={pageBreaks.length}
-              ballotAuditId={ballotAuditId}
               contestsForPage={pageContests}
+              encodedBallot={encodePage(
+                pageBreak.pageNumber,
+                pageBreaks.length,
+                pageContests
+              )}
               layout={pageBreak.layout}
             />
           </BackendLanguageContextProvider>

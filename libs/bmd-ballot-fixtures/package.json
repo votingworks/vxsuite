@@ -11,7 +11,6 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
@@ -26,10 +25,12 @@
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest"
+    "test:watch": "TZ=America/Anchorage vitest",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@types/tmp": "0.2.4",
+    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",

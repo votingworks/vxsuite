@@ -1,7 +1,6 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   BallotStyleId,
-  BallotType,
   Candidate,
   CandidateContest,
   ElectionDefinition,
@@ -20,7 +19,6 @@ import {
   electionStraightPartyFixtures,
 } from '@votingworks/fixtures';
 
-import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
@@ -54,19 +52,7 @@ const electionFamousNamesDefinition =
 const electionStraightPartyDefinition =
   electionStraightPartyFixtures.readElectionDefinition();
 
-vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
-  ...(await importActual()),
-  // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-  encodeSummaryBallotPage: vi.fn(),
-}));
-
-const encodeSummaryBallotPageMock = vi.mocked(encodeSummaryBallotPage);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
-
-beforeEach(() => {
-  encodeSummaryBallotPageMock.mockReset();
-  encodeSummaryBallotPageMock.mockReturnValue(mockEncodedBallotData);
-});
 
 function renderBmdPaperBallot({
   electionDefinition,
@@ -110,8 +96,8 @@ function renderBmdPaperBallot({
       layout={layout}
       pageNumber={1}
       totalPages={1}
-      ballotAuditId="test-audit-id"
       contestsForPage={contests}
+      encodedBallot={mockEncodedBallotData}
     />
   );
 }
@@ -282,8 +268,8 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
       machineType="markScan"
       pageNumber={1}
       totalPages={1}
-      ballotAuditId="test-audit-id"
       contestsForPage={contests}
+      encodedBallot={mockEncodedBallotData}
     />
   );
 
@@ -381,7 +367,7 @@ test('BmdPaperBallot renders seal', () => {
   screen.getByTestId('seal');
 });
 
-test('BmdPaperBallot passes expected data to encodeSummaryBallotPage for use in QR code', () => {
+test('BmdPaperBallot renders the encoded ballot it is given in the QR code', () => {
   const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
@@ -395,23 +381,6 @@ test('BmdPaperBallot passes expected data to encodeSummaryBallotPage for use in 
       'question-b': ['question-b-option-no'],
     },
   });
-
-  expect(encodeSummaryBallotPage).toBeCalledWith(
-    electionGeneralDefinition.election,
-    expect.objectContaining({
-      ballotStyleId: '5' as BallotStyleId,
-      precinctId: '21',
-      ballotType: BallotType.Precinct,
-      ballotHash: electionGeneralDefinition.ballotHash,
-      isTestMode: true,
-      votes: expect.objectContaining({
-        president: [expect.objectContaining({ id: 'barchi-hallaren' })],
-        'lieutenant-governor': [expect.objectContaining({ id: 'norberg' })],
-        'question-a': ['question-a-option-yes'],
-        'question-b': ['question-b-option-no'],
-      }),
-    })
-  );
 
   expect(QrCodeSpy).toBeCalledWith(
     expect.objectContaining<QrCodeModule.QrCodeProps>({

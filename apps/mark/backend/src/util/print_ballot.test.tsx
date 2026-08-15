@@ -28,14 +28,24 @@ import {
   filterVotesForContests,
 } from '@votingworks/ui';
 import { UiStringsStore } from '@votingworks/backend';
-import { ok } from '@votingworks/basics';
+import { assertDefined, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { type Store } from '../store.js';
 import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
 vi.mock('@votingworks/ui');
+// Spy on the encoder without changing what it produces: rendered ballots are
+// compared against image snapshots elsewhere in this suite.
+vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    encodeSummaryBallotPage: vi.fn(actual.encodeSummaryBallotPage),
+  };
+});
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 
@@ -124,7 +134,9 @@ describe(`printMode === "summary"`, () => {
     ));
 
     const mockUiStrings: UiStringsPackage = { 'es-US': { hello: 'hola' } };
-    const mockPrecinctId = 'precinct-one';
+    // Must be a precinct this ballot style actually covers: the encoder
+    // rejects an unknown precinct rather than guessing at an index.
+    const mockPrecinctId = assertDefined(ballotStyle.precincts[0]);
     const mockPdf = Uint8Array.of(0xca, 0xfe);
     vi.mocked(renderToPdf).mockImplementation((spec) => {
       expect(spec).toEqual<RenderSpec>({
@@ -142,8 +154,8 @@ describe(`printMode === "summary"`, () => {
               machineType="mark"
               pageNumber={1}
               totalPages={1}
-              ballotAuditId={expect.any(String)}
               contestsForPage={allContests}
+              encodedBallot={expect.any(Uint8Array)}
             />
           </BackendLanguageContextProvider>
         ),
@@ -178,6 +190,24 @@ describe(`printMode === "summary"`, () => {
       }),
       votes: mockVotes,
     });
+
+    // The QR payload is built here rather than inside BmdPaperBallot, so this
+    // is where the ballot data reaching the encoder gets checked.
+    expect(encodeSummaryBallotPage).toHaveBeenCalledWith(
+      electionDefinition.election,
+      expect.objectContaining({
+        ballotHash: electionDefinition.ballotHash,
+        ballotStyleId: ballotStyle.id,
+        precinctId: mockPrecinctId,
+        votes: mockVotes,
+        isTestMode: false,
+        ballotType: BallotType.Precinct,
+        pageNumber: 1,
+        totalPages: 1,
+        ballotAuditId: expect.any(String),
+        contests: allContests,
+      })
+    );
 
     // Single-page: should NOT initialize SummaryBallotLayoutRenderer
     expect(SummaryBallotLayoutRenderer).not.toHaveBeenCalled();
@@ -330,7 +360,6 @@ describe(`printMode === "summary"`, () => {
     const page1Props = page1BmdElement.props;
     expect(page1Props.pageNumber).toEqual(1);
     expect(page1Props.totalPages).toEqual(2);
-    expect(page1Props.ballotAuditId).toBeDefined();
     expect(
       page1Props.contestsForPage?.map((c: { id: string }) => c.id).sort()
     ).toEqual([...page1ContestIds].sort());
@@ -340,10 +369,20 @@ describe(`printMode === "summary"`, () => {
     const page2Props = page2BmdElement.props;
     expect(page2Props.pageNumber).toEqual(2);
     expect(page2Props.totalPages).toEqual(2);
-    expect(page2Props.ballotAuditId).toBeDefined();
 
-    // Same ballotAuditId should be used across both pages
-    expect(page1Props.ballotAuditId).toEqual(page2Props.ballotAuditId);
+    // The audit id now travels in the encoded payload rather than as a prop.
+    // Both pages must carry the same one so they can be correlated after they
+    // are physically separated by scanning.
+    // The first call is the optimistic single-page attempt that gets discarded
+    // once it turns out not to fit; the multi-page render follows it.
+    const encodedPages = vi
+      .mocked(encodeSummaryBallotPage)
+      .mock.calls.slice(-2);
+    const [[, firstPage], [, secondPage]] = encodedPages;
+    expect(firstPage.ballotAuditId).toBeDefined();
+    expect(firstPage.ballotAuditId).toEqual(secondPage.ballotAuditId);
+    expect(firstPage.pageNumber).toEqual(1);
+    expect(secondPage.pageNumber).toEqual(2);
 
     expect(
       page2Props.contestsForPage?.map((c: { id: string }) => c.id).sort()

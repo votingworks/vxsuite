@@ -1309,6 +1309,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
@@ -1687,6 +1690,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -3579,6 +3585,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5093,6 +5102,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../ballot-encoder
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5123,6 +5135,9 @@ importers:
 
   libs/test-decks:
     dependencies:
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5354,9 +5369,6 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../backend
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics

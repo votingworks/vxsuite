@@ -11,6 +11,7 @@
     "declarationMap": true
   },
   "references": [
+    { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../../libs/auth/tsconfig.build.json" },
     { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },

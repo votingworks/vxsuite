@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
-import { ElectionDefinition, VotesDict } from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { BallotType, ElectionDefinition, VotesDict } from '@votingworks/types';
 import {
   BmdPaperBallot,
   filterVotesForContests,
@@ -194,7 +195,6 @@ describe('Multi-page summary ballot visual snapshots', () => {
     votes: VotesDict
   ): Promise<Uint8Array[]> {
     const { election } = electionDefinition;
-    const ballotAuditId = 'test-ballot-audit-id';
     const pdfs: Uint8Array[] = [];
 
     for (const pageBreak of pageBreaks) {
@@ -215,8 +215,19 @@ describe('Multi-page summary ballot visual snapshots', () => {
             machineType="mark"
             pageNumber={pageBreak.pageNumber}
             totalPages={pageBreaks.length}
-            ballotAuditId={ballotAuditId}
             contestsForPage={pageContests}
+            encodedBallot={encodeSummaryBallotPage(election, {
+              ballotHash: electionDefinition.ballotHash,
+              ballotStyleId: 'ballot-style-1',
+              precinctId: 'precinct-1',
+              votes: pageVotes,
+              isTestMode: true,
+              ballotType: BallotType.Precinct,
+              pageNumber: pageBreak.pageNumber,
+              totalPages: pageBreaks.length,
+              ballotAuditId: 'test-ballot-audit-id',
+              contests: pageContests,
+            })}
             layout={pageBreak.layout}
           />
         </VxThemeProvider>
@@ -417,7 +428,6 @@ describe('Medium-large election summary ballot test deck', () => {
     }
 
     const { election } = electionDefinition;
-    const ballotAuditId = 'test-ballot-audit-id';
     const pdfs: Uint8Array[] = [];
 
     for (const pageBreak of pageBreaks) {
@@ -438,8 +448,19 @@ describe('Medium-large election summary ballot test deck', () => {
             machineType="mark"
             pageNumber={pageBreak.pageNumber}
             totalPages={pageBreaks.length}
-            ballotAuditId={ballotAuditId}
             contestsForPage={pageContests}
+            encodedBallot={encodeSummaryBallotPage(election, {
+              ballotHash: electionDefinition.ballotHash,
+              ballotStyleId: 'ballot-style-1',
+              precinctId: 'precinct-1',
+              votes: pageVotes,
+              isTestMode: true,
+              ballotType: BallotType.Precinct,
+              pageNumber: pageBreak.pageNumber,
+              totalPages: pageBreaks.length,
+              ballotAuditId: 'test-ballot-audit-id',
+              contests: pageContests,
+            })}
             layout={pageBreak.layout}
           />
         </VxThemeProvider>

@@ -36,6 +36,12 @@ export interface SummaryBallotPageLayout {
   layout: Layout;
 }
 
+// This render exists only to measure height. The QR code sits in a
+// fixed-size box, so its contents cannot affect the measurement, and encoding
+// a real payload here would mean depending on the ballot encoder from a
+// package that frontends list as a dependency.
+const MEASUREMENT_ENCODED_BALLOT = new Uint8Array([0, 0, 0, 0]);
+
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const CONTENT_WRAPPER_ID = 'summary-ballot-measure';
 
@@ -126,8 +132,8 @@ async function measureBallotHeight(
       layout={layout}
       pageNumber={pageNumber}
       totalPages={totalPages}
-      ballotAuditId="measurement-ballot"
       contestsForPage={contests}
+      encodedBallot={MEASUREMENT_ENCODED_BALLOT}
     />
   );
 

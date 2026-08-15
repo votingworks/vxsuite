@@ -34,6 +34,8 @@ vi.mock(import('./ui_strings/ui_string.js'), async (importActual) => ({
   UiString: vi.fn(),
 }));
 
+const MOCK_ENCODED_BALLOT = new Uint8Array([0, 1, 2, 3]);
+
 const mockUiStringRenderer = vi.mocked(UiString);
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
@@ -141,7 +143,7 @@ describe('non-English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={contests}
       />
     );
@@ -181,7 +183,7 @@ describe('non-English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={[contest]}
       />
     );
@@ -233,7 +235,7 @@ describe('non-English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={[contest]}
       />
     );
@@ -262,7 +264,7 @@ describe('non-English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={[contest]}
       />
     );
@@ -300,7 +302,7 @@ describe('non-English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={[contest]}
       />
     );
@@ -349,7 +351,7 @@ describe('English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={contests}
       />
     );
@@ -389,7 +391,7 @@ describe('English ballot style', () => {
         machineType="markScan"
         pageNumber={1}
         totalPages={1}
-        ballotAuditId="test-audit-id"
+        encodedBallot={MOCK_ENCODED_BALLOT}
         contestsForPage={contests}
       />
     );

@@ -186,7 +186,7 @@ const initialArgs: BmdPaperBallotProps = {
   sheetSize: 'letter',
   pageNumber: 1,
   totalPages: 1,
-  ballotAuditId: 'storybook-audit-id',
+  encodedBallot: new Uint8Array([0, 1, 2, 3]),
   contestsForPage: election.contests,
 };
 
