@@ -17,18 +17,39 @@ import {
   SummaryBallotPage,
   sliceBallotHashForEncoding,
 } from '@votingworks/ballot-encoder';
+import { arbitraryBallotId } from '@votingworks/test-utils';
 import {
-  arbitraryBallotId,
-  arbitraryElectionDefinition,
-} from '@votingworks/test-utils';
+  electionCombinedBallotPrimaryFixtures,
+  electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
+  electionTwoPartyPrimaryFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { Buffer } from 'node:buffer';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { napi } from './bubble-ballot-ts/napi';
 import type {
   BridgeDecodeBmdResult,
   RustCandidateVote,
   RustContestVote,
 } from './bubble-ballot-ts/types';
+
+/**
+ * Real elections rather than `arbitraryElectionDefinition`. That generator
+ * picks each ballot style's districts independently of the contests' districts,
+ * so `getContests` comes back empty and the properties below used to skip their
+ * bodies on 49 of every 50 runs — including every case that would have caught
+ * the contest-selection divergence this commit fixes.
+ */
+function arbitraryFixtureElectionDefinition() {
+  return fc.constantFrom(
+    readElectionGeneralDefinition(),
+    electionFamousNames2021Fixtures.readElectionDefinition(),
+    electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+    electionStraightPartyFixtures.readElectionDefinition(),
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition()
+  );
+}
 
 /**
  * Generates votes for a set of contests. For candidate contests, selects up
@@ -152,7 +173,7 @@ const MULTI_PAGE_FC_PARAMS: fc.Parameters<unknown> = { numRuns: 50 };
 test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryElectionDefinition(),
+      arbitraryFixtureElectionDefinition(),
       fc.boolean(),
       fc.constantFrom(
         BallotType.Precinct,
@@ -170,15 +191,13 @@ test('multi-page BMD ballot: TS encode matches Rust decode', async () => {
         ballotAuditId,
         includeWriteIns
       ) => {
-        const ballotStyle = election.ballotStyles[0];
-        if (!ballotStyle) return;
-        const precinct = election.precincts.find((p) =>
-          ballotStyle.precincts.includes(p.id)
+        const ballotStyle = assertDefined(election.ballotStyles[0]);
+        const precinct = assertDefined(
+          election.precincts.find((p) => ballotStyle.precincts.includes(p.id))
         );
-        if (!precinct) return;
 
         const allContests = getContests({ ballotStyle, election });
-        if (allContests.length === 0) return;
+        expect(allContests.length).toBeGreaterThan(0);
 
         // Distribute contests across pages round-robin
         const pages: Array<Contest[]> = Array.from(
@@ -299,7 +318,7 @@ function tsVotesToRustVotes(
 test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
   await fc.assert(
     fc.asyncProperty(
-      arbitraryElectionDefinition(),
+      arbitraryFixtureElectionDefinition(),
       fc.boolean(),
       fc.constantFrom(
         BallotType.Precinct,
@@ -318,15 +337,13 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
         includeWriteIns
       ) => {
         const { election, ballotHash } = electionDefinition;
-        const ballotStyle = election.ballotStyles[0];
-        if (!ballotStyle) return;
-        const precinct = election.precincts.find((p) =>
-          ballotStyle.precincts.includes(p.id)
+        const ballotStyle = assertDefined(election.ballotStyles[0]);
+        const precinct = assertDefined(
+          election.precincts.find((p) => ballotStyle.precincts.includes(p.id))
         );
-        if (!precinct) return;
 
         const allContests = getContests({ ballotStyle, election });
-        if (allContests.length === 0) return;
+        expect(allContests.length).toBeGreaterThan(0);
 
         const pages: Array<Contest[]> = Array.from(
           { length: totalPages },
