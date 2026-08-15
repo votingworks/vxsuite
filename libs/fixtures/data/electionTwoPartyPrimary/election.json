@@ -44,6 +44,7 @@
         {
           "id": "horse",
           "name": "Horse",
+          "designation": "City Councilmember",
           "partyIds": ["0"]
         },
         {
@@ -237,6 +238,7 @@
     "en": {
       "ballotLanguage": "English",
       "ballotStyleId": { "1M": "1M", "2F": "2F" },
+      "candidateDesignation": { "horse": "City Councilmember" },
       "candidateName": {
         "horse": "Horse",
         "otter": "Otter",
