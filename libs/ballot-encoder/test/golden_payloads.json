@@ -1,0 +1,2934 @@
+{
+  "hmpb": [
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000200"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000208430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000210"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000218430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000220"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000228430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000300"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000308430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000310"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000318430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0000000320"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0000000328430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000040"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000410861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000042"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000430861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000044"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000450861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000060"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000610861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000062"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000630861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0000000064"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00000000650861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004200"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004208430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004210"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004218430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004220"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004228430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004300"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004308430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004310"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004318430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002e13505110fd0ca615ecf0008004320"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002e13505110fd0ca615ecf0008004328430bab234ba169a190"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000840"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008410861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000842"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008430861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000844"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008450861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000860"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008610861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000862"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008630861756469742d3432"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201e13505110fd0ca615ecf0008000864"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201e13505110fd0ca615ecf00080008650861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000200"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000208430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000210"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000218430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000220"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000228430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000300"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000308430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000310"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000318430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0018000320"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0018000328430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000040"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000410861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000042"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000430861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000044"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000450861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000060"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000610861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000062"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000630861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0018000064"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00180000650861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004200"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004208430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004210"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004218430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004220"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004228430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004300"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004308430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004310"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004318430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0010004320"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0010004328430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000840"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008410861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000842"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008430861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000844"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008450861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000860"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008610861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000862"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008630861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0010000864"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00100008650861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008200"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008208430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008210"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008218430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008220"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008228430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008300"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008308430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008310"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008318430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba0008008320"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba0008008328430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001040"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010410861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001042"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010430861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001044"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010450861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001060"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010610861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001062"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010630861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0008001064"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00080010650861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c200"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c208430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c210"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c218430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c220"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c228430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c300"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c308430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c310"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c318430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002dc2aa66c40e1c6500dba000000c320"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002dc2aa66c40e1c6500dba000000c328430bab234ba169a190"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001840"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018410861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001842"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018430861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001844"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018450861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001860"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018610861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001862"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018630861756469742d3432"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201dc2aa66c40e1c6500dba0000001864"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201dc2aa66c40e1c6500dba00000018650861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000200"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000208430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000210"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000218430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000220"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000228430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000300"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000308430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000310"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000318430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000000320"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000000328430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000040"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000410861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000042"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000430861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000044"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000450861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000060"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000610861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000062"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000630861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000064"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000000650861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004200"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004208430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004210"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004218430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004220"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004228430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004300"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004308430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004310"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004318430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002bc93a55b3f79ff551fa10000004320"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002bc93a55b3f79ff551fa10000004328430bab234ba169a190"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000840"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008410861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000842"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008430861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000844"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008450861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000860"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008610861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000862"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008630861756469742d3432"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201bc93a55b3f79ff551fa10000000864"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201bc93a55b3f79ff551fa100000008650861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000200"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000208430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000210"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000218430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000220"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000228430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000300"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000308430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000310"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000318430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0000000320"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0000000328430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000040"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000410861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000042"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000430861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000044"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000450861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000060"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000610861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000062"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000630861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0000000064"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00000000650861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004200"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004208430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004210"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004218430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004220"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004228430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004300"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004308430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004310"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004318430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "565002ab6a73bfdfa979163e3c0008004320"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "565002ab6a73bfdfa979163e3c0008004328430bab234ba169a190"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000840"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008410861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000842"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008430861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000844"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008450861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000860"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008610861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000862"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008630861756469742d3432"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "564201ab6a73bfdfa979163e3c0008000864"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "564201ab6a73bfdfa979163e3c00080008650861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000200"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000208430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000210"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000218430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000220"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000228430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000300"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000308430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000310"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000318430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0000000320"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0000000328430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000040"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000410861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000042"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000430861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000044"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000450861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000060"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000610861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000062"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000630861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0000000064"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00000000650861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004200"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004208430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004210"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004218430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004220"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004228430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004300"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004308430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004310"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004318430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56500288221e6e070f4584befa0008004320"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.0",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56500288221e6e070f4584befa0008004328430bab234ba169a190"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000840"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008410861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000842"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008430861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000844"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": false,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008450861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000860"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "precinct",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008610861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000862"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "absentee",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008630861756469742d3432"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": null,
+      "bytes": "56420188221e6e070f4584befa0008000864"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "version": "v4.1",
+      "isTestMode": true,
+      "ballotType": "provisional",
+      "ballotAuditId": "audit-42",
+      "bytes": "56420188221e6e070f4584befa00080008650861756469742d3432"
+    }
+  ],
+  "summary": [
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301e13505110fd0ca615ecf000000004200861756469742d3432fffffeeeee82042017c06aaa0"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301e13505110fd0ca615ecf000000004200861756469742d3432fffffeeeee82042017804a60238d498899d29808e35262267253011c6a4c44cf554"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301e13505110fd0ca615ecf000000004300861756469742d3432fffffeeeee82042017c06aaa0"
+    },
+    {
+      "election": "general",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301e13505110fd0ca615ecf000000004300861756469742d3432fffffeeeee82042017804a60238d498899d29808e35262267253011c6a4c44cf554"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301e13505110fd0ca615ecf000800084200861756469742d3432fffdde084026a80"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301e13505110fd0ca615ecf000800084200861756469742d3432fffdde08402253011c6a4c44cf540"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301e13505110fd0ca615ecf000800084300861756469742d3432fffdde084026a80"
+    },
+    {
+      "election": "general",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301e13505110fd0ca615ecf000800084300861756469742d3432fffdde08402253011c6a4c44cf540"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba001800004200861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba001800004200861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba001800004300861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba001800004300861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba001000084200861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba001000084200861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba001000084300861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba001000084300861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba000800104200861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba000800104200861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba000800104300861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 2,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba000800104300861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba000000184200861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba000000184200861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301dc2aa66c40e1c6500dba000000184300861756469742d3432ffeea511e00"
+    },
+    {
+      "election": "famousNames",
+      "styleIndex": 3,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301dc2aa66c40e1c6500dba000000184300861756469742d3432ffee253011c6a4c44ce253011c6a4c44ce4a60238d498899c253011c6a4c44ce129808e35262267e253011c6a4c44ce"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301bc93a55b3f79ff551fa1000000004200861756469742d3432ff67500"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301bc93a55b3f79ff551fa1000000004200861756469742d3432ff664a60238d498899e80"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301bc93a55b3f79ff551fa1000000004300861756469742d3432ff67500"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301bc93a55b3f79ff551fa1000000004300861756469742d3432ff664a60238d498899e80"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301bc93a55b3f79ff551fa1000000084200861756469742d3432ff6ca00"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301bc93a55b3f79ff551fa1000000084200861756469742d3432ff6894c0471a931133d00"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301bc93a55b3f79ff551fa1000000084300861756469742d3432ff6ca00"
+    },
+    {
+      "election": "twoPartyPrimary",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301bc93a55b3f79ff551fa1000000084300861756469742d3432ff6894c0471a931133d00"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301ab6a73bfdfa979163e3c000000004200861756469742d3432ffffff777760104080008053c078aaa"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301ab6a73bfdfa979163e3c000000004200861756469742d3432ffffff777760104080008053804a60238d498899d29808e35262267c253011c6a4c44cf5540"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301ab6a73bfdfa979163e3c000000004300861756469742d3432ffffff777760104080008053c078aaa"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301ab6a73bfdfa979163e3c000000004300861756469742d3432ffffff777760104080008053804a60238d498899d29808e35262267c253011c6a4c44cf5540"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "565301ab6a73bfdfa979163e3c000800084200861756469742d3432fffeee80410cd40"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "565301ab6a73bfdfa979163e3c000800084200861756469742d3432fffeee80410c4a60238d498899ea0"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "565301ab6a73bfdfa979163e3c000800084300861756469742d3432fffeee80410cd40"
+    },
+    {
+      "election": "straightParty",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "565301ab6a73bfdfa979163e3c000800084300861756469742d3432fffeee80410c4a60238d498899ea0"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "56530188221e6e070f4584befa000000004200861756469742d3432fffffffdddd8de128c914bb2550"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "56530188221e6e070f4584befa000000004200861756469742d3432fffffffddddddc129808e35262267129808e35262267253011c6a4c44ce129808e352622674a60238d498899c4a60238d498899c4a60238d498899c253011c6a4c44ce4a60238d498899c4a60238d498899c94c0471a931133a53011c6a4c44cf253011c6a4c44cf129808e352622674a60238d498899d29808e35262267129808e35262267253011c6a4c44cf500"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "56530188221e6e070f4584befa000000004300861756469742d3432fffffffdddd8de128c914bb2550"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 0,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "56530188221e6e070f4584befa000000004300861756469742d3432fffffffddddddc129808e35262267129808e35262267253011c6a4c44ce129808e352622674a60238d498899c4a60238d498899c4a60238d498899c253011c6a4c44ce4a60238d498899c4a60238d498899c94c0471a931133a53011c6a4c44cf253011c6a4c44cf129808e352622674a60238d498899d29808e35262267129808e35262267253011c6a4c44cf500"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": false,
+      "bytes": "56530188221e6e070f4584befa000800084200861756469742d3432fffffffddddc1e128c914b6ea"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "isTestMode": false,
+      "includeWriteIns": true,
+      "bytes": "56530188221e6e070f4584befa000800084200861756469742d3432fffffffddddddc129808e35262267129808e35262267253011c6a4c44ce129808e352622674a60238d498899c4a60238d498899c4a60238d498899c253011c6a4c44ce4a60238d498899c4a60238d498899c94c0471a931133a53011c6a4c44ce4a60238d498899e4a60238d498899e94c0471a931133a53011c6a4c44ce94c0471a931133a53011c6a4c44cf50"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": false,
+      "bytes": "56530188221e6e070f4584befa000800084300861756469742d3432fffffffddddc1e128c914b6ea"
+    },
+    {
+      "election": "combinedBallotPrimary",
+      "styleIndex": 1,
+      "isTestMode": true,
+      "includeWriteIns": true,
+      "bytes": "56530188221e6e070f4584befa000800084300861756469742d3432fffffffddddddc129808e35262267129808e35262267253011c6a4c44ce129808e352622674a60238d498899c4a60238d498899c4a60238d498899c253011c6a4c44ce4a60238d498899c4a60238d498899c94c0471a931133a53011c6a4c44ce4a60238d498899e4a60238d498899e94c0471a931133a53011c6a4c44ce94c0471a931133a53011c6a4c44cf50"
+    }
+  ]
+}

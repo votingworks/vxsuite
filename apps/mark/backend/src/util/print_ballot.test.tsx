@@ -5,11 +5,13 @@ import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
 import {
   BallotType,
+  Contest,
   ElectionDefinition,
   getContests,
   HmpbBallotPaperSize,
   SystemSettings,
   UiStringsPackage,
+  Vote,
   VotesDict,
 } from '@votingworks/types';
 import {
@@ -28,7 +30,7 @@ import {
   filterVotesForContests,
 } from '@votingworks/ui';
 import { UiStringsStore } from '@votingworks/backend';
-import { assertDefined, ok } from '@votingworks/basics';
+import { assertDefined, ok, throwIllegalValue } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { type Store } from '../store.js';
@@ -48,6 +50,20 @@ vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
 });
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
+
+/** The first valid selection for a contest, whatever kind of contest it is. */
+function firstSelectionFor(contest: Contest): Vote {
+  switch (contest.type) {
+    case 'candidate':
+      return [assertDefined(contest.candidates[0])];
+    case 'yesno':
+      return [assertDefined(contest.options[0]).id];
+    case 'straight-party':
+      return [assertDefined(contest.optionIds[0])];
+    default:
+      return throwIllegalValue(contest);
+  }
+}
 
 describe(`printMode === "marks_on_preprinted_ballot"`, () => {
   const testValidSizes = test.each<HmpbBallotPaperSize>(
@@ -262,9 +278,16 @@ describe(`printMode === "summary"`, () => {
       )
     );
 
+    // `Vote` is an untagged union, so a bare string type-checks here, but a
+    // candidate contest holds `Candidate` objects and the encoder has no way to
+    // resolve a loose ID to one.
     const mockVotes: VotesDict = {
-      [page1ContestIds[0]]: ['vote-1'],
-      [page2ContestIds[0]]: ['vote-2'],
+      [assertDefined(allContests[0]).id]: firstSelectionFor(
+        assertDefined(allContests[0])
+      ),
+      [assertDefined(allContests[5]).id]: firstSelectionFor(
+        assertDefined(allContests[5])
+      ),
     };
 
     // Mock filterVotesForContests to track calls and return filtered votes
