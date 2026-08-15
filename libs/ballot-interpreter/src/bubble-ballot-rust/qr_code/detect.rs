@@ -180,6 +180,24 @@ pub fn classify_qr_payload(bytes: &[u8]) -> QrCodeKind {
     }
 }
 
+/// Whether `bytes` starts with any prelude we have ever printed.
+///
+/// This is deliberately broader than [`classify_qr_payload`]: classification
+/// names the payloads we can parse, while this answers whether a payload is
+/// ours at all, which is what deciding between raw and base64-wrapped bytes
+/// needs. The two differ for v4.0 bubble ballots, which we print but no longer
+/// decode.
+#[must_use]
+fn is_vx_payload(bytes: &[u8]) -> bool {
+    let Some(prelude) = bytes.get(0..3) else {
+        return false;
+    };
+    matches!(
+        prelude.try_into(),
+        Ok(bubble_ballot::PRELUDE | bubble_ballot::PRELUDE_V4P0 | bmd::BMD_PRELUDE)
+    )
+}
+
 #[derive(Debug, Clone, Copy)]
 #[must_use]
 pub enum Detector {
@@ -281,10 +299,25 @@ impl Error {
 
 pub type Result = std::result::Result<Detected, Error>;
 
-fn base64_decode_if_possible(detected: &Detected) -> Detected {
-    let bytes = STANDARD
-        .decode(detected.bytes())
-        .unwrap_or_else(|_| detected.bytes().to_vec());
+/// Unwraps a detected QR code payload to raw ballot bytes.
+///
+/// Payloads may be either raw bytes or base64-wrapped. Which one it is has to
+/// be decided by the ballot prelude rather than by whether base64 decoding
+/// succeeds: the base64 alphabet is a superset of the alphabets a payload can
+/// be drawn from, so a payload that was never base64 can still decode
+/// "successfully" into garbage. Unrecognized payloads are passed through
+/// unchanged so that the prelude check downstream reports the error.
+fn unwrap_qr_payload(detected: &Detected) -> Detected {
+    let raw = detected.bytes();
+    let bytes = if is_vx_payload(raw) {
+        raw.to_vec()
+    } else {
+        match STANDARD.decode(raw) {
+            Ok(decoded) if is_vx_payload(&decoded) => decoded,
+            _ => raw.to_vec(),
+        }
+    };
+
     Detected::new(
         detected.detector(),
         detected.detection_areas().to_vec(),
@@ -323,7 +356,7 @@ pub fn detect_with_strategy(
         debug::draw_qr_code_debug_image_mut(canvas, detect_result.as_ref().ok(), &detection_areas);
     });
 
-    detect_result.map(|detected| base64_decode_if_possible(&detected))
+    detect_result.map(|detected| unwrap_qr_payload(&detected))
 }
 
 #[cfg(test)]
@@ -376,6 +409,85 @@ mod test {
         #[test]
         fn test_classify_never_panics(bytes: Vec<u8>) {
             let _ = classify_qr_payload(&bytes);
+        }
+    }
+
+    fn detected(bytes: &[u8]) -> Detected {
+        Detected::new(
+            Detector::Zedbar,
+            vec![],
+            bytes.to_vec(),
+            Rect::new(0, 0, 1, 1),
+            Orientation::Portrait,
+        )
+    }
+
+    #[test]
+    fn test_unwrap_base64_wrapped_payload() {
+        let raw = [0x56, 0x53, 0x01, 0xab, 0xcd];
+        let wrapped = STANDARD.encode(raw);
+        assert_eq!(
+            unwrap_qr_payload(&detected(wrapped.as_bytes())).bytes(),
+            raw
+        );
+    }
+
+    #[test]
+    fn test_unwrap_raw_payload() {
+        let raw = [0x56, 0x42, 0x01, 0xab, 0xcd];
+        assert_eq!(unwrap_qr_payload(&detected(&raw)).bytes(), raw);
+    }
+
+    #[test]
+    fn test_unwrap_recognizes_deprecated_v4p0_payload() {
+        let raw = [0x56, 0x50, 0x02, 0xab, 0xcd];
+        let wrapped = STANDARD.encode(raw);
+        assert_eq!(
+            unwrap_qr_payload(&detected(wrapped.as_bytes())).bytes(),
+            raw
+        );
+    }
+
+    /// A payload drawn from the base64 alphabet decodes without error even
+    /// though it was never base64. Decoding it anyway would silently replace it
+    /// with garbage, and only for lengths that happen to be a multiple of 4.
+    #[test]
+    fn test_unwrap_leaves_incidentally_decodable_payload_alone() {
+        for payload in [
+            "VXBABCDEFGH01234567",
+            "VXBABCDEFGH012345678",
+            "VXBABCDEFGH0123456789",
+            "1234567890123456",
+        ] {
+            assert_eq!(
+                unwrap_qr_payload(&detected(payload.as_bytes())).bytes(),
+                payload.as_bytes(),
+                "payload of length {} was modified",
+                payload.len()
+            );
+        }
+    }
+
+    proptest! {
+        /// Whatever a QR code turns out to contain, unwrapping must either
+        /// produce a payload we recognize or leave the bytes untouched.
+        #[test]
+        fn test_unwrap_never_produces_unrecognized_bytes(bytes: Vec<u8>) {
+            let unwrapped = unwrap_qr_payload(&detected(&bytes));
+            assert!(is_vx_payload(unwrapped.bytes()) || unwrapped.bytes() == bytes);
+        }
+
+        /// Same property, but over payloads drawn from the base64 alphabet,
+        /// where an unconditional decode succeeds and quietly returns garbage.
+        /// Lengths that are a multiple of 4 are the dangerous ones.
+        #[test]
+        fn test_unwrap_never_mangles_base64_alphabet_payload(
+            payload in "[A-Za-z0-9+/]{0,64}"
+        ) {
+            let unwrapped = unwrap_qr_payload(&detected(payload.as_bytes()));
+            assert!(
+                is_vx_payload(unwrapped.bytes()) || unwrapped.bytes() == payload.as_bytes()
+            );
         }
     }
 

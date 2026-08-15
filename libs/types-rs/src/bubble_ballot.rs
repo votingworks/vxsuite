@@ -348,6 +348,12 @@ pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
 /// The first bytes of an encoded [`Metadata`].
 pub const PRELUDE: &[u8; 3] = b"VB\x01";
 
+/// The first bytes of a v4.0 encoded bubble ballot metadata. [`Metadata`] does
+/// not decode this format, but `VxDesign` still renders it, so payloads
+/// starting with it can appear on scanned ballots and must be recognized as
+/// ours.
+pub const PRELUDE_V4P0: &[u8; 3] = b"VP\x02";
+
 #[must_use]
 pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
     Metadata {
