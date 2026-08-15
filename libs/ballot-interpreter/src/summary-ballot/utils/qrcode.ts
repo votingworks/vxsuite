@@ -125,9 +125,14 @@ export async function detect(
         const grayscale = rgbaToGrayscale(data, width, height);
         const options = new ScanOptions();
         options.symbologies = ['QR-Code'];
-        return scanGrayscale(grayscale, width, height, options).map((symbol) =>
-          Buffer.from(symbol.data)
-        );
+        // Restricting the symbologies does not guarantee that every result is
+        // a whole QR code: zedbar also reports "Partial", a structured-append
+        // group with some of its codes missing from the image, whose data is
+        // the parts that were found joined by NUL bytes. Ballot QR codes are
+        // never structured append, so a partial result is never ballot data.
+        return scanGrayscale(grayscale, width, height, options)
+          .filter((symbol) => symbol.symbolType === 'QR-Code')
+          .map((symbol) => Buffer.from(symbol.data));
       },
     },
     {
