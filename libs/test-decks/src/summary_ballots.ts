@@ -1,4 +1,9 @@
-import { BallotStyleId, ElectionDefinition } from '@votingworks/types';
+import {
+  BallotStyleId,
+  BallotType,
+  ElectionDefinition,
+} from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { assertDefined } from '@votingworks/basics';
 import {
   renderToPdf,
@@ -87,8 +92,19 @@ export async function createSummaryBallotTestDeck({
             machineType: 'mark' as const,
             pageNumber: pageBreak.pageNumber,
             totalPages: pageBreaks.length,
-            ballotAuditId,
             contestsForPage: pageContests,
+            encodedBallot: encodeSummaryBallotPage(election, {
+              ballotHash: electionDefinition.ballotHash,
+              ballotStyleId: ballotSpec.ballotStyleId,
+              precinctId: ballotSpec.precinctId,
+              votes: filterVotesForContests(ballotSpec.votes, pageContests),
+              isTestMode: !isLiveMode,
+              ballotType: BallotType.Precinct,
+              pageNumber: pageBreak.pageNumber,
+              totalPages: pageBreaks.length,
+              ballotAuditId,
+              contests: pageContests,
+            }),
             layout: pageBreak.layout,
           }),
         });

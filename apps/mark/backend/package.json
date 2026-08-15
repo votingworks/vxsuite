@@ -33,6 +33,7 @@
   "dependencies": {
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
+    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",

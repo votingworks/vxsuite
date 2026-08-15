@@ -2,11 +2,9 @@ import { fromByteArray } from 'base64-js';
 import React from 'react';
 import styled from 'styled-components';
 
-import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
   BallotStyle,
   BallotStyleId,
-  BallotType,
   CandidateContest,
   CandidateVote,
   Contest,
@@ -667,13 +665,10 @@ export interface BmdPaperBallotProps {
   pageNumber: number;
   /** The total number of pages in the ballot */
   totalPages: number;
-  /**
-   * Ballot audit ID used to correlate physically separated pages after
-   * scanning
-   */
-  ballotAuditId: string;
   /** The subset of contests to render on this page */
   contestsForPage: readonly Contest[];
+  /** The QR code payload for this page, from `encodeSummaryBallotPage`. */
+  encodedBallot: Uint8Array;
 }
 
 /**
@@ -723,7 +718,6 @@ export function BmdPaperBallot({
   machineType,
   pageNumber,
   totalPages,
-  ballotAuditId,
   /**
    * The contests included on this page
    * TODO: Change this to a list of contest IDs rather than contest objects
@@ -731,6 +725,7 @@ export function BmdPaperBallot({
    * objects via the election def for the given ballot style ID.
    */
   contestsForPage,
+  encodedBallot,
 }: BmdPaperBallotProps): JSX.Element {
   const {
     election,
@@ -758,19 +753,6 @@ export function BmdPaperBallot({
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
   const party = getPartyForBallotStyle({ ballotStyleId, election });
-
-  const encodedBallot = encodeSummaryBallotPage(election, {
-    ballotHash,
-    precinctId,
-    ballotStyleId,
-    votes,
-    isTestMode: !isLiveMode,
-    ballotType: BallotType.Precinct,
-    pageNumber,
-    totalPages,
-    ballotAuditId,
-    contests: contestsForPageInCanonicalOrder,
-  });
 
   const ballotLayout =
     layout ??

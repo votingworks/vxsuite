@@ -5,6 +5,7 @@ import {
 } from '@votingworks/printing';
 import {
   BallotStyleId,
+  BallotType,
   Election,
   ElectionDefinition,
   getBallotStyle,
@@ -12,6 +13,7 @@ import {
   HmpbBallotPaperSize,
   VotesDict,
 } from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 
 import { assertDefined } from '@votingworks/basics';
 import { randomUUID } from 'node:crypto';
@@ -75,6 +77,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
     ballotStyle,
   });
 
+  const ballotAuditId = randomUUID();
   const ballot = (
     <BmdPaperBallot
       binarize
@@ -88,8 +91,19 @@ export async function renderTestModeBallotWithoutLanguageContext(
       machineType={MACHINE_TYPE}
       pageNumber={1}
       totalPages={1}
-      ballotAuditId={randomUUID()}
       contestsForPage={contests}
+      encodedBallot={encodeSummaryBallotPage(electionDefinition.election, {
+        ballotHash: electionDefinition.ballotHash,
+        ballotStyleId,
+        precinctId,
+        votes,
+        isTestMode: true,
+        ballotType: BallotType.Precinct,
+        pageNumber: 1,
+        totalPages: 1,
+        ballotAuditId,
+        contests,
+      })}
     />
   );
 
@@ -154,8 +168,19 @@ export async function renderBallot({
           machineType={MACHINE_TYPE}
           pageNumber={1}
           totalPages={1}
-          ballotAuditId={ballotAuditId}
           contestsForPage={contests}
+          encodedBallot={encodeSummaryBallotPage(electionDefinition.election, {
+            ballotHash: electionDefinition.ballotHash,
+            ballotStyleId,
+            precinctId,
+            votes,
+            isTestMode: !isLiveMode,
+            ballotType: BallotType.Precinct,
+            pageNumber: 1,
+            totalPages: 1,
+            ballotAuditId,
+            contests,
+          })}
         />
       </BackendLanguageContextProvider>
     );

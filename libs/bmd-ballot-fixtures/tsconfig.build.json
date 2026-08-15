@@ -10,6 +10,7 @@
     "declaration": true
   },
   "references": [
+    { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../printing/tsconfig.build.json" },

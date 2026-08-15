@@ -12,6 +12,7 @@ import {
   createTestElection,
   mockConstructor,
 } from '@votingworks/test-utils';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { createSummaryBallotTestDeck } from './summary_ballots.js';
 import { generateTestDeckBallots } from './test_decks.js';
 
@@ -52,6 +53,16 @@ vi.mock('@votingworks/hmpb', async (importActual) => {
 
 // The summary ballot test deck generates a random ballot audit ID per ballot,
 // which is encoded into the QR code. Pin it so the PDF snapshots are stable.
+// Spy on the encoder without changing what it produces: rendered ballots are
+// compared against image snapshots elsewhere in this suite.
+vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    encodeSummaryBallotPage: vi.fn(actual.encodeSummaryBallotPage),
+  };
+});
+
 vi.mock('node:crypto', async (importActual) => ({
   ...(await importActual<typeof import('node:crypto')>()),
   // eslint-disable-next-line vx/gts-identifiers
@@ -169,7 +180,6 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     const page1Props = documents[0].document.props;
     expect(page1Props.pageNumber).toEqual(1);
     expect(page1Props.totalPages).toEqual(2);
-    expect(page1Props.ballotAuditId).toBeDefined();
     expect(
       page1Props.contestsForPage.map((c: { id: string }) => c.id).sort()
     ).toEqual([...page1ContestIds].sort());
@@ -178,10 +188,16 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     const page2Props = documents[1].document.props;
     expect(page2Props.pageNumber).toEqual(2);
     expect(page2Props.totalPages).toEqual(2);
-    expect(page2Props.ballotAuditId).toBeDefined();
 
-    // Same ballotAuditId across both pages
-    expect(page1Props.ballotAuditId).toEqual(page2Props.ballotAuditId);
+    // The audit id now travels in the encoded payload rather than as a prop.
+    // Both pages must carry the same one so they can be correlated after they
+    // are physically separated by scanning.
+    const [[, firstPage], [, secondPage]] = vi.mocked(encodeSummaryBallotPage)
+      .mock.calls;
+    expect(firstPage.ballotAuditId).toBeDefined();
+    expect(firstPage.ballotAuditId).toEqual(secondPage.ballotAuditId);
+    expect(firstPage.pageNumber).toEqual(1);
+    expect(secondPage.pageNumber).toEqual(2);
 
     expect(
       page2Props.contestsForPage.map((c: { id: string }) => c.id).sort()

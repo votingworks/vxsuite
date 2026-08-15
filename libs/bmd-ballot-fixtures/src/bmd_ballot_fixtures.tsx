@@ -2,6 +2,7 @@ import React from 'react';
 import { renderToPdf } from '@votingworks/printing';
 import tmp from 'tmp';
 import {
+  BallotType,
   ElectionDefinition,
   VotesDict,
   BallotStyleId,
@@ -10,6 +11,7 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { BmdPaperBallot } from '@votingworks/ui';
 
 import {
@@ -82,6 +84,19 @@ export async function renderBmdBallotFixture(
     }
   }
 
+  const encodedBallot = encodeSummaryBallotPage(electionDefinition.election, {
+    ballotHash: electionDefinition.ballotHash,
+    ballotStyleId: ballotStyle.id,
+    precinctId: resolvedPrecinctId,
+    votes: votesForPage,
+    isTestMode: !isLiveMode,
+    ballotType: BallotType.Precinct,
+    pageNumber,
+    totalPages,
+    ballotAuditId,
+    contests: contestsForPage,
+  });
+
   const ballot = (
     <React.Fragment>
       <BmdPaperBallot
@@ -93,8 +108,8 @@ export async function renderBmdBallotFixture(
         votes={votesForPage}
         pageNumber={pageNumber}
         totalPages={totalPages}
-        ballotAuditId={ballotAuditId}
         contestsForPage={contestsForPage}
+        encodedBallot={encodedBallot}
       />
       {!frontPageOnly && <div style={{ pageBreakAfter: 'always' }} />}
     </React.Fragment>
