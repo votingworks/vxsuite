@@ -42,14 +42,9 @@ test('unwrapVxPayload unwraps base64-wrapped ballot data', () => {
   expect(unwrapVxPayload(Buffer.from(raw.toString('base64')))).toEqual(raw);
 });
 
-test('unwrapVxPayload passes through unwrapped ballot data', () => {
-  const raw = Buffer.from([0x56, 0x53, 0x01, 0xab, 0xcd]);
-  expect(unwrapVxPayload(raw)).toEqual(raw);
-});
-
 test('unwrapVxPayload rejects payloads that are not ballot data', () => {
   // `Buffer.from(s, 'base64')` drops unrecognized characters rather than
-  // failing, so all of these "decode" successfully into garbage. Deciding by
+  // failing, so all of these "decode" successfully into garbage. Checking the
   // prelude is what keeps that garbage from being treated as ballot data.
   for (const payload of [
     'VXBABCDEFGH01234567',
@@ -60,6 +55,14 @@ test('unwrapVxPayload rejects payloads that are not ballot data', () => {
   ]) {
     expect(unwrapVxPayload(Buffer.from(payload))).toBeUndefined();
   }
+});
+
+test('unwrapVxPayload rejects unwrapped ballot data', () => {
+  // Nothing we print is unwrapped, so this is rejected rather than passed
+  // through. Recognizing an unwrapped payload is a change for whenever we move
+  // off base64, not a compatibility path for anything in the field.
+  const raw = Buffer.from([0x56, 0x53, 0x01, 0xab, 0xcd]);
+  expect(unwrapVxPayload(raw)).toBeUndefined();
 });
 
 test('getSearchArea', () => {

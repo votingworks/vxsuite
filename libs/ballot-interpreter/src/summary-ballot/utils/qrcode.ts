@@ -12,20 +12,15 @@ import { stats, Stats } from './luminosity';
 const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 
 /**
- * Unwraps a detected QR code payload to raw ballot data, or `undefined` if it
- * isn't ballot data at all.
+ * Unwraps a base64-wrapped QR code payload to raw ballot data, or `undefined`
+ * if the payload isn't ballot data.
  *
- * Payloads may be either raw bytes or base64-wrapped. Which one it is has to be
- * decided by the ballot prelude rather than by whether base64 decoding
- * succeeds: `Buffer.from(s, 'base64')` silently drops characters it doesn't
- * recognize instead of failing, so a successful decode proves nothing about
- * whether the input was base64 in the first place.
+ * The decode is kept only if it produced something with a ballot prelude. A
+ * successful decode on its own proves nothing: `Buffer.from(s, 'base64')`
+ * silently drops characters it doesn't recognize rather than failing, so it
+ * "succeeds" on input that was never base64 and returns garbage.
  */
 export function unwrapVxPayload(data: Buffer): Optional<Buffer> {
-  if (isVxBallot(data)) {
-    return data;
-  }
-
   const decoded = Buffer.from(data.toString('utf8'), 'base64');
   return isVxBallot(decoded) ? decoded : undefined;
 }

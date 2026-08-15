@@ -183,10 +183,9 @@ pub fn classify_qr_payload(bytes: &[u8]) -> QrCodeKind {
 /// Whether `bytes` starts with any prelude we have ever printed.
 ///
 /// This is deliberately broader than [`classify_qr_payload`]: classification
-/// names the payloads we can parse, while this answers whether a payload is
-/// ours at all, which is what deciding between raw and base64-wrapped bytes
-/// needs. The two differ for v4.0 bubble ballots, which we print but no longer
-/// decode.
+/// names the payloads we can parse, while this answers whether a base64 decode
+/// produced ballot data at all. The two differ for v4.0 bubble ballots, which
+/// we print but no longer decode.
 #[must_use]
 fn is_vx_payload(bytes: &[u8]) -> bool {
     let Some(prelude) = bytes.get(0..3) else {
@@ -299,23 +298,18 @@ impl Error {
 
 pub type Result = std::result::Result<Detected, Error>;
 
-/// Unwraps a detected QR code payload to raw ballot bytes.
+/// Unwraps a base64-wrapped QR code payload to raw ballot bytes.
 ///
-/// Payloads may be either raw bytes or base64-wrapped. Which one it is has to
-/// be decided by the ballot prelude rather than by whether base64 decoding
-/// succeeds: the base64 alphabet is a superset of the alphabets a payload can
-/// be drawn from, so a payload that was never base64 can still decode
-/// "successfully" into garbage. Unrecognized payloads are passed through
-/// unchanged so that the prelude check downstream reports the error.
+/// The decode is kept only if it produced something with a ballot prelude. A
+/// successful decode on its own proves nothing: the base64 alphabet is a
+/// superset of the alphabets a QR payload can be drawn from, so a payload that
+/// was never base64 can decode without error into garbage. Anything we don't
+/// recognize is passed through unchanged so that the prelude check downstream
+/// reports the error.
 fn unwrap_qr_payload(detected: &Detected) -> Detected {
-    let raw = detected.bytes();
-    let bytes = if is_vx_payload(raw) {
-        raw.to_vec()
-    } else {
-        match STANDARD.decode(raw) {
-            Ok(decoded) if is_vx_payload(&decoded) => decoded,
-            _ => raw.to_vec(),
-        }
+    let bytes = match STANDARD.decode(detected.bytes()) {
+        Ok(decoded) if is_vx_payload(&decoded) => decoded,
+        _ => detected.bytes().to_vec(),
     };
 
     Detected::new(
@@ -432,8 +426,11 @@ mod test {
         );
     }
 
+    /// Nothing we print is unwrapped bytes, but a payload that isn't base64 at
+    /// all must still reach the prelude check downstream intact rather than
+    /// being replaced by whatever a decode attempt produced.
     #[test]
-    fn test_unwrap_raw_payload() {
+    fn test_unwrap_leaves_undecodable_payload_alone() {
         let raw = [0x56, 0x42, 0x01, 0xab, 0xcd];
         assert_eq!(unwrap_qr_payload(&detected(&raw)).bytes(), raw);
     }
