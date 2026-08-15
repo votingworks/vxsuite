@@ -2,6 +2,7 @@
 /* eslint-disable */
 import type {
   BridgeDecodeBmdResult,
+  BridgeDecodeBubbleBallotMetadataResult,
   BridgeInterpretResult,
   TimingMarks,
 } from './src/bubble-ballot-ts/types';
@@ -24,11 +25,18 @@ export interface BridgeInterpretOptions {
   retryStreakWidthThreshold: number;
 }
 /**
- * Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
+ * Decodes raw QR code bytes as a `CastVoteRecord` (VS\x01). Used for
  * cross-language testing to verify the Rust decoder matches the TypeScript
  * encoder.
  */
 export declare function decodeBmdBallotData(election: Election, data: Buffer): Promise<BridgeDecodeBmdResult>
+
+/**
+ * Decodes raw QR code bytes as bubble ballot page metadata (VB\x01). Used for
+ * cross-language testing to verify the Rust decoder matches the TypeScript
+ * encoder.
+ */
+export declare function decodeBubbleBallotMetadata(election: Election, data: Buffer, expectedBallotHash: string): Promise<BridgeDecodeBubbleBallotMetadataResult>
 
 /**
  * Encodes a `CastVoteRecord` to raw bytes using the Rust bitstream
@@ -36,6 +44,13 @@ export declare function decodeBmdBallotData(election: Election, data: Buffer): P
  * matches the TypeScript decoder.
  */
 export declare function encodeBmdBallotData(election: Election, record: BridgeDecodeBmdResult): Promise<Buffer>
+
+/**
+ * Encodes bubble ballot page metadata to raw bytes using the Rust bitstream
+ * encoder. Used for cross-language testing to verify the Rust encoder matches
+ * the TypeScript encoder byte for byte.
+ */
+export declare function encodeBubbleBallotMetadata(election: Election, metadata: BridgeDecodeBubbleBallotMetadataResult, version: 'v4.0' | 'v4.1'): Promise<Buffer>
 
 export declare function findTimingMarkGridFromImage(imageWidth: number, imageHeight: number, imageData: Buffer | Uint8ClampedArray, debugPath?: string): Promise<TimingMarks>
 
