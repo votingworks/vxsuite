@@ -21,8 +21,9 @@ import {
   arbitraryBallotId,
   arbitraryElectionDefinition,
 } from '@votingworks/test-utils';
+import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import { Buffer } from 'node:buffer';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { napi } from './bubble-ballot-ts/napi.js';
 import type {
   BridgeDecodeBmdResult,
@@ -377,4 +378,54 @@ test('multi-page BMD ballot: Rust encode matches TS decode', async () => {
     ),
     MULTI_PAGE_FC_PARAMS
   );
+});
+
+test("combined ballot primary: TS and Rust agree on a party-less ballot style's contests", async () => {
+  const { election, ballotHash } =
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
+
+  const partyLessStyles = election.ballotStyles.filter(
+    (ballotStyle) => ballotStyle.partyId === undefined
+  );
+  expect(partyLessStyles.length).toBeGreaterThan(0);
+
+  for (const ballotStyle of partyLessStyles) {
+    const contests = getContests({ ballotStyle, election });
+
+    // Without party-specific contests on a party-less ballot style, this
+    // fixture no longer exercises the divergence.
+    expect(
+      contests.filter(
+        (contest) => contest.type === 'candidate' && contest.partyId
+      ).length
+    ).toBeGreaterThan(0);
+
+    const precinct = assertDefined(
+      election.precincts.find((p) => ballotStyle.precincts.includes(p.id))
+    );
+    const votes = generateVotesForContests(contests, false);
+
+    const page: SummaryBallotPage = {
+      ballotHash,
+      ballotStyleId: ballotStyle.id,
+      precinctId: precinct.id,
+      isTestMode: false,
+      ballotType: BallotType.Precinct,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'combined-primary-audit-id',
+      contests: [...contests],
+      votes,
+    };
+
+    const decoded = await napi.decodeBmdBallotData(
+      election,
+      Buffer.from(encodeSummaryBallotPage(election, page))
+    );
+
+    expect(decoded.contestIds).toEqual(contests.map((contest) => contest.id));
+    expect(normalizeRustVotes(decoded.votes, election, ballotStyle.id)).toEqual(
+      normalizeTsVotes(votes)
+    );
+  }
 });
