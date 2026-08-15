@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     ballot_card::{
-        BallotAuditIdLength, BallotStyleByIndex, BallotType, BallotTypeCodingError, IndexError,
-        PageNumber, PrecinctByIndex,
+        BallotAuditIdLength, BallotStyleByIndex, BallotStyleIndex, BallotStyleIndexV4p0,
+        BallotType, BallotTypeCodingError, IndexError, PageNumber, PrecinctByIndex,
     },
     coding,
     election::{BallotStyleId, Election, PrecinctId},
@@ -191,10 +191,28 @@ pub mod ballot_hash_serde {
     }
 }
 
+/// The `VxSuite` version an encoded [`Metadata`] targets. `VxDesign` still
+/// renders v4.0 ballots, which use a different prelude and a narrower ballot
+/// style index than v4.1.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum SoftwareVersion {
+    #[serde(rename = "v4.0")]
+    V4p0,
+    #[default]
+    #[serde(rename = "v4.1")]
+    V4p1,
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Invalid prelude: {0:?}")]
     InvalidPrelude([u8; 3]),
+
+    #[error("Ballot style index {index} is too large to encode as {version:?}")]
+    BallotStyleIndexTooLargeForVersion {
+        index: BallotStyleIndex,
+        version: SoftwareVersion,
+    },
 
     #[error("Invalid ballot type: {0}")]
     InvalidBallotType(#[from] BallotTypeCodingError),
@@ -289,19 +307,22 @@ impl<'a> FromBitStreamWith<'a> for Metadata {
     }
 }
 
-impl ToBitStreamWith<'_> for Metadata {
-    type Context = Election;
+impl<'a> ToBitStreamWith<'a> for Metadata {
+    type Context = (&'a Election, SoftwareVersion);
     type Error = Error;
 
     fn to_writer<W: bitstream_io::BitWrite + ?Sized>(
         &self,
         w: &mut W,
-        election: &Self::Context,
+        (election, version): &Self::Context,
     ) -> Result<(), Self::Error>
     where
         Self: Sized,
     {
-        w.write_bytes(PRELUDE)?;
+        w.write_bytes(match version {
+            SoftwareVersion::V4p0 => PRELUDE_V4P0,
+            SoftwareVersion::V4p1 => PRELUDE,
+        })?;
         w.write_bytes(&self.ballot_hash)?;
 
         let precinct_index = election
@@ -312,7 +333,17 @@ impl ToBitStreamWith<'_> for Metadata {
         let ballot_style_index = election
             .ballot_style_index(&self.ballot_style_id)
             .ok_or_else(|| Error::InvalidBallotStyleId(self.ballot_style_id.clone()))?;
-        w.build(&ballot_style_index)?;
+        match version {
+            SoftwareVersion::V4p0 => {
+                let ballot_style_index = BallotStyleIndexV4p0::new(ballot_style_index.get())
+                    .ok_or(Error::BallotStyleIndexTooLargeForVersion {
+                        index: ballot_style_index,
+                        version: *version,
+                    })?;
+                w.build(&ballot_style_index)?;
+            }
+            SoftwareVersion::V4p1 => w.build(&ballot_style_index)?,
+        }
 
         w.build(&self.page_number)?;
         w.write_bit(self.is_test_mode)?;
@@ -383,6 +414,7 @@ mod test {
     };
 
     use crate::coding::{collect_writes, encode_with};
+    use crate::election::BallotStyle;
 
     use super::*;
 
@@ -465,8 +497,116 @@ mod test {
                 ballot_audit_id: Some(ballot_audit_id.to_owned()),
             }
         );
-        let reencoded_bytes = encode_with(&metadata, &election).unwrap();
+        let reencoded_bytes = encode_with(&metadata, &(&election, SoftwareVersion::V4p1)).unwrap();
         assert_eq!(reencoded_bytes, bytes);
+    }
+
+    fn alameda_test_election() -> Election {
+        let election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test/election.json");
+        serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap()
+    }
+
+    /// Expected bytes come from the TypeScript encoder
+    /// (`encodeHmpbBallotPageMetadata` in `libs/ballot-encoder`), which is
+    /// still the only producer of ballots in the field. v4.0 differs from v4.1
+    /// in the prelude and in giving the ballot style index 13 bits rather than
+    /// 16, which shifts every field after it.
+    #[test]
+    fn test_encode_metadata_matches_typescript() {
+        let election = alameda_test_election();
+        let ballot_hash: PartialBallotHash =
+            [0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f];
+
+        let first = Metadata {
+            ballot_hash,
+            precinct_id: PrecinctId::from("precinct-1".to_owned()),
+            ballot_style_id: BallotStyleId::from("ballot-style-1-p1".to_owned()),
+            page_number: PageNumber::new_unchecked(1),
+            is_test_mode: false,
+            ballot_type: BallotType::Precinct,
+            ballot_audit_id: None,
+        };
+
+        // ballot style index 0, precinct index 0
+        assert_eq!(
+            encode_with(&first, &(&election, SoftwareVersion::V4p0)).unwrap(),
+            vec![
+                0x56, 0x50, 0x02, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f, 0x00,
+                0x00, 0x00, 0x02, 0x00
+            ]
+        );
+        assert_eq!(
+            encode_with(&first, &(&election, SoftwareVersion::V4p1)).unwrap(),
+            vec![
+                0x56, 0x42, 0x01, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f, 0x00,
+                0x00, 0x00, 0x00, 0x40
+            ]
+        );
+
+        let second = Metadata {
+            ballot_hash,
+            precinct_id: PrecinctId::from("precinct-2".to_owned()),
+            ballot_style_id: BallotStyleId::from("ballot-style-3-p2".to_owned()),
+            page_number: PageNumber::new_unchecked(3),
+            is_test_mode: true,
+            ballot_type: BallotType::Absentee,
+            ballot_audit_id: None,
+        };
+
+        // ballot style index 5, precinct index 1: a nonzero index, so the two
+        // versions disagree about more than where the later fields land
+        assert_eq!(
+            encode_with(&second, &(&election, SoftwareVersion::V4p0)).unwrap(),
+            vec![
+                0x56, 0x50, 0x02, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f, 0x00,
+                0x08, 0x01, 0x47, 0x10
+            ]
+        );
+        assert_eq!(
+            encode_with(&second, &(&election, SoftwareVersion::V4p1)).unwrap(),
+            vec![
+                0x56, 0x42, 0x01, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f, 0x00,
+                0x08, 0x00, 0x28, 0xe2
+            ]
+        );
+    }
+
+    #[test]
+    fn test_v4p0_ballot_style_index_is_narrower() {
+        assert_eq!(BallotStyleIndex::BITS, 16);
+        assert_eq!(BallotStyleIndexV4p0::BITS, 13);
+        assert!(BallotStyleIndexV4p0::new(4096).is_some());
+        assert!(BallotStyleIndexV4p0::new(4097).is_none());
+    }
+
+    #[test]
+    fn test_encode_v4p0_rejects_ballot_style_index_it_cannot_fit() {
+        let mut election = alameda_test_election();
+        let ballot_style = election.ballot_styles[0].clone();
+        let ballot_style_id = BallotStyleId::from("way-out-there".to_owned());
+        election.ballot_styles = std::iter::repeat_n(ballot_style, 4097).collect();
+        election.ballot_styles.push(BallotStyle {
+            id: ballot_style_id.clone(),
+            ..election.ballot_styles[0].clone()
+        });
+
+        let metadata = Metadata {
+            ballot_hash: [0; 10],
+            precinct_id: PrecinctId::from("precinct-1".to_owned()),
+            ballot_style_id,
+            page_number: PageNumber::new_unchecked(1),
+            is_test_mode: false,
+            ballot_type: BallotType::Precinct,
+            ballot_audit_id: None,
+        };
+
+        // v4.1 has the bits to spare; v4.0 does not
+        assert!(encode_with(&metadata, &(&election, SoftwareVersion::V4p1)).is_ok());
+        assert!(matches!(
+            encode_with(&metadata, &(&election, SoftwareVersion::V4p0)),
+            Err(Error::BallotStyleIndexTooLargeForVersion { .. })
+        ));
     }
 
     #[test]

@@ -14,10 +14,15 @@ codable!(BallotStyleIndex, u32, 0..=65535);
 codable!(PageNumber, u8, 1..=30);
 codable!(BallotAuditIdLength, u8, 1..=255);
 
+// A `BallotStyleIndex` as encoded by v4.0, which allotted it three fewer bits.
+// Only used when encoding v4.0 bubble ballot metadata.
+codable!(BallotStyleIndexV4p0, u32, 0..=4096);
+
 // Statically validate our maximum values fit within the types we're using.
 // TODO: move this into `codable!`
 const_assert!(PrecinctIndex::BITS <= u32::BITS);
 const_assert!(BallotStyleIndex::BITS <= u32::BITS);
+const_assert!(BallotStyleIndexV4p0::BITS <= u32::BITS);
 const_assert!(PageNumber::BITS <= u8::BITS);
 const_assert!(BallotAuditIdLength::BITS <= u8::BITS);
 
