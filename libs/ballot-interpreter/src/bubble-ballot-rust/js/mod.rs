@@ -11,7 +11,9 @@ use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
-use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
+use types_rs::bubble_ballot::{
+    Metadata, PartialBallotHash, SoftwareVersion, PARTIAL_BALLOT_HASH_BYTE_LENGTH,
+};
 use types_rs::coding;
 use types_rs::election::Election;
 
@@ -414,7 +416,7 @@ pub async fn run_blank_paper_diagnostic_from_image(
     ))
 }
 
-/// Decodes raw QR code bytes as a `CastVoteRecord` (VB\x01). Used for
+/// Decodes raw QR code bytes as a `CastVoteRecord` (VS\x01). Used for
 /// cross-language testing to verify the Rust decoder matches the TypeScript
 /// encoder.
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
@@ -452,6 +454,53 @@ pub async fn encode_bmd_ballot_data(
     let record: CastVoteRecord = from_json(record)?;
 
     let bytes = coding::encode_with(&record, &election)
+        .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
+
+    Ok(Buffer::from(bytes))
+}
+
+/// Decodes raw QR code bytes as bubble ballot page metadata (VB\x01). Used for
+/// cross-language testing to verify the Rust decoder matches the TypeScript
+/// encoder.
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "election: Election, data: Buffer, expectedBallotHash: string",
+    ts_return_type = "Promise<BridgeDecodeBubbleBallotMetadataResult>"
+)]
+pub async fn decode_bubble_ballot_metadata(
+    election: serde_json::Value,
+    data: Buffer,
+    expected_ballot_hash: String,
+) -> napi::Result<serde_json::Value> {
+    let election: types_rs::election::Election = from_json(election)?;
+    let expected_ballot_hash = decode_partial_ballot_hash(&expected_ballot_hash)?;
+    let bytes = data.to_vec();
+
+    let metadata = coding::decode_with::<Metadata>(&bytes, &(&election, expected_ballot_hash))
+        .map_err(|e| napi::Error::from_reason(format!("decoding failed: {e}")))?;
+    to_json(&metadata)
+}
+
+/// Encodes bubble ballot page metadata to raw bytes using the Rust bitstream
+/// encoder. Used for cross-language testing to verify the Rust encoder matches
+/// the TypeScript encoder byte for byte.
+// unused_async: napi-rs requires `async fn` to return a Promise in JS.
+#[allow(clippy::unused_async)]
+#[napi(
+    ts_args_type = "election: Election, metadata: BridgeDecodeBubbleBallotMetadataResult, version: 'v4.0' | 'v4.1'",
+    ts_return_type = "Promise<Buffer>"
+)]
+pub async fn encode_bubble_ballot_metadata(
+    election: serde_json::Value,
+    metadata: serde_json::Value,
+    version: String,
+) -> napi::Result<Buffer> {
+    let election: types_rs::election::Election = from_json(election)?;
+    let metadata: Metadata = from_json(metadata)?;
+    let version: SoftwareVersion = from_json(serde_json::Value::String(version))?;
+
+    let bytes = coding::encode_with(&metadata, &(&election, version))
         .map_err(|e| napi::Error::from_reason(format!("encoding failed: {e}")))?;
 
     Ok(Buffer::from(bytes))

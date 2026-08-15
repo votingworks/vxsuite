@@ -2,6 +2,7 @@
 /* eslint-disable */
 import type {
   BridgeDecodeBmdResult,
+  BridgeDecodeBubbleBallotMetadataResult,
   BridgeInterpretResult,
   TimingMarks,
 } from './src/bubble-ballot-ts/types';
