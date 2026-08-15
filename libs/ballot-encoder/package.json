@@ -5,19 +5,27 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
-    "build"
+    "build",
+    "index.js",
+    "index.d.ts",
+    "dts-header.d.ts",
+    "*.node"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:rust-addon": "napi build --platform --release",
+    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
-    "clean:self": "rm -rf build",
+    "clean:self": "cargo clean --release --package ballot-encoder && rm -rf build",
+    "install:rust-addon": "cargo fetch",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
-    "test:run:self": "vitest run",
+    "test:run:self": "pnpm test:rust-addon && vitest run",
+    "test:rust-addon": "cargo test",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -25,11 +33,13 @@
     "@votingworks/types": "workspace:*"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^3.5.1",
     "@types/node": "24.13.3",
     "@types/text-encoding": "^0.0.35",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "sort-package-json": "^1.50.0",
@@ -37,6 +47,14 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "napi": {
+    "binaryName": "ballot-encoder",
+    "dtsHeaderFile": "./dts-header.d.ts",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
   },
   "packageManager": "pnpm@10.34.5"
 }

@@ -2,6 +2,8 @@ coverage
 node_modules
 *.d.ts
 *.d.ts.map
+# Hand-maintained input to `napi build`, not generated output.
+!dts-header.d.ts
 *.js
 !*.config.js
 !*rc.js
