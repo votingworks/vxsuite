@@ -404,14 +404,16 @@ impl Contest {
             .districts
             .iter()
             .any(|district_id| district_id == self.district_id())
-            // and has matching party or no party
-            && match self {
-                Contest::YesNo(_)
-                | Contest::StraightParty(_)
-                | Contest::Candidate(CandidateContest { party_id: None, .. }) => true,
-                Contest::Candidate(CandidateContest { party_id, .. }) => {
-                    party_id == &ballot_style.party_id
+            && match (&ballot_style.party_id, self) {
+                // Party filtering only applies to candidate contests on a ballot
+                // style that has a party of its own, as in a closed primary. A
+                // combined ballot primary uses party-less ballot styles that
+                // carry every party's contests, so filtering there would drop
+                // most of the ballot.
+                (Some(style_party), Contest::Candidate(CandidateContest { party_id, .. })) => {
+                    party_id.is_none() || party_id.as_ref() == Some(style_party)
                 }
+                _ => true,
             }
     }
 }
@@ -602,7 +604,86 @@ pub struct StraightPartyContest {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
+    use std::{fs::File, io::BufReader, path::PathBuf};
+
     use super::*;
+
+    fn read_election(name: &str) -> Election {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../fixtures/data")
+            .join(name)
+            .join("election.json");
+        serde_json::from_reader(BufReader::new(File::open(path).expect("fixture exists")))
+            .expect("fixture parses")
+    }
+
+    /// A combined ballot primary puts every party's contests on one ballot
+    /// style, and that ballot style has no party of its own. Filtering candidate
+    /// contests by party there drops most of the ballot, which misaligns the
+    /// contest bitmap against what the TypeScript encoder writes.
+    #[test]
+    fn test_combined_primary_ballot_style_keeps_every_party_contest() {
+        let election = read_election("electionCombinedBallotPrimary");
+        let ballot_style = election
+            .ballot_styles
+            .first()
+            .expect("election has a ballot style");
+        assert!(
+            ballot_style.party_id.is_none(),
+            "this fixture's ballot styles are party-less; the test is meaningless otherwise"
+        );
+
+        let contests = election.contests_in(ballot_style);
+        let party_specific = contests
+            .iter()
+            .filter(|contest| {
+                matches!(
+                    contest,
+                    Contest::Candidate(CandidateContest {
+                        party_id: Some(_),
+                        ..
+                    })
+                )
+            })
+            .count();
+
+        assert!(
+            party_specific > 0,
+            "party-specific contests must survive on a party-less ballot style"
+        );
+        assert_eq!(
+            contests.len(),
+            election
+                .contests
+                .iter()
+                .filter(|c| ballot_style.districts.contains(c.district_id()))
+                .count(),
+            "a party-less ballot style filters by district only"
+        );
+    }
+
+    /// A closed primary does filter by party, and contests without a party stay
+    /// on every ballot style.
+    #[test]
+    fn test_closed_primary_ballot_style_filters_by_party() {
+        let election = read_election("electionTwoPartyPrimary");
+        let ballot_style = election
+            .ballot_styles
+            .iter()
+            .find(|bs| bs.party_id.is_some())
+            .expect("fixture has a party-specific ballot style");
+        let style_party = ballot_style.party_id.as_ref().expect("checked above");
+
+        for contest in election.contests_in(ballot_style) {
+            if let Contest::Candidate(CandidateContest { party_id, .. }) = &contest {
+                assert!(
+                    party_id.is_none() || party_id.as_ref() == Some(style_party),
+                    "contest {} from another party is on this ballot style",
+                    contest.id()
+                );
+            }
+        }
+    }
 
     #[test]
     fn test_grid_location() {
