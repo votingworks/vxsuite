@@ -51,6 +51,12 @@ export default defineConfig(async (env) => {
           find: /^node:os$/,
           replacement: join(__dirname, './src/preview/stubs/os.ts'),
         },
+        // The ballot encoder loads a native addon, which a browser cannot do.
+        // Must come before the workspace package aliases below so it wins.
+        {
+          find: /^@votingworks\/ballot-encoder$/,
+          replacement: join(__dirname, './src/preview/stubs/ballot_encoder.ts'),
+        },
         { find: /^path\/?$/, replacement: require.resolve('path/') },
         { find: /^node:path\/?$/, replacement: require.resolve('path/') },
         { find: /^util\/?$/, replacement: require.resolve('util/') },

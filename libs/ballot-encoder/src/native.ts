@@ -23,17 +23,16 @@ import {
   RustContestVote,
 } from './rust_types';
 import {
-  BALLOT_HASH_ENCODING_LENGTH,
   DecodedSummaryBallotPage,
   SummaryBallotPage,
   sliceBallotHashForEncoding,
-} from '.';
+} from './base';
 
 /**
- * The same encoders and decoders as the rest of this package, backed by the
- * Rust implementation in `libs/types-rs` rather than the TypeScript one. Kept
- * separate for now so the two can be compared; see
- * `specs/0007-consolidate-ballot-encoding-in-rust.md`.
+ * The ballot QR code encoders and decoders, implemented in `libs/types-rs` and
+ * reached through the napi-rs addon in this package. Shapes are adapted here:
+ * `VotesDict` against the tagged per-contest-type form Rust serializes, and the
+ * partial ballot hash against hex.
  */
 
 function toRustVote(
@@ -216,9 +215,3 @@ export function decodeBallotHash(data: Uint8Array): string | undefined {
 export function isVxBallot(data: Uint8Array): boolean {
   return napi.isVxBallot(Buffer.from(data));
 }
-
-/** Re-exported so callers need not reach into the TypeScript implementation. */
-export const ballotHashEncodingLength = BALLOT_HASH_ENCODING_LENGTH;
-
-/** Re-exported so callers need not reach into the TypeScript implementation. */
-export const sliceHashForEncoding = sliceBallotHashForEncoding;

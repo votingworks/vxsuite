@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import fc from 'fast-check';
 import { Buffer } from 'node:buffer';
 import {
   BallotType,
-  Candidate,
   Contest,
-  HmpbBallotPageMetadata,
   ElectionDefinition,
+  HmpbBallotPageMetadata,
+  SoftwareVersion,
   VotesDict,
   getContests,
 } from '@votingworks/types';
@@ -17,9 +16,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { arbitraryBallotId } from '@votingworks/test-utils';
 import {
-  SummaryBallotPage,
   decodeBallotHash,
   decodeSummaryBallotPage,
   encodeHmpbBallotPageMetadata,
@@ -27,49 +24,27 @@ import {
   isVxBallot,
   sliceBallotHashForEncoding,
 } from '.';
-import * as native from './native';
+import goldenPayloads from '../test/golden_payloads.json';
 
 /**
- * The Rust implementation is only allowed to replace the TypeScript one if it
- * produces the same bytes and reads them back the same way. These compare the
- * two directly rather than either against a fixture, so a divergence shows up
- * here rather than as a ballot that prints but won't scan.
- *
- * Real fixture elections rather than `arbitraryElectionDefinition`: that
- * generator picks ballot style districts independently of contest districts, so
- * `getContests` comes back empty and every contest-dependent property silently
- * skips its body.
+ * These byte vectors were produced by the TypeScript implementation that used
+ * to live in this package, captured immediately before it was deleted. They are
+ * the wire format: every ballot in the field was printed by the code that
+ * produced them, so a change here is a change to what scanners must read, not a
+ * test that needs updating.
  */
 
-const ELECTIONS: Array<[string, ElectionDefinition]> = [
-  ['general', readElectionGeneralDefinition()],
-  ['famous names', electionFamousNames2021Fixtures.readElectionDefinition()],
-  [
-    'two-party primary',
-    electionTwoPartyPrimaryFixtures.readElectionDefinition(),
-  ],
-  ['straight party', electionStraightPartyFixtures.readElectionDefinition()],
-  [
-    'combined ballot primary',
+const ELECTIONS: Record<string, ElectionDefinition> = {
+  general: readElectionGeneralDefinition(),
+  famousNames: electionFamousNames2021Fixtures.readElectionDefinition(),
+  twoPartyPrimary: electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+  straightParty: electionStraightPartyFixtures.readElectionDefinition(),
+  combinedBallotPrimary:
     electionCombinedBallotPrimaryFixtures.readElectionDefinition(),
-  ],
-];
-
-const WRITE_IN_CANDIDATE: Candidate = {
-  id: 'write-in-0',
-  name: 'MARY SMITH',
-  isWriteIn: true,
 };
 
-const BALLOT_TYPES = [
-  BallotType.Precinct,
-  BallotType.Absentee,
-  BallotType.Provisional,
-] as const;
-
 /**
- * Fills in votes for a page's contests, leaving every fourth one blank so
- * undervotes are covered too.
+ * Mirrors the vote generation used when the golden vectors were captured.
  */
 function votesFor(
   contests: readonly Contest[],
@@ -91,7 +66,7 @@ function votesFor(
           includeWriteIns && contest.allowWriteIns
             ? [
                 ...named.slice(0, Math.max(0, contest.seats - 1)),
-                WRITE_IN_CANDIDATE,
+                { id: 'write-in-0', name: 'MARY SMITH', isWriteIn: true },
               ]
             : named;
         break;
@@ -103,147 +78,128 @@ function votesFor(
   return votes;
 }
 
-describe.each(ELECTIONS)('%s', (_name, electionDefinition) => {
+test('bubble ballot metadata matches the recorded wire format', () => {
+  expect(goldenPayloads.hmpb.length).toBeGreaterThan(0);
+
+  for (const vector of goldenPayloads.hmpb) {
+    const electionDefinition = ELECTIONS[vector.election]!;
+    const { election } = electionDefinition;
+    const ballotStyle = election.ballotStyles[vector.styleIndex]!;
+    const metadata: HmpbBallotPageMetadata = {
+      ballotHash: electionDefinition.ballotHash,
+      ballotStyleId: ballotStyle.id,
+      precinctId: ballotStyle.precincts[0]!,
+      isTestMode: vector.isTestMode,
+      ballotType: vector.ballotType as BallotType,
+      pageNumber: 1,
+      ballotAuditId: vector.ballotAuditId ?? undefined,
+    };
+
+    expect(
+      Buffer.from(
+        encodeHmpbBallotPageMetadata(
+          election,
+          metadata,
+          vector.version as SoftwareVersion
+        )
+      ).toString('hex'),
+      `${vector.election} style ${vector.styleIndex} ${vector.version}`
+    ).toEqual(vector.bytes);
+  }
+});
+
+test('summary ballot matches the recorded wire format', () => {
+  expect(goldenPayloads.summary.length).toBeGreaterThan(0);
+
+  for (const vector of goldenPayloads.summary) {
+    const electionDefinition = ELECTIONS[vector.election]!;
+    const { election } = electionDefinition;
+    const ballotStyle = election.ballotStyles[vector.styleIndex]!;
+    const contests = getContests({ ballotStyle, election });
+
+    expect(
+      Buffer.from(
+        encodeSummaryBallotPage(election, {
+          ballotHash: electionDefinition.ballotHash,
+          ballotStyleId: ballotStyle.id,
+          precinctId: ballotStyle.precincts[0]!,
+          isTestMode: vector.isTestMode,
+          ballotType: BallotType.Precinct,
+          pageNumber: 1,
+          totalPages: 1,
+          ballotAuditId: 'audit-42',
+          contests,
+          votes: votesFor(contests, vector.includeWriteIns),
+        })
+      ).toString('hex'),
+      `${vector.election} style ${vector.styleIndex}`
+    ).toEqual(vector.bytes);
+  }
+});
+
+describe.each(Object.entries(ELECTIONS))('%s', (_name, electionDefinition) => {
   const { election } = electionDefinition;
-  const { ballotStyles } = election;
 
-  test('bubble ballot metadata encodes identically', () => {
-    fc.assert(
-      fc.property(
-        fc.nat({ max: ballotStyles.length - 1 }),
-        fc.boolean(),
-        fc.constantFrom(...BALLOT_TYPES),
-        fc.integer({ min: 1, max: 30 }),
-        fc.option(arbitraryBallotId(), { nil: undefined }),
-        fc.constantFrom('v4.0' as const, 'v4.1' as const),
-        (
-          styleIndex,
-          isTestMode,
-          ballotType,
-          pageNumber,
-          ballotAuditId,
-          version
-        ) => {
-          const ballotStyle = ballotStyles[styleIndex]!;
-          const metadata: HmpbBallotPageMetadata = {
-            ballotHash: electionDefinition.ballotHash,
-            ballotStyleId: ballotStyle.id,
-            precinctId: ballotStyle.precincts[0]!,
-            isTestMode,
-            ballotType,
-            pageNumber,
-            ballotAuditId,
-          };
+  test('summary ballots round-trip', () => {
+    for (const ballotStyle of election.ballotStyles) {
+      const contests = getContests({ ballotStyle, election });
+      expect(contests.length).toBeGreaterThan(0);
+      const votes = votesFor(contests, true);
 
-          expect(
-            Buffer.from(
-              native.encodeHmpbBallotPageMetadata(election, metadata, version)
-            ).toString('hex')
-          ).toEqual(
-            Buffer.from(
-              encodeHmpbBallotPageMetadata(election, metadata, version)
-            ).toString('hex')
-          );
-        }
-      )
-    );
-  });
+      const encoded = encodeSummaryBallotPage(election, {
+        ballotHash: electionDefinition.ballotHash,
+        ballotStyleId: ballotStyle.id,
+        precinctId: ballotStyle.precincts[0]!,
+        isTestMode: false,
+        ballotType: BallotType.Precinct,
+        pageNumber: 1,
+        totalPages: 1,
+        ballotAuditId: 'audit-42',
+        contests,
+        votes,
+      });
 
-  test('summary ballot encodes identically', () => {
-    fc.assert(
-      fc.property(
-        fc.nat({ max: ballotStyles.length - 1 }),
-        fc.boolean(),
-        fc.constantFrom(...BALLOT_TYPES),
-        arbitraryBallotId(),
-        fc.boolean(),
-        (
-          styleIndex,
-          isTestMode,
-          ballotType,
-          ballotAuditId,
-          includeWriteIns
-        ) => {
-          const ballotStyle = ballotStyles[styleIndex]!;
-          const contests = getContests({ ballotStyle, election });
-          expect(contests.length).toBeGreaterThan(0);
+      const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+      expect(decoded.metadata.ballotStyleId).toEqual(ballotStyle.id);
+      expect(decoded.metadata.contestIds).toEqual(contests.map((c) => c.id));
 
-          const page: SummaryBallotPage = {
-            ballotHash: electionDefinition.ballotHash,
-            ballotStyleId: ballotStyle.id,
-            precinctId: ballotStyle.precincts[0]!,
-            isTestMode,
-            ballotType,
-            pageNumber: 1,
-            totalPages: 1,
-            ballotAuditId,
-            contests,
-            votes: votesFor(contests, includeWriteIns),
-          };
-
-          expect(
-            Buffer.from(
-              native.encodeSummaryBallotPage(election, page)
-            ).toString('hex')
-          ).toEqual(
-            Buffer.from(encodeSummaryBallotPage(election, page)).toString('hex')
-          );
-        }
-      )
-    );
-  });
-
-  test('summary ballot decodes identically', () => {
-    fc.assert(
-      fc.property(
-        fc.nat({ max: ballotStyles.length - 1 }),
-        fc.boolean(),
-        arbitraryBallotId(),
-        fc.boolean(),
-        (styleIndex, isTestMode, ballotAuditId, includeWriteIns) => {
-          const ballotStyle = ballotStyles[styleIndex]!;
-          const contests = getContests({ ballotStyle, election });
-          expect(contests.length).toBeGreaterThan(0);
-
-          const encoded = encodeSummaryBallotPage(election, {
-            ballotHash: electionDefinition.ballotHash,
-            ballotStyleId: ballotStyle.id,
-            precinctId: ballotStyle.precincts[0]!,
-            isTestMode,
-            ballotType: BallotType.Precinct,
-            pageNumber: 1,
-            totalPages: 1,
-            ballotAuditId,
-            contests,
-            votes: votesFor(contests, includeWriteIns),
-          });
-
-          expect(
-            native.decodeSummaryBallotPage(electionDefinition, encoded)
-          ).toEqual(decodeSummaryBallotPage(electionDefinition, encoded));
-        }
-      )
-    );
+      // Decoding reports every contest on the page, using an empty array for
+      // the ones with no selections, so undervotes are distinguishable from
+      // contests that are not on this page at all. Write-in IDs are rebuilt
+      // from the name, since only the name is on the wire.
+      const expected: VotesDict = {};
+      for (const contest of contests) {
+        const vote = votes[contest.id] ?? [];
+        expected[contest.id] = vote.every((s) => typeof s === 'string')
+          ? vote
+          : vote.map((candidate) =>
+              candidate.isWriteIn
+                ? { ...candidate, id: `write-in-${candidate.name}` }
+                : candidate
+            );
+      }
+      expect(decoded.votes).toEqual(expected);
+    }
   });
 });
 
-test('decodeBallotHash and isVxBallot agree with TypeScript', () => {
-  const summary = Uint8Array.from([
-    0x56, 0x53, 0x01, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c,
-    0x5f, 0x00,
-  ]);
-  const bubble = Uint8Array.from([
-    0x56, 0x42, 0x01, 0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c,
-    0x5f, 0x00,
-  ]);
+test('decodeBallotHash reads either payload kind, isVxBallot only summary', () => {
+  const hashBytes = [
+    0x2b, 0xad, 0x6b, 0xe9, 0x35, 0xdd, 0x46, 0xb1, 0x0c, 0x5f,
+  ];
+  const summary = Uint8Array.from([0x56, 0x53, 0x01, ...hashBytes, 0x00]);
+  const bubble = Uint8Array.from([0x56, 0x42, 0x01, ...hashBytes, 0x00]);
   const garbage = Uint8Array.from([0x00, 0x01, 0x02, 0x03]);
 
-  for (const data of [summary, bubble, garbage]) {
-    expect(native.decodeBallotHash(data)).toEqual(decodeBallotHash(data));
-    expect(native.isVxBallot(data)).toEqual(isVxBallot(data));
-  }
-
-  expect(native.decodeBallotHash(summary)).toEqual(
+  expect(decodeBallotHash(summary)).toEqual(
     sliceBallotHashForEncoding('2bad6be935dd46b10c5f')
   );
+  expect(decodeBallotHash(bubble)).toEqual(
+    sliceBallotHashForEncoding('2bad6be935dd46b10c5f')
+  );
+  expect(decodeBallotHash(garbage)).toBeUndefined();
+
+  expect(isVxBallot(summary)).toEqual(true);
+  expect(isVxBallot(bubble)).toEqual(false);
+  expect(isVxBallot(garbage)).toEqual(false);
 });
