@@ -2724,9 +2724,9 @@ checksum = "7a5a4b21e1a62b67a2970e6831bc091d7b87e119e7f9791aef9702e3bef04448"
 
 [[package]]
 name = "zedbar"
-version = "0.4.2"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc62824a05454c6c7c52c522a2b3d0f69a7899e5b67cd81aa03695de73731972"
+checksum = "bf6766cca4c0ca75ba3785c24f2688113030a48d5240f9deb3bbe6fc40228167"
 dependencies = [
  "encoding_rs",
  "rand 0.10.1",
