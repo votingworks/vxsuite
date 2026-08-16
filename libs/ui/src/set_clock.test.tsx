@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
-import { arbitraryDateTime } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+import { arbitraryDateTime } from '../test/helpers';
 import {
   act,
   cleanup,

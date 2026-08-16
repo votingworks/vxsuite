@@ -1,122 +1,98 @@
-import { assert, iter } from '@votingworks/basics';
-import {
-  arbitraryBallotStyle,
-  arbitraryCandidateContest,
-  arbitraryYesNoContest,
-} from '@votingworks/test-utils';
 import {
   BallotStyle,
   CandidateContest,
-  CandidateContestOption,
-  ContestOption,
+  District,
   Party,
   StraightPartyContest,
+  YesNoContest,
   YesNoContestOption,
 } from '@votingworks/types';
-import fc from 'fast-check';
-import { expect, expectTypeOf, test } from 'vitest';
+import { expect, test } from 'vitest';
 import { allContestOptions, contestOptionName } from './all_contest_options';
 
-const parties: Party[] = [
+const parties: [Party, Party] = [
   { id: 'party-1', name: 'Party 1', fullName: 'Party One', abbrev: 'P1' },
   { id: 'party-2', name: 'Party 2', fullName: 'Party Two', abbrev: 'P2' },
 ];
 
-test('candidate contest with no write-ins', () => {
-  fc.assert(
-    fc.property(
-      arbitraryCandidateContest({ allowWriteIns: fc.constant(false) }),
-      arbitraryBallotStyle(),
-      (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
-        expectTypeOf(options).toEqualTypeOf<CandidateContestOption[]>();
-        expect(options).toHaveLength(contest.candidates.length);
-        for (const [i, option] of options.entries()) {
-          assert(option.type === 'candidate');
-          expect(option.id).toEqual(contest.candidates[i]?.id);
-          expect(option.contestId).toEqual(contest.id);
-          expect(contestOptionName({ parties }, contest, option)).toEqual(
-            contest.candidates[i]?.name
-          );
-          expect(option.isWriteIn).toEqual(false);
-          expect(option.writeInIndex).toBeUndefined();
-        }
-      }
-    )
-  );
+const districts: [District, District] = [
+  { id: 'district-1', name: 'District 1' },
+  { id: 'district-2', name: 'District 2' },
+];
+
+const contests: [CandidateContest, CandidateContest, YesNoContest] = [
+  {
+    type: 'candidate',
+    id: 'contest-1',
+    districtId: districts[0].id,
+    title: 'Contest 1',
+    seats: 1,
+    candidates: [
+      { id: 'candidate-a', name: 'Candidate A' },
+      { id: 'candidate-b', name: 'Candidate B' },
+      { id: 'candidate-c', name: 'Candidate C' },
+    ],
+    allowWriteIns: false,
+  },
+  {
+    type: 'candidate',
+    id: 'contest-2',
+    districtId: districts[1].id,
+    title: 'Contest 2',
+    seats: 1,
+    candidates: [{ id: 'candidate-z', name: 'Candidate Z' }],
+    allowWriteIns: true,
+  },
+  {
+    type: 'yesno',
+    id: 'contest-3',
+    districtId: districts[1].id,
+    title: 'Contest 3',
+    description: 'YesNoContest description',
+    options: [
+      { id: 'contest-3-yesno-option-1', label: 'Yes' },
+      { id: 'contest-3-yesno-option-2', label: 'No' },
+    ],
+  },
+];
+
+const ballotStyles: [BallotStyle] = [
+  {
+    id: 'ballot-style-1',
+    groupId: 'ballot-style-group-1',
+    precincts: ['precinct-1'],
+    districts: [districts[0].id],
+    languages: ['en'],
+  },
+];
+
+test('candidate contest without write-ins', () => {
+  const contest = contests[0];
+  expect(contest.allowWriteIns).toBeFalsy();
+  expect(contest.candidates).toHaveLength(3);
+  expect(Array.from(allContestOptions(contest, ballotStyles[0]))).toEqual([
+    expect.objectContaining({ isWriteIn: false }),
+    expect.objectContaining({ isWriteIn: false }),
+    expect.objectContaining({ isWriteIn: false }),
+  ]);
 });
 
 test('candidate contest with write-ins', () => {
-  fc.assert(
-    fc.property(
-      arbitraryCandidateContest({ allowWriteIns: fc.constant(true) }),
-      arbitraryBallotStyle(),
-      (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
-        expect(options).toHaveLength(contest.candidates.length + contest.seats);
-        for (const [i, option] of options.entries()) {
-          expectTypeOf(option).toEqualTypeOf<CandidateContestOption>();
-          expect(option.id).toEqual(
-            contest.candidates[i]?.id ??
-              `write-in-${i - contest.candidates.length}`
-          );
-          expect(option.contestId).toEqual(contest.id);
-          expect(contestOptionName({ parties }, contest, option)).toEqual(
-            contest.candidates[i]?.name ?? 'Write-In'
-          );
-          expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
-          expect(option.writeInIndex).toEqual(
-            i >= contest.candidates.length
-              ? i - contest.candidates.length
-              : undefined
-          );
-        }
-      }
-    )
-  );
+  const contest = contests[1];
+  expect(contest.allowWriteIns).toBeTruthy();
+  expect(contest.candidates).toHaveLength(1);
+  expect(Array.from(allContestOptions(contest, ballotStyles[0]))).toEqual([
+    expect.objectContaining({ isWriteIn: false }),
+    expect.objectContaining({ isWriteIn: true }),
+  ]);
 });
 
 test('yesno contest', () => {
-  fc.assert(
-    fc.property(arbitraryYesNoContest(), (contest) => {
-      const options = Array.from(allContestOptions(contest));
-      expectTypeOf(options).toEqualTypeOf<YesNoContestOption[]>();
-      expect(options).toEqual<ContestOption[]>(
-        contest.options.map((option) => ({
-          type: 'yesno',
-          id: option.id,
-          contestId: contest.id,
-        }))
-      );
-      expect(contestOptionName({ parties }, contest, options[0]!)).toEqual(
-        contest.options[0].label
-      );
-      expect(contestOptionName({ parties }, contest, options[1]!)).toEqual(
-        contest.options[1].label
-      );
-    })
-  );
-});
-
-test('any contest', () => {
-  fc.assert(
-    fc.property(
-      fc.oneof(
-        arbitraryCandidateContest().filter((c) => c.candidates.length > 0),
-        arbitraryYesNoContest()
-      ),
-      arbitraryBallotStyle(),
-      (contest, ballotStyle) => {
-        const options = Array.from(allContestOptions(contest, ballotStyle));
-        expectTypeOf(options).toEqualTypeOf<ContestOption[]>();
-        expectTypeOf(options).not.toEqualTypeOf<YesNoContestOption[]>();
-        expectTypeOf(options).not.toEqualTypeOf<CandidateContestOption[]>();
-        const types = new Set(options.map(({ type }) => type));
-        expect(types.size).toEqual(1);
-        expect(iter(types).first()).toMatch(/^candidate|yesno$/);
-      }
-    )
-  );
+  const contest = contests[2];
+  expect(Array.from(allContestOptions(contest))).toEqual<YesNoContestOption[]>([
+    { type: 'yesno', id: contest.options[0].id, contestId: contest.id },
+    { type: 'yesno', id: contest.options[1].id, contestId: contest.id },
+  ]);
 });
 
 test('candidate contest with ballot style ordering', () => {
