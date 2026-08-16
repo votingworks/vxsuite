@@ -444,13 +444,13 @@
       "hmpbContinueVotingOnBack": "将选票翻过来，继续投票",
       "hmpbContinueVotingOnNextSheet": "在下一张选票上继续投票",
       "hmpbInstructions": "说明",
-      "hmpbInstructionsToVoteText": "要投票，请完整填写您所选项目旁边的椭圆形框。",
+      "hmpbInstructionsToVoteText": "要投票，请完全填满您所选项目旁边的椭圆形。",
       "hmpbInstructionsToVoteTitle": "投票：",
-      "hmpbInstructionsWriteInText": "如果要为未出现在选票上的人进行投票，请在“写入候选人“行中写下此人的姓名，并完整填写该行旁边的椭圆形区域。",
-      "hmpbInstructionsWriteInTitle": "投票选举候选人：",
+      "hmpbInstructionsWriteInText": "如果要为未出现在选票上的人投票，请在“自填候选人”行中写下此人的姓名，并完全填满该行旁边的椭圆形。",
+      "hmpbInstructionsWriteInTitle": "填选自填候选人：",
       "hmpbOfficialAbsenteeBallot": "正式缺席选票",
       "hmpbOfficialBallot": "正式选票",
-      "hmpbOfficialProvisionalBallot": "普通临时选票",
+      "hmpbOfficialProvisionalBallot": "正式临时选票",
       "hmpbPage": "页码",
       "hmpbPageIntentionallyBlank": "本页为有意留空",
       "hmpbSampleAbsenteeBallot": "缺席选票样本",
@@ -471,7 +471,7 @@
       "hmpbVoteFor9": "最多投9票",
       "hmpbVoteForNotMoreThan1": "最多只能选1人",
       "hmpbVotingComplete": "您已完成投票。",
-      "hmpbWriteIn": "写入候选人"
+      "hmpbWriteIn": "自填候选人"
     },
     "zh-Hant": {
       "contestDescription": {
@@ -547,13 +547,13 @@
       "hmpbContinueVotingOnBack": "將選票翻過來，繼續投票",
       "hmpbContinueVotingOnNextSheet": "在下一張選票上繼續投票",
       "hmpbInstructions": "說明",
-      "hmpbInstructionsToVoteText": "要投票，請完整填寫您所選項目旁邊的橢圓形框。",
+      "hmpbInstructionsToVoteText": "要投票，請完全填滿您所選項目旁邊的橢圓形。",
       "hmpbInstructionsToVoteTitle": "投票：",
-      "hmpbInstructionsWriteInText": "如果要為未出現在選票上的人進行投票，請在「寫入候選人「行中寫下此人的姓名，並完整填寫該行旁邊的橢圓形區域。",
-      "hmpbInstructionsWriteInTitle": "投票選舉候選人：",
+      "hmpbInstructionsWriteInText": "如果要為未出現在選票上的人投票，請在「自填候選人」行中寫下此人的姓名，並完全填滿該行旁邊的橢圓形。",
+      "hmpbInstructionsWriteInTitle": "填選自填候選人：",
       "hmpbOfficialAbsenteeBallot": "正式缺席選票",
       "hmpbOfficialBallot": "正式選票",
-      "hmpbOfficialProvisionalBallot": "普通臨時選票",
+      "hmpbOfficialProvisionalBallot": "正式臨時選票",
       "hmpbPage": "頁碼",
       "hmpbPageIntentionallyBlank": "本頁為有意留空",
       "hmpbSampleAbsenteeBallot": "缺席選票樣本",
@@ -574,7 +574,7 @@
       "hmpbVoteFor9": "最多投9票",
       "hmpbVoteForNotMoreThan1": "最多只能選1人",
       "hmpbVotingComplete": "您已完成投票。",
-      "hmpbWriteIn": "寫入候選人"
+      "hmpbWriteIn": "自填候選人"
     },
     "es-US": {
       "contestDescription": {
@@ -647,12 +647,12 @@
       "hmpb7WillBeElected": "Se elegirán siete",
       "hmpb8WillBeElected": "Ocho serán elegidos",
       "hmpb9WillBeElected": "Nueve serán elegidos",
-      "hmpbContinueVotingOnBack": "Voltea la boleta y continúa votando",
-      "hmpbContinueVotingOnNextSheet": "Continúa votando en la siguiente hoja de la boleta",
+      "hmpbContinueVotingOnBack": "Voltee la boleta y continúe votando",
+      "hmpbContinueVotingOnNextSheet": "Continúe votando en la siguiente hoja de la boleta",
       "hmpbInstructions": "Instrucciones",
-      "hmpbInstructionsToVoteText": "Para votar, llena completamente el óvalo junto a tu elección.",
+      "hmpbInstructionsToVoteText": "Para votar, llene completamente el óvalo junto a su elección.",
       "hmpbInstructionsToVoteTitle": "Para votar:",
-      "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escribe el nombre de la persona en la línea \"Candidato por Escrito\" y llena completamente el óvalo junto a la línea.",
+      "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escriba el nombre de la persona en la línea \"Candidato por Escrito\" y llene completamente el óvalo junto a la línea.",
       "hmpbInstructionsWriteInTitle": "Para votar por un candidato por escrito:",
       "hmpbOfficialAbsenteeBallot": "Boleta oficial de voto ausente",
       "hmpbOfficialBallot": "Boleta oficial",
@@ -676,7 +676,7 @@
       "hmpbVoteFor8": "Vota por hasta 8",
       "hmpbVoteFor9": "Vota por hasta 9",
       "hmpbVoteForNotMoreThan1": "Vote por no más de 1",
-      "hmpbVotingComplete": "Has completado la votación.",
+      "hmpbVotingComplete": "Ha completado la votación.",
       "hmpbWriteIn": "Candidato por escrito"
     }
   },
