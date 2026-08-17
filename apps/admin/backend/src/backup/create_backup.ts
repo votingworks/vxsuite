@@ -10,6 +10,7 @@ import {
   assertDefined,
   err,
   extractErrorMessage,
+  iter,
   ok,
   Result,
   throwIllegalValue,
@@ -465,10 +466,7 @@ export async function createBackup({
       })
     );
     ({ size: databaseSize } = await stat(store.getDbPath()));
-    workspaceFilesBytes = workspaceFileSizes.reduce(
-      (sum, size) => sum + size,
-      0
-    );
+    workspaceFilesBytes = iter(workspaceFileSizes).sum();
   } catch (error) {
     return fail({
       type: 'workspace_unreadable',

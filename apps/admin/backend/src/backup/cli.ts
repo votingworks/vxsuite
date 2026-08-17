@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import yargs from 'yargs';
-import { assertDefined, extractErrorMessage } from '@votingworks/basics';
+import { assertDefined, extractErrorMessage, iter } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { format } from '@votingworks/utils';
 import { DEV_WORKSPACE } from '../globals.js';
@@ -132,7 +132,7 @@ async function create(
   }
 
   const { backupDirectoryPath, manifest } = result.ok();
-  const totalBytes = manifest.files.reduce((sum, file) => sum + file.size, 0);
+  const totalBytes = iter(manifest.files).sum(({ size }) => size);
   stdout.write(
     `Backed up ${manifest.files.length} files (${format.bytes(
       totalBytes

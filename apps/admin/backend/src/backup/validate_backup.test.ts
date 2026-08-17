@@ -4,7 +4,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err, iter } from '@votingworks/basics';
 import {
   backupFilePath,
   BackupManifest,
@@ -45,7 +45,7 @@ beforeEach(() => {
 
 test('validation reports progress as it verifies each file', async () => {
   const { backupDirectoryPath, manifest } = await createValidBackup();
-  const bytesTotal = manifest.files.reduce((sum, file) => sum + file.size, 0);
+  const bytesTotal = iter(manifest.files).sum(({ size }) => size);
   const updates: BackupValidationProgress[] = [];
 
   const result = await validateBackup({

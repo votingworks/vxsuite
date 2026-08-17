@@ -14,7 +14,7 @@ import {
 import { join } from 'node:path';
 import { SIGNATURE_FILE_EXTENSION } from '@votingworks/auth';
 import { syncFilesystem } from '@votingworks/usb-drive';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
@@ -221,7 +221,7 @@ test('the copy reaches the end of its progress bar', async () => {
     assertDefined(lastCopying).bytesTotal
   );
   expect(assertDefined(lastCopying).bytesTotal).toEqual(
-    manifest.files.reduce((sum, file) => sum + file.size, 0)
+    iter(manifest.files).sum(({ size }) => size)
   );
 });
 

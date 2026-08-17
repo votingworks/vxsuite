@@ -9,6 +9,7 @@ import {
   Result,
   err,
   extractErrorMessage,
+  iter,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -187,7 +188,7 @@ export async function validateBackup({
     });
   }
 
-  const bytesTotal = manifest.files.reduce((sum, file) => sum + file.size, 0);
+  const bytesTotal = iter(manifest.files).sum(({ size }) => size);
   let bytesCompleted = 0;
   onProgress?.({ bytesCompleted, bytesTotal });
 
