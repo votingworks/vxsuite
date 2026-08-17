@@ -8,6 +8,8 @@ use std::{
 
 use nusb::transfer::{Completion, RequestBuffer, TransferError};
 
+#[cfg(feature = "recording")]
+use crate::recording;
 use crate::{protocol::parsers, Error, Result, UsbError};
 
 use super::protocol::packets::{self, Incoming};
@@ -267,11 +269,23 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                 completion = in_image_data_queue.next_complete() => {
                     if let Err(err) = completion.status {
                         tracing::error!("Error while polling image data endpoint: {err:?}");
-                        scanner_to_host_tx.send(Err(err.into())).unwrap();
+                        let err: crate::Error = err.into();
+                        #[cfg(feature = "recording")]
+                        if recording::is_enabled() {
+                            recording::record(&recording::Entry::scanner_to_host_error(&err));
+                        }
+                        scanner_to_host_tx.send(Err(err)).unwrap();
                         break;
                     }
                     let data = completion.data;
                     tracing::debug!("Received image data: {len} bytes", len = data.len());
+                    #[cfg(feature = "recording")]
+                    if recording::is_enabled() {
+                        recording::record(&recording::Entry::scanner_to_host(
+                            recording::Endpoint::ImageData,
+                            &data,
+                        ));
+                    }
                     scanner_to_host_tx
                         .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.clone()))))
                         .unwrap();
@@ -283,7 +297,12 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                 completion = in_primary_queue.next_complete() => {
                     if let Err(err) = completion.status {
                         tracing::error!("Error while polling primary IN endpoint: {err:?}");
-                        scanner_to_host_tx.send(Err(err.into())).unwrap();
+                        let err: crate::Error = err.into();
+                        #[cfg(feature = "recording")]
+                        if recording::is_enabled() {
+                            recording::record(&recording::Entry::scanner_to_host_error(&err));
+                        }
+                        scanner_to_host_tx.send(Err(err)).unwrap();
                         break;
                     }
                     let data = completion.data;
@@ -291,6 +310,13 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         "Received data on primary endpoint: {len} bytes",
                         len = data.len()
                     );
+                    #[cfg(feature = "recording")]
+                    if recording::is_enabled() {
+                        recording::record(&recording::Entry::scanner_to_host(
+                            recording::Endpoint::Primary,
+                            &data,
+                        ));
+                    }
                     match parsers::any_incoming(&data) {
                         Ok(([], packet)) => {
                             tracing::debug!("Received incoming packet: {packet:?}");
@@ -327,6 +353,8 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         "sending packet: {packet:?} (data: {data:?})",
                         data = String::from_utf8_lossy(&bytes)
                     );
+                    #[cfg(feature = "recording")]
+                    let bytes_for_recording = recording::is_enabled().then(|| bytes.clone());
 
                     match tokio::time::timeout(
                         default_timeout,
@@ -335,11 +363,23 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                     .await
                     {
                         Ok(Ok(())) => {
+                            // Record only successful writes: a failed write
+                            // never reaches the scanner, and the task shuts
+                            // down without acking it.
+                            #[cfg(feature = "recording")]
+                            if let Some(bytes) = bytes_for_recording {
+                                recording::record(&recording::Entry::host_to_scanner(&bytes));
+                            }
                             host_to_scanner_ack_tx.send(id).unwrap();
                         }
                         Ok(Err(err)) => {
                             tracing::error!("Error sending outgoing packet: {err:?}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            let err: crate::Error = err.into();
+                            #[cfg(feature = "recording")]
+                            if recording::is_enabled() {
+                                recording::record(&recording::Entry::scanner_to_host_error(&err));
+                            }
+                            scanner_to_host_tx.send(Err(err)).unwrap();
                             break;
                         }
                         Err(_) => {
@@ -348,12 +388,22 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                                 std::io::ErrorKind::TimedOut,
                                 "timed out sending outgoing packet",
                             );
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            let err: crate::Error = err.into();
+                            #[cfg(feature = "recording")]
+                            if recording::is_enabled() {
+                                recording::record(&recording::Entry::scanner_to_host_error(&err));
+                            }
+                            scanner_to_host_tx.send(Err(err)).unwrap();
                             break;
                         }
                     }
                 }
             }
+        }
+
+        #[cfg(feature = "recording")]
+        if recording::is_enabled() {
+            recording::record(&recording::Entry::ScannerTaskEnded);
         }
     });
 

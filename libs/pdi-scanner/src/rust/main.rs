@@ -26,6 +26,9 @@ use pdi_scanner::{
     Error, UsbError,
 };
 
+#[cfg(feature = "recording")]
+use pdi_scanner::recording;
+
 #[derive(Debug, Parser)]
 struct Config {
     #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
@@ -242,6 +245,14 @@ struct Output<W: Write> {
 impl<W: Write> Output<W> {
     fn write_frame(&mut self, frame_type: u8, payload_parts: &[&[u8]]) -> color_eyre::Result<()> {
         let payload_length: usize = payload_parts.iter().map(|part| part.len()).sum();
+        #[cfg(feature = "recording")]
+        if recording::is_enabled() {
+            let mut payload = Vec::with_capacity(payload_length);
+            for part in payload_parts {
+                payload.extend_from_slice(part);
+            }
+            recording::record(&recording::Entry::stdout_frame(frame_type, &payload));
+        }
         let mut header = [0u8; FRAME_HEADER_LENGTH];
         header[0] = frame_type;
         header[FRAME_TYPE_LENGTH..].copy_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
@@ -354,6 +365,10 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         bail!("failed to read line from stdin: {e}");
                     }
                 };
+                #[cfg(feature = "recording")]
+                if recording::is_enabled() {
+                    recording::record(&recording::Entry::StdinCommand { line: line.clone() });
+                }
 
                 match serde_json::from_str::<Command>(&line) {
                     Err(e) => output.send_error_response(&e.into())?,
@@ -626,9 +641,17 @@ async fn main() -> color_eyre::Result<()> {
 mod tests {
     use std::{io, time::Duration};
 
+    use std::path::PathBuf;
+
     use pdi_scanner::{
         client::Client,
-        protocol::packets::{Incoming, Outgoing},
+        protocol::{
+            image::DEFAULT_IMAGE_WIDTH,
+            packets::{ImageData, Incoming, Outgoing},
+            parsers,
+            types::{Register, RegisterIndex, Resolution},
+        },
+        recording::{self, Endpoint, Entry, FramePayload},
         scanner::Scanner,
     };
     use serde_json::{json, Value};
@@ -685,29 +708,69 @@ mod tests {
         json!({ "event": "scanComplete", "images": images })
     }
 
+    /// Extracts each complete TLV frame from `buf` and passes its type and
+    /// payload to `handle`.
+    fn drain_frames(buf: &mut Vec<u8>, mut handle: impl FnMut(u8, &[u8])) {
+        loop {
+            if buf.len() < FRAME_HEADER_LENGTH {
+                break;
+            }
+            let payload_length = read_u32_le(buf, FRAME_TYPE_LENGTH);
+            if buf.len() < FRAME_HEADER_LENGTH + payload_length {
+                break;
+            }
+            let frame: Vec<u8> = buf.drain(..FRAME_HEADER_LENGTH + payload_length).collect();
+            handle(frame[0], &frame[FRAME_HEADER_LENGTH..]);
+        }
+    }
+
     impl io::Write for ChannelWriter {
         fn write(&mut self, data: &[u8]) -> io::Result<usize> {
             self.buf.extend_from_slice(data);
-            loop {
-                if self.buf.len() < FRAME_HEADER_LENGTH {
-                    break;
-                }
-                let payload_length = read_u32_le(&self.buf, FRAME_TYPE_LENGTH);
-                if self.buf.len() < FRAME_HEADER_LENGTH + payload_length {
-                    break;
-                }
-                let frame: Vec<u8> = self
-                    .buf
-                    .drain(..FRAME_HEADER_LENGTH + payload_length)
-                    .collect();
-                let (frame_type, payload) = (frame[0], &frame[FRAME_HEADER_LENGTH..]);
+            let tx = &self.tx;
+            drain_frames(&mut self.buf, |frame_type, payload| {
                 let value: Value = match frame_type {
                     super::FRAME_TYPE_JSON => serde_json::from_slice(payload).unwrap(),
                     super::FRAME_TYPE_SCAN_COMPLETE => decode_scan_complete_payload(payload),
                     _ => panic!("unknown frame type: {frame_type}"),
                 };
-                let _ = self.tx.send(value);
-            }
+                let _ = tx.send(value);
+            });
+            Ok(data.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    /// Like [`ChannelWriter`], but sends each frame's raw type and payload,
+    /// for comparison against recordings.
+    struct RawFrameChannelWriter {
+        tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
+        buf: Vec<u8>,
+    }
+
+    impl RawFrameChannelWriter {
+        fn new() -> (Self, mpsc::UnboundedReceiver<(u8, Vec<u8>)>) {
+            let (tx, rx) = mpsc::unbounded_channel();
+            (
+                Self {
+                    tx,
+                    buf: Vec::new(),
+                },
+                rx,
+            )
+        }
+    }
+
+    impl io::Write for RawFrameChannelWriter {
+        fn write(&mut self, data: &[u8]) -> io::Result<usize> {
+            self.buf.extend_from_slice(data);
+            let tx = &self.tx;
+            drain_frames(&mut self.buf, |frame_type, payload| {
+                let _ = tx.send((frame_type, payload.to_vec()));
+            });
             Ok(data.len())
         }
 
@@ -730,8 +793,6 @@ mod tests {
         white_calibration_table: &[u8],
         black_calibration_table: &[u8],
     ) -> (Client, ConnectedTestHarness) {
-        use pdi_scanner::protocol::types::Register;
-
         let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
         let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
@@ -1294,6 +1355,344 @@ mod tests {
         .await
         .unwrap();
         result.unwrap();
+    }
+
+    const REPLAY_STEP_TIMEOUT: Duration = Duration::from_secs(10);
+    const REPLAY_TOTAL_TIMEOUT: Duration = Duration::from_secs(60);
+
+    /// Replays a recorded pdictl session (see the `recording` module) in
+    /// lockstep against the command loop: inputs (stdin commands, scanner
+    /// packets) are fed back in recorded order, and outputs (outgoing packets,
+    /// stdout frames) are awaited and asserted to match the recording.
+    #[allow(clippy::too_many_lines)]
+    async fn replay_recording(entries: &[Entry]) {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
+        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
+        let client = Client::from_scanner(Scanner::mock(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+        ));
+        let mut client_slot = Some(client);
+        let mut scanner_to_host_tx = Some(scanner_to_host_tx);
+
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(1 << 16);
+        let (frame_writer, mut frame_rx) = RawFrameChannelWriter::new();
+
+        let (result, ()) = timeout(REPLAY_TOTAL_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), frame_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    for (index, entry) in entries.iter().enumerate() {
+                        match entry {
+                            Entry::Meta { version } => {
+                                assert_eq!(
+                                    *version,
+                                    recording::FORMAT_VERSION,
+                                    "unsupported recording version"
+                                );
+                            }
+                            Entry::StdinCommand { line } => {
+                                stdin_write.write_all(line.as_bytes()).await.unwrap();
+                                stdin_write.write_all(b"\n").await.unwrap();
+                            }
+                            Entry::ScannerToHost {
+                                endpoint,
+                                data_base64,
+                            } => {
+                                let data = recording::decode_base64(data_base64).unwrap();
+                                let packet = match endpoint {
+                                    Endpoint::ImageData => Incoming::ImageData(ImageData(data)),
+                                    Endpoint::Primary => {
+                                        let (remaining, packet) = parsers::any_incoming(&data)
+                                            .unwrap_or_else(|e| {
+                                                panic!(
+                                                    "entry {index}: failed to parse primary packet: {e}"
+                                                )
+                                            });
+                                        assert!(
+                                            remaining.is_empty(),
+                                            "entry {index}: trailing bytes after primary packet"
+                                        );
+                                        packet
+                                    }
+                                };
+                                scanner_to_host_tx
+                                    .as_ref()
+                                    .expect("scanner task already ended")
+                                    .send(Ok(packet))
+                                    .unwrap();
+                            }
+                            Entry::ScannerToHostError { disconnected, .. } => {
+                                // The exact recorded error isn't reconstructible;
+                                // use representative errors that map to the same
+                                // stdout error code (the message is compared
+                                // leniently below).
+                                let error = if *disconnected {
+                                    pdi_scanner::Error::Usb {
+                                        source: pdi_scanner::UsbError::NusbTransfer(
+                                            nusb::transfer::TransferError::Disconnected,
+                                        ),
+                                        trace: std::backtrace::Backtrace::capture(),
+                                    }
+                                } else {
+                                    pdi_scanner::Error::RecvTimeout
+                                };
+                                scanner_to_host_tx
+                                    .as_ref()
+                                    .expect("scanner task already ended")
+                                    .send(Err(error))
+                                    .unwrap();
+                            }
+                            Entry::ScannerTaskEnded => {
+                                scanner_to_host_tx.take();
+                            }
+                            Entry::HostToScanner { data_base64 } => {
+                                let expected = recording::decode_base64(data_base64).unwrap();
+                                let (id, packet) =
+                                    timeout(REPLAY_STEP_TIMEOUT, host_to_scanner_rx.recv())
+                                        .await
+                                        .unwrap_or_else(|_| {
+                                            panic!(
+                                                "entry {index}: timed out waiting for outgoing packet"
+                                            )
+                                        })
+                                        .expect("outgoing packet channel closed");
+                                assert_eq!(
+                                    packet.to_bytes(),
+                                    expected,
+                                    "entry {index}: outgoing packet mismatch: {packet:?}"
+                                );
+                                host_to_scanner_ack_tx.send(id).unwrap();
+                            }
+                            Entry::StdoutFrame {
+                                frame_type,
+                                payload,
+                            } => {
+                                let (actual_type, actual_payload) =
+                                    timeout(REPLAY_STEP_TIMEOUT, frame_rx.recv())
+                                        .await
+                                        .unwrap_or_else(|_| {
+                                            panic!(
+                                                "entry {index}: timed out waiting for stdout frame"
+                                            )
+                                        })
+                                        .expect("stdout frame channel closed");
+                                assert_eq!(
+                                    actual_type, *frame_type,
+                                    "entry {index}: stdout frame type mismatch"
+                                );
+                                assert_frame_payload_matches(payload, &actual_payload, index);
+                            }
+                        }
+                    }
+                    // Close stdin in case the recorded session ended by EOF
+                    // rather than an exit command.
+                    drop(stdin_write);
+                }
+            )
+        })
+        .await
+        .expect("replay timed out");
+        result.unwrap();
+        assert!(
+            frame_rx.try_recv().is_err(),
+            "unexpected extra stdout frames after replay"
+        );
+    }
+
+    fn assert_frame_payload_matches(expected: &FramePayload, actual: &[u8], index: usize) {
+        if expected.matches(actual) {
+            return;
+        }
+        // Errors reconstructed during replay can differ from the recorded
+        // originals in message text only, so accept error frames that differ
+        // only in their "message" field.
+        if let FramePayload::Full { payload_base64 } = expected {
+            let expected_bytes = recording::decode_base64(payload_base64).unwrap();
+            let parsed = (
+                serde_json::from_slice::<Value>(&expected_bytes),
+                serde_json::from_slice::<Value>(actual),
+            );
+            if let (Ok(Value::Object(mut expected_json)), Ok(Value::Object(mut actual_json))) =
+                parsed
+            {
+                if expected_json.contains_key("code") {
+                    expected_json.remove("message");
+                    actual_json.remove("message");
+                    if expected_json == actual_json {
+                        return;
+                    }
+                }
+            }
+            panic!(
+                "entry {index}: stdout frame payload mismatch:\n  expected: {}\n  actual: {}",
+                String::from_utf8_lossy(&expected_bytes),
+                String::from_utf8_lossy(actual),
+            );
+        }
+        panic!(
+            "entry {index}: stdout frame payload mismatch: expected {expected:?}, actual {} bytes",
+            actual.len()
+        );
+    }
+
+    /// Replays recordings captured from a real scanner (see
+    /// `fixtures/recordings/README.md`). Passes trivially when no recordings
+    /// are present.
+    #[tokio::test]
+    async fn replay_recorded_fixtures() {
+        let dir = std::env::var_os("PDICTL_RECORDINGS_DIR")
+            .map_or_else(|| PathBuf::from("fixtures/recordings"), PathBuf::from);
+        let Ok(dir_entries) = std::fs::read_dir(&dir) else {
+            return;
+        };
+        let mut paths: Vec<_> = dir_entries
+            .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+            .filter(|path| {
+                path.extension()
+                    .is_some_and(|extension| extension == "jsonl")
+            })
+            .collect();
+        paths.sort();
+        for path in paths {
+            eprintln!("replaying {}", path.display());
+            let entries = recording::read(&path).unwrap();
+            replay_recording(&entries).await;
+        }
+    }
+
+    #[tokio::test]
+    async fn replay_synthetic_disconnected_session() {
+        replay_recording(&[
+            Entry::Meta {
+                version: recording::FORMAT_VERSION,
+            },
+            Entry::StdinCommand {
+                line: r#"{"command":"getScannerStatus"}"#.to_owned(),
+            },
+            Entry::stdout_frame(
+                super::FRAME_TYPE_JSON,
+                br#"{"response":"error","code":"disconnected","message":null}"#,
+            ),
+            Entry::StdinCommand {
+                line: r#"{"command":"exit"}"#.to_owned(),
+            },
+        ])
+        .await;
+    }
+
+    /// Builds a `ScannerToHost` primary-endpoint entry from raw packet bytes,
+    /// verifying that they parse to the expected packet so a mistake in the
+    /// crafted bytes fails here rather than confusing the replay.
+    fn primary_packet(bytes: &[u8], expected: &Incoming) -> Entry {
+        let (remaining, parsed) = parsers::any_incoming(bytes)
+            .unwrap_or_else(|e| panic!("crafted packet failed to parse: {e} ({bytes:?})"));
+        assert!(remaining.is_empty(), "crafted packet has trailing bytes");
+        assert_eq!(&parsed, expected, "crafted packet parsed unexpectedly");
+        Entry::scanner_to_host(Endpoint::Primary, bytes)
+    }
+
+    /// Builds raw bytes for a `GetCalibrationInformationResponse`.
+    fn calibration_response(side: u8, white: &[u8], black: &[u8]) -> Vec<u8> {
+        assert_eq!(white.len(), black.len());
+        let mut bytes = vec![0x02, b'W'];
+        bytes.extend_from_slice(&u16::try_from(white.len()).unwrap().to_le_bytes());
+        // High nibble: side (0 = top, 1 = bottom); low nibble: bits per pixel.
+        bytes.push((side << 4) | 0x08);
+        bytes.extend_from_slice(white);
+        bytes.extend_from_slice(&[0, 0]); // white table checksum (ignored)
+        bytes.extend_from_slice(black);
+        bytes.extend_from_slice(&[0, 0]); // black table checksum (ignored)
+        bytes.push(0x03);
+        bytes
+    }
+
+    #[tokio::test]
+    async fn replay_synthetic_connected_scan_session() {
+        const WIDTH: usize = DEFAULT_IMAGE_WIDTH as usize;
+        const HEIGHT: usize = 4;
+        const TOP_PIXEL: u8 = 7;
+        const BOTTOM_PIXEL: u8 = 9;
+
+        // White = 255 and black = 0 make image calibration the identity
+        // function.
+        let white = vec![u8::MAX; WIDTH];
+        let black = vec![0u8; WIDTH];
+        let register_9 = RegisterIndex::new(9).unwrap();
+
+        let mut interleaved = Vec::with_capacity(2 * WIDTH * HEIGHT);
+        for _ in 0..(WIDTH * HEIGHT) {
+            interleaved.push(TOP_PIXEL);
+            interleaved.push(BOTTOM_PIXEL);
+        }
+
+        let mut scan_complete_payload = Vec::new();
+        for pixel in [TOP_PIXEL, BOTTOM_PIXEL] {
+            scan_complete_payload.extend_from_slice(&u32::try_from(WIDTH).unwrap().to_le_bytes());
+            scan_complete_payload.extend_from_slice(&u32::try_from(HEIGHT).unwrap().to_le_bytes());
+            scan_complete_payload.extend_from_slice(&vec![pixel; WIDTH * HEIGHT]);
+        }
+
+        let outgoing = |packet: &Outgoing| Entry::host_to_scanner(&packet.to_bytes());
+        let calibration_incoming = || Incoming::GetCalibrationInformationResponse {
+            white_calibration_table: white.clone(),
+            black_calibration_table: black.clone(),
+        };
+
+        let entries = vec![
+            Entry::Meta {
+                version: recording::FORMAT_VERSION,
+            },
+            Entry::StdinCommand {
+                line: r#"{"command":"connect"}"#.to_owned(),
+            },
+            // wait_until_ready: enable CRC checking, then a test command
+            outgoing(&Outgoing::EnableCrcCheckingRequest),
+            outgoing(&Outgoing::GetTestStringRequest),
+            primary_packet(
+                b"\x02D\x03",
+                &Incoming::GetTestStringResponse(String::new()),
+            ),
+            // initialize_scanning: disable feeder, read the boot eject
+            // register (0x200 = no eject, so no write follows), then fetch
+            // the image calibration tables (one request, two responses)
+            outgoing(&Outgoing::DisableFeederRequest),
+            outgoing(&Outgoing::ReadRegisterDataRequest(register_9)),
+            primary_packet(
+                b"\x02<00900000200\x03",
+                &Incoming::ReadRegisterDataResponse(Register::new(register_9, 0x200)),
+            ),
+            // The resolution must match client::DEFAULT_RESOLUTION.
+            outgoing(&Outgoing::GetCalibrationInformationRequest {
+                resolution: Some(Resolution::Half),
+            }),
+            primary_packet(
+                &calibration_response(0, &white, &black),
+                &calibration_incoming(),
+            ),
+            primary_packet(
+                &calibration_response(1, &white, &black),
+                &calibration_incoming(),
+            ),
+            Entry::stdout_frame(super::FRAME_TYPE_JSON, br#"{"response":"ok"}"#),
+            // A scan: begin event, image data, end event (which triggers a
+            // feeder disable before the decoded images are emitted)
+            primary_packet(b"\x02#30\x03", &Incoming::BeginScanEvent),
+            Entry::stdout_frame(super::FRAME_TYPE_JSON, br#"{"event":"scanStart"}"#),
+            Entry::scanner_to_host(Endpoint::ImageData, &interleaved),
+            primary_packet(b"\x02#31\x03", &Incoming::EndScanEvent),
+            outgoing(&Outgoing::DisableFeederRequest),
+            Entry::stdout_frame(super::FRAME_TYPE_SCAN_COMPLETE, &scan_complete_payload),
+            Entry::StdinCommand {
+                line: r#"{"command":"exit"}"#.to_owned(),
+            },
+        ];
+
+        replay_recording(&entries).await;
     }
 
     #[tokio::test]
