@@ -30,9 +30,6 @@ export function CandidateInfoCaption({
         marginTop: '0.15rem',
       }}
     >
-      {candidate.designation && (
-        <span>{electionStrings.candidateDesignation(candidate)}</span>
-      )}
       <CandidatePartyList
         candidate={candidate}
         electionParties={election.parties}
@@ -42,6 +39,9 @@ export function CandidateInfoCaption({
           {' - '}
           {appStrings.labelStraightPartyVote()}
         </span>
+      )}
+      {candidate.designation && (
+        <span>{electionStrings.candidateDesignation(candidate)}</span>
       )}
       {audioOnly && <React.Fragment>{audioOnly}</React.Fragment>}
     </div>
