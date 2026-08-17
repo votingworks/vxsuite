@@ -39,6 +39,13 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
+The rule grants access to the `scanner` group, so add your user to it (takes
+effect on your next login):
+
+```sh
+sudo usermod -aG scanner "$USER"
+```
+
 You can then run the demo script to test that the driver is working properly,
 note that this script does NOT print anything on the command line, it simply
 will put the scanner in a loop where it will start reading in pages that are fed
