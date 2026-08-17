@@ -9,6 +9,7 @@ import { main, MainOptions, shouldEchoLogsToTerminal } from './cli.js';
 import { SyslogWriter } from './syslog.js';
 import { BACKUPS_DIRECTORY_NAME, manifestPath } from './manifest.js';
 import {
+  expectedBackupDirectoryName,
   makeConfiguredWorkspace,
   makeUnconfiguredWorkspace,
 } from '../../test/backup.js';
@@ -126,7 +127,13 @@ test('create backs up a workspace, and validate accepts the result', async () =>
   expect(created.stderr).toMatch(/Copying files\s+\[[█░]+\]\s+\d+%/);
   expect(created.stderr).toContain('"eventId":"backup-create-progress"');
 
-  const backupDirectoryPath = created.stdout.trim().split(' to ')[1] as string;
+  const backupDirectoryPath = join(
+    targetPath,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+  expect(created.stdout).toContain(backupDirectoryPath);
+
   const validated = await run(['validate', backupDirectoryPath]);
   expect(validated.code).toEqual(0);
   expect(validated.stdout).toContain('Valid: ');
@@ -312,7 +319,12 @@ test('validate rejects a backup that has been tampered with', async () => {
     '--target',
     targetPath,
   ]);
-  const backupDirectoryPath = created.stdout.trim().split(' to ')[1] as string;
+  expect(created.code).toEqual(0);
+  const backupDirectoryPath = join(
+    targetPath,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
   writeFileSync(manifestPath(backupDirectoryPath), '{}');
 
   const { code, stderr } = await run(['validate', backupDirectoryPath]);
