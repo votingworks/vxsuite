@@ -8,8 +8,8 @@ tasks in parallel, and caches results so unchanged work is never repeated.
 > **Turbo is opt-in.** Set **`VX_USE_TURBO=1`** in your environment to route
 > `pnpm build`/`lint`/`test:run`/`clean` and `pnpm start` through Turbo. Without
 > it, those commands run the pre-Turbo pnpm path (recursive `--filter` builds,
-> `run-dev` dev servers) exactly as on `main`. Export it in your shell profile
-> to make Turbo your default:
+> `run-dev` dev servers) exactly as before. Export it in your shell profile to
+> make Turbo your default:
 >
 > ```sh
 > export VX_USE_TURBO=1
