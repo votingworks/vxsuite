@@ -6,13 +6,13 @@
   "author": "VotingWorks Engineering <eng@voting.works>",
   "type": "module",
   "scripts": {
-    "build": "pnpm install && turbo run build:self --filter=\"$npm_package_name^...\" && make build",
+    "build": "pnpm install && pnpm -w vx-task it-deps $npm_package_name && make build",
     "format": "prettier --write .",
-    "lint": "turbo run lint:self --filter=$npm_package_name --",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "eslint --cache --fix .",
     "lint:self": "eslint --cache .",
-    "test": "pnpm build && playwright test",
-    "test:watch": "pnpm build && playwright test --ui"
+    "test": "pnpm -w vx-task it-prebuild $npm_package_name && playwright test",
+    "test:watch": "pnpm -w vx-task it-prebuild $npm_package_name && playwright test --ui"
   },
   "dependencies": {
     "@playwright/test": "^1.48.1",

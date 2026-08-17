@@ -10,18 +10,18 @@
     "build"
   ],
   "scripts": {
-    "build": "turbo run build:self --filter=$npm_package_name",
+    "build": "pnpm -w vx-task build $npm_package_name",
     "build:rust-addon": "cargo build --release --offline",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
-    "clean": "turbo run clean:self --filter=$npm_package_name...",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "cargo clean --release --package pdi-scanner && rm -rf build",
     "install:rust-addon": "cargo fetch",
-    "lint": "turbo run lint:self --filter=$npm_package_name --",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
-    "test": "turbo run build:self --filter=$npm_package_name && vitest",
-    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
     "type-check": "tsc --build"

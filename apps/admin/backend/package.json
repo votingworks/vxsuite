@@ -16,18 +16,18 @@
     "schema.sql"
   ],
   "scripts": {
-    "build": "turbo run build:self --filter=$npm_package_name",
+    "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
-    "clean": "turbo run clean:self --filter=$npm_package_name...",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "dev": "NODE_ENV=development pnpm start",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "turbo run lint:self --filter=$npm_package_name --",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
     "start": "node ./build/index.js",
-    "test": "turbo run build:self --filter=$npm_package_name && TZ=America/Anchorage vitest",
-    "test:run": "turbo run test:run:self --filter=$npm_package_name --",
+    "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
     "type-check": "tsc --build"
   },

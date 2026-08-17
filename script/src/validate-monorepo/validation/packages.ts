@@ -45,14 +45,15 @@ export type ValidationIssue =
   | InvalidTaskDelegationIssue;
 
 /**
- * Tasks that run through turbo so their workspace dependencies are built first.
- * Each public script must be a thin delegation to its `:self` counterpart
- * (which does the real work as a turbo task); running the public script then
- * builds `^build:self` before the task. Any package that defines the `:self`
- * task must delegate to it, so a bare `pnpm test:run`/`pnpm lint` can't run
- * against unbuilt dependencies.
+ * Public tasks that delegate to the `vx-task` orchestrator, which picks between
+ * Turborepo (opt-in via `VX_USE_TURBO`) and the pre-Turbo pnpm behavior. The
+ * real per-package work lives in the `:self` counterpart. Any package that
+ * defines the `:self` task must delegate its public task to `vx-task`, so the
+ * orchestration choice stays centralized in `script/vx-task`.
  */
 const DELEGATED_TASKS: ReadonlyArray<readonly [string, string]> = [
+  ['build', 'build:self'],
+  ['clean', 'clean:self'],
   ['lint', 'lint:self'],
   ['test:run', 'test:run:self'],
   ['test:ci', 'test:ci:self'],
@@ -281,7 +282,7 @@ export async function* checkTaskDelegation({
         continue;
       }
 
-      const expected = `turbo run ${selfTask} --filter=$npm_package_name --`;
+      const expected = `pnpm -w vx-task ${task} $npm_package_name`;
       if (scripts[task] !== expected) {
         yield {
           kind: ValidationIssueKind.InvalidTaskDelegation,

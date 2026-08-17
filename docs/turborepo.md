@@ -5,6 +5,22 @@ Task orchestration and caching in this monorepo are handled by
 derives task order from the pnpm workspace dependency graph, runs independent
 tasks in parallel, and caches results so unchanged work is never repeated.
 
+> **Turbo is opt-in.** Set **`VX_USE_TURBO=1`** in your environment to route
+> `pnpm build`/`lint`/`test:run`/`clean` and `pnpm start` through Turbo. Without
+> it, those commands run the pre-Turbo pnpm path (recursive `--filter` builds,
+> `run-dev` dev servers) exactly as on `main`. Export it in your shell profile
+> to make Turbo your default:
+>
+> ```sh
+> export VX_USE_TURBO=1
+> ```
+>
+> The per-package public scripts delegate to `script/vx-task` (and frontends'
+> `start` to `script/vx-dev`), which read this variable and pick pnpm or Turbo.
+> The repo-root `pnpm build`/`test`/`lint`/`type-check`/`clean` scripts are
+> always Turbo (they had no pre-Turbo equivalent). The commands below assume
+> `VX_USE_TURBO` is set.
+
 This is the practical guide. The task wiring and caching rules are also
 summarized in [CLAUDE.md](../CLAUDE.md#turborepo).
 
@@ -42,14 +58,13 @@ rebuilds it and restarts the backend automatically.
 
 ### Stopping dev servers
 
-`turbo watch` runs each dev server (Vite and the backend) in its own process
-group, and cleans them up only when **turbo itself** gets the stop signal.
-Pressing **Ctrl-C** in the `pnpm start` terminal is clean. Other ways of
-stopping are not: `kill`ing the `pnpm start` process (it doesn't forward the
-signal), a `SIGKILL` or editor "stop" button, or a `pkill` that lands on a
-wrapper rather than turbo can leave the servers running detached and still
-holding ports 3000/3001/3002. If that happens (a new `pnpm start` fails with the
-port in use, or a server won't die), run:
+`pnpm start` runs dev servers via `run-dev` (default) or `turbo watch` (with
+`VX_USE_TURBO`). Pressing **Ctrl-C** in the `pnpm start` terminal is clean in
+both modes. Other ways of stopping are not: `kill`ing the `pnpm start` process
+(it doesn't forward the signal), a `SIGKILL` or editor "stop" button, or a
+`pkill` that lands on a wrapper rather than the runner can leave the servers
+running detached and still holding ports 3000/3001/3002. If that happens (a new
+`pnpm start` fails with the port in use, or a server won't die), run:
 
 ```sh
 pnpm kill-dev

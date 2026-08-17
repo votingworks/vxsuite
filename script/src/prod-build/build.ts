@@ -18,6 +18,10 @@ function npmPackageArchiveFilename(pkgRoot: string): string {
     .replace(/-+/g, '-')}-${pkg.version}.tgz`;
 }
 
+export function doBuild(pkgRoot: string): void {
+  execSync('make', ['build'], { cwd: pkgRoot });
+}
+
 export function doCopy(pkgRoot: string, outRoot: string): void {
   const pkgOut = inBuildDir(pkgRoot, outRoot);
   mkdirp(pkgOut);

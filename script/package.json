@@ -12,6 +12,7 @@
     "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
+    "concurrently": "7.6.0",
     "matcher": "4",
     "resolve-from": "^5.0.0"
   },

@@ -12,10 +12,13 @@
     "kill-dev": "script/kill-dev",
     "lint": "turbo run lint:self",
     "prepare": "husky install",
+    "run-dev": "script/run-dev",
     "shellcheck": "script/shellcheck",
     "test": "VX_TEST_WORKERS=2 turbo run test:run:self --concurrency=50% --filter=!@votingworks/exercises",
     "type-check": "turbo run type-check",
-    "update-snapshots": "script/update-snapshots"
+    "update-snapshots": "script/update-snapshots",
+    "vx-dev": "script/vx-dev",
+    "vx-task": "script/vx-task"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
@@ -49,6 +52,7 @@
     "eslint": "9.39.5",
     "husky": "^7.0.0",
     "lint-staged": "^15.0.0",
+    "nodemon": "^3.1.7",
     "postcss-styled-syntax": "^0.4.0",
     "prettier": "^3.0.3",
     "sort-package-json": "^1.50.0",
