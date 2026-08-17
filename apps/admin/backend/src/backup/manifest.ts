@@ -82,26 +82,9 @@ export interface BackupManifestFile {
 }
 
 /**
- * The signed inventory of a backup. Everything else in the backup directory is
- * covered by a hash within it.
- */
-export interface BackupManifest {
-  version: number;
-  softwareVersion: string;
-  machineId: string;
-  createdAt: string;
-  election: {
-    id: string;
-    title: string;
-    date: string;
-  };
-  files: BackupManifestFile[];
-}
-
-/**
  * Schema for {@link BackupManifest}.
  */
-export const BackupManifestSchema: z.ZodType<BackupManifest> = z.object({
+export const BackupManifestSchema = z.object({
   version: z.number().int().positive(),
   softwareVersion: z.string(),
   machineId: z.string(),
@@ -123,6 +106,12 @@ export const BackupManifestSchema: z.ZodType<BackupManifest> = z.object({
   ),
 });
 
+/**
+ * The signed inventory of a backup. Everything else in the backup directory is
+ * covered by a hash within it.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface BackupManifest extends z.infer<typeof BackupManifestSchema> {}
 /**
  * The path of the manifest within the given backup directory.
  */
