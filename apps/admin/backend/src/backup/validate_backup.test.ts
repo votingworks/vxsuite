@@ -1,15 +1,19 @@
 // Checking a backup on a drive against its signed manifest.
 
-import { beforeEach, expect, test, vi } from 'vitest';
-import { rmSync, writeFileSync } from 'node:fs';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { cpSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { open as realOpen } from 'node:fs/promises';
 import { join } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
 import { assertDefined, err, iter } from '@votingworks/basics';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { open } from './fs.js';
 import {
   backupFilePath,
   BackupManifest,
   manifestPath,
   readManifest,
+  WORKSPACE_DIRECTORY_NAME,
 } from './manifest.js';
 import {
   BackupValidationError,
@@ -22,6 +26,14 @@ import {
   createValidBackup,
   mockRoomToWorkIn,
 } from '../../test/backup.js';
+
+// Validation's filesystem calls go through `./fs.js` so that one of them can be
+// made to fail here. Each one calls through to the real implementation unless a
+// test says otherwise.
+vi.mock('./fs.js', async (importActual) => {
+  const actual = await importActual<typeof import('./fs.js')>();
+  return { ...actual, open: vi.fn(actual.open) };
+});
 
 vi.mock(
   '@votingworks/backend',
@@ -38,6 +50,11 @@ vi.mock(
     syncFilesystem: vi.fn(),
   })
 );
+
+afterEach(() => {
+  // Whatever a test made `open` do, put it back to doing the real thing.
+  vi.mocked(open).mockImplementation(realOpen);
+});
 
 beforeEach(() => {
   mockRoomToWorkIn();
@@ -147,6 +164,75 @@ test('validation rejects a backup with a missing file', async () => {
     err({
       type: 'file_missing',
       path: BALLOT_IMAGE_PATH,
+    })
+  );
+});
+
+test('validation rejects a symlink standing in for a file the manifest lists', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  const listedPath = backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH);
+  const target = join(makeTemporaryDirectory(), 'somewhere-else');
+  writeFileSync(target, 'bytes from outside the backup');
+  rmSync(listedPath);
+  symlinkSync(target, listedPath);
+
+  // Reading through the link would hash whatever it points at, and a drive that
+  // repoints it later would have the backup reading a different file than the
+  // one validation approved.
+  const result = await validateBackup({ backupDirectoryPath });
+  expect(result).toEqual(
+    err({
+      type: 'file_not_regular',
+      path: BALLOT_IMAGE_PATH,
+    })
+  );
+});
+
+test('validation lets an unexpected read failure through', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  vi.mocked(open).mockRejectedValueOnce(
+    Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' })
+  );
+
+  // A file the machine cannot open at all is not a finding about the backup, so
+  // it travels up as a failure of validation rather than becoming one of the
+  // reasons a backup is invalid.
+  await expect(validateBackup({ backupDirectoryPath })).rejects.toThrow(
+    'EACCES'
+  );
+});
+
+test('validation rejects a symlink the manifest does not list', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  symlinkSync('/etc/hostname', join(backupDirectoryPath, 'sneaky'));
+
+  const result = await validateBackup({ backupDirectoryPath });
+  expect(result).toEqual(
+    err({
+      type: 'unexpected_file',
+      path: 'sneaky',
+    })
+  );
+});
+
+test('validation rejects a symlinked directory holding the files the manifest lists', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  const imagesDirectory = backupFilePath(
+    backupDirectoryPath,
+    assertDefined(BALLOT_IMAGE_PATH.split('/')[0])
+  );
+  const elsewhere = join(makeTemporaryDirectory(), 'ballot-images');
+  cpSync(imagesDirectory, elsewhere, { recursive: true });
+  rmSync(imagesDirectory, { recursive: true });
+  symlinkSync(elsewhere, imagesDirectory);
+
+  // `O_NOFOLLOW` does not stop a read through a symlinked parent, and the files
+  // it leads to hash correctly, so the link itself is what has to be caught.
+  const result = await validateBackup({ backupDirectoryPath });
+  expect(result).toEqual(
+    err({
+      type: 'unexpected_file',
+      path: `${WORKSPACE_DIRECTORY_NAME}/ballot-images`,
     })
   );
 });
@@ -268,6 +354,10 @@ test.each<{ error: BackupValidationError; expectedMessage: string }>([
   {
     error: { type: 'file_missing', path: 'data.db' },
     expectedMessage: 'missing data.db',
+  },
+  {
+    error: { type: 'file_not_regular', path: 'data.db' },
+    expectedMessage: 'not a regular file',
   },
   {
     error: {

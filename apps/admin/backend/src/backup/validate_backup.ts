@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer';
-import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -18,7 +17,8 @@ import {
 import { createHash } from 'node:crypto';
 import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { createReadStream } from './fs.js';
+import { type FileHandle } from 'node:fs/promises';
+import { constants, open, readdir } from './fs.js';
 import {
   BACKUP_MANIFEST_VERSION,
   backupFilePath,
@@ -55,6 +55,7 @@ export type BackupValidationError =
       actualSoftwareVersion: string;
     }
   | { type: 'file_missing'; path: string }
+  | { type: 'file_not_regular'; path: string }
   | {
       type: 'file_size_mismatch';
       path: string;
@@ -92,6 +93,8 @@ export function formatBackupValidationError(
       );
     case 'file_missing':
       return `The backup is missing ${error.path}.`;
+    case 'file_not_regular':
+      return `${error.path} is not a regular file in the backup.`;
     case 'file_size_mismatch':
       return (
         `${error.path} is ${error.actualSize} bytes in the backup, ` +
@@ -107,13 +110,39 @@ export function formatBackupValidationError(
   }
 }
 
-async function listFilesRecursively(directoryPath: string): Promise<string[]> {
+/**
+ * Whether opening a path failed because it isn't a regular file. `O_NOFOLLOW`
+ * reports a symlink as `ELOOP`; the others are what a directory, or a path whose
+ * parent isn't a directory, give.
+ */
+function isNotRegularFileError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error.code === 'ELOOP' ||
+      error.code === 'EISDIR' ||
+      error.code === 'ENOTDIR')
+  );
+}
+
+/**
+ * Every entry under the given directory that isn't a directory itself, relative
+ * to it. Symlinks and special files are listed rather than skipped: a backup
+ * holds only regular files, so anything else is something the manifest cannot
+ * have listed, and skipping it would let it ride along unnoticed. `readdir` does
+ * not descend into a symlinked directory, so one shows up here as an entry of
+ * its own rather than as the files it points at.
+ */
+async function listEntriesRecursively(
+  directoryPath: string
+): Promise<string[]> {
   const entries = await readdir(directoryPath, {
     withFileTypes: true,
     recursive: true,
   });
   return entries
-    .filter((entry) => entry.isFile())
+    .filter((entry) => !entry.isDirectory())
     .map((entry) =>
       relative(directoryPath, join(entry.parentPath, entry.name))
         .split(sep)
@@ -202,23 +231,36 @@ export async function validateBackup({
     let size = 0;
     const hash = createHash('sha256');
 
+    // `O_NOFOLLOW` keeps validation from reading through a symlink left where a
+    // file belongs. It only covers the last path component; a symlinked parent
+    // directory is caught instead by the unexpected-entry pass below, which sees
+    // the link rather than the files it points at.
+    let handle: FileHandle;
     try {
-      await pipeline(
-        createReadStream(filePath),
-        new Writable({
-          write(chunk: Buffer, _encoding, callback) {
-            hash.update(chunk);
-            size += chunk.length;
-            callback();
-          },
-        })
-      );
-    } catch (e) {
-      if (isNonExistentFileOrDirectoryError(e)) {
+      // eslint-disable-next-line no-bitwise
+      handle = await open(filePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+    } catch (error) {
+      if (isNonExistentFileOrDirectoryError(error)) {
         return err({ type: 'file_missing', path: file.path });
       }
-      throw e;
+      if (isNotRegularFileError(error)) {
+        return err({ type: 'file_not_regular', path: file.path });
+      }
+      throw error;
     }
+
+    // The read stream closes the handle, whether it reaches the end or the
+    // pipeline fails partway through.
+    await pipeline(
+      handle.createReadStream(),
+      new Writable({
+        write(chunk: Buffer, _encoding, callback) {
+          hash.update(chunk);
+          size += chunk.length;
+          callback();
+        },
+      })
+    );
     if (size !== file.size) {
       return err({
         type: 'file_size_mismatch',
@@ -245,7 +287,7 @@ export async function validateBackup({
     VXADMIN_BACKUP_MANIFEST_FILE_NAME,
     `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`,
   ]);
-  for (const filePath of await listFilesRecursively(backupDirectoryPath)) {
+  for (const filePath of await listEntriesRecursively(backupDirectoryPath)) {
     if (!expectedPaths.has(filePath)) {
       return err({ type: 'unexpected_file', path: filePath });
     }

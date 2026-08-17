@@ -7,5 +7,14 @@
 // backup code. `libs/backend` and `libs/usb-drive` isolate `execFile` the same
 // way and for the same reason.
 
-export { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+export {
+  constants,
+  mkdir,
+  open,
+  readdir,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 export { createReadStream, createWriteStream } from 'node:fs';
