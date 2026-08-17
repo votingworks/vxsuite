@@ -7,15 +7,21 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "files": [
-    "build"
+    "build",
+    "index.js",
+    "index.d.ts",
+    "*.node"
   ],
   "scripts": {
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:rust-addon": "napi build --platform --release",
+    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm --filter $npm_package_name... clean:self",
-    "clean:self": "rm -rf build",
+    "clean:self": "cargo clean --release --package vx-fs && rm -rf build",
+    "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "is-ci test:ci test:watch",
@@ -36,6 +42,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^3.5.1",
     "@types/debug": "4.1.12",
     "@types/node": "20.19.43",
     "@types/tmp": "0.2.4",
@@ -49,6 +56,13 @@
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.6",
     "vitest": "^4.1.6"
+  },
+  "napi": {
+    "binaryName": "vx-fs",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
   },
   "packageManager": "pnpm@10.34.5"
 }

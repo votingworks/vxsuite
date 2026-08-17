@@ -6,6 +6,7 @@ members = [
   "apps/mark-scan/fai-100-controller",
   "apps/mark-scan/pat-device-input",
   "apps/pollbook/barcode-scanner-daemon",
+  "libs/fs",
   "libs/logging",
   "libs/logging-utils",
 ]
