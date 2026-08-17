@@ -1,8 +1,11 @@
+// What a backup does when something goes wrong: what it refuses before
+// touching the drive, what it reports when a step fails part way through, and
+// what it recovers from a run that never finished.
+
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
@@ -10,53 +13,31 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { join } from 'node:path';
 import { rm as realRm } from 'node:fs/promises';
-import {
-  prepareSignatureFile,
-  SIGNATURE_FILE_EXTENSION,
-} from '@votingworks/auth';
+import { join } from 'node:path';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import { syncFilesystem } from '@votingworks/usb-drive';
-import { assertDefined, err } from '@votingworks/basics';
-import {
-  makeTemporaryDirectory,
-  readElectionGeneralDefinition,
-} from '@votingworks/fixtures';
-import {
-  LogEventId,
-  mockBaseLogger,
-  MockBaseLogger,
-} from '@votingworks/logging';
-import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import { err } from '@votingworks/basics';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { LogEventId } from '@votingworks/logging';
 import {
   BackupError,
-  BackupStep,
   createBackup,
   formatBackupError,
 } from './create_backup.js';
 import { rm } from './fs.js';
-import {
-  BACKUPS_DIRECTORY_NAME,
-  backupFilePath,
-  BackupManifest,
-  isTransientBackupDirectoryName,
-  manifestPath,
-  readManifest,
-  WORKSPACE_DIRECTORY_NAME,
-} from './manifest.js';
-import {
-  BackupValidationError,
-  BackupValidationProgress,
-  formatBackupValidationError,
-  validateBackup,
-} from './validate_backup.js';
-import { MachineConfig } from '../types.js';
+import { BACKUPS_DIRECTORY_NAME, backupFilePath } from './manifest.js';
+import { validateBackup } from './validate_backup.js';
 import {
   BALLOT_IMAGE_CONTENTS,
   BALLOT_IMAGE_PATH,
+  expectedBackupDirectoryName,
+  loggedSteps,
+  MACHINE_CONFIG,
   makeConfiguredWorkspace,
   makeUnconfiguredWorkspace,
+  mockLogger,
+  mockRoomToWorkIn,
 } from '../../test/backup.js';
 
 // The engine's filesystem calls go through `./fs.js` so that one of them can be
@@ -83,156 +64,24 @@ vi.mock(
   })
 );
 
-const electionDefinition = readElectionGeneralDefinition();
-
-const machineConfig: MachineConfig = {
-  machineId: 'AD-1234',
-  codeVersion: '1.2.3',
-};
-
-function logger() {
-  return mockBaseLogger({ fn: vi.fn });
-}
-
-function loggedSteps(log: MockBaseLogger): BackupStep[] {
-  return vi
-    .mocked(log.log)
-    .mock.calls.filter(
-      ([eventId]) => eventId === LogEventId.BackupCreateProgress
-    )
-    .map(([, , logData]) => (logData as { step: BackupStep }).step);
-}
-
-function expectedBackupDirectoryName(): string {
-  return generateElectionBasedSubfolderName(
-    electionDefinition.election,
-    electionDefinition.ballotHash
-  );
-}
-
 afterEach(() => {
   // Whatever a test made `rm` do, put it back to doing the real thing.
   vi.mocked(rm).mockImplementation(realRm);
 });
 
 beforeEach(() => {
-  // 1 TB free everywhere, in the 1K blocks `df` reports.
-  vi.mocked(getDiskSpaceSummary).mockResolvedValue({
-    total: 1_000_000_000,
-    used: 0,
-    available: 1_000_000_000,
-  });
-  vi.mocked(syncFilesystem).mockResolvedValue();
-});
-
-test('creates a signed backup that validates', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  const target = makeTemporaryDirectory();
-  const steps: BackupStep[] = [];
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
-    onProgress: ({ step }) => {
-      if (steps[steps.length - 1] !== step) {
-        steps.push(step);
-      }
-    },
-  });
-
-  const { backupDirectoryPath, manifest } = result.unsafeUnwrap();
-  expect(backupDirectoryPath).toEqual(
-    join(target, BACKUPS_DIRECTORY_NAME, expectedBackupDirectoryName())
-  );
-  expect(steps).toEqual([
-    'checking_space',
-    'snapshotting_database',
-    'copying_files',
-    'signing',
-    'flushing',
-    'validating',
-    'swapping',
-  ]);
-
-  expect(manifest.version).toEqual(1);
-  expect(manifest.softwareVersion).toEqual('1.2.3');
-  expect(manifest.machineId).toEqual('AD-1234');
-  expect(manifest.election.title).toEqual(electionDefinition.election.title);
-  expect(manifest.files.map((file) => file.path)).toEqual([
-    'data.db',
-    BALLOT_IMAGE_PATH,
-    expect.stringMatching(/^election-packages\/.*\.zip$/),
-    'machine_mode',
-  ]);
-  for (const file of manifest.files) {
-    expect(
-      statSync(backupFilePath(backupDirectoryPath, file.path)).size
-    ).toEqual(file.size);
-  }
-
-  // The snapshot the backup was taken from is cleaned up.
-  expect((await readManifest(backupDirectoryPath)).unsafeUnwrap()).toEqual(
-    manifest
-  );
-  expect(
-    readFileSync(
-      backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
-      'utf-8'
-    )
-  ).toEqual(BALLOT_IMAGE_CONTENTS);
-
-  expect(
-    (
-      await validateBackup({
-        backupDirectoryPath,
-        expectedSoftwareVersion: '1.2.3',
-      })
-    ).unsafeUnwrap()
-  ).toEqual(manifest);
-});
-
-test('logs each stage once, however many files it copies', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  const testLogger = logger();
-  let copyingFilesUpdates = 0;
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: testLogger,
-    onProgress: ({ step }) => {
-      if (step === 'copying_files') {
-        copyingFilesUpdates += 1;
-      }
-    },
-  });
-  result.unsafeUnwrap();
-
-  // The caller sees an update per file; the log gets one line per stage.
-  expect(copyingFilesUpdates).toBeGreaterThan(1);
-  expect(loggedSteps(testLogger)).toEqual([
-    'checking_space',
-    'snapshotting_database',
-    'copying_files',
-    'signing',
-    'flushing',
-    'validating',
-    'swapping',
-  ]);
+  mockRoomToWorkIn();
 });
 
 test('a failed backup records the stage it got to', async () => {
   const workspace = await makeConfiguredWorkspace();
-  const testLogger = logger();
+  const testLogger = mockLogger();
   vi.mocked(syncFilesystem).mockRejectedValue(new Error('drive went away'));
 
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
+    machineConfig: MACHINE_CONFIG,
     logger: testLogger,
   });
   expect(result).toEqual(
@@ -250,73 +99,6 @@ test('a failed backup records the stage it got to', async () => {
   ]);
 });
 
-test('a second backup replaces the first, leaving no transient directories', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  const target = makeTemporaryDirectory();
-
-  const first = await createBackup({
-    workspace,
-    targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
-  });
-  first.unsafeUnwrap();
-
-  writeFileSync(join(workspace.path, BALLOT_IMAGE_PATH), 'different bytes');
-
-  const second = await createBackup({
-    workspace,
-    targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
-  });
-  const { backupDirectoryPath } = second.unsafeUnwrap();
-
-  expect(
-    readFileSync(
-      backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
-      'utf-8'
-    )
-  ).toEqual('different bytes');
-  expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
-  expect(
-    isTransientBackupDirectoryName(`${expectedBackupDirectoryName()}-previous`)
-  ).toEqual(true);
-  expect(() => statSync(`${backupDirectoryPath}-previous`)).toThrow();
-  expect(() => statSync(`${backupDirectoryPath}-in-progress`)).toThrow();
-});
-
-test('flushes the drive before the backup takes its final name', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  const target = makeTemporaryDirectory();
-  const backupDirectoryPath = join(
-    target,
-    BACKUPS_DIRECTORY_NAME,
-    expectedBackupDirectoryName()
-  );
-
-  // Whether the backup is visible under its final name at each flush. A drive
-  // pulled between the two flushes must not hold a name whose contents were
-  // never flushed.
-  const backupWasVisible: boolean[] = [];
-  vi.mocked(syncFilesystem).mockImplementation((path) => {
-    expect(path).toEqual(target);
-    backupWasVisible.push(existsSync(backupDirectoryPath));
-    return Promise.resolve();
-  });
-
-  (
-    await createBackup({
-      workspace,
-      targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
-    })
-  ).unsafeUnwrap();
-
-  expect(backupWasVisible).toEqual([false, true]);
-});
-
 test('fails when the drive cannot be flushed', async () => {
   const workspace = await makeConfiguredWorkspace();
   vi.mocked(syncFilesystem).mockRejectedValue(new Error('drive went away'));
@@ -324,8 +106,8 @@ test('fails when the drive cannot be flushed', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   expect(result).toEqual(
     err({ type: 'flush_failed', message: 'drive went away' })
@@ -337,8 +119,8 @@ test('refuses to back up an unconfigured workspace', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   expect(result).toEqual(err({ type: 'no_election_configured' }));
 });
@@ -351,8 +133,8 @@ test('fails when the target cannot be written to', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: targetPath,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   expect(result).toEqual(
     err({
@@ -385,8 +167,8 @@ test.each([
     const result = await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
     });
     expect(result).toEqual(
       err({
@@ -408,8 +190,8 @@ test('fails when the database snapshot fails', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   expect(result).toEqual(
     err({
@@ -426,8 +208,8 @@ test('fails when a file disappears mid-copy', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
     onProgress: ({ step }) => {
       if (step === 'snapshotting_database') {
         rmSync(join(workspace.path, BALLOT_IMAGE_PATH));
@@ -481,8 +263,8 @@ test.each([
     const result = await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
       onProgress: ({ step }) => {
         if (step === stepToInterruptAt) {
           rmSync(
@@ -519,8 +301,8 @@ test('fails when the backup on the drive no longer matches what was written', as
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
     onProgress: ({ step }) => {
       if (step === 'validating') {
         // A drive that quietly changes what it stored, caught by reading it
@@ -559,16 +341,16 @@ test('a backup that fails to verify does not cost the drive its last good one', 
   const first = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   const firstManifest = first.unsafeUnwrap().manifest;
 
   const second = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
     onProgress: ({ step }) => {
       if (step === 'validating') {
         writeFileSync(
@@ -605,160 +387,6 @@ test('a backup that fails to verify does not cost the drive its last good one', 
       'utf-8'
     )
   ).toEqual(BALLOT_IMAGE_CONTENTS);
-});
-
-async function createValidBackup(): Promise<{
-  backupDirectoryPath: string;
-  manifest: BackupManifest;
-}> {
-  const workspace = await makeConfiguredWorkspace();
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
-  });
-  return result.unsafeUnwrap();
-}
-
-test('validation reports progress as it verifies each file', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-  const bytesTotal = manifest.files.reduce((sum, file) => sum + file.size, 0);
-  const updates: BackupValidationProgress[] = [];
-
-  const result = await validateBackup({
-    backupDirectoryPath,
-    onProgress: (progress) => updates.push(progress),
-  });
-  result.unsafeUnwrap();
-
-  // One update before any file is read, so a caller can show the total up
-  // front, then one per file verified.
-  expect(updates).toHaveLength(manifest.files.length + 1);
-  expect(updates[0]).toEqual({ bytesCompleted: 0, bytesTotal });
-  expect(updates[updates.length - 1]).toEqual({
-    bytesCompleted: bytesTotal,
-    bytesTotal,
-  });
-});
-
-test('validation rejects a backup whose manifest cannot be read', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-  rmSync(manifestPath(backupDirectoryPath));
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'manifest_unreadable',
-      message: expect.stringContaining('ENOENT'),
-    })
-  );
-});
-
-test('validation rejects a manifest that has been edited', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-  writeFileSync(
-    manifestPath(backupDirectoryPath),
-    JSON.stringify({ ...manifest, machineId: 'AD-9999' })
-  );
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'signature_invalid',
-      message: expect.stringContaining('Verification failure'),
-    })
-  );
-});
-
-test('validation rejects a backup made by different software', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-
-  const result = await validateBackup({
-    backupDirectoryPath,
-    expectedSoftwareVersion: '9.9.9',
-  });
-  expect(result).toEqual(
-    err({
-      type: 'software_version_mismatch',
-      expectedSoftwareVersion: '9.9.9',
-      actualSoftwareVersion: '1.2.3',
-    })
-  );
-});
-
-test('validation rejects a backup with a missing file', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-  rmSync(backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH));
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'file_missing',
-      path: BALLOT_IMAGE_PATH,
-    })
-  );
-});
-
-test('validation rejects a backup with a resized file', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-  const file = assertDefined(
-    manifest.files.find((f) => f.path === BALLOT_IMAGE_PATH)
-  );
-  writeFileSync(
-    backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
-    'short'
-  );
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'file_size_mismatch',
-      path: BALLOT_IMAGE_PATH,
-      expectedSize: file.size,
-      actualSize: 5,
-    })
-  );
-});
-
-test('validation rejects a backup with an altered file', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-  writeFileSync(
-    backupFilePath(backupDirectoryPath, BALLOT_IMAGE_PATH),
-    'ballot image bytez'
-  );
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'file_hash_mismatch',
-      path: BALLOT_IMAGE_PATH,
-      expectedSha256: expect.any(String),
-      actualSha256: expect.any(String),
-    })
-  );
-});
-
-test('validation rejects a backup with a file the manifest does not list', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-  writeFileSync(join(backupDirectoryPath, 'surprise.txt'), 'hello');
-
-  const result = await validateBackup({ backupDirectoryPath });
-  expect(result).toEqual(
-    err({
-      type: 'unexpected_file',
-      path: 'surprise.txt',
-    })
-  );
-});
-
-test('the signature file is inside the backup directory', async () => {
-  const { backupDirectoryPath } = await createValidBackup();
-  expect(
-    statSync(
-      `${manifestPath(backupDirectoryPath)}${SIGNATURE_FILE_EXTENSION}`
-    ).isFile()
-  ).toEqual(true);
 });
 
 test.each<{ error: BackupError; expectedMessage: string }>([
@@ -806,57 +434,6 @@ test.each<{ error: BackupError; expectedMessage: string }>([
   expect(formatBackupError(error)).toContain(expectedMessage);
 });
 
-test.each<{ error: BackupValidationError; expectedMessage: string }>([
-  {
-    error: { type: 'manifest_unreadable', message: 'ENOENT' },
-    expectedMessage: 'manifest could not be read',
-  },
-  {
-    error: { type: 'signature_invalid', message: 'bad' },
-    expectedMessage: 'signature is not valid',
-  },
-  {
-    error: { type: 'manifest_version_unsupported', version: 2 },
-    expectedMessage: 'format version 2',
-  },
-  {
-    error: {
-      type: 'software_version_mismatch',
-      expectedSoftwareVersion: '2',
-      actualSoftwareVersion: '1',
-    },
-    expectedMessage: 'this machine is running 2',
-  },
-  {
-    error: { type: 'file_missing', path: 'data.db' },
-    expectedMessage: 'missing data.db',
-  },
-  {
-    error: {
-      type: 'file_size_mismatch',
-      path: 'data.db',
-      expectedSize: 2,
-      actualSize: 1,
-    },
-    expectedMessage: 'should be 2 bytes',
-  },
-  {
-    error: {
-      type: 'file_hash_mismatch',
-      path: 'data.db',
-      expectedSha256: 'a',
-      actualSha256: 'b',
-    },
-    expectedMessage: 'does not match the hash',
-  },
-  {
-    error: { type: 'unexpected_file', path: 'extra' },
-    expectedMessage: 'manifest does not list',
-  },
-])('formats validation error $error.type', ({ error, expectedMessage }) => {
-  expect(formatBackupValidationError(error)).toContain(expectedMessage);
-});
-
 test('recovers a backup stranded by a run that died mid-swap', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
@@ -869,8 +446,8 @@ test('recovers a backup stranded by a run that died mid-swap', async () => {
   const first = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   const firstManifest = first.unsafeUnwrap().manifest;
 
@@ -887,8 +464,8 @@ test('recovers a backup stranded by a run that died mid-swap', async () => {
   const second = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   expect(second).toEqual(
     err(expect.objectContaining({ type: 'insufficient_space' }))
@@ -916,8 +493,8 @@ test('leaves a stranded backup alone when a real one is already there', async ()
     await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
     })
   ).unsafeUnwrap();
 
@@ -929,42 +506,22 @@ test('leaves a stranded backup alone when a real one is already there', async ()
   const second = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
   second.unsafeUnwrap();
   expect(() => statSync(`${backupDirectoryPath}-previous`)).toThrow();
 });
 
-test('does not back up a hot rollback journal', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  // SQLite is left in its default `delete` journal mode, so this is the file a
-  // crashed VxAdmin leaves behind — and it belongs to the database beside it,
-  // not to the snapshot a restore would write.
-  writeFileSync(join(workspace.path, 'data.db-journal'), 'hot journal');
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
-  });
-
-  const { manifest } = result.unsafeUnwrap();
-  expect(manifest.files.map((file) => file.path)).not.toContain(
-    'data.db-journal'
-  );
-});
-
 test('reports an unreadable workspace instead of throwing', async () => {
   const workspace = await makeConfiguredWorkspace();
-  const testLogger = logger();
+  const testLogger = mockLogger();
   rmSync(workspace.path, { recursive: true, force: true });
 
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
+    machineConfig: MACHINE_CONFIG,
     logger: testLogger,
   });
 
@@ -992,8 +549,8 @@ test('reports a workspace that cannot be measured instead of throwing', async ()
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
 
   expect(result).toEqual(
@@ -1022,8 +579,8 @@ test('reports a backup drive that cannot be measured instead of throwing', async
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
 
   expect(result).toEqual(
@@ -1038,7 +595,7 @@ test('reports a backup drive that cannot be measured instead of throwing', async
 test('a backup that cannot be flushed afterwards is still a backup', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
-  const testLogger = logger();
+  const testLogger = mockLogger();
   // The first flush, before validation, succeeds; the one after the rename
   // fails — by which point the backup is complete and under its final name.
   vi.mocked(syncFilesystem)
@@ -1048,7 +605,7 @@ test('a backup that cannot be flushed afterwards is still a backup', async () =>
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
+    machineConfig: MACHINE_CONFIG,
     logger: testLogger,
   });
 
@@ -1077,16 +634,16 @@ test('fails when the new backup cannot be moved into place', async () => {
     await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
     })
   ).unsafeUnwrap();
 
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
     onProgress: ({ step }) => {
       // Renaming the existing backup aside can't succeed onto a directory that
       // already has something in it.
@@ -1112,66 +669,10 @@ test('fails when the new backup cannot be moved into place', async () => {
   expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
 });
 
-test('validation rejects a manifest format it does not understand', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-
-  // Signed, as a manifest written by later software would be: the point is
-  // that a backup can be perfectly authentic and still be unreadable here.
-  const manifestFileContents = JSON.stringify({ ...manifest, version: 2 });
-  writeFileSync(manifestPath(backupDirectoryPath), manifestFileContents);
-  const signatureFile = await prepareSignatureFile({
-    type: 'vxadmin_backup',
-    context: 'export',
-    manifestFileContents,
-  });
-  writeFileSync(
-    join(backupDirectoryPath, signatureFile.fileName),
-    signatureFile.fileContents
-  );
-
-  const result = await validateBackup({ backupDirectoryPath });
-
-  // Not a signature failure: this is about a backup we cannot claim to have
-  // checked, even if it were signed.
-  expect(result.err()).toEqual(
-    expect.objectContaining({
-      type: 'manifest_version_unsupported',
-      version: 2,
-    })
-  );
-});
-
-test('the copy reaches the end of its progress bar', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  let lastCopying: { bytesCompleted: number; bytesTotal: number } | undefined;
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
-    onProgress: (progress) => {
-      if (progress.step === 'copying_files') {
-        lastCopying = progress;
-      }
-    },
-  });
-
-  const { manifest } = result.unsafeUnwrap();
-  // Counting the live database rather than the smaller snapshot that is
-  // actually copied would leave the bar short of its end on every backup.
-  expect(assertDefined(lastCopying).bytesCompleted).toEqual(
-    assertDefined(lastCopying).bytesTotal
-  );
-  expect(assertDefined(lastCopying).bytesTotal).toEqual(
-    manifest.files.reduce((sum, file) => sum + file.size, 0)
-  );
-});
-
 test('a backup whose old copy cannot be deleted is still a backup', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
-  const testLogger = logger();
+  const testLogger = mockLogger();
   const backupDirectoryPath = join(
     target,
     BACKUPS_DIRECTORY_NAME,
@@ -1182,8 +683,8 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
     await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
     })
   ).unsafeUnwrap();
 
@@ -1199,7 +700,7 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
+    machineConfig: MACHINE_CONFIG,
     logger: testLogger,
     onProgress: ({ step }) => {
       // The cleanup at the start of a run deletes `-previous` too; only the one
@@ -1225,7 +726,7 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
 test('records the swap as the stage a failed rename reached', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
-  const testLogger = logger();
+  const testLogger = mockLogger();
   const backupDirectoryPath = join(
     target,
     BACKUPS_DIRECTORY_NAME,
@@ -1236,15 +737,15 @@ test('records the swap as the stage a failed rename reached', async () => {
     await createBackup({
       workspace,
       targetDirectoryPath: target,
-      machineConfig,
-      logger: logger(),
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
     })
   ).unsafeUnwrap();
 
   const result = await createBackup({
     workspace,
     targetDirectoryPath: target,
-    machineConfig,
+    machineConfig: MACHINE_CONFIG,
     logger: testLogger,
     onProgress: ({ step }) => {
       if (
@@ -1264,74 +765,6 @@ test('records the swap as the stage a failed rename reached', async () => {
   );
 });
 
-test('validation rejects a manifest path that climbs out of the backup', async () => {
-  const { backupDirectoryPath, manifest } = await createValidBackup();
-  const escaping: BackupManifest = {
-    ...manifest,
-    files: [
-      { ...assertDefined(manifest.files[0]), path: '../../etc/hostname' },
-    ],
-  };
-  const manifestFileContents = JSON.stringify(escaping);
-  writeFileSync(manifestPath(backupDirectoryPath), manifestFileContents);
-  const signatureFile = await prepareSignatureFile({
-    type: 'vxadmin_backup',
-    context: 'export',
-    manifestFileContents,
-  });
-  writeFileSync(
-    join(backupDirectoryPath, signatureFile.fileName),
-    signatureFile.fileContents
-  );
-
-  // Signed, so the signature check passes: the schema is what has to stop this,
-  // because restore writes every path a manifest lists.
-  expect((await validateBackup({ backupDirectoryPath })).err()).toEqual(
-    expect.objectContaining({ type: 'manifest_unreadable' })
-  );
-});
-
-test.each(['/etc/hostname', 'a/../../b', 'a//b', 'a/./b', 'a\\b', ''])(
-  'rejects the manifest path %o',
-  async (path) => {
-    const { backupDirectoryPath, manifest } = await createValidBackup();
-    writeFileSync(
-      manifestPath(backupDirectoryPath),
-      JSON.stringify({ ...manifest, files: [{ path, sha256: 'a', size: 0 }] })
-    );
-    expect(await readManifest(backupDirectoryPath)).toEqual(
-      err(expect.anything())
-    );
-  }
-);
-
-test('keeps the manifest out of the namespace the workspace files live in', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  // A workspace file named like the manifest would otherwise be copied over it,
-  // permanently breaking every backup of that workspace.
-  writeFileSync(join(workspace.path, 'manifest.json'), 'not the manifest');
-  const target = makeTemporaryDirectory();
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: target,
-    machineConfig,
-    logger: logger(),
-  });
-
-  const { backupDirectoryPath, manifest } = result.unsafeUnwrap();
-  expect(manifest.files.map((file) => file.path)).toContain('manifest.json');
-  expect(readdirSync(backupDirectoryPath).sort()).toEqual([
-    'manifest.json',
-    `manifest.json${SIGNATURE_FILE_EXTENSION}`,
-    WORKSPACE_DIRECTORY_NAME,
-  ]);
-  expect(
-    readFileSync(backupFilePath(backupDirectoryPath, 'manifest.json'), 'utf-8')
-  ).toEqual('not the manifest');
-  expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
-});
-
 test('refuses to back up a workspace containing a symbolic link', async () => {
   const workspace = await makeConfiguredWorkspace();
   const elsewhere = makeTemporaryDirectory();
@@ -1341,8 +774,8 @@ test('refuses to back up a workspace containing a symbolic link', async () => {
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
 
   // Skipping it would produce a backup whose manifest and contents agree with
@@ -1363,32 +796,12 @@ test('refuses to back up a workspace containing a symlinked directory', async ()
   const result = await createBackup({
     workspace,
     targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
   });
 
   // `readdir` doesn't descend into these, so a whole subtree would vanish.
   expect(result).toEqual(
     err({ type: 'unsupported_workspace_entry', path: 'linked-images' })
   );
-});
-
-test('clears snapshots left behind by runs that were killed', async () => {
-  const workspace = await makeConfiguredWorkspace();
-  // Each run names its snapshot after the clock, so nothing else would ever
-  // delete these and they are full copies of the election database.
-  writeFileSync(join(workspace.path, 'backup-tmp-1.db'), 'stale snapshot');
-  writeFileSync(join(workspace.path, 'backup-tmp-2.db'), 'stale snapshot');
-
-  const result = await createBackup({
-    workspace,
-    targetDirectoryPath: makeTemporaryDirectory(),
-    machineConfig,
-    logger: logger(),
-  });
-  result.unsafeUnwrap();
-
-  expect(
-    readdirSync(workspace.path).filter((name) => name.startsWith('backup-tmp-'))
-  ).toEqual([]);
 });
