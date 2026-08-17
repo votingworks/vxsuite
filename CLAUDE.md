@@ -373,6 +373,56 @@ export const saveSetting = {
 - Each app provides its API client via React context (`ApiClientContext` /
   `ApiProvider`)
 
+## CI (CircleCI)
+
+CI runs on CircleCI (`.circleci/config.yml`), not GitHub Actions — the two
+`.github/workflows/` files are unrelated. Every branch push builds; a PR is not
+required. One push creates two pipelines: a setup pipeline that path-filters,
+then a continuation pipeline whose workflows hold the ~60 real jobs.
+
+### Status
+
+With a PR: `gh pr checks <pr>` (add `--watch` to follow it).
+
+Without a PR, always pass `per_page=100`:
+
+```sh
+gh api "repos/votingworks/vxsuite/commits/<sha>/status?per_page=100" \
+  --jq '.state, (.statuses[] | select(.state != "success") | .context)'
+```
+
+The default page size is 30 and this repo posts ~62 statuses, so omitting
+`per_page` silently truncates — a truncated page can read green while a failure
+sits on page 2. CircleCI reports _statuses_, not check runs; `.../check-runs`
+returns nothing here.
+
+### Logs
+
+The project is public, so the CircleCI API needs no token:
+
+```sh
+curl -s "https://circleci.com/api/v2/project/gh/votingworks/vxsuite/pipeline?branch=<urlencoded>" \
+  | jq -r '.items[] | "\(.number) \(.id) \(.vcs.revision[0:10])"'
+curl -s "https://circleci.com/api/v2/pipeline/<pipeline-id>/workflow" \
+  | jq -r '.items[] | "\(.name) \(.id) \(.status)"'
+curl -s "https://circleci.com/api/v2/workflow/<workflow-id>/job" \
+  | jq -r '.items[] | select(.status != "success") | "\(.name) job=\(.job_number)"'
+curl -s "https://circleci.com/api/v1.1/project/github/votingworks/vxsuite/<job-number>" > /tmp/job.json
+jq -r '.steps[].actions[] | select(.status != "success") | .output_url' /tmp/job.json
+curl -s "<output-url>" | jq -r '.[].message' | sed 's/\x1b\[[0-9;]*m//g'
+```
+
+Three things that yield empty or misleading output:
+
+- A pipeline can hold more than one workflow (e.g. `test` plus a separately
+  sharded job), so iterate all workflows rather than taking `.items[0]`.
+- Select failing steps with `.status != "success"`, not `.failed == true` or a
+  non-zero `.exit_code`. A step killed by the 10-minute no-output timeout has
+  `status: "timedout"` with both of those null, so an exit-code filter finds
+  nothing and the job looks like it has no failing step.
+- `output_url` is a short-lived presigned S3 URL — fetch it immediately after
+  reading the job JSON, never from a saved earlier response.
+
 ## Pull Requests
 
 When creating PRs, use the repo template at `.github/pull_request_template.md`.
