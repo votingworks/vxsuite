@@ -1,8 +1,5 @@
-import { createHash } from 'node:crypto';
-import { createReadStream } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pipeline } from 'node:stream/promises';
 import { z } from 'zod/v4';
 import { VXADMIN_BACKUP_MANIFEST_FILE_NAME } from '@votingworks/auth';
 import { Result, err, ok } from '@votingworks/basics';
@@ -153,15 +150,6 @@ export async function readManifestContents(
  */
 export function parseManifest(contents: string): Result<BackupManifest, Error> {
   return safeParseJson(contents, BackupManifestSchema);
-}
-
-/**
- * Computes the SHA-256 hash of the file at the given path.
- */
-export async function sha256File(filePath: string): Promise<string> {
-  const hash = createHash('sha256');
-  await pipeline(createReadStream(filePath), hash);
-  return hash.digest('hex');
 }
 
 /**

@@ -1,4 +1,5 @@
-import { readdir, stat } from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
+import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -9,17 +10,21 @@ import {
   Result,
   err,
   extractErrorMessage,
+  isNonExistentFileOrDirectoryError,
   iter,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { createHash } from 'node:crypto';
+import { Writable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { createReadStream } from './fs.js';
 import {
   BACKUP_MANIFEST_VERSION,
   backupFilePath,
   BackupManifest,
   parseManifest,
   readManifestContents,
-  sha256File,
   WORKSPACE_DIRECTORY_NAME,
 } from './manifest.js';
 
@@ -194,11 +199,25 @@ export async function validateBackup({
 
   for (const file of manifest.files) {
     const filePath = backupFilePath(backupDirectoryPath, file.path);
-    let size: number;
+    let size = 0;
+    const hash = createHash('sha256');
+
     try {
-      ({ size } = await stat(filePath));
-    } catch {
-      return err({ type: 'file_missing', path: file.path });
+      await pipeline(
+        createReadStream(filePath),
+        new Writable({
+          write(chunk: Buffer, _encoding, callback) {
+            hash.update(chunk);
+            size += chunk.length;
+            callback();
+          },
+        })
+      );
+    } catch (e) {
+      if (isNonExistentFileOrDirectoryError(e)) {
+        return err({ type: 'file_missing', path: file.path });
+      }
+      throw e;
     }
     if (size !== file.size) {
       return err({
@@ -208,7 +227,7 @@ export async function validateBackup({
         actualSize: size,
       });
     }
-    const sha256 = await sha256File(filePath);
+    const sha256 = hash.digest('hex');
     if (sha256 !== file.sha256) {
       return err({
         type: 'file_hash_mismatch',
