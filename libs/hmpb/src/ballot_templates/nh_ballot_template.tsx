@@ -72,6 +72,7 @@ import {
 } from '../ballot_components';
 import { PixelDimensions, CandidateOrdering, RotationParams } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
+import { voteForText } from './nh_state_ballot_components';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 import { ArrowRightCircle } from '../svg_assets';
@@ -496,36 +497,6 @@ function CandidateContest({
     contest,
     ballotStyle,
   });
-  const voteForText = {
-    1: hmpbStrings.hmpbVoteForNotMoreThan1,
-    2: hmpbStrings.hmpbVoteFor2,
-    3: hmpbStrings.hmpbVoteFor3,
-    4: hmpbStrings.hmpbVoteFor4,
-    5: hmpbStrings.hmpbVoteFor5,
-    6: hmpbStrings.hmpbVoteFor6,
-    7: hmpbStrings.hmpbVoteFor7,
-    8: hmpbStrings.hmpbVoteFor8,
-    9: hmpbStrings.hmpbVoteFor9,
-    10: hmpbStrings.hmpbVoteFor10,
-  }[contest.seats];
-  if (!voteForText) {
-    throw new Error(
-      `Unsupported number of seats for contest: ${contest.seats}`
-    );
-  }
-
-  const willBeElectedText = {
-    2: hmpbStrings.hmpb2WillBeElected,
-    3: hmpbStrings.hmpb3WillBeElected,
-    4: hmpbStrings.hmpb4WillBeElected,
-    5: hmpbStrings.hmpb5WillBeElected,
-    6: hmpbStrings.hmpb6WillBeElected,
-    7: hmpbStrings.hmpb7WillBeElected,
-    8: hmpbStrings.hmpb8WillBeElected,
-    9: hmpbStrings.hmpb9WillBeElected,
-    10: hmpbStrings.hmpb10WillBeElected,
-  }[contest.seats];
-
   return (
     <Box
       style={{
@@ -539,10 +510,7 @@ function CandidateContest({
           <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
         <DualLanguageText delimiter="/">
-          <div>
-            {voteForText}
-            {willBeElectedText && <>; {willBeElectedText}</>}
-          </div>
+          <div>{voteForText(contest.seats)}</div>
         </DualLanguageText>
         {contest.termDescription && (
           <DualLanguageText delimiter="/">

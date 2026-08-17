@@ -11,6 +11,7 @@ import {
   Party,
 } from '@votingworks/types';
 import { electionStrings } from '@votingworks/ui';
+import { hmpbStrings } from '../hmpb_strings';
 import {
   BallotHashSlot,
   BubbleShape,
@@ -419,4 +420,46 @@ export function isDemocraticParty(party: Party): boolean {
 }
 export function isRepublicanParty(party: Party): boolean {
   return party.name.toLowerCase().startsWith('rep');
+}
+
+/**
+ * The seats text for a candidate contest header: "Vote for not more than 1"
+ * for single-seat contests, or "Vote for up to N; <Word> will be elected" for
+ * multi-seat contests. Throws for seat counts outside 1-10.
+ */
+export function voteForText(seats: number): JSX.Element {
+  const text = assertDefined(
+    {
+      1: hmpbStrings.hmpbVoteForNotMoreThan1,
+      2: hmpbStrings.hmpbVoteFor2,
+      3: hmpbStrings.hmpbVoteFor3,
+      4: hmpbStrings.hmpbVoteFor4,
+      5: hmpbStrings.hmpbVoteFor5,
+      6: hmpbStrings.hmpbVoteFor6,
+      7: hmpbStrings.hmpbVoteFor7,
+      8: hmpbStrings.hmpbVoteFor8,
+      9: hmpbStrings.hmpbVoteFor9,
+      10: hmpbStrings.hmpbVoteFor10,
+    }[seats],
+    `Unsupported number of seats for contest: ${seats}`
+  );
+  const willBeElectedText = {
+    2: hmpbStrings.hmpb2WillBeElected,
+    3: hmpbStrings.hmpb3WillBeElected,
+    4: hmpbStrings.hmpb4WillBeElected,
+    5: hmpbStrings.hmpb5WillBeElected,
+    6: hmpbStrings.hmpb6WillBeElected,
+    7: hmpbStrings.hmpb7WillBeElected,
+    8: hmpbStrings.hmpb8WillBeElected,
+    9: hmpbStrings.hmpb9WillBeElected,
+    10: hmpbStrings.hmpb10WillBeElected,
+  }[seats];
+  return (
+    <React.Fragment>
+      {text}
+      {willBeElectedText && (
+        <React.Fragment>; {willBeElectedText}</React.Fragment>
+      )}
+    </React.Fragment>
+  );
 }
