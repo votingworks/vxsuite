@@ -679,6 +679,35 @@ test('a backup that cannot be flushed afterwards is still a backup', async () =>
   );
 });
 
+test('a snapshot that cannot be cleaned up does not fail the backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const testLogger = mockLogger();
+
+  vi.mocked(rm).mockImplementation((path, options) =>
+    /backup-tmp-\d+\.db$/.test(String(path))
+      ? Promise.reject(new Error('EBUSY: resource busy, rm'))
+      : realRm(path, options)
+  );
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: testLogger,
+  });
+
+  // Crashing here would exit nonzero without the completion log line, telling
+  // an operator the backup failed when a valid one is sitting on the drive.
+  const { backupDirectoryPath } = result.unsafeUnwrap();
+  expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
+  expect(vi.mocked(testLogger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({ disposition: 'success' })
+  );
+});
+
 test('fails when the new backup cannot be moved into place', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();

@@ -691,7 +691,9 @@ export async function createBackup({
     });
   }
 
-  await rm(snapshotPath, { force: true });
+  // Quietly: the backup is already complete, and a stale snapshot is exactly
+  // what `removeStaleSnapshots` exists to catch next time.
+  await rmQuietly(snapshotPath);
 
   logger.log(LogEventId.BackupCreateComplete, 'system', {
     message: `Backed up election data to ${backupDirectoryPath}.`,
