@@ -132,6 +132,9 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "1M": "1M",
     "2F": "2F",
   },
+  "candidateDesignation": {
+    "horse": "City Councilmember",
+  },
   "candidateName": {
     "elephant": "Elephant",
     "fox": "Fox",

@@ -229,6 +229,8 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     // Currently not exposed for TTS editing:
     ballotLanguage: [],
     ballotStyleId: [],
+    // Not authored in VxDesign yet:
+    candidateDesignation: [],
     electionDate: [],
   };
 

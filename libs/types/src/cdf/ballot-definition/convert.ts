@@ -178,6 +178,9 @@ const extractorFns: Record<
     }
   },
 
+  // TODO(kevin): Extract candidate designations once they're represented in CDF.
+  [ElectionStringKey.CANDIDATE_DESIGNATION]() {},
+
   [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
     const candidates =
       assertDefined(cdfElection.Election[0]).Candidate ||
@@ -795,6 +798,7 @@ export function convertVxfElectionToCdfBallotDefinition(
           )
           .flatMap((contest) => contest.candidates)
           .map(
+            // TODO(kevin): support `candidate.designation`
             (candidate): Cdf.Candidate => ({
               '@type': 'BallotDefinition.Candidate',
               '@id': candidate.id,
@@ -1274,6 +1278,7 @@ export function convertCdfBallotDefinitionToVxfElection(
                 // candidate is endorsed by multiple parties, and we don't
                 // care about the candidate's "home" party.
                 partyIds: option.EndorsementPartyIds,
+                // TODO(kevin): support `candidate.designation`
               };
             }),
             partyId: contest.PrimaryPartyIds

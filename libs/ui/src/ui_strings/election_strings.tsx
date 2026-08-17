@@ -51,6 +51,15 @@ export const electionStrings = {
     </InEnglish>
   ),
 
+  [Key.CANDIDATE_DESIGNATION]: (candidate: Candidate) => (
+    <UiString
+      uiStringKey={Key.CANDIDATE_DESIGNATION}
+      uiStringSubKey={candidate.id}
+    >
+      {candidate.designation}
+    </UiString>
+  ),
+
   [Key.CANDIDATE_NAME]: (candidate: Candidate) => (
     <InEnglish>
       <UiString uiStringKey={Key.CANDIDATE_NAME} uiStringSubKey={candidate.id}>

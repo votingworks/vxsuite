@@ -78,6 +78,15 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
+  [ElectionStringKey.CANDIDATE_DESIGNATION]() {
+    // CDF has no field for candidate designations yet, so none are extracted.
+    const uiStrings = extractCdfUiStrings(testCdfBallotDefinition);
+
+    expect(
+      uiStrings['en']?.[ElectionStringKey.CANDIDATE_DESIGNATION]
+    ).toBeUndefined();
+  },
+
   [ElectionStringKey.CANDIDATE_NAME]() {
     const originalCandidates = assertDefined(ORIGINAL_ELECTION.Candidate);
 

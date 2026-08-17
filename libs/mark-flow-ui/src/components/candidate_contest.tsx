@@ -27,7 +27,6 @@ import {
   WithScrollButtons,
   ModalWidth,
   appStrings,
-  CandidatePartyList,
   NumberString,
   AudioOnly,
   electionStrings,
@@ -52,6 +51,7 @@ import {
   deriveStraightPartyVotesFromOrderedCandidates,
   numVotesRemaining,
 } from '../utils/vote.js';
+import { CandidateInfoCaption } from './candidate_info_caption.js';
 
 export interface WriteInCharacterLimitAcrossContests {
   numCharactersAllowed: number;
@@ -420,8 +420,8 @@ export function CandidateContest({
                 areCandidateChoicesEqual(c, candidate)
               );
               const matchesSelectedStraightParty =
-                selectedStraightPartyId &&
-                candidate.partyIds?.includes(selectedStraightPartyId);
+                !!selectedStraightPartyId &&
+                !!candidate.partyIds?.includes(selectedStraightPartyId);
 
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
@@ -482,19 +482,14 @@ export function CandidateContest({
                     </React.Fragment>
                   }
                   caption={
-                    <React.Fragment>
-                      <CandidatePartyList
-                        candidate={candidate}
-                        electionParties={election.parties}
-                      />
-                      {matchesSelectedStraightParty && (
-                        <span>
-                          {' - '}
-                          {appStrings.labelStraightPartyVote()}
-                        </span>
-                      )}
-                      <AudioOnly>{suffixAudioText}</AudioOnly>
-                    </React.Fragment>
+                    <CandidateInfoCaption
+                      candidate={candidate}
+                      election={election}
+                      matchesSelectedStraightParty={
+                        matchesSelectedStraightParty
+                      }
+                      audioOnly=<AudioOnly>{suffixAudioText}</AudioOnly>
+                    />
                   }
                 />
               );

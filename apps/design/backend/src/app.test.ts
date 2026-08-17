@@ -3867,8 +3867,10 @@ test('Election package and ballots export', async () => {
   }
 
   for (const electionStringKey of Object.values(ElectionStringKey)) {
-    // The current election definition doesn't include any yes-no contests, contest terms, or precinct splits
+    // The current election definition doesn't include any yes-no contests,
+    // contest terms, precinct splits, or candidate designations
     if (
+      electionStringKey === ElectionStringKey.CANDIDATE_DESIGNATION ||
       electionStringKey === ElectionStringKey.CONTEST_DESCRIPTION ||
       electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL ||
       electionStringKey === ElectionStringKey.CONTEST_TERM ||
