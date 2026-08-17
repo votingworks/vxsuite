@@ -637,6 +637,21 @@ export async function createBackup({
     }
     await rename(inProgressDirectoryPath, backupDirectoryPath);
   } catch (error) {
+    // If the old backup was already moved aside, put it back before `fail`
+    // deletes the new copy: `-previous` is a name `list` hides and a restore
+    // won't read, and only the recovery pass at the top of a future run would
+    // ever find it there.
+    try {
+      if (
+        !(await exists(backupDirectoryPath)) &&
+        (await exists(previousDirectoryPath))
+      ) {
+        await rename(previousDirectoryPath, backupDirectoryPath);
+      }
+    } catch {
+      // Whatever broke the swap may make this impossible too; that future
+      // run's recovery pass is what's left.
+    }
     return fail({
       type: 'swap_failed',
       message: extractErrorMessage(error),

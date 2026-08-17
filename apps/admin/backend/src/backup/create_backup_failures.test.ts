@@ -13,7 +13,11 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { rm as realRm, stat as realStat } from 'node:fs/promises';
+import {
+  rename as realRename,
+  rm as realRm,
+  stat as realStat,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import { syncFilesystem } from '@votingworks/usb-drive';
@@ -25,7 +29,7 @@ import {
   createBackup,
   formatBackupError,
 } from './create_backup.js';
-import { rm, stat } from './fs.js';
+import { rename, rm, stat } from './fs.js';
 import { BACKUPS_DIRECTORY_NAME, backupFilePath } from './manifest.js';
 import { validateBackup } from './validate_backup.js';
 import {
@@ -45,7 +49,12 @@ import {
 // one calls through to the real implementation unless a test says otherwise.
 vi.mock('./fs.js', async (importActual) => {
   const actual = await importActual<typeof import('./fs.js')>();
-  return { ...actual, rm: vi.fn(actual.rm), stat: vi.fn(actual.stat) };
+  return {
+    ...actual,
+    rename: vi.fn(actual.rename),
+    rm: vi.fn(actual.rm),
+    stat: vi.fn(actual.stat),
+  };
 });
 
 vi.mock(
@@ -66,6 +75,7 @@ vi.mock(
 
 afterEach(() => {
   // Whatever a test made these do, put them back to doing the real thing.
+  vi.mocked(rename).mockImplementation(realRename);
   vi.mocked(rm).mockImplementation(realRm);
   vi.mocked(stat).mockImplementation(realStat);
 });
@@ -769,6 +779,99 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
       message: expect.stringContaining('could not be deleted'),
     })
   );
+});
+
+test('a swap that fails half way puts the old backup back', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const backupDirectoryPath = join(
+    target,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+
+  const first = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  const firstManifest = first.unsafeUnwrap().manifest;
+
+  // The old backup moves aside, then the new one fails to move into place.
+  vi.mocked(rename).mockImplementation((oldPath, newPath) =>
+    String(oldPath).endsWith('-in-progress')
+      ? Promise.reject(new Error('EIO: i/o error, rename'))
+      : realRename(oldPath, newPath)
+  );
+
+  const second = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  expect(second).toEqual(
+    err({ type: 'swap_failed', message: expect.stringContaining('EIO') })
+  );
+
+  // Leaving the old backup under `-previous` — a name `list` hides and a
+  // restore won't read — would leave the drive with no recognizable backup at
+  // all until some future run recovered it.
+  const survivor = (
+    await validateBackup({ backupDirectoryPath })
+  ).unsafeUnwrap();
+  expect(survivor.createdAt).toEqual(firstManifest.createdAt);
+  expect(existsSync(`${backupDirectoryPath}-previous`)).toEqual(false);
+});
+
+test('a swap failure that cannot be undone leaves the old backup for recovery', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const backupDirectoryPath = join(
+    target,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+
+  (
+    await createBackup({
+      workspace,
+      targetDirectoryPath: target,
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
+    })
+  ).unsafeUnwrap();
+
+  // Nothing can be renamed into the backup's place: neither the new copy nor
+  // the old one being put back.
+  vi.mocked(rename).mockImplementation((oldPath, newPath) =>
+    String(newPath) === backupDirectoryPath
+      ? Promise.reject(new Error('EIO: i/o error, rename'))
+      : realRename(oldPath, newPath)
+  );
+
+  const second = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  expect(second).toEqual(
+    err({ type: 'swap_failed', message: expect.stringContaining('EIO') })
+  );
+
+  // Stranded, not deleted: the recovery pass at the start of the next run can
+  // still put it back.
+  expect(existsSync(`${backupDirectoryPath}-previous`)).toEqual(true);
+  vi.mocked(rename).mockImplementation(realRename);
+  const third = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  third.unsafeUnwrap();
 });
 
 test('records the swap as the stage a failed rename reached', async () => {
