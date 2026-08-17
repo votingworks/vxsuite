@@ -13,7 +13,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { rm as realRm } from 'node:fs/promises';
+import { rm as realRm, stat as realStat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import { syncFilesystem } from '@votingworks/usb-drive';
@@ -25,7 +25,7 @@ import {
   createBackup,
   formatBackupError,
 } from './create_backup.js';
-import { rm } from './fs.js';
+import { rm, stat } from './fs.js';
 import { BACKUPS_DIRECTORY_NAME, backupFilePath } from './manifest.js';
 import { validateBackup } from './validate_backup.js';
 import {
@@ -45,7 +45,7 @@ import {
 // one calls through to the real implementation unless a test says otherwise.
 vi.mock('./fs.js', async (importActual) => {
   const actual = await importActual<typeof import('./fs.js')>();
-  return { ...actual, rm: vi.fn(actual.rm) };
+  return { ...actual, rm: vi.fn(actual.rm), stat: vi.fn(actual.stat) };
 });
 
 vi.mock(
@@ -65,8 +65,9 @@ vi.mock(
 );
 
 afterEach(() => {
-  // Whatever a test made `rm` do, put it back to doing the real thing.
+  // Whatever a test made these do, put them back to doing the real thing.
   vi.mocked(rm).mockImplementation(realRm);
+  vi.mocked(stat).mockImplementation(realStat);
 });
 
 beforeEach(() => {
@@ -478,6 +479,53 @@ test('recovers a backup stranded by a run that died mid-swap', async () => {
   ).unsafeUnwrap();
   expect(recovered.createdAt).toEqual(firstManifest.createdAt);
   expect(() => statSync(`${backupDirectoryPath}-previous`)).toThrow();
+});
+
+test('does not delete a stranded backup it could not check for', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const backupDirectoryPath = join(
+    target,
+    BACKUPS_DIRECTORY_NAME,
+    expectedBackupDirectoryName()
+  );
+
+  (
+    await createBackup({
+      workspace,
+      targetDirectoryPath: target,
+      machineConfig: MACHINE_CONFIG,
+      logger: mockLogger(),
+    })
+  ).unsafeUnwrap();
+  renameSync(backupDirectoryPath, `${backupDirectoryPath}-previous`);
+
+  // A `stat` that fails with anything but ENOENT hasn't said the directory
+  // isn't there; it has failed to answer.
+  vi.mocked(stat).mockImplementation((path) =>
+    String(path).endsWith('-previous')
+      ? Promise.reject(new Error('EIO: i/o error, stat'))
+      : realStat(path)
+  );
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  expect(result).toEqual(
+    err({
+      type: 'target_unusable',
+      path: target,
+      message: expect.stringContaining('EIO'),
+    })
+  );
+
+  // Treating the unanswered question as "not there" would have sent this run
+  // past recovery and into the cleanup that deletes `-previous` — the drive's
+  // only backup.
+  expect(existsSync(`${backupDirectoryPath}-previous`)).toEqual(true);
 });
 
 test('leaves a stranded backup alone when a real one is already there', async () => {

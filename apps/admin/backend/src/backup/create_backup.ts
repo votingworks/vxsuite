@@ -10,6 +10,7 @@ import {
   assertDefined,
   err,
   extractErrorMessage,
+  isNonExistentFileOrDirectoryError,
   iter,
   ok,
   Result,
@@ -241,12 +242,18 @@ async function listWorkspaceFiles(
   return { files: [...files].sort(), unsupported: [...unsupported].sort() };
 }
 
+// Only "no" means no: a `stat` that fails some other way (a drive going bad,
+// say) hasn't answered the question, and one caller decides whether to delete
+// the last good backup based on the answer.
 async function exists(path: string): Promise<boolean> {
   try {
     await stat(path);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (isNonExistentFileOrDirectoryError(error)) {
+      return false;
+    }
+    throw error;
   }
 }
 
