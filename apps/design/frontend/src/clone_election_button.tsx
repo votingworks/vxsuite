@@ -1,12 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import {
-  P,
-  Button,
-  Modal,
-  ButtonVariant,
-  Font,
-  SearchSelect,
-} from '@votingworks/ui';
+import { P, Button, Modal, Font, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type {
@@ -91,13 +84,12 @@ function CloneElectionModal(props: {
 
 export interface CloneElectionButtonProps {
   election: ElectionListing;
-  variant?: ButtonVariant;
 }
 
 export function CloneElectionButton(
   props: CloneElectionButtonProps
 ): React.ReactNode {
-  const { election, variant } = props;
+  const { election } = props;
 
   const history = useHistory();
   const cloneMutation = api.cloneElection.useMutation();
@@ -132,7 +124,9 @@ export function CloneElectionButton(
           {buttonLabel}
         </Tooltip>
         <Button
-          variant={variant}
+          fill="tinted"
+          style={{ padding: '0.75rem 1rem' }}
+          disableEventPropagation
           onPress={
             user.type === 'jurisdiction_user' && user.jurisdictions.length === 1
               ? () => cloneElection(user.jurisdictions[0].id)
@@ -145,9 +139,7 @@ export function CloneElectionButton(
             modalActive
           }
           icon="Copy"
-        >
-          Duplicate
-        </Button>
+        />
       </TooltipContainer>
       {modalActive && (
         <CloneElectionModal
