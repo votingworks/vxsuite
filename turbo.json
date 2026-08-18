@@ -1,6 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
+    ".node-version",
+    ".nvmrc",
+    "package.json",
     "tsconfig.shared.json",
     "vitest.config.shared.mts",
     ".prettierrc.js",
