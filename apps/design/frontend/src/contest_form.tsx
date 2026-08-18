@@ -1022,8 +1022,7 @@ function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
     firstName,
     middleName,
     lastName,
-    designation:
-      candidate.designation !== undefined ? candidate.designation : undefined,
+    designation: candidate.designation,
     partyIds: candidate.partyIds?.slice(),
   };
 }
