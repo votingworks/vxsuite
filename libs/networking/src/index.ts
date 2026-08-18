@@ -4,3 +4,9 @@ export type { AvahiDiscoveredService } from './avahi.js';
 export { isNetworkingEnabled } from './config.js';
 export { intermediateScript } from './intermediate_scripts.js';
 export { isValidIpv4Address } from './utils.js';
+export {
+  findAllVxAdminHostMachines,
+  getVxAdminServiceName,
+  machineIdFromVxAdminServiceName,
+} from './vx_admin_service.js';
+export type { VxAdminHostMachine } from './vx_admin_service.js';

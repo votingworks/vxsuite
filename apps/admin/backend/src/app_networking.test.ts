@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
-import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
+import {
+  findAllVxAdminHostMachines,
+  hasOnlineInterface,
+} from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
 import {
@@ -23,11 +26,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
-import {
-  startHostNetworking,
-  startClientNetworking,
-  getHostServiceName,
-} from './networking.js';
+import { startHostNetworking, startClientNetworking } from './networking.js';
 import { buildPeerApp } from './peer_app.js';
 import type { PeerApi } from './peer_app.js';
 import { buildClientApp } from './client_app.js';
@@ -51,17 +50,20 @@ import { getCurrentTime } from './get_current_time.js';
 
 vi.mock('./get_current_time');
 
-vi.mock('@votingworks/networking', () => ({
-  hasOnlineInterface: vi.fn().mockResolvedValue(false),
-  isValidIpv4Address: vi.fn().mockReturnValue(true),
-  AvahiService: {
-    advertiseHttpService: vi.fn().mockReturnValue(undefined),
-    discoverHttpServices: vi.fn().mockResolvedValue([]),
-  },
-}));
+vi.mock(import('@votingworks/networking'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    hasOnlineInterface: vi.fn().mockResolvedValue(false),
+    findAllVxAdminHostMachines: vi.fn().mockResolvedValue([]),
+    AvahiService: {
+      advertiseHttpService: vi.fn().mockReturnValue(undefined),
+    } as unknown as typeof actual.AvahiService,
+  };
+});
 
 const mockHasOnlineInterface = vi.mocked(hasOnlineInterface);
-const mockDiscoverHttpServices = vi.mocked(AvahiService.discoverHttpServices);
+const mockFindAllVxAdminHostMachines = vi.mocked(findAllVxAdminHostMachines);
 const mockGetCurrentTime = vi.mocked(getCurrentTime);
 
 beforeEach(() => {
@@ -69,7 +71,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockGetCurrentTime.mockImplementation(() => Date.now());
   mockHasOnlineInterface.mockResolvedValue(false);
-  mockDiscoverHttpServices.mockResolvedValue([]);
+  mockFindAllVxAdminHostMachines.mockResolvedValue([]);
 });
 
 afterEach(() => {
@@ -158,12 +160,10 @@ async function setupHostAndClient(
   // Allow process.nextTick callbacks to fire so setIntervals get registered
   await vi.advanceTimersByTimeAsync(0);
 
-  mockDiscoverHttpServices.mockResolvedValue([
+  mockFindAllVxAdminHostMachines.mockResolvedValue([
     {
-      name: getHostServiceName(hostMachineId),
-      host: 'host.local',
-      resolvedIp: '127.0.0.1',
-      port: peerPort.toString(),
+      machineId: hostMachineId,
+      address: `http://127.0.0.1:${peerPort}`,
     },
   ]);
 
@@ -232,7 +232,7 @@ test('client transitions to waiting-for-host when host disappears from avahi', a
   });
 
   // Host disappears from avahi discovery
-  mockDiscoverHttpServices.mockResolvedValue([]);
+  mockFindAllVxAdminHostMachines.mockResolvedValue([]);
 
   // Client should transition to waiting-for-host
   await waitFor(() => {
@@ -270,7 +270,7 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
   });
 
   // Stop client heartbeats by removing host from avahi
-  mockDiscoverHttpServices.mockResolvedValue([]);
+  mockFindAllVxAdminHostMachines.mockResolvedValue([]);
 
   // Wait for the client to fully disconnect before checking stale cleanup,
   // to avoid a race with in-flight connectToHost calls
@@ -448,7 +448,7 @@ test('a ballot claimed via the peer API is released when the client goes stale',
   expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
 
   // The client stops heartbeating
-  mockDiscoverHttpServices.mockResolvedValue([]);
+  mockFindAllVxAdminHostMachines.mockResolvedValue([]);
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(clientStore.getConnectionStatus()).toEqual(
