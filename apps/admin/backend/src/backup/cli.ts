@@ -195,6 +195,14 @@ async function list(
     .map((entry) => entry.name)
     .sort();
 
+  // An empty directory answers the question the same way a missing one does:
+  // there is nothing here to restore. A script keying off the exit status must
+  // not read silence as a drive that listed successfully.
+  if (backupDirectoryNames.length === 0) {
+    stderr.write(`No backups found in ${backupsDirectoryPath}\n`);
+    return 1;
+  }
+
   for (const backupDirectoryName of backupDirectoryNames) {
     const manifestResult = await readManifest(
       join(backupsDirectoryPath, backupDirectoryName)

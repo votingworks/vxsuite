@@ -344,6 +344,19 @@ test('list reports when there are no backups', async () => {
   expect(stderr).toContain('No backups found in');
 });
 
+test('list reports a backups directory with nothing listable in it', async () => {
+  const backupsDirectoryPath = join(targetPath, BACKUPS_DIRECTORY_NAME);
+  // What a killed run leaves behind: a directory that exists but holds no
+  // restorable backup. Exit 0 with no output would read as a healthy drive.
+  mkdirSync(join(backupsDirectoryPath, 'an-election-in-progress'), {
+    recursive: true,
+  });
+
+  const { code, stderr } = await run(['list', targetPath]);
+  expect(code).toEqual(1);
+  expect(stderr).toContain('No backups found in');
+});
+
 test('list ignores transient directories and flags unreadable backups', async () => {
   const backupsDirectoryPath = join(targetPath, BACKUPS_DIRECTORY_NAME);
   mkdirSync(join(backupsDirectoryPath, 'an-election-in-progress'), {
