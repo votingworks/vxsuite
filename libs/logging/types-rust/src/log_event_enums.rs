@@ -321,6 +321,8 @@ pub enum EventId {
     FujitsuScanMessage,
     #[serde(rename = "imprinter-status")]
     ImprinterStatus,
+    #[serde(rename = "central-scan-network-status")]
+    CentralScanNetworkStatus,
     #[serde(rename = "election-package-load-from-usb-complete")]
     ElectionPackageLoadedFromUsb,
     #[serde(rename = "export-cast-vote-records-init")]
