@@ -2,13 +2,8 @@ import { sleep } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import {
-  CheckInBallotParty,
-  PartyAbbreviation,
-  Voter,
-  safeParseInt,
-} from '@votingworks/types';
-import type { LocalApi } from '../src/app.js';
+import { CheckInBallotParty, Voter, safeParseInt } from '@votingworks/types';
+import type { LocalApi } from '../app.js';
 
 const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
@@ -22,6 +17,18 @@ async function getAllVotersInCurrentPrecinct() {
     console.error('Failed to fetch voters:', error);
     return []; // Return an empty array if offline
   }
+}
+
+function calculateStats(times: number[]): {
+  avg: string;
+  min: string;
+  max: string;
+} {
+  return {
+    avg: (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2),
+    min: Math.min(...times).toFixed(2),
+    max: Math.max(...times).toFixed(2),
+  };
 }
 
 // Returns the voter's party, or if party is undeclared, deterministically
@@ -40,13 +47,13 @@ function getCheckInPartyForVoter(voter: Voter): CheckInBallotParty {
 
 async function checkInVoter(voter: Voter, isPrimary: boolean) {
   try {
-    await api.checkInVoter({
+    void (await api.checkInVoter({
       voterId: voter.voterId,
       identificationMethod: { type: 'default' },
       ballotParty: isPrimary
         ? getCheckInPartyForVoter(voter)
         : 'NOT_APPLICABLE',
-    });
+    }));
   } catch (error) {
     console.error(`Failed to check in voter ${voter.voterId}:`, error);
   }
@@ -132,10 +139,13 @@ async function checkInAllVotersOnCurrentMachine(
     );
 
     let processed = 0;
-    const durations = {
-      searchByInitials: [] as number[],
-      searchByFullName: [] as number[],
-      checkIn: [] as number[],
+    const durations: Record<
+      'searchByInitials' | 'searchByFullName' | 'checkIn',
+      number[]
+    > = {
+      searchByInitials: [],
+      searchByFullName: [],
+      checkIn: [],
     };
 
     console.time('100processed');
@@ -174,12 +184,6 @@ async function checkInAllVotersOnCurrentMachine(
         console.log(`Processed ${processed} voters`);
         console.timeEnd('100processed');
         console.time('100processed');
-
-        const calculateStats = (times: number[]) => ({
-          avg: (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2),
-          min: Math.min(...times).toFixed(2),
-          max: Math.max(...times).toFixed(2),
-        });
 
         console.log(
           'Search by initials stats:',

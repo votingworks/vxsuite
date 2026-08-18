@@ -14,6 +14,8 @@ export default defineConfig({
         '**/*.d.ts',
         'src/index.ts',
         'src/types.ts',
+        // Dev-only CLI entry points for the `scripts/` launchers.
+        'src/scripts/**',
         '**/*.test.ts',
         'test/**/*',
       ],

@@ -17,6 +17,8 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
+        // Dev-only CLI entry points for the `scripts/` launchers.
+        'src/scripts/**',
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS

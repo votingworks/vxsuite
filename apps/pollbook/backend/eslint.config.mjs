@@ -8,4 +8,12 @@ export default [
       'vx/gts-jsdoc': 'off',
     },
   },
+  {
+    files: ['src/scripts/**'],
+    rules: {
+      'no-console': 'off',
+      // Dev-only scripts may use devDependencies.
+      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    },
+  },
 ];
