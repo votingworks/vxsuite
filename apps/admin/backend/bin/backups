@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+import { main } from '../build/backup/cli/main.js';
+
+try {
+  process.exitCode = await main(process.argv, process);
+} catch (error) {
+  console.error(error);
+  process.exitCode = 1;
+}
