@@ -29,7 +29,7 @@ pub enum Error {
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
 
-    #[error("failed to serialize JSON: {0}")]
+    #[error("JSON error: {0}")]
     Serde(#[from] serde_json::Error),
 
     #[error("timed out receiving data")]

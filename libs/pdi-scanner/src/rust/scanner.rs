@@ -12,7 +12,15 @@ use nusb::transfer::{Completion, RequestBuffer, TransferError};
 use crate::recording;
 use crate::{protocol::parsers, Error, Result, UsbError};
 
-use super::protocol::packets::{self, Incoming};
+use super::protocol::packets::{self, Incoming, IncomingType};
+
+/// A command for the USB task: the packet to write and a one-shot channel
+/// acknowledging a successful write. If the write fails, the USB task reports
+/// the error on the events channel and shuts down, dropping the ack sender —
+/// so a sender awaiting the ack learns of the failure by the channel closing.
+/// If the sender is cancelled (e.g. by a timeout) before the ack arrives, the
+/// dropped receiver is harmless: no state is shared with later commands.
+pub type OutgoingCommand = (packets::Outgoing, tokio::sync::oneshot::Sender<()>);
 
 pub(crate) trait BulkInQueue: Send + 'static {
     fn submit(&mut self, buf: RequestBuffer);
@@ -70,11 +78,13 @@ const DEFAULT_BUFFER_SIZE: usize = 16_384;
 /// otherwise we get a `FifoOverflow` error from the scanner.
 const IMAGE_BUFFER_SIZE: usize = 1_048_576; // 1 MiB
 
-#[allow(clippy::struct_field_names)]
 pub struct Scanner {
-    pub(crate) host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
-    pub(crate) host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
-    pub(crate) scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
+    pub(crate) host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<OutgoingCommand>,
+    /// Solicited responses to commands, in command order.
+    pub(crate) responses_rx: tokio::sync::mpsc::UnboundedReceiver<packets::Incoming>,
+    /// Unsolicited traffic: scan/calibration events, image data, unknown
+    /// packets, and errors that shut down the USB task.
+    pub(crate) events_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
     stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
     task_handle: Option<tokio::task::JoinHandle<()>>,
     /// Advisory inter-process lock on the scanner, held for the lifetime of
@@ -105,14 +115,14 @@ impl Scanner {
     /// [`Client`](crate::client::Client) without real USB hardware.
     #[must_use]
     pub fn mock(
-        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
-        host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
-        scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
+        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<OutgoingCommand>,
+        responses_rx: tokio::sync::mpsc::UnboundedReceiver<packets::Incoming>,
+        events_rx: tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
     ) -> Self {
         Self {
             host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
+            responses_rx,
+            events_rx,
             stop_tx: None,
             task_handle: None,
             lock_file: None,
@@ -223,22 +233,18 @@ fn find_pdi_device() -> Result<nusb::Device> {
 
 /// Spawns a background task that bridges USB I/O with in-process channels.
 /// The task polls the primary and image data USB endpoints for incoming
-/// packets, parses them, and forwards them to the returned scanner's
-/// channels. Outgoing packets sent on the scanner's channels are serialized
-/// and written to the USB OUT endpoint.
+/// packets, parses them, and routes them to the returned scanner's channels:
+/// solicited responses on one channel, unsolicited events (including image
+/// data and errors) on the other. Outgoing commands are serialized, written
+/// to the USB OUT endpoint, and acknowledged via their one-shot channel.
 ///
-/// # Panics
-///
-/// If the in-process channel between the scanner and the client becomes
-/// disconnected.
-#[allow(clippy::unwrap_used)]
+/// If the client side of the channels is dropped, the task logs and stops.
 #[allow(clippy::too_many_lines)]
 fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Duration) -> Scanner {
     let (host_to_scanner_tx, mut host_to_scanner_rx) =
-        tokio::sync::mpsc::unbounded_channel::<(usize, packets::Outgoing)>();
-    let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
-        tokio::sync::mpsc::unbounded_channel::<usize>();
-    let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        tokio::sync::mpsc::unbounded_channel::<OutgoingCommand>();
+    let (responses_tx, responses_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel();
     let (stop_tx, mut stop_rx) = tokio::sync::oneshot::channel();
 
     let mut in_primary_queue = usb_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
@@ -274,7 +280,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         if recording::is_enabled() {
                             recording::record(&recording::Entry::scanner_to_host_error(&err));
                         }
-                        scanner_to_host_tx.send(Err(err)).unwrap();
+                        let _ = events_tx.send(Err(err));
                         break;
                     }
                     let data = completion.data;
@@ -286,12 +292,15 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             &data,
                         ));
                     }
-                    scanner_to_host_tx
-                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.clone()))))
-                        .unwrap();
+                    if events_tx
+                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data))))
+                        .is_err()
+                    {
+                        tracing::debug!("client dropped; stopping USB task");
+                        break;
+                    }
 
-                    // resubmit the transfer to receive more data
-                    in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
+                    in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
                 }
 
                 completion = in_primary_queue.next_complete() => {
@@ -302,7 +311,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         if recording::is_enabled() {
                             recording::record(&recording::Entry::scanner_to_host_error(&err));
                         }
-                        scanner_to_host_tx.send(Err(err)).unwrap();
+                        let _ = events_tx.send(Err(err));
                         break;
                     }
                     let data = completion.data;
@@ -320,7 +329,18 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                     match parsers::any_incoming(&data) {
                         Ok(([], packet)) => {
                             tracing::debug!("Received incoming packet: {packet:?}");
-                            scanner_to_host_tx.send(Ok(packet)).unwrap();
+                            let send_result = if matches!(
+                                packet.message_type(),
+                                IncomingType::Response
+                            ) {
+                                responses_tx.send(packet).map_err(|_| ())
+                            } else {
+                                events_tx.send(Ok(packet)).map_err(|_| ())
+                            };
+                            if send_result.is_err() {
+                                tracing::debug!("client dropped; stopping USB task");
+                                break;
+                            }
                         }
                         Ok((remaining, packet)) => {
                             tracing::warn!(
@@ -328,18 +348,14 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                                     len = remaining.len(),
                                     remaining = String::from_utf8_lossy(remaining)
                                 );
-                            scanner_to_host_tx
-                                .send(Ok(Incoming::Unknown(data.clone())))
-                                .unwrap();
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
                         }
                         Err(err) => {
                             tracing::error!(
                                 "Error parsing packet: {data:?} (err={err})",
                                 data = String::from_utf8_lossy(&data)
                             );
-                            scanner_to_host_tx
-                                .send(Ok(Incoming::Unknown(data.clone())))
-                                .unwrap();
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
                         }
                     }
 
@@ -347,7 +363,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                     in_primary_queue.submit(RequestBuffer::reuse(data, DEFAULT_BUFFER_SIZE));
                 }
 
-                Some((id, packet)) = host_to_scanner_rx.recv() => {
+                Some((packet, ack)) = host_to_scanner_rx.recv() => {
                     let bytes = packet.to_bytes();
                     tracing::debug!(
                         "sending packet: {packet:?} (data: {data:?})",
@@ -370,7 +386,9 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             if let Some(bytes) = bytes_for_recording {
                                 recording::record(&recording::Entry::host_to_scanner(&bytes));
                             }
-                            host_to_scanner_ack_tx.send(id).unwrap();
+                            // The sender may have been cancelled while waiting
+                            // (e.g. by a timeout); a dropped receiver is fine.
+                            let _ = ack.send(());
                         }
                         Ok(Err(err)) => {
                             tracing::error!("Error sending outgoing packet: {err:?}");
@@ -379,7 +397,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             if recording::is_enabled() {
                                 recording::record(&recording::Entry::scanner_to_host_error(&err));
                             }
-                            scanner_to_host_tx.send(Err(err)).unwrap();
+                            let _ = events_tx.send(Err(err));
                             break;
                         }
                         Err(_) => {
@@ -393,7 +411,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                             if recording::is_enabled() {
                                 recording::record(&recording::Entry::scanner_to_host_error(&err));
                             }
-                            scanner_to_host_tx.send(Err(err)).unwrap();
+                            let _ = events_tx.send(Err(err));
                             break;
                         }
                     }
@@ -409,8 +427,8 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
 
     Scanner {
         host_to_scanner_tx,
-        host_to_scanner_ack_rx,
-        scanner_to_host_rx,
+        responses_rx,
+        events_rx,
         stop_tx: Some(stop_tx),
         task_handle: Some(task_handle),
         lock_file: None,
@@ -582,12 +600,33 @@ mod tests {
             })
             .unwrap();
 
-        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
             .unwrap();
         assert_eq!(packet, Incoming::CoverOpenEvent);
+    }
+
+    #[tokio::test]
+    async fn incoming_primary_response_routed_to_responses_channel() {
+        let (handles, mut scanner) = start_mock_scanner();
+
+        // A test string response is a solicited response, so it must arrive
+        // on the responses channel, not the events channel.
+        handles
+            .primary_tx
+            .send(Completion {
+                data: encode_packet(b"D"),
+                status: Ok(()),
+            })
+            .unwrap();
+
+        let packet = timeout(TEST_TIMEOUT, scanner.responses_rx.recv())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(packet, Incoming::GetTestStringResponse(String::new()));
     }
 
     #[tokio::test]
@@ -603,7 +642,7 @@ mod tests {
             })
             .unwrap();
 
-        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
@@ -626,7 +665,7 @@ mod tests {
             })
             .unwrap();
 
-        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
@@ -649,7 +688,7 @@ mod tests {
             })
             .unwrap();
 
-        let packet = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
@@ -661,11 +700,12 @@ mod tests {
 
     #[tokio::test]
     async fn outgoing_command_forwarded_and_acked() {
-        let (mut handles, mut scanner) = start_mock_scanner();
+        let (mut handles, scanner) = start_mock_scanner();
 
+        let (ack_tx, ack_rx) = tokio::sync::oneshot::channel();
         scanner
             .host_to_scanner_tx
-            .send((123, Outgoing::EnableCrcCheckingRequest))
+            .send((Outgoing::EnableCrcCheckingRequest, ack_tx))
             .unwrap();
 
         // Verify the serialized bytes arrive on the correct endpoint
@@ -679,11 +719,7 @@ mod tests {
         handles.bulk_out_response_tx.send(Ok(())).unwrap();
 
         // Verify the ack
-        let ack_id = timeout(TEST_TIMEOUT, scanner.host_to_scanner_ack_rx.recv())
-            .await
-            .unwrap()
-            .unwrap();
-        assert_eq!(ack_id, 123);
+        timeout(TEST_TIMEOUT, ack_rx).await.unwrap().unwrap();
     }
 
     // --- Errors ---
@@ -700,14 +736,14 @@ mod tests {
             })
             .unwrap();
 
-        let result = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let result = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap();
         assert!(result.is_err());
 
         // Task should have exited — channel closes
-        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+        assert!(scanner.events_rx.recv().await.is_none());
     }
 
     #[tokio::test]
@@ -722,22 +758,23 @@ mod tests {
             })
             .unwrap();
 
-        let result = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let result = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap();
         assert!(result.is_err());
 
-        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+        assert!(scanner.events_rx.recv().await.is_none());
     }
 
     #[tokio::test]
     async fn outgoing_transfer_error_forwarded_and_task_exits() {
         let (mut handles, mut scanner) = start_mock_scanner();
 
+        let (ack_tx, ack_rx) = tokio::sync::oneshot::channel();
         scanner
             .host_to_scanner_tx
-            .send((1, Outgoing::EnableCrcCheckingRequest))
+            .send((Outgoing::EnableCrcCheckingRequest, ack_tx))
             .unwrap();
 
         let (endpoint, _data) = timeout(TEST_TIMEOUT, handles.bulk_out_data_rx.recv())
@@ -750,7 +787,7 @@ mod tests {
             .send(Err(TransferError::Disconnected))
             .unwrap();
 
-        let err = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let err = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
@@ -763,8 +800,10 @@ mod tests {
             }
         ));
 
-        // Task should have exited — channel closes
-        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+        // Task should have exited — channel closes, and the failed write was
+        // never acked
+        assert!(scanner.events_rx.recv().await.is_none());
+        assert!(ack_rx.await.is_err());
     }
 
     #[tokio::test]
@@ -772,9 +811,10 @@ mod tests {
         // Use a short timeout so the test runs quickly
         let (mut handles, mut scanner) = start_mock_scanner_with_timeout(Duration::from_millis(10));
 
+        let (ack_tx, ack_rx) = tokio::sync::oneshot::channel();
         scanner
             .host_to_scanner_tx
-            .send((1, Outgoing::EnableCrcCheckingRequest))
+            .send((Outgoing::EnableCrcCheckingRequest, ack_tx))
             .unwrap();
 
         // Wait for the packet to arrive at the mock (before the timeout fires)
@@ -785,7 +825,7 @@ mod tests {
         assert_eq!(endpoint, ENDPOINT_OUT);
 
         // No response sent — mock hangs on response_rx until timeout fires
-        let err = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv())
+        let err = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
             .await
             .unwrap()
             .unwrap()
@@ -798,8 +838,10 @@ mod tests {
             } if e.kind() == std::io::ErrorKind::TimedOut
         ));
 
-        // Task should have exited — channel closes
-        assert!(scanner.scanner_to_host_rx.recv().await.is_none());
+        // Task should have exited — channel closes, and the timed-out write
+        // was never acked
+        assert!(scanner.events_rx.recv().await.is_none());
+        assert!(ack_rx.await.is_err());
     }
 
     // --- Lifecycle ---
@@ -841,7 +883,7 @@ mod tests {
                 status: Ok(()),
             })
             .unwrap();
-        let _ = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv()).await;
+        let _ = timeout(TEST_TIMEOUT, scanner.events_rx.recv()).await;
         assert_eq!(handles.primary_submissions.lock().unwrap().len(), 2);
 
         // Send an image data completion — should trigger a resubmit
@@ -852,7 +894,7 @@ mod tests {
                 status: Ok(()),
             })
             .unwrap();
-        let _ = timeout(TEST_TIMEOUT, scanner.scanner_to_host_rx.recv()).await;
+        let _ = timeout(TEST_TIMEOUT, scanner.events_rx.recv()).await;
         assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 3);
     }
 

@@ -1,4 +1,7 @@
-use rayon::{prelude::ParallelIterator, slice::ParallelSlice};
+use rayon::{
+    iter::{IndexedParallelIterator, ParallelIterator},
+    slice::ParallelSliceMut,
+};
 
 use image::GrayImage;
 
@@ -8,34 +11,20 @@ use super::types::ScanSideMode;
 
 pub const DEFAULT_IMAGE_WIDTH: u32 = 1728;
 
-/// Applies image calibration to a single row of pixel data based on the
-/// provided white and black calibration tables (retrieved from the scanner).
-/// The formula used is based on guidance from PDI.
-fn apply_image_calibration(
-    row: &[u8],
-    white_calibration_table: &[u8],
-    black_calibration_table: &[u8],
-) -> Vec<u8> {
-    assert!(
-        row.len() == white_calibration_table.len() && row.len() == black_calibration_table.len(),
-        "Image calibration tables must be the same length as the row"
-    );
-
-    row.iter()
-        .zip(white_calibration_table.iter())
-        .zip(black_calibration_table.iter())
-        .map(|((&pixel, &white_calibration), &black_calibration)| {
-            let denominator = white_calibration.saturating_sub(black_calibration);
-            let numerator = pixel.saturating_sub(black_calibration);
-            #[allow(clippy::cast_possible_truncation)]
-            if denominator == 0 {
-                0
-            } else {
-                ((u32::from(numerator) * u32::from(u8::MAX)) / u32::from(denominator))
-                    .min(u32::from(u8::MAX)) as u8
-            }
-        })
-        .collect()
+/// Applies image calibration to a single pixel based on the white and black
+/// calibration values for its column (retrieved from the scanner). The
+/// formula used is based on guidance from PDI.
+fn apply_image_calibration(pixel: u8, white_calibration: u8, black_calibration: u8) -> u8 {
+    let denominator = white_calibration.saturating_sub(black_calibration);
+    if denominator == 0 {
+        return 0;
+    }
+    let numerator = pixel.saturating_sub(black_calibration);
+    #[allow(clippy::cast_possible_truncation)]
+    {
+        ((u32::from(numerator) * u32::from(u8::MAX)) / u32::from(denominator))
+            .min(u32::from(u8::MAX)) as u8
+    }
 }
 
 /// Container for raw image data from the scanner. Decodes the data as images
@@ -105,43 +94,40 @@ impl RawImageData {
             return Err(Error::InvalidData("empty image data".to_string()));
         }
         let height = self.compute_expected_height(width, scan_side_mode)?;
+        let width = width as usize;
 
-        let (top_raw, bottom_raw): (Vec<u8>, Vec<u8>) = self
-            .data
-            .par_chunks_exact(2)
-            .map(|pixel_pair| (pixel_pair[0], pixel_pair[1]))
-            .unzip();
-
-        let (top, bottom) = rayon::join(
-            || {
-                top_raw
-                    .par_chunks_exact(width as usize)
-                    .map(|row| row.iter().copied().rev().collect::<Vec<_>>())
-                    .map(|row| {
-                        apply_image_calibration(
-                            &row,
-                            &image_calibration_tables.front_white,
-                            &image_calibration_tables.front_black,
-                        )
-                    })
-                    .flatten()
-                    .collect()
-            },
-            || {
-                bottom_raw
-                    .par_chunks_exact(width as usize)
-                    .map(|row| {
-                        apply_image_calibration(
-                            row,
-                            &image_calibration_tables.back_white,
-                            &image_calibration_tables.back_black,
-                        )
-                    })
-                    .flatten()
-                    .collect()
-            },
+        let tables = image_calibration_tables;
+        assert!(
+            tables.front_white.len() == width
+                && tables.front_black.len() == width
+                && tables.back_white.len() == width
+                && tables.back_black.len() == width,
+            "Image calibration tables must be the same length as the row"
         );
 
+        let mut top = vec![0u8; width * height as usize];
+        let mut bottom = vec![0u8; width * height as usize];
+        top.par_chunks_exact_mut(width)
+            .zip(bottom.par_chunks_exact_mut(width))
+            .enumerate()
+            .for_each(|(row_index, (top_row, bottom_row))| {
+                let input_row = &self.data[row_index * 2 * width..(row_index + 1) * 2 * width];
+                for x in 0..width {
+                    top_row[x] = apply_image_calibration(
+                        input_row[2 * (width - 1 - x)],
+                        tables.front_white[x],
+                        tables.front_black[x],
+                    );
+                    bottom_row[x] = apply_image_calibration(
+                        input_row[2 * x + 1],
+                        tables.back_white[x],
+                        tables.back_black[x],
+                    );
+                }
+            });
+
+        #[allow(clippy::cast_possible_truncation)]
+        let width = width as u32;
         let top_page = GrayImage::from_raw(width, height, top)
             .ok_or_else(|| Error::InvalidData("unexpected data length".to_string()))?;
         let bottom_page = GrayImage::from_raw(width, height, bottom)
@@ -231,6 +217,58 @@ mod tests {
                     vec![0b0101_0101, 0b0101_0101, 0b0101_0101, 0b0101_0101]
                 )
                 .unwrap(),
+            )
+        );
+    }
+
+    /// Pins the full decode semantics with asymmetric data: de-interleaving,
+    /// the top side's right-to-left pixel reversal, per-output-column
+    /// calibration (applied after the reversal), and clamping to 255.
+    #[test]
+    fn test_duplex_reversal_calibration_and_clamping() {
+        let mut data = RawImageData::new();
+        let image_calibration_tables = ImageCalibrationTables {
+            // Output column 0 of the top side is scaled by 255/51 = 5x
+            front_white: vec![51, 255, 255],
+            front_black: vec![0, 0, 0],
+            // Output column 1 of the bottom side is scaled by 5x
+            back_white: vec![255, 51, 255],
+            back_black: vec![0, 0, 0],
+        };
+        // Interleaved: top stream [10, 20, 30, 40, 50, 60],
+        // bottom stream [1, 2, 3, 4, 5, 6]; width 3, so 2 rows per side
+        data.extend_from_slice(&[10, 1, 20, 2, 30, 3, 40, 4, 50, 5, 60, 6]);
+        assert_eq!(
+            data.try_decode_scan(3, ScanSideMode::Duplex, &image_calibration_tables)
+                .unwrap(),
+            Sheet::Duplex(
+                // Top rows reverse ([10, 20, 30] -> [30, 20, 10]), then
+                // column 0 scales 5x; 60 * 5 = 300 clamps to 255
+                GrayImage::from_raw(3, 2, vec![150, 20, 10, 255, 50, 40]).unwrap(),
+                // Bottom rows keep their order; column 1 scales 5x
+                GrayImage::from_raw(3, 2, vec![1, 10, 3, 4, 25, 6]).unwrap(),
+            )
+        );
+    }
+
+    /// A white calibration value equal to the black value would divide by
+    /// zero; those pixels are forced to 0.
+    #[test]
+    fn test_zero_calibration_denominator() {
+        let mut data = RawImageData::new();
+        let image_calibration_tables = ImageCalibrationTables {
+            front_white: vec![100, 255],
+            front_black: vec![100, 0],
+            back_white: vec![255, 100],
+            back_black: vec![0, 100],
+        };
+        data.extend_from_slice(&[10, 1, 20, 2]);
+        assert_eq!(
+            data.try_decode_scan(2, ScanSideMode::Duplex, &image_calibration_tables)
+                .unwrap(),
+            Sheet::Duplex(
+                GrayImage::from_raw(2, 1, vec![0, 10]).unwrap(),
+                GrayImage::from_raw(2, 1, vec![1, 0]).unwrap(),
             )
         );
     }

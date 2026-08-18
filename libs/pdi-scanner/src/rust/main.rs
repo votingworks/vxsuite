@@ -232,37 +232,67 @@ const FRAME_HEADER_LENGTH: usize = FRAME_TYPE_LENGTH + size_of::<u32>();
 /// payload length, and the payload. Sending image data as raw bytes rather
 /// than JSON avoids base64-encoding multi-megabyte scans and parsing them
 /// back out of a giant JSON document on the Node side.
-struct Output<W: Write> {
-    stdout: W,
+///
+/// Frames are written by a dedicated thread so that a slow reader (e.g. Node
+/// busy interpreting the previous sheet) never stalls the command/event loop,
+/// which must keep servicing scanner packets and commands.
+struct Output {
+    frames_tx: Option<std::sync::mpsc::Sender<Vec<u8>>>,
+    writer_thread: Option<std::thread::JoinHandle<()>>,
     // We reject sending a command while a scan is in progress because it will
-    // interrupt the scan. To ensure this flag gets reset whenever a scan stops
-    // (whether successfully or with an error or disconnection), we manage this
-    // flag in the send_response/send_event methods, since they are called in
-    // basically every case when the scanner state changes.
+    // interrupt the scan. The flag is set by the scan start event and cleared
+    // by every other scanner event (any event during a scan — completion,
+    // scan failure, double feed, cover open — means the scan is over or
+    // aborted) and by scanner disconnection. Responses must NOT clear it: the
+    // only response possible while scanning is the ScanInProgress rejection
+    // itself.
     scan_in_progress: bool,
 }
 
-impl<W: Write> Output<W> {
+impl Output {
+    fn new<W: Write + Send + 'static>(mut stdout: W) -> Self {
+        let (frames_tx, frames_rx) = std::sync::mpsc::channel::<Vec<u8>>();
+        let writer_thread = std::thread::spawn(move || {
+            for frame in frames_rx {
+                // Stdout is line-buffered and frames don't end in newlines,
+                // so flush explicitly or the frame may sit in the buffer
+                // indefinitely.
+                if let Err(error) = stdout.write_all(&frame).and_then(|()| stdout.flush()) {
+                    tracing::error!("failed to write frame to stdout: {error}");
+                    // Dropping the receiver makes subsequent write_frame
+                    // calls fail, which shuts down the main loop.
+                    break;
+                }
+            }
+        });
+        Self {
+            frames_tx: Some(frames_tx),
+            writer_thread: Some(writer_thread),
+            scan_in_progress: false,
+        }
+    }
+
     fn write_frame(&mut self, frame_type: u8, payload_parts: &[&[u8]]) -> color_eyre::Result<()> {
         let payload_length: usize = payload_parts.iter().map(|part| part.len()).sum();
+        let mut frame = Vec::with_capacity(FRAME_HEADER_LENGTH + payload_length);
+        frame.push(frame_type);
+        frame.extend_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
+        for part in payload_parts {
+            frame.extend_from_slice(part);
+        }
         #[cfg(feature = "recording")]
         if recording::is_enabled() {
-            let mut payload = Vec::with_capacity(payload_length);
-            for part in payload_parts {
-                payload.extend_from_slice(part);
-            }
-            recording::record(&recording::Entry::stdout_frame(frame_type, &payload));
+            recording::record(&recording::Entry::stdout_frame(
+                frame_type,
+                &frame[FRAME_HEADER_LENGTH..],
+            ));
         }
-        let mut header = [0u8; FRAME_HEADER_LENGTH];
-        header[0] = frame_type;
-        header[FRAME_TYPE_LENGTH..].copy_from_slice(&u32::try_from(payload_length)?.to_le_bytes());
-        self.stdout.write_all(&header)?;
-        for part in payload_parts {
-            self.stdout.write_all(part)?;
+        let Some(frames_tx) = self.frames_tx.as_ref() else {
+            bail!("stdout writer thread is not running");
+        };
+        if frames_tx.send(frame).is_err() {
+            bail!("stdout writer thread stopped");
         }
-        // Stdout is line-buffered and frames don't end in newlines, so flush
-        // explicitly or the frame may sit in the buffer indefinitely.
-        self.stdout.flush()?;
         Ok(())
     }
 
@@ -273,7 +303,6 @@ impl<W: Write> Output<W> {
 
     fn send_response(&mut self, response: Response) -> color_eyre::Result<()> {
         tracing::debug!("sending response: {response:?}");
-        self.scan_in_progress = false;
         self.send_to_stdout(&Message::Response(response))
     }
 
@@ -327,20 +356,33 @@ impl<W: Write> Output<W> {
     }
 }
 
+impl Drop for Output {
+    fn drop(&mut self) {
+        // Close the queue so the writer thread drains what remains and exits,
+        // then wait for it: nothing already queued is lost on shutdown.
+        drop(self.frames_tx.take());
+        if let Some(writer_thread) = self.writer_thread.take() {
+            if writer_thread.join().is_err() {
+                tracing::error!("stdout writer thread panicked");
+            }
+        }
+    }
+}
+
 /// Runs the main command/event loop. Reads newline-delimited JSON commands
 /// from `stdin`, writes TLV-framed responses and events to `stdout` (see
 /// [`Output`]), and uses `connect` to create new scanner connections.
 #[allow(clippy::too_many_lines)]
-async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write>(
+async fn handle_commands_and_events<
+    R: tokio::io::AsyncBufRead + Unpin,
+    W: Write + Send + 'static,
+>(
     stdin: R,
     stdout: W,
     mut connect: impl FnMut() -> pdi_scanner::Result<Client>,
 ) -> color_eyre::Result<()> {
     let mut stdin_lines = stdin.lines();
-    let mut output = Output {
-        stdout,
-        scan_in_progress: false,
-    };
+    let mut output = Output::new(stdout);
 
     let mut client: Option<Client> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
@@ -438,6 +480,9 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                     paper_length_inches,
                                 },
                             ) => {
+                                // Discard any leftover image data from an
+                                // aborted scan before a new scan session.
+                                raw_image_data.clear();
                                 let double_feed_detection_mode = if double_feed_detection_enabled {
                                     DoubleFeedDetectionMode::RejectDoubleFeeds
                                 } else {
@@ -526,13 +571,14 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         tracing::debug!("PACKET: {packet:?}");
                         packet
                     },
-                    Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Empty)) => {
-                        tracing::debug!("scanner channel received empty packet");
-                        continue;
-                    },
                     Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Disconnected)) => {
                         tracing::debug!("scanner channel disconnected");
                         client = None;
+                        // No event is emitted on this path, so clear the scan
+                        // flag directly: a disconnected scanner is not
+                        // scanning, and a stuck flag would reject every
+                        // command forever.
+                        output.scan_in_progress = false;
                         continue;
                     }
                     Err(e) => {
@@ -543,8 +589,14 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                 };
 
                 match packet {
+                    // Note: the accumulator is deliberately NOT reset here.
+                    // The USB task polls the image data endpoint ahead of the
+                    // primary endpoint, so the first image chunks of a scan
+                    // can be forwarded before the begin event that the
+                    // scanner physically emitted first; resetting here would
+                    // drop them. The accumulator is cleared after each scan
+                    // is decoded and when scanning is enabled.
                     Incoming::BeginScanEvent => {
-                        raw_image_data = RawImageData::new();
                         output.send_event(Event::ScanStart)?;
                     }
                     Incoming::ImageData(image_data) => {
@@ -566,8 +618,8 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                         match raw_image_data.try_decode_scan(
                             DEFAULT_IMAGE_WIDTH,
                             ScanSideMode::Duplex,
-                            &image_calibration_tables
-                                .clone()
+                            image_calibration_tables
+                                .as_ref()
                                 .expect("image calibration tables not set"),
                         ) {
                             Ok(Sheet::Duplex(top, bottom)) => {
@@ -586,6 +638,7 @@ async fn handle_commands_and_events<R: tokio::io::AsyncBufRead + Unpin, W: Write
                                 })?;
                             }
                         }
+                        raw_image_data.clear();
                     }
                     Incoming::CoverOpenEvent => {
                         output.send_event(Event::CoverOpen)?;
@@ -647,7 +700,7 @@ mod tests {
         client::Client,
         protocol::{
             image::DEFAULT_IMAGE_WIDTH,
-            packets::{ImageData, Incoming, Outgoing},
+            packets::{ImageData, Incoming, IncomingType, Outgoing},
             parsers,
             types::{Register, RegisterIndex, Resolution},
         },
@@ -780,9 +833,13 @@ mod tests {
     }
 
     struct ConnectedTestHarness {
-        host_to_scanner_rx: mpsc::UnboundedReceiver<(usize, Outgoing)>,
-        host_to_scanner_ack_tx: mpsc::UnboundedSender<usize>,
-        scanner_to_host_tx: mpsc::UnboundedSender<pdi_scanner::Result<Incoming>>,
+        /// Packets successfully "written" to the scanner, in order (writes are
+        /// acknowledged automatically).
+        outgoing_rx: mpsc::UnboundedReceiver<Outgoing>,
+        /// Kept alive so the responses channel stays open, as it would with a
+        /// live USB task.
+        _responses_tx: mpsc::UnboundedSender<Incoming>,
+        events_tx: mpsc::UnboundedSender<pdi_scanner::Result<Incoming>>,
     }
 
     fn setup_connected_client() -> (Client, ConnectedTestHarness) {
@@ -793,48 +850,59 @@ mod tests {
         white_calibration_table: &[u8],
         black_calibration_table: &[u8],
     ) -> (Client, ConnectedTestHarness) {
-        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
-        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
+        let (host_to_scanner_tx, mut host_to_scanner_rx) =
+            mpsc::unbounded_channel::<pdi_scanner::scanner::OutgoingCommand>();
+        let (responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (events_tx, events_rx) = mpsc::unbounded_channel();
+        let (outgoing_tx, outgoing_rx) = mpsc::unbounded_channel();
 
-        // Pre-load responses for initialize_connected_scanner:
-        // wait_until_ready: EnableCrcChecking (ack 0) + GetTestString (ack 1 + response)
-        // initialize_scanning:
-        //   DisableFeeder (ack 2)
-        //   set_boot_eject_motion reads register 9 (ack 3 + response)
-        //     value 0x200 = BootEjectMotion::None already set, so no write needed
-        //   GetCalibrationInfo (ack 4 + 2 responses)
-        for i in 0..5 {
-            host_to_scanner_ack_tx.send(i).unwrap();
-        }
-        let register_9 = pdi_scanner::protocol::types::RegisterIndex::new(9).unwrap();
-        scanner_to_host_tx
-            .send(Ok(Incoming::GetTestStringResponse("test".into())))
-            .unwrap();
-        scanner_to_host_tx
-            .send(Ok(Incoming::ReadRegisterDataResponse(Register::new(
-                register_9, 0x200, // BootEjectMotion::None (2) << 8
-            ))))
-            .unwrap();
-        let cal = || Incoming::GetCalibrationInformationResponse {
-            white_calibration_table: white_calibration_table.to_vec(),
-            black_calibration_table: black_calibration_table.to_vec(),
-        };
-        scanner_to_host_tx.send(Ok(cal())).unwrap();
-        scanner_to_host_tx.send(Ok(cal())).unwrap();
+        // Mini mock scanner: acks every write, forwards the written packets
+        // for assertions, and answers the requests that expect responses —
+        // enough for initialize_connected_scanner. Register 9 reads back
+        // 0x200 = BootEjectMotion::None, so no register write follows.
+        // Responses must be sent reactively: a response sitting in the
+        // channel before its command is sent would be discarded as stale.
+        let white_calibration_table = white_calibration_table.to_vec();
+        let black_calibration_table = black_calibration_table.to_vec();
+        let mock_responses_tx = responses_tx.clone();
+        tokio::spawn(async move {
+            while let Some((packet, ack)) = host_to_scanner_rx.recv().await {
+                let _ = ack.send(());
+                let responses = match &packet {
+                    Outgoing::GetTestStringRequest => {
+                        vec![Incoming::GetTestStringResponse("test".into())]
+                    }
+                    Outgoing::ReadRegisterDataRequest(index) => {
+                        vec![Incoming::ReadRegisterDataResponse(Register::new(
+                            *index, 0x200,
+                        ))]
+                    }
+                    Outgoing::GetCalibrationInformationRequest { .. } => {
+                        let cal = || Incoming::GetCalibrationInformationResponse {
+                            white_calibration_table: white_calibration_table.clone(),
+                            black_calibration_table: black_calibration_table.clone(),
+                        };
+                        // One request, two responses (front and back sensors)
+                        vec![cal(), cal()]
+                    }
+                    _ => vec![],
+                };
+                for response in responses {
+                    let _ = mock_responses_tx.send(response);
+                }
+                let _ = outgoing_tx.send(packet);
+            }
+        });
 
-        let client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let client =
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx));
 
         (
             client,
             ConnectedTestHarness {
-                host_to_scanner_rx,
-                host_to_scanner_ack_tx,
-                scanner_to_host_tx,
+                outgoing_rx,
+                _responses_tx: responses_tx,
+                events_tx,
             },
         )
     }
@@ -956,7 +1024,7 @@ mod tests {
         assert_eq!(
             messages,
             vec![
-                json!({"response": "error", "code": "other", "message": "failed to serialize JSON: expected ident at line 1 column 2"})
+                json!({"response": "error", "code": "other", "message": "JSON error: expected ident at line 1 column 2"})
             ]
         );
     }
@@ -1048,7 +1116,7 @@ mod tests {
                     assert_eq!(msg, json!({"response": "ok"}));
 
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Ok(Incoming::CoverOpenEvent))
                         .unwrap();
                     let msg = recv_output(&mut output_rx).await;
@@ -1080,7 +1148,7 @@ mod tests {
                         .await;
 
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Ok(Incoming::BeginScanEvent))
                         .unwrap();
                     let msg = recv_output(&mut output_rx).await;
@@ -1090,6 +1158,19 @@ mod tests {
                         &mut stdin_write,
                         &mut output_rx,
                         r#"{"command":"disableScanning"}"#,
+                    )
+                    .await;
+                    assert_eq!(
+                        msg,
+                        json!({"response": "error", "code": "scanInProgress", "message": null})
+                    );
+
+                    // The rejection must not disarm the guard: a second
+                    // command during the same scan is also rejected.
+                    let msg = send_command(
+                        &mut stdin_write,
+                        &mut output_rx,
+                        r#"{"command":"getScannerStatus"}"#,
                     )
                     .await;
                     assert_eq!(
@@ -1123,15 +1204,9 @@ mod tests {
                         .await;
 
                     // Drain the init commands
-                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+                    while harness.outgoing_rx.try_recv().is_ok() {}
 
-                    // EndScan needs an ack for the feeder disable command (ID 5, after
-                    // the 5 init commands used IDs 0-4)
-                    harness.host_to_scanner_ack_tx.send(5).unwrap();
-                    harness
-                        .scanner_to_host_tx
-                        .send(Ok(Incoming::EndScanEvent))
-                        .unwrap();
+                    harness.events_tx.send(Ok(Incoming::EndScanEvent)).unwrap();
                     let msg = recv_output(&mut output_rx).await;
                     assert_eq!(msg["event"], "error");
                     assert_eq!(msg["code"], "scanFailed");
@@ -1145,7 +1220,7 @@ mod tests {
         result.unwrap();
 
         // Verify the feeder disable command was sent (after draining init commands)
-        let (_, packet) = timeout(TEST_TIMEOUT, harness.host_to_scanner_rx.recv())
+        let packet = timeout(TEST_TIMEOUT, harness.outgoing_rx.recv())
             .await
             .unwrap()
             .unwrap();
@@ -1169,7 +1244,7 @@ mod tests {
                         .await;
 
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Err(pdi_scanner::Error::RecvTimeout))
                         .unwrap();
                     let msg = recv_output(&mut output_rx).await;
@@ -1205,10 +1280,10 @@ mod tests {
                     // then drop the channel so the next recv gets Disconnected
                     // and clears the client.
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Err(pdi_scanner::Error::RecvTimeout))
                         .unwrap();
-                    drop(harness.scanner_to_host_tx);
+                    drop(harness.events_tx);
                     // Wait for the error event — confirms the error was processed
                     let msg = recv_output(&mut output_rx).await;
                     assert_eq!(msg["event"], "error");
@@ -1235,17 +1310,76 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn connect_initialization_failure() {
-        let (host_to_scanner_tx, _host_to_scanner_rx) = mpsc::unbounded_channel();
-        let (_host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
-        let (_scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
+    async fn disconnect_during_scan_clears_scan_in_progress() {
+        let (client, harness) = setup_connected_client();
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
 
-        // Client connects but init times out (no acks pre-loaded)
-        let client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    // Start a scan, then disconnect the scanner mid-scan (no
+                    // event is emitted on this path).
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+                    drop(harness.events_tx);
+
+                    // Commands must report the disconnection, not get stuck
+                    // behind a scan that will never finish. The event loop
+                    // may serve a command before it observes the closed
+                    // channel, in which case the scan guard still rejects it;
+                    // it must never wedge on scanInProgress forever.
+                    let mut attempts = 0;
+                    loop {
+                        let msg = send_command(
+                            &mut stdin_write,
+                            &mut output_rx,
+                            r#"{"command":"getScannerStatus"}"#,
+                        )
+                        .await;
+                        if msg
+                            == json!({"response": "error", "code": "disconnected", "message": null})
+                        {
+                            break;
+                        }
+                        assert_eq!(
+                            msg,
+                            json!({"response": "error", "code": "scanInProgress", "message": null})
+                        );
+                        attempts += 1;
+                        assert!(attempts < 10, "never observed the disconnection");
+                    }
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
+    #[tokio::test]
+    async fn connect_initialization_failure() {
+        // Keep the command receiver alive but never ack any writes, so init
+        // times out.
+        let (host_to_scanner_tx, _host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (_responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (_events_tx, events_rx) = mpsc::unbounded_channel();
+
+        let client =
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx));
         let mut client_slot = Some(client);
 
         let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
@@ -1302,10 +1436,10 @@ mod tests {
                         .await;
 
                     // Drain init commands
-                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+                    while harness.outgoing_rx.try_recv().is_ok() {}
 
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Ok(Incoming::BeginScanEvent))
                         .unwrap();
                     let msg = recv_output(&mut output_rx).await;
@@ -1318,16 +1452,11 @@ mod tests {
                         data.push(BOTTOM_PIXEL);
                     }
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Ok(Incoming::ImageData(ImageData(data))))
                         .unwrap();
 
-                    // EndScan needs an ack for the feeder disable command
-                    harness.host_to_scanner_ack_tx.send(5).unwrap();
-                    harness
-                        .scanner_to_host_tx
-                        .send(Ok(Incoming::EndScanEvent))
-                        .unwrap();
+                    harness.events_tx.send(Ok(Incoming::EndScanEvent)).unwrap();
                     let msg = recv_output(&mut output_rx).await;
                     assert_eq!(
                         msg,
@@ -1366,16 +1495,17 @@ mod tests {
     /// stdout frames) are awaited and asserted to match the recording.
     #[allow(clippy::too_many_lines)]
     async fn replay_recording(entries: &[Entry]) {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
-        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
-        let client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (events_tx, events_rx) = mpsc::unbounded_channel();
+        let client =
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx));
         let mut client_slot = Some(client);
-        let mut scanner_to_host_tx = Some(scanner_to_host_tx);
+        // Held as Options so a ScannerTaskEnded entry can drop them all,
+        // mimicking the real USB task shutting down.
+        let mut host_to_scanner_rx = Some(host_to_scanner_rx);
+        let mut responses_tx = Some(responses_tx);
+        let mut events_tx = Some(events_tx);
 
         let (stdin_read, mut stdin_write) = tokio::io::duplex(1 << 16);
         let (frame_writer, mut frame_rx) = RawFrameChannelWriter::new();
@@ -1420,11 +1550,21 @@ mod tests {
                                         packet
                                     }
                                 };
-                                scanner_to_host_tx
-                                    .as_ref()
-                                    .expect("scanner task already ended")
-                                    .send(Ok(packet))
-                                    .unwrap();
+                                // Route by classification, mirroring the USB
+                                // task.
+                                if matches!(packet.message_type(), IncomingType::Response) {
+                                    responses_tx
+                                        .as_ref()
+                                        .expect("scanner task already ended")
+                                        .send(packet)
+                                        .unwrap();
+                                } else {
+                                    events_tx
+                                        .as_ref()
+                                        .expect("scanner task already ended")
+                                        .send(Ok(packet))
+                                        .unwrap();
+                                }
                             }
                             Entry::ScannerToHostError { disconnected, .. } => {
                                 // The exact recorded error isn't reconstructible;
@@ -1441,32 +1581,37 @@ mod tests {
                                 } else {
                                     pdi_scanner::Error::RecvTimeout
                                 };
-                                scanner_to_host_tx
+                                events_tx
                                     .as_ref()
                                     .expect("scanner task already ended")
                                     .send(Err(error))
                                     .unwrap();
                             }
                             Entry::ScannerTaskEnded => {
-                                scanner_to_host_tx.take();
+                                events_tx.take();
+                                responses_tx.take();
+                                host_to_scanner_rx.take();
                             }
                             Entry::HostToScanner { data_base64 } => {
                                 let expected = recording::decode_base64(data_base64).unwrap();
-                                let (id, packet) =
-                                    timeout(REPLAY_STEP_TIMEOUT, host_to_scanner_rx.recv())
-                                        .await
-                                        .unwrap_or_else(|_| {
-                                            panic!(
-                                                "entry {index}: timed out waiting for outgoing packet"
-                                            )
-                                        })
-                                        .expect("outgoing packet channel closed");
+                                let (packet, ack) = timeout(
+                                    REPLAY_STEP_TIMEOUT,
+                                    host_to_scanner_rx
+                                        .as_mut()
+                                        .expect("scanner task already ended")
+                                        .recv(),
+                                )
+                                .await
+                                .unwrap_or_else(|_| {
+                                    panic!("entry {index}: timed out waiting for outgoing packet")
+                                })
+                                .expect("outgoing packet channel closed");
                                 assert_eq!(
                                     packet.to_bytes(),
                                     expected,
                                     "entry {index}: outgoing packet mismatch: {packet:?}"
                                 );
-                                host_to_scanner_ack_tx.send(id).unwrap();
+                                let _ = ack.send(());
                             }
                             Entry::StdoutFrame {
                                 frame_type,
@@ -1561,16 +1706,15 @@ mod tests {
     /// JSON outputs are asserted to be unaffected by the substitution.
     #[allow(clippy::too_many_lines)]
     async fn synthesize_recording(records: &[Record]) -> Vec<Record> {
-        let (host_to_scanner_tx, mut host_to_scanner_rx) = mpsc::unbounded_channel();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::unbounded_channel();
-        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::unbounded_channel();
-        let client = Client::from_scanner(Scanner::mock(
-            host_to_scanner_tx,
-            host_to_scanner_ack_rx,
-            scanner_to_host_rx,
-        ));
+        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::unbounded_channel();
+        let (responses_tx, responses_rx) = mpsc::unbounded_channel();
+        let (events_tx, events_rx) = mpsc::unbounded_channel();
+        let client =
+            Client::from_scanner(Scanner::mock(host_to_scanner_tx, responses_rx, events_rx));
         let mut client_slot = Some(client);
-        let mut scanner_to_host_tx = Some(scanner_to_host_tx);
+        let mut host_to_scanner_rx = Some(host_to_scanner_rx);
+        let mut responses_tx = Some(responses_tx);
+        let mut events_tx = Some(events_tx);
 
         let (stdin_read, mut stdin_write) = tokio::io::duplex(1 << 16);
         let (frame_writer, mut frame_rx) = RawFrameChannelWriter::new();
@@ -1609,7 +1753,7 @@ mod tests {
                                     .map(|i| synthetic_image_byte(image_stream_offset + i))
                                     .collect();
                                 image_stream_offset += original.len() as u64;
-                                scanner_to_host_tx
+                                events_tx
                                     .as_ref()
                                     .expect("scanner task already ended")
                                     .send(Ok(Incoming::ImageData(ImageData(synthetic.clone()))))
@@ -1632,11 +1776,19 @@ mod tests {
                                     remaining.is_empty(),
                                     "entry {index}: trailing bytes after primary packet"
                                 );
-                                scanner_to_host_tx
-                                    .as_ref()
-                                    .expect("scanner task already ended")
-                                    .send(Ok(packet))
-                                    .unwrap();
+                                if matches!(packet.message_type(), IncomingType::Response) {
+                                    responses_tx
+                                        .as_ref()
+                                        .expect("scanner task already ended")
+                                        .send(packet)
+                                        .unwrap();
+                                } else {
+                                    events_tx
+                                        .as_ref()
+                                        .expect("scanner task already ended")
+                                        .send(Ok(packet))
+                                        .unwrap();
+                                }
                                 out.push(record.clone());
                             }
                             Entry::ScannerToHostError { disconnected, .. } => {
@@ -1650,7 +1802,7 @@ mod tests {
                                 } else {
                                     pdi_scanner::Error::RecvTimeout
                                 };
-                                scanner_to_host_tx
+                                events_tx
                                     .as_ref()
                                     .expect("scanner task already ended")
                                     .send(Err(error))
@@ -1658,14 +1810,19 @@ mod tests {
                                 out.push(record.clone());
                             }
                             Entry::ScannerTaskEnded => {
-                                scanner_to_host_tx.take();
+                                events_tx.take();
+                                responses_tx.take();
+                                host_to_scanner_rx.take();
                                 out.push(record.clone());
                             }
                             Entry::HostToScanner { data_base64 } => {
                                 let expected = recording::decode_base64(data_base64).unwrap();
-                                let (id, packet) = timeout(
+                                let (packet, ack) = timeout(
                                     REPLAY_STEP_TIMEOUT,
-                                    host_to_scanner_rx.recv(),
+                                    host_to_scanner_rx
+                                        .as_mut()
+                                        .expect("scanner task already ended")
+                                        .recv(),
                                 )
                                 .await
                                 .unwrap_or_else(|_| {
@@ -1680,7 +1837,7 @@ mod tests {
                                     expected,
                                     "entry {index}: outgoing packet mismatch: {packet:?}"
                                 );
-                                host_to_scanner_ack_tx.send(id).unwrap();
+                                let _ = ack.send(());
                                 out.push(record.clone());
                             }
                             Entry::StdoutFrame {
@@ -1916,6 +2073,70 @@ mod tests {
         replay_recording(&entries).await;
     }
 
+    /// The USB task polls the image data endpoint ahead of the primary
+    /// endpoint, so image chunks can be forwarded before the begin scan event
+    /// that physically preceded them. They must still end up in the decoded
+    /// scan.
+    #[tokio::test]
+    async fn image_data_arriving_before_begin_scan_event_is_not_dropped() {
+        use pdi_scanner::protocol::image::DEFAULT_IMAGE_WIDTH;
+
+        const WIDTH: usize = DEFAULT_IMAGE_WIDTH as usize;
+        const HEIGHT: usize = 4;
+
+        let (client, harness) =
+            setup_connected_client_with_calibration(&[u8::MAX; WIDTH], &[0; WIDTH]);
+        let mut client_slot = Some(client);
+        let (stdin_read, mut stdin_write) = tokio::io::duplex(4096);
+        let (stdout_writer, mut output_rx) = ChannelWriter::new();
+
+        let (result, ()) = timeout(TEST_TIMEOUT, async {
+            tokio::join!(
+                handle_commands_and_events(BufReader::new(stdin_read), stdout_writer, || {
+                    Ok(client_slot.take().expect("connect called more than once"))
+                }),
+                async {
+                    send_command(&mut stdin_write, &mut output_rx, r#"{"command":"connect"}"#)
+                        .await;
+
+                    let mut data = Vec::with_capacity(2 * WIDTH * HEIGHT);
+                    for _ in 0..(WIDTH * HEIGHT) {
+                        data.push(7);
+                        data.push(9);
+                    }
+                    let (first_chunk, rest) = data.split_at(2 * WIDTH);
+
+                    // The first chunk beats the begin scan event
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::ImageData(ImageData(first_chunk.to_vec()))))
+                        .unwrap();
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::BeginScanEvent))
+                        .unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg, json!({"event": "scanStart"}));
+
+                    harness
+                        .events_tx
+                        .send(Ok(Incoming::ImageData(ImageData(rest.to_vec()))))
+                        .unwrap();
+                    harness.events_tx.send(Ok(Incoming::EndScanEvent)).unwrap();
+                    let msg = recv_output(&mut output_rx).await;
+                    assert_eq!(msg["event"], "scanComplete");
+                    assert_eq!(msg["images"][0]["height"], HEIGHT);
+                    assert_eq!(msg["images"][1]["height"], HEIGHT);
+
+                    send_exit(&mut stdin_write).await;
+                }
+            )
+        })
+        .await
+        .unwrap();
+        result.unwrap();
+    }
+
     #[tokio::test]
     async fn scan_in_progress_resets_after_end_scan() {
         let (client, mut harness) = setup_connected_client();
@@ -1933,29 +2154,24 @@ mod tests {
                         .await;
 
                     // Drain init commands
-                    while harness.host_to_scanner_rx.try_recv().is_ok() {}
+                    while harness.outgoing_rx.try_recv().is_ok() {}
 
                     // Start a scan
                     harness
-                        .scanner_to_host_tx
+                        .events_tx
                         .send(Ok(Incoming::BeginScanEvent))
                         .unwrap();
                     let msg = recv_output(&mut output_rx).await;
                     assert_eq!(msg, json!({"event": "scanStart"}));
 
-                    // End the scan (needs ack for feeder disable)
-                    harness.host_to_scanner_ack_tx.send(5).unwrap();
-                    harness
-                        .scanner_to_host_tx
-                        .send(Ok(Incoming::EndScanEvent))
-                        .unwrap();
+                    // End the scan
+                    harness.events_tx.send(Ok(Incoming::EndScanEvent)).unwrap();
                     // Wait for scanFailed event (image decode fails on empty data)
                     let msg = recv_output(&mut output_rx).await;
                     assert_eq!(msg["event"], "error");
                     assert_eq!(msg["code"], "scanFailed");
 
                     // Now a command should succeed (not get scanInProgress)
-                    harness.host_to_scanner_ack_tx.send(6).unwrap();
                     let msg = send_command(
                         &mut stdin_write,
                         &mut output_rx,
