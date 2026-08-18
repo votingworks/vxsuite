@@ -107,6 +107,10 @@ export enum BooleanEnvironmentVariableName {
    * Gates both the UI surface and the backend API endpoints.
    */
   ENABLE_ADMIN_BACKUP_RESTORE = 'REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE',
+  /**
+   * [In Development] Enables networking VxCentralScan to a VxAdmin host.
+   */
+  ENABLE_CENTRAL_SCAN_NETWORKING = 'REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -188,6 +192,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN;
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
       return process.env.REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE;
+    case BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING:
+      return process.env.REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING;
     default:
       /* istanbul ignore next */
       throwIllegalValue(name);
@@ -338,6 +344,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING:
       return {
         name,
         allowInProduction: true,
