@@ -3,6 +3,7 @@ import React from 'react';
 import type {
   Api,
   MachineConfig,
+  NetworkStatus,
   ScanStatus,
 } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -21,7 +22,11 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
-import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api.js';
+import {
+  ApiClientContext,
+  createQueryClient,
+  systemCallApi,
+} from '../src/api.js';
 import { DEFAULT_STATUS } from './fixtures.js';
 import { screen } from './react_testing_library.js';
 
@@ -107,6 +112,16 @@ export function createApiMock(
       apiClient.getSystemSettings
         .expectRepeatedCallsWith()
         .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
+    },
+    setNetworkStatus(
+      networkStatus: NetworkStatus = {
+        isEnabled: false,
+        connection: { status: 'offline' },
+      }
+    ) {
+      apiClient.getNetworkStatus
+        .expectRepeatedCallsWith()
+        .resolves(networkStatus);
     },
 
     expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {

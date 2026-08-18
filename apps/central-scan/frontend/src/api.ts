@@ -127,6 +127,23 @@ export const getMachineConfig = {
   },
 } as const;
 
+export const NETWORK_STATUS_POLLING_INTERVAL_MS = 1000;
+
+export const getNetworkStatus = {
+  queryKey(): QueryKey {
+    return ['getNetworkStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
+      // Poll only while networking is enabled. When disabled, the status
+      // can't change without a restart, so a single fetch suffices.
+      refetchInterval: (data) =>
+        data?.isEnabled ? NETWORK_STATUS_POLLING_INTERVAL_MS : false,
+    });
+  },
+} as const;
+
 export const getElectionRecord = {
   queryKey(): QueryKey {
     return ['getElectionRecord'];
