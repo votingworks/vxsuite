@@ -24,6 +24,14 @@
     "supportsIpp": true
   },
   {
+    "label": "HP Color LaserJet Pro 4201dn",
+    "vendorId": 1008,
+    "productId": 3698,
+    "baseDeviceUri": "usb://HP/Color%20LaserJet%20Pro%204201",
+    "ppd": "generic-postscript-driver.ppd",
+    "supportsIpp": true
+  },
+  {
     "label": "Citizen CT-E351",
     "vendorId": 7568,
     "productId": 8432,
