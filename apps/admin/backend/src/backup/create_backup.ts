@@ -15,7 +15,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { exchangePaths, renameNoReplace } from '@votingworks/fs';
+import { exchangePaths, renameNoReplace, SyscallError } from '@votingworks/fs';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format, generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
@@ -86,6 +86,11 @@ export type BackupError =
       message: string;
     }
   | {
+      type: 'target_unsupported_filesystem';
+      path: string;
+      message: string;
+    }
+  | {
       type: 'insufficient_space';
       location: 'workspace' | 'target';
       requiredBytes: number;
@@ -120,6 +125,12 @@ export function formatBackupError(error: BackupError): string {
       return 'No election is configured, so there is nothing to back up.';
     case 'target_unusable':
       return `The backup drive at ${error.path} cannot be written to: ${error.message}`;
+    case 'target_unsupported_filesystem':
+      return (
+        `The backup drive at ${error.path} uses a filesystem that cannot ` +
+        `safely swap a new backup into place: ${error.message}. Use a backup ` +
+        `drive formatted with ext4.`
+      );
     case 'insufficient_space':
       return (
         `Not enough free space on the ${error.location}: ` +
@@ -248,6 +259,29 @@ async function rmQuietly(
     await rm(path, { ...options, force: true });
   } catch {
     // Nothing useful to do about a failed cleanup.
+  }
+}
+
+/**
+ * Proves the drive can atomically exchange two paths, which is how the swap at
+ * the end replaces an existing backup, by exchanging two empty files. Not
+ * every filesystem supports the operation (FAT32 does not, failing with
+ * EINVAL), and the plain rename that takes a free name works everywhere — so
+ * without this check, an unsupported drive would accept its first backup and
+ * then fail every later one, after all the copying, at the swap.
+ */
+async function probeExchangeSupport(
+  directoryPath: string
+): Promise<Result<void, SyscallError>> {
+  const pathA = join(directoryPath, '.exchange-probe-a');
+  const pathB = join(directoryPath, '.exchange-probe-b');
+  try {
+    await writeFile(pathA, '');
+    await writeFile(pathB, '');
+    return exchangePaths(pathA, pathB);
+  } finally {
+    await rmQuietly(pathA);
+    await rmQuietly(pathB);
   }
 }
 
@@ -407,6 +441,26 @@ export async function createBackup({
   reportProgress({ step: 'checking_space' });
   try {
     await mkdir(backupsDirectoryPath, { recursive: true });
+
+    // Fail a drive that can't do the swap at the end now, before minutes are
+    // spent copying to it.
+    const probeResult = await probeExchangeSupport(backupsDirectoryPath);
+    if (probeResult.isErr()) {
+      const { code, message } = probeResult.err();
+      return await fail(
+        code === 'EINVAL' || code === 'ENOSYS'
+          ? {
+              type: 'target_unsupported_filesystem',
+              path: targetDirectoryPath,
+              message,
+            }
+          : {
+              type: 'target_unusable',
+              path: targetDirectoryPath,
+              message,
+            }
+      );
+    }
 
     // A leftover `-in-progress` directory is a partial write, or a replaced
     // backup whose deletion failed after the swap below. Never a valid restore

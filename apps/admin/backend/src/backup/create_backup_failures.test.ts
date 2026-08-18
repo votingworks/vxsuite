@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   statSync,
@@ -17,7 +18,7 @@ import { join } from 'node:path';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import { exchangePaths } from '@votingworks/fs';
 import { syncFilesystem } from '@votingworks/usb-drive';
-import { err } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -409,6 +410,14 @@ test.each<{ error: BackupError; expectedMessage: string }>([
   },
   {
     error: {
+      type: 'target_unsupported_filesystem',
+      path: '/media/usb',
+      message: 'EINVAL',
+    },
+    expectedMessage: 'formatted with ext4',
+  },
+  {
+    error: {
       type: 'insufficient_space',
       location: 'target',
       requiredBytes: 100,
@@ -441,6 +450,64 @@ test.each<{ error: BackupError; expectedMessage: string }>([
   },
 ])('formats backup error $error.type', ({ error, expectedMessage }) => {
   expect(formatBackupError(error)).toContain(expectedMessage);
+});
+
+test('refuses a drive whose filesystem cannot swap backups, before copying anything', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const testLogger = mockLogger();
+
+  // What `renameat2(RENAME_EXCHANGE)` returns on a filesystem that doesn't
+  // support it, e.g. FAT32. The plain rename that takes a free name works
+  // everywhere, so without the up-front probe this drive would accept its
+  // first backup and then fail every later one — after all the copying.
+  vi.mocked(exchangePaths).mockReturnValue(
+    err({ code: 'EINVAL', message: 'EINVAL: Invalid argument' })
+  );
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: testLogger,
+  });
+
+  expect(result).toEqual(
+    err({
+      type: 'target_unsupported_filesystem',
+      path: target,
+      message: expect.stringContaining('EINVAL'),
+    })
+  );
+  // Failed before copying, and the probe cleaned up after itself.
+  expect(loggedSteps(testLogger)).toEqual(['checking_space']);
+  expect(readdirSync(join(target, BACKUPS_DIRECTORY_NAME))).toEqual([]);
+});
+
+test('a probe that fails some other way reports the drive as unusable', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  vi.mocked(exchangePaths).mockReturnValue(
+    err({ code: 'EIO', message: 'EIO: i/o error' })
+  );
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+
+  // An I/O error isn't a verdict on the filesystem, and telling someone to
+  // reformat a drive that is failing would be bad advice.
+  expect(result).toEqual(
+    err({
+      type: 'target_unusable',
+      path: target,
+      message: expect.stringContaining('EIO'),
+    })
+  );
 });
 
 test('replaces whatever is squatting on the backup name', async () => {
@@ -625,8 +692,12 @@ test('a failed swap leaves the old backup in place under its own name', async ()
   });
   const firstManifest = first.unsafeUnwrap().manifest;
 
-  vi.mocked(exchangePaths).mockReturnValue(
-    err({ code: 'EIO', message: 'EIO: i/o error, rename' })
+  // The up-front probe passes — the drive supports the operation — and the
+  // swap itself fails, the way a drive dying mid-run would.
+  vi.mocked(exchangePaths).mockImplementation((pathA) =>
+    pathA.includes('.exchange-probe')
+      ? ok()
+      : err({ code: 'EIO', message: 'EIO: i/o error, rename' })
   );
 
   const second = await createBackup({
@@ -717,8 +788,10 @@ test('records the swap as the stage a failed exchange reached', async () => {
     })
   ).unsafeUnwrap();
 
-  vi.mocked(exchangePaths).mockReturnValue(
-    err({ code: 'EIO', message: 'EIO: i/o error, rename' })
+  vi.mocked(exchangePaths).mockImplementation((pathA) =>
+    pathA.includes('.exchange-probe')
+      ? ok()
+      : err({ code: 'EIO', message: 'EIO: i/o error, rename' })
   );
 
   const result = await createBackup({
