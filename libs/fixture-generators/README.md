@@ -2,6 +2,10 @@
 
 Tools for generating election data fixtures for testing.
 
+The `bin/` scripts run the compiled output, so build this package first
+(`pnpm build:self`) before invoking them directly. The `pnpm generate-*` scripts
+below do this automatically.
+
 ## Cast Vote Record Fixture Generator
 
 A command-line tool for generating cast vote record fixtures from ballot
