@@ -1,7 +1,8 @@
 // Checking a backup on a drive against its signed manifest.
 
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { cpSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
+import { cpSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { open as realOpen } from 'node:fs/promises';
 import { join } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
@@ -90,6 +91,39 @@ test('validation rejects a backup whose manifest cannot be read', async () => {
     err({
       type: 'manifest_unreadable',
       message: expect.stringContaining('ENOENT'),
+    })
+  );
+});
+
+test('validation rejects a manifest too large to read', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  // From an untrusted drive, so the read is bounded before it is attempted: a
+  // multi-gigabyte "manifest" must be refused, not slurped into memory.
+  writeFileSync(
+    manifestPath(backupDirectoryPath),
+    Buffer.alloc(10 * 1024 * 1024 + 1)
+  );
+
+  const result = await validateBackup({ backupDirectoryPath });
+  expect(result).toEqual(
+    err({
+      type: 'manifest_unreadable',
+      message: expect.stringContaining('maximum'),
+    })
+  );
+});
+
+test('validation rejects a manifest that cannot be read after opening', async () => {
+  const { backupDirectoryPath } = await createValidBackup();
+  rmSync(manifestPath(backupDirectoryPath));
+  // A directory opens fine and then fails the read itself, with EISDIR.
+  mkdirSync(manifestPath(backupDirectoryPath));
+
+  const result = await validateBackup({ backupDirectoryPath });
+  expect(result).toEqual(
+    err({
+      type: 'manifest_unreadable',
+      message: expect.stringContaining('EISDIR'),
     })
   );
 });

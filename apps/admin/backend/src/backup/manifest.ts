@@ -1,8 +1,8 @@
-import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
 import { VXADMIN_BACKUP_MANIFEST_FILE_NAME } from '@votingworks/auth';
 import { Result, err, ok } from '@votingworks/basics';
+import { readFile } from '@votingworks/fs';
 import { safeParseJson } from '@votingworks/types';
 
 /**
@@ -102,7 +102,7 @@ export const BackupManifestSchema = z.object({
  * The signed inventory of a backup. Everything else in the backup directory is
  * covered by a hash within it.
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+ 
 export interface BackupManifest extends z.infer<typeof BackupManifestSchema> {}
 /**
  * The path of the manifest within the given backup directory.
@@ -127,17 +127,37 @@ export async function readManifest(
 }
 
 /**
+ * The most manifest we are willing to read into memory. The manifest comes off
+ * an untrusted drive and is read before anything about it has been checked, so
+ * the read has to be bounded; at roughly 150 bytes per file entry, this allows
+ * tens of thousands of files, far past any real workspace.
+ */
+const MAX_MANIFEST_SIZE_BYTES = 10 * 1024 * 1024;
+
+/**
  * Reads the manifest's bytes without parsing them, so that a caller can tie the
  * manifest it parsed to the bytes a signature was checked against.
  */
 export async function readManifestContents(
   backupDirectoryPath: string
 ): Promise<Result<string, Error>> {
-  try {
-    return ok(await readFile(manifestPath(backupDirectoryPath), 'utf-8'));
-  } catch (error) {
-    return err(error as Error);
+  const result = await readFile(manifestPath(backupDirectoryPath), {
+    maxSize: MAX_MANIFEST_SIZE_BYTES,
+    encoding: 'utf-8',
+  });
+  if (result.isOk()) {
+    return ok(result.ok());
   }
+  const error = result.err();
+  if (error.type === 'FileExceedsMaxSize') {
+    return err(
+      new Error(
+        `manifest is ${error.fileSize} bytes, ` +
+          `larger than the ${error.maxSize}-byte maximum`
+      )
+    );
+  }
+  return err(error.error);
 }
 
 /**
