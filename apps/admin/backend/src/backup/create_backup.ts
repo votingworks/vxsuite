@@ -718,6 +718,13 @@ export async function createBackup({
     );
   }
 
+  // Quietly: the backup is already complete, and a stale snapshot is exactly
+  // what `removeStaleSnapshots` exists to catch next time.
+  await rmQuietly(snapshotPath);
+
+  // One completion event per run: a leftover doesn't make this a failed
+  // backup, but it does need someone's attention, and that is what the
+  // disposition flags. Either way the message leads with where the backup is.
   if (leftovers.length > 0) {
     logger.log(LogEventId.BackupCreateComplete, 'system', {
       message:
@@ -725,16 +732,12 @@ export async function createBackup({
         `${leftovers.join('; and ')}.`,
       disposition: 'failure',
     });
+  } else {
+    logger.log(LogEventId.BackupCreateComplete, 'system', {
+      message: `Backed up election data to ${backupDirectoryPath}.`,
+      disposition: 'success',
+    });
   }
-
-  // Quietly: the backup is already complete, and a stale snapshot is exactly
-  // what `removeStaleSnapshots` exists to catch next time.
-  await rmQuietly(snapshotPath);
-
-  logger.log(LogEventId.BackupCreateComplete, 'system', {
-    message: `Backed up election data to ${backupDirectoryPath}.`,
-    disposition: 'success',
-  });
 
   return ok({ backupDirectoryPath, manifest });
 }

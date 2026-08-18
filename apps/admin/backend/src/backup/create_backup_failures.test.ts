@@ -698,14 +698,21 @@ test('a backup that cannot be flushed afterwards is still a backup', async () =>
 
   const { backupDirectoryPath } = result.unsafeUnwrap();
   expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
-  expect(vi.mocked(testLogger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupCreateComplete,
-    'system',
+  // Exactly one completion event: a second one saying 'success' would make
+  // the run's outcome ambiguous to anyone reading the log by disposition.
+  expect(
+    vi
+      .mocked(testLogger.log)
+      .mock.calls.filter(
+        ([eventId]) => eventId === LogEventId.BackupCreateComplete
+      )
+      .map(([, , logData]) => logData)
+  ).toEqual([
     expect.objectContaining({
       disposition: 'failure',
       message: expect.stringContaining('could not be flushed'),
-    })
-  );
+    }),
+  ]);
 });
 
 test('a snapshot that cannot be cleaned up does not fail the backup', async () => {
@@ -826,14 +833,21 @@ test('a backup whose old copy cannot be deleted is still a backup', async () => 
   // sitting right there.
   result.unsafeUnwrap();
   expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
-  expect(vi.mocked(testLogger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupCreateComplete,
-    'system',
+  // Exactly one completion event: a second one saying 'success' would make
+  // the run's outcome ambiguous to anyone reading the log by disposition.
+  expect(
+    vi
+      .mocked(testLogger.log)
+      .mock.calls.filter(
+        ([eventId]) => eventId === LogEventId.BackupCreateComplete
+      )
+      .map(([, , logData]) => logData)
+  ).toEqual([
     expect.objectContaining({
       disposition: 'failure',
       message: expect.stringContaining('could not be deleted'),
-    })
-  );
+    }),
+  ]);
 });
 
 test('records the swap as the stage a failed exchange reached', async () => {
