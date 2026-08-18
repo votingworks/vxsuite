@@ -33,7 +33,13 @@ import { readFile } from 'node:fs/promises';
 import { loadImageMetadata } from '@votingworks/image-utils';
 import { Importer } from './importer.js';
 import { Workspace } from './util/workspace.js';
-import { BallotImage, MachineConfig, ScanStatus } from './types.js';
+import {
+  BallotImage,
+  MachineConfig,
+  NetworkStatus,
+  ScanStatus,
+} from './types.js';
+import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
 import {
@@ -89,6 +95,13 @@ function buildApi({
 
     getMachineConfig(): MachineConfig {
       return getMachineConfig();
+    },
+
+    getNetworkStatus(): NetworkStatus {
+      return {
+        isEnabled: isCentralScanNetworkingEnabled(),
+        connection: store.getScannerConnectionInfo(),
+      };
     },
 
     getTestMode() {

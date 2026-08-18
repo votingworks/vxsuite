@@ -20,3 +20,26 @@ export interface BallotImage {
   ballotBounds: Rect;
   layout?: BallotPageLayout;
 }
+
+/**
+ * Connection status of this scanner in a networked central-scan setup.
+ * Mirrors VxAdmin's ClientConnectionStatus naming. A string union rather
+ * than an enum so the frontend can use it via type-only imports.
+ */
+export type ScannerConnectionStatus =
+  | 'offline'
+  | 'online-waiting-for-host'
+  | 'online-host-detected';
+
+/** The scanner's current connection state and the detected host, if any. */
+export interface ScannerConnectionInfo {
+  status: ScannerConnectionStatus;
+  /** Machine ID of the detected host, parsed from its avahi service name. */
+  hostMachineId?: string;
+}
+
+/** The scanner's network status, as reported to the frontend. */
+export interface NetworkStatus {
+  isEnabled: boolean;
+  connection: ScannerConnectionInfo;
+}

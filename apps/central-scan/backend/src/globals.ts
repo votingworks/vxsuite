@@ -30,3 +30,8 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(import.meta.dirname, '../dev-workspace')
     : undefined);
+
+/**
+ * How often to poll the network for a VxAdmin host.
+ */
+export const NETWORK_POLLING_INTERVAL_MS = 2000;
