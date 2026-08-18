@@ -2182,13 +2182,21 @@ test('CRUD contests', async () => {
         middleName: 'M',
         lastName: 'Three',
         name: 'Candidate M Three',
+        designation: 'Member of City Council',
       },
     ],
   };
   (
     await apiClient.updateContest({
       electionId,
-      updatedContest: updatedContest1,
+      updatedContest: {
+        ...updatedContest1,
+        candidates: updatedContest1.candidates.map((candidate) =>
+          candidate.designation
+            ? { ...candidate, designation: `${candidate.designation}` }
+            : candidate
+        ),
+      },
     })
   ).unsafeUnwrap();
   // Expect contests to have their ballot order preserved
