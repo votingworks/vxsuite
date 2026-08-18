@@ -99,7 +99,7 @@ export enum BooleanEnvironmentVariableName {
    */
   MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
   /**
-   * [In Development] Enables multi-station adjudication in VxAdmin
+   * Enables multi-station adjudication in VxAdmin
    */
   ENABLE_MULTI_STATION_ADMIN = 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
   /**
