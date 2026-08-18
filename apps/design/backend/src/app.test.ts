@@ -31,6 +31,7 @@ import {
   AdjudicationReason,
   HmpbBallotPaperSize,
   BallotType,
+  Candidate,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -2182,6 +2183,7 @@ test('CRUD contests', async () => {
         middleName: 'M',
         lastName: 'Three',
         name: 'Candidate M Three',
+        designation: 'Member of City Council',
       },
     ],
   };
@@ -2556,6 +2558,53 @@ test('CRUD contests', async () => {
       })
     ).rejects.toThrow('auth:forbidden');
   });
+});
+
+test('candidate designation whitespace is trimmed', async () => {
+  const { apiClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.createElection({
+      jurisdictionId: nonVxJurisdiction.id,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+
+  const district: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-1'),
+    name: 'District 1',
+  };
+  (
+    await apiClient.updateDistricts({ electionId, newDistricts: [district] })
+  ).unsafeUnwrap();
+
+  const candidate: Candidate = {
+    id: 'candidate-1',
+    firstName: 'Candidate',
+    lastName: 'One',
+    name: 'Candidate One',
+    designation: 'Member of City Council',
+  };
+  const contest: CandidateContest = {
+    id: 'contest-1',
+    title: 'Contest 1',
+    type: 'candidate',
+    seats: 1,
+    allowWriteIns: true,
+    districtId: district.id,
+    candidates: [{ ...candidate, designation: '  Member of City Council  ' }],
+  };
+
+  (
+    await apiClient.createContest({ electionId, newContest: contest })
+  ).unsafeUnwrap();
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    { ...contest, candidates: [candidate] },
+  ]);
 });
 
 test('reordering contests', async () => {

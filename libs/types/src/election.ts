@@ -122,7 +122,10 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
     id: CandidateIdSchema,
     name: z.string().min(1),
-    designation: z.string().nonempty().optional(),
+    designation: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
     partyIds: z.array(PartyIdSchema).optional(),
     isWriteIn: z.boolean().optional(),
     writeInIndex: z.number().int().nonnegative().optional(),

@@ -326,6 +326,9 @@
         },
         "BallotName": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "CampaignSlogan": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         }
       },
       "type": "object"

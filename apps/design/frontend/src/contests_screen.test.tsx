@@ -5,6 +5,7 @@ import {
   Contest,
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
+  Candidate,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
@@ -53,7 +54,11 @@ import { withRoute } from '../test/routing_helpers.js';
 import { ContestsScreen } from './contests_screen.js';
 import { routes } from './routes.js';
 import { makeIdFactory } from '../test/id_helpers.js';
-import { ContestList, ContestListProps, ReorderParams } from './contest_list.js';
+import {
+  ContestList,
+  ContestListProps,
+  ReorderParams,
+} from './contest_list.js';
 import { ContestAudioPanel } from './contest_audio_panel.js';
 
 vi.mock('./contest_list.js');
@@ -217,6 +222,15 @@ const electionWithStraightPartyContestRecord: typeof electionWithNoContestsRecor
       contests: [straightPartyContest, mayorContest],
     },
   };
+
+function withUndefinedDesignations(
+  candidates: readonly Candidate[]
+): readonly Candidate[] {
+  return candidates.map((candidate) => ({
+    designation: undefined,
+    ...candidate,
+  }));
+}
 
 // Since we coarsely invalidate all election data on contest changes, there
 // are a number of other API calls that refetch when we mutate contests
@@ -588,7 +602,7 @@ test('editing a candidate contest (primary election)', async () => {
     seats: savedContest.seats + 1,
     allowWriteIns: !savedContest.allowWriteIns,
     termDescription: 'Updated Term Description',
-    candidates: [
+    candidates: withUndefinedDesignations([
       {
         ...savedContest.candidates[1],
         name: 'Updated Candidate Name',
@@ -598,7 +612,7 @@ test('editing a candidate contest (primary election)', async () => {
         partyIds: undefined,
       },
       ...savedContest.candidates.slice(2),
-    ],
+    ]),
   };
 
   apiMock.listContests
@@ -855,6 +869,97 @@ test.each(nameTestSpecs)(
     expectContestListItems([newContest]);
   }
 );
+
+test('editing a candidate designation is not shown when flag is off', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(election.contests);
+  expectOtherElectionApiCalls(election);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  // Flag is off by default but this is more readable
+  const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: false });
+  await navigateToContestEdit(history, electionId, election.contests[0].id);
+
+  // The rest of the candidate table still renders
+  screen.getByRole('columnheader', { name: 'First Name' });
+  screen.getByLabelText('Candidate 1 First Name');
+
+  expect(
+    screen.queryByRole('columnheader', { name: 'Designation' })
+  ).toBeNull();
+  expect(screen.queryByLabelText('Candidate 1 Designation')).toBeNull();
+});
+
+test('editing a candidate designation', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+  const savedContest: CandidateContest = {
+    ...find(
+      election.contests,
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    ),
+    allowWriteIns: true,
+    candidates: [
+      {
+        id: 'candidate-1',
+        name: 'Candidate One',
+        firstName: 'Candidate',
+        middleName: '',
+        lastName: 'One',
+        designation: 'Mayor of Springfield',
+      },
+    ],
+  };
+  const updatedContest: CandidateContest = {
+    ...savedContest,
+    candidates: [
+      {
+        ...savedContest.candidates[0],
+        designation: 'Member of City Council',
+        middleName: undefined,
+        partyIds: undefined,
+      },
+    ],
+  };
+
+  apiMock.listContests.expectCallWith({ electionId }).resolves([savedContest]);
+  expectOtherElectionApiCalls(election);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: true });
+  await navigateToContestEdit(history, electionId, savedContest.id);
+
+  // The saved designation is loaded into the form
+  const designationInput = screen.getByLabelText('Candidate 1 Designation');
+  expect(designationInput).toHaveValue('Mayor of Springfield');
+
+  // Clearing it unsets the designation
+  userEvent.clear(designationInput);
+  userEvent.tab();
+  expect(designationInput).toHaveValue('');
+
+  // Designations may contain spaces
+  userEvent.type(designationInput, updatedContest.candidates[0].designation!);
+  userEvent.tab();
+  expect(designationInput).toHaveValue('Member of City Council');
+
+  apiMock.updateContest
+    .expectCallWith({ electionId, updatedContest })
+    .resolves(ok());
+  apiMock.listContests
+    .expectRepeatedCallsWith({ electionId })
+    .resolves([updatedContest]);
+  expectOtherElectionApiCalls(election);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await expectViewModeContest(history, electionId, updatedContest);
+});
 
 test('adding a ballot measure', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
@@ -1482,11 +1587,18 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   await expectViewModeContest(history, electionId, election.contests[0]);
   await navigateToContestEdit(history, electionId, election.contests[1].id);
 
+  const savedContest = election.contests[1];
+  assert(savedContest.type === 'candidate');
+  const expectedContest: CandidateContest = {
+    ...savedContest,
+    candidates: withUndefinedDesignations(savedContest.candidates),
+  };
+
   // Mock the duplicate contest error, even though we didn't actually change anything
   apiMock.updateContest
     .expectCallWith({
       electionId,
-      updatedContest: election.contests[1],
+      updatedContest: expectedContest,
     })
     .resolves(err('duplicate-contest'));
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -1499,7 +1611,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   apiMock.updateContest
     .expectCallWith({
       electionId,
-      updatedContest: election.contests[1],
+      updatedContest: expectedContest,
     })
     .resolves(err('duplicate-candidate'));
   userEvent.click(screen.getByRole('button', { name: 'Save' }));

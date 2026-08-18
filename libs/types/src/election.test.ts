@@ -476,6 +476,34 @@ test('candidate schema', () => {
       name: 'Bob Loblaw',
     })
   );
+
+  // Designations are trimmed, preserving internal whitespace
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: '  Member of City Council  ',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: 'Member of City Council',
+    })
+  );
+
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      designation: '   ',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+    })
+  );
 });
 
 test('write-in ID schema', () => {

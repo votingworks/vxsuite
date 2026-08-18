@@ -680,6 +680,11 @@ export interface Candidate {
    * For the candidate’s name as listed on the ballot.
    */
   readonly BallotName: InternationalizedText;
+
+  /**
+   * The slogan or motto used by the candidate in their campaign.
+   */
+  readonly CampaignSlogan?: InternationalizedText;
 }
 
 /**
@@ -689,6 +694,7 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Candidate'),
   BallotName: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  CampaignSlogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
 });
 
 /**

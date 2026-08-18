@@ -45,6 +45,9 @@ test('convertVxfElectionToCdfBallotDefinition', () => {
 test('convertVxfElectionToCdfBallotDefinition with translated election strings', () => {
   const translatedElectionStrings: UiStringsPackage = {
     'es-US': {
+      [ElectionStringKey.CANDIDATE_DESIGNATION]: {
+        'candidate-1': 'Miembro del Concejo Municipal',
+      },
       [ElectionStringKey.CANDIDATE_NAME]: {
         'candidate-1': 'Sherlock Holmes',
         'candidate-2': 'Thomas Edison',
@@ -93,6 +96,9 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
       [ElectionStringKey.STATE_NAME]: 'Estado de Hamilton',
     },
     'zh-Hans': {
+      [ElectionStringKey.CANDIDATE_DESIGNATION]: {
+        'candidate-1': '市议会议员',
+      },
       [ElectionStringKey.CANDIDATE_NAME]: {
         'candidate-1': 'Sherlock Holmes',
         'candidate-2': 'Thomas Edison',
@@ -129,6 +135,17 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
       languageString('Winston Churchill', 'en'),
       languageString('Winston Churchill', 'es-US'),
       languageString('Winston Churchill', 'zh-Hans'),
+    ]
+  );
+
+  // Candidate designations
+  set(
+    expectedCdfBallotDefinition,
+    ['Election', 0, 'Candidate', 0, 'CampaignSlogan', 'Text'],
+    [
+      languageString('Member of City Council', 'en'),
+      languageString('Miembro del Concejo Municipal', 'es-US'),
+      languageString('市议会议员', 'zh-Hans'),
     ]
   );
 
@@ -373,58 +390,58 @@ test('ballot styles with same districts but different rotations in different pre
     optionBoundsFromTargetMark: Outset;
     gridPositions: FlatGridPosition[];
   }> = [
-      {
-        ballotStyleId: 'ballot-style-1',
-        optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
-        gridPositions: [
-          {
-            type: 'option',
-            sheetNumber: 1,
-            side: 'front',
-            contestId: 'contest-1',
-            column: 2,
-            row: 12,
-            optionId: 'candidate-1',
-            partyIds: ['party-1'],
-          },
-          {
-            type: 'option',
-            sheetNumber: 1,
-            side: 'front',
-            contestId: 'contest-1',
-            column: 2,
-            row: 14,
-            optionId: 'candidate-2',
-            partyIds: ['party-2'],
-          },
-        ],
-      },
-      {
-        ballotStyleId: 'ballot-style-2',
-        optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
-        gridPositions: [
-          {
-            type: 'option',
-            sheetNumber: 1,
-            side: 'front',
-            contestId: 'contest-1',
-            column: 2,
-            row: 12,
-            optionId: 'candidate-2',
-            partyIds: ['party-2'],
-          },
-          {
-            type: 'option',
-            sheetNumber: 1,
-            side: 'front',
-            contestId: 'contest-1',
-            column: 2,
-            row: 14,
-            optionId: 'candidate-1',
-            partyIds: ['party-1'],
-          },
-        ],
-      },
+    {
+      ballotStyleId: 'ballot-style-1',
+      optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
+      gridPositions: [
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 12,
+          optionId: 'candidate-1',
+          partyIds: ['party-1'],
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 14,
+          optionId: 'candidate-2',
+          partyIds: ['party-2'],
+        },
+      ],
+    },
+    {
+      ballotStyleId: 'ballot-style-2',
+      optionBoundsFromTargetMark: { top: 1, left: 1, right: 9, bottom: 1 },
+      gridPositions: [
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 12,
+          optionId: 'candidate-2',
+          partyIds: ['party-2'],
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 14,
+          optionId: 'candidate-1',
+          partyIds: ['party-1'],
+        },
+      ],
+    },
   ];
   const ballotPositionsByStyleId: Record<string, Vxf.SheetPositions[]> =
     Object.fromEntries(

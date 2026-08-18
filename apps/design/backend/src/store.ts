@@ -445,15 +445,17 @@ async function insertContest(
               contest_id,
               first_name,
               middle_name,
-              last_name
+              last_name,
+              designation
             )
-            values ($1, $2, $3, $4, $5)
+            values ($1, $2, $3, $4, $5, $6)
           `,
           candidate.id,
           contest.id,
           candidate.firstName,
           candidate.middleName,
-          candidate.lastName
+          candidate.lastName,
+          candidate.designation
         );
         for (const partyId of candidate.partyIds ?? []) {
           await client.query(
@@ -1095,6 +1097,7 @@ export class Store {
               first_name as "firstName",
               middle_name as "middleName",
               last_name as "lastName",
+              designation,
               -- Order by name for a deterministic order (party ids are
               -- randomly generated, so ordering by them varies per import)
               array_remove(array_agg(candidates_parties.party_id ORDER BY parties.name), NULL) as "partyIds"
@@ -1114,6 +1117,7 @@ export class Store {
         firstName: string | null;
         middleName: string | null;
         lastName: string | null;
+        designation: string | null;
         partyIds: PartyId[];
       }>;
       const contests: Contest[] = contestRows.map((row) => {
@@ -1130,6 +1134,7 @@ export class Store {
                 firstName: candidate.firstName || undefined,
                 middleName: candidate.middleName || undefined,
                 lastName: candidate.lastName || undefined,
+                designation: candidate.designation || undefined,
                 name: [
                   candidate.firstName,
                   candidate.middleName,
