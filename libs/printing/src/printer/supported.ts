@@ -11,6 +11,7 @@ export const PrinterConfigSchema: z.ZodSchema<PrinterConfig> = z.object({
   baseDeviceUri: z.string(),
   ppd: z.string(),
   supportsIpp: z.boolean(),
+  pdfRenderer: z.optional(z.enum(['gs', 'pdftops'])),
 });
 
 const RELATIVE_PATH_TO_SUPPORTED_PRINTERS = '../../supported_printers';
@@ -52,6 +53,22 @@ export const M404N_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
   (config) => config.label === 'HP LaserJet Pro M404n'
 );
+
+export const HP_4201_PRINTER_CONFIG = find(
+  SUPPORTED_PRINTER_CONFIGS,
+  (config) => config.label === 'HP Color LaserJet Pro 4201dn'
+);
+
+/**
+ * Builds the `lpr` options that select a printer's PDF-to-PostScript renderer.
+ * Empty when the config does not pin one, leaving the CUPS default in place.
+ * See {@link PrinterConfig.pdfRenderer} for why a printer might pin it.
+ */
+export function getPdfRendererOptions(config: PrinterConfig): {
+  [key: string]: string;
+} {
+  return config.pdfRenderer ? { 'pdftops-renderer': config.pdfRenderer } : {};
+}
 
 /**
  * See {@link deriveM404nPpd} for more details.

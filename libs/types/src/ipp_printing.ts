@@ -1,3 +1,9 @@
+/**
+ * A PDF-to-PostScript renderer supported by the CUPS `pdftops` filter, selected
+ * via its `pdftops-renderer` option. See {@link PrinterConfig.pdfRenderer}.
+ */
+export type PdfRenderer = 'gs' | 'pdftops';
+
 export interface PrinterConfig {
   label: string;
   vendorId: number;
@@ -10,6 +16,29 @@ export interface PrinterConfig {
    * its status beyond just whether it's connected or not.
    */
   supportsIpp: boolean;
+  /**
+   * Which renderer CUPS should use to convert PDFs to PostScript for this
+   * printer. Omit to use the CUPS default, Ghostscript.
+   *
+   * Ghostscript's `ps2write` re-asserts the page device on every page for any
+   * paper size other than its built-in default of letter. A mid-job
+   * `setpagedevice` ends the current sheet, which breaks duplex sheet pairing:
+   * the duplexer engages and the sheet takes the duplex path, but each page
+   * lands on a fresh sheet front and the backs come out blank. The job silently
+   * comes out single-sided, with no error from CUPS. Poppler's `pdftops` only
+   * calls `setpagedevice` when the page size actually changes, so the pairing
+   * holds.
+   *
+   * Every paper size is affected except letter, which is Ghostscript's own
+   * built-in default. This is independent of the PPD: pinning a different
+   * `*DefaultPageSize` does not change which size is exempt.
+   *
+   * Ending the sheet on a redundant `setpagedevice` is permitted by the
+   * PostScript spec, so printers that need `pdftops` are stricter rather than
+   * broken; the others ignore the redundant assertion and duplex correctly on
+   * the default renderer.
+   */
+  pdfRenderer?: PdfRenderer;
 }
 
 export type PrinterStatus =

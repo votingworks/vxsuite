@@ -9,7 +9,11 @@ import {
 import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer';
-import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
+import {
+  CITIZEN_THERMAL_PRINTER_CONFIG,
+  HP_4201_PRINTER_CONFIG,
+  HP_LASER_PRINTER_CONFIG,
+} from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
 const featureFlagMock = getFeatureFlagMock();
@@ -58,7 +62,7 @@ vi.mock(
   import('./print.js'),
   async (importActual): Promise<typeof import('./print')> => ({
     ...(await importActual()),
-    print: () => mockPrintData(),
+    print: (props) => mockPrintData(props),
   })
 );
 
@@ -118,7 +122,9 @@ test('status and configuration', async () => {
     }
   );
 
-  mockPrintData.expectCallWith().returns(undefined);
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .returns(undefined);
   await printer.print({ data: Buffer.of() });
 
   // supported printer does not configure again
@@ -213,6 +219,74 @@ describe('rich status', () => {
       connected: true,
       config,
       richStatus,
+    });
+  });
+});
+
+describe('pdftops renderer', () => {
+  test('passes the renderer option for printers that need it', async () => {
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+    const uri = `${HP_4201_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = HP_4201_PRINTER_CONFIG;
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    await printer.status();
+
+    mockPrintData
+      .expectCallWith({
+        data: Buffer.of(),
+        raw: { 'pdftops-renderer': 'pdftops' },
+      })
+      .returns(undefined);
+    await printer.print({ data: Buffer.of() });
+  });
+
+  test('does not pass the renderer option for other printers', async () => {
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+    const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = HP_LASER_PRINTER_CONFIG;
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    await printer.status();
+
+    mockPrintData
+      .expectCallWith({ data: Buffer.of(), raw: {} })
+      .returns(undefined);
+    await printer.print({ data: Buffer.of() });
+  });
+
+  test('passes no renderer options when no printer is configured', async () => {
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+    mockPrintData
+      .expectCallWith({ data: Buffer.of(), raw: {} })
+      .returns(undefined);
+    await printer.print({ data: Buffer.of() });
+  });
+
+  test('caller-supplied raw options take precedence', async () => {
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+    const uri = `${HP_4201_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = HP_4201_PRINTER_CONFIG;
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    await printer.status();
+
+    mockPrintData
+      .expectCallWith({
+        data: Buffer.of(),
+        raw: { 'pdftops-renderer': 'gs' },
+      })
+      .returns(undefined);
+    await printer.print({
+      data: Buffer.of(),
+      raw: { 'pdftops-renderer': 'gs' },
     });
   });
 });
