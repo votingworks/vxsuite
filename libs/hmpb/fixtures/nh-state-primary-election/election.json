@@ -652,8 +652,8 @@
       "hmpbInstructions": "Instrucciones",
       "hmpbInstructionsToVoteText": "Para votar, llene completamente el óvalo junto a su elección.",
       "hmpbInstructionsToVoteTitle": "Para votar:",
-      "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escriba el nombre de la persona en la línea \"Candidato por Escrito\" y llene completamente el óvalo junto a la línea.",
-      "hmpbInstructionsWriteInTitle": "Para votar por un candidato por escrito:",
+      "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escriba el nombre de la persona en la línea \"Candidato Escrito\" y llene completamente el óvalo junto a la línea.",
+      "hmpbInstructionsWriteInTitle": "Para votar por un candidato escrito:",
       "hmpbOfficialAbsenteeBallot": "Boleta oficial de voto ausente",
       "hmpbOfficialBallot": "Boleta oficial",
       "hmpbOfficialProvisionalBallot": "Boleta oficial provisional",
@@ -677,7 +677,7 @@
       "hmpbVoteFor9": "Vota por hasta 9",
       "hmpbVoteForNotMoreThan1": "Vote por no más de 1",
       "hmpbVotingComplete": "Ha completado la votación.",
-      "hmpbWriteIn": "Candidato por escrito"
+      "hmpbWriteIn": "Candidato escrito"
     }
   },
   "ballotStyles": [
