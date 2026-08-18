@@ -154,6 +154,9 @@ async function listEntriesRecursively(
  * Checks that a backup on a drive is intact and authentic: its manifest is
  * signed by a VxAdmin, it was made by the expected software version, and every
  * file it lists is present with the recorded size and hash, with nothing extra.
+ * "Nothing extra" is checked over files, symlinks, and special files, not over
+ * directories themselves: an added directory holding any of those is caught by
+ * what it holds, and an added empty one carries nothing a restore would read.
  *
  * This is an integrity check, not a security boundary. It re-reads the drive,
  * and a drive that serves different bytes later can still pass it; restore
