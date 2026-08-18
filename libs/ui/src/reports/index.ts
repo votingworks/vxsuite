@@ -1,4 +1,5 @@
 export * from './batch_summary_table';
+export * from './certification_signatures';
 export * from './precinct_scanner_ballot_count_report';
 export * from './precinct_scanner_tally_report';
 export * from './layout';

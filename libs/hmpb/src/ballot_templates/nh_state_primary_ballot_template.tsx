@@ -49,7 +49,6 @@ import {
   WriteInLabel,
 } from '../ballot_components';
 import { PixelDimensions } from '../types';
-import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 import {
@@ -60,6 +59,7 @@ import {
   NhStateBallotProps,
   isDemocraticParty,
   isRepublicanParty,
+  voteForText,
 } from './nh_state_ballot_components';
 
 export const ColorTints = {
@@ -105,7 +105,7 @@ const Box = styled.div<{
       : ColorTints[p.fill]};
 `;
 
-function colorTintForParty(party: Party): ColorTint {
+export function colorTintForParty(party: Party): ColorTint {
   if (isDemocraticParty(party)) return 'BLUE';
   if (isRepublicanParty(party)) return 'RED';
   return 'GRAY';
@@ -401,36 +401,6 @@ function CandidateContest({
   colorTint: ColorTint;
   ballotStyle: BallotStyle;
 }) {
-  const voteForText = {
-    1: hmpbStrings.hmpbVoteForNotMoreThan1,
-    2: hmpbStrings.hmpbVoteFor2,
-    3: hmpbStrings.hmpbVoteFor3,
-    4: hmpbStrings.hmpbVoteFor4,
-    5: hmpbStrings.hmpbVoteFor5,
-    6: hmpbStrings.hmpbVoteFor6,
-    7: hmpbStrings.hmpbVoteFor7,
-    8: hmpbStrings.hmpbVoteFor8,
-    9: hmpbStrings.hmpbVoteFor9,
-    10: hmpbStrings.hmpbVoteFor10,
-  }[contest.seats];
-  if (!voteForText) {
-    throw new Error(
-      `Unsupported number of seats for contest: ${contest.seats}`
-    );
-  }
-
-  const willBeElectedText = {
-    2: hmpbStrings.hmpb2WillBeElected,
-    3: hmpbStrings.hmpb3WillBeElected,
-    4: hmpbStrings.hmpb4WillBeElected,
-    5: hmpbStrings.hmpb5WillBeElected,
-    6: hmpbStrings.hmpb6WillBeElected,
-    7: hmpbStrings.hmpb7WillBeElected,
-    8: hmpbStrings.hmpb8WillBeElected,
-    9: hmpbStrings.hmpb9WillBeElected,
-    10: hmpbStrings.hmpb10WillBeElected,
-  }[contest.seats];
-
   return (
     <Box
       style={{
@@ -441,10 +411,7 @@ function CandidateContest({
     >
       <ContestHeader colorTint={colorTint}>
         <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
-        <h5>
-          {voteForText}
-          {willBeElectedText && <span>; {willBeElectedText}</span>}
-        </h5>
+        <h5>{voteForText(contest.seats)}</h5>
         {contest.termDescription && (
           <div>{electionStrings.contestTerm(contest)}</div>
         )}
