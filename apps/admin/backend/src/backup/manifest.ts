@@ -12,15 +12,10 @@ export const BACKUPS_DIRECTORY_NAME = 'vxadmin-backups';
 
 /**
  * The suffix for the directory a backup is written to before it is swapped into
- * place. Never a valid restore source.
+ * place — and where the swap leaves the replaced backup, just before it is
+ * deleted. Never a valid restore source.
  */
 export const IN_PROGRESS_DIRECTORY_SUFFIX = '-in-progress';
-
-/**
- * The suffix for the directory the previous backup is moved aside to during the
- * swap, just before it is deleted. Never a valid restore source.
- */
-export const PREVIOUS_DIRECTORY_SUFFIX = '-previous';
 
 /**
  * The directory within a backup that holds the copied workspace. Keeping it
@@ -153,13 +148,10 @@ export function parseManifest(contents: string): Result<BackupManifest, Error> {
 }
 
 /**
- * Whether the given directory name is one of the transient directories a backup
- * uses while being written or swapped into place. These are never valid restore
- * sources and are deleted by the next backup.
+ * Whether the given directory name is the transient directory a backup uses
+ * while being written or swapped into place. Never a valid restore source, and
+ * deleted by the next backup.
  */
 export function isTransientBackupDirectoryName(directoryName: string): boolean {
-  return (
-    directoryName.endsWith(IN_PROGRESS_DIRECTORY_SUFFIX) ||
-    directoryName.endsWith(PREVIOUS_DIRECTORY_SUFFIX)
-  );
+  return directoryName.endsWith(IN_PROGRESS_DIRECTORY_SUFFIX);
 }

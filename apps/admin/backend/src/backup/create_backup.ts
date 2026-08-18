@@ -10,12 +10,12 @@ import {
   assertDefined,
   err,
   extractErrorMessage,
-  isNonExistentFileOrDirectoryError,
   iter,
   ok,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { exchangePaths, renameNoReplace } from '@votingworks/fs';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format, generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
@@ -26,7 +26,6 @@ import {
   BackupManifestFile,
   IN_PROGRESS_DIRECTORY_SUFFIX,
   manifestPath,
-  PREVIOUS_DIRECTORY_SUFFIX,
 } from './manifest.js';
 import {
   BackupValidationError,
@@ -38,7 +37,6 @@ import {
   createWriteStream,
   mkdir,
   readdir,
-  rename,
   rm,
   stat,
   writeFile,
@@ -242,21 +240,6 @@ async function listWorkspaceFiles(
   return { files: [...files].sort(), unsupported: [...unsupported].sort() };
 }
 
-// Only "no" means no: a `stat` that fails some other way (a drive going bad,
-// say) hasn't answered the question, and one caller decides whether to delete
-// the last good backup based on the answer.
-async function exists(path: string): Promise<boolean> {
-  try {
-    await stat(path);
-    return true;
-  } catch (error) {
-    if (isNonExistentFileOrDirectoryError(error)) {
-      return false;
-    }
-    throw error;
-  }
-}
-
 async function rmQuietly(
   path: string,
   options: { recursive?: boolean } = {}
@@ -393,7 +376,6 @@ export async function createBackup({
   );
   const backupDirectoryPath = join(backupsDirectoryPath, backupDirectoryName);
   const inProgressDirectoryPath = `${backupDirectoryPath}${IN_PROGRESS_DIRECTORY_SUFFIX}`;
-  const previousDirectoryPath = `${backupDirectoryPath}${PREVIOUS_DIRECTORY_SUFFIX}`;
   const snapshotPath = join(workspace.path, `backup-tmp-${Date.now()}.db`);
 
   let loggedStep: BackupStep | undefined;
@@ -426,27 +408,10 @@ export async function createBackup({
   try {
     await mkdir(backupsDirectoryPath, { recursive: true });
 
-    // A `-previous` directory with no backup beside it is the good backup from
-    // last time, stranded by a run that died between the two renames below.
-    // Putting it back is the only chance to recover it: `list` doesn't show it,
-    // a restore won't read it, and this run is about to reuse its name.
-    if (
-      !(await exists(backupDirectoryPath)) &&
-      (await exists(previousDirectoryPath))
-    ) {
-      logger.log(LogEventId.BackupCreateProgress, 'system', {
-        message:
-          `Recovering the backup at ${previousDirectoryPath}, left behind by ` +
-          `an interrupted backup.`,
-        step: 'checking_space',
-      });
-      await rename(previousDirectoryPath, backupDirectoryPath);
-    }
-
-    // Anything still lying around is a partial write, never a valid restore
-    // source, and this run is about to reuse its name.
+    // A leftover `-in-progress` directory is a partial write, or a replaced
+    // backup whose deletion failed after the swap below. Never a valid restore
+    // source either way, and this run is about to reuse its name.
     await rm(inProgressDirectoryPath, { force: true, recursive: true });
-    await rm(previousDirectoryPath, { force: true, recursive: true });
   } catch (error) {
     return fail({
       type: 'target_unusable',
@@ -630,31 +595,25 @@ export async function createBackup({
     return fail({ type: 'validation_failed', error: validationResult.err() });
   }
 
+  // Take the backup's final name: claim it outright if it is free, and
+  // otherwise atomically exchange the new backup with whatever holds it —
+  // normally last time's backup, which lands under the `-in-progress` name for
+  // the cleanup below. Neither operation moves anything when it fails, and
+  // neither leaves any instant where the drive has no backup under the name
+  // `list` and a restore look for.
   reportProgress({ step: 'swapping' });
-  try {
-    if (await exists(backupDirectoryPath)) {
-      await rename(backupDirectoryPath, previousDirectoryPath);
-    }
-    await rename(inProgressDirectoryPath, backupDirectoryPath);
-  } catch (error) {
-    // If the old backup was already moved aside, put it back before `fail`
-    // deletes the new copy: `-previous` is a name `list` hides and a restore
-    // won't read, and only the recovery pass at the top of a future run would
-    // ever find it there.
-    try {
-      if (
-        !(await exists(backupDirectoryPath)) &&
-        (await exists(previousDirectoryPath))
-      ) {
-        await rename(previousDirectoryPath, backupDirectoryPath);
-      }
-    } catch {
-      // Whatever broke the swap may make this impossible too; that future
-      // run's recovery pass is what's left.
-    }
+  const claimResult = renameNoReplace(
+    inProgressDirectoryPath,
+    backupDirectoryPath
+  );
+  const swapResult =
+    claimResult.isErr() && claimResult.err().code === 'EEXIST'
+      ? exchangePaths(inProgressDirectoryPath, backupDirectoryPath)
+      : claimResult;
+  if (swapResult.isErr()) {
     return fail({
       type: 'swap_failed',
-      message: extractErrorMessage(error),
+      message: swapResult.err().message,
     });
   }
 
@@ -664,10 +623,10 @@ export async function createBackup({
   // for a backup that is actually there.
   const leftovers: string[] = [];
   try {
-    await rm(previousDirectoryPath, { force: true, recursive: true });
+    await rm(inProgressDirectoryPath, { force: true, recursive: true });
   } catch (error) {
     leftovers.push(
-      `${previousDirectoryPath} could not be deleted: ${extractErrorMessage(
+      `${inProgressDirectoryPath} could not be deleted: ${extractErrorMessage(
         error
       )}`
     );

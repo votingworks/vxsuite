@@ -286,9 +286,10 @@ test('a second backup replaces the first, leaving no transient directories', asy
   ).toEqual('different bytes');
   expect((await validateBackup({ backupDirectoryPath })).err()).toBeUndefined();
   expect(
-    isTransientBackupDirectoryName(`${expectedBackupDirectoryName()}-previous`)
+    isTransientBackupDirectoryName(
+      `${expectedBackupDirectoryName()}-in-progress`
+    )
   ).toEqual(true);
-  expect(() => statSync(`${backupDirectoryPath}-previous`)).toThrow();
   expect(() => statSync(`${backupDirectoryPath}-in-progress`)).toThrow();
 });
 
