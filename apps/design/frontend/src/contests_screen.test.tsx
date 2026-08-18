@@ -870,6 +870,31 @@ test.each(nameTestSpecs)(
   }
 );
 
+test('editing a candidate designation is not shown when flag is off', async () => {
+  const electionRecord = generalElectionRecord(jurisdiction.id);
+  const { election } = electionRecord;
+  const electionId = election.id;
+
+  apiMock.listContests
+    .expectCallWith({ electionId })
+    .resolves(election.contests);
+  expectOtherElectionApiCalls(election);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+
+  // Flag is off by default but this is more readable
+  const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: false });
+  await navigateToContestEdit(history, electionId, election.contests[0].id);
+
+  // The rest of the candidate table still renders
+  screen.getByRole('columnheader', { name: 'First Name' });
+  screen.getByLabelText('Candidate 1 First Name');
+
+  expect(
+    screen.queryByRole('columnheader', { name: 'Designation' })
+  ).toBeNull();
+  expect(screen.queryByLabelText('Candidate 1 Designation')).toBeNull();
+});
+
 test('editing a candidate designation', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
@@ -907,7 +932,7 @@ test('editing a candidate designation', async () => {
   expectOtherElectionApiCalls(election);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
-  const history = renderScreen(electionId);
+  const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: true });
   await navigateToContestEdit(history, electionId, savedContest.id);
 
   // The saved designation is loaded into the form

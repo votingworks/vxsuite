@@ -196,6 +196,11 @@ export interface StateFeaturesConfig {
    * explicitly selecting them.
    */
   STRAIGHT_PARTY_VOTING?: boolean;
+  /**
+   * Enable candidate designations eg. official titles or offices that a candidate
+   * holds.
+   */
+  CANDIDATE_DESIGNATIONS?: boolean;
 }
 
 export type UserFeature = keyof UserFeaturesConfig;
@@ -236,6 +241,7 @@ export const stateFeatureConfigs: Record<StateCode, StateFeaturesConfig> = {
     DELETE_LIVE_REPORTS: true,
     EDIT_POLLING_PLACES: true,
     EXPORT_TEST_BALLOTS: true,
+    CANDIDATE_DESIGNATIONS: true,
   },
 
   MI: {

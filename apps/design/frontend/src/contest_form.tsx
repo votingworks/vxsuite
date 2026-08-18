@@ -492,7 +492,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                       <TH>Middle Name</TH>
                       <TH>Last Name</TH>
                       <TH>Party</TH>
-                      <TH>Designation</TH>
+                      {features.CANDIDATE_DESIGNATIONS && <TH>Designation</TH>}
                       <TH />
                     </tr>
                   </thead>
@@ -604,43 +604,45 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                             }
                           />
                         </TD>
-                        <TD>
-                          <input
-                            aria-label={`Candidate ${index + 1} Designation`}
-                            disabled={disabled || hasExternalSource}
-                            type="text"
-                            value={candidate.designation || ''}
-                            onChange={(e) => {
-                              const { value } = e.target;
-                              setContest({
-                                ...contest,
-                                candidates: replaceAtIndex(
-                                  contest.candidates,
-                                  index,
-                                  {
-                                    ...candidate,
-                                    designation: value || undefined,
-                                  }
-                                ),
-                              });
-                            }}
-                            onBlur={(e) => {
-                              const { value } = e.target;
-                              setContest({
-                                ...contest,
-                                candidates: replaceAtIndex(
-                                  contest.candidates,
-                                  index,
-                                  {
-                                    ...candidate,
-                                    designation: value || undefined,
-                                  }
-                                ),
-                              });
-                            }}
-                            autoComplete="off"
-                          />
-                        </TD>
+                        {features.CANDIDATE_DESIGNATIONS && (
+                          <TD>
+                            <input
+                              aria-label={`Candidate ${index + 1} Designation`}
+                              disabled={disabled || hasExternalSource}
+                              type="text"
+                              value={candidate.designation || ''}
+                              onChange={(e) => {
+                                const { value } = e.target;
+                                setContest({
+                                  ...contest,
+                                  candidates: replaceAtIndex(
+                                    contest.candidates,
+                                    index,
+                                    {
+                                      ...candidate,
+                                      designation: value || undefined,
+                                    }
+                                  ),
+                                });
+                              }}
+                              onBlur={(e) => {
+                                const { value } = e.target;
+                                setContest({
+                                  ...contest,
+                                  candidates: replaceAtIndex(
+                                    contest.candidates,
+                                    index,
+                                    {
+                                      ...candidate,
+                                      designation: value || undefined,
+                                    }
+                                  ),
+                                });
+                              }}
+                              autoComplete="off"
+                            />
+                          </TD>
+                        )}
                         <TD>
                           {editing && !hasExternalSource ? (
                             <TooltipContainer style={{ width: 'min-content' }}>
