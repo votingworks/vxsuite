@@ -20,6 +20,8 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
+        // Dev-only CLI entry points for the `scripts/` launchers.
+        'src/scripts/**',
         'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
     },

@@ -1,13 +1,6 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install();
+// Runs the compiled output; run `pnpm build:self` first.
+import { main } from '../build/cli/driver_cli.js';
 
-require('../src/cli/driver_cli')
-  .main()
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+process.exitCode = await main();

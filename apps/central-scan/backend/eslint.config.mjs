@@ -9,7 +9,7 @@ export default [
     },
   },
   {
-    files: ['scripts/**'],
+    files: ['scripts/**', 'src/scripts/**'],
     rules: {
       'no-console': 'off',
     },
