@@ -238,8 +238,7 @@ fn find_pdi_device() -> Result<nusb::Device> {
 /// data and errors) on the other. Outgoing commands are serialized, written
 /// to the USB OUT endpoint, and acknowledged via their one-shot channel.
 ///
-/// If the client side of the channels is dropped, the task logs and stops
-/// rather than panicking.
+/// If the client side of the channels is dropped, the task logs and stops.
 #[allow(clippy::too_many_lines)]
 fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Duration) -> Scanner {
     let (host_to_scanner_tx, mut host_to_scanner_rx) =
@@ -301,10 +300,6 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         break;
                     }
 
-                    // Resubmit a fresh transfer buffer: the received data was
-                    // moved into the channel rather than copied, trading a
-                    // memcpy of up to 1MiB per transfer for a cheap
-                    // uninitialized allocation.
                     in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
                 }
 

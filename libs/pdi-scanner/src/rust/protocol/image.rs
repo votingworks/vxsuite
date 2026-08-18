@@ -105,11 +105,6 @@ impl RawImageData {
             "Image calibration tables must be the same length as the row"
         );
 
-        // Decode in a single parallel pass, writing each output pixel exactly
-        // once into preallocated buffers: de-interleave the duplex byte
-        // stream (even bytes are the top side, odd bytes the bottom),
-        // reverse the top side's pixel order within each row, and apply the
-        // per-column calibration.
         let mut top = vec![0u8; width * height as usize];
         let mut bottom = vec![0u8; width * height as usize];
         top.par_chunks_exact_mut(width)

@@ -235,9 +235,7 @@ const FRAME_HEADER_LENGTH: usize = FRAME_TYPE_LENGTH + size_of::<u32>();
 ///
 /// Frames are written by a dedicated thread so that a slow reader (e.g. Node
 /// busy interpreting the previous sheet) never stalls the command/event loop,
-/// which must keep servicing scanner packets and commands. Frames are queued
-/// unbounded; dropping `Output` closes the queue and joins the thread, so
-/// everything queued is flushed before the process exits.
+/// which must keep servicing scanner packets and commands.
 struct Output {
     frames_tx: Option<std::sync::mpsc::Sender<Vec<u8>>>,
     writer_thread: Option<std::thread::JoinHandle<()>>,
@@ -245,10 +243,9 @@ struct Output {
     // interrupt the scan. The flag is set by the scan start event and cleared
     // by every other scanner event (any event during a scan — completion,
     // scan failure, double feed, cover open — means the scan is over or
-    // aborted) and by scanner disconnection. Responses must NOT clear it:
-    // the only response possible while scanning is the ScanInProgress
-    // rejection itself, and clearing on it would disarm the guard after
-    // blocking a single command.
+    // aborted) and by scanner disconnection. Responses must NOT clear it: the
+    // only response possible while scanning is the ScanInProgress rejection
+    // itself.
     scan_in_progress: bool,
 }
 

@@ -76,12 +76,6 @@ impl Client {
                     "failed to send packet to scanner (host to scanner channel closed)",
                 ))
             })?;
-        // The USB task acks each successful write on the command's one-shot
-        // channel. If the write fails, the task reports the error as an event
-        // and shuts down, dropping the ack sender — which we observe here as
-        // the channel closing. If *we* are cancelled while waiting (e.g. by a
-        // caller's timeout), the dropped receiver leaves no shared state
-        // behind to confuse a later command.
         ack_rx.await.map_err(|_| {
             Error::from(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
