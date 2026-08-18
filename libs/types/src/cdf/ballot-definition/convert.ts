@@ -132,6 +132,15 @@ function electionLanguageCodes(cdfElection: Cdf.BallotDefinition): string[] {
   return electionTitleStrings.map((string) => string.Language);
 }
 
+function electionCandidates(
+  cdfElection: Cdf.BallotDefinition
+): readonly Cdf.Candidate[] {
+  return (
+    assertDefined(cdfElection.Election[0]).Candidate ||
+    /* istanbul ignore next */ []
+  );
+}
+
 const extractorFns: Record<
   ElectionStringKey,
   (cdfElection: Cdf.BallotDefinition, uiStrings: UiStringsPackage) => void
@@ -178,14 +187,20 @@ const extractorFns: Record<
     }
   },
 
-  // TODO(kevin): Extract candidate designations once they're represented in CDF.
-  [ElectionStringKey.CANDIDATE_DESIGNATION]() {},
+  [ElectionStringKey.CANDIDATE_DESIGNATION](cdfElection, uiStrings) {
+    for (const candidate of electionCandidates(cdfElection)) {
+      if (!candidate.CampaignSlogan) continue;
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CANDIDATE_DESIGNATION, candidate['@id']],
+        uiStrings,
+        values: candidate.CampaignSlogan.Text,
+      });
+    }
+  },
 
   [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
-    const candidates =
-      assertDefined(cdfElection.Election[0]).Candidate ||
-      /* istanbul ignore next */ [];
-    for (const candidate of candidates) {
+    for (const candidate of electionCandidates(cdfElection)) {
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate['@id']],
         uiStrings,
@@ -798,7 +813,6 @@ export function convertVxfElectionToCdfBallotDefinition(
           )
           .flatMap((contest) => contest.candidates)
           .map(
-            // TODO(kevin): support `candidate.designation`
             (candidate): Cdf.Candidate => ({
               '@type': 'BallotDefinition.Candidate',
               '@id': candidate.id,
@@ -806,6 +820,14 @@ export function convertVxfElectionToCdfBallotDefinition(
                 ElectionStringKey.CANDIDATE_NAME,
                 candidate.id,
               ]),
+              // CDF has no dedicated field for a candidate designation, so we
+              // use the closest available: the candidate's campaign slogan.
+              CampaignSlogan: candidate.designation
+                ? text(candidate.designation, [
+                    ElectionStringKey.CANDIDATE_DESIGNATION,
+                    candidate.id,
+                  ])
+                : undefined,
             })
           ),
 
@@ -1278,7 +1300,9 @@ export function convertCdfBallotDefinitionToVxfElection(
                 // candidate is endorsed by multiple parties, and we don't
                 // care about the candidate's "home" party.
                 partyIds: option.EndorsementPartyIds,
-                // TODO(kevin): support `candidate.designation`
+                designation:
+                  candidate.CampaignSlogan &&
+                  englishText(candidate.CampaignSlogan),
               };
             }),
             partyId: contest.PrimaryPartyIds

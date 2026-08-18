@@ -302,6 +302,7 @@ export const testVxfElection: Election = {
         {
           id: 'candidate-1',
           name: 'Sherlock Holmes',
+          designation: 'Member of City Council',
           partyIds: ['party-1'],
         },
         {
@@ -475,6 +476,9 @@ export const testVxfElection: Election = {
         '3_en': '3_en',
         '3_es-US': '3_es-US',
       },
+      candidateDesignation: {
+        'candidate-1': 'Member of City Council',
+      },
       candidateName: {
         'candidate-1': 'Sherlock Holmes',
         'candidate-2': 'Thomas Edison',
@@ -588,6 +592,16 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 '@type': 'BallotDefinition.LanguageString',
                 Language: 'en',
                 Content: 'Sherlock Holmes',
+              },
+            ],
+          },
+          CampaignSlogan: {
+            '@type': 'BallotDefinition.InternationalizedText',
+            Text: [
+              {
+                '@type': 'BallotDefinition.LanguageString',
+                Language: 'en',
+                Content: 'Member of City Council',
               },
             ],
           },

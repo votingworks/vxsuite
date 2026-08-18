@@ -79,12 +79,45 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.CANDIDATE_DESIGNATION]() {
-    // CDF has no field for candidate designations yet, so none are extracted.
-    const uiStrings = extractCdfUiStrings(testCdfBallotDefinition);
+    const originalCandidates = assertDefined(ORIGINAL_ELECTION.Candidate);
 
-    expect(
-      uiStrings['en']?.[ElectionStringKey.CANDIDATE_DESIGNATION]
-    ).toBeUndefined();
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Election: [
+        {
+          ...ORIGINAL_ELECTION,
+          Candidate: [
+            {
+              ...assertDefined(originalCandidates[0]),
+              '@id': 'candidate1',
+              CampaignSlogan: buildInternationalizedText({
+                en: 'Member of City Council',
+                'es-US': 'Miembro del Concejo Municipal',
+              }),
+            },
+            // Candidates without a designation are skipped.
+            {
+              ...assertDefined(originalCandidates[1]),
+              '@id': 'candidate2',
+              CampaignSlogan: undefined,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      en: expect.objectContaining({
+        [ElectionStringKey.CANDIDATE_DESIGNATION]: {
+          candidate1: 'Member of City Council',
+        },
+      }),
+      'es-US': expect.objectContaining({
+        [ElectionStringKey.CANDIDATE_DESIGNATION]: {
+          candidate1: 'Miembro del Concejo Municipal',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.CANDIDATE_NAME]() {
