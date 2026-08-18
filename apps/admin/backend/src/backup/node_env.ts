@@ -27,9 +27,13 @@ export function checkNodeEnv(): string | undefined {
  * to be caught before any of them load. An absent one is left to the CLI, which
  * knows which command is running and can tell the development workspace from a
  * real one — neither of which is knowable this early.
+ *
+ * "Actually given" is the falsy check, matching the CLI's own
+ * development-workspace rule: `NODE_ENV=` (empty) counts as unset, so it
+ * reaches the CLI's fallback instead of dying here on the CLI's behalf.
  */
 export function checkNodeEnvIfSet(): string | undefined {
-  return process.env['NODE_ENV'] === undefined ? undefined : checkNodeEnv();
+  return process.env['NODE_ENV'] ? checkNodeEnv() : undefined;
 }
 
 /**

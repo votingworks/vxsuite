@@ -35,6 +35,13 @@ test('the early check passes over a missing environment', () => {
   expect(checkNodeEnvIfSet()).toBeUndefined();
 });
 
+test('the early check treats an empty value as missing, like the CLI does', () => {
+  vi.stubEnv('NODE_ENV', '');
+  // The CLI's development-workspace rule uses the falsy check, so `NODE_ENV=`
+  // must reach that rule rather than be rejected here first.
+  expect(checkNodeEnvIfSet()).toBeUndefined();
+});
+
 test('the early check still rejects a value it does not know', () => {
   vi.stubEnv('NODE_ENV', 'staging');
   expect(checkNodeEnvIfSet()).toContain('NODE_ENV should be one of');
