@@ -24,6 +24,7 @@ use std::{
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use flate2::{bufread::GzDecoder, write::GzEncoder, Compression};
 use nusb::transfer::TransferError;
 
 use crate::{Error, UsbError};
@@ -274,8 +275,32 @@ pub fn record(entry: &Entry) {
 ///
 /// Fails if the file cannot be read or contains an invalid entry.
 pub fn read(path: &Path) -> std::io::Result<Vec<Entry>> {
-    let reader = BufReader::new(File::open(path)?);
-    let mut entries = Vec::new();
+    Ok(read_records(path)?
+        .into_iter()
+        .map(|record| record.entry)
+        .collect())
+}
+
+/// Whether a recording path names a gzip-compressed recording. Synthetic
+/// fixtures are stored compressed so they can be committed at negligible size.
+fn is_gzipped(path: &Path) -> bool {
+    path.extension().is_some_and(|extension| extension == "gz")
+}
+
+/// Reads all records (timestamps included) from a recording file. Recordings
+/// with a `.gz` extension are decompressed transparently.
+///
+/// # Errors
+///
+/// Fails if the file cannot be read or contains an invalid entry.
+pub fn read_records(path: &Path) -> std::io::Result<Vec<Record>> {
+    let file = BufReader::new(File::open(path)?);
+    let reader: Box<dyn BufRead> = if is_gzipped(path) {
+        Box::new(BufReader::new(GzDecoder::new(file)))
+    } else {
+        Box::new(file)
+    };
+    let mut records = Vec::new();
     for (index, line) in reader.lines().enumerate() {
         let line = line?;
         if line.is_empty() {
@@ -287,9 +312,32 @@ pub fn read(path: &Path) -> std::io::Result<Vec<Entry>> {
                 format!("invalid entry on line {}: {error}", index + 1),
             )
         })?;
-        entries.push(record.entry);
+        records.push(record);
     }
-    Ok(entries)
+    Ok(records)
+}
+
+/// Writes records to a recording file, gzip-compressing when the path has a
+/// `.gz` extension. Used to produce synthetic fixtures (see the regeneration
+/// test in `main.rs`), not by live recording, which appends incrementally.
+///
+/// # Errors
+///
+/// Fails if the file cannot be written.
+pub fn write_records(path: &Path, records: &[Record]) -> std::io::Result<()> {
+    let mut lines = Vec::new();
+    for record in records {
+        serde_json::to_writer(&mut lines, record)?;
+        lines.push(b'\n');
+    }
+    if is_gzipped(path) {
+        let mut encoder = GzEncoder::new(File::create(path)?, Compression::best());
+        encoder.write_all(&lines)?;
+        encoder.finish()?;
+    } else {
+        std::fs::write(path, lines)?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
