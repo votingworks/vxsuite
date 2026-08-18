@@ -14,19 +14,35 @@ cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
 
 validate_commits_vs_origin_main() {
-  # Fetch origin/main if needed
+  # Fetch origin/main if needed. Dev and CI clones both carry full history, so
+  # the merge-base is reachable. The checks below read only commits and trees,
+  # so under CI's blobless clone this stays blobless.
   git rev-parse --verify --quiet origin/main >/dev/null \
-    || git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+    || git fetch --no-tags origin main:refs/remotes/origin/main
 
+  merge_base="$(git merge-base origin/main HEAD)" || {
+    echo "No common ancestor between origin/main and HEAD." >&2
+    echo "This check requires a clone with full history." >&2
+    exit 1
+  }
+
+  merge_base_tempfile="$(mktemp)"
   origin_main_tempfile="$(mktemp)"
   head_tempfile="$(mktemp)"
-  trap 'rm -f "$origin_main_tempfile" "$head_tempfile"' EXIT # Clean tempfiles on exit
+  # Clean tempfiles on exit
+  trap 'rm -f "$merge_base_tempfile" "$origin_main_tempfile" "$head_tempfile"' EXIT
 
-  # Compare migrations on origin/main vs HEAD
-  git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_main_tempfile" || true
-  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
-  missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
-  added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
+  list_migrations() { # <commit> <outfile>
+    git ls-tree -r --name-only "$1" -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$2" || true
+  }
+  list_migrations "$merge_base" "$merge_base_tempfile"
+  list_migrations origin/main "$origin_main_tempfile"
+  list_migrations HEAD "$head_tempfile"
+
+  # What this branch itself added or deleted, measured from where it forked off
+  # main: migrations that landed on main after the fork point are not its doing.
+  missing_migrations="$(comm -23 "$merge_base_tempfile" "$head_tempfile" || true)"
+  added_migrations="$(comm -13 "$merge_base_tempfile" "$head_tempfile" || true)"
 
   # Check: migrations from main must not be deleted
   if [[ -n "$missing_migrations" ]]; then
