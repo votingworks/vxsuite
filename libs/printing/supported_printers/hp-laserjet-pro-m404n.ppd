@@ -47,7 +47,9 @@
 *PageSize EnvDL/Envelope DL: "<</PageSize[312 624]/ImagingBBox null>>setpagedevice"
 *PageSize EnvMonarch/Envelope Monarch: "<</PageSize[279 540]/ImagingBBox null>>setpagedevice"
 *PageSize Custom-8.5x17/Custom 8.5x17: "<</PageSize[612 1224]/ImagingBBox null>>setpagedevice"
+*PageSize Custom-8.5x18/Custom 8.5x18: "<</PageSize[612 1296]/ImagingBBox null>>setpagedevice"
 *PageSize Custom-8.5x19/Custom 8.5x19: "<</PageSize[612 1368]/ImagingBBox null>>setpagedevice"
+*PageSize Custom-8.5x20/Custom 8.5x20: "<</PageSize[612 1440]/ImagingBBox null>>setpagedevice"
 *PageSize Custom-8.5x22/Custom 8.5x22: "<</PageSize[612 1584]/ImagingBBox null>>setpagedevice"
 *CloseUI: *PageSize
 *OpenUI *PageRegion/Media Size: PickOne
@@ -67,7 +69,9 @@
 *PageRegion EnvDL/Envelope DL: "<</PageSize[312 624]/ImagingBBox null>>setpagedevice"
 *PageRegion EnvMonarch/Envelope Monarch: "<</PageSize[279 540]/ImagingBBox null>>setpagedevice"
 *PageRegion Custom-8.5x17/Custom 8.5x17: "<</PageSize[612 1224]/ImagingBBox null>>setpagedevice"
+*PageRegion Custom-8.5x18/Custom 8.5x18: "<</PageSize[612 1296]/ImagingBBox null>>setpagedevice"
 *PageRegion Custom-8.5x19/Custom 8.5x19: "<</PageSize[612 1368]/ImagingBBox null>>setpagedevice"
+*PageRegion Custom-8.5x20/Custom 8.5x20: "<</PageSize[612 1440]/ImagingBBox null>>setpagedevice"
 *PageRegion Custom-8.5x22/Custom 8.5x22: "<</PageSize[612 1584]/ImagingBBox null>>setpagedevice"
 *CloseUI: *PageRegion
 *DefaultImageableArea: Letter
@@ -85,7 +89,9 @@
 *ImageableArea EnvDL/Envelope DL: "12 12 300 612"
 *ImageableArea EnvMonarch/Envelope Monarch: "12 12 267 528"
 *ImageableArea Custom-8.5x17/Custom 8.5x17: "12 12 600 1212"
+*ImageableArea Custom-8.5x18/Custom 8.5x18: "12 12 600 1284"
 *ImageableArea Custom-8.5x19/Custom 8.5x19: "12 12 600 1356"
+*ImageableArea Custom-8.5x20/Custom 8.5x20: "12 12 600 1428"
 *ImageableArea Custom-8.5x22/Custom 8.5x22: "12 12 600 1572"
 *DefaultPaperDimension: Letter
 *PaperDimension Letter/US Letter: "612 792"
@@ -102,7 +108,9 @@
 *PaperDimension EnvDL/Envelope DL: "312 624"
 *PaperDimension EnvMonarch/Envelope Monarch: "279 540"
 *PaperDimension Custom-8.5x17/Custom 8.5x17: "612 1224"
+*PaperDimension Custom-8.5x18/Custom 8.5x18: "612 1296"
 *PaperDimension Custom-8.5x19/Custom 8.5x19: "612 1368"
+*PaperDimension Custom-8.5x20/Custom 8.5x20: "612 1440"
 *PaperDimension Custom-8.5x22/Custom 8.5x22: "612 1584"
 *OpenUI *InputSlot/Media Source: PickOne
 *OrderDependency: 10 AnySetup *InputSlot
