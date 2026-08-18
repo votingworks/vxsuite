@@ -15,7 +15,12 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { exchangePaths, renameNoReplace, SyscallError } from '@votingworks/fs';
+import {
+  dropPageCache,
+  exchangePaths,
+  renameNoReplace,
+  SyscallError,
+} from '@votingworks/fs';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format, generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
@@ -617,19 +622,37 @@ export async function createBackup({
     });
   }
 
-  // Push everything written so far out to the device before reading any of it
-  // back. Note what this does and does not buy: `syncfs(2)` writes dirty pages
-  // to the drive but leaves them in the page cache as clean pages, so the
-  // read-back below is largely served from RAM. Validation therefore catches a
-  // manifest that doesn't describe what was written, a file that never made it,
-  // and corruption on the way out — but it cannot prove the drive itself stored
-  // the bytes, which would need the cache dropped (`posix_fadvise`, `O_DIRECT`)
-  // and Node exposes neither.
+  // Push everything written so far out to the device, then evict it all from
+  // the page cache. `syncfs(2)` writes dirty pages to the drive but leaves
+  // them in the cache as clean pages, so without the eviction the validation
+  // read-back below would be served from RAM — able to catch a manifest that
+  // doesn't describe what was written, but never a drive that didn't store the
+  // bytes. Evicted, the read-back comes from the device: validation checks the
+  // drive's copy of the backup, not this machine's memory of writing it.
+  // (`posix_fadvise` is advisory, but nothing else holds freshly-written clean
+  // pages, so eviction is what it does.)
   reportProgress({ step: 'flushing' });
+  let writtenFilePaths: string[];
   try {
     await syncFilesystem(targetDirectoryPath);
+    const writtenEntries = await readdir(inProgressDirectoryPath, {
+      withFileTypes: true,
+      recursive: true,
+    });
+    writtenFilePaths = writtenEntries
+      .filter((entry) => entry.isFile())
+      .map((entry) => join(entry.parentPath, entry.name));
   } catch (error) {
     return fail({ type: 'flush_failed', message: extractErrorMessage(error) });
+  }
+  for (const writtenFilePath of writtenFilePaths) {
+    const dropResult = await dropPageCache(writtenFilePath);
+    if (dropResult.isErr()) {
+      return fail({
+        type: 'flush_failed',
+        message: `${writtenFilePath}: ${dropResult.err().message}`,
+      });
+    }
   }
 
   // Validation happens before the swap, not after: it exists to catch a drive

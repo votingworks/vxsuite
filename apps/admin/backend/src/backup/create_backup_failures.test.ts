@@ -16,7 +16,7 @@ import {
 import { rm as realRm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getDiskSpaceSummary } from '@votingworks/backend';
-import { exchangePaths } from '@votingworks/fs';
+import { dropPageCache, exchangePaths } from '@votingworks/fs';
 import { syncFilesystem } from '@votingworks/usb-drive';
 import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -27,7 +27,11 @@ import {
   formatBackupError,
 } from './create_backup.js';
 import { rm } from './fs.js';
-import { BACKUPS_DIRECTORY_NAME, backupFilePath } from './manifest.js';
+import {
+  BACKUPS_DIRECTORY_NAME,
+  backupFilePath,
+  manifestPath,
+} from './manifest.js';
 import { validateBackup } from './validate_backup.js';
 import {
   BALLOT_IMAGE_CONTENTS,
@@ -54,7 +58,11 @@ vi.mock('./fs.js', async (importActual) => {
 // the same way.
 vi.mock('@votingworks/fs', async (importActual) => {
   const actual = await importActual<typeof import('@votingworks/fs')>();
-  return { ...actual, exchangePaths: vi.fn(actual.exchangePaths) };
+  return {
+    ...actual,
+    dropPageCache: vi.fn(actual.dropPageCache),
+    exchangePaths: vi.fn(actual.exchangePaths),
+  };
 });
 
 vi.mock(
@@ -76,6 +84,7 @@ vi.mock(
 afterEach(() => {
   // Whatever a test made these do, put them back to doing the real thing.
   vi.mocked(rm).mockImplementation(realRm);
+  vi.mocked(dropPageCache).mockReset();
   vi.mocked(exchangePaths).mockReset();
 });
 
@@ -505,6 +514,59 @@ test('a probe that fails some other way reports the drive as unusable', async ()
     err({
       type: 'target_unusable',
       path: target,
+      message: expect.stringContaining('EIO'),
+    })
+  );
+});
+
+test('evicts every written file from the page cache before validating', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+  const { manifest, backupDirectoryPath } = result.unsafeUnwrap();
+
+  // If any written file kept its cached pages, validation would be reading
+  // this machine's memory of it rather than the drive's copy.
+  const inProgressDirectoryPath = `${backupDirectoryPath}-in-progress`;
+  const evictedPaths = vi
+    .mocked(dropPageCache)
+    .mock.calls.map(([path]) => path);
+  for (const { path } of manifest.files) {
+    expect(evictedPaths).toContain(
+      backupFilePath(inProgressDirectoryPath, path)
+    );
+  }
+  expect(evictedPaths).toContain(manifestPath(inProgressDirectoryPath));
+  // Everything else written is the signature file.
+  expect(evictedPaths).toHaveLength(manifest.files.length + 2);
+});
+
+test('fails when a written file cannot be evicted from the page cache', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  vi.mocked(dropPageCache).mockResolvedValue(
+    err({ code: 'EIO', message: 'EIO: i/o error' })
+  );
+
+  const result = await createBackup({
+    workspace,
+    targetDirectoryPath: target,
+    machineConfig: MACHINE_CONFIG,
+    logger: mockLogger(),
+  });
+
+  // Validating through the page cache would pass without proving the drive
+  // stored anything, so a backup that cannot be evicted is not verified.
+  expect(result).toEqual(
+    err({
+      type: 'flush_failed',
       message: expect.stringContaining('EIO'),
     })
   );
