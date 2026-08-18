@@ -72,7 +72,6 @@
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "get-port": "5",
     "is-ci-cli": "2.2.0",
