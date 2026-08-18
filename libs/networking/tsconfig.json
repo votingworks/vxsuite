@@ -15,6 +15,7 @@
     { "path": "../../libs/backend/tsconfig.build.json" },
     { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" }
   ]
 }

@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@votingworks/backend": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "debug": "4.3.4"
   },
   "devDependencies": {
