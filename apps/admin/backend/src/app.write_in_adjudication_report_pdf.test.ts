@@ -9,7 +9,7 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
+import { HP_4001_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -91,7 +91,7 @@ test('write-in adjudication report', async () => {
   const writeInContestId =
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   async function expectIdenticalSnapshotsAcrossExportMethods(
@@ -246,7 +246,7 @@ test('write-in adjudication report logging', async () => {
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   // successful file export

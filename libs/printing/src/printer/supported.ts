@@ -40,24 +40,24 @@ export function getPpdPath(printerConfig: PrinterConfig): string {
   );
 }
 
-export const HP_LASER_PRINTER_CONFIG = find(
+export const HP_4001_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
-  (config) => config.label === 'HP Color LaserJet Pro M4001dn'
+  (config) => config.label === 'HP LaserJet Pro 4001'
 );
 
-export const CITIZEN_THERMAL_PRINTER_CONFIG = find(
+export const CITIZEN_E351_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
   (config) => config.label === 'Citizen CT-E351'
 );
 
-export const M404N_PRINTER_CONFIG = find(
+export const HP_M404_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
-  (config) => config.label === 'HP LaserJet Pro M404n'
+  (config) => config.label === 'HP LaserJet Pro M404'
 );
 
 export const HP_4201_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
-  (config) => config.label === 'HP Color LaserJet Pro 4201dn'
+  (config) => config.label === 'HP Color LaserJet Pro 4201'
 );
 
 /**
@@ -81,30 +81,30 @@ export function getPrinterSpecificOptions(config: PrinterConfig): {
 }
 
 /**
- * See {@link deriveM404nPpd} for more details.
+ * See {@link deriveM404Ppd} for more details.
  */
-export const M404N_INPUT_SLOT = 'M404n_Tray2';
+export const M404_INPUT_SLOT = 'M404_Tray2';
 
 /**
- * Derives the HP LaserJet Pro M404n PPD from the generic PPD. The code prints
- * letter-size sheets, but the M404n has no letter-size paper inputs by
+ * Derives the HP LaserJet Pro M404 PPD from the generic PPD. The code prints
+ * letter-size sheets, but the M404 has no letter-size paper inputs by
  * default. The printer can't automatically match the letter job to any one
  * input, all of which are configured for "Any" size, so it prompts the
  * operator to load letter paper and confirm the tray.
  *
  * The workaround is 2 part:
- * 1. Register the M404n cassette as a custom input slot here.
- *    See {@link M404N_INPUT_SLOT}.
+ * 1. Register the M404 cassette as a custom input slot here.
+ *    See {@link M404_INPUT_SLOT}.
  * 2. Explicitly select that input slot in print commands, via the config's
  *    `inputSlot`. See {@link PrinterConfig.inputSlot}.
  *
  * Selecting the cassette by position in print commands
- * (InputSlot=M404N_INPUT_SLOT -> MediaPosition 0) makes the printer commit to
+ * (InputSlot=M404_INPUT_SLOT -> MediaPosition 0) makes the printer commit to
  * the cassette and skip the confirmation.
  */
-export function deriveM404nPpd(genericPpd: string): string {
+export function deriveM404Ppd(genericPpd: string): string {
   const inputSlotBlockClosingLine = '*CloseUI: *InputSlot';
-  const customInputSlotLine = `*InputSlot ${M404N_INPUT_SLOT}/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"`;
+  const customInputSlotLine = `*InputSlot ${M404_INPUT_SLOT}/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"`;
   return genericPpd.replace(
     inputSlotBlockClosingLine,
     [customInputSlotLine, inputSlotBlockClosingLine].join('\n')

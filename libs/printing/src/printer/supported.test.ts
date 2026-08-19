@@ -4,9 +4,10 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import {
   SUPPORTED_PRINTER_CONFIGS,
   getPpdPath,
-  deriveM404nPpd,
-  HP_LASER_PRINTER_CONFIG,
-  M404N_PRINTER_CONFIG,
+  deriveM404Ppd,
+  HP_4001_PRINTER_CONFIG,
+  M404_INPUT_SLOT,
+  HP_M404_PRINTER_CONFIG,
 } from './supported';
 
 // test also confirms that the configs.json file is valid
@@ -17,13 +18,18 @@ test('referenced PPD files exist and are valid', async () => {
   }
 });
 
-test('M404n PPD stays in sync with the generic PPD (run `pnpm generate-m404n-ppd` if this fails)', async () => {
-  const genericPpd = await readFile(
-    getPpdPath(HP_LASER_PRINTER_CONFIG),
-    'utf8'
-  );
-  const m404nPpd = await readFile(getPpdPath(M404N_PRINTER_CONFIG), 'utf8');
-  expect(m404nPpd).toEqual(deriveM404nPpd(genericPpd));
+// The slot name is registered in the PPD by deriveM404Ppd and selected at print
+// time from the printer's config. Those are separate declarations of the same
+// string: if they drift, CUPS silently drops the unknown choice and the M404
+// goes back to prompting the operator to confirm the tray.
+test('M404 config selects the input slot its PPD registers', () => {
+  expect(HP_M404_PRINTER_CONFIG.inputSlot).toEqual(M404_INPUT_SLOT);
+});
+
+test('M404 PPD stays in sync with the generic PPD (run `pnpm generate-m404-ppd` if this fails)', async () => {
+  const genericPpd = await readFile(getPpdPath(HP_4001_PRINTER_CONFIG), 'utf8');
+  const m404Ppd = await readFile(getPpdPath(HP_M404_PRINTER_CONFIG), 'utf8');
+  expect(m404Ppd).toEqual(deriveM404Ppd(genericPpd));
 });
 
 // The laser printers print hand-marked paper ballots, so their PPDs must define
@@ -31,8 +37,8 @@ test('M404n PPD stays in sync with the generic PPD (run `pnpm generate-m404n-ppd
 // size names case-insensitively, and a name with no PPD entry silently falls
 // back to the PPD default rather than failing.
 test.each([
-  ['generic', HP_LASER_PRINTER_CONFIG],
-  ['M404n', M404N_PRINTER_CONFIG],
+  ['generic', HP_4001_PRINTER_CONFIG],
+  ['M404', HP_M404_PRINTER_CONFIG],
 ])('%s PPD defines every ballot paper size', async (_label, printerConfig) => {
   const ppdContent = await readFile(getPpdPath(printerConfig), 'utf8');
 

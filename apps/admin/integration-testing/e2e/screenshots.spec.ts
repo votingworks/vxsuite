@@ -4,7 +4,7 @@ import {
   MockUsbDriveHandler,
 } from '@votingworks/usb-drive';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   getMockFilePrinterHandler,
   MockFilePrinterHandler,
 } from '@votingworks/printing';
@@ -313,7 +313,7 @@ test('system administrator', async ({ page }, testInfo) => {
   /**
    * diagnostics
    */
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  printerHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await page.getByText('Diagnostics').click();
   await page.getByRole('heading', { name: 'Diagnostics' }).waitFor();
   await screenshot('diagnostics-screen');
@@ -428,7 +428,7 @@ test('results', async ({ page }, testInfo) => {
   test.setTimeout(180_000);
   const usbHandler = getMockUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  printerHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
@@ -1079,7 +1079,7 @@ test('manual results', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
   const usbHandler = getMockUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  printerHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =

@@ -15,7 +15,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
@@ -115,7 +115,7 @@ test('ballots printed report (zero) can be printed and exported (pdf snapshots)'
     mockUsbDrive,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await printBallotsPrintedReport({
     printer: mockPrinterHandler.printer,
     logger,
@@ -161,7 +161,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
     mockUsbDrive,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   const styleA = electionDefinition.election.ballotStyles[0];
   const styleB = electionDefinition.election.ballotStyles[1];
   const precinctA = styleA.precincts[0];
@@ -234,7 +234,7 @@ test('printBallotsPrintedReport logs error when renderToPdf fails', async () => 
     mockUsbDrive,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const renderToPdfMock = vi.mocked(renderToPdf);
   renderToPdfMock.mockResolvedValueOnce(err('content-too-large'));
@@ -262,7 +262,7 @@ test('printBallotsPrintedReport logs error when printer.print throws', async () 
     mockUsbDrive,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const printSpy = vi
     .spyOn(mockPrinterHandler.printer, 'print')
@@ -344,7 +344,7 @@ test('printBallotsPrintedReport works in test mode', async () => {
   // Enable test mode
   await apiClient.setTestMode({ testMode: true });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printBallotsPrintedReport();
 

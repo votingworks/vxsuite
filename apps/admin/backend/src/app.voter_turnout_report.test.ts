@@ -7,7 +7,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
+import { HP_4001_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -128,7 +128,7 @@ test('voter turnout report preview, print, and export', async () => {
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   const preview = await apiClient.getVoterTurnoutReportPreview();
@@ -168,7 +168,7 @@ test('voter turnout report logging', async () => {
     'precinct-2': 400,
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   // successful file export

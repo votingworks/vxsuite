@@ -7,7 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -57,7 +57,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
 }) => {
   const electionDefinition = electionGeneralDefinition;
   const { election } = electionDefinition;
-  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  printerHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await page.goto('/');
 

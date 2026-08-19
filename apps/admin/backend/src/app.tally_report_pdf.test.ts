@@ -10,7 +10,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
@@ -128,7 +128,7 @@ test('general election tally report PDF - Part 1', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await attachUsbDrive(apiClient, usbPlatform);
 
@@ -180,7 +180,7 @@ test('general election tally report PDF - Part 2', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
@@ -289,7 +289,7 @@ test('tally report PDF - primary', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({
@@ -388,7 +388,7 @@ test('tally report logging', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   const MOCK_REPORT_SPEC: TallyReportSpec = {
@@ -480,7 +480,7 @@ test('tally report PDF - combined ballot primary', async () => {
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   function snapshotReport({

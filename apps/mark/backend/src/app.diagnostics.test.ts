@@ -19,7 +19,7 @@ import {
 } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
@@ -227,7 +227,7 @@ test('logUpsDiagnosticOutcome fail', async () => {
 });
 
 test('printTestPage prints and logs', async () => {
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printTestPage();
 

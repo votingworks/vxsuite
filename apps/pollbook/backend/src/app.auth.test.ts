@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
-import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { withApp } from '../test/app.js';
 import {
@@ -35,7 +35,7 @@ describe('generateSignedHashValidationQrCodeValue', () => {
         townStreetNames,
         townVoters
       );
-      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+      mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
       expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
       vi.mocked(generateSignedHashValidationQrCodeValue).mockResolvedValueOnce({
@@ -56,7 +56,7 @@ describe('generateSignedHashValidationQrCodeValue', () => {
         townStreetNames,
         townVoters
       );
-      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+      mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
       expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
       vi.mocked(generateSignedHashValidationQrCodeValue).mockRejectedValueOnce(

@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
-import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 import { BatteryInfo } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
@@ -109,7 +109,7 @@ test('check in a voter', async () => {
       mockVoters
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
@@ -195,7 +195,7 @@ test('register a voter', async () => {
       []
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     const registrationData: VoterRegistrationRequest = {
@@ -292,7 +292,7 @@ test('change a voter name', async () => {
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
 
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     const votersAbigail = await localApiClient.searchVoters({
@@ -372,7 +372,7 @@ test('change a voter mailing address - already has mailing address', async () =>
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
 
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     // This voter has mailing address defined in the imported fixture.
@@ -429,7 +429,7 @@ test('undo a voter check-in', async () => {
       mockVoters
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
 
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
@@ -483,7 +483,7 @@ test('register a voter, change name and address, and check in', async () => {
         []
       );
       workspace.store.setConfiguredPrecinct(currentPrecinctId);
-      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+      mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
 
       const registrationData: VoterRegistrationRequest = {
         firstName: 'Harmony',
@@ -664,7 +664,7 @@ test('an undeclared voter cannot check in as undeclared', async () => {
       mockVoters
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     const votersAbigail = await localApiClient.searchVoters({
@@ -703,7 +703,7 @@ test('in a primary, a declared voter must check in with a party selection matchi
       mockStreetNames,
       mockVoters
     );
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     workspace.store.setConfiguredPrecinct(currentPrecinctId);

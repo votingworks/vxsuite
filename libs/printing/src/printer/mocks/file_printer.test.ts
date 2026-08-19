@@ -16,7 +16,7 @@ import {
   MockFilePrinter,
   getMockFilePrinterHandler,
 } from './file_printer';
-import { HP_LASER_PRINTER_CONFIG } from '../supported';
+import { HP_4001_PRINTER_CONFIG } from '../supported';
 import { PrintSides } from '../types';
 import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
 
@@ -40,10 +40,10 @@ test('mock file printer', async () => {
     filePrinter.print({ data: Buffer.from('test') })
   ).rejects.toThrow();
 
-  filePrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  filePrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   expect(await filePrinter.status()).toEqual<PrinterStatus>({
     connected: true,
-    config: HP_LASER_PRINTER_CONFIG,
+    config: HP_4001_PRINTER_CONFIG,
     richStatus: MOCK_PRINTER_RICH_STATUS,
   });
   expect(filePrinterHandler.getPrinterStatus()).toEqual(
@@ -103,7 +103,7 @@ async function createTestPdf(pageCount: number): Promise<Uint8Array> {
 test('single-sided printing inserts blank page after single-page PDF', async () => {
   const filePrinter = new MockFilePrinter();
   const handler = getMockFilePrinterHandler();
-  handler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  handler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const pdfData = await createTestPdf(1);
   await filePrinter.print({ data: pdfData, sides: PrintSides.OneSided });
@@ -121,7 +121,7 @@ test('single-sided printing inserts blank page after single-page PDF', async () 
 test('single-sided printing inserts blank pages after each page of multi-page PDF', async () => {
   const filePrinter = new MockFilePrinter();
   const handler = getMockFilePrinterHandler();
-  handler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  handler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const pdfData = await createTestPdf(3);
   await filePrinter.print({ data: pdfData, sides: PrintSides.OneSided });
@@ -134,7 +134,7 @@ test('single-sided printing inserts blank pages after each page of multi-page PD
 test('two-sided printing does not insert blank pages', async () => {
   const filePrinter = new MockFilePrinter();
   const handler = getMockFilePrinterHandler();
-  handler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  handler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const pdfData = await createTestPdf(2);
   await filePrinter.print({

@@ -19,7 +19,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import * as grout from '@votingworks/grout';
@@ -140,7 +140,7 @@ test('printTestDeck produces correctly marked letter-size ballots and a tally re
   });
   mockElectionManagerAuth(auth, electionDefinition);
   await apiClient.setTestMode({ testMode: true });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printTestDeck({});
 
@@ -192,7 +192,7 @@ test('printTestDeck produces legal-size ballot PDFs for a legal-paper election',
   });
   mockElectionManagerAuth(auth, electionDefinition);
   await apiClient.setTestMode({ testMode: true });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printTestDeck({});
 

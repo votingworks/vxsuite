@@ -118,7 +118,7 @@
 *InputSlot Default/Printer Default: ""
 *InputSlot Upper/Cassette: "<</ManualFeed false>>setpagedevice"
 *InputSlot Manual/Manual Feed: "<</ManualFeed true>>setpagedevice"
-*InputSlot M404n_Tray2/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"
+*InputSlot M404_Tray2/Tray 2: "<</MediaPosition 0 /ManualFeed false>> setpagedevice"
 *CloseUI: *InputSlot
 *OpenUI *Duplex/2-Sided Printing: PickOne
 *OrderDependency: 10 AnySetup *Duplex
