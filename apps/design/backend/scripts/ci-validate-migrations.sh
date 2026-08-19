@@ -14,11 +14,9 @@ cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
 
 validate_commits_vs_origin_main() {
-  # Fetch origin/main if needed. Dev and CI clones both carry full history, so
-  # the merge-base is reachable. The checks below read only commits and trees,
-  # so under CI's blobless clone this stays blobless.
-  git rev-parse --verify --quiet origin/main >/dev/null \
-    || git fetch --no-tags origin main:refs/remotes/origin/main
+  # Fetch origin/main if needed
+  git rev-parse --verify --quiet origin/main >/dev/null ||
+    git fetch --no-tags origin main:refs/remotes/origin/main
 
   merge_base="$(git merge-base origin/main HEAD)" || {
     echo "No common ancestor between origin/main and HEAD." >&2
@@ -39,8 +37,8 @@ validate_commits_vs_origin_main() {
   list_migrations origin/main "$origin_main_tempfile"
   list_migrations HEAD "$head_tempfile"
 
-  # What this branch itself added or deleted, measured from where it forked off
-  # main: migrations that landed on main after the fork point are not its doing.
+  # Diff against the rev where this branch split from main (the merge base).
+  # Migrations on main from after that split must not count as deletions.
   missing_migrations="$(comm -23 "$merge_base_tempfile" "$head_tempfile" || true)"
   added_migrations="$(comm -13 "$merge_base_tempfile" "$head_tempfile" || true)"
 
@@ -69,8 +67,8 @@ validate_commits_vs_origin_main() {
 
 validate_head_vs_prev_commit() {
   # Ensure we have the previous commit
-  git rev-parse --verify --quiet HEAD~1 >/dev/null \
-    || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
+  git rev-parse --verify --quiet HEAD~1 >/dev/null ||
+    git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
 
   # Check: migrations from previous commit must not be deleted or renamed
   # Use directory path (not glob) since deleted/renamed files don't exist on disk
@@ -85,8 +83,9 @@ validate_head_vs_prev_commit() {
   added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
   [[ -z "$added_migrations" ]] && exit 0
 
-  prev_newest_migration="$(git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" \
-      | grep -E '\.js$' | sort | tail -n1 || true
+  prev_newest_migration="$(
+    git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" |
+      grep -E '\.js$' | sort | tail -n1 || true
   )"
 
   # Ensure all added migrations are timestamped after previous newest migration
@@ -102,18 +101,19 @@ validate_head_vs_prev_commit() {
 }
 
 case "$MODE" in
-  vs-origin-main) validate_commits_vs_origin_main ;;
-  on-origin-main) validate_head_vs_prev_commit ;;
-  auto)
-    # Auto-detect if current branch is main and choose appropriate validation
-    current_branch="$(git rev-parse --abbrev-ref HEAD)"
-    case "$current_branch" in
-      main) validate_head_vs_prev_commit ;;
-      *)    validate_commits_vs_origin_main ;;
-    esac
-    ;;
-  *)
-    echo "Usage: $0 [vs-origin-main|on-origin-main]" >&2
-    exit 2
-    ;;
+vs-origin-main) validate_commits_vs_origin_main ;;
+on-origin-main) validate_head_vs_prev_commit ;;
+auto)
+  # Auto-detect if current branch is main and choose appropriate validation
+  current_branch="$(git rev-parse --abbrev-ref HEAD)"
+  case "$current_branch" in
+  main) validate_head_vs_prev_commit ;;
+  *) validate_commits_vs_origin_main ;;
+  esac
+  ;;
+*)
+  echo "Usage: $0 [vs-origin-main|on-origin-main]" >&2
+  exit 2
+  ;;
 esac
+
