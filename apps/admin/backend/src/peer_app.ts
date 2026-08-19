@@ -70,8 +70,22 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       machineId: string;
       codeVersion: string;
       ballotHash?: string;
+      pollingPlaceId?: string;
     }): Result<MachineConfig, RegisterScannerError> {
       const machineConfig = getMachineConfig();
+
+      function recordScanner(
+        registrationError: RegisterScannerError['type'] | null
+      ): void {
+        store.setNetworkedMachineStatus(
+          input.machineId,
+          'scanner',
+          Admin.ClientMachineStatus.Active,
+          null,
+          input.pollingPlaceId ?? null,
+          registrationError
+        );
+      }
 
       function reject(
         error: RegisterScannerError,
@@ -85,6 +99,9 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
           error: error.type,
           ...extra,
         });
+        // Still record the scanner so it can be shown, along with the
+        // problem, in the host's UI.
+        recordScanner(error.type);
         return err(error);
       }
 
@@ -129,11 +146,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         );
       }
       debug('Scanner %s registered with host', input.machineId);
-      store.setNetworkedMachineStatus(
-        input.machineId,
-        'scanner',
-        Admin.ClientMachineStatus.Active
-      );
+      recordScanner(null);
       return ok(machineConfig);
     },
 
@@ -157,6 +170,16 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
           clientCodeVersion: input.codeVersion,
           hostCodeVersion: machineConfig.codeVersion,
         });
+        // Still record the station so it can be shown, along with the
+        // problem, in the host's UI.
+        store.setNetworkedMachineStatus(
+          input.machineId,
+          'admin-client',
+          input.status,
+          input.authType,
+          null,
+          'code-version-mismatch'
+        );
         return err({ type: 'code-version-mismatch' });
       }
       debug(

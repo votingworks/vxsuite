@@ -81,8 +81,15 @@ test('registerAdjudicationStation rejects a client running an incompatible code 
 
   expect(result).toEqual(err({ type: 'code-version-mismatch' }));
 
-  // The incompatible client must not be registered as a connected machine.
-  expect(workspace.store.getMachines()).toHaveLength(0);
+  // The incompatible station is still recorded, with the error, so it can be
+  // shown in the host's UI.
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'client-001',
+      machineRole: 'admin-client',
+      registrationError: 'code-version-mismatch',
+    }),
+  ]);
 });
 
 test('registerAdjudicationStation persists status and authType and returns adjudication enabled', async () => {
@@ -255,7 +262,7 @@ test('registerScanner records the scanner and returns the host machine config', 
   ]);
 });
 
-test('registerScanner does not record a scanner configured for a different election', async () => {
+test('registerScanner records a scanner configured for a different election with an error', async () => {
   const { peerApiClient, apiClient, auth, peerLogger, workspace } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, readElectionGeneralDefinition());
@@ -266,7 +273,12 @@ test('registerScanner does not record a scanner configured for a different elect
       ballotHash: 'some-other-ballot-hash',
     })
   ).toEqual(err({ type: 'ballot-hash-mismatch' }));
-  expect(workspace.store.getMachines()).toEqual([]);
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: 'ballot-hash-mismatch',
+    }),
+  ]);
   expect(peerLogger.log).toHaveBeenCalledWith(
     LogEventId.AdminNetworkStatus,
     'system',
@@ -278,7 +290,7 @@ test('registerScanner does not record a scanner configured for a different elect
   );
 });
 
-test('registerScanner does not record an unconfigured scanner', async () => {
+test('registerScanner records an unconfigured scanner with an error', async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   await configureMachine(apiClient, auth, readElectionGeneralDefinition());
   expect(
@@ -287,10 +299,15 @@ test('registerScanner does not record an unconfigured scanner', async () => {
       codeVersion: 'dev',
     })
   ).toEqual(err({ type: 'scanner-unconfigured' }));
-  expect(workspace.store.getMachines()).toEqual([]);
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: 'scanner-unconfigured',
+    }),
+  ]);
 });
 
-test('registerScanner does not record a scanner when the host is unconfigured', async () => {
+test('registerScanner records a scanner with an error when the host is unconfigured', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   expect(
     await peerApiClient.registerScanner({
@@ -299,10 +316,15 @@ test('registerScanner does not record a scanner when the host is unconfigured', 
       ballotHash: readElectionGeneralDefinition().ballotHash,
     })
   ).toEqual(err({ type: 'host-unconfigured' }));
-  expect(workspace.store.getMachines()).toEqual([]);
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: 'host-unconfigured',
+    }),
+  ]);
 });
 
-test('registerScanner does not record a scanner running an incompatible code version', async () => {
+test('registerScanner records a scanner running an incompatible code version with an error', async () => {
   const { peerApiClient, peerLogger, workspace } = buildTestEnvironment();
   expect(
     await peerApiClient.registerScanner({
@@ -310,7 +332,13 @@ test('registerScanner does not record a scanner running an incompatible code ver
       codeVersion: 'some-other-version',
     })
   ).toEqual(err({ type: 'code-version-mismatch' }));
-  expect(workspace.store.getMachines()).toEqual([]);
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      machineRole: 'scanner',
+      registrationError: 'code-version-mismatch',
+    }),
+  ]);
   expect(peerLogger.log).toHaveBeenCalledWith(
     LogEventId.AdminNetworkStatus,
     'system',

@@ -22,6 +22,7 @@ import {
   ScannerMachineType,
   UserRole,
 } from '@votingworks/types';
+import type { RegisterScannerError } from '@votingworks/networking';
 import { z } from 'zod/v4';
 
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
@@ -50,6 +51,11 @@ export interface RegisterAdjudicationStationError {
   type: 'code-version-mismatch';
 }
 
+/** Error type for host to machine connection */
+export type RegistrationErrorType =
+  | RegisterScannerError['type']
+  | RegisterAdjudicationStationError['type'];
+
 /** Connection status for a client machine in a multi-station setup. */
 export enum ClientConnectionStatus {
   Offline = 'offline',
@@ -65,6 +71,8 @@ export interface MachineRecord {
   machineRole: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
+  pollingPlaceId: string | null;
+  registrationError: RegistrationErrorType | null;
   lastSeenAt: number;
 }
 

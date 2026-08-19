@@ -400,6 +400,60 @@ test('delete empty scanner batches', async () => {
   expect(store.getScannerBatches(electionId)).toEqual([batchWithCvrs]);
 });
 
+test('getScannerImportCounts groups cvr and batch counts by scanner', async () => {
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const election = fixtures.readElection();
+  const ballotStyleGroups = getGroupedBallotStyles(election.ballotStyles);
+  const ballotStyleGroup = assertDefined(ballotStyleGroups[0]);
+
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData: fixtures.electionJson.asText(),
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  expect(store.getScannerImportCounts(electionId)).toEqual({});
+
+  const contest = find(
+    election.contests,
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+  function mockCvr(
+    batchId: string,
+    scannerId: string
+  ): Parameters<
+    typeof addMockCvrFileToStore
+  >[0]['mockCastVoteRecordFile'][number] {
+    return {
+      ballotStyleGroupId: ballotStyleGroup.id,
+      batchId,
+      scannerId,
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { [contest.id]: [contest.candidates[0]!.id] },
+      card: { type: 'bmd' },
+    };
+  }
+  addMockCvrFileToStore({
+    electionId,
+    store,
+    mockCastVoteRecordFile: [
+      mockCvr('1', 'scanner-1'),
+      mockCvr('1', 'scanner-1'),
+      mockCvr('2', 'scanner-1'),
+      mockCvr('3', 'scanner-2'),
+    ],
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  expect(store.getScannerImportCounts(electionId)).toEqual({
+    'scanner-1': { cvrCount: 3, batchCount: 2 },
+    'scanner-2': { cvrCount: 1, batchCount: 1 },
+  });
+});
+
 test('getWriteInCandidates returns no candidates for an empty contestIds filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = await store.addElection({

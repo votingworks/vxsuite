@@ -26,6 +26,8 @@ export type VxAdminHostApi = Api<{
     codeVersion: string;
     /** The scanner's configured election, if any. */
     ballotHash?: string;
+    /** The polling place the scanner is configured for, if any. */
+    pollingPlaceId?: string;
   }) => Result<VxAdminHostMachineConfig, RegisterScannerError>;
   /**
    * Read-only, side-effect-free method also used by scanners as a

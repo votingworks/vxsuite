@@ -302,6 +302,7 @@ function buildApi({
     getNetworkStatus(): {
       isOnline: boolean;
       connectedClients: MachineRecord[];
+      connectedScanners: MachineRecord[];
       multipleHostsDetected: boolean;
     } {
       const { machineId } = getMachineConfig();
@@ -316,8 +317,23 @@ function buildApi({
         connectedClients: machines.filter(
           (m) => m.machineRole === 'admin-client'
         ),
+        connectedScanners: machines.filter((m) => m.machineRole === 'scanner'),
         multipleHostsDetected: store.getMultipleHostsDetected(machineId),
       };
+    },
+
+    /**
+     * Counts of CVRs and batches imported from each scanner for the current
+     * election. Counting scans every CVR row, so this is too expensive for
+     * the frequently-polled getNetworkStatus — it's a separate method for
+     * the screens that need it, polled at a slower interval.
+     */
+    getScannerImportCounts(): Record<
+      string,
+      { cvrCount: number; batchCount: number }
+    > {
+      const electionId = store.getCurrentElectionId();
+      return electionId ? store.getScannerImportCounts(electionId) : {};
     },
 
     getIsClientAdjudicationEnabled(): boolean {

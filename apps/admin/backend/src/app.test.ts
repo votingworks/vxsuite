@@ -126,11 +126,21 @@ test('setMachineMode throws when election is configured', async () => {
   );
 });
 
+test('getScannerImportCounts returns empty until CVRs are imported', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  // Unconfigured: no election to count against
+  expect(await apiClient.getScannerImportCounts()).toEqual({});
+
+  await configureMachine(apiClient, auth, readElectionGeneralDefinition());
+  expect(await apiClient.getScannerImportCounts()).toEqual({});
+});
+
 test('getNetworkStatus returns offline with no connected clients by default', async () => {
   const { apiClient } = buildTestEnvironment();
   expect(await apiClient.getNetworkStatus()).toEqual({
     isOnline: false,
     connectedClients: [],
+    connectedScanners: [],
     multipleHostsDetected: false,
   });
 });

@@ -143,6 +143,7 @@ export function startScannerNetworking({
             codeVersion,
             ballotHash:
               store.getElectionRecord()?.electionDefinition.ballotHash,
+            pollingPlaceId: store.getPollingPlaceId(),
           });
         } catch (error) {
           debug('Host at %s unreachable: %s', hostMachine.address, error);
