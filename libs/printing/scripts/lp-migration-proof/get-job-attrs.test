@@ -1,0 +1,14 @@
+{
+    NAME "Get-Job-Attributes"
+    OPERATION Get-Job-Attributes
+
+    GROUP operation-attributes-tag
+    ATTR charset attributes-charset utf-8
+    ATTR naturalLanguage attributes-natural-language en
+    ATTR uri printer-uri $uri
+    ATTR integer job-id $JOBID
+    # identify as the job owner so private values (job-name, ...) are returned
+    ATTR name requesting-user-name $user
+
+    STATUS successful-ok
+}
