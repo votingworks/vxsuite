@@ -13,6 +13,7 @@ import * as fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { dirname, join } from 'node:path';
 import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
+import { findSchemaViolations } from './schema_validation';
 
 type Database = Database.Database;
 
@@ -136,7 +137,7 @@ export class Client {
    */
   private writeSchemaDigest(): void {
     this.exec(
-      `create table if not exists ${SCHEMA_DIGEST_TABLE} (digest text not null)`
+      `create table if not exists ${SCHEMA_DIGEST_TABLE} (digest text not null) strict`
     );
     this.run(`delete from ${SCHEMA_DIGEST_TABLE}`);
     this.run(
@@ -574,6 +575,22 @@ export class Client {
       debug
     );
     return db;
+  }
+
+  /**
+   * Asserts that the schema follows our conventions, listing every violation
+   * found. See {@link findSchemaViolations} for the conventions checked.
+   */
+  assertSchemaIsValid(): void {
+    const violations = findSchemaViolations(this);
+
+    if (violations.length > 0) {
+      throw new Error(
+        `invalid schema at ${
+          this.schemaPath ?? this.getDatabasePath()
+        }:\n${violations.map((violation) => `  - ${violation}`).join('\n')}`
+      );
+    }
   }
 
   private close(): void {
