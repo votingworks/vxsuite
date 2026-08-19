@@ -112,7 +112,6 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     return printer.print({
       data: pdfData,
       sides: PrintSides.OneSided,
-      isM404nSupportRequired: true,
     });
   }
 
@@ -176,7 +175,6 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   return printer.print({
     data: multiPagePdfData,
     sides: PrintSides.OneSided,
-    isM404nSupportRequired: true,
   });
 }
 

@@ -188,7 +188,6 @@ describe(`printMode === "summary"`, () => {
         {
           data: mockPdf,
           sides: PrintSides.OneSided,
-          isM404nSupportRequired: true,
         },
       ],
     ]);
@@ -304,7 +303,6 @@ describe(`printMode === "summary"`, () => {
       {
         data: mockMultiPagePdf,
         sides: PrintSides.OneSided,
-        isM404nSupportRequired: true,
       },
     ]);
 

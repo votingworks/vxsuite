@@ -110,7 +110,7 @@ export async function printTestPage({
   );
 
   const data = (await renderToPdf({ document: ballot })).unsafeUnwrap();
-  await printer.print({ data, isM404nSupportRequired: true });
+  await printer.print({ data });
   await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
     message: `User started a print diagnostic by printing a test page.`,
     disposition: 'success',

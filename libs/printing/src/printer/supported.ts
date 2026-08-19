@@ -12,6 +12,7 @@ export const PrinterConfigSchema: z.ZodSchema<PrinterConfig> = z.object({
   ppd: z.string(),
   supportsIpp: z.boolean(),
   pdfRenderer: z.optional(z.enum(['gs', 'pdftops'])),
+  inputSlot: z.optional(z.string()),
 });
 
 const RELATIVE_PATH_TO_SUPPORTED_PRINTERS = '../../supported_printers';
@@ -60,27 +61,29 @@ export const HP_4201_PRINTER_CONFIG = find(
 );
 
 /**
- * Builds the `lpr` options that select a printer's PDF-to-PostScript renderer.
- * Empty when the config does not pin one, leaving the CUPS default in place.
- * See {@link PrinterConfig.pdfRenderer} for why a printer might pin it.
+ * Builds the `lp` options a printer needs on every job to work around its own
+ * quirks, so callers don't have to know which printer they're driving. Empty
+ * for printers whose config pins neither.
+ *
+ * See {@link PrinterConfig.pdfRenderer} and {@link PrinterConfig.inputSlot}.
  */
-export function getPdfRendererOptions(config: PrinterConfig): {
+export function getPrinterSpecificOptions(config: PrinterConfig): {
   [key: string]: string;
 } {
-  return config.pdfRenderer ? { 'pdftops-renderer': config.pdfRenderer } : {};
+  const options: { [key: string]: string } = {};
+  if (config.pdfRenderer) {
+    options['pdftops-renderer'] = config.pdfRenderer;
+  }
+  if (config.inputSlot) {
+    options['InputSlot'] = config.inputSlot;
+  }
+  return options;
 }
 
 /**
  * See {@link deriveM404nPpd} for more details.
  */
 export const M404N_INPUT_SLOT = 'M404n_Tray2';
-
-/**
- * See {@link deriveM404nPpd} for more details.
- */
-export const M404N_INPUT_SLOT_OPTION = {
-  InputSlot: M404N_INPUT_SLOT,
-} as const;
 
 /**
  * Derives the HP LaserJet Pro M404n PPD from the generic PPD. The code prints
@@ -90,20 +93,14 @@ export const M404N_INPUT_SLOT_OPTION = {
  * operator to load letter paper and confirm the tray.
  *
  * The workaround is 2 part:
- * 1. Register the M404n cassette as a custom input slot.
+ * 1. Register the M404n cassette as a custom input slot here.
  *    See {@link M404N_INPUT_SLOT}.
- * 2. Explicitly select that input slot in print commands.
- *    See {@link M404N_INPUT_SLOT_OPTION} and its usage.
+ * 2. Explicitly select that input slot in print commands, via the config's
+ *    `inputSlot`. See {@link PrinterConfig.inputSlot}.
  *
  * Selecting the cassette by position in print commands
  * (InputSlot=M404N_INPUT_SLOT -> MediaPosition 0) makes the printer commit to
  * the cassette and skip the confirmation.
- *
- * Passing the InputSlot option to printers that haven't registered the
- * InputSlot is a no-op. We take advantage of this in code paths shared by the
- * M404n and other printers to avoid having to check the printer model and
- * conditionally pass the option. We just pass the option and know that other
- * printers will ignore it.
  */
 export function deriveM404nPpd(genericPpd: string): string {
   const inputSlotBlockClosingLine = '*CloseUI: *InputSlot';
