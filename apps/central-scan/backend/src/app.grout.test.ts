@@ -349,7 +349,7 @@ test('getNetworkStatus reports the connection info from the store when networkin
     BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING
   );
   await withApp(async ({ apiClient, store }) => {
-    store.setScannerConnectionInfo({
+    store.setNetworkConnectionInfo({
       status: 'online-host-detected',
       hostMachineId: '0002',
     });

@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import type { ScannerConnectionInfo } from '@votingworks/central-scan-backend';
+import type { NetworkConnectionInfo } from '@votingworks/central-scan-backend';
 import { H2, Icons, P } from '@votingworks/ui';
 import styled from 'styled-components';
 
@@ -8,7 +8,7 @@ const Section = styled.section`
 `;
 
 export interface NetworkSectionProps {
-  connection: ScannerConnectionInfo;
+  connection: NetworkConnectionInfo;
 }
 
 function ConnectionStatusMessage({

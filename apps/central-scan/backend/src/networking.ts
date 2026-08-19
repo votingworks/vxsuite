@@ -7,7 +7,7 @@ import {
 import makeDebug from 'debug';
 import { NETWORK_POLLING_INTERVAL_MS } from './globals.js';
 import { Store } from './store.js';
-import { ScannerConnectionInfo } from './types.js';
+import { NetworkConnectionInfo } from './types.js';
 
 const debug = makeDebug('scan:networking');
 
@@ -27,8 +27,8 @@ export function startScannerNetworking({
     message: 'Starting VxAdmin host discovery.',
   });
 
-  function setConnectionInfo(newInfo: ScannerConnectionInfo): void {
-    const currentInfo = store.getScannerConnectionInfo();
+  function setConnectionInfo(newInfo: NetworkConnectionInfo): void {
+    const currentInfo = store.getNetworkConnectionInfo();
     if (!deepEqual(currentInfo, newInfo)) {
       logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
         message: `Scanner connection status changed from ${currentInfo.status} to ${newInfo.status}.`,
@@ -37,7 +37,7 @@ export function startScannerNetworking({
         hostMachineId: newInfo.hostMachineId ?? 'none',
       });
     }
-    store.setScannerConnectionInfo(newInfo);
+    store.setNetworkConnectionInfo(newInfo);
   }
 
   let isPolling = false;

@@ -33,7 +33,7 @@ test('starts in offline status before the first poll', () => {
   vi.mocked(hasOnlineInterface).mockResolvedValue(false);
   const store = Store.memoryStore();
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'offline',
   });
 });
@@ -43,7 +43,7 @@ test('reports offline when no network interface is online', async () => {
   const store = Store.memoryStore();
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'offline',
   });
   expect(findAllVxAdminHostMachines).not.toHaveBeenCalled();
@@ -55,7 +55,7 @@ test('reports waiting-for-host when online but no VxAdmin is advertised', async 
   const store = Store.memoryStore();
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-waiting-for-host',
   });
 });
@@ -68,7 +68,7 @@ test('reports host-detected with the host machine ID', async () => {
   const store = Store.memoryStore();
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
     hostMachineId: '0002',
   });
@@ -83,7 +83,7 @@ test('logs status transitions and returns to offline when the interface goes dow
   const store = Store.memoryStore();
   startScannerNetworking({ logger, store });
   await advancePollingInterval();
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
     hostMachineId: '0002',
   });
@@ -99,7 +99,7 @@ test('logs status transitions and returns to offline when the interface goes dow
 
   vi.mocked(hasOnlineInterface).mockResolvedValue(false);
   await advancePollingInterval();
-  expect(store.getScannerConnectionInfo()).toEqual({
+  expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'offline',
   });
   expect(logger.log).toHaveBeenCalledWith(

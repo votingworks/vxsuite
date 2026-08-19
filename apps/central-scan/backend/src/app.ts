@@ -100,7 +100,7 @@ function buildApi({
     getNetworkStatus(): NetworkStatus {
       return {
         isEnabled: isCentralScanNetworkingEnabled(),
-        connection: store.getScannerConnectionInfo(),
+        connection: store.getNetworkConnectionInfo(),
       };
     },
 

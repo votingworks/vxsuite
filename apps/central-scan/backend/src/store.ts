@@ -54,7 +54,7 @@ import {
 import { BaseLogger } from '@votingworks/logging';
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path.js';
-import { ScannerConnectionInfo } from './types.js';
+import { NetworkConnectionInfo } from './types.js';
 
 const debug = makeDebug('scan:store');
 
@@ -156,14 +156,14 @@ export class Store {
    * Kept in memory (not the database) since it's runtime state that should
    * reset with the process.
    */
-  private scannerConnectionInfo: ScannerConnectionInfo = { status: 'offline' };
+  private networkConnectionInfo: NetworkConnectionInfo = { status: 'offline' };
 
-  getScannerConnectionInfo(): ScannerConnectionInfo {
-    return this.scannerConnectionInfo;
+  getNetworkConnectionInfo(): NetworkConnectionInfo {
+    return this.networkConnectionInfo;
   }
 
-  setScannerConnectionInfo(connectionInfo: ScannerConnectionInfo): void {
-    this.scannerConnectionInfo = connectionInfo;
+  setNetworkConnectionInfo(connectionInfo: NetworkConnectionInfo): void {
+    this.networkConnectionInfo = connectionInfo;
   }
 
   getDbPath(): string {
