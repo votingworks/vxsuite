@@ -102,7 +102,7 @@ import {
   WriteInForTally,
   BaseStore,
   MachineRecord,
-  MachineMode,
+  NetworkedMachineRole,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   ContestAdjudicationData,
@@ -3377,7 +3377,7 @@ export class Store implements BaseStore {
 
   setNetworkedMachineStatus(
     machineId: string,
-    machineMode: MachineMode,
+    machineMode: NetworkedMachineRole,
     status: Admin.ClientMachineStatus,
     authType: UserRole | null = null
   ): void {

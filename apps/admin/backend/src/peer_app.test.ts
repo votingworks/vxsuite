@@ -10,7 +10,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { assertDefined, err, range } from '@votingworks/basics';
+import { assertDefined, err, ok, range } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import type { Result } from '@votingworks/basics';
 import { buildTestEnvironment, configureMachine } from '../test/app.js';
@@ -218,6 +218,99 @@ test('connectToHost updates store when client status changes', async () => {
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
+});
+
+test('registerScanner records the scanner and returns the host machine config', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+    })
+  ).toEqual(
+    ok({
+      machineId: DEV_MACHINE_ID,
+      codeVersion: 'dev',
+    })
+  );
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      machineMode: 'scanner',
+      status: Admin.ClientMachineStatus.Active,
+    }),
+  ]);
+});
+
+test('registerScanner does not record a scanner configured for a different election', async () => {
+  const { peerApiClient, apiClient, auth, peerLogger, workspace } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, readElectionGeneralDefinition());
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: 'some-other-ballot-hash',
+    })
+  ).toEqual(err({ type: 'ballot-hash-mismatch' }));
+  expect(workspace.store.getMachines()).toEqual([]);
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      scannerMachineId: 'SCANNER-01',
+      scannerBallotHash: 'some-other-ballot-hash',
+    })
+  );
+});
+
+test('registerScanner does not record an unconfigured scanner', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, readElectionGeneralDefinition());
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+    })
+  ).toEqual(err({ type: 'scanner-unconfigured' }));
+  expect(workspace.store.getMachines()).toEqual([]);
+});
+
+test('registerScanner does not record a scanner when the host is unconfigured', async () => {
+  const { peerApiClient, workspace } = buildTestEnvironment();
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: readElectionGeneralDefinition().ballotHash,
+    })
+  ).toEqual(err({ type: 'host-unconfigured' }));
+  expect(workspace.store.getMachines()).toEqual([]);
+});
+
+test('registerScanner does not record a scanner running an incompatible code version', async () => {
+  const { peerApiClient, peerLogger, workspace } = buildTestEnvironment();
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'some-other-version',
+    })
+  ).toEqual(err({ type: 'code-version-mismatch' }));
+  expect(workspace.store.getMachines()).toEqual([]);
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      scannerMachineId: 'SCANNER-01',
+      scannerCodeVersion: 'some-other-version',
+      hostCodeVersion: 'dev',
+    })
+  );
 });
 
 test('getCurrentElectionMetadata returns null when no election configured', async () => {

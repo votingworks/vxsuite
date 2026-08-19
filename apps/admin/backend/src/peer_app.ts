@@ -17,6 +17,10 @@ import {
   type UserRole,
 } from '@votingworks/types';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
+import type {
+  RegisterScannerError,
+  VxAdminHostApi,
+} from '@votingworks/networking';
 import { getMachineConfig } from './machine_config.js';
 import { Workspace } from './util/workspace.js';
 import {
@@ -60,7 +64,78 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     );
   }
 
-  return grout.createApi({
+  const api = grout.createApi({
+    registerScanner(input: {
+      machineId: string;
+      codeVersion: string;
+      ballotHash?: string;
+    }): Result<MachineConfig, RegisterScannerError> {
+      const machineConfig = getMachineConfig();
+
+      function reject(
+        error: RegisterScannerError,
+        details: string,
+        extra: Record<string, string> = {}
+      ): Result<MachineConfig, RegisterScannerError> {
+        logger.log(LogEventId.AdminNetworkStatus, 'system', {
+          message: `Rejected registration from scanner ${input.machineId}: ${details}`,
+          disposition: 'failure',
+          scannerMachineId: input.machineId,
+          error: error.type,
+          ...extra,
+        });
+        return err(error);
+      }
+
+      // Refuse to register a scanner running a different code version.
+      if (input.codeVersion !== machineConfig.codeVersion) {
+        return reject(
+          { type: 'code-version-mismatch' },
+          `incompatible software version (scanner ${input.codeVersion}, host ${machineConfig.codeVersion}).`,
+          {
+            scannerCodeVersion: input.codeVersion,
+            hostCodeVersion: machineConfig.codeVersion,
+          }
+        );
+      }
+      // Refuse to register a scanner that isn't configured for the same
+      // election as this host.
+      if (input.ballotHash === undefined) {
+        return reject(
+          { type: 'scanner-unconfigured' },
+          'the scanner is not configured with an election.'
+        );
+      }
+      const currentElectionId = store.getCurrentElectionId();
+      const hostBallotHash = currentElectionId
+        ? assertDefined(store.getElection(currentElectionId)).electionDefinition
+            .ballotHash
+        : undefined;
+      if (hostBallotHash === undefined) {
+        return reject(
+          { type: 'host-unconfigured' },
+          'this host is not configured with an election.'
+        );
+      }
+      if (input.ballotHash !== hostBallotHash) {
+        return reject(
+          { type: 'ballot-hash-mismatch' },
+          `configured for a different election (scanner ${input.ballotHash}, host ${hostBallotHash}).`,
+          {
+            scannerBallotHash: input.ballotHash,
+            hostBallotHash,
+          }
+        );
+      }
+      debug('Scanner %s registered with host', input.machineId);
+      store.setNetworkedMachineStatus(
+        input.machineId,
+        'scanner',
+        Admin.ClientMachineStatus.Active
+      );
+      return ok(machineConfig);
+    },
+
     connectToHost(input: {
       machineId: string;
       codeVersion: string;
@@ -253,6 +328,11 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       return ok();
     },
   });
+
+  // The peer API implements the scanner-facing contract shared in
+  // libs/networking; this fails to compile if the two drift apart. Methods
+  // may return richer types than the contract requires.
+  return api satisfies VxAdminHostApi;
 }
 
 /**

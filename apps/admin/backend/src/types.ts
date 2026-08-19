@@ -32,6 +32,12 @@ export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
  */
 export type MachineMode = 'host' | 'client';
 
+/**
+ * The role a machine plays on the network: a VxAdmin host or client, or a
+ * networked central scanner.
+ */
+export type NetworkedMachineRole = MachineMode | 'scanner';
+
 /** Shared interface for stores that support auth state construction. */
 export interface BaseStore {
   getCurrentElectionId(): Id | undefined;
@@ -51,7 +57,7 @@ export enum ClientConnectionStatus {
 /** A record of a machine in the multi-station machines table. */
 export interface MachineRecord {
   machineId: string;
-  machineMode: MachineMode;
+  machineMode: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
   lastSeenAt: number;
