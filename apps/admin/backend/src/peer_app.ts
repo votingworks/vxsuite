@@ -27,6 +27,7 @@ import {
   AdjudicationError,
   ElectionRecord,
   MachineConfig,
+  RegisterAdjudicationStationError,
   AdjudicatedCvr,
   BallotAdjudicationData,
   BallotImages,
@@ -136,23 +137,27 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       return ok(machineConfig);
     },
 
-    connectToHost(input: {
+    registerAdjudicationStation(input: {
       machineId: string;
       codeVersion: string;
       status: Admin.ClientMachineStatus;
       authType: UserRole | null;
-    }): MachineConfig & { isClientAdjudicationEnabled: boolean } {
+    }): Result<
+      MachineConfig & { isClientAdjudicationEnabled: boolean },
+      RegisterAdjudicationStationError
+    > {
       const machineConfig = getMachineConfig();
-      // Refuse to register a client running a different code version.
+      // Refuse to register an adjudication station running a different code
+      // version.
       if (input.codeVersion !== machineConfig.codeVersion) {
         logger.log(LogEventId.AdminNetworkStatus, 'system', {
-          message: `Rejected connection from client ${input.machineId}: incompatible software version (client ${input.codeVersion}, host ${machineConfig.codeVersion}).`,
+          message: `Rejected registration from adjudication station ${input.machineId}: incompatible software version (station ${input.codeVersion}, host ${machineConfig.codeVersion}).`,
           disposition: 'failure',
           clientMachineId: input.machineId,
           clientCodeVersion: input.codeVersion,
           hostCodeVersion: machineConfig.codeVersion,
         });
-        return { ...machineConfig, isClientAdjudicationEnabled: false };
+        return err({ type: 'code-version-mismatch' });
       }
       debug(
         'Client %s connected to host (election: %s, status: %s)',
@@ -197,10 +202,10 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         input.status,
         input.authType
       );
-      return {
+      return ok({
         ...machineConfig,
         isClientAdjudicationEnabled: store.getIsClientAdjudicationEnabled(),
-      };
+      });
     },
 
     getElectionPackageHash(): Optional<string> {

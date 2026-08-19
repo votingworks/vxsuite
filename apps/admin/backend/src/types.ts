@@ -45,6 +45,11 @@ export interface BaseStore {
   getSystemSettings(electionId: Id): SystemSettings | undefined;
 }
 
+/** Why a VxAdmin host refused to register an adjudication station. */
+export interface RegisterAdjudicationStationError {
+  type: 'code-version-mismatch';
+}
+
 /** Connection status for a client machine in a multi-station setup. */
 export enum ClientConnectionStatus {
   Offline = 'offline',

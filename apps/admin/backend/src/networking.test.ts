@@ -5,6 +5,7 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
+import { err, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
@@ -362,7 +363,7 @@ describe('startClientNetworking', () => {
   }
 
   interface MockPeerClientOverrides {
-    connectToHost?: ReturnType<typeof vi.fn>;
+    registerAdjudicationStation?: ReturnType<typeof vi.fn>;
     getElectionPackageHash?: ReturnType<typeof vi.fn>;
     getCurrentElectionMetadata?: ReturnType<typeof vi.fn>;
     getSystemSettings?: ReturnType<typeof vi.fn>;
@@ -372,11 +373,13 @@ describe('startClientNetworking', () => {
     overrides: MockPeerClientOverrides = {}
   ): grout.Client<PeerApi> {
     const defaults: MockPeerClientOverrides = {
-      connectToHost: vi.fn().mockResolvedValue({
-        machineId: 'HOST1',
-        codeVersion: 'dev',
-        isClientAdjudicationEnabled: false,
-      }),
+      registerAdjudicationStation: vi.fn().mockResolvedValue(
+        ok({
+          machineId: 'HOST1',
+          codeVersion: 'dev',
+          isClientAdjudicationEnabled: false,
+        })
+      ),
       getElectionPackageHash: vi.fn().mockResolvedValue(undefined),
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
       getSystemSettings: vi.fn().mockResolvedValue(undefined),
@@ -738,7 +741,7 @@ describe('startClientNetworking', () => {
     });
     await advancePollingInterval();
 
-    expect(mockClient.connectToHost).toHaveBeenCalledWith({
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledWith({
       machineId: '0002',
       codeVersion: 'dev',
       status: Admin.ClientMachineStatus.OnlineLocked,
@@ -752,11 +755,9 @@ describe('startClientNetworking', () => {
       { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
-      connectToHost: vi.fn().mockResolvedValue({
-        machineId: 'HOST1',
-        codeVersion: 'a-different-version',
-        isClientAdjudicationEnabled: true,
-      }),
+      registerAdjudicationStation: vi
+        .fn()
+        .mockResolvedValue(err({ type: 'code-version-mismatch' })),
     });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -781,7 +782,6 @@ describe('startClientNetworking', () => {
       'system',
       expect.objectContaining({
         newStatus: ClientConnectionStatus.OnlineIncompatibleHostVersion,
-        hostCodeVersion: 'a-different-version',
         clientCodeVersion: 'dev',
       })
     );
@@ -811,7 +811,7 @@ describe('startClientNetworking', () => {
     });
     await advancePollingInterval();
 
-    expect(mockClient.connectToHost).toHaveBeenCalledWith({
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledWith({
       machineId: '0002b',
       codeVersion: 'dev',
       status: Admin.ClientMachineStatus.Active,
@@ -870,11 +870,11 @@ describe('startClientNetworking', () => {
 
     // First poll: connect
     await advancePollingInterval();
-    expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledTimes(1);
 
-    // Second poll: heartbeat via connectToHost
+    // Second poll: heartbeat via registerAdjudicationStation
     await vi.advanceTimersByTimeAsync(2000);
-    expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledTimes(2);
   });
 
   test('disconnects when heartbeat fails', async () => {
@@ -883,9 +883,9 @@ describe('startClientNetworking', () => {
       { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
-      connectToHost: vi
+      registerAdjudicationStation: vi
         .fn()
-        .mockResolvedValueOnce({ machineId: 'HOST1', codeVersion: 'dev' })
+        .mockResolvedValueOnce(ok({ machineId: 'HOST1', codeVersion: 'dev' }))
         .mockRejectedValue(new Error('connection lost')),
     });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -908,7 +908,7 @@ describe('startClientNetworking', () => {
     const newMockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(newMockClient);
     await vi.advanceTimersByTimeAsync(2000);
-    expect(newMockClient.connectToHost).toHaveBeenCalled();
+    expect(newMockClient.registerAdjudicationStation).toHaveBeenCalled();
   });
 
   test('handles connection failure to new host', async () => {
@@ -917,7 +917,9 @@ describe('startClientNetworking', () => {
       { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
-      connectToHost: vi.fn().mockRejectedValue(new Error('connection refused')),
+      registerAdjudicationStation: vi
+        .fn()
+        .mockRejectedValue(new Error('connection refused')),
     });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -930,7 +932,7 @@ describe('startClientNetworking', () => {
     });
     await advancePollingInterval();
 
-    expect(mockClient.connectToHost).toHaveBeenCalled();
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalled();
   });
 
   test('clears connected host when host disappears', async () => {
@@ -951,7 +953,7 @@ describe('startClientNetworking', () => {
       logger,
     });
     await advancePollingInterval();
-    expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledTimes(1);
 
     // Second poll: host gone
     vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
@@ -962,7 +964,7 @@ describe('startClientNetworking', () => {
       { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     await vi.advanceTimersByTimeAsync(2000);
-    expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
+    expect(mockClient.registerAdjudicationStation).toHaveBeenCalledTimes(2);
   });
 
   test('logs when client adjudication is enabled by host', async () => {
@@ -970,13 +972,15 @@ describe('startClientNetworking', () => {
     vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
       { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
-    const mockConnectToHost = vi.fn().mockResolvedValue({
-      machineId: 'HOST1',
-      codeVersion: 'dev',
-      isClientAdjudicationEnabled: false,
-    });
+    const mockRegisterAdjudicationStation = vi.fn().mockResolvedValue(
+      ok({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      })
+    );
     const mockClient = createMockPeerClient({
-      connectToHost: mockConnectToHost,
+      registerAdjudicationStation: mockRegisterAdjudicationStation,
     });
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
@@ -994,11 +998,13 @@ describe('startClientNetworking', () => {
     expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
 
     // Host enables adjudication
-    mockConnectToHost.mockResolvedValue({
-      machineId: 'HOST1',
-      codeVersion: 'dev',
-      isClientAdjudicationEnabled: true,
-    });
+    mockRegisterAdjudicationStation.mockResolvedValue(
+      ok({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: true,
+      })
+    );
     await vi.advanceTimersByTimeAsync(2000);
     expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(true);
 
@@ -1011,11 +1017,13 @@ describe('startClientNetworking', () => {
     );
 
     // Host disables adjudication
-    mockConnectToHost.mockResolvedValue({
-      machineId: 'HOST1',
-      codeVersion: 'dev',
-      isClientAdjudicationEnabled: false,
-    });
+    mockRegisterAdjudicationStation.mockResolvedValue(
+      ok({
+        machineId: 'HOST1',
+        codeVersion: 'dev',
+        isClientAdjudicationEnabled: false,
+      })
+    );
     await vi.advanceTimersByTimeAsync(2000);
     expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
 

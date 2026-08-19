@@ -188,7 +188,7 @@ test('client discovers host and connects - host stores client info in database',
       status: Admin.ClientMachineStatus.Active,
     });
 
-    // Host should record the client via the connectToHost peer API call
+    // Host should record the client via the registerAdjudicationStation peer API call
     expect(machines.find((m) => m.machineId === clientMachineId)).toMatchObject(
       {
         machineId: clientMachineId,
@@ -271,7 +271,7 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
   mockFindAllVxAdminHostMachines.mockResolvedValue([]);
 
   // Wait for the client to fully disconnect before checking stale cleanup,
-  // to avoid a race with in-flight connectToHost calls
+  // to avoid a race with in-flight registerAdjudicationStation calls
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(clientStore.getConnectionStatus()).toEqual(

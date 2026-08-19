@@ -338,17 +338,18 @@ export function startClientNetworking({
             constructAuthMachineState(clientStore)
           );
           const { status, authType } = getClientMachineStatus(authStatus);
-          const hostConfig = await apiClient.connectToHost({
+          const registerResult = await apiClient.registerAdjudicationStation({
             machineId,
             codeVersion,
             status,
             authType,
           });
-          if (codeVersion !== hostConfig.codeVersion) {
+          if (registerResult.isErr()) {
+            const errorType = registerResult.err().type;
+            assert(errorType === 'code-version-mismatch');
             debug(
-              'Host at %s runs incompatible code version %s (client is %s), refusing to connect',
+              'Host at %s refused registration: incompatible code version (client is %s)',
               hostAddress,
-              hostConfig.codeVersion,
               codeVersion
             );
             logStatusTransition(
@@ -356,17 +357,14 @@ export function startClientNetworking({
                 connectionStatus:
                   ClientConnectionStatus.OnlineIncompatibleHostVersion,
               },
-              {
-                hostMachineId: hostConfig.machineId,
-                hostCodeVersion: hostConfig.codeVersion,
-                clientCodeVersion: codeVersion,
-              }
+              { clientCodeVersion: codeVersion }
             );
             clientStore.setConnection(
               ClientConnectionStatus.OnlineIncompatibleHostVersion
             );
             return;
           }
+          const hostConfig = registerResult.ok();
           logStatusTransition(
             {
               connectionStatus: ClientConnectionStatus.OnlineConnectedToHost,

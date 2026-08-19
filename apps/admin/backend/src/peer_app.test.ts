@@ -42,19 +42,21 @@ beforeEach(() => {
   vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
 });
 
-test('connectToHost registers client and returns host machine config with adjudication status', async () => {
+test('registerAdjudicationStation registers client and returns host machine config with adjudication status', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
-  const result = await peerApiClient.connectToHost({
+  const result = await peerApiClient.registerAdjudicationStation({
     machineId: 'client-001',
     codeVersion: 'dev',
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
-  expect(result).toEqual({
-    machineId: DEV_MACHINE_ID,
-    codeVersion: 'dev',
-    isClientAdjudicationEnabled: false,
-  });
+  expect(result).toEqual(
+    ok({
+      machineId: DEV_MACHINE_ID,
+      codeVersion: 'dev',
+      isClientAdjudicationEnabled: false,
+    })
+  );
 
   const machines = workspace.store.getMachines();
   expect(machines).toHaveLength(1);
@@ -66,40 +68,34 @@ test('connectToHost registers client and returns host machine config with adjudi
   });
 });
 
-test('connectToHost rejects a client running an incompatible code version', async () => {
+test('registerAdjudicationStation rejects a client running an incompatible code version', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
   workspace.store.setIsClientAdjudicationEnabled(true);
 
-  const result = await peerApiClient.connectToHost({
+  const result = await peerApiClient.registerAdjudicationStation({
     machineId: 'client-001',
     codeVersion: 'an-incompatible-version',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
 
-  // Host reports its own version and never enables adjudication for an
-  // incompatible client.
-  expect(result).toEqual({
-    machineId: DEV_MACHINE_ID,
-    codeVersion: 'dev',
-    isClientAdjudicationEnabled: false,
-  });
+  expect(result).toEqual(err({ type: 'code-version-mismatch' }));
 
   // The incompatible client must not be registered as a connected machine.
   expect(workspace.store.getMachines()).toHaveLength(0);
 });
 
-test('connectToHost persists status and authType and returns adjudication enabled', async () => {
+test('registerAdjudicationStation persists status and authType and returns adjudication enabled', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
 
   workspace.store.setIsClientAdjudicationEnabled(true);
-  const result = await peerApiClient.connectToHost({
+  const result = await peerApiClient.registerAdjudicationStation({
     machineId: 'client-001',
     codeVersion: 'dev',
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
   });
-  expect(result.isClientAdjudicationEnabled).toEqual(true);
+  expect(result.unsafeUnwrap().isClientAdjudicationEnabled).toEqual(true);
 
   const machines = workspace.store.getMachines();
   expect(machines[0]).toMatchObject({
@@ -109,7 +105,7 @@ test('connectToHost persists status and authType and returns adjudication enable
   });
 });
 
-test("connectToHost releases the client's claims when it transitions to OnlineLocked", async () => {
+test("registerAdjudicationStation releases the client's claims when it transitions to OnlineLocked", async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -122,30 +118,34 @@ test("connectToHost releases the client's claims when it transitions to OnlineLo
   workspace.store.setIsClientAdjudicationEnabled(true);
 
   // Client logs in (Active) and claims a ballot.
-  await peerApiClient.connectToHost({
-    machineId: 'client-001',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.Active,
-    authType: 'election_manager',
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-001',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
+    })
+  ).unsafeUnwrap();
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
   );
 
   // Client transitions to OnlineLocked (logout / session expiry).
-  await peerApiClient.connectToHost({
-    machineId: 'client-001',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.OnlineLocked,
-    authType: null,
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-001',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.OnlineLocked,
+      authType: null,
+    })
+  ).unsafeUnwrap();
 
   // The claim should be released — another machine can now pick it up.
   const result = await claimBallot(peerApiClient, { machineId: 'client-002' });
   expect(result).toEqual(cvrId);
 });
 
-test('connectToHost does not release claims when status stays Active or transitions Active→Adjudicating', async () => {
+test('registerAdjudicationStation does not release claims when status stays Active or transitions Active→Adjudicating', async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -157,63 +157,73 @@ test('connectToHost does not release claims when status stays Active or transiti
   addTestCvrs(workspace.store, electionId, 1);
   workspace.store.setIsClientAdjudicationEnabled(true);
 
-  await peerApiClient.connectToHost({
-    machineId: 'client-001',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.Active,
-    authType: 'election_manager',
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-001',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
+    })
+  ).unsafeUnwrap();
   const cvrId = assertDefined(
     await claimBallot(peerApiClient, { machineId: 'client-001' })
   );
 
   // Repeated heartbeats with the same Active status should not release.
-  await peerApiClient.connectToHost({
-    machineId: 'client-001',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.Active,
-    authType: 'election_manager',
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-001',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
+    })
+  ).unsafeUnwrap();
   // Another machine still cannot claim it.
   expect(
     await claimBallot(peerApiClient, { machineId: 'client-002' })
   ).toBeUndefined();
 
   // Active → Adjudicating must not release either.
-  await peerApiClient.connectToHost({
-    machineId: 'client-001',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.Adjudicating,
-    authType: 'election_manager',
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-001',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.Adjudicating,
+      authType: 'election_manager',
+    })
+  ).unsafeUnwrap();
   expect(
     await claimBallot(peerApiClient, { machineId: 'client-002' })
   ).toBeUndefined();
   expect(cvrId).toBeDefined();
 });
 
-test('connectToHost updates store when client status changes', async () => {
+test('registerAdjudicationStation updates store when client status changes', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
 
   // First call: new client
-  await peerApiClient.connectToHost({
-    machineId: 'client-002',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.OnlineLocked,
-    authType: null,
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-002',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.OnlineLocked,
+      authType: null,
+    })
+  ).unsafeUnwrap();
   expect(workspace.store.getMachine('client-002')).toMatchObject({
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
 
   // Second call: status changes
-  await peerApiClient.connectToHost({
-    machineId: 'client-002',
-    codeVersion: 'dev',
-    status: Admin.ClientMachineStatus.Active,
-    authType: 'election_manager',
-  });
+  (
+    await peerApiClient.registerAdjudicationStation({
+      machineId: 'client-002',
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.Active,
+      authType: 'election_manager',
+    })
+  ).unsafeUnwrap();
   expect(workspace.store.getMachine('client-002')).toMatchObject({
     status: Admin.ClientMachineStatus.Active,
     authType: 'election_manager',
