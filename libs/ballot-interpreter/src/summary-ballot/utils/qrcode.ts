@@ -12,16 +12,17 @@ import { stats, Stats } from './luminosity';
 const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 
 /**
- * Decodes a base64 string from bytes representing a UTF-8 string. If either the
- * UTF-8 or base64 decoding fails, the original data is returned.
+ * Unwraps a base64-wrapped QR code payload to raw ballot data, or `undefined`
+ * if the payload isn't ballot data.
+ *
+ * The decode is kept only if it produced something with a ballot prelude. A
+ * successful decode on its own proves nothing: `Buffer.from(s, 'base64')`
+ * silently drops characters it doesn't recognize rather than failing, so it
+ * "succeeds" on input that was never base64 and returns garbage.
  */
-function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
-  try {
-    return Buffer.from(new TextDecoder().decode(utf8StringData), 'base64');
-  } catch {
-    /* istanbul ignore next */
-    return utf8StringData;
-  }
+export function unwrapVxPayload(data: Buffer): Optional<Buffer> {
+  const decoded = Buffer.from(data.toString('utf8'), 'base64');
+  return isVxBallot(decoded) ? decoded : undefined;
 }
 
 /**
@@ -168,8 +169,8 @@ export async function detect(
       // Sometimes, our QR code detectors hallucinate and see QR codes in the noise
       // We filter the QR codes down to the ones that look like Vx ballot data.
       const recognizedResults = results
-        .map(decodeBase64FromUtf8)
-        .filter(isVxBallot);
+        .map(unwrapVxPayload)
+        .filter((result) => result !== undefined);
 
       if (recognizedResults.length === 0) {
         debug('%s no recognized QR codes in %s', detector.name, position);
