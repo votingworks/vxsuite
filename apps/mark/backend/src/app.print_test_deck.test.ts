@@ -16,7 +16,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import * as grout from '@votingworks/grout';
@@ -106,7 +106,7 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(electionDefinition);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const precinctId = electionDefinition.election.precincts[0].id;
   await apiClient.printTestDeck({ precinctId });
@@ -139,7 +139,7 @@ test('printTestDeck for all precincts prints ballots, an overall tally report, a
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(electionDefinition);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printTestDeck({});
 

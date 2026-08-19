@@ -43,7 +43,7 @@ export interface PrinterConfig {
    * A PPD `*InputSlot` choice to select explicitly on every print job. Omit to
    * let the printer pick a tray by matching the job's paper size.
    *
-   * On some printers — the HP LaserJet Pro M404n is the one we've hit — every
+   * On some printers — the HP LaserJet Pro M404 is the one we've hit — every
    * input is configured for "Any" size by default, so the printer can't match a
    * job to one of them and instead prompts the operator to load paper and
    * confirm the tray. Naming the slot makes it commit to that tray and skip the

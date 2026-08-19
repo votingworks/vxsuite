@@ -57,7 +57,7 @@ import { Mock, vi } from 'vitest';
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
-  label: 'HP LaserJet Pro M404n',
+  label: 'HP LaserJet Pro M404',
   vendorId: 1008,
   productId: 49450,
   baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',

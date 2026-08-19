@@ -46,7 +46,7 @@ import {
 import {
   getMockConnectedPrinterStatus,
   getMockFilePrinterHandler,
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
   PrinterStatus as FujitsuPrinterStatus,
@@ -849,7 +849,7 @@ test('getHardwareMockStatus handles partial mocks and false values', async () =>
 });
 
 test('HP printer config', async () => {
-  const { apiClient } = setup({ printerConfig: HP_LASER_PRINTER_CONFIG });
+  const { apiClient } = setup({ printerConfig: HP_4001_PRINTER_CONFIG });
   await expect(apiClient.getPrinterStatus()).resolves.toEqual(
     typedAs<PrinterStatus>({
       connected: false,
@@ -859,7 +859,7 @@ test('HP printer config', async () => {
   await apiClient.connectPrinter();
   await expect(apiClient.getPrinterStatus()).resolves.toEqual(
     typedAs<PrinterStatus>(
-      getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
+      getMockConnectedPrinterStatus(HP_4001_PRINTER_CONFIG)
     )
   );
 

@@ -20,7 +20,7 @@ import {
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   getMockFilePrinterHandler,
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
   forceLogOutAndResetElectionDefinition,
@@ -47,7 +47,7 @@ test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   getMockUsbDriveHandler().cleanup();
-  getMockFilePrinterHandler().connectPrinter(HP_LASER_PRINTER_CONFIG);
+  getMockFilePrinterHandler().connectPrinter(HP_4001_PRINTER_CONFIG);
   await forceLogOutAndResetElectionDefinition(page);
 });
 

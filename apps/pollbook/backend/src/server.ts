@@ -1,6 +1,6 @@
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import express from 'express';
-import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { buildLocalApp } from './app.js';
@@ -28,7 +28,7 @@ export function start(context: LocalAppContext): void {
   });
 
   useDevDockRouter(app, express, {
-    printerConfig: CITIZEN_THERMAL_PRINTER_CONFIG,
+    printerConfig: CITIZEN_E351_PRINTER_CONFIG,
   });
 
   startCpuMetricsLogging(baseLogger);

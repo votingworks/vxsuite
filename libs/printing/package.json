@@ -11,7 +11,7 @@
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
-    "generate-m404n-ppd": "./scripts/generate-m404n-ppd",
+    "generate-m404-ppd": "./scripts/generate-m404-ppd",
     "postinstall": "test -f /usr/bin/chromium || playwright install --with-deps chromium",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",

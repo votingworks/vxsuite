@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { HP_LASER_PRINTER_CONFIG, PrintSides } from '..';
+import { HP_4001_PRINTER_CONFIG, PrintSides } from '..';
 import { createMockPrinterHandler } from './memory_printer';
 import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
 
@@ -13,7 +13,7 @@ test('memory printer', async () => {
   expect(await printer.status()).toEqual({ connected: false });
   await expect(printer.print({ data: Buffer.from('') })).rejects.toThrow();
 
-  const config = HP_LASER_PRINTER_CONFIG;
+  const config = HP_4001_PRINTER_CONFIG;
   printerHandler.connectPrinter(config);
   expect(await printer.status()).toEqual({
     connected: true,

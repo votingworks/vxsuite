@@ -39,7 +39,7 @@ import {
 } from '@votingworks/utils';
 import { zipFile } from '@votingworks/test-utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
@@ -472,7 +472,7 @@ test('cannot switch to test mode when the election package has no test ballots',
   expect(await apiClient.hasTestBallots()).toEqual(false);
   expect(await apiClient.getTestMode()).toEqual(false);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await apiClient.printBallot({
     precinctId: electionDefinition.election.ballotStyles[0].precincts[0],
     languageCode: LanguageCode.ENGLISH,
@@ -547,7 +547,7 @@ test('end-to-end printing flow updates getBallotPrintCounts', async () => {
     mockUsbDrive,
     pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { ballotStyles } = electionDefinition.election;
   const styleA = ballotStyles[0];
@@ -618,7 +618,7 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
     mockUsbDrive,
     pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { ballotStyles, parties } = electionDefinition.election;
   // Get two ballot styles from different parties
@@ -696,7 +696,7 @@ test('end-to-end printing flow handles combined ballot primary (consolidated bal
     mockUsbDrive,
     pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { ballotStyles } = electionDefinition.election;
   const ballotStyle = ballotStyles[0];
@@ -742,7 +742,7 @@ test('printAllBallotStyles works for combined ballot primary (consolidated ballo
     auth,
     mockUsbDrive,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printAllBallotStyles({
     languageCode: LanguageCode.ENGLISH,
@@ -775,7 +775,7 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
     mockUsbDrive,
     pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { parties } = electionDefinition.election;
   const mammalParty = parties.find((p) => p.name === 'Mammal')!;
@@ -843,7 +843,7 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     auth,
     mockUsbDrive,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const initialCounts = await apiClient.getBallotPrintCounts();
   expect(initialCounts.length).toBeGreaterThan(0);
@@ -1107,7 +1107,7 @@ test('printTestDeck sends one print job per spec and calls generateMarkOverlay o
     mockUsbDrive,
   });
   await apiClient.setTestMode({ testMode: true });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { election } = msElectionDef;
   const allSpecs = election.precincts.flatMap((precinct) =>
@@ -1145,7 +1145,7 @@ test('printTestDeck prints only the given precinct and a precinct-specific tally
     mockUsbDrive,
   });
   await apiClient.setTestMode({ testMode: true });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { election } = msElectionDef;
   const precinct = assertDefined(election.precincts[0]);
@@ -1180,7 +1180,7 @@ test('count and print exclude specs with no matching stored ballot', async () =>
     auth,
     mockUsbDrive,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   // Expect no ballot counts because the only ballots on the machine are official,
   // but test deck counts consider only test mode ballots.
@@ -1204,7 +1204,7 @@ test('printTestDeck prints test ballots when machine is in official ballot mode'
     auth,
     mockUsbDrive,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { election } = msElectionDef;
   const allSpecs = election.precincts.flatMap((precinct) =>
@@ -1234,7 +1234,7 @@ test('printTestDeck with overallTallyReportOnly prints only the overall tally re
     mockUsbDrive,
   });
   await apiClient.setTestMode({ testMode: true });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   vi.mocked(renderToPdf).mockClear();
   await apiClient.printTestDeck({ overallTallyReportOnly: true });
@@ -1282,7 +1282,7 @@ test.each([
       mockUsbDrive,
     });
     await apiClient.setTestMode({ testMode: true });
-    mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+    mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
     vi.mocked(renderToPdf).mockClear();
     await apiClient.printTestDeck({});

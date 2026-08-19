@@ -49,7 +49,7 @@ import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers.js';
@@ -662,10 +662,10 @@ test('printer status', async () => {
     connected: false,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   expect(await apiClient.getPrinterStatus()).toMatchObject<PrinterStatus>({
     connected: true,
-    config: HP_LASER_PRINTER_CONFIG,
+    config: HP_4001_PRINTER_CONFIG,
   });
 
   mockPrinterHandler.disconnectPrinter();
@@ -679,7 +679,7 @@ test('printing ballots', async () => {
     electionGeneralDefinition,
     ['en', 'zh-Hans']
   );
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await configureMachine(
     mockUsbDrive,
     electionDefinition,
@@ -757,7 +757,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   mockUsbDrive.removeUsbDrive();
   mockNoCard();
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await expectElectionState({ ballotsPrintedCount: 0 });
 
   await apiClient.printBlankBallot({
@@ -799,7 +799,7 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
   await configureMachine(mockUsbDrive, electionDefinition, undefined, {
     allowPrintingBlankBallotsFromVxMark: true,
   });
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await suppressingConsoleOutput(async () => {
     await expect(
@@ -825,7 +825,7 @@ test('printing a blank ballot throws when the setting is not enabled', async () 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(mockUsbDrive, electionDefinition);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await suppressingConsoleOutput(async () => {
     await expect(
@@ -903,7 +903,7 @@ test('printTestDeck throws when no test deck PDF is generated', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   await configureMachine(mockUsbDrive, electionDefinition);
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   mockElectionManagerAuth(electionDefinition);
   await suppressingConsoleOutput(async () => {

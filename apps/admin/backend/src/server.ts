@@ -22,7 +22,7 @@ import {
   MultiUsbDrive,
 } from '@votingworks/usb-drive';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   Printer,
   detectPrinter,
 } from '@votingworks/printing';
@@ -249,7 +249,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   }
 
   useDevDockRouter(app, express, {
-    printerConfig: HP_LASER_PRINTER_CONFIG,
+    printerConfig: HP_4001_PRINTER_CONFIG,
   });
 
   startCpuMetricsLogging(baseLogger);

@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
-import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import { HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   getBatteryInfo,
   getDiskSpaceSummary,
@@ -198,7 +198,7 @@ test('test-page print', async () => {
     }
   );
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   await apiClient.printTestPage();
   expect(logger.log).toHaveBeenCalledWith(
@@ -235,7 +235,7 @@ test('save readiness report', async () => {
   const [pollingPlace] = assertDefined(election.pollingPlaces);
   await apiClient.setPollingPlaceId({ id: pollingPlace.id });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await apiClient.printTestPage();
 
   vi.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));

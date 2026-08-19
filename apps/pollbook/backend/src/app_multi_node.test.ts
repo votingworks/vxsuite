@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { AddressInfo } from 'node:net';
 import { assertDefined, ok } from '@votingworks/basics';
-import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import {
   extendedWaitFor,
@@ -363,7 +363,7 @@ test('connection status between two pollbooks is managed properly - connected an
       singlePrecinctElectionDefinition.election.precincts[0].id
     );
     pollbookContext1.mockPrinterHandler.connectPrinter(
-      CITIZEN_THERMAL_PRINTER_CONFIG
+      CITIZEN_E351_PRINTER_CONFIG
     );
     // Check in a voter on pollbook 1
     const checkIn = await pollbookContext1.localApiClient.checkInVoter({

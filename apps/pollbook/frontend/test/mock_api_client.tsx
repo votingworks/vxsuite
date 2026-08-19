@@ -40,7 +40,7 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
 import { Mock, vi } from 'vitest';
-import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 
 export const machineConfig: MachineConfig = {
   machineId: 'TEST-01',
@@ -310,7 +310,7 @@ export function createApiMock() {
           ...currentDeviceStatus,
           printer: {
             connected,
-            config: CITIZEN_THERMAL_PRINTER_CONFIG,
+            config: CITIZEN_E351_PRINTER_CONFIG,
           },
         };
       } else {

@@ -24,7 +24,7 @@ import {
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
-  HP_LASER_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
 import {
@@ -668,10 +668,10 @@ test('printer status', async () => {
     connected: false,
   });
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>(
-    getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
+    getMockConnectedPrinterStatus(HP_4001_PRINTER_CONFIG)
   );
 
   mockPrinterHandler.disconnectPrinter();

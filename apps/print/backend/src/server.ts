@@ -3,7 +3,7 @@ import { BaseLogger, Logger, LogEventId } from '@votingworks/logging';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import { detectPrinter, HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { buildApp } from './app.js';
 import { PORT } from './globals.js';
@@ -49,7 +49,7 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
 
   const app = buildApp(context);
 
-  useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
+  useDevDockRouter(app, express, { printerConfig: HP_4001_PRINTER_CONFIG });
 
   startCpuMetricsLogging(baseLogger);
 

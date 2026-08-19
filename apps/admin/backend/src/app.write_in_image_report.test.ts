@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
+import { HP_4001_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   createImageData,
@@ -623,7 +623,7 @@ test('write-in image report: preview, print, and export', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   const preview = await apiClient.getWriteInImageReportPreview({
@@ -649,7 +649,7 @@ test('write-in image report logging', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await attachUsbDrive(apiClient, usbPlatform);
 
   const validFilename = mockFileName('pdf');
@@ -705,7 +705,7 @@ test('write-in image report logging', async () => {
     }
   );
 
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await apiClient.getWriteInImageReportPreview({ contestId: MAYOR_CONTEST_ID });
   expect(logger.log).lastCalledWith(
     LogEventId.ElectionReportPreviewed,

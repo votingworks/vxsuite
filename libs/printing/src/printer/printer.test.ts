@@ -10,10 +10,10 @@ import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer';
 import {
-  CITIZEN_THERMAL_PRINTER_CONFIG,
+  CITIZEN_E351_PRINTER_CONFIG,
   HP_4201_PRINTER_CONFIG,
-  HP_LASER_PRINTER_CONFIG,
-  M404N_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
+  HP_M404_PRINTER_CONFIG,
 } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
@@ -91,9 +91,9 @@ test('status and configuration', async () => {
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   expect(await printer.status()).toEqual({ connected: false });
 
-  const config = CITIZEN_THERMAL_PRINTER_CONFIG;
-  const supportedPrinterUri1 = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
-  const supportedPrinterUri2 = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  const config = CITIZEN_E351_PRINTER_CONFIG;
+  const supportedPrinterUri1 = `${CITIZEN_E351_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  const supportedPrinterUri2 = `${CITIZEN_E351_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
   const unsupportedPrinterUri = 'usb://not-supported';
 
   // unsupported printer connected
@@ -106,7 +106,7 @@ test('status and configuration', async () => {
   mockConfigurePrinter
     .expectCallWith({
       uri: supportedPrinterUri1,
-      config: CITIZEN_THERMAL_PRINTER_CONFIG,
+      config: CITIZEN_E351_PRINTER_CONFIG,
     })
     .returns(undefined);
   expect(await printer.status()).toEqual({
@@ -182,8 +182,8 @@ describe('rich status', () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
     // connect printer
-    const uri = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
-    const config = CITIZEN_THERMAL_PRINTER_CONFIG;
+    const uri = `${CITIZEN_E351_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = CITIZEN_E351_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter
       .expectCallWith({
@@ -201,8 +201,8 @@ describe('rich status', () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
     // connect printer
-    const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
-    const config = HP_LASER_PRINTER_CONFIG;
+    const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = HP_4001_PRINTER_CONFIG;
     const richStatus: PrinterRichStatus = {
       state: 'idle',
       stateReasons: ['none'],
@@ -247,8 +247,8 @@ describe('printer-specific print options', () => {
   test('does not pass the renderer option for other printers', async () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
-    const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
-    const config = HP_LASER_PRINTER_CONFIG;
+    const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = HP_4001_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
     mockGetPrinterRichStatus.expectCallWith().returns(undefined);
@@ -263,8 +263,8 @@ describe('printer-specific print options', () => {
   test('passes the input slot for printers that need it', async () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
-    const uri = `${M404N_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
-    const config = M404N_PRINTER_CONFIG;
+    const uri = `${HP_M404_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = HP_M404_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
     mockGetPrinterRichStatus.expectCallWith().returns(undefined);
@@ -273,7 +273,7 @@ describe('printer-specific print options', () => {
     mockPrintData
       .expectCallWith({
         data: Buffer.of(),
-        raw: { InputSlot: 'M404n_Tray2' },
+        raw: { InputSlot: 'M404_Tray2' },
       })
       .returns(undefined);
     await printer.print({ data: Buffer.of() });

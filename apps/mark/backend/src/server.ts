@@ -4,7 +4,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { startCpuMetricsLogging } from '@votingworks/backend';
-import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import { detectPrinter, HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
   BooleanEnvironmentVariableName,
@@ -79,7 +79,7 @@ export async function start({
 
   /* istanbul ignore next - internal dev use only */
   useDevDockRouter(app, express, {
-    printerConfig: HP_LASER_PRINTER_CONFIG,
+    printerConfig: HP_4001_PRINTER_CONFIG,
     getBarcodeConnected: () => Boolean(barcodeClient?.getConnectionStatus?.()),
     setBarcodeConnected: (connected: boolean) => {
       if (barcodeClient instanceof MockBarcodeClient) {
