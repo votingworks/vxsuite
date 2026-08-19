@@ -152,7 +152,7 @@ create table cvr_hashes (
   cvr_hash text not null check (
     length(cvr_hash) = 64
   )
-);
+) strict;
 
 create unique index idx_cvr_hashes on cvr_hashes (
   cvr_id_level_1_prefix,

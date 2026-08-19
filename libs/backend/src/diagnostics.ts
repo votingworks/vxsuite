@@ -14,8 +14,8 @@ create table diagnostics (
     type text not null,
     outcome text not null check (outcome = 'pass' or outcome = 'fail'),
     message text,
-    timestamp number not null
-  );  
+    timestamp integer not null
+  ) strict;
 `;
 
 /**

@@ -9,14 +9,14 @@ CREATE TABLE voters (
     updated_last_name TEXT,
     updated_suffix TEXT,
     voter_data TEXT not null
-);
+) STRICT;
 
 CREATE TABLE machines (
     machine_id TEXT PRIMARY KEY,
     status TEXT NOT NULL, -- PollbookConnectionStatus enum
     last_seen INTEGER NOT NULL, -- last time the machine was seen
     pollbook_information TEXT NOT NULL -- JSON blob of PollbookInformation
-);
+) STRICT;
 
 CREATE TABLE elections (
     election_id TEXT PRIMARY KEY,
@@ -24,9 +24,9 @@ CREATE TABLE elections (
     ballot_hash TEXT not null,
     package_hash TEXT not null,
     valid_street_data TEXT,
-    is_absentee_mode BOOLEAN NOT NULL,
+    is_absentee_mode INTEGER NOT NULL,
     configured_precinct_id TEXT
-);
+) STRICT;
 
 CREATE TABLE event_log (
     event_id INTEGER not null, -- local event id
@@ -37,13 +37,13 @@ CREATE TABLE event_log (
     voter_id TEXT, -- voter_id of the voter involved in the event, if any
     event_data TEXT not null, -- JSON data for additional details associated with the event (id type used for check in, etc.)
     PRIMARY KEY (event_id, machine_id)
-);
+) STRICT;
 
 -- Utility table to store any simple fields that need to be shared between the local and peer servers
 CREATE TABLE config_data (
     id INTEGER PRIMARY KEY CHECK (id = 0), -- enforces there is only one row to this table
     configuration_status TEXT
-);
+) STRICT;
 INSERT INTO config_data (id, configuration_status) VALUES (0, null);
 
 -- Index for sorting events by hybrid logical clock physical time then logical counter - machine id is included in the rare event of tie
@@ -56,9 +56,9 @@ CREATE INDEX idx_updated_last_name ON voters (updated_last_name);
 CREATE TABLE check_in_status (
     voter_id TEXT NOT NULL,
     machine_id TEXT,
-    is_checked_in BOOLEAN NOT NULL,
+    is_checked_in INTEGER NOT NULL,
     PRIMARY KEY (voter_id)
-);
+) STRICT;
 
 CREATE INDEX idx_check_in_status ON check_in_status (is_checked_in);
 CREATE INDEX idx_machine_check_in_status ON check_in_status (machine_id, is_checked_in);
@@ -69,8 +69,8 @@ CREATE TABLE anomalies (
     detected_at INTEGER NOT NULL, -- timestamp when anomaly was detected
     anomaly_details TEXT NOT NULL, -- JSON blob with additional details
     dismissed_at INTEGER, -- timestamp when anomaly was dismissed, null if not dismissed
-    dismissed BOOLEAN NOT NULL DEFAULT 0 -- whether the anomaly has been dismissed
-);
+    dismissed INTEGER NOT NULL DEFAULT 0 -- whether the anomaly has been dismissed
+) STRICT;
 
 CREATE INDEX idx_anomalies_dismissed ON anomalies (dismissed);
 CREATE INDEX idx_anomalies_detected_at ON anomalies (detected_at);

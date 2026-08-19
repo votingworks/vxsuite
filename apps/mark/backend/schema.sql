@@ -5,11 +5,11 @@ create table election (
   election_package_hash text not null,
   jurisdiction text not null,
   polling_place_id text,
-  is_test_mode boolean not null default true,
-  polls_state text not null default "polls_closed_initial",
+  is_test_mode integer not null default true,
+  polls_state text not null default 'polls_closed_initial',
   ballots_printed_count integer not null default 0,
-  created_at timestamp not null default current_timestamp
-);
+  created_at text not null default current_timestamp
+) strict;
 
 -- Temporary dev table:
 create table print_calibration (
@@ -17,23 +17,23 @@ create table print_calibration (
   id integer primary key check (id = 1),
   offset_mm_x real not null,
   offset_mm_y real not null
-);
+) strict;
 
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
   data text not null -- JSON blob
-);
+) strict;
 
 create table languages (
   code text primary key
-);
+) strict;
 
 create table ui_strings (
   language_code text primary key,
   data text not null, -- JSON blob - see libs/types/UiStringTranslationsSchema
   foreign key (language_code) references languages(code)
-);
+) strict;
 
 create table audio_clips (
   id text not null,
@@ -41,13 +41,13 @@ create table audio_clips (
   data_base64 text not null, -- Base64-encoded audio bytes
   primary key (language_code, id),
   foreign key (language_code) references languages(code)
-);
+) strict;
 
 create table ui_string_audio_ids (
   language_code text primary key,
   data text not null, -- JSON blob - see libs/types/UiStringAudioIdsSchema
   foreign key (language_code) references languages(code)
-);
+) strict;
 
 create table ballots (
   id integer primary key,
@@ -56,18 +56,18 @@ create table ballots (
   ballot_type text not null,
   ballot_mode text not null,
   encoded_ballot text not null -- Base64 encoded ballot
-);
+) strict;
 
 create table diagnostics (
   id integer primary key,
   type text not null,
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
   message text,
-  timestamp number not null
-);
+  timestamp integer not null
+) strict;
 
 create table electrical_testing_status_messages (
   component text primary key,
   status_message text not null,
-  updated_at datetime default current_timestamp not null
-);
+  updated_at text default current_timestamp not null
+) strict;
