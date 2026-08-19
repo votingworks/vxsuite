@@ -34,6 +34,15 @@ function generateTestJobForNodeJsPackage(
   const snapshotDirs = findImageSnapshotDirsRelativeToSrc(pkg.path);
   const hasSnapshotTests = snapshotDirs.length > 0;
   const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
+  // CI runs each package's `test:run` (vitest once; coverage enforced via the
+  // shared config's `CI` gate), falling back to `test` for packages without one
+  // (the Playwright integration-testing suites). VxDesign keeps a dedicated
+  // `test:ci` for its Postgres/migration CI steps; prefer it when present.
+  const testScript = pkg.packageJson?.scripts?.['test:ci']
+    ? 'test:ci'
+    : pkg.packageJson?.scripts?.['test:run']
+      ? 'test:run'
+      : 'test';
 
   const lines = [
     `# ${pkg.name}`,
@@ -68,7 +77,7 @@ function generateTestJobForNodeJsPackage(
           `          - run:`,
           `              name: Test`,
           `              command: |`,
-          `                pnpm --dir ${pkg.relativePath} test`,
+          `                pnpm --dir ${pkg.relativePath} ${testScript}`,
           `              environment:`,
           `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `          - store_test_results:`,
@@ -81,7 +90,7 @@ function generateTestJobForNodeJsPackage(
           `    - run:`,
           `        name: Test`,
           `        command: |`,
-          `          pnpm --dir ${pkg.relativePath} test`,
+          `          pnpm --dir ${pkg.relativePath} ${testScript}`,
           `        environment:`,
           `          JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `    - store_test_results:`,
@@ -397,6 +406,8 @@ export function generateAllConfigs(
     // hardcoded jobs
     'shellcheck',
     'validate-monorepo',
+    // TEMPORARY: remove once Turborepo is the default (see the job definition).
+    'build-with-turbo',
     RUST_CRATES_JOB_ID,
   ];
 
@@ -477,6 +488,23 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           name: Validate
           command: |
             ./script/validate-monorepo
+
+  # TEMPORARY: Turborepo is opt-in (via VX_USE_TURBO); every other CI job runs
+  # the pre-Turbo pnpm path. This job exercises the Turbo build path end-to-end
+  # so it can't silently rot while opt-in. Remove it once VX_USE_TURBO is the
+  # default and the rest of CI runs through Turbo.
+  build-with-turbo:
+    executor: nodejs
+    resource_class: xlarge
+    environment:
+      VX_USE_TURBO: '1'
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build all packages with Turbo
+          command: |
+            pnpm build
 
 ${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)

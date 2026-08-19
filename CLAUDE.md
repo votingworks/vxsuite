@@ -66,13 +66,34 @@ pnpm install
 
 ### Building
 
-```sh
-# Build a specific package and its dependencies
-pnpm --filter @votingworks/<package-name>... build
+> **Turborepo is opt-in.** By default, `pnpm build`/`lint`/`test:run`/`clean`
+> and `pnpm start` run the pre-Turbo pnpm behavior (recursive `--filter` builds,
+> `run-dev` dev servers) — exactly as on `main`. Set the environment variable
+> **`VX_USE_TURBO=1`** to route the same commands through
+> [Turborepo](https://turborepo.com) instead (dependency-ordered, cached builds;
+> `turbo watch` dev servers). See the `## Turborepo` section for how the switch
+> works. The examples below work identically in both modes unless noted.
 
-# Build just one package (assumes deps are built)
+```sh
+# Build everything (from repo root — always uses Turbo; see below)
+pnpm build
+
+# Build a specific package and its dependencies
+pnpm --filter @votingworks/<package-name> build
+# ...opt into Turbo for the same build:
+VX_USE_TURBO=1 pnpm --filter @votingworks/<package-name> build
+
+# Build the package only, without (re)building its dependencies
 pnpm --filter @votingworks/<package-name> build:self
 ```
+
+A package's public `build`/`lint`/`test:run`/`test:ci`/`clean` scripts delegate
+to the `script/vx-task` orchestrator (via
+`pnpm -w vx-task <task> $npm_package_name`), which picks pnpm or Turbo based on
+`VX_USE_TURBO`. The actual per-package work always lives in the `:self` scripts
+(e.g. `build:self`). The repo-root
+`pnpm build`/`test`/`lint`/`type-check`/`clean` scripts did not exist on `main`,
+so they are Turbo-only regardless of `VX_USE_TURBO`.
 
 ### Running Tests
 
@@ -93,9 +114,20 @@ pnpm test:run -t "test name pattern"
 Do NOT use `pnpm test` or run vitest directly without `--run` — the watch mode
 will hang.
 
+Each package's `test` script watches locally (vitest, preceded by a Turbo build
+of its dependencies); `test:run` runs once and is what CI runs. Both build the
+package's dependencies first via Turbo — see the `:self` split in the
+`## Turborepo` section for how. Coverage is enabled only in CI, keyed on the
+`CI` env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so
+`test:run` is fast locally and enforces the 100% thresholds in CI. VxDesign
+keeps a dedicated `test:ci` for its Postgres/migration CI steps.
+
 ### Linting & Formatting
 
 ```sh
+# Lint everything (from repo root, cached by Turbo)
+pnpm lint
+
 # Check for lint errors (from the package directory)
 pnpm lint
 
@@ -113,11 +145,14 @@ Use `tsc` for type checking. As of TypeScript 7, `tsc` is the native (Go-based)
 compiler, installed via the `@typescript/native` alias (`npm:typescript@7.0.2`):
 
 ```sh
+# Type-check everything (from repo root)
+pnpm type-check
+
 # Type-check a specific package
 pnpm --filter @votingworks/<package-name> run type-check
 
 # Build (includes type checking) a package and its dependencies
-pnpm --filter @votingworks/<package-name>... build
+pnpm --filter @votingworks/<package-name> build
 ```
 
 TypeScript 7 does not ship the classic JavaScript compiler API. The `typescript`
@@ -132,9 +167,112 @@ Aliasing to a distinctly-named package (rather than a second `typescript`) keeps
 ### Development Servers
 
 ```sh
-# Run a dev server for an app (from repo root)
+# Run an app's dev servers (frontend + backend) from repo root
 pnpm --filter @votingworks/<app-frontend> start
+# ...or from the app's frontend directory
+pnpm start
 ```
+
+Each app frontend's `start` script delegates to `script/vx-dev`. By default (no
+`VX_USE_TURBO`) it runs the pre-Turbo `run-dev`, which uses `concurrently` to
+run Vite, a `tsc --watch` build, and a nodemon-reloaded backend. With
+`VX_USE_TURBO=1` it runs `turbo watch` over the frontend's Vite dev server
+(`dev:server`) and its backend service (`dev`); because `turbo watch` re-runs a
+task when the package **or any of its dependencies** change, editing a shared
+library rebuilds it and restarts the backend automatically, including transitive
+dependency changes. In both modes Vite keeps running across library changes and
+handles its own HMR.
+
+**Stopping dev servers.** Pressing **Ctrl-C** in the terminal running
+`pnpm start` stops everything cleanly in both modes. But `kill`ing the
+`pnpm start` process (it doesn't forward the signal), a `SIGKILL`/editor "stop"
+button, or a `pkill` that hits a wrapper instead of the runner can leave the
+servers running detached, holding ports 3000/3001/3002. To force-stop everything
+and free those ports, run `pnpm kill-dev` (`script/kill-dev`) — it signals
+`turbo watch` and sweeps up any orphaned Vite/backend processes (covering both
+the `run-dev` and `turbo watch` modes).
+
+## Turborepo
+
+Task orchestration and caching are handled by [Turborepo](https://turborepo.com)
+(`turbo.json` at the repo root), **when opted in via `VX_USE_TURBO`**.
+
+**Opt-in switch.** Turbo is off by default so this branch can land on `main`
+without forcing the whole team onto it at once. Each package's public
+`build`/`lint`/`test:run`/`test:ci`/`clean` script delegates to
+`script/vx-task`, and each frontend's `start` delegates to `script/vx-dev`.
+These orchestrators read `VX_USE_TURBO`:
+
+- **unset (default):** reproduce the pre-Turbo behavior from `main` — pnpm's
+  recursive `--filter` for dependency-ordered builds, the package's own `:self`
+  script for lint/test, and `run-dev` for dev servers.
+- **set (e.g. `VX_USE_TURBO=1`):** run the matching Turbo task / `turbo watch`.
+
+The real per-package work always lives in the `:self` scripts; only the
+orchestration around them differs between the two modes. CI runs the pre-Turbo
+path (no `VX_USE_TURBO` in the CircleCI env) except for one temporary
+`build-with-turbo` job that builds everything with `VX_USE_TURBO=1` so the Turbo
+path can't silently rot; remove that job once Turbo becomes the default.
+
+Tasks and their wiring (`turbo.json`, used when `VX_USE_TURBO` is set):
+
+| Task            | Depends on    | Cached outputs                                     |
+| --------------- | ------------- | -------------------------------------------------- |
+| `build:self`    | `^build:self` | `build/**`, `*.node`                               |
+| `type-check`    | `^build:self` | `tsconfig.tsbuildinfo`                             |
+| `lint:self`     | `^build:self` | (logs only)                                        |
+| `test:run:self` | `build:self`  | (logs only)                                        |
+| `test:ci:self`  | `build:self`  | (logs only; design's Postgres/migration CI steps)  |
+| `clean:self`    | —             | not cached                                         |
+| `dev:server`    | `^build:self` | not cached (persistent; frontend Vite dev server)  |
+| `dev`           | `build:self`  | not cached (persistent + interruptible; a backend) |
+
+Run any task directly with `turbo run <task> [--filter=<pkg>]`. Root scripts
+(`pnpm build`, `pnpm lint`, `pnpm test`, `pnpm type-check`, `pnpm clean`) wrap
+the corresponding Turbo task across all packages (Turbo-only; they had no
+pre-Turbo equivalent on `main`).
+
+**The `:self` split and `vx-task` delegation:** each package's public
+`build`/`clean`/`lint`/`test:run`/`test:ci` script is a thin delegation of the
+form `pnpm -w vx-task <task> $npm_package_name`; the `:self` task does the
+actual work (tsc/eslint/vitest). In Turbo mode `vx-task` runs
+`turbo run <task>:self --filter=$npm_package_name --` (building
+`build:self`/`^build:self` first, so the task never runs against unbuilt deps);
+in the default mode it runs the pnpm equivalent. Extra args pass straight
+through, so `pnpm test:run <file>` and `pnpm test:run -t "pattern"` still work
+in both modes. `validate-monorepo` enforces that any package defining a `:self`
+task delegates its public task to `vx-task`. The dev-time watcher `pnpm test` is
+not a delegated task (it's persistent and interactive); it prefixes
+`pnpm -w vx-task build $npm_package_name` (which builds deps via pnpm or Turbo
+per the switch) and then execs `vitest` directly, so deps are built once up
+front while the watcher keeps its native UI.
+
+Each package's `build:self` writes its incremental `tsc` build-info to
+`build/tsconfig.build.tsbuildinfo` (inside `build/`, enforced by
+`validate-monorepo`), so it's captured by the `build/**` output and removed
+atomically by `rm -rf build`. Keeping it there avoids a stale build-info making
+`tsc` skip re-emitting after `build/` is deleted.
+
+**Cross-worktree cache:** Turbo automatically shares its local cache across git
+worktrees of this repo (stored under the shared `.git` directory), so artifacts
+built in one worktree are reused in another with no configuration. The cache is
+per-machine (not shared between developers) and unbounded — see
+[docs/turborepo.md](docs/turborepo.md) for how to clear it, force a rebuild, and
+other troubleshooting.
+
+**CI caching:** CI currently runs Turbo tasks per package without a shared
+remote cache (each job builds fresh). Enabling Turbo remote caching in CI is a
+planned follow-up.
+
+**Tooling scripts:** repo tooling that depends on built workspace packages
+(`configure-env`, `generate-circleci-config`) is a shell `bin/` in the package
+that owns it (e.g. `libs/monorepo-utils/bin/generate-circleci-config`,
+`libs/utils/bin/configure-env`), which builds that package with turbo first
+(cached, so ~instant when warm), then runs its built CLI in `build/bin/`. The
+CLI logic lives in `src/bin/` so it's type-checked, linted, and built like the
+rest of the package (excluded from coverage). Root `package.json` points the
+`pnpm -w <name>` scripts straight at those bins. This is why the tools work from
+a fresh checkout without a prior full build.
 
 ## Testing
 

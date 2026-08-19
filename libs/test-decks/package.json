@@ -13,19 +13,16 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "is-ci test:ci test:watch",
-    "test:ci": "pnpm build && TZ=America/Anchorage pnpm vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:run": "TZ=America/Anchorage vitest run",
-    "test:watch": "TZ=America/Anchorage vitest",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "TZ=America/Anchorage vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -52,7 +49,6 @@
     "esbuild": "0.28.1",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"

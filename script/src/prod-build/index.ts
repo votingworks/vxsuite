@@ -32,9 +32,24 @@ export function main({ stdout }: IO): void {
   );
   const prodPackages = getProductionPackages(root);
 
-  for (const { path } of appPackages) {
-    stdout.write(`🔨 ${path}\n`);
-    doBuild(path);
+  if (process.env['VX_USE_TURBO']) {
+    // Opt-in: build the app packages via turbo, which orders and caches the
+    // whole dependency graph. `pnpm exec` resolves turbo from the workspace
+    // without relying on it being on PATH.
+    const buildFilters = appPackages.map((pkg) => `--filter=${pkg.name}`);
+    stdout.write(
+      `🔨 Building ${appPackages.map((pkg) => pkg.name).join(', ')}\n`
+    );
+    execSync('pnpm', ['exec', 'turbo', 'run', 'build:self', ...buildFilters], {
+      cwd: WORKSPACE_ROOT,
+    });
+  } else {
+    // Default (pre-Turbo): build each app package in turn via `make build`,
+    // which delegates to the package's own dependency-ordered `pnpm build`.
+    for (const { path } of appPackages) {
+      stdout.write(`🔨 ${path}\n`);
+      doBuild(path);
+    }
   }
 
   const outRoot = BUILD_ROOT;

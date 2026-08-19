@@ -1,48 +1,12 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
+set -euo pipefail
 
-// @ts-check
+bin_dir="$(dirname "${BASH_SOURCE[0]}")"
+cd "$bin_dir/../../.."
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+if ! out="$(pnpm exec turbo run build:self --filter=@votingworks/monorepo-utils 2>&1)"; then
+  printf '%s\n' "$out" >&2
+  exit 1
+fi
 
-const { rmSync } = require('fs');
-const { join } = require('path');
-const { findUnusedPackages } = require('../src/unused');
-const { getWorkspacePackageInfo } = require('../src/pnpm');
-
-const MONOREPO_ROOT = join(__dirname, '..', '..', '..');
-
-/**
- * Removes a package from the monorepo.
- */
-function pruneUnusedPackages({ dryRun = false } = {}) {
-  let count = 0;
-
-  function doPrunePass() {
-    const initialCount = count;
-    const pkgs = getWorkspacePackageInfo(MONOREPO_ROOT);
-
-    for (const pkg of findUnusedPackages(pkgs)) {
-      console.log(`${dryRun ? '[skip] ' : ''}Removing ${pkg.name}…`);
-      if (!dryRun) {
-        rmSync(pkg.path, { recursive: true });
-      }
-      count++;
-    }
-
-    if (count > initialCount) {
-      doPrunePass();
-    }
-  }
-
-  doPrunePass();
-
-  if (dryRun) {
-    console.log(`Would remove ${count} packages.`);
-  } else {
-    console.log(`Removed ${count} packages.`);
-  }
-}
-
-pruneUnusedPackages({ dryRun: process.argv.includes('--dry-run') });
+exec node libs/monorepo-utils/build/bin/prune_unused.js "$@"

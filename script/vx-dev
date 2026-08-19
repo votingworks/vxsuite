@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Dev-server launcher with a Turborepo opt-in.
+#
+# Each app frontend's `start` script delegates here (via
+# `pnpm -w vx-dev <app>`) so the choice of dev orchestration lives in one place:
+#
+#   * VX_USE_TURBO set  -> `turbo watch` the frontend's Vite dev server and the
+#                          backend service, rebuilding/restarting on dependency
+#                          changes. This is opt-in.
+#   * VX_USE_TURBO unset -> the pre-Turbo `run-dev`, which uses `concurrently`
+#                           to run Vite, a `tsc --watch` build, and a
+#                           nodemon-reloaded backend.
+#
+# Run from the workspace root (via `pnpm -w`), so relative paths resolve there.
+
+set -euo pipefail
+
+core_only=false
+app=""
+for arg in "$@"; do
+  case "${arg}" in
+    --core-only) core_only=true ;;
+    -*)
+      echo "vx-dev: unknown option: ${arg}" >&2
+      exit 1
+      ;;
+    *) app="${arg}" ;;
+  esac
+done
+
+if [[ -z "${app}" ]]; then
+  echo "vx-dev: no app specified" >&2
+  exit 1
+fi
+
+if [[ -z "${VX_USE_TURBO:-}" ]]; then
+  if [[ "${core_only}" == true ]]; then
+    exec script/run-dev "${app}" --core-only
+  fi
+  exec script/run-dev "${app}"
+fi
+
+# Turbo mode. Derive the machine type from the frontend package's `vx.env`, the
+# same source `run-dev` reads, so both modes behave identically.
+fe_pkg_json="apps/${app}/frontend/package.json"
+if [[ ! -f "${fe_pkg_json}" ]]; then
+  echo "vx-dev: no frontend package at ${fe_pkg_json}" >&2
+  exit 1
+fi
+machine="$(node -e "process.stdout.write(String((require('./${fe_pkg_json}').vx?.env?.VX_MACHINE_TYPE) ?? ''))")"
+if [[ -n "${machine}" ]]; then
+  export VX_MACHINE_TYPE="${machine}"
+fi
+
+fe="@votingworks/${app}-frontend"
+be="@votingworks/${app}-backend"
+if [[ "${core_only}" == true ]]; then
+  exec turbo watch "${fe}#dev:server"
+fi
+exec turbo watch "${fe}#dev:server" "${be}#dev"

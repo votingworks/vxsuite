@@ -18,7 +18,7 @@ function npmPackageArchiveFilename(pkgRoot: string): string {
     .replace(/-+/g, '-')}-${pkg.version}.tgz`;
 }
 
-export function doBuild(pkgRoot: string) {
+export function doBuild(pkgRoot: string): void {
   execSync('make', ['build'], { cwd: pkgRoot });
 }
 

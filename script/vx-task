@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Per-package task orchestrator with a Turborepo opt-in.
+#
+# Each package's public `build`/`lint`/`test:run`/`test:ci`/`clean` scripts
+# delegate here (via `pnpm -w vx-task <task> $npm_package_name [args...]`) so the
+# choice of orchestration lives in one place:
+#
+#   * VX_USE_TURBO set  -> run the matching Turbo task (dependency-ordered and
+#                          cached). This is opt-in.
+#   * VX_USE_TURBO unset -> reproduce the pre-Turbo behavior from `main`: pnpm's
+#                           recursive `--filter` for dependency-ordered builds,
+#                           and the package's own `:self` script for lint/test
+#                           (dependencies are assumed already built, as they were
+#                           on `main`, where CI's separate Build step ran first).
+#
+# The real per-package work always lives in the `:self` scripts; only the
+# orchestration around them differs between the two modes.
+
+set -euo pipefail
+
+task="${1:?vx-task: task name required}"
+pkg="${2:?vx-task: package name required (pass \$npm_package_name)}"
+shift 2
+
+# `--sequential` matches the pre-Turbo `build:ci` script, which serialized
+# dependency builds in CI. Locally (and in Turbo mode) builds run in parallel.
+seq=()
+if [[ -n "${CI:-}" ]]; then
+  seq=(--sequential)
+fi
+
+if [[ -n "${VX_USE_TURBO:-}" ]]; then
+  case "${task}" in
+    build) exec turbo run build:self --filter="${pkg}" ;;
+    clean) exec turbo run clean:self --filter="${pkg}..." ;;
+    lint) exec turbo run lint:self --filter="${pkg}" -- "$@" ;;
+    test:run) exec turbo run test:run:self --filter="${pkg}" -- "$@" ;;
+    test:ci) exec turbo run test:ci:self --filter="${pkg}" -- "$@" ;;
+    it-deps) exec turbo run build:self --filter="${pkg}^..." ;;
+    it-prebuild) exec pnpm --filter "${pkg}" build ;;
+    *)
+      echo "vx-task: unknown task: ${task}" >&2
+      exit 1
+      ;;
+  esac
+else
+  case "${task}" in
+    build) exec pnpm --filter "${pkg}..." "${seq[@]}" build:self ;;
+    clean) exec pnpm --filter "${pkg}..." clean:self ;;
+    lint) exec pnpm --filter "${pkg}" lint:self "$@" ;;
+    test:run) exec pnpm --filter "${pkg}" test:run:self "$@" ;;
+    test:ci) exec pnpm --filter "${pkg}" test:ci:self "$@" ;;
+    it-deps) exec pnpm --filter "${pkg}^..." "${seq[@]}" build:self ;;
+    it-prebuild) exit 0 ;;
+    *)
+      echo "vx-task: unknown task: ${task}" >&2
+      exit 1
+      ;;
+  esac
+fi

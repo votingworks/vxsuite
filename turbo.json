@@ -1,0 +1,50 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    ".node-version",
+    ".nvmrc",
+    "package.json",
+    "tsconfig.shared.json",
+    "vitest.config.shared.mts",
+    ".prettierrc.js",
+    "stylelint.shared.js"
+  ],
+  "tasks": {
+    "build:self": {
+      "dependsOn": ["^build:self"],
+      "env": ["REACT_APP_*"],
+      "outputs": ["build/**", "*.node"]
+    },
+    "type-check": {
+      "dependsOn": ["^build:self"],
+      "outputs": ["tsconfig.tsbuildinfo"]
+    },
+    "lint:self": {
+      "dependsOn": ["^build:self"]
+    },
+    "test:run:self": {
+      "dependsOn": ["build:self"],
+      "passThroughEnv": ["VX_TEST_WORKERS"]
+    },
+    "test:ci:self": {
+      "dependsOn": ["build:self"],
+      "passThroughEnv": ["VX_TEST_WORKERS"]
+    },
+    "clean:self": {
+      "cache": false
+    },
+    "dev:server": {
+      "dependsOn": ["^build:self"],
+      "cache": false,
+      "persistent": true,
+      "passThroughEnv": ["*"]
+    },
+    "dev": {
+      "dependsOn": ["build:self"],
+      "cache": false,
+      "persistent": true,
+      "interruptible": true,
+      "passThroughEnv": ["*"]
+    }
+  }
+}

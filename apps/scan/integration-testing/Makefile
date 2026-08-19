@@ -16,7 +16,7 @@ build-backend:
 	make -C $(APP)/backend install; \
 	make -C $(APP)/backend build; \
 
-build: build-frontend build-backend
+build: build-frontend
 
 run:
 	rm -rf $(SCAN_WORKSPACE)

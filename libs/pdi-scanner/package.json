@@ -10,25 +10,20 @@
     "build"
   ],
   "scripts": {
-    "build": "is-ci build:ci build:dev",
-    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
-    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build": "pnpm -w vx-task build $npm_package_name",
     "build:rust-addon": "cargo build --release --offline",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
-    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "cargo clean --release --package pdi-scanner && rm -rf build",
     "install:rust-addon": "cargo fetch",
-    "lint": "pnpm type-check && eslint --cache .",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
-    "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && vitest run --coverage",
-    "test:run": "pnpm test:rust-addon && vitest run",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
-    "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "vitest --coverage",
-    "test:ts:run": "vitest run",
-    "test:ts:watch": "vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -46,7 +41,6 @@
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "2.2.0",
     "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@10.34.5"

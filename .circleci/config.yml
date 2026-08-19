@@ -47,7 +47,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/admin/backend test
+            pnpm --dir apps/admin/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -73,7 +73,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/admin/frontend test
+            pnpm --dir apps/admin/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -141,7 +141,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/central-scan/backend test
+            pnpm --dir apps/central-scan/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -167,7 +167,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/central-scan/frontend test
+            pnpm --dir apps/central-scan/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -235,7 +235,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/design/backend test
+            pnpm --dir apps/design/backend test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -261,7 +261,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/design/frontend test
+            pnpm --dir apps/design/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -285,7 +285,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark-scan/backend test
+            pnpm --dir apps/mark-scan/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -311,7 +311,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark-scan/frontend test
+            pnpm --dir apps/mark-scan/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -379,7 +379,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/backend test
+            pnpm --dir apps/mark/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -405,7 +405,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/frontend test
+            pnpm --dir apps/mark/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -473,7 +473,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/pollbook/frontend test
+            pnpm --dir apps/pollbook/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -497,7 +497,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/print/backend test
+            pnpm --dir apps/print/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -523,7 +523,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/print/frontend test
+            pnpm --dir apps/print/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -591,7 +591,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/scan/backend test
+            pnpm --dir apps/scan/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -617,7 +617,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/scan/frontend test
+            pnpm --dir apps/scan/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -685,7 +685,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir docs/exercises test
+            pnpm --dir docs/exercises test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -709,7 +709,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/auth test
+            pnpm --dir libs/auth test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -733,7 +733,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/backend test
+            pnpm --dir libs/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -757,7 +757,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/ballot-encoder test
+            pnpm --dir libs/ballot-encoder test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -781,7 +781,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/ballot-interpreter test
+            pnpm --dir libs/ballot-interpreter test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -809,7 +809,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/basics test
+            pnpm --dir libs/basics test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -833,7 +833,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/bmd-ballot-fixtures test
+            pnpm --dir libs/bmd-ballot-fixtures test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -859,7 +859,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/cdf-schema-builder test
+            pnpm --dir libs/cdf-schema-builder test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -883,7 +883,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/custom-paper-handler test
+            pnpm --dir libs/custom-paper-handler test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -907,7 +907,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/db test
+            pnpm --dir libs/db test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -931,7 +931,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/dev-dock/backend test
+            pnpm --dir libs/dev-dock/backend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -955,7 +955,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/dev-dock/frontend test
+            pnpm --dir libs/dev-dock/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -979,7 +979,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/eslint-plugin-vx test
+            pnpm --dir libs/eslint-plugin-vx test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1003,7 +1003,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/fixture-generators test
+            pnpm --dir libs/fixture-generators test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1027,7 +1027,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/fixtures test
+            pnpm --dir libs/fixtures test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1051,7 +1051,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/fs test
+            pnpm --dir libs/fs test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1075,7 +1075,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/fujitsu-thermal-printer test
+            pnpm --dir libs/fujitsu-thermal-printer test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1099,7 +1099,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/grout test
+            pnpm --dir libs/grout test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1123,7 +1123,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/grout/test-utils test
+            pnpm --dir libs/grout/test-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1147,7 +1147,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/hmpb test
+            pnpm --dir libs/hmpb test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1173,7 +1173,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/image-utils test
+            pnpm --dir libs/image-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1197,7 +1197,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/integration-test-utils test
+            pnpm --dir libs/integration-test-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1221,7 +1221,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/logging test
+            pnpm --dir libs/logging test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1245,7 +1245,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/logging-utils test
+            pnpm --dir libs/logging-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1269,7 +1269,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/mark-flow-ui test
+            pnpm --dir libs/mark-flow-ui test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1293,7 +1293,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/message-coder test
+            pnpm --dir libs/message-coder test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1317,7 +1317,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/monorepo-utils test
+            pnpm --dir libs/monorepo-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1341,7 +1341,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/networking test
+            pnpm --dir libs/networking test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1365,7 +1365,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/pdi-scanner test
+            pnpm --dir libs/pdi-scanner test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1389,7 +1389,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/printing test
+            pnpm --dir libs/printing test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1415,7 +1415,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/test-decks test
+            pnpm --dir libs/test-decks test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1441,7 +1441,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/test-utils test
+            pnpm --dir libs/test-utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1465,7 +1465,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/types test
+            pnpm --dir libs/types test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1489,7 +1489,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/ui test
+            pnpm --dir libs/ui test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1513,7 +1513,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/usb-drive test
+            pnpm --dir libs/usb-drive test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1537,7 +1537,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir libs/utils test
+            pnpm --dir libs/utils test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1607,6 +1607,23 @@ jobs:
           name: Validate
           command: |
             ./script/validate-monorepo
+
+  # TEMPORARY: Turborepo is opt-in (via VX_USE_TURBO); every other CI job runs
+  # the pre-Turbo pnpm path. This job exercises the Turbo build path end-to-end
+  # so it can't silently rot while opt-in. Remove it once VX_USE_TURBO is the
+  # default and the rest of CI runs through Turbo.
+  build-with-turbo:
+    executor: nodejs
+    resource_class: xlarge
+    environment:
+      VX_USE_TURBO: '1'
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build all packages with Turbo
+          command: |
+            pnpm build
 
   notify-gallery:
     executor: nodejs
@@ -1807,6 +1824,9 @@ workflows:
           context:
             - screenshots-publishing
       - validate-monorepo:
+          context:
+            - screenshots-publishing
+      - build-with-turbo:
           context:
             - screenshots-publishing
       - test-rust-crates:

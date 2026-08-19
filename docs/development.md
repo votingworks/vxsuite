@@ -137,6 +137,11 @@ If you have VS Code open and connected to your VM remotely it should
 automatically forward the port for you, and you can visit
 `http://localhost:3000` on your host machine as well.
 
+Builds and tests are orchestrated and cached by Turborepo. See
+[turborepo.md](./turborepo.md) for the everyday `build`/`test`/`lint`/`start`
+commands, how the cross-worktree cache works, and troubleshooting (clearing the
+cache, forcing a rebuild).
+
 See the individual README documents for more information on how to run the
 individual services.
 

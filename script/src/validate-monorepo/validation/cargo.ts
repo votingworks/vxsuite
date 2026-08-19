@@ -29,7 +29,7 @@ const DEPENDENCY_SECTIONS = [
 
 const IGNORE_DIRS = new Set(['target', 'node_modules', '.git']);
 
-function findCargoTomlFiles(dir: string): string[] {
+export function findCargoTomlFiles(dir: string): string[] {
   const results: string[] = [];
   for (const entry of readdirSync(dir)) {
     if (IGNORE_DIRS.has(entry)) continue;
