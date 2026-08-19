@@ -617,6 +617,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/networking':
+        specifier: workspace:*
+        version: link:../../../libs/networking
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -4916,6 +4919,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../backend
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../utils
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)

@@ -46,6 +46,7 @@
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/networking": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",

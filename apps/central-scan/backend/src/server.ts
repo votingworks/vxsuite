@@ -26,6 +26,8 @@ import { MockBatchScanner } from './mock_batch_scanner.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { buildCentralScannerApp } from './app.js';
 import { getUserRole } from './util/auth.js';
+import { isCentralScanNetworkingEnabled } from './networking_config.js';
+import { startScannerNetworking } from './networking.js';
 
 export interface StartOptions {
   port: number | string;
@@ -136,6 +138,13 @@ export function start({
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
+    });
+  }
+
+  if (isCentralScanNetworkingEnabled()) {
+    startScannerNetworking({
+      logger: baseLogger,
+      store: resolvedWorkspace.store,
     });
   }
 

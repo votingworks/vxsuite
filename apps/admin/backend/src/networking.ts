@@ -1,8 +1,9 @@
 import * as grout from '@votingworks/grout';
 import {
   AvahiService,
+  findAllVxAdminHostMachines,
+  getVxAdminServiceName,
   hasOnlineInterface,
-  isValidIpv4Address,
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
@@ -27,13 +28,11 @@ import {
 
 const debug = rootDebug.extend('networking');
 
-const AVAHI_SERVICE_NAME_PREFIX = 'VxAdmin';
-
 /**
  * Returns the avahi service name for a VxAdmin host.
  */
 export function getHostServiceName(machineId: string): string {
-  return `${AVAHI_SERVICE_NAME_PREFIX}-${machineId}`;
+  return getVxAdminServiceName(machineId);
 }
 
 /**
@@ -132,31 +131,22 @@ export function startHostNetworking({
           return;
         }
 
-        const services = await AvahiService.discoverHttpServices();
-        const otherHosts = services.filter(
-          (s) =>
-            s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX) &&
-            s.name !== serviceName
+        const otherHosts = (await findAllVxAdminHostMachines()).filter(
+          (hostMachine) => hostMachine.machineId !== machineId
         );
         for (const otherHost of otherHosts) {
-          if (!isValidIpv4Address(otherHost.resolvedIp)) continue;
-          const otherMachineId = otherHost.name.replace(
-            `${AVAHI_SERVICE_NAME_PREFIX}-`,
-            ''
-          );
           try {
-            const address = `http://${otherHost.resolvedIp}:${otherHost.port}`;
-            const peerClient = createPeerApiClient(address);
+            const peerClient = createPeerApiClient(otherHost.address);
             await peerClient.getCurrentElectionMetadata();
             store.setNetworkedMachineStatus(
-              otherMachineId,
+              otherHost.machineId,
               'host',
               Admin.ClientMachineStatus.Active
             );
           } catch {
             debug(
               'Failed to communicate with other host %s, ignoring',
-              otherHost.name
+              otherHost.machineId
             );
           }
         }
@@ -281,12 +271,9 @@ export function startClientNetworking({
           return;
         }
 
-        const services = await AvahiService.discoverHttpServices();
-        const hostServices = services
-          .filter((s) => s.name.startsWith(AVAHI_SERVICE_NAME_PREFIX))
-          .filter((s) => isValidIpv4Address(s.resolvedIp));
+        const hostMachines = await findAllVxAdminHostMachines();
 
-        if (hostServices.length === 0) {
+        if (hostMachines.length === 0) {
           debug('No VxAdmin hosts found on network');
           const existing = clientStore.getHostConnection();
           if (existing) {
@@ -303,8 +290,8 @@ export function startClientNetworking({
 
         const existingConnection = clientStore.getHostConnection();
         const reachableHosts: Array<Omit<HostConnection, 'machineId'>> = [];
-        for (const service of hostServices) {
-          const address = `http://${service.resolvedIp}:${service.port}`;
+        for (const hostMachine of hostMachines) {
+          const { address } = hostMachine;
           const apiClient =
             existingConnection?.address === address
               ? existingConnection.apiClient
@@ -313,7 +300,7 @@ export function startClientNetworking({
             await apiClient.getCurrentElectionMetadata();
             reachableHosts.push({ address, apiClient });
           } catch {
-            debug('Host %s unreachable, ignoring', service.name);
+            debug('Host %s unreachable, ignoring', hostMachine.machineId);
           }
         }
         if (reachableHosts.length > 1) {
@@ -326,7 +313,7 @@ export function startClientNetworking({
               connectionStatus:
                 ClientConnectionStatus.OnlineMultipleHostsDetected,
             },
-            { hostCount: String(hostServices.length) }
+            { hostCount: String(hostMachines.length) }
           );
           clientStore.setConnection(
             ClientConnectionStatus.OnlineMultipleHostsDetected

@@ -10,6 +10,7 @@ import {
   getElectionRecord,
   getMostRecentScannerDiagnostic,
   getMostRecentUpsDiagnostic,
+  getNetworkStatus,
   getStatus,
   getSystemSettings,
   getUsbDriveStatus,
@@ -17,6 +18,7 @@ import {
   saveReadinessReport,
   systemCallApi,
 } from '../api.js';
+import { NetworkSection } from '../components/network_section.js';
 import { TestScanButton } from '../components/test_scan_button.js';
 
 const PageLayout = styled.div`
@@ -39,6 +41,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
+  const networkStatusQuery = getNetworkStatus.useQuery();
 
   if (
     !statusQuery.isSuccess ||
@@ -48,7 +51,8 @@ export function DiagnosticsScreen(): JSX.Element {
     !scannerDiagnosticRecordQuery.isSuccess ||
     !upsDiagnosticRecordQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
-    !systemSettings.isSuccess
+    !systemSettings.isSuccess ||
+    !networkStatusQuery.isSuccess
   ) {
     return <NavigationScreen title="Diagnostics">{null}</NavigationScreen>;
   }
@@ -85,6 +89,9 @@ export function DiagnosticsScreen(): JSX.Element {
             markThresholds={markThresholds}
           />
           <TestScanButton />
+          {networkStatusQuery.data.isEnabled && (
+            <NetworkSection connection={networkStatusQuery.data.connection} />
+          )}
         </div>
         <SaveReadinessReportButton
           usbDriveStatus={usbDriveStatusQuery.data}

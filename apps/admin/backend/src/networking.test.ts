@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   AvahiService,
+  findAllVxAdminHostMachines,
   hasOnlineInterface,
-  isValidIpv4Address,
 } from '@votingworks/networking';
 import * as grout from '@votingworks/grout';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
@@ -32,14 +32,27 @@ import {
 } from './globals.js';
 
 vi.mock('./get_current_time');
-vi.mock('@votingworks/networking');
+// Partial mock: keep the pure service-name helpers real so the
+// discovery-filtering code paths behave as in production.
+vi.mock(import('@votingworks/networking'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    hasOnlineInterface: vi.fn(),
+    findAllVxAdminHostMachines: vi.fn(),
+    AvahiService: {
+      advertiseHttpService: vi.fn(),
+      stopAdvertisedService: vi.fn(),
+      discoverHttpServices: vi.fn(),
+    } as unknown as typeof actual.AvahiService,
+  };
+});
 vi.mock('@votingworks/grout');
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: false });
   vi.mocked(getCurrentTime).mockImplementation(() => Date.now());
-  vi.mocked(isValidIpv4Address).mockReturnValue(true);
-  vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+  vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
 });
 
 afterEach(() => {
@@ -151,19 +164,9 @@ describe('startHostNetworking', () => {
   test('records other host in machines table after successful communication', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER',
-        host: 'other.local',
-        resolvedIp: '192.168.1.2',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: 'OTHER', address: 'http://192.168.1.2:3002' },
     ]);
     const mockClient = {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
@@ -189,13 +192,8 @@ describe('startHostNetworking', () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     store.setIsClientAdjudicationEnabled(true);
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
     ]);
     const mockClient = {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
@@ -214,19 +212,9 @@ describe('startHostNetworking', () => {
     expect(store.getIsClientAdjudicationEnabled()).toEqual(true);
 
     // A second host appears — adjudication is disabled
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER',
-        host: 'other.local',
-        resolvedIp: '192.168.1.2',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: 'OTHER', address: 'http://192.168.1.2:3002' },
     ]);
     await advancePollingInterval();
     expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
@@ -238,13 +226,8 @@ describe('startHostNetworking', () => {
 
     // It stays disabled even after the other host disappears — an election
     // manager must explicitly re-enable it
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
     ]);
     await advancePollingInterval();
     expect(store.getIsClientAdjudicationEnabled()).toEqual(false);
@@ -253,19 +236,9 @@ describe('startHostNetworking', () => {
   test('does not record other host when communication fails', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER',
-        host: 'other.local',
-        resolvedIp: '192.168.1.2',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: 'OTHER', address: 'http://192.168.1.2:3002' },
     ]);
     const mockClient = {
       getCurrentElectionMetadata: vi
@@ -284,53 +257,12 @@ describe('startHostNetworking', () => {
     expect(store.getMultipleHostsDetected('0001')).toEqual(false);
   });
 
-  test('skips other hosts with invalid IP addresses', async () => {
-    const store = Store.memoryStore(makeTemporaryDirectory());
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(isValidIpv4Address).mockImplementation(
-      (ip) => ip === '192.168.1.1'
-    );
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER',
-        host: 'other.local',
-        resolvedIp: 'invalid',
-        port: '3002',
-      },
-    ]);
-    startHostNetworking({
-      machineId: '0001',
-      peerPort: 3002,
-      store,
-      logger: mockBaseLogger({ fn: vi.fn }),
-    });
-    await advancePollingInterval();
-
-    expect(store.getMultipleHostsDetected('0001')).toEqual(false);
-  });
-
   test('clears multiple hosts when other host goes stale', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER',
-        host: 'other.local',
-        resolvedIp: '192.168.1.2',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: 'OTHER', address: 'http://192.168.1.2:3002' },
     ]);
     const mockClient = {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
@@ -346,13 +278,8 @@ describe('startHostNetworking', () => {
     expect(store.getMultipleHostsDetected('0001')).toEqual(true);
 
     // Other host disappears from avahi — stale cleanup marks it offline
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
     ]);
     vi.advanceTimersByTime(STALE_MACHINE_THRESHOLD_MS);
     await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
@@ -362,25 +289,10 @@ describe('startHostNetworking', () => {
   test('logs multipleHosts when more than one other host is discovered', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-0001',
-        host: 'self.local',
-        resolvedIp: '192.168.1.1',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER1',
-        host: 'other1.local',
-        resolvedIp: '192.168.1.2',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-OTHER2',
-        host: 'other2.local',
-        resolvedIp: '192.168.1.3',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: 'OTHER1', address: 'http://192.168.1.2:3002' },
+      { machineId: 'OTHER2', address: 'http://192.168.1.3:3002' },
     ]);
     const mockClient = {
       getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
@@ -498,7 +410,7 @@ describe('startClientNetworking', () => {
 
   test('logs client connection status transitions', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
 
     const clientStore = createClientStore();
     const testLogger = mockBaseLogger({ fn: vi.fn });
@@ -535,13 +447,8 @@ describe('startClientNetworking', () => {
   test('logs election sync from host', async () => {
     const electionDefinition = readElectionGeneralDefinition();
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
       getElectionPackageHash: vi.fn().mockResolvedValue('hash-1'),
@@ -578,13 +485,8 @@ describe('startClientNetworking', () => {
   test('logs when host election is unconfigured', async () => {
     const electionDefinition = readElectionGeneralDefinition();
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockGetHash = vi.fn().mockResolvedValue('hash-1');
     const mockClient = createMockPeerClient({
@@ -641,7 +543,7 @@ describe('startClientNetworking', () => {
 
   test('stores online-waiting-for-host when online but no hosts', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
 
     const clientStore = createClientStore();
     startClientNetworking({
@@ -659,13 +561,8 @@ describe('startClientNetworking', () => {
 
   test('stores online-connected-to-host after successful connection', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -690,7 +587,7 @@ describe('startClientNetworking', () => {
 
   test('stores offline when network goes down', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
 
     const clientStore = createClientStore();
     startClientNetworking({
@@ -713,19 +610,9 @@ describe('startClientNetworking', () => {
 
   test('stores online-multiple-hosts-detected when multiple reachable hosts found', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host1.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-HOST2',
-        host: 'host2.local',
-        resolvedIp: '192.168.1.11',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
+      { machineId: 'HOST2', address: 'http://192.168.1.11:3002' },
     ]);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -746,19 +633,9 @@ describe('startClientNetworking', () => {
 
   test('ignores unreachable hosts when checking for multiple hosts', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host1.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-HOST2',
-        host: 'host2.local',
-        resolvedIp: '192.168.1.11',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
+      { machineId: 'HOST2', address: 'http://192.168.1.11:3002' },
     ]);
     // First client (HOST1) verification succeeds, second (HOST2) fails,
     // then a third createClient call for the actual connection
@@ -791,13 +668,8 @@ describe('startClientNetworking', () => {
 
   test('stores waiting-for-host when discovered host is unreachable', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host1.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const unreachableClient = createMockPeerClient({
       getCurrentElectionMetadata: vi
@@ -822,19 +694,9 @@ describe('startClientNetworking', () => {
 
   test('recovers from multiple hosts when only one remains', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host1.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
-      {
-        name: 'VxAdmin-HOST2',
-        host: 'host2.local',
-        resolvedIp: '192.168.1.11',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
+      { machineId: 'HOST2', address: 'http://192.168.1.11:3002' },
     ]);
 
     const clientStore = createClientStore();
@@ -852,13 +714,8 @@ describe('startClientNetworking', () => {
     );
 
     // Only one host remains
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host1.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     await vi.advanceTimersByTimeAsync(2000);
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -868,13 +725,8 @@ describe('startClientNetworking', () => {
 
   test('discovers hosts and connects', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -898,13 +750,8 @@ describe('startClientNetworking', () => {
 
   test('does not connect to a host running an incompatible code version', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
       connectToHost: vi.fn().mockResolvedValue({
@@ -944,13 +791,8 @@ describe('startClientNetworking', () => {
 
   test('sends active status and auth type when logged in', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -992,12 +834,12 @@ describe('startClientNetworking', () => {
     await advancePollingInterval();
 
     expect(hasOnlineInterface).toHaveBeenCalled();
-    expect(AvahiService.discoverHttpServices).not.toHaveBeenCalled();
+    expect(findAllVxAdminHostMachines).not.toHaveBeenCalled();
   });
 
   test('handles no hosts found', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
 
     const clientStore = createClientStore();
     startClientNetworking({
@@ -1008,66 +850,14 @@ describe('startClientNetworking', () => {
     });
     await advancePollingInterval();
 
-    expect(AvahiService.discoverHttpServices).toHaveBeenCalled();
-    expect(grout.createClient).not.toHaveBeenCalled();
-  });
-
-  test('skips hosts with invalid IP addresses', async () => {
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: 'invalid',
-        port: '3002',
-      },
-    ]);
-    vi.mocked(isValidIpv4Address).mockReturnValue(false);
-
-    const clientStore = createClientStore();
-    startClientNetworking({
-      machineId: '0005',
-      clientStore,
-      auth: createMockAuth(),
-      logger,
-    });
-    await advancePollingInterval();
-
-    expect(grout.createClient).not.toHaveBeenCalled();
-  });
-
-  test('filters out non-VxAdmin services', async () => {
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'OtherService-123',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
-    ]);
-
-    const clientStore = createClientStore();
-    startClientNetworking({
-      machineId: '0006',
-      clientStore,
-      auth: createMockAuth(),
-      logger,
-    });
-    await advancePollingInterval();
-
+    expect(findAllVxAdminHostMachines).toHaveBeenCalled();
     expect(grout.createClient).not.toHaveBeenCalled();
   });
 
   test('performs heartbeat on already-connected host', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient();
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
@@ -1091,13 +881,8 @@ describe('startClientNetworking', () => {
 
   test('disconnects when heartbeat fails', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
       connectToHost: vi
@@ -1130,13 +915,8 @@ describe('startClientNetworking', () => {
 
   test('handles connection failure to new host', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockClient = createMockPeerClient({
       connectToHost: vi.fn().mockRejectedValue(new Error('connection refused')),
@@ -1161,13 +941,8 @@ describe('startClientNetworking', () => {
     vi.mocked(grout.createClient).mockReturnValue(mockClient);
 
     // First poll: host present, connect
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
 
     const clientStore = createClientStore();
@@ -1181,17 +956,12 @@ describe('startClientNetworking', () => {
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(1);
 
     // Second poll: host gone
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([]);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([]);
     await vi.advanceTimersByTimeAsync(2000);
 
     // Third poll: host reappears, should reconnect
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     await vi.advanceTimersByTimeAsync(2000);
     expect(mockClient.connectToHost).toHaveBeenCalledTimes(2);
@@ -1199,13 +969,8 @@ describe('startClientNetworking', () => {
 
   test('logs when client adjudication is enabled by host', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     const mockConnectToHost = vi.fn().mockResolvedValue({
       machineId: 'HOST1',
@@ -1267,13 +1032,8 @@ describe('startClientNetworking', () => {
 
   test('does not repeatedly log out when host is unconfigured', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     // Host has no election — getElectionPackageHash returns null
     const mockClient = createMockPeerClient();
@@ -1299,13 +1059,8 @@ describe('startClientNetworking', () => {
 
   test('does not cache election when hash exists but metadata is missing', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
     // Hash returns a value but metadata returns undefined (race condition
     // where election was unconfigured between the two calls)
@@ -1332,13 +1087,8 @@ describe('startClientNetworking', () => {
   test('logs out and clears cache when host transitions from configured to unconfigured', async () => {
     const electionDefinition = readElectionGeneralDefinition();
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    vi.mocked(AvahiService.discoverHttpServices).mockResolvedValue([
-      {
-        name: 'VxAdmin-HOST1',
-        host: 'host.local',
-        resolvedIp: '192.168.1.10',
-        port: '3002',
-      },
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: 'HOST1', address: 'http://192.168.1.10:3002' },
     ]);
 
     const mockGetHash = vi.fn().mockResolvedValue('hash-1');

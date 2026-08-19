@@ -707,6 +707,12 @@ eventType = "application-status"
 documentationMessage = "Indicates the status of the imprinter, namely whether or not it is registering as attached."
 restrictInDocumentationToApps = ["vx-central-scan"]
 
+[Events.CentralScanNetworkStatus]
+eventId = "central-scan-network-status"
+eventType = "application-status"
+documentationMessage = "A status message indicating an update to the network, such as host discovery, client connection changes, or error states."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
 # Scanners, central and precinct
 [Events.ElectionPackageLoadedFromUsb]
 eventId = "election-package-load-from-usb-complete"

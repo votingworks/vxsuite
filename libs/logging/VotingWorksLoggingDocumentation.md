@@ -426,6 +426,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Indicates the status of the imprinter, namely whether or not it is registering as attached.
 **Machines:** vx-central-scan
+### central-scan-network-status
+**Type:** [application-status](#application-status)
+**Description:** A status message indicating an update to the network, such as host discovery, client connection changes, or error states.
+**Machines:** vx-central-scan
 ### election-package-load-from-usb-complete
 **Type:** [user-action](#user-action)
 **Description:** The election package has been read from the USB drive. Success or failure indicated by disposition.

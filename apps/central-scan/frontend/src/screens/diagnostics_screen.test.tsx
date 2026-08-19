@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library.js';
@@ -28,6 +28,7 @@ afterEach(() => {
 
 test('diagnostics screen', async () => {
   apiMock.setStatus();
+  apiMock.setNetworkStatus();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentUpsDiagnostic();
@@ -42,10 +43,53 @@ test('diagnostics screen', async () => {
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
   screen.getByText('Connected');
   screen.getByText('No test scan on record');
+  // Networking is disabled by default, so no Network section is shown
+  expect(screen.queryByText('Network')).not.toBeInTheDocument();
+});
+
+test('shows the network status when networking is enabled', async () => {
+  apiMock.setStatus();
+  apiMock.expectGetElectionRecord(null);
+  apiMock.expectGetMostRecentScannerDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
+  apiMock.expectGetSystemSettings();
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'offline' },
+  });
+
+  renderInAppContext(<DiagnosticsScreen />, {
+    apiMock,
+  });
+
+  await screen.findByText('Network');
+  screen.getByText('Offline');
+
+  // Status updates arrive on the next poll (1s interval)
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'online-waiting-for-host' },
+  });
+  await screen.findByText(
+    'Online — no VxAdmin detected on the network',
+    {},
+    { timeout: 3000 }
+  );
+
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+  });
+  await screen.findByText(
+    'Online — VxAdmin (0002) detected on the network',
+    {},
+    { timeout: 3000 }
+  );
 });
 
 test('shows most recent diagnostic', async () => {
   apiMock.setStatus();
+  apiMock.setNetworkStatus();
   apiMock.expectGetElectionRecord(readElectionTwoPartyPrimaryDefinition());
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',

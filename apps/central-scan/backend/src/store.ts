@@ -54,6 +54,7 @@ import {
 import { BaseLogger } from '@votingworks/logging';
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path.js';
+import { NetworkConnectionInfo } from './types.js';
 
 const debug = makeDebug('scan:store');
 
@@ -149,6 +150,21 @@ export class Store {
   // Used by shared CVR export logic in libs/backend
   // eslint-disable-next-line vx/gts-no-public-class-fields
   readonly scannerType = 'central';
+
+  /**
+   * Ephemeral connection status maintained by the scanner networking loop.
+   * Kept in memory (not the database) since it's runtime state that should
+   * reset with the process.
+   */
+  private networkConnectionInfo: NetworkConnectionInfo = { status: 'offline' };
+
+  getNetworkConnectionInfo(): NetworkConnectionInfo {
+    return this.networkConnectionInfo;
+  }
+
+  setNetworkConnectionInfo(connectionInfo: NetworkConnectionInfo): void {
+    this.networkConnectionInfo = connectionInfo;
+  }
 
   getDbPath(): string {
     return this.client.getDatabasePath();

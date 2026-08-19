@@ -335,6 +335,34 @@ test('uses default machine config if not set', async () => {
   });
 });
 
+test('getNetworkStatus reports networking disabled by default', async () => {
+  await withApp(async ({ apiClient }) => {
+    expect(await apiClient.getNetworkStatus()).toEqual({
+      isEnabled: false,
+      connection: { status: 'offline' },
+    });
+  });
+});
+
+test('getNetworkStatus reports the connection info from the store when networking is enabled', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING
+  );
+  await withApp(async ({ apiClient, store }) => {
+    store.setNetworkConnectionInfo({
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+    });
+    expect(await apiClient.getNetworkStatus()).toEqual({
+      isEnabled: true,
+      connection: {
+        status: 'online-host-detected',
+        hostMachineId: '0002',
+      },
+    });
+  });
+});
+
 test('configure with CDF election', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
