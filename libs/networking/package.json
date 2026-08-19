@@ -32,6 +32,9 @@
   },
   "dependencies": {
     "@votingworks/backend": "workspace:*",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4"
   },

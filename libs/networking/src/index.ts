@@ -10,3 +10,8 @@ export {
   machineIdFromVxAdminServiceName,
 } from './vx_admin_service.js';
 export type { VxAdminHostMachine } from './vx_admin_service.js';
+export type {
+  RegisterScannerError,
+  VxAdminHostApi,
+  VxAdminHostMachineConfig,
+} from './vx_admin_host_api.js';
