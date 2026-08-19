@@ -74,6 +74,18 @@ export const setMachineMode = {
   },
 } as const;
 
+export const getScannerImportCounts = {
+  queryKey(): QueryKey {
+    return ['getScannerImportCounts'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getScannerImportCounts(), {
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+    });
+  },
+} as const;
+
 export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];

@@ -138,6 +138,7 @@ describe('multi-station mode', () => {
       .resolves({
         isOnline: true,
         connectedClients: [],
+        connectedScanners: [],
         multipleHostsDetected: false,
       });
     renderInAppContext(<SettingsScreen />, { apiMock, auth });

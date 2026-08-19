@@ -20,6 +20,7 @@ import { routerPaths } from '../../router_paths.js';
 import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal.js';
 import { BORDER_LIGHT, GAP } from './styles.js';
 import { CvrsScreen } from './cvrs_screen.js';
+import { ScannersTab } from './scanners_tab.js';
 
 const Container = styled.div`
   display: grid;
@@ -77,6 +78,7 @@ export function TallyScreen(): JSX.Element | null {
 
   const tabs: Array<{ title: string; path: string }> = [
     { title: 'Cast Vote Records', path: routerPaths.tallyCvrs },
+    { title: 'Networked Scanners', path: routerPaths.tallyScanners },
   ];
 
   const manualTalliesEnabled = !isCombinedBallotPrimary(election);
@@ -112,6 +114,12 @@ export function TallyScreen(): JSX.Element | null {
                 exact
                 path={routerPaths.tallyCvrs}
                 component={CvrsScreen}
+              />
+
+              <Route
+                exact
+                path={routerPaths.tallyScanners}
+                component={ScannersTab}
               />
 
               {manualTalliesEnabled && (

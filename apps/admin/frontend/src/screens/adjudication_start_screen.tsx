@@ -370,7 +370,16 @@ function MultiStationClientsTable({
               return (
                 <tr key={machine.machineId}>
                   <TD>{machine.machineId}</TD>
-                  <TD>{renderClientStatus(machine.status)}</TD>
+                  <TD>
+                    {!isOffline &&
+                    machine.registrationError === 'code-version-mismatch' ? (
+                      <React.Fragment>
+                        <Icons.Danger color="danger" /> Incompatible Software
+                      </React.Fragment>
+                    ) : (
+                      renderClientStatus(machine.status)
+                    )}
+                  </TD>
                   <TD>{isOffline ? '—' : formatAuthType(machine.authType)}</TD>
                   <TD>{format.relativeTime(machine.lastSeenAt)}</TD>
                 </tr>
