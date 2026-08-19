@@ -129,30 +129,6 @@ test('supports legal-sized paper option', async () => {
   );
 });
 
-test('M404n support', async () => {
-  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: LP_STDOUT, stderr: '' }));
-
-  await print({
-    data: Uint8Array.of(0xca, 0xfe),
-    isM404nSupportRequired: true,
-  });
-
-  expect(exec).toHaveBeenCalledWith(
-    'lp',
-    [
-      '-d',
-      DEFAULT_MANAGED_PRINTER_NAME,
-      '-o',
-      'sides=one-sided',
-      '-o',
-      'media=letter',
-      '-o',
-      'InputSlot=M404n_Tray2',
-    ],
-    Uint8Array.of(0xca, 0xfe)
-  );
-});
-
 test('returns the job id assigned by CUPS', async () => {
   vi.mocked(exec).mockResolvedValueOnce(
     ok({ stdout: 'request id is VxPrinter-107 (1 file(s))\n', stderr: '' })

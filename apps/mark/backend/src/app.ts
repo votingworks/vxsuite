@@ -157,7 +157,6 @@ export function buildApi(ctx: Context) {
     await printer.print({
       data: tallyReportPdf,
       sides: PrintSides.OneSided,
-      isM404nSupportRequired: true,
     });
   }
 
@@ -468,7 +467,6 @@ export function buildApi(ctx: Context) {
         await printer.print({
           data: deckPdf,
           sides: PrintSides.OneSided,
-          isM404nSupportRequired: true,
         });
 
         const allCvrs = generateTestDeckCastVoteRecords(election, {

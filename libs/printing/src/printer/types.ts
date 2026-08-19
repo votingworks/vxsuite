@@ -27,7 +27,6 @@ export interface PrintOptions {
   copies?: number;
   sides?: PrintSides;
   size?: PaperSize;
-  isM404nSupportRequired?: boolean;
   raw?: { [key: string]: string };
 }
 

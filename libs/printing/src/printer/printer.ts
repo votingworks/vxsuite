@@ -10,7 +10,7 @@ import { getConnectedDeviceUris } from './device_uri';
 import { configurePrinter } from './configure';
 import { Printer } from './types';
 import { print as printData } from './print';
-import { getPdfRendererOptions, getPrinterConfig } from './supported';
+import { getPrinterConfig, getPrinterSpecificOptions } from './supported';
 import { MockFilePrinter } from './mocks/file_printer';
 import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 
@@ -103,13 +103,13 @@ export function detectPrinter(logger: BaseLogger): Printer {
 
     print: async ({ raw = {}, ...props }) => {
       printerDevice.lastPrint = Date.now();
-      const rendererOptions = printerDevice.uri
-        ? getPdfRendererOptions(
+      const printerOptions = printerDevice.uri
+        ? getPrinterSpecificOptions(
             assertDefined(getPrinterConfig(printerDevice.uri))
           )
         : {};
       // the job id is not yet consumed; CUPS-side job tracking will use it
-      await printData({ ...props, raw: { ...rendererOptions, ...raw } });
+      await printData({ ...props, raw: { ...printerOptions, ...raw } });
     },
   };
 }

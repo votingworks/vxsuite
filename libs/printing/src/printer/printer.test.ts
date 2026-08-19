@@ -13,6 +13,7 @@ import {
   CITIZEN_THERMAL_PRINTER_CONFIG,
   HP_4201_PRINTER_CONFIG,
   HP_LASER_PRINTER_CONFIG,
+  M404N_PRINTER_CONFIG,
 } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
@@ -223,7 +224,7 @@ describe('rich status', () => {
   });
 });
 
-describe('pdftops renderer', () => {
+describe('printer-specific print options', () => {
   test('passes the renderer option for printers that need it', async () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
@@ -255,6 +256,25 @@ describe('pdftops renderer', () => {
 
     mockPrintData
       .expectCallWith({ data: Buffer.of(), raw: {} })
+      .returns(undefined);
+    await printer.print({ data: Buffer.of() });
+  });
+
+  test('passes the input slot for printers that need it', async () => {
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+    const uri = `${M404N_PRINTER_CONFIG.baseDeviceUri}?serial=1234`;
+    const config = M404N_PRINTER_CONFIG;
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    await printer.status();
+
+    mockPrintData
+      .expectCallWith({
+        data: Buffer.of(),
+        raw: { InputSlot: 'M404n_Tray2' },
+      })
       .returns(undefined);
     await printer.print({ data: Buffer.of() });
   });
