@@ -10,7 +10,7 @@ import { getConnectedDeviceUris } from './device_uri';
 import { configurePrinter } from './configure';
 import { Printer } from './types';
 import { print as printData } from './print';
-import { getPrinterConfig } from './supported';
+import { getPdfRendererOptions, getPrinterConfig } from './supported';
 import { MockFilePrinter } from './mocks/file_printer';
 import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 
@@ -101,9 +101,14 @@ export function detectPrinter(logger: BaseLogger): Printer {
       };
     },
 
-    print: async (props) => {
+    print: async ({ raw = {}, ...props }) => {
       printerDevice.lastPrint = Date.now();
-      return printData(props);
+      const rendererOptions = printerDevice.uri
+        ? getPdfRendererOptions(
+            assertDefined(getPrinterConfig(printerDevice.uri))
+          )
+        : {};
+      return printData({ ...props, raw: { ...rendererOptions, ...raw } });
     },
   };
 }

@@ -29,7 +29,8 @@
     "productId": 3698,
     "baseDeviceUri": "usb://HP/Color%20LaserJet%20Pro%204201",
     "ppd": "generic-postscript-driver.ppd",
-    "supportsIpp": true
+    "supportsIpp": true,
+    "pdfRenderer": "pdftops"
   },
   {
     "label": "Citizen CT-E351",
