@@ -4,6 +4,8 @@ import {
   findAllVxAdminHostMachines,
   getVxAdminServiceName,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
+  NETWORK_REQUEST_TIMEOUT_MS,
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
@@ -21,10 +23,6 @@ import { ClientConnectionStatus } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
 import { rootDebug } from './util/debug.js';
-import {
-  NETWORK_POLLING_INTERVAL_MS,
-  NETWORK_REQUEST_TIMEOUT_MS,
-} from './globals.js';
 
 const debug = rootDebug.extend('networking');
 

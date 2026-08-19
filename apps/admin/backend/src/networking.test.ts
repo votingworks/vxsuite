@@ -3,6 +3,7 @@ import {
   AvahiService,
   findAllVxAdminHostMachines,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
 import * as grout from '@votingworks/grout';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
@@ -26,10 +27,7 @@ import { Store } from './store.js';
 import { ClientConnectionStatus } from './types.js';
 import { ClientStore } from './client_store.js';
 import { getCurrentTime } from './get_current_time.js';
-import {
-  NETWORK_POLLING_INTERVAL_MS,
-  STALE_MACHINE_THRESHOLD_MS,
-} from './globals.js';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 
 vi.mock('./get_current_time');
 // Partial mock: keep the pure service-name helpers real so the

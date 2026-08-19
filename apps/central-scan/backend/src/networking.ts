@@ -3,9 +3,9 @@ import { BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
 import makeDebug from 'debug';
-import { NETWORK_POLLING_INTERVAL_MS } from './globals.js';
 import { Store } from './store.js';
 import { NetworkConnectionInfo } from './types.js';
 

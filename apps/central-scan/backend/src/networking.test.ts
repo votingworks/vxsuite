@@ -2,10 +2,10 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
 import { mockBaseLogger } from '@votingworks/logging';
 import { startScannerNetworking } from './networking.js';
-import { NETWORK_POLLING_INTERVAL_MS } from './globals.js';
 import { Store } from './store.js';
 
 vi.mock(import('@votingworks/networking'), async (importActual) => ({
