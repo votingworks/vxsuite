@@ -73,15 +73,33 @@ export function databaseUrl(): string {
   );
 }
 
+const AuthModeSchema = z.union([
+  z.literal('auth0'),
+  z.literal('smart-card'),
+  z.literal('none'),
+]);
+
+/**
+ * How users authenticate with VxDesign:
+ * - `auth0`: Auth0 accounts, used by the hosted deployments.
+ * - `smart-card`: VxSuite smart cards, used by offline deployments, which have
+ *   no internet access and so can't reach Auth0.
+ * - `none`: No authentication, for development. Logs in a fixed dev user.
+ */
+export type AuthMode = z.infer<typeof AuthModeSchema>;
+
 /* istanbul ignore next */
-export function authEnabled(): boolean {
-  if (NODE_ENV === 'production') {
-    return true;
+export function authMode(): AuthMode {
+  const envVar = process.env.AUTH_MODE;
+  if (envVar) {
+    return unsafeParse(AuthModeSchema, envVar);
   }
 
-  // Support enabling in dev for testing Auth0 integration locally.
-  const envVar = process.env.AUTH_ENABLED || '';
-  return envVar.toLowerCase() === 'true';
+  assert(
+    NODE_ENV !== 'production',
+    'Env var AUTH_MODE required in production.'
+  );
+  return 'none';
 }
 
 /* istanbul ignore next */

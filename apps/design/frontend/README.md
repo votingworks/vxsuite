@@ -146,11 +146,35 @@ In `apps/design/frontend`, run the following:
 pnpm start
 ```
 
-
 The server will be available at http://localhost:3000, with the backend at
 http://localhost:3001. To use a different port, set the `FRONTEND_PORT`
 environment variable and the backend port will use `$FRONTEND_PORT + 1`.
 
+## Authentication
+
+The `AUTH_MODE` environment variable selects how users authenticate. It's
+required in production.
+
+| `AUTH_MODE`  | Used by               | Behavior                                                                        |
+| ------------ | --------------------- | ------------------------------------------------------------------------------- |
+| `auth0`      | Hosted deployments    | Users log in with their Auth0 accounts.                                         |
+| `smart-card` | Offline deployments   | The machine is unlocked with a VxSuite system administrator card.               |
+| `none`       | Development (default) | Logs in a fixed dev user (see `pnpm insert-dev-data` in `apps/design/backend`). |
+
+Offline deployments have no internet access, so they can't reach Auth0. They
+instead use the same dipped smart card auth as the rest of VxSuite: the machine
+starts locked, and a system administrator card plus PIN unlocks it. Other card
+roles are rejected. Such a deployment also needs:
+
+- `VX_MACHINE_TYPE=design`, so `libs/auth` can find the VotingWorks cert
+  authority cert. VxDesign doesn't program cards, so it needs no machine cert of
+  its own.
+- `VX_MACHINE_JURISDICTION` set to the jurisdiction its cards were programmed
+  for. Cards from other jurisdictions are rejected.
+
+To try smart card auth locally, run with `AUTH_MODE=smart-card` and
+`REACT_APP_VX_USE_MOCK_CARDS=TRUE`, then use the `libs/auth` mock card scripts
+(e.g. `libs/auth/scripts/mock-card --card-type system-administrator`).
 
 ## Restoring database from snapshot
 

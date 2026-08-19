@@ -23,13 +23,13 @@ test('polling places CRUD', async () => {
   const jurisdiction = user.jurisdictions[0];
   expectEditingEnabled(jurisdiction, false);
 
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions: user.jurisdictions,
     users: [user],
   });
 
-  auth0.setLoggedInUser(user);
+  auth.setLoggedInUser(user);
   const electionId = (
     await apiClient.createElection({
       jurisdictionId: jurisdiction.id,
@@ -170,12 +170,12 @@ test('polling place precinct order is stable regardless of save order - necessar
   const user = nonVxUser;
   const jurisdiction = user.jurisdictions[0];
 
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users: [user],
   });
-  auth0.setLoggedInUser(user);
+  auth.setLoggedInUser(user);
 
   const electionId = (
     await apiClient.createElection({
@@ -246,13 +246,13 @@ test('polling place updates on precinct creation/update/deletion', async () => {
   const jurisdiction = user.jurisdictions[1];
   expectEditingEnabled(jurisdiction, true);
 
-  const { apiClient: api, auth0 } = await setupApp({
+  const { apiClient: api, auth } = await setupApp({
     organizations,
     jurisdictions,
     users: [user],
   });
 
-  auth0.setLoggedInUser(user);
+  auth.setLoggedInUser(user);
 
   const electionId = (
     await api.createElection({
@@ -397,12 +397,12 @@ describe('loadElection', () => {
     jurisdiction: Jurisdiction,
     pollingPlaces?: PollingPlace[]
   ) {
-    const { apiClient: api, auth0 } = await setupApp({
+    const { apiClient: api, auth } = await setupApp({
       organizations,
       jurisdictions,
       users: [user],
     });
-    auth0.setLoggedInUser(user);
+    auth.setLoggedInUser(user);
 
     // v4.1+ elections must carry polling places. To exercise the
     // "missing polling places" path, upload a v4.0 election, which may legally
@@ -524,12 +524,12 @@ describe('cloneElection', () => {
     jurisdiction: Jurisdiction,
     pollingPlaces?: PollingPlace[]
   ) {
-    const { apiClient: api, auth0 } = await setupApp({
+    const { apiClient: api, auth } = await setupApp({
       organizations,
       jurisdictions,
       users: [user],
     });
-    auth0.setLoggedInUser(user);
+    auth.setLoggedInUser(user);
 
     // v4.1+ elections must carry polling places. To exercise the
     // "missing polling places" path, upload a v4.0 election, which may legally

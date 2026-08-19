@@ -53,13 +53,13 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       image: 'Image To Be Overwritten',
     },
   };
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
 
-  auth0.setLoggedInUser(nhUser);
+  auth.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id',
@@ -117,13 +117,13 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       caption: 'Test Image Caption',
     },
   };
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
 
-  auth0.setLoggedInUser(nhUser);
+  auth.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id',
@@ -210,13 +210,13 @@ test.each<{
         caption: 'Caption',
       },
     };
-    const { apiClient, auth0 } = await setupApp({
+    const { apiClient, auth } = await setupApp({
       organizations,
       jurisdictions,
       users,
     });
 
-    auth0.setLoggedInUser(nhUser);
+    auth.setLoggedInUser(nhUser);
     const electionId = (
       await apiClient.loadElection({
         newId: 'new-election-id',
@@ -274,13 +274,13 @@ test.each<{
 
 test('ballot measure contest editing with additional contest options', async () => {
   const election = electionGeneralFixtures.readElection();
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
 
-  auth0.setLoggedInUser(nhUser);
+  auth.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id',
@@ -331,13 +331,13 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
   // Use the NH state general election fixture so the election has the contest
   // titles that NhStateBallot's isFederalOfficeContest matcher recognizes
   const { election } = nhStateGeneralElectionFixtures.allBallotProps[0];
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
 
-  auth0.setLoggedInUser(nhUser);
+  auth.setLoggedInUser(nhUser);
   const electionId = (
     await apiClient.loadElection({
       newId: 'new-election-id',
@@ -386,12 +386,12 @@ test('getBallotPreviewPdf routes Federal Office Only ballots when isFederalOffic
 });
 
 test('absentee polling places imported into an NH election are not exported', async () => {
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nhUser);
+  auth.setLoggedInUser(nhUser);
 
   const baseElection = electionGeneralFixtures.readElection();
   const election: Election = {

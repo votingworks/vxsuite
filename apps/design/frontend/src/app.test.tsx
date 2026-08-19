@@ -12,22 +12,31 @@ import {
   user,
 } from '../test/api_helpers.js';
 import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  createMockSmartCardAuthApiClient,
+  mockAuth0Deployment,
+  MockSmartCardAuthApiClient,
+} from '../test/auth_api_helpers.js';
 import { App } from './app.js';
 
 let apiMock: MockApiClient;
+let authApiMock: MockSmartCardAuthApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  authApiMock = createMockSmartCardAuthApiClient();
+  mockAuth0Deployment(authApiMock);
 });
 
 afterEach(() => {
   apiMock.assertComplete();
+  authApiMock.assertComplete();
 });
 
 test('Shows user info and logout button', async () => {
   apiMock.listElections.expectCallWith().resolves([]);
   apiMock.getUser.expectCallWith().resolves(user);
-  render(<App apiClient={apiMock} />);
+  render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
   const header = (
     await screen.findByRole('heading', { name: 'Elections' })
@@ -45,7 +54,7 @@ test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
-    render(<App apiClient={apiMock} />);
+    render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
     await screen.findByRole('heading', { name: 'Elections' });
 
@@ -69,7 +78,7 @@ test('API unauthorized errors redirect to login', async () => {
     apiMock.getUser
       .expectCallWith()
       .throws({ message: typedAs<AuthErrorCode>('auth:unauthorized') });
-    render(<App apiClient={apiMock} />);
+    render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
     await waitFor(() => {
       expect(window.location.replace).toHaveBeenCalledWith('/auth/login');
     });
@@ -80,7 +89,7 @@ test('API forbidden errors show a page not found error screen', async () => {
   await suppressingConsoleOutput(async () => {
     apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
-    render(<App apiClient={apiMock} />);
+    render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
     await screen.findByRole('heading', { name: 'Elections' });
     apiMock.createElection
@@ -97,7 +106,7 @@ test('API forbidden errors show a page not found error screen', async () => {
 test('jurisdiction users see elections screen', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections.expectCallWith().resolves([]);
-  render(<App apiClient={apiMock} />);
+  render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
   await screen.findByRole('heading', { name: 'Elections' });
 });
@@ -105,7 +114,7 @@ test('jurisdiction users see elections screen', async () => {
 test('organization users see elections screen', async () => {
   apiMock.getUser.expectCallWith().resolves(organizationUser);
   apiMock.listElections.expectCallWith().resolves([]);
-  render(<App apiClient={apiMock} />);
+  render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
   await screen.findByRole('heading', { name: 'Elections' });
 });
@@ -113,7 +122,7 @@ test('organization users see elections screen', async () => {
 test('support users see support tools screen', async () => {
   apiMock.getUser.expectCallWith().resolves(supportUser);
   apiMock.listElections.expectCallWith().resolves([]);
-  render(<App apiClient={apiMock} />);
+  render(<App apiClient={apiMock} smartCardAuthApiClient={authApiMock} />);
 
   await screen.findByRole('heading', { name: 'Support Tools' });
 });

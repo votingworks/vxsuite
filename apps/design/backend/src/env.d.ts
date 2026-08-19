@@ -1,7 +1,7 @@
 declare namespace NodeJS {
   /** process.env typings */
   export interface ProcessEnv {
-    readonly AUTH_ENABLED?: string;
+    readonly AUTH_MODE?: string;
     readonly AUTH0_CLIENT_ID?: string;
     readonly AUTH0_CLIENT_DOMAIN?: string;
     readonly AUTH0_ISSUER_BASE_URL?: string;
@@ -21,6 +21,7 @@ declare namespace NodeJS {
     readonly PORT?: string;
     readonly FRONTEND_PORT?: string;
     readonly SENTRY_DSN?: string;
+    readonly VX_MACHINE_JURISDICTION?: string;
     readonly WORKSPACE?: string;
   }
 }

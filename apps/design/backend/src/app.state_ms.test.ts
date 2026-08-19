@@ -41,12 +41,12 @@ const { setupApp, cleanup } = testSetupHelpers();
 afterAll(cleanup);
 
 test('load MS SEMS election', async () => {
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(vxUser);
+  auth.setLoggedInUser(vxUser);
 
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   const result = await apiClient.loadElection({
@@ -64,12 +64,12 @@ test('load MS SEMS election', async () => {
 });
 
 test('returns errors when loading invalid MS SEMS election', async () => {
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(vxUser);
+  auth.setLoggedInUser(vxUser);
 
   const result = await apiClient.loadElection({
     newId: unsafeParse(ElectionIdSchema, 'election-2'),
@@ -91,12 +91,12 @@ test('returns errors when loading invalid MS SEMS election', async () => {
 });
 
 test('convert MS results', async () => {
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(anotherNonVxUser);
+  auth.setLoggedInUser(anotherNonVxUser);
 
   // Load the election
   const electionId = unsafeParse(ElectionIdSchema, 'election-3');
@@ -201,7 +201,7 @@ test('convert MS results', async () => {
 });
 
 test('finalizing a Mississippi election does not require absentee polling places', async () => {
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users,
@@ -209,7 +209,7 @@ test('finalizing a Mississippi election does not require absentee polling places
   // Mississippi is a non-editing state, where a Central Scanning absentee place
   // is auto-generated on export rather than validated at finalization, so
   // finalizing requires no user-defined absentee polling places.
-  auth0.setLoggedInUser(anotherNonVxUser);
+  auth.setLoggedInUser(anotherNonVxUser);
   const electionId = (
     await apiClient.loadElection({
       newId: unsafeParse(ElectionIdSchema, 'election-finalize'),
@@ -230,12 +230,12 @@ test('finalizing a Mississippi election does not require absentee polling places
 });
 
 test('a central scanning absentee polling place and an early voting polling place are added to the export for Mississippi', async () => {
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(anotherNonVxUser);
+  auth.setLoggedInUser(anotherNonVxUser);
 
   const electionId = (
     await apiClient.loadElection({

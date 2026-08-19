@@ -10,7 +10,7 @@ import { Organization, StateCodes } from '../types.js';
 import { createWorkspace } from '../workspace.js';
 
 /**
- * Inserts the dev user needed when using AUTH_ENABLED=FALSE to bypass Auth0 in development as well
+ * Inserts the dev user needed when using AUTH_MODE=none to bypass Auth0 in development as well
  * a representative set of dev jurisdictions covering all state codes.
  */
 async function main(): Promise<void> {

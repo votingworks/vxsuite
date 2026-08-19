@@ -34,13 +34,13 @@ async function createElectionForTest(apiClient: {
 
 describe('Export QA Webhook', () => {
   test('webhook endpoint requires valid secret', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     // Create an election and a QA run
     const electionId = await createElectionForTest(apiClient);
@@ -97,7 +97,7 @@ describe('Export QA Webhook', () => {
   });
 
   test('webhook endpoint rejects non-JSON content type', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
@@ -106,7 +106,7 @@ describe('Export QA Webhook', () => {
       },
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     const electionId = await createElectionForTest(apiClient);
     const qaRunId = uuid();
@@ -129,7 +129,7 @@ describe('Export QA Webhook', () => {
   });
 
   test('webhook endpoint validates request body', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
@@ -138,7 +138,7 @@ describe('Export QA Webhook', () => {
       },
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     // Create an election and a QA run
     const electionId = await createElectionForTest(apiClient);
@@ -175,7 +175,7 @@ describe('Export QA Webhook', () => {
   });
 
   test('webhook endpoint updates QA run status', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
@@ -184,7 +184,7 @@ describe('Export QA Webhook', () => {
       },
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     // Create an election and a QA run
     const electionId = await createElectionForTest(apiClient);
@@ -245,7 +245,7 @@ describe('Export QA Webhook', () => {
   });
 
   test('webhook endpoint handles failure status', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
@@ -254,7 +254,7 @@ describe('Export QA Webhook', () => {
       },
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     // Create an election and a QA run
     const electionId = await createElectionForTest(apiClient);
@@ -289,7 +289,7 @@ describe('Export QA Webhook', () => {
   });
 
   test('webhook endpoint returns 500 when store throws during status update', async () => {
-    const { workspace, apiClient, auth0, app } = await setupApp({
+    const { workspace, apiClient, auth, app } = await setupApp({
       organizations,
       jurisdictions,
       users,
@@ -298,7 +298,7 @@ describe('Export QA Webhook', () => {
       },
     });
 
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     // Create an election and a QA run
     const electionId = await createElectionForTest(apiClient);

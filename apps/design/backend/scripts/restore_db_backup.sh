@@ -16,5 +16,5 @@ PGPASSWORD=design dropdb -h localhost -U design design
 PGPASSWORD=design createdb -h localhost -U design design
 PGPASSWORD=design pg_restore --verbose --clean --no-acl --no-owner -h localhost -U design -d design "${DB_BACKUP}"
 
-# Recreate the dev user used for local development when AUTH_ENABLED=FALSE
+# Recreate the dev user used for local development when AUTH_MODE=none
 pnpm insert-dev-data

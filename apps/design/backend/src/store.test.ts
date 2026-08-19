@@ -517,12 +517,12 @@ test('getExportedElectionDefinition returns the exported election including reor
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const electionId = (
     await apiClient.loadElection({
@@ -645,12 +645,12 @@ test('getExportedElectionDefinition returns the exported election including reor
 });
 
 test('createElectionPackageBackgroundTask clears previous export URLs', async () => {
-  const { apiClient, auth0, workspace } = await setupApp({
+  const { apiClient, auth, workspace } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const electionId = 'election-1';
   void (await apiClient.createElection({
@@ -697,12 +697,12 @@ test('createElectionPackageBackgroundTask clears previous export URLs', async ()
 });
 
 test('createTestDecksBackgroundTask clears previous export URL', async () => {
-  const { apiClient, auth0, workspace } = await setupApp({
+  const { apiClient, auth, workspace } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const electionId = 'election-1';
   void (await apiClient.createElection({
@@ -730,12 +730,12 @@ test('createTestDecksBackgroundTask clears previous export URL', async () => {
 });
 
 test('uses number-aware sorting on relevant entities', async () => {
-  const { apiClient, auth0, workspace } = await setupApp({
+  const { apiClient, auth, workspace } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const electionId = 'election-1';
   void (await apiClient.createElection({
@@ -794,12 +794,12 @@ test('getExportedElection returns election-out-of-date error when election data 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const electionId = (
     await apiClient.loadElection({
@@ -925,12 +925,12 @@ describe('Export QA run store methods', () => {
   });
 
   test('create and retrieve a QA run by ID', async () => {
-    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+    const { apiClient, auth, workspace } = await qaRunHelpers.setupApp({
       organizations,
       jurisdictions,
       users,
     });
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     const electionId = 'qa-run-election-1';
     void (await apiClient.createElection({
@@ -964,12 +964,12 @@ describe('Export QA run store methods', () => {
   });
 
   test('getLatestExportQaRunForElection returns most recent run', async () => {
-    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+    const { apiClient, auth, workspace } = await qaRunHelpers.setupApp({
       organizations,
       jurisdictions,
       users,
     });
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     const electionId = 'qa-run-election-2';
     void (await apiClient.createElection({
@@ -1006,12 +1006,12 @@ describe('Export QA run store methods', () => {
   });
 
   test('updateExportQaRunStatus updates status fields', async () => {
-    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+    const { apiClient, auth, workspace } = await qaRunHelpers.setupApp({
       organizations,
       jurisdictions,
       users,
     });
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     const electionId = 'qa-run-election-3';
     void (await apiClient.createElection({
@@ -1056,12 +1056,12 @@ describe('Export QA run store methods', () => {
   });
 
   test('createTestDecksBackgroundTask returns early when task is already in progress', async () => {
-    const { apiClient, auth0, workspace } = await qaRunHelpers.setupApp({
+    const { apiClient, auth, workspace } = await qaRunHelpers.setupApp({
       organizations,
       jurisdictions,
       users,
     });
-    auth0.setLoggedInUser(nonVxUser);
+    auth.setLoggedInUser(nonVxUser);
 
     const electionId = 'election-early-return';
     void (await apiClient.createElection({

@@ -39,6 +39,7 @@ import {
   getPrecinctsWithoutAbsenteePollingPlace,
   safeParseElectionDefinitionForAnySoftwareVersion,
   isCombinedBallotPrimary,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -107,6 +108,7 @@ import {
   resultsReportingUrl,
 } from './types.js';
 import { AppContext } from './context.js';
+import { SmartCardAuthClient } from './smart_card_auth.js';
 import {
   auth0ClientId,
   auth0IssuerBaseUrl,
@@ -115,7 +117,7 @@ import {
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
-  authEnabled,
+  authMode,
 } from './globals.js';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots.js';
 import {
@@ -197,7 +199,7 @@ function requireJurisdictionAccess(user: User, jurisdiction: Jurisdiction) {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {
-  const { auth0, logger, workspace, translator } = ctx;
+  const { auth, logger, workspace, translator } = ctx;
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
@@ -209,14 +211,10 @@ export function buildApi(ctx: AppContext) {
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
       async function loadUser({ request, context }) {
-        const userId = auth0.userIdFromRequest(request);
-        if (!userId) {
+        const user = await auth.getUser(request);
+        if (!user) {
           throw new AuthError('auth:unauthorized');
         }
-        const user = assertDefined(
-          await store.getUser(userId),
-          `Auth0 user ${userId} not found in database`
-        );
         return { ...context, user };
       },
 
@@ -1496,14 +1494,43 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
   return grout.createApi(methods, middlewares);
 }
 
+// Set up API endpoints that have to be accessible before the user has logged in
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildSmartCardAuthApi(auth?: SmartCardAuthClient) {
+  // Only add methods to this API that should be publicly accessible with no
+  // authentication.
+  const methods = {
+    /**
+     * Returns the machine's smart card auth status, or null if this deployment
+     * authenticates users some other way (e.g. via Auth0). Null rather than
+     * undefined because the frontend's query cache requires a defined result.
+     */
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus | null> {
+      return auth ? auth.getAuthStatus() : Promise.resolve(null);
+    },
+
+    checkPin(input: { pin: string }): Promise<void> {
+      return assertDefined(
+        auth,
+        'This deployment does not use smart card auth'
+      ).checkPin(input);
+    },
+  } as const;
+
+  return grout.createApi(methods);
+}
+
 export type Api = ReturnType<typeof buildApi>;
 export type UnauthenticatedApi = ReturnType<typeof buildUnauthenticatedApi>;
+export type SmartCardAuthApi = ReturnType<typeof buildSmartCardAuthApi>;
 
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
+  const smartCardAuth =
+    context.auth instanceof SmartCardAuthClient ? context.auth : undefined;
 
   /* istanbul ignore next */
-  if (authEnabled()) {
+  if (authMode() === 'auth0') {
     app.use(
       auth0Middleware({
         authRequired: false,
@@ -1528,13 +1555,33 @@ export function buildApp(context: AppContext): Application {
     );
   }
 
+  if (smartCardAuth) {
+    // Offline deployments have no Auth0 login page, so mirror Auth0's routes to
+    // keep the frontend's login/logout links working in both modes. Logging out
+    // means locking the machine, and the machine-locked screen takes the place
+    // of the login page.
+    app.get('/auth/login', (_req, res) => {
+      res.redirect('/');
+    });
+    app.get('/auth/logout', (_req, res) => {
+      smartCardAuth.logOut();
+      res.redirect('/');
+    });
+  }
+
+  app.use(
+    '/auth/api',
+    grout.buildRouter(buildSmartCardAuthApi(smartCardAuth), express, {
+      invalidInputBehavior: 'error',
+    })
+  );
+
   app.get('/files/:jurisdictionId/:fileName', async (req, res, next) => {
     try {
-      const userId = context.auth0.userIdFromRequest(req);
-      if (!userId) {
+      const user = await context.auth.getUser(req);
+      if (!user) {
         throw new AuthError('auth:unauthorized');
       }
-      const user = assertDefined(await context.workspace.store.getUser(userId));
       const { jurisdictionId, fileName } = req.params;
       const jurisdiction =
         await context.workspace.store.getJurisdiction(jurisdictionId);

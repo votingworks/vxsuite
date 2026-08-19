@@ -178,19 +178,19 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
 
   const invalidPayloads = [
     'bad-payload', // No separator
@@ -294,19 +294,19 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
 
   const mockResults = buildElectionResultsFixture({
     election: sampleElectionDefinition.election,
@@ -362,7 +362,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     )
   );
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   // Test that the results were actually stored in the database
   const storedResults = await apiClient.getLiveResultsReports({
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -630,13 +630,13 @@ test('quick results reporting works for polls open reporting', async () => {
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -935,13 +935,13 @@ test('quick results reporting works for polls paused reporting', async () => {
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -1009,13 +1009,13 @@ test('quick results reporting works for voting resumed reporting', async () => {
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -1084,19 +1084,19 @@ test('quick results reporting works as expected end to end with single precinct 
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
 
   // Use the first two precincts from the loaded election (whatever they are after processing)
   const firstPrecinctId = assertDefined(
@@ -1245,7 +1245,7 @@ test('quick results reporting works as expected end to end with single precinct 
     )
   );
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   // Verify getting results for first precinct individually
   const storedResultsFirstPrecinct = await apiClient.getLiveResultsReports({
@@ -1339,19 +1339,19 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
 
   // Create and submit some quick results data
   const sampleContest = sampleElectionDefinition.election.contests[0];
@@ -1399,7 +1399,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   });
   expect(testResult).toEqual(ok(expect.anything()));
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const storedTestResults = await apiClient.getLiveResultsReports({
     precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -1492,19 +1492,19 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
   const { contests } = sampleElectionDefinition.election;
   const contestId1 = contests[0].id;
   const contestIdLast = contests[contests.length - 1].id;
@@ -1574,7 +1574,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   );
 
   // Query stored results -> should not have machines reporting assembled data yet
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const storedAfterPage1 = await apiClient.getLiveResultsReports({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
@@ -1605,7 +1605,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     ballotCount: 0,
   })}`;
 
-  auth0.logOut();
+  auth.logOut();
   const r2 = await unauthenticatedApiClient.processQrCodeReport({
     payload: payloadPage2,
     signature: 'test-signature',
@@ -1641,7 +1641,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   );
 
   // Now the assembled result should be available
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const storedAfterPage2 = await apiClient.getLiveResultsReports({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     electionId: sampleElectionDefinition.election.id,
@@ -1679,19 +1679,19 @@ test('quick results reporting clears previous partial reports on numPages change
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
   const { contests } = sampleElectionDefinition.election;
   const contestId1 = contests[0].id;
   const contestIdLast = contests[contests.length - 1].id;
@@ -1894,19 +1894,19 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
     fileStorageClient
   );
-  auth0.logOut();
+  auth.logOut();
 
   const precinctA = sampleElectionDefinition.election.precincts[0].id;
   const precinctB = sampleElectionDefinition.election.precincts[1].id;
@@ -2064,13 +2064,13 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   // Load the base election
   const electionId = (
@@ -2173,7 +2173,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     numPages: 1,
   })[0];
 
-  auth0.logOut();
+  auth.logOut();
 
   const reportResult = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -2202,7 +2202,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
     )
   );
 
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
 
   const pollStatus = await apiClient.getLiveReportsSummary({ electionId });
   expect(pollStatus).toEqual(
@@ -2278,13 +2278,13 @@ test('getLiveReportsActivityLog returns activity log ordered by timestamp desc',
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -2344,13 +2344,13 @@ test('getLiveReportsActivityLog includes every state change for a machine', asyn
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -2407,13 +2407,13 @@ test('getLiveReportsActivityLog limits activity log to MAX_LIVE_REPORT_ACTIVITY_
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -2452,13 +2452,13 @@ test('getLiveReportsActivityLog filters activity log by votingGroup', async () =
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,
@@ -2569,13 +2569,13 @@ test('getLiveReportsActivityLog filter still honors the MAX limit', async () => 
     apiClient,
     workspace,
     fileStorageClient,
-    auth0,
+    auth,
   } = await setupApp({
     organizations,
     jurisdictions,
     users,
   });
-  auth0.setLoggedInUser(nonVxUser);
+  auth.setLoggedInUser(nonVxUser);
   const sampleElectionDefinition = await setUpElectionInSystem(
     apiClient,
     workspace,

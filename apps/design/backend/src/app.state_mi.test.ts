@@ -31,12 +31,12 @@ const miUser: JurisdictionUser = {
 };
 
 test('blank general election omits straight party contest', async () => {
-  const { apiClient, auth0 } = await setupApp({
+  const { apiClient, auth } = await setupApp({
     organizations,
     jurisdictions,
     users: [...users, miUser],
   });
-  auth0.setLoggedInUser(miUser);
+  auth.setLoggedInUser(miUser);
 
   const electionId = (
     await apiClient.createElection({
@@ -51,12 +51,12 @@ test('blank general election omits straight party contest', async () => {
 
 test('general elections include generated straight party contest', async () => {
   const election = electionGeneralFixtures.readElection();
-  const { apiClient, auth0, workspace, fileStorageClient } = await setupApp({
+  const { apiClient, auth, workspace, fileStorageClient } = await setupApp({
     organizations,
     jurisdictions,
     users: [...users, miUser],
   });
-  auth0.setLoggedInUser(miUser);
+  auth.setLoggedInUser(miUser);
 
   const electionId = (
     await apiClient.loadElection({

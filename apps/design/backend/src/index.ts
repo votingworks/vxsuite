@@ -4,13 +4,17 @@ import { fileURLToPath } from 'node:url';
 import './configure_sentry.js'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import { throwIllegalValue } from '@votingworks/basics';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
-import { authEnabled, WORKSPACE } from './globals.js';
+import { authMode, WORKSPACE } from './globals.js';
 import * as server from './server.js';
 import { createWorkspace } from './workspace.js';
+import { Store } from './store.js';
 import { GoogleCloudTranslatorWithDbCache } from './translator.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer.js';
 import { Auth0Client } from './auth0_client.js';
+import { Auth0AuthClient, AuthClient } from './auth.js';
+import { SmartCardAuthClient } from './smart_card_auth.js';
 import {
   LocalFileStorageClient,
   S3FileStorageClient,
@@ -51,7 +55,12 @@ export type {
   UserFeature,
   UserFeaturesConfig,
 } from './features.js';
-export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
+export type {
+  Api,
+  AuthErrorCode,
+  SmartCardAuthApi,
+  UnauthenticatedApi,
+} from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
 
 export type { BallotTemplateId } from '@votingworks/hmpb';
@@ -60,6 +69,20 @@ export type { BallotTemplateId } from '@votingworks/hmpb';
 export { createBlankElection } from './app.js';
 
 loadEnvVarsFromDotenvFiles();
+
+function createAuthClient(store: Store, baseLogger: BaseLogger): AuthClient {
+  const mode = authMode();
+  switch (mode) {
+    case 'auth0':
+      return new Auth0AuthClient(Auth0Client.init(), store);
+    case 'smart-card':
+      return SmartCardAuthClient.init(baseLogger);
+    case 'none':
+      return new Auth0AuthClient(Auth0Client.dev(), store);
+    default:
+      return throwIllegalValue(mode);
+  }
+}
 
 async function main(): Promise<number> {
   if (!WORKSPACE) {
@@ -72,7 +95,7 @@ async function main(): Promise<number> {
   const workspace = createWorkspace(workspacePath, baseLogger);
   const { store } = workspace;
 
-  const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
+  const auth = createAuthClient(store, baseLogger);
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
   // requirements in VxDesign, so we can use it a bit loosely. For example, the
@@ -91,7 +114,7 @@ async function main(): Promise<number> {
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
   server.start({
-    auth0,
+    auth,
     fileStorageClient,
     logger,
     speechSynthesizer,

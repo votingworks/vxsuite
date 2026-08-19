@@ -7,6 +7,7 @@ declare namespace NodeJS {
     readonly VX_MACHINE_TYPE?:
       | 'admin'
       | 'central-scan'
+      | 'design'
       | 'mark'
       | 'mark-scan'
       | 'poll-book'

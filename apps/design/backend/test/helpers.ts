@@ -9,6 +9,7 @@ import {
   assertDefined,
   err,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -34,9 +35,10 @@ import { vi } from 'vitest';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
-import type { Api, UnauthenticatedApi } from '../src/app.js';
+import type { Api, SmartCardAuthApi, UnauthenticatedApi } from '../src/app.js';
 import { buildApp } from '../src/app.js';
-import { Auth0ClientInterface } from '../src/auth0_client.js';
+import { AuthClient } from '../src/auth.js';
+import { SmartCardAuthClient } from '../src/smart_card_auth.js';
 import {
   FileStorageClient,
   FileStorageClientError,
@@ -46,6 +48,7 @@ import { GoogleCloudTranslatorWithDbCache } from '../src/translator.js';
 import { Jurisdiction, Organization, User } from '../src/types.js';
 import * as worker from '../src/worker/worker.js';
 import { createWorkspace, Workspace } from '../src/workspace.js';
+import { Store } from '../src/store.js';
 import { TestStore } from './test_store.js';
 import {
   AllPrecinctsTallyReportRow,
@@ -65,19 +68,23 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.SPANISH]: {},
 };
 
-class MockAuth0Client implements Auth0ClientInterface {
-  private loggedInUser?: User;
+class MockAuthClient implements AuthClient {
+  private loggedInUserId?: string;
+
+  constructor(private readonly store: Store) {}
 
   setLoggedInUser(user: User) {
-    this.loggedInUser = user;
+    this.loggedInUserId = user.id;
   }
 
   logOut() {
-    this.loggedInUser = undefined;
+    this.loggedInUserId = undefined;
   }
 
-  userIdFromRequest() {
-    return this.loggedInUser?.id;
+  async getUser(): Promise<Optional<User>> {
+    return this.loggedInUserId
+      ? await this.store.getUser(this.loggedInUserId)
+      : undefined;
   }
 }
 
@@ -163,11 +170,17 @@ export function testSetupHelpers() {
     jurisdictions,
     users,
     env,
+    smartCardAuth,
   }: {
     organizations: Organization[];
     jurisdictions: Jurisdiction[];
     users: User[];
     env?: Record<string, string>;
+    /**
+     * Authenticate with smart cards, as offline deployments do, instead of with
+     * the mock Auth0 client returned as `auth`.
+     */
+    smartCardAuth?: SmartCardAuthClient;
   }) {
     // Set environment variables for this test
     const originalEnv = { ...process.env } as const;
@@ -191,7 +204,7 @@ export function testSetupHelpers() {
       }
     }
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
-    const auth0 = new MockAuth0Client();
+    const auth = new MockAuthClient(store);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
@@ -205,7 +218,7 @@ export function testSetupHelpers() {
       vendoredTranslations,
     });
     const app = buildApp({
-      auth0,
+      auth: smartCardAuth ?? auth,
       fileStorageClient,
       logger,
       speechSynthesizer,
@@ -222,12 +235,16 @@ export function testSetupHelpers() {
     const unauthenticatedApiClient = grout.createClient<UnauthenticatedApi>({
       baseUrl: `${baseUrl}/public/api`,
     });
+    const smartCardAuthApiClient = grout.createClient<SmartCardAuthApi>({
+      baseUrl: `${baseUrl}/auth/api`,
+    });
     return {
       baseUrl,
       apiClient,
       unauthenticatedApiClient,
+      smartCardAuthApiClient,
       workspace,
-      auth0,
+      auth,
       fileStorageClient,
       logger,
       translator,

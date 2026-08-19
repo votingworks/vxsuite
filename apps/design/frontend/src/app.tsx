@@ -21,6 +21,12 @@ import {
   UnauthenticatedApiClient,
   UnauthenticatedApiClientContext,
 } from './public_api.js';
+import {
+  createSmartCardAuthApiClient,
+  SmartCardAuthApiClient,
+  SmartCardAuthApiClientContext,
+} from './auth_api.js';
+import { SmartCardAuthGate } from './smart_card_auth.js';
 import { electionParamRoutes, routes, resultsRoutes } from './routes.js';
 import { ElectionInfoScreen } from './election_info_screen.js';
 import { ContestsScreen } from './contests_screen.js';
@@ -114,9 +120,11 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
 export function App({
   apiClient = createApiClient(),
   unauthenticatedApiClient = createUnauthenticatedApiClient(),
+  smartCardAuthApiClient = createSmartCardAuthApiClient(),
 }: {
   apiClient?: ApiClient;
   unauthenticatedApiClient?: UnauthenticatedApiClient;
+  smartCardAuthApiClient?: SmartCardAuthApiClient;
 }): JSX.Element {
   const [electionsFilterText, setElectionsFilterText] = useState('');
   return (
@@ -136,20 +144,26 @@ export function App({
                   <ReportingResultsConfirmationScreen />
                 </UnauthenticatedApiClientContext.Provider>
               </Route>
-              <ApiClientContext.Provider value={apiClient}>
-                <WaitForUserInfo>
-                  <Route path={routes.root.path} exact>
-                    <HomeScreen
-                      electionsFilterText={electionsFilterText}
-                      setElectionsFilterText={setElectionsFilterText}
-                    />
-                  </Route>
-                  <Route
-                    path={electionParamRoutes.root.path}
-                    component={ElectionScreens}
-                  />
-                </WaitForUserInfo>
-              </ApiClientContext.Provider>
+              <SmartCardAuthApiClientContext.Provider
+                value={smartCardAuthApiClient}
+              >
+                <ApiClientContext.Provider value={apiClient}>
+                  <SmartCardAuthGate>
+                    <WaitForUserInfo>
+                      <Route path={routes.root.path} exact>
+                        <HomeScreen
+                          electionsFilterText={electionsFilterText}
+                          setElectionsFilterText={setElectionsFilterText}
+                        />
+                      </Route>
+                      <Route
+                        path={electionParamRoutes.root.path}
+                        component={ElectionScreens}
+                      />
+                    </WaitForUserInfo>
+                  </SmartCardAuthGate>
+                </ApiClientContext.Provider>
+              </SmartCardAuthApiClientContext.Provider>
             </Switch>
           </BrowserRouter>
         </QueryClientProvider>

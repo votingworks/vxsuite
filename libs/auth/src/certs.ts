@@ -20,8 +20,8 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
  */
 const VX_CUSTOM_CERT_FIELD = {
   /**
-   * One of: admin, central-scan, mark, mark-scan, poll-book, scan, card (the first six referring
-   * to machines)
+   * One of: admin, central-scan, design, mark, mark-scan, poll-book, scan, card (the first seven
+   * referring to machines)
    */
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
@@ -56,6 +56,10 @@ interface VxAdminCustomCertFields extends BaseMachineCustomCertFields {
 
 interface VxCentralScanCustomCertFields extends BaseMachineCustomCertFields {
   component: 'central-scan';
+}
+
+interface VxDesignCustomCertFields extends BaseMachineCustomCertFields {
+  component: 'design';
 }
 
 interface VxMarkCustomCertFields extends BaseMachineCustomCertFields {
@@ -113,6 +117,7 @@ export type CardCustomCertFields =
 export type MachineCustomCertFields =
   | VxAdminCustomCertFields
   | VxCentralScanCustomCertFields
+  | VxDesignCustomCertFields
   | VxMarkCustomCertFields
   | VxMarkScanCustomCertFields
   | VxScanCustomCertFields
@@ -158,6 +163,12 @@ const VxAdminCustomCertFieldsSchema: z.ZodSchema<VxAdminCustomCertFields> =
 const VxCentralScanCustomCertFieldsSchema: z.ZodSchema<VxCentralScanCustomCertFields> =
   z.strictObject({
     component: z.literal('central-scan'),
+    machineId: z.string(),
+  });
+
+const VxDesignCustomCertFieldsSchema: z.ZodSchema<VxDesignCustomCertFields> =
+  z.strictObject({
+    component: z.literal('design'),
     machineId: z.string(),
   });
 
@@ -231,6 +242,7 @@ const CardCustomCertFieldsSchema: z.ZodSchema<CardCustomCertFields> = z.union([
 const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
   VxAdminCustomCertFieldsSchema,
   VxCentralScanCustomCertFieldsSchema,
+  VxDesignCustomCertFieldsSchema,
   VxMarkCustomCertFieldsSchema,
   VxMarkScanCustomCertFieldsSchema,
   VxScanCustomCertFieldsSchema,
