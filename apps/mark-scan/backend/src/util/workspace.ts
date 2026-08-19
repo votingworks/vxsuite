@@ -1,6 +1,6 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
-import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
+import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
@@ -45,6 +45,9 @@ export function createWorkspace(
     reset() {
       store.reset();
     },
-    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
+    getDiskSpaceSummary: async () => {
+      const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
+      return summary;
+    },
   };
 }

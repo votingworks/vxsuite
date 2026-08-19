@@ -10,7 +10,10 @@ import { execFile } from '../exec';
 import { AudioInfo, getAudioInfo } from './get_audio_info';
 import { BatteryInfo, getBatteryInfo } from './get_battery_info';
 import { LogsExportError } from './export_logs_to_usb';
-import { getDiskSpaceSummary } from './get_disk_space_summary';
+import {
+  PathDiskSpaceSummary,
+  getDiskSpaceSummaries,
+} from './disk_space_summaries';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -27,7 +30,7 @@ vi.mock(
 
 vi.mock(import('./get_audio_info.js'));
 vi.mock(import('./get_battery_info.js'));
-vi.mock(import('./get_disk_space_summary.js'));
+vi.mock(import('./disk_space_summaries.js'));
 
 const actualTimezone = process.env['TZ'];
 
@@ -204,16 +207,20 @@ test('getBatteryInfo', async () => {
 });
 
 test('getDiskSpaceSummary logs when disk space is low', async () => {
-  const diskSpaceSummaryLowAvailable: DiskSpaceSummary = {
+  const workspaceSummary: PathDiskSpaceSummary = {
+    path: 'TEST-WORKSPACE-PATH',
+    mountpoint: '/',
     total: 1000,
     used: 990,
     available: 10,
   };
-  vi.mocked(getDiskSpaceSummary).mockResolvedValue(
-    diskSpaceSummaryLowAvailable
-  );
-  expect(await api.getDiskSpaceSummary()).toEqual(diskSpaceSummaryLowAvailable);
-  expect(getDiskSpaceSummary).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
+  vi.mocked(getDiskSpaceSummaries).mockResolvedValue([workspaceSummary]);
+  expect(await api.getDiskSpaceSummary()).toEqual<DiskSpaceSummary>({
+    total: 1000,
+    used: 990,
+    available: 10,
+  });
+  expect(getDiskSpaceSummaries).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.LowDiskSpace,
     expect.objectContaining({
@@ -223,17 +230,19 @@ test('getDiskSpaceSummary logs when disk space is low', async () => {
 });
 
 test('getDiskSpaceSummary does not log when disk space is sufficient', async () => {
-  const diskSpaceSummaryPlentyAvailable: DiskSpaceSummary = {
+  const workspaceSummary: PathDiskSpaceSummary = {
+    path: 'TEST-WORKSPACE-PATH',
+    mountpoint: '/',
     total: 1000,
     used: 500,
     available: 500,
   };
-  vi.mocked(getDiskSpaceSummary).mockResolvedValue(
-    diskSpaceSummaryPlentyAvailable
-  );
-  expect(await api.getDiskSpaceSummary()).toEqual(
-    diskSpaceSummaryPlentyAvailable
-  );
-  expect(getDiskSpaceSummary).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
+  vi.mocked(getDiskSpaceSummaries).mockResolvedValue([workspaceSummary]);
+  expect(await api.getDiskSpaceSummary()).toEqual<DiskSpaceSummary>({
+    total: 1000,
+    used: 500,
+    available: 500,
+  });
+  expect(getDiskSpaceSummaries).toHaveBeenCalledWith(['TEST-WORKSPACE-PATH']);
   expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
 });

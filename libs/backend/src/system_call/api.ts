@@ -1,6 +1,7 @@
 import { UsbDrive } from '@votingworks/usb-drive';
 import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
 import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 
 import { GetAuthStatus } from './auth';
 import { exportLogsToUsb } from './export_logs_to_usb';
@@ -10,7 +11,7 @@ import { powerDown } from './power_down';
 import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
-import { getDiskSpaceSummary } from './get_disk_space_summary';
+import { getDiskSpaceSummaries } from './disk_space_summaries';
 import { NODE_ENV } from '../scan_globals';
 import {
   getUsbPortStatus,
@@ -54,7 +55,10 @@ function buildApi({
     toggleUsbPorts: async (input: { action: UsbPortAction }) =>
       toggleUsbPorts({ action: input.action, logger, nodeEnv: NODE_ENV }),
     getDiskSpaceSummary: async () => {
-      const diskSpaceSummary = await getDiskSpaceSummary([workspacePath]);
+      const [{ total, used, available }] = await getDiskSpaceSummaries([
+        workspacePath,
+      ]);
+      const diskSpaceSummary: DiskSpaceSummary = { total, used, available };
       const warningMessage = getLowDiskSpaceWarningMessage(diskSpaceSummary);
       if (warningMessage) {
         void logger.logAsCurrentRole(LogEventId.LowDiskSpace, {

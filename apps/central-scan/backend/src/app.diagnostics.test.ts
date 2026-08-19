@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   getBatteryInfo,
-  getDiskSpaceSummary,
+  getDiskSpaceSummaries,
   pdfToText,
 } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -20,16 +20,20 @@ vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {
     const actual = await importActual();
-    const mockedGetDiskSpaceSummary = vi.fn();
+    const mockedGetDiskSpaceSummaries = vi.fn();
     return {
       ...actual,
       getBatteryInfo: vi.fn(),
-      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      getDiskSpaceSummaries: mockedGetDiskSpaceSummaries,
       createSystemCallApi: (
         ...args: Parameters<typeof actual.createSystemCallApi>
       ) => ({
         ...actual.createSystemCallApi(...args),
-        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+        getDiskSpaceSummary: async () => {
+          const [{ total, used, available }] =
+            await mockedGetDiskSpaceSummaries([args[0].workspacePath]);
+          return { total, used, available };
+        },
       }),
     };
   }
@@ -46,7 +50,9 @@ beforeEach(() => {
     level: 0.5,
     discharging: false,
   });
-  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
+  vi.mocked(getDiskSpaceSummaries).mockResolvedValue([
+    { path: 'mock-workspace', mountpoint: '/', ...MOCK_DISK_SPACE_SUMMARY },
+  ]);
 });
 
 test('getDiskSpaceSummary', async () => {
@@ -90,8 +96,14 @@ test('save readiness report', async () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-front.jpg'
+          ),
+          backPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-back.jpg'
+          ),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -144,8 +156,14 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-front.jpg'
+          ),
+          backPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-back.jpg'
+          ),
         })
         .end();
 
@@ -183,8 +201,14 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(import.meta.dirname, '../test/fixtures/streaked-page.jpg'),
-          backPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-back.jpg'),
+          frontPath: join(
+            import.meta.dirname,
+            '../test/fixtures/streaked-page.jpg'
+          ),
+          backPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-back.jpg'
+          ),
         })
         .end();
       await apiClient.performScanDiagnostic();
@@ -214,8 +238,14 @@ describe('scan diagnostic', () => {
       scanner
         .withNextScannerSession()
         .sheet({
-          frontPath: join(import.meta.dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          backPath: join(import.meta.dirname, '../test/fixtures/streaked-page.jpg'),
+          frontPath: join(
+            import.meta.dirname,
+            '../test/fixtures/blank-sheet-front.jpg'
+          ),
+          backPath: join(
+            import.meta.dirname,
+            '../test/fixtures/streaked-page.jpg'
+          ),
         })
         .end();
       await apiClient.performScanDiagnostic();

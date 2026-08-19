@@ -3,7 +3,7 @@ import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   getBatteryInfo,
-  getDiskSpaceSummary,
+  getDiskSpaceSummaries,
   pdfToText,
 } from '@votingworks/backend';
 import {
@@ -40,16 +40,20 @@ vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {
     const actual = await importActual();
-    const mockedGetDiskSpaceSummary = vi.fn();
+    const mockedGetDiskSpaceSummaries = vi.fn();
     return {
       ...actual,
       getBatteryInfo: vi.fn(),
-      getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+      getDiskSpaceSummaries: mockedGetDiskSpaceSummaries,
       createSystemCallApi: (
         ...args: Parameters<typeof actual.createSystemCallApi>
       ) => ({
         ...actual.createSystemCallApi(...args),
-        getDiskSpaceSummary: mockedGetDiskSpaceSummary,
+        getDiskSpaceSummary: async () => {
+          const [{ total, used, available }] =
+            await mockedGetDiskSpaceSummaries([args[0].workspacePath]);
+          return { total, used, available };
+        },
       }),
     };
   }
@@ -91,7 +95,9 @@ beforeEach(() => {
     level: 0.5,
     discharging: false,
   });
-  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
+  vi.mocked(getDiskSpaceSummaries).mockResolvedValue([
+    { path: 'mock-workspace', mountpoint: '/', ...MOCK_DISK_SPACE_SUMMARY },
+  ]);
 });
 
 test('diagnostic records', async () => {
