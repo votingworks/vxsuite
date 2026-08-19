@@ -26,6 +26,7 @@ import {
   PartyId,
   Precinct,
   PrecinctId,
+  PrecinctWithoutSplits,
   YesNoContest,
   YesNoOption,
   UiStringsPackage,
@@ -35,7 +36,7 @@ import {
   Contest,
   ElectionType,
 } from '@votingworks/types';
-import { DateWithoutTime, assertDefined } from '@votingworks/basics';
+import { DateWithoutTime, assertDefined, deepEqual } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import { TestLanguageCode } from './test_language_code';
 
@@ -493,12 +494,22 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
         districts: fc
           .array(arbitraryDistrict(), { minLength: 1 })
           .filter(hasUniqueIds),
-        precincts: fc
-          .array(arbitraryPrecinct(), { minLength: 1 })
-          .filter(hasUniqueIds),
         parties: fc.array(arbitraryParty()).filter(hasUniqueIds),
       })
       .filter(({ type, parties }) => type === 'general' || parties.length > 0)
+      .chain(({ type, districts, parties }) =>
+        fc
+          .array(
+            arbitraryPrecinct({
+              districtIds: fc
+                .shuffledSubarray(districts, { minLength: 1 })
+                .map((values) => values.map(({ id }) => id)),
+            }) as fc.Arbitrary<PrecinctWithoutSplits>,
+            { minLength: 1 }
+          )
+          .filter(hasUniqueIds)
+          .map((precincts) => ({ type, districts, parties, precincts }))
+      )
       .chain(({ type, districts, precincts, parties }) =>
         fc.record<Election>({
           id: arbitraryElectionId(),
@@ -525,17 +536,32 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           }),
           ballotStyles: fc
             .array(
-              arbitraryBallotStyle({
-                districtIds: fc
-                  .shuffledSubarray(districts, { minLength: 1 })
-                  .map((values) => values.map(({ id }) => id)),
-                precinctIds: fc
-                  .shuffledSubarray(precincts, { minLength: 1 })
-                  .map((values) => values.map(({ id }) => id)),
-                partyId:
-                  type === 'primary'
-                    ? fc.constantFrom(...parties.map(({ id }) => id))
-                    : fc.constant(undefined),
+              // A ballot style's districts must exactly match the districts of
+              // each precinct it is assigned to, so derive each ballot style
+              // from a precinct: its districts are a permutation of that
+              // precinct's, and it may span any precincts with the same
+              // districts.
+              fc.constantFrom(...precincts).chain((precinct) => {
+                const matchingPrecinctIds = precincts
+                  .filter((p) =>
+                    deepEqual(
+                      [...p.districtIds].sort(),
+                      [...precinct.districtIds].sort()
+                    )
+                  )
+                  .map(({ id }) => id);
+                return arbitraryBallotStyle({
+                  districtIds: fc.shuffledSubarray([...precinct.districtIds], {
+                    minLength: precinct.districtIds.length,
+                  }),
+                  precinctIds: fc.shuffledSubarray(matchingPrecinctIds, {
+                    minLength: 1,
+                  }),
+                  partyId:
+                    type === 'primary'
+                      ? fc.constantFrom(...parties.map(({ id }) => id))
+                      : fc.constant(undefined),
+                });
               }),
               { minLength: 1 }
             )
