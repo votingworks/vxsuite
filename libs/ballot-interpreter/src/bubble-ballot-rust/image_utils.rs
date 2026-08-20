@@ -463,8 +463,7 @@ pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
     const HISTOGRAM_SHARDS: usize = 8;
 
     let mut shards = [[0u32; 256]; HISTOGRAM_SHARDS];
-    let chunks = pixels.chunks_exact(HISTOGRAM_SHARDS);
-    let remainder = chunks.remainder();
+    let (chunks, remainder) = pixels.as_chunks::<HISTOGRAM_SHARDS>();
     for chunk in chunks {
         for (shard, &p) in shards.iter_mut().zip(chunk.iter()) {
             shard[p as usize] += 1;
