@@ -247,7 +247,7 @@ test('reports ballot-hash-mismatch when the host is configured for a different e
   });
 });
 
-test('reports host-detected and reuses the API client when everything matches', async () => {
+test('reports host-detected when everything matches', async () => {
   vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
   const mockClient = createMockHostApiClient();
   const store = Store.memoryStore();
@@ -263,10 +263,6 @@ test('reports host-detected and reuses the API client when everything matches', 
     codeVersion: 'dev',
     ballotHash: readElectionGeneralDefinition().ballotHash,
   });
-
-  // A second poll of the same host reuses the same API client
-  await advancePollingInterval();
-  expect(grout.createClient).toHaveBeenCalledTimes(1);
 });
 
 test('logs status transitions and returns to offline when the interface goes down', async () => {

@@ -67,19 +67,11 @@ export function startScannerNetworking({
     store.setNetworkConnectionInfo(newInfo);
   }
 
-  const apiClients = new Map<string, grout.Client<VxAdminHostApi>>();
-
-  function getApiClient(address: string): grout.Client<VxAdminHostApi> {
-    let apiClient = apiClients.get(address);
-    if (!apiClient) {
-      debug('Creating peer API client for %s', address);
-      apiClient = grout.createClient<VxAdminHostApi>({
-        baseUrl: `${address}/api`,
-        timeout: NETWORK_REQUEST_TIMEOUT_MS,
-      });
-      apiClients.set(address, apiClient);
-    }
-    return apiClient;
+  function createApiClient(address: string): grout.Client<VxAdminHostApi> {
+    return grout.createClient<VxAdminHostApi>({
+      baseUrl: `${address}/api`,
+      timeout: NETWORK_REQUEST_TIMEOUT_MS,
+    });
   }
 
   let isPolling = false;
@@ -114,7 +106,7 @@ export function startScannerNetworking({
           const reachableHosts: VxAdminHostMachine[] = [];
           for (const candidate of hostMachines) {
             try {
-              await getApiClient(
+              await createApiClient(
                 candidate.address
               ).getCurrentElectionMetadata();
               reachableHosts.push(candidate);
@@ -141,7 +133,7 @@ export function startScannerNetworking({
           [hostMachine] = reachableHosts;
         }
         const { machineId: hostMachineId } = hostMachine;
-        const apiClient = getApiClient(hostMachine.address);
+        const apiClient = createApiClient(hostMachine.address);
 
         const { machineId, codeVersion } = getMachineConfig();
         let registerResult;
