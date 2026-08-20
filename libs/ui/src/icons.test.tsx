@@ -28,6 +28,7 @@ test(`Icon renders with color`, () => {
     inverse: theme.colors.onInverse,
     inversePrimary: theme.colors.inversePrimary,
     inverseWarning: theme.colors.inverseWarningAccent,
+    inverseDanger: theme.colors.inverseDangerAccent,
   };
 
   for (const [color, expectedColor] of Object.entries(expectedColors)) {

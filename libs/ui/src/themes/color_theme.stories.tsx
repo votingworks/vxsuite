@@ -487,6 +487,20 @@ export function ColorThemes(): JSX.Element {
                 <ContrastTag />
               </span>
             </Accent>
+            <Accent>
+              <span
+                style={{
+                  color: colors.inverseDangerAccent,
+                  fontSize: '1.5rem',
+                }}
+              >
+                <Icons.Danger />
+              </span>
+              Inverse Danger Accent
+              <span style={{ color: colors.inverseDangerAccent }}>
+                <ContrastTag />
+              </span>
+            </Accent>
           </div>
         </RoundedRect>
         <RoundedRect
