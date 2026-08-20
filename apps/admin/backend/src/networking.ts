@@ -4,6 +4,8 @@ import {
   findAllVxAdminHostMachines,
   getVxAdminServiceName,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
+  NETWORK_REQUEST_TIMEOUT_MS,
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
@@ -21,10 +23,6 @@ import { ClientConnectionStatus } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
 import { rootDebug } from './util/debug.js';
-import {
-  NETWORK_POLLING_INTERVAL_MS,
-  NETWORK_REQUEST_TIMEOUT_MS,
-} from './globals.js';
 
 const debug = rootDebug.extend('networking');
 
@@ -119,7 +117,7 @@ export function startHostNetworking({
         const isOnline = await hasOnlineInterface();
         store.setNetworkedMachineStatus(
           machineId,
-          'host',
+          'admin-host',
           isOnline
             ? Admin.ClientMachineStatus.Active
             : Admin.ClientMachineStatus.Offline
@@ -140,7 +138,7 @@ export function startHostNetworking({
             await peerClient.getCurrentElectionMetadata();
             store.setNetworkedMachineStatus(
               otherHost.machineId,
-              'host',
+              'admin-host',
               Admin.ClientMachineStatus.Active
             );
           } catch {
@@ -340,17 +338,18 @@ export function startClientNetworking({
             constructAuthMachineState(clientStore)
           );
           const { status, authType } = getClientMachineStatus(authStatus);
-          const hostConfig = await apiClient.connectToHost({
+          const registerResult = await apiClient.registerAdjudicationStation({
             machineId,
             codeVersion,
             status,
             authType,
           });
-          if (codeVersion !== hostConfig.codeVersion) {
+          if (registerResult.isErr()) {
+            const errorType = registerResult.err().type;
+            assert(errorType === 'code-version-mismatch');
             debug(
-              'Host at %s runs incompatible code version %s (client is %s), refusing to connect',
+              'Host at %s refused registration: incompatible code version (client is %s)',
               hostAddress,
-              hostConfig.codeVersion,
               codeVersion
             );
             logStatusTransition(
@@ -358,17 +357,14 @@ export function startClientNetworking({
                 connectionStatus:
                   ClientConnectionStatus.OnlineIncompatibleHostVersion,
               },
-              {
-                hostMachineId: hostConfig.machineId,
-                hostCodeVersion: hostConfig.codeVersion,
-                clientCodeVersion: codeVersion,
-              }
+              { clientCodeVersion: codeVersion }
             );
             clientStore.setConnection(
               ClientConnectionStatus.OnlineIncompatibleHostVersion
             );
             return;
           }
+          const hostConfig = registerResult.ok();
           logStatusTransition(
             {
               connectionStatus: ClientConnectionStatus.OnlineConnectedToHost,

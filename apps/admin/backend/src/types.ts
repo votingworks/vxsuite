@@ -32,11 +32,22 @@ export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
  */
 export type MachineMode = 'host' | 'client';
 
+/**
+ * The role a machine plays on the network: a VxAdmin host or client, or a
+ * networked central scanner.
+ */
+export type NetworkedMachineRole = 'admin-host' | 'admin-client' | 'scanner';
+
 /** Shared interface for stores that support auth state construction. */
 export interface BaseStore {
   getCurrentElectionId(): Id | undefined;
   getElectionKey(electionId: Id): ElectionKey | undefined;
   getSystemSettings(electionId: Id): SystemSettings | undefined;
+}
+
+/** Why a VxAdmin host refused to register an adjudication station. */
+export interface RegisterAdjudicationStationError {
+  type: 'code-version-mismatch';
 }
 
 /** Connection status for a client machine in a multi-station setup. */
@@ -51,7 +62,7 @@ export enum ClientConnectionStatus {
 /** A record of a machine in the multi-station machines table. */
 export interface MachineRecord {
   machineId: string;
-  machineMode: MachineMode;
+  machineRole: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
   lastSeenAt: number;

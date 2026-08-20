@@ -1,19 +1,46 @@
-import { deepEqual } from '@votingworks/basics';
+import { deepEqual, throwIllegalValue } from '@votingworks/basics';
+import * as grout from '@votingworks/grout';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
+  NETWORK_REQUEST_TIMEOUT_MS,
+  RegisterScannerError,
+  VxAdminHostApi,
+  VxAdminHostMachine,
 } from '@votingworks/networking';
 import makeDebug from 'debug';
-import { NETWORK_POLLING_INTERVAL_MS } from './globals.js';
+import { getMachineConfig } from './machine_config.js';
 import { Store } from './store.js';
-import { NetworkConnectionInfo } from './types.js';
+import { NetworkConnectionInfo, NetworkConnectionStatus } from './types.js';
 
 const debug = makeDebug('scan:networking');
 
+function statusForRegistrationError(
+  error: RegisterScannerError
+): NetworkConnectionStatus {
+  const errorType = error.type;
+  switch (errorType) {
+    case 'code-version-mismatch':
+      return 'online-code-version-mismatch';
+    case 'scanner-unconfigured':
+      return 'online-machine-unconfigured';
+    case 'host-unconfigured':
+      return 'online-host-unconfigured';
+    case 'ballot-hash-mismatch':
+      return 'online-ballot-hash-mismatch';
+    // istanbul ignore next -- compile-time check
+    default:
+      return throwIllegalValue(errorType);
+  }
+}
+
 /**
  * Starts scanner networking: watches the network for an advertised VxAdmin
- * host via avahi and tracks the scanner's connection status in the store.
+ * host via avahi, registers with it (the host refuses registration when the
+ * scanner is incompatible — different software version or election), and
+ * tracks the resulting connection status in the store.
  */
 export function startScannerNetworking({
   logger,
@@ -40,6 +67,13 @@ export function startScannerNetworking({
     store.setNetworkConnectionInfo(newInfo);
   }
 
+  function createApiClient(address: string): grout.Client<VxAdminHostApi> {
+    return grout.createClient<VxAdminHostApi>({
+      baseUrl: `${address}/api`,
+      timeout: NETWORK_REQUEST_TIMEOUT_MS,
+    });
+  }
+
   let isPolling = false;
 
   process.nextTick(() => {
@@ -62,11 +96,73 @@ export function startScannerNetworking({
           return;
         }
 
-        // TODO(@caro) - Handle error conditions when there are multiple hosts, mismatched code versions, mismatched ballot hashes, etc.
-        const [hostMachine] = hostMachines;
+        let hostMachine: VxAdminHostMachine;
+        if (hostMachines.length === 1) {
+          [hostMachine] = hostMachines;
+        } else {
+          // Avahi advertisements alone can be stale (e.g. an orphaned
+          // advertisement from a rebooted VxAdmin), so verify each advertised
+          // host by communicating with it before declaring a conflict.
+          const reachableHosts: VxAdminHostMachine[] = [];
+          for (const candidate of hostMachines) {
+            try {
+              await createApiClient(
+                candidate.address
+              ).getCurrentElectionMetadata();
+              reachableHosts.push(candidate);
+            } catch {
+              debug(
+                'Advertised host %s at %s unreachable, ignoring',
+                candidate.machineId,
+                candidate.address
+              );
+            }
+          }
+          if (reachableHosts.length === 0) {
+            setConnectionInfo({ status: 'online-waiting-for-host' });
+            return;
+          }
+          if (reachableHosts.length > 1) {
+            debug(
+              'Multiple reachable VxAdmin hosts found on network (%d)',
+              reachableHosts.length
+            );
+            setConnectionInfo({ status: 'online-multiple-hosts-detected' });
+            return;
+          }
+          [hostMachine] = reachableHosts;
+        }
+        const { machineId: hostMachineId } = hostMachine;
+        const apiClient = createApiClient(hostMachine.address);
+
+        const { machineId, codeVersion } = getMachineConfig();
+        let registerResult;
+        try {
+          registerResult = await apiClient.registerScanner({
+            machineId,
+            codeVersion,
+            ballotHash:
+              store.getElectionRecord()?.electionDefinition.ballotHash,
+          });
+        } catch (error) {
+          debug('Host at %s unreachable: %s', hostMachine.address, error);
+          setConnectionInfo({ status: 'online-waiting-for-host' });
+          return;
+        }
+
+        if (registerResult.isErr()) {
+          const error = registerResult.err();
+          debug('Host %s refused registration: %s', hostMachineId, error.type);
+          setConnectionInfo({
+            status: statusForRegistrationError(error),
+            hostMachineId,
+          });
+          return;
+        }
+
         setConnectionInfo({
           status: 'online-host-detected',
-          hostMachineId: hostMachine.machineId,
+          hostMachineId,
         });
       } catch (error) {
         /* istanbul ignore next - defensive */

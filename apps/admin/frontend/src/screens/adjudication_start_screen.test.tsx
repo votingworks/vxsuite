@@ -204,28 +204,28 @@ describe('multi-station adjudication', () => {
     const connectedClients: MachineRecord[] = [
       typedAs<MachineRecord>({
         machineId: 'CLIENT-001',
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Active,
         authType: 'election_manager',
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-002',
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.OnlineLocked,
         authType: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-003',
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Offline,
         authType: null,
         lastSeenAt: Date.now() - 60000,
       }),
       typedAs<MachineRecord>({
         machineId: 'CLIENT-004',
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Adjudicating,
         authType: 'election_manager',
         lastSeenAt: Date.now(),

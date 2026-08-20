@@ -1084,7 +1084,7 @@ describe('machine ballot adjudication assignments', () => {
 
     store.setNetworkedMachineStatus(
       'client-001',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
     const claimed = claimNextForClient('client-001');
@@ -1104,12 +1104,12 @@ describe('machine ballot adjudication assignments', () => {
 
     store.setNetworkedMachineStatus(
       'client-001',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
     store.setNetworkedMachineStatus(
       'client-002',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
     const staleClaim = claimNextForClient('client-001');
@@ -1121,7 +1121,7 @@ describe('machine ballot adjudication assignments', () => {
     // client-002 heartbeats again, so only client-001 is stale
     store.setNetworkedMachineStatus(
       'client-002',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
     store.cleanupStaleMachines();
@@ -1205,12 +1205,12 @@ describe('machine ballot adjudication assignments', () => {
 
     store.setNetworkedMachineStatus(
       'client-001',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
     store.setNetworkedMachineStatus(
       'client-002',
-      'client',
+      'admin-client',
       Admin.ClientMachineStatus.Active
     );
 

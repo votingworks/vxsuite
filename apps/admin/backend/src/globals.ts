@@ -42,12 +42,6 @@ export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PEER_PORT = Number(process.env['PEER_PORT'] || PORT + 1);
 
-/**  How often to poll the network for changes (in milliseconds) */
-export const NETWORK_POLLING_INTERVAL_MS = 2 * 1000;
-
-/**  Network request timeout (in milliseconds) */
-export const NETWORK_REQUEST_TIMEOUT_MS = 1 * 1000;
-
 /** How long to wait before considering a machine stale (in milliseconds) */
 export const STALE_MACHINE_THRESHOLD_MS = 10 * 1000;
 

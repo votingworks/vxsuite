@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi, vitest } from 'vitest';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
+  NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
 import { AddressInfo } from 'node:net';
 import { Server } from 'node:http';
@@ -42,10 +43,7 @@ import {
 
 import { ClientStore } from './client_store.js';
 import { createClientWorkspace, createWorkspace } from './util/workspace.js';
-import {
-  NETWORK_POLLING_INTERVAL_MS,
-  STALE_MACHINE_THRESHOLD_MS,
-} from './globals.js';
+import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 import { getCurrentTime } from './get_current_time.js';
 
 vi.mock('./get_current_time');
@@ -186,15 +184,15 @@ test('client discovers host and connects - host stores client info in database',
     // Host should record itself as connected
     expect(machines.find((m) => m.machineId === hostMachineId)).toMatchObject({
       machineId: hostMachineId,
-      machineMode: 'host',
+      machineRole: 'admin-host',
       status: Admin.ClientMachineStatus.Active,
     });
 
-    // Host should record the client via the connectToHost peer API call
+    // Host should record the client via the registerAdjudicationStation peer API call
     expect(machines.find((m) => m.machineId === clientMachineId)).toMatchObject(
       {
         machineId: clientMachineId,
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.OnlineLocked,
       }
     );
@@ -273,7 +271,7 @@ test('host calls cleanupStaleMachines on each polling cycle and cleans stale con
   mockFindAllVxAdminHostMachines.mockResolvedValue([]);
 
   // Wait for the client to fully disconnect before checking stale cleanup,
-  // to avoid a race with in-flight connectToHost calls
+  // to avoid a race with in-flight registerAdjudicationStation calls
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(clientStore.getConnectionStatus()).toEqual(

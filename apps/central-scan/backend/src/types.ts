@@ -29,12 +29,20 @@ export interface BallotImage {
 export type NetworkConnectionStatus =
   | 'offline'
   | 'online-waiting-for-host'
+  | 'online-multiple-hosts-detected'
+  | 'online-code-version-mismatch'
+  | 'online-machine-unconfigured'
+  | 'online-host-unconfigured'
+  | 'online-ballot-hash-mismatch'
   | 'online-host-detected';
 
 /** The scanner's current connection state and the detected host, if any. */
 export interface NetworkConnectionInfo {
   status: NetworkConnectionStatus;
-  /** Machine ID of the detected host, parsed from its avahi service name. */
+  /**
+   * Machine ID of the detected host, parsed from its avahi service name.
+   * Present whenever exactly one host was found on the network.
+   */
   hostMachineId?: string;
 }
 

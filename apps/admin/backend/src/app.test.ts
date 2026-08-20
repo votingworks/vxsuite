@@ -139,7 +139,7 @@ test('getNetworkStatus returns online when host is connected', async () => {
   const { apiClient, workspace } = buildTestEnvironment();
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
-    'host',
+    'admin-host',
     Admin.ClientMachineStatus.Active
   );
   expect(await apiClient.getNetworkStatus()).toMatchObject({
@@ -152,17 +152,17 @@ test('getNetworkStatus returns all clients including disconnected', async () => 
   const { apiClient, workspace } = buildTestEnvironment();
   workspace.store.setNetworkedMachineStatus(
     DEV_MACHINE_ID,
-    'host',
+    'admin-host',
     Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-001',
-    'client',
+    'admin-client',
     Admin.ClientMachineStatus.Active
   );
   workspace.store.setNetworkedMachineStatus(
     'CLIENT-002',
-    'client',
+    'admin-client',
     Admin.ClientMachineStatus.Offline
   );
   const status = await apiClient.getNetworkStatus();
