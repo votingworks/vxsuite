@@ -123,14 +123,19 @@ test('election manager: configuration and settings', async ({
 
   // Configuring progress screen. Configuration completes too quickly to
   // screenshot reliably, so delay the response just long enough to capture it.
-  await page.route('**/api/configureElectionPackageFromUsb', async (route) => {
-    await sleep(4000);
-    await route.continue();
-  });
+  // `times: 1` retires the handler when it fires, so nothing unroutes it while
+  // it is still sleeping.
+  await page.route(
+    '**/api/configureElectionPackageFromUsb',
+    async (route) => {
+      await sleep(4000);
+      await route.continue();
+    },
+    { times: 1 }
+  );
   usbHandler.insert(electionPackage);
   await page.getByText(/Configuring VxPrint/).waitFor();
   await screenshot('em-configuring');
-  await page.unroute('**/api/configureElectionPackageFromUsb');
 
   // After configuration the app stays on the last-active route (the reset
   // helper leaves it on /settings), so navigate to the Election screen.

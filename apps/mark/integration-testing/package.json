@@ -15,7 +15,7 @@
     "test:watch": "pnpm -w vx-task it-prebuild $npm_package_name && playwright test --ui"
   },
   "dependencies": {
-    "@playwright/test": "^1.48.1",
+    "@playwright/test": "1.55.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",

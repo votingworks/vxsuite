@@ -528,8 +528,8 @@ importers:
   apps/admin/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -882,8 +882,8 @@ importers:
   apps/central-scan/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -1613,8 +1613,8 @@ importers:
   apps/mark-scan/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -1970,8 +1970,8 @@ importers:
   apps/mark/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -2650,8 +2650,8 @@ importers:
   apps/print/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -3016,8 +3016,8 @@ importers:
   apps/scan/integration-testing:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -4436,8 +4436,8 @@ importers:
   libs/integration-test-utils:
     dependencies:
       '@playwright/test':
-        specifier: ^1.48.1
-        version: 1.48.1
+        specifier: 1.55.1
+        version: 1.55.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../auth
@@ -8187,8 +8187,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.48.1':
-    resolution: {integrity: sha512-s9RtWoxkOLmRJdw3oFvhFbs9OJS0BzrLUc8Hf6l2UdCNd1rqeEyD4BhCJkvzeEoD1FsK4mirsWwGerhVmYKtZg==}
+  '@playwright/test@1.55.1':
+    resolution: {integrity: sha512-IVAh/nOJaw6W9g+RJVlIQJ6gSiER+ae6mKQ5CX1bERzQgbC1VSeBlwdvczT7pxb0GWiyrxH4TGKbMfDb4Sq/ig==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -14011,18 +14011,8 @@ packages:
     resolution: {integrity: sha512-NPE8TDbzl/3YQYY7CSS228s3g2ollTFnc+Qi3tqmqJp9Vg2ovUpixcJEo2HJScN2Ez+kEaal6y70c0ehqJBJeA==}
     engines: {node: '>=10'}
 
-  playwright-core@1.48.1:
-    resolution: {integrity: sha512-Yw/t4VAFX/bBr1OzwCuOMZkY1Cnb4z/doAFSwf4huqAGWmf9eMNjmK7NiOljCdLmxeRYcGPPmcDgU0zOlzP0YA==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   playwright-core@1.55.1:
     resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  playwright@1.48.1:
-    resolution: {integrity: sha512-j8CiHW/V6HxmbntOfyB4+T/uk08tBy6ph0MpBXwuoofkSnLmlfdYNNkFTYD6ofzzlSqLA1fwH4vwvVFvJgLN0w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -19093,9 +19083,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.48.1':
+  '@playwright/test@1.55.1':
     dependencies:
-      playwright: 1.48.1
+      playwright: 1.55.1
 
   '@prisma/instrumentation@5.22.0':
     dependencies:
@@ -26294,15 +26284,7 @@ snapshots:
     dependencies:
       find-up: 5.0.0
 
-  playwright-core@1.48.1: {}
-
   playwright-core@1.55.1: {}
-
-  playwright@1.48.1:
-    dependencies:
-      playwright-core: 1.48.1
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.55.1:
     dependencies:
