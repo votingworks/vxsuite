@@ -250,7 +250,6 @@ test('election manager sees adjudication, settings, and diagnostics tabs', async
 
 test('shows settings screen when logged in as system administrator', async () => {
   setSystemAdminAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   renderClientApp();
   await screen.findByRole('heading', { name: 'Settings' });
@@ -258,7 +257,6 @@ test('shows settings screen when logged in as system administrator', async () =>
 
 test('sysadmin sees settings and diagnostics tabs but not adjudication', async () => {
   setSystemAdminAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   renderClientApp();
   await screen.findByRole('heading', { name: 'Settings' });
@@ -270,7 +268,6 @@ test('sysadmin sees settings and diagnostics tabs but not adjudication', async (
 
 test('shows low battery alert when battery is low and discharging', async () => {
   setSystemAdminAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   apiMock.setBatteryInfo({ level: 0.1, discharging: true });
   renderClientApp();
@@ -281,7 +278,6 @@ test('shows low battery alert when battery is low and discharging', async () => 
 
 test('shows low disk space warning when disk space is low', async () => {
   setSystemAdminAuth();
-  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host');
   apiMock.expectGetUsbPortStatus();
   apiMock.setDiskSpaceSummary({
     total: 100_000_000,

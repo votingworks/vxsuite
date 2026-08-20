@@ -57,7 +57,7 @@ const testCases: Array<{
   },
   {
     connection: { status: 'online-host-detected', hostMachineId: '0002' },
-    expectedText: 'Online — VxAdmin (0002) detected on the network',
+    expectedText: 'Online — VxAdmin (0002) connected on the network',
     expectedIcon: 'square-check',
   },
 ];

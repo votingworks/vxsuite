@@ -22,7 +22,6 @@ import { AppContext } from '../contexts/app_context.js';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import {
   formatUsbDrive,
-  getNetworkStatus,
   logOut,
   setMachineMode,
   useApiClient,
@@ -38,9 +37,6 @@ export function SettingsScreen(): JSX.Element | null {
   const isMultiStationEnabled =
     isMultiStationAdjudicationEnabled.useQuery().data ?? false;
   const rebootMutation = useSystemCallApi().reboot.useMutation();
-  const networkStatusQuery = getNetworkStatus.useQuery({
-    enabled: isMultiStationEnabled,
-  });
 
   if (setMachineModeMutation.isSuccess) {
     return (
@@ -84,15 +80,6 @@ export function SettingsScreen(): JSX.Element | null {
         !electionDefinition && (
           <React.Fragment>
             <H2>Machine Mode</H2>
-            {networkStatusQuery.isSuccess &&
-              networkStatusQuery.data.multipleHostsDetected && (
-                <P>
-                  <Icons.Danger color="danger" /> Multiple hosts detected on the
-                  network. Only one host machine should be active at a time.
-                  Adjudication stations will not connect until the conflict is
-                  resolved.
-                </P>
-              )}
             <P>
               <Button
                 onPress={() =>
