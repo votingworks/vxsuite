@@ -1,0 +1,132 @@
+import { expect, test } from 'vitest';
+import { createMemoryHistory } from 'history';
+import userEvent from '@testing-library/user-event';
+import type { NetworkConnectionInfo } from '@votingworks/central-scan-backend';
+import { renderInAppContext } from '../../test/render_in_app_context.js';
+import { createApiMock } from '../../test/api.js';
+import { screen, waitFor } from '../../test/react_testing_library.js';
+import { NetworkStatusIndicator } from './network_status_indicator.js';
+
+test('renders nothing when networking is disabled', async () => {
+  const apiMock = createApiMock();
+  const { container } = renderInAppContext(<NetworkStatusIndicator />, {
+    apiMock,
+  });
+  await waitFor(() =>
+    expect(apiMock.apiClient.getNetworkStatus).toHaveBeenCalled()
+  );
+  expect(container).toBeEmptyDOMElement();
+});
+
+const testCases: Array<{
+  connection: NetworkConnectionInfo;
+  expectedLabel: string;
+  expectedTreatment: 'connected' | 'warning' | 'error';
+}> = [
+  {
+    connection: { status: 'offline' },
+    expectedLabel: 'No Network',
+    expectedTreatment: 'warning',
+  },
+  {
+    connection: { status: 'online-waiting-for-host' },
+    expectedLabel: 'No VxAdmin Connected',
+    expectedTreatment: 'warning',
+  },
+  {
+    connection: {
+      status: 'online-machine-unconfigured',
+      hostMachineId: '0002',
+    },
+    expectedLabel: 'No VxAdmin Connected',
+    expectedTreatment: 'warning',
+  },
+  {
+    connection: { status: 'online-host-unconfigured', hostMachineId: '0002' },
+    expectedLabel: 'No VxAdmin Connected',
+    expectedTreatment: 'warning',
+  },
+  {
+    connection: {
+      status: 'online-ballot-hash-mismatch',
+      hostMachineId: '0002',
+    },
+    expectedLabel: 'No VxAdmin Connected',
+    expectedTreatment: 'warning',
+  },
+  {
+    connection: { status: 'online-multiple-hosts-detected' },
+    expectedLabel: 'Network Error',
+    expectedTreatment: 'error',
+  },
+  {
+    connection: {
+      status: 'online-code-version-mismatch',
+      hostMachineId: '0002',
+    },
+    expectedLabel: 'Network Error',
+    expectedTreatment: 'error',
+  },
+  {
+    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+    expectedLabel: 'Connected',
+    expectedTreatment: 'connected',
+  },
+];
+
+test.each(testCases)(
+  'renders $connection.status',
+  async ({ connection, expectedLabel, expectedTreatment }) => {
+    const apiMock = createApiMock();
+    apiMock.setNetworkStatus({ isEnabled: true, connection });
+    const { unmount } = renderInAppContext(<NetworkStatusIndicator />, {
+      apiMock,
+    });
+    const indicator = await screen.findByTestId('network-status');
+    expect(indicator).toHaveTextContent(expectedLabel);
+    switch (expectedTreatment) {
+      // Connected states show the plain network icon
+      case 'connected':
+        expect(
+          indicator.querySelector(`[data-icon='sitemap']`)
+        ).toBeInTheDocument();
+        expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(1);
+        expect(
+          indicator.querySelector(`[data-testid='network-off-icon']`)
+        ).not.toBeInTheDocument();
+        break;
+      // Warning states show the slashed network icon
+      case 'warning':
+        expect(
+          indicator.querySelector(`[data-testid='network-off-icon']`)
+        ).toBeInTheDocument();
+        expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(0);
+        break;
+      // Error states show the slashed network icon with a danger icon next
+      // to it
+      case 'error':
+        expect(
+          indicator.querySelector(`[data-testid='network-off-icon']`)
+        ).toBeInTheDocument();
+        expect(
+          indicator.querySelector(`[data-icon='circle-exclamation']`)
+        ).toBeInTheDocument();
+        break;
+      default:
+        throw new Error('unreachable');
+    }
+    unmount();
+  }
+);
+
+test('clicking the status navigates to the diagnostics page', async () => {
+  const apiMock = createApiMock();
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+  });
+  const history = createMemoryHistory();
+  renderInAppContext(<NetworkStatusIndicator />, { apiMock, history });
+  userEvent.click(await screen.findByTestId('network-status'));
+  expect(history.location.pathname).toEqual('/hardware-diagnostics');
+});

@@ -32,12 +32,13 @@ import { screen } from './react_testing_library.js';
 
 export type MockApiClient = Omit<
   MockClient<Api>,
-  'getBatteryInfo' | 'getDiskSpaceSummary'
+  'getBatteryInfo' | 'getDiskSpaceSummary' | 'getNetworkStatus'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
+  getNetworkStatus: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -46,6 +47,12 @@ export function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
+  );
+  (mockApiClient.getNetworkStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve<NetworkStatus>({
+      isEnabled: false,
+      connection: { status: 'offline' },
+    })
   );
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
@@ -119,9 +126,7 @@ export function createApiMock(
         connection: { status: 'offline' },
       }
     ) {
-      apiClient.getNetworkStatus
-        .expectRepeatedCallsWith()
-        .resolves(networkStatus);
+      apiClient.getNetworkStatus.mockResolvedValue(networkStatus);
     },
 
     expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {
