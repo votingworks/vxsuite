@@ -14,7 +14,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*",

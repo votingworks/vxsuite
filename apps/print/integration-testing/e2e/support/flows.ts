@@ -1,12 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { Page } from '@playwright/test';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
-import {
-  BallotType,
+import type { Page } from '@playwright/test';
+import type { mockElectionPackageFileTree } from '@votingworks/backend';
+import type {
   ElectionDefinition,
   EncodedBallotEntry,
 } from '@votingworks/types';
+import { BallotType } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { logInAsElectionManager } from './auth.js';
 

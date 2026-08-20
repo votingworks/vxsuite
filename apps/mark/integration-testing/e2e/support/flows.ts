@@ -1,7 +1,8 @@
-import { Page } from '@playwright/test';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import type { Page } from '@playwright/test';
+import type { mockElectionPackageFileTree } from '@votingworks/backend';
 import { assert, assertDefined, find } from '@votingworks/basics';
-import { Election, getContests, hasSplits } from '@votingworks/types';
+import type { Election } from '@votingworks/types';
+import { getContests, hasSplits } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { getBallotStyleGroupsForPrecinctOrSplit } from '@votingworks/utils';
 import { logInAsElectionManager, logInAsPollWorker } from './auth.js';

@@ -1,7 +1,8 @@
-import { Page, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Election } from '@votingworks/types';
+import type { mockElectionPackageFileTree } from '@votingworks/backend';
+import type { Election } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import { postToApi } from '@votingworks/integration-test-utils';
 import { logInAsElectionManager, logInAsPollWorker } from './auth.js';

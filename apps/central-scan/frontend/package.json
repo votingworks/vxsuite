@@ -67,7 +67,7 @@
     "@types/connect": "^3.4.35",
     "@types/history": "4.7.11",
     "@types/kiosk-browser": "workspace:*",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/pluralize": "^0.0.29",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

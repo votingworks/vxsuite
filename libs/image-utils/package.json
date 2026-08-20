@@ -23,7 +23,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "2.11.2",
+    "canvas": "3.2.3",
     "debug": "4.3.4",
     "jest-image-snapshot": "^6.4.0",
     "pdfjs-dist": "5.4.296",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/debug": "4.1.12",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/pixelmatch": "^5.2.6",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",

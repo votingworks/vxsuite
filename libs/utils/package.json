@@ -39,7 +39,7 @@
     "@types/debug": "4.1.12",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/randombytes": "^2.0.0",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",

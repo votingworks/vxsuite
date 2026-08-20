@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "target": "ES2019",
-    "lib": ["ES2020"],
+    "lib": ["ES2022"],
     "module": "node16",
     "moduleResolution": "node16",
     "esModuleInterop": true,

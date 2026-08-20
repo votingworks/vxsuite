@@ -1,5 +1,6 @@
 /* eslint-disable vx/gts-jsdoc */
-import { expect, Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 function getDropdownOptions(page: Page): Locator {
   return page.locator('div[aria-disabled="false"]');

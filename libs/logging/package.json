@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/debug": "4.1.12",
     "@types/kiosk-browser": "workspace:*",
-    "@types/node": "20.19.43",
+    "@types/node": "24.13.3",
     "@types/yargs": "17.0.22",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/fixtures": "workspace:*",

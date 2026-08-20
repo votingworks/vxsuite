@@ -1,4 +1,5 @@
-import { ElementHandle, Page, expect, test } from '@playwright/test';
+import type { ElementHandle, Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   clearTemporaryRootDir,
   electionGeneralFixtures,

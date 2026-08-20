@@ -1,5 +1,5 @@
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 
 /**
  * A closed-primary election (parties Mammal/Fish) where Precinct 4 has two
