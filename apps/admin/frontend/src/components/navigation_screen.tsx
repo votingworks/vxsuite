@@ -2,12 +2,11 @@ import React, { useContext } from 'react';
 
 import {
   BatteryStatus,
-  Button,
   DateTimeDisplay,
-  IconName,
   Icons,
   Toolbar,
   LockMachineButton,
+  UsbEjectButton,
   MainHeader,
   MainContent,
   Screen,
@@ -17,7 +16,6 @@ import {
   Route,
   Breadcrumbs,
 } from '@votingworks/ui';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isElectionManagerAuth,
@@ -164,48 +162,6 @@ function shouldShowToolbar(
       /* istanbul ignore next */
       throwIllegalValue(machineMode);
   }
-}
-
-const ToolbarButton = styled(Button)`
-  font-size: 0.8rem;
-  padding: 0.25rem 0.75rem;
-`;
-
-type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
-const USB_BUTTON_ICON_AND_TEXT: Record<
-  ExtendedUsbDriveStatus,
-  [IconName, string]
-> = {
-  no_drive: ['Disabled', 'No USB'],
-  error: ['Disabled', 'No USB'],
-  mounted: ['Eject', 'Eject USB'],
-  ejecting: ['Eject', 'Ejecting...'],
-  ejected: ['Disabled', 'USB Ejected'],
-};
-
-function UsbEjectButton({
-  usbDriveStatus,
-  onEject,
-  isEjecting,
-}: {
-  usbDriveStatus: UsbDriveStatus;
-  onEject: () => void;
-  isEjecting: boolean;
-}): JSX.Element {
-  const extendedStatus: ExtendedUsbDriveStatus = isEjecting
-    ? 'ejecting'
-    : usbDriveStatus.status;
-  const [icon, text] = USB_BUTTON_ICON_AND_TEXT[extendedStatus];
-  return (
-    <ToolbarButton
-      icon={icon}
-      onPress={onEject}
-      color="inverseNeutral"
-      disabled={extendedStatus !== 'mounted' || isEjecting}
-    >
-      {text}
-    </ToolbarButton>
-  );
 }
 
 export const Header = styled(MainHeader)`

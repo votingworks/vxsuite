@@ -1,9 +1,10 @@
 import {
   AppLogo,
-  BatteryDisplay,
-  Button,
+  BatteryStatus,
+  DateTimeDisplay,
   H1,
   LeftNav,
+  LockMachineButton,
   Main,
   MainContent,
   MainHeader,
@@ -13,7 +14,8 @@ import {
   Screen,
   SessionTimeLimitTimer,
   TestModeBanner,
-  UsbControllerButton,
+  Toolbar,
+  UsbEjectButton,
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 import styled from 'styled-components';
@@ -25,7 +27,8 @@ import {
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { AppContext } from './contexts/app_context.js';
-import { ejectUsbDrive, logOut } from './api.js';
+import { ejectUsbDrive, logOut, systemCallApi } from './api.js';
+import { NetworkStatusIndicator } from './components/network_status_indicator.js';
 
 interface Props {
   children: React.ReactNode;
@@ -37,13 +40,6 @@ export const Header = styled(MainHeader)`
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-`;
-
-const HeaderActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
 `;
 
 // Because the VxCentralScan is such a long app name, we have to resize the app
@@ -98,8 +94,11 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
   } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const currentRoute = useRouteMatch();
   const navItems = getNavItems(auth, electionDefinition);
+  const showToolbar =
+    isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth);
 
   function isActivePath(path: string): boolean {
     return currentRoute.path.startsWith(path);
@@ -132,28 +131,27 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         </div>
       </LeftNav>
       <Main flexColumn>
+        {showToolbar && (
+          <Toolbar>
+            <NetworkStatusIndicator />
+            {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
+              <BatteryStatus batteryInfo={batteryInfoQuery.data} />
+            )}
+            <DateTimeDisplay />
+            <UsbEjectButton
+              usbDriveStatus={usbDriveStatus}
+              onEject={() => ejectUsbDriveMutation.mutate()}
+              isEjecting={ejectUsbDriveMutation.isLoading}
+            />
+            <LockMachineButton onLock={() => logOutMutation.mutate()} />
+          </Toolbar>
+        )}
         <SessionTimeLimitTimer authStatus={auth} />
         {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
           <TestModeBanner />
         )}
         <Header>
           <H1>{title}</H1>
-          <HeaderActions>
-            {(isSystemAdministratorAuth(auth) ||
-              isElectionManagerAuth(auth)) && (
-              <React.Fragment>
-                <UsbControllerButton
-                  usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-                  usbDriveStatus={usbDriveStatus}
-                  usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-                />
-                <Button onPress={() => logOutMutation.mutate()} icon="Lock">
-                  Lock Machine
-                </Button>
-                <BatteryDisplay />
-              </React.Fragment>
-            )}
-          </HeaderActions>
         </Header>
         <MainContent>{children}</MainContent>
       </Main>

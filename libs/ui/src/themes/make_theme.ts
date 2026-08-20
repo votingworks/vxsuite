@@ -194,6 +194,7 @@ function expandToFullColorTheme(theme: TouchscreenColorTheme): ColorTheme {
     inversePrimary: theme.background,
     inverseContainer: theme.onBackground,
     inverseWarningAccent: theme.warningAccent,
+    inverseDangerAccent: theme.danger,
 
     successAccent: theme.successAccent,
     warningAccent: theme.warningAccent,
@@ -266,6 +267,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     inversePrimary: DesktopPalette.Purple30,
     inverseContainer: DesktopPalette.Gray80,
     inverseWarningAccent: DesktopPalette.Orange30,
+    inverseDangerAccent: DesktopPalette.Red40,
 
     successAccent: DesktopPalette.Green60,
     warningAccent: DesktopPalette.Orange50,

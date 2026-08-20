@@ -18,41 +18,43 @@ function ConnectionStatusMessage({
     case 'offline':
       return (
         <P>
-          <Icons.Info /> Offline
+          <Icons.Warning color="warning" /> Offline
         </P>
       );
     case 'online-waiting-for-host':
       return (
         <P>
-          <Icons.Info /> Online &mdash; no VxAdmin detected on the network
+          <Icons.Warning color="warning" /> Online &mdash; no VxAdmin detected
+          on the network
         </P>
       );
     case 'online-multiple-hosts-detected':
       return (
         <P>
-          <Icons.Warning color="warning" /> Multiple VxAdmins detected on the
+          <Icons.Danger color="danger" /> Multiple VxAdmins detected on the
           network. Ensure only one VxAdmin is connected.
         </P>
       );
     case 'online-code-version-mismatch':
       return (
         <P>
-          <Icons.Warning color="warning" /> VxAdmin ({connection.hostMachineId})
+          <Icons.Danger color="danger" /> VxAdmin ({connection.hostMachineId})
           is running a different software version
         </P>
       );
     case 'online-machine-unconfigured':
       return (
         <P>
-          <Icons.Info /> VxAdmin ({connection.hostMachineId}) detected on the
-          network. Configure this machine with an election to connect.
+          <Icons.Warning color="warning" /> VxAdmin ({connection.hostMachineId})
+          detected on the network. Configure this machine with an election to
+          connect.
         </P>
       );
     case 'online-host-unconfigured':
       return (
         <P>
-          <Icons.Info /> VxAdmin ({connection.hostMachineId}) detected on the
-          network, but it is not configured with an election.
+          <Icons.Warning color="warning" /> VxAdmin ({connection.hostMachineId})
+          detected on the network, but it is not configured with an election.
         </P>
       );
     case 'online-ballot-hash-mismatch':
