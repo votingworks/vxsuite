@@ -1,6 +1,6 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
-import { getDiskSpaceSummary as baseGetDiskSpaceSummary } from '@votingworks/backend';
+import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
@@ -49,7 +49,10 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   return {
     path: resolvedRoot,
     store,
-    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
+    getDiskSpaceSummary: async () => {
+      const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
+      return summary;
+    },
   };
 }
 
@@ -62,6 +65,9 @@ export function createClientWorkspace(root: string): ClientWorkspace {
   return {
     path: resolvedRoot,
     clientStore: new ClientStore(),
-    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
+    getDiskSpaceSummary: async () => {
+      const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
+      return summary;
+    },
   };
 }
