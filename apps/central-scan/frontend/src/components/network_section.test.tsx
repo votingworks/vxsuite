@@ -6,19 +6,23 @@ import { NetworkSection } from './network_section.js';
 const testCases: Array<{
   connection: NetworkConnectionInfo;
   expectedText: string;
+  expectedIcon: string;
 }> = [
   {
     connection: { status: 'offline' },
     expectedText: 'Offline',
+    expectedIcon: 'circle-info',
   },
   {
     connection: { status: 'online-waiting-for-host' },
     expectedText: 'Online — no VxAdmin detected on the network',
+    expectedIcon: 'circle-info',
   },
   {
     connection: { status: 'online-multiple-hosts-detected' },
     expectedText:
       'Multiple VxAdmins detected on the network. Ensure only one VxAdmin is connected.',
+    expectedIcon: 'circle-exclamation',
   },
   {
     connection: {
@@ -26,6 +30,7 @@ const testCases: Array<{
       hostMachineId: '0002',
     },
     expectedText: 'VxAdmin (0002) is running a different software version',
+    expectedIcon: 'circle-exclamation',
   },
   {
     connection: {
@@ -34,11 +39,13 @@ const testCases: Array<{
     },
     expectedText:
       'VxAdmin (0002) detected on the network. Configure this machine with an election to connect.',
+    expectedIcon: 'circle-info',
   },
   {
     connection: { status: 'online-host-unconfigured', hostMachineId: '0002' },
     expectedText:
       'VxAdmin (0002) detected on the network, but it is not configured with an election.',
+    expectedIcon: 'circle-info',
   },
   {
     connection: {
@@ -46,22 +53,28 @@ const testCases: Array<{
       hostMachineId: '0002',
     },
     expectedText: 'VxAdmin (0002) is configured for a different election',
+    expectedIcon: 'circle-info',
   },
   {
     connection: { status: 'online-host-detected', hostMachineId: '0002' },
     expectedText: 'Online — VxAdmin (0002) detected on the network',
+    expectedIcon: 'square-check',
   },
 ];
 
 test.each(testCases)(
   'renders $connection.status',
-  ({ connection, expectedText }) => {
+  ({ connection, expectedText, expectedIcon }) => {
     const { unmount } = render(<NetworkSection connection={connection} />);
     screen.getByText('Network');
+    const message = screen.getByText(
+      (_, element) => element?.textContent?.trim() === expectedText
+    );
+    expect(message).toBeInTheDocument();
+    // The icon severity matches the top-bar network status indicator's
+    // bucket for this status
     expect(
-      screen.getByText(
-        (_, element) => element?.textContent?.trim() === expectedText
-      )
+      message.querySelector(`[data-icon='${expectedIcon}']`)
     ).toBeInTheDocument();
     unmount();
   }
