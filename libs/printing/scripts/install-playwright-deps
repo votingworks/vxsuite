@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Installs Playwright dependencies, namely a compatible version of Chromium and
+# corresponding system packages.
+#
+# The install command always hits the network even if already run and no
+# installation is needed. This poses a problem for the offline phase of Trusted
+# Builds, so we use a flag file to indicate when dependencies have already been
+# installed. There's a risk of someone manually removing needed dependencies
+# after the flag file is created, but that risk is low in development and
+# exceedingly low in production. Other alternatives were considered, including
+# 1) using a dry run of the install commands to extract the expected list of
+# dependencies followed by existence checks for each and 2) checking for a
+# network connection before running the install commands. All felt fragile in
+# their own ways.
+
+set -euo pipefail
+
+PLAYWRIGHT_CACHE_DIRECTORY="${HOME}/.cache/ms-playwright"
+PLAYWRIGHT_VERSION="$(pnpm exec playwright --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
+PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE="${PLAYWRIGHT_CACHE_DIRECTORY}/${PLAYWRIGHT_VERSION}_DEPS_INSTALLED"
+
+if [[ -f "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}" ]]; then
+  message="Playwright dependencies already installed for version ${PLAYWRIGHT_VERSION}
+per existence of ${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE} file.
+
+To force a reinstall, delete this file.
+"
+  echo "${message}"
+else
+  pnpm exec playwright install --with-deps chromium
+  touch "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}"
+fi

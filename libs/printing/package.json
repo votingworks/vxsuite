@@ -12,7 +12,7 @@
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "generate-m404-ppd": "./scripts/generate-m404-ppd",
-    "postinstall": "test -f /usr/bin/chromium || playwright install --with-deps chromium",
+    "postinstall": "./scripts/install-playwright-deps",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",
