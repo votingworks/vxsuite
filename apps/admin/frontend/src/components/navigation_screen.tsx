@@ -3,7 +3,8 @@ import React, { useContext } from 'react';
 import {
   BatteryStatus,
   DateTimeDisplay,
-  Icons,
+  HostNetworkIndicatorStatus,
+  NetworkStatusIndicator as NetworkStatusIndicatorView,
   Toolbar,
   LockMachineButton,
   UsbEjectButton,
@@ -37,33 +38,20 @@ import {
   systemCallApi,
 } from '../shared_api.js';
 import { getNetworkStatus } from '../api.js';
+import { ClientNetworkStatusIndicator } from '../client/components/network_status_indicator.js';
 import { NavItem, Sidebar } from './sidebar.js';
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0.25rem;
-  align-items: center;
-`;
 
 function NetworkStatusIndicator(): JSX.Element | null {
   const networkStatusQuery = getNetworkStatus.useQuery();
   if (!networkStatusQuery.isSuccess) return null;
 
-  const { isOnline } = networkStatusQuery.data;
-
-  return (
-    <Row>
-      <Icons.Network color="inverse" />
-      {isOnline ? (
-        'Network Online'
-      ) : (
-        <React.Fragment>
-          <Icons.Warning color="inverseWarning" /> Network Offline
-        </React.Fragment>
-      )}
-    </Row>
-  );
+  const { isOnline, multipleHostsDetected } = networkStatusQuery.data;
+  const status: HostNetworkIndicatorStatus = !isOnline
+    ? 'no-network'
+    : multipleHostsDetected
+    ? 'error'
+    : 'connected';
+  return <NetworkStatusIndicatorView isHost status={status} />;
 }
 
 // Wrapper kept inside the host-mode branch so its query (which uses the host
@@ -188,6 +176,7 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
         {shouldShowToolbar(machineMode, auth) && (
           <Toolbar>
             {machineMode === 'host' && <HostNetworkStatusIndicator />}
+            {machineMode === 'client' && <ClientNetworkStatusIndicator />}
             {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
               <BatteryStatus batteryInfo={batteryInfoQuery.data} />
             )}
