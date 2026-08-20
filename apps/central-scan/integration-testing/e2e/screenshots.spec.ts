@@ -134,13 +134,15 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Configuring progress screen. The configuration request completes too
   // quickly to screenshot reliably, so delay the response just long enough to
-  // capture the screen, then let it proceed.
+  // capture the screen, then let it proceed. `times: 1` retires the handler
+  // when it fires, so nothing unroutes it while it is still sleeping.
   await page.route(
     '**/api/configureFromElectionPackageOnUsbDrive',
     async (route) => {
       await sleep(4000);
       await route.continue();
-    }
+    },
+    { times: 1 }
   );
   usbHandler.insert(
     await mockElectionPackageFileTree(
@@ -149,7 +151,6 @@ test('screenshots', async ({ page }, testInfo) => {
   );
   await page.getByText(/Configuring VxCentralScan/).waitFor();
   await screenshot('configuring');
-  await page.unroute('**/api/configureFromElectionPackageOnUsbDrive');
   await page.getByText('No ballots have been scanned').waitFor();
 
   // Scan Ballots screen immediately after configuring, while still in test

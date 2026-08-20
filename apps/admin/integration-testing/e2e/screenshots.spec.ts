@@ -302,9 +302,13 @@ test('system administrator', async ({ page }, testInfo) => {
   await screenshot('usb-drive-formatted');
   await page.getByText('Close').click();
 
-  // formatting ejects the USB drive, so we need to re-insert
+  // Formatting ejects the USB drive, so we need to re-insert. The app only
+  // clears its no-auto-remount flag once it observes the drive gone, so wait
+  // for the removal to register before inserting again.
   usbHandler.remove();
+  await page.getByText('No USB').waitFor();
   usbHandler.insert();
+  await page.getByText('Eject USB').waitFor();
 
   await page.getByRole('button', { name: 'Signed Hash Validation' }).click();
   await page.getByText(/Scan this QR code/).waitFor();

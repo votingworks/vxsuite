@@ -29,7 +29,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@playwright/test": "^1.48.1",
+    "@playwright/test": "1.55.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
