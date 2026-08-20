@@ -198,7 +198,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       }
       store.setNetworkedMachineStatus(
         input.machineId,
-        'client',
+        'admin-client',
         input.status,
         input.authType
       );

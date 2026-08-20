@@ -184,7 +184,7 @@ test('client discovers host and connects - host stores client info in database',
     // Host should record itself as connected
     expect(machines.find((m) => m.machineId === hostMachineId)).toMatchObject({
       machineId: hostMachineId,
-      machineMode: 'host',
+      machineRole: 'admin-host',
       status: Admin.ClientMachineStatus.Active,
     });
 
@@ -192,7 +192,7 @@ test('client discovers host and connects - host stores client info in database',
     expect(machines.find((m) => m.machineId === clientMachineId)).toMatchObject(
       {
         machineId: clientMachineId,
-        machineMode: 'client',
+        machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.OnlineLocked,
       }
     );

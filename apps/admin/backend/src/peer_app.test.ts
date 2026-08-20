@@ -62,7 +62,7 @@ test('registerAdjudicationStation registers client and returns host machine conf
   expect(machines).toHaveLength(1);
   expect(machines[0]).toMatchObject({
     machineId: 'client-001',
-    machineMode: 'client',
+    machineRole: 'admin-client',
     status: Admin.ClientMachineStatus.OnlineLocked,
     authType: null,
   });
@@ -249,7 +249,7 @@ test('registerScanner records the scanner and returns the host machine config', 
   expect(workspace.store.getMachines()).toEqual([
     expect.objectContaining({
       machineId: 'SCANNER-01',
-      machineMode: 'scanner',
+      machineRole: 'scanner',
       status: Admin.ClientMachineStatus.Active,
     }),
   ]);
@@ -804,7 +804,7 @@ test('adjudication endpoints reject requests when multiple hosts are detected', 
   // A second host appears on the network
   workspace.store.setNetworkedMachineStatus(
     'other-host',
-    'host',
+    'admin-host',
     Admin.ClientMachineStatus.Active
   );
 
@@ -833,7 +833,7 @@ test('adjudication endpoints reject requests when multiple hosts are detected', 
   // Once the other host goes offline, adjudication operations resume
   workspace.store.setNetworkedMachineStatus(
     'other-host',
-    'host',
+    'admin-host',
     Admin.ClientMachineStatus.Offline
   );
   await peerApiClient.releaseBallot({ machineId: 'client-001', cvrId });

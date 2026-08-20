@@ -307,13 +307,15 @@ function buildApi({
       const { machineId } = getMachineConfig();
       const machines = store.getMachines();
       const hostRecord = machines.find(
-        (m) => m.machineMode === 'host' && m.machineId === machineId
+        (m) => m.machineRole === 'admin-host' && m.machineId === machineId
       );
       return {
         isOnline:
           hostRecord !== undefined &&
           hostRecord.status !== Admin.ClientMachineStatus.Offline,
-        connectedClients: machines.filter((m) => m.machineMode === 'client'),
+        connectedClients: machines.filter(
+          (m) => m.machineRole === 'admin-client'
+        ),
         multipleHostsDetected: store.getMultipleHostsDetected(machineId),
       };
     },

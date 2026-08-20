@@ -155,7 +155,7 @@ describe('startHostNetworking', () => {
     expect(machines).toHaveLength(1);
     expect(machines[0]).toMatchObject({
       machineId: '0001',
-      machineMode: 'host',
+      machineRole: 'admin-host',
       status: Admin.ClientMachineStatus.Active,
     });
   });
@@ -182,7 +182,7 @@ describe('startHostNetworking', () => {
     expect(store.getMultipleHostsDetected('0001')).toEqual(true);
     const otherHost = store.getMachines().find((m) => m.machineId === 'OTHER');
     expect(otherHost).toMatchObject({
-      machineMode: 'host',
+      machineRole: 'admin-host',
       status: Admin.ClientMachineStatus.Active,
     });
   });

@@ -255,11 +255,11 @@ create table diagnostics (
 
 create table machines (
   machine_id text primary key,
-  machine_mode text not null
+  machine_role text not null
     check (
-      machine_mode = 'host' or
-      machine_mode = 'client' or
-      machine_mode = 'scanner'
+      machine_role = 'admin-host' or
+      machine_role = 'admin-client' or
+      machine_role = 'scanner'
     ),
   status text not null
     check (status in ('offline', 'online_locked', 'active', 'adjudicating')),

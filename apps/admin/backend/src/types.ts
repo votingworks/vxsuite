@@ -36,7 +36,7 @@ export type MachineMode = 'host' | 'client';
  * The role a machine plays on the network: a VxAdmin host or client, or a
  * networked central scanner.
  */
-export type NetworkedMachineRole = MachineMode | 'scanner';
+export type NetworkedMachineRole = 'admin-host' | 'admin-client' | 'scanner';
 
 /** Shared interface for stores that support auth state construction. */
 export interface BaseStore {
@@ -62,7 +62,7 @@ export enum ClientConnectionStatus {
 /** A record of a machine in the multi-station machines table. */
 export interface MachineRecord {
   machineId: string;
-  machineMode: NetworkedMachineRole;
+  machineRole: NetworkedMachineRole;
   status: Admin.ClientMachineStatus;
   authType: UserRole | null;
   lastSeenAt: number;

@@ -117,7 +117,7 @@ export function startHostNetworking({
         const isOnline = await hasOnlineInterface();
         store.setNetworkedMachineStatus(
           machineId,
-          'host',
+          'admin-host',
           isOnline
             ? Admin.ClientMachineStatus.Active
             : Admin.ClientMachineStatus.Offline
@@ -138,7 +138,7 @@ export function startHostNetworking({
             await peerClient.getCurrentElectionMetadata();
             store.setNetworkedMachineStatus(
               otherHost.machineId,
-              'host',
+              'admin-host',
               Admin.ClientMachineStatus.Active
             );
           } catch {

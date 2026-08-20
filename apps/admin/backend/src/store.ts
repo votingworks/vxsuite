@@ -3377,20 +3377,20 @@ export class Store implements BaseStore {
 
   setNetworkedMachineStatus(
     machineId: string,
-    machineMode: NetworkedMachineRole,
+    machineRole: NetworkedMachineRole,
     status: Admin.ClientMachineStatus,
     authType: UserRole | null = null
   ): void {
     this.client.run(
-      `insert into machines (machine_id, machine_mode, status, auth_type, last_seen_at)
+      `insert into machines (machine_id, machine_role, status, auth_type, last_seen_at)
        values (?, ?, ?, ?, ?)
        on conflict (machine_id) do update set
-         machine_mode = excluded.machine_mode,
+         machine_role = excluded.machine_role,
          status = excluded.status,
          auth_type = excluded.auth_type,
          last_seen_at = excluded.last_seen_at`,
       machineId,
-      machineMode,
+      machineRole,
       status,
       authType,
       getCurrentTime()
@@ -3401,7 +3401,7 @@ export class Store implements BaseStore {
     return this.client.one(
       `select
          machine_id as machineId,
-         machine_mode as machineMode,
+         machine_role as machineRole,
          status,
          auth_type as authType,
          last_seen_at as lastSeenAt
@@ -3415,7 +3415,7 @@ export class Store implements BaseStore {
     return this.client.all(
       `select
          machine_id as machineId,
-         machine_mode as machineMode,
+         machine_role as machineRole,
          case
            when status = ? and exists (
              select 1 from machine_ballot_adjudication_assignments
@@ -3488,7 +3488,7 @@ export class Store implements BaseStore {
   getMultipleHostsDetected(selfMachineId: string): boolean {
     const count = this.client.one(
       `select count(*) as cnt from machines
-       where machine_mode = 'host' and status != ? and machine_id != ?`,
+       where machine_role = 'admin-host' and status != ? and machine_id != ?`,
       Admin.ClientMachineStatus.Offline,
       selfMachineId
     ) as { cnt: number };
