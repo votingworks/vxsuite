@@ -11,7 +11,6 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, Result } from '@votingworks/basics';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;
@@ -79,7 +78,6 @@ export async function launchBrowser(): Promise<Browser> {
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
     // causes fonts to render awkwardly at higher resolutions, so we disable it
     args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
 }
 

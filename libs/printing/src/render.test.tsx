@@ -19,7 +19,6 @@ import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
 import styled from 'styled-components';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();
@@ -275,7 +274,6 @@ test('readers header when specified', async () => {
 test('with browser override', async () => {
   const browserOverride = await chromium.launch({
     args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
 
   const outputPath = makeTemporaryFile();

@@ -25,7 +25,6 @@ import {
   filterVotesForContests,
   BackendLanguageContextProvider,
 } from '@votingworks/ui';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 /**
  * Represents a single page of a summary ballot layout.
@@ -287,7 +286,6 @@ export class SummaryBallotLayoutRenderer {
     if (!this.browser) {
       this.browser = await chromium.launch({
         args: ['--font-render-hinting=none'],
-        executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
       });
       const context = await this.browser.newContext();
       this.page = await context.newPage();
