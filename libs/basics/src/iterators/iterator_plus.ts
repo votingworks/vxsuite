@@ -1,7 +1,7 @@
 import { assert } from '../assert';
 import { Optional } from '../types';
 import { AsyncIteratorPlusImpl } from './async_iterator_plus';
-import { AsyncIteratorPlus, IteratorPlus } from './types';
+import { AsyncIteratorPlus, IteratorPlus, ZipElements } from './types';
 
 /**
  * A wrapper around {@link Iterable} that provides additional methods.
@@ -501,27 +501,9 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  zip(): IteratorPlus<[T]>;
-  zip<U>(other: Iterable<U>): IteratorPlus<[T, U]>;
-  zip<U, V>(other1: Iterable<U>, other2: Iterable<V>): IteratorPlus<[T, U, V]>;
-  zip<U, V, W>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>
-  ): IteratorPlus<[T, U, V, W]>;
-  zip<U, V, W, X>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>
-  ): IteratorPlus<[T, U, V, W, X]>;
-  zip<U, V, W, X, Y>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>,
-    other5: Iterable<Y>
-  ): IteratorPlus<[T, U, V, W, X, Y]>;
+  zip<Others extends ReadonlyArray<Iterable<unknown>>>(
+    ...others: Others
+  ): IteratorPlus<[T, ...ZipElements<Others>]>;
   zip(...others: Array<Iterable<unknown>>): IteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
@@ -546,30 +528,9 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  zipMin(): IteratorPlus<[T]>;
-  zipMin<U>(other: Iterable<U>): IteratorPlus<[T, U]>;
-  zipMin<U, V>(
-    other1: Iterable<U>,
-    other2: Iterable<V>
-  ): IteratorPlus<[T, U, V]>;
-  zipMin<U, V, W>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>
-  ): IteratorPlus<[T, U, V, W]>;
-  zipMin<U, V, W, X>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>
-  ): IteratorPlus<[T, U, V, W, X]>;
-  zipMin<U, V, W, X, Y>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>,
-    other5: Iterable<Y>
-  ): IteratorPlus<[T, U, V, W, X, Y]>;
+  zipMin<Others extends ReadonlyArray<Iterable<unknown>>>(
+    ...others: Others
+  ): IteratorPlus<[T, ...ZipElements<Others>]>;
   zipMin(...others: Array<Iterable<unknown>>): IteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(

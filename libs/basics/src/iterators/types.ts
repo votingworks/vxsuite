@@ -1,6 +1,30 @@
 import { MaybePromise, Optional } from '../types';
 
 /**
+ * The elements of a tuple of iterables: what one round of zipping them yields.
+ * Arity is preserved, so zipping N iterables gives an N-tuple.
+ */
+export type ZipElements<Others extends ReadonlyArray<Iterable<unknown>>> = {
+  -readonly [K in keyof Others]: Others[K] extends Iterable<infer E>
+    ? E
+    : never;
+};
+
+/**
+ * The elements of a tuple of sync or async iterables: what one round of zipping
+ * them yields. Arity is preserved, so zipping N iterables gives an N-tuple.
+ */
+export type AsyncZipElements<
+  Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>,
+> = {
+  -readonly [K in keyof Others]: Others[K] extends AsyncIterable<infer E>
+    ? E
+    : Others[K] extends Iterable<infer E>
+    ? E
+    : never;
+};
+
+/**
  * An iterable with a number of convenience methods for chaining. Many methods are
  * lazy and return a new `IteratorPlus`, but some are eager and return a concrete
  * value.
@@ -658,12 +682,8 @@ export interface IteratorPlus<T> extends Iterable<T> {
   windows(groupSize: number): IteratorPlus<T[]>;
 
   /**
-   * Yields elements of `this` as 1-element tuples.
-   */
-  zip(): IteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of size 2 with elements from `this` and `other`.
+   * Yields tuples pairing each element of `this` with the corresponding element
+   * of each of `others`. Zipping N others yields (N + 1)-tuples.
    *
    * @throws if not all iterables are the same length
    *
@@ -677,62 +697,14 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * ]);
    * ```
    */
-  zip<U>(other: Iterable<U>): IteratorPlus<[T, U]>;
+  zip<Others extends ReadonlyArray<Iterable<unknown>>>(
+    ...others: Others
+  ): IteratorPlus<[T, ...ZipElements<Others>]>;
 
   /**
-   * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V>(other1: Iterable<U>, other2: Iterable<V>): IteratorPlus<[T, U, V]>;
-
-  /**
-   * Yields tuples of size 4 with elements from `this`, `other1`, `other2`, and
-   * `other3`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>
-  ): IteratorPlus<[T, U, V, W]>;
-
-  /**
-   * Yields tuples of size 5 with elements from `this`, `other1`, `other2`,
-   * `other3`, and `other4`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W, X>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>
-  ): IteratorPlus<[T, U, V, W, X]>;
-
-  /**
-   * Yields tuples of size 6 with elements from `this`, `other1`, `other2`,
-   * `other3`, `other4`, and `other5`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W, X, Y>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>,
-    other5: Iterable<Y>
-  ): IteratorPlus<[T, U, V, W, X, Y]>;
-
-  /**
-   * Yields elements of `this` as 1-element tuples.
-   */
-  zipMin(): IteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of size 2 with elements from `this` and `other` until one
-   * iterable is exhausted.
+   * Yields tuples pairing each element of `this` with the corresponding element
+   * of each of `others`, until one iterable is exhausted. Zipping N others
+   * yields (N + 1)-tuples.
    *
    * @example
    *
@@ -743,49 +715,9 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * ]);
    * ```
    */
-  zipMin<U>(other: Iterable<U>): IteratorPlus<[T, U]>;
-
-  /**
-   * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`
-   * until one iterable is exhausted.
-   */
-  zipMin<U, V>(
-    other1: Iterable<U>,
-    other2: Iterable<V>
-  ): IteratorPlus<[T, U, V]>;
-
-  /**
-   * Yields tuples of size 4 with elements from `this`, `other1`, `other2`, and
-   * `other3` until one iterable is exhausted.
-   */
-  zipMin<U, V, W>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>
-  ): IteratorPlus<[T, U, V, W]>;
-
-  /**
-   * Yields tuples of size 5 with elements from `this`, `other1`, `other2`,
-   * `other3`, and `other4` until one iterable is exhausted.
-   */
-  zipMin<U, V, W, X>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>
-  ): IteratorPlus<[T, U, V, W, X]>;
-
-  /**
-   * Yields tuples of size 6 with elements from `this`, `other1`, `other2`,
-   * `other3`, `other4`, and `other5` until one iterable is exhausted.
-   */
-  zipMin<U, V, W, X, Y>(
-    other1: Iterable<U>,
-    other2: Iterable<V>,
-    other3: Iterable<W>,
-    other4: Iterable<X>,
-    other5: Iterable<Y>
-  ): IteratorPlus<[T, U, V, W, X, Y]>;
+  zipMin<Others extends ReadonlyArray<Iterable<unknown>>>(
+    ...others: Others
+  ): IteratorPlus<[T, ...ZipElements<Others>]>;
 }
 
 /**
@@ -1413,12 +1345,8 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   windows(groupSize: number): AsyncIteratorPlus<T[]>;
 
   /**
-   * Yields elements of `this` as 1-element tuples.
-   */
-  zip(): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of size 2 with elements from `this` and `other`.
+   * Yields tuples pairing each element of `this` with the corresponding element
+   * of each of `others`. Zipping N others yields (N + 1)-tuples.
    *
    * @throws if not all iterables are the same length
    *
@@ -1433,65 +1361,14 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * const joinedLines = lines1.zip(lines2).map(([line1, line2]) => `${line1} ${line2}`);
    * ```
    */
-  zip<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
+  zip<Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>>(
+    ...others: Others
+  ): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
 
   /**
-   * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>
-  ): AsyncIteratorPlus<[T, U, V]>;
-
-  /**
-   * Yields tuples of size 4 with elements from `this`, `other1`, `other2`, and
-   * `other3`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>
-  ): AsyncIteratorPlus<[T, U, V, W]>;
-
-  /**
-   * Yields tuples of size 5 with elements from `this`, `other1`, `other2`,
-   * `other3`, and `other4`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W, X>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>
-  ): AsyncIteratorPlus<[T, U, V, W, X]>;
-
-  /**
-   * Yields tuples of size 6 with elements from `this`, `other1`, `other2`,
-   * `other3`, `other4`, and `other5`.
-   *
-   * @throws if not all iterables are the same length
-   */
-  zip<U, V, W, X, Y>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>,
-    other5: Iterable<Y> | AsyncIterable<Y>
-  ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
-
-  /**
-   * Yields elements of `this` as 1-element tuples.
-   */
-  zipMin(): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of size 2 with elements from `this` and `other` until one
-   * iterable is exhausted.
+   * Yields tuples pairing each element of `this` with the corresponding element
+   * of each of `others`, until one iterable is exhausted. Zipping N others
+   * yields (N + 1)-tuples.
    *
    * @example
    *
@@ -1502,47 +1379,9 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * const joinedLines = lines(file1).zipMin(lines(file2)).map(([line1, line2]) => `${line1} ${line2}`);
    * ```
    */
-  zipMin<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
-
-  /**
-   * Yields tuples of size 3 with elements from `this`, `other1`, and `other2`
-   * until one iterable is exhausted.
-   */
-  zipMin<U, V>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>
-  ): AsyncIteratorPlus<[T, U, V]>;
-
-  /**
-   * Yields tuples of size 4 with elements from `this`, `other1`, `other2`, and
-   * `other3` until one iterable is exhausted.
-   */
-  zipMin<U, V, W>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>
-  ): AsyncIteratorPlus<[T, U, V, W]>;
-
-  /**
-   * Yields tuples of size 5 with elements from `this`, `other1`, `other2`,
-   * `other3`, and `other4` until one iterable is exhausted.
-   */
-  zipMin<U, V, W, X>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>
-  ): AsyncIteratorPlus<[T, U, V, W, X]>;
-
-  /**
-   * Yields tuples of size 6 with elements from `this`, `other1`, `other2`,
-   * `other3`, `other4`, and `other5` until one iterable is exhausted.
-   */
-  zipMin<U, V, W, X, Y>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>,
-    other5: Iterable<Y> | AsyncIterable<Y>
-  ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
+  zipMin<
+    Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>,
+  >(
+    ...others: Others
+  ): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
 }
