@@ -28,6 +28,7 @@ import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { AppContext } from './contexts/app_context.js';
 import { ejectUsbDrive, logOut, systemCallApi } from './api.js';
+import { NetworkStatusIndicator } from './components/network_status_indicator.js';
 
 interface Props {
   children: React.ReactNode;
@@ -90,6 +91,7 @@ function NavigationToolbar(): JSX.Element {
 
   return (
     <Toolbar>
+      <NetworkStatusIndicator />
       {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
         <BatteryStatus batteryInfo={batteryInfoQuery.data} />
       )}
