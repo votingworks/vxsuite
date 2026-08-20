@@ -2,11 +2,13 @@ import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 import {
   BatteryStatus,
   DateTimeDisplay,
   LockMachineButton,
   Toolbar,
+  UsbEjectButton,
 } from './toolbar';
 
 vi.useFakeTimers({
@@ -70,4 +72,52 @@ test('Toolbar renders children', () => {
     </Toolbar>
   );
   screen.getByText('test content');
+});
+
+test('UsbEjectButton ejects a mounted drive', () => {
+  const onEject = vi.fn();
+  render(
+    <UsbEjectButton
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+      onEject={onEject}
+      isEjecting={false}
+    />
+  );
+  const button = screen.getByRole('button', { name: /Eject USB/ });
+  expect(button).toBeEnabled();
+  userEvent.click(button);
+  expect(onEject).toHaveBeenCalledTimes(1);
+});
+
+test('UsbEjectButton is disabled while ejecting', () => {
+  render(
+    <UsbEjectButton
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+      onEject={vi.fn()}
+      isEjecting
+    />
+  );
+  expect(screen.getByRole('button', { name: /Ejecting/ })).toBeDisabled();
+});
+
+test('UsbEjectButton is disabled without a drive', () => {
+  render(
+    <UsbEjectButton
+      usbDriveStatus={mockUsbDriveStatus('no_drive')}
+      onEject={vi.fn()}
+      isEjecting={false}
+    />
+  );
+  expect(screen.getByRole('button', { name: /No USB/ })).toBeDisabled();
+});
+
+test('UsbEjectButton shows ejected state', () => {
+  render(
+    <UsbEjectButton
+      usbDriveStatus={mockUsbDriveStatus('ejected')}
+      onEject={vi.fn()}
+      isEjecting={false}
+    />
+  );
+  expect(screen.getByRole('button', { name: /USB Ejected/ })).toBeDisabled();
 });
