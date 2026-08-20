@@ -1,6 +1,6 @@
 import { assert } from '../assert';
 import { MaybePromise, Optional } from '../types';
-import { AsyncIteratorPlus } from './types';
+import { AsyncIteratorPlus, AsyncZipElements } from './types';
 
 /**
  * A wrapper around {@link AsyncIterable} that provides additional methods.
@@ -515,30 +515,9 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     );
   }
 
-  zip(): AsyncIteratorPlus<[T]>;
-  zip<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
-  zip<U, V>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>
-  ): AsyncIteratorPlus<[T, U, V]>;
-  zip<U, V, W>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>
-  ): AsyncIteratorPlus<[T, U, V, W]>;
-  zip<U, V, W, X>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>
-  ): AsyncIteratorPlus<[T, U, V, W, X]>;
-  zip<U, V, W, X, Y>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>,
-    other5: Iterable<Y> | AsyncIterable<Y>
-  ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
+  zip<Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>>(
+    ...others: Others
+  ): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
   zip(
     ...others: Array<Iterable<unknown> | AsyncIterable<unknown>>
   ): AsyncIteratorPlus<unknown[]> {
@@ -571,30 +550,9 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     );
   }
 
-  zipMin(): AsyncIteratorPlus<[T]>;
-  zipMin<U>(other: Iterable<U> | AsyncIterable<U>): AsyncIteratorPlus<[T, U]>;
-  zipMin<U, V>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>
-  ): AsyncIteratorPlus<[T, U, V]>;
-  zipMin<U, V, W>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>
-  ): AsyncIteratorPlus<[T, U, V, W]>;
-  zipMin<U, V, W, X>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>
-  ): AsyncIteratorPlus<[T, U, V, W, X]>;
-  zipMin<U, V, W, X, Y>(
-    other1: Iterable<U> | AsyncIterable<U>,
-    other2: Iterable<V> | AsyncIterable<V>,
-    other3: Iterable<W> | AsyncIterable<W>,
-    other4: Iterable<X> | AsyncIterable<X>,
-    other5: Iterable<Y> | AsyncIterable<Y>
-  ): AsyncIteratorPlus<[T, U, V, W, X, Y]>;
+  zipMin<
+    Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>,
+  >(...others: Others): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
   zipMin(
     ...others: Array<AsyncIterable<unknown>>
   ): AsyncIteratorPlus<unknown[]> {

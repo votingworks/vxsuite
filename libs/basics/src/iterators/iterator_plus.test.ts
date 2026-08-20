@@ -119,6 +119,21 @@ test('zip', () => {
   ]);
 });
 
+test('zip preserves arity of arbitrary length iterables', () => {
+  // the element types are only assignable to this tuple if the return type
+  // tracks the arity of the arguments
+  const zipped: Array<
+    [number, string, boolean, number, string, boolean, string]
+  > = iter([1]).zip(['a'], [true], [2], ['b'], [false], ['c']).toArray();
+  expect(zipped).toEqual([[1, 'a', true, 2, 'b', false, 'c']]);
+
+  const others: Array<Iterable<string>> = [['a'], ['b']];
+  const spread: Array<[number, ...string[]]> = iter([1])
+    .zip(...others)
+    .toArray();
+  expect(spread).toEqual([[1, 'a', 'b']]);
+});
+
 test('zip length mismatch', () => {
   expect(() => iter([1]).zip([]).toArray()).toThrowError(
     'not all iterables are the same length'

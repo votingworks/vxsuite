@@ -160,6 +160,20 @@ test('zip', async () => {
   ]);
 });
 
+test('zip preserves arity of arbitrary length iterables', async () => {
+  // the element types are only assignable to this tuple if the return type
+  // tracks the arity of the arguments, mixing sync and async iterables
+  const zipped: Array<
+    [number, string, boolean, number, string, boolean, string]
+  > = await iter([1])
+    .async()
+    .zip(iter(['a']).async(), [true], iter([2]), ['b'], iter([false]).async(), [
+      'c',
+    ])
+    .toArray();
+  expect(zipped).toEqual([[1, 'a', true, 2, 'b', false, 'c']]);
+});
+
 test('zip length mismatch', async () => {
   await expect(
     iter([1]).async().zip(iter([]).async()).toArray()
