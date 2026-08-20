@@ -1526,22 +1526,14 @@ export class Store implements BaseStore {
         cvr_files.id as id,
         filename,
         export_timestamp as exportTimestamp,
-        count(cvr_id) as numCvrsImported,
+        count(cvr_file_entries.cvr_id) as numCvrsImported,
         polling_place_ids as pollingPlaceIds,
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
-      left join (
-        select
-          cvr_file_entries.cvr_id,
-          min(cvr_files.created_at) as min_import_date,
-          cvr_file_entries.cvr_file_id
-        from cvr_file_entries, cvr_files
-        group by cvr_file_entries.cvr_id
-      ) cvrs_by_min_import_date on
-        cvrs_by_min_import_date.cvr_file_id = cvr_files.id
+      left join cvr_file_entries on cvr_file_entries.cvr_file_id = cvr_files.id
       where cvr_files.election_id = ?
       group by cvr_files.id
       order by export_timestamp desc
