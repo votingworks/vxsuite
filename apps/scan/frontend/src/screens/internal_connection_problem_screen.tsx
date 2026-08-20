@@ -43,7 +43,7 @@ export function InternalConnectionProblemScreen({
             <PrinterErrorMessage printerStatus={printerStatus} />
           </P>
         )}
-        <P>
+        <P as="div">
           {isPollWorkerAuth ? (
             <P>
               <PowerDownButton variant="primary" />

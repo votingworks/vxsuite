@@ -21,6 +21,16 @@ export interface FontProps {
   maxLines?: number;
 }
 
+/** Props for {@link P}. */
+export type ParagraphProps = FontProps & {
+  /**
+   * Renders a `<div>` instead of a `<p>`, keeping the paragraph styling. Use
+   * when the paragraph contains block-level content (e.g. a list, or a
+   * component that renders a `<div>`), which is invalid inside a `<p>`.
+   */
+  as?: 'div';
+};
+
 /**
  * Props for {@link H1}, {@link H2}, {@link H3}, {@link H4}, {@link H5}, and
  * {@link H6}
@@ -173,7 +183,7 @@ export function H6(props: HeadingProps): JSX.Element {
 }
 
 /** Styled block paragraph text for regular copy. */
-export function P(props: FontProps): JSX.Element {
+export function P(props: ParagraphProps): JSX.Element {
   return <StyledP {...props} />;
 }
 
