@@ -1,4 +1,9 @@
-import { Optional, DateWithoutTime, iter } from '@votingworks/basics';
+import {
+  Optional,
+  DateWithoutTime,
+  iter,
+  deepEqual,
+} from '@votingworks/basics';
 import { z } from 'zod/v4';
 import { sha256 } from './sha256';
 import {
@@ -850,8 +855,10 @@ export const ElectionSchema = z
         }
       }
 
+      const sortedDistricts = [...districts].sort();
       for (const [precinctIndex, precinctId] of precincts.entries()) {
-        if (!election.precincts.some((p) => p.id === precinctId)) {
+        const precinct = election.precincts.find((p) => p.id === precinctId);
+        if (!precinct) {
           ctx.issues.push({
             code: 'custom',
             path: [
@@ -863,6 +870,32 @@ export const ElectionSchema = z
             message: `Ballot style '${id}' has precinct '${precinctId}', but no such precinct is defined. Precincts defined: [${election.precincts
               .map((p) => p.id)
               .join(', ')}].`,
+            input: election,
+          });
+          continue;
+        }
+
+        // A ballot style's districts must exactly match the districts of each
+        // precinct it is assigned to (or, for a precinct with splits, one of
+        // its splits).
+        const precinctOrSplitDistricts = hasSplits(precinct)
+          ? precinct.splits.map((split) => split.districtIds)
+          : [precinct.districtIds];
+        const matchesPrecinctOrSplit = precinctOrSplitDistricts.some(
+          (districtIds) => deepEqual([...districtIds].sort(), sortedDistricts)
+        );
+        if (!matchesPrecinctOrSplit) {
+          ctx.issues.push({
+            code: 'custom',
+            path: [
+              'ballotStyles',
+              ballotStyleIndex,
+              'precincts',
+              precinctIndex,
+            ],
+            message: `Ballot style '${id}' districts do not match the districts of ${
+              hasSplits(precinct) ? 'any split of ' : ''
+            }precinct '${precinctId}'.`,
             input: election,
           });
         }

@@ -133,6 +133,133 @@ test('parsing validates precinct references', () => {
   ).toMatchSnapshot();
 });
 
+test('parsing validates that ballot style districts match precinct districts', () => {
+  const districts = [
+    { id: 'D', name: 'District' },
+    { id: 'D2', name: 'District 2' },
+  ];
+
+  function electionWithDistricts(
+    ballotStyleDistricts: string[],
+    precinctDistrictIds: string[]
+  ): unknown {
+    return {
+      ...electionGeneral,
+      districts,
+      ballotStyles: [
+        { ...electionGeneral.ballotStyles[0], districts: ballotStyleDistricts },
+      ],
+      precincts: [
+        { ...electionGeneral.precincts[0], districtIds: precinctDistrictIds },
+      ],
+    };
+  }
+
+  for (const [ballotStyleDistricts, precinctDistrictIds] of [
+    [['D'], ['D', 'D2']],
+    [['D', 'D2'], ['D']],
+    [['D2'], ['D']],
+    [[], ['D']],
+  ] as const) {
+    const error = t
+      .safeParseVxfElection(
+        electionWithDistricts(
+          [...ballotStyleDistricts],
+          [...precinctDistrictIds]
+        )
+      )
+      .unsafeUnwrapErr();
+    expect(error.issues).toEqual([
+      expect.objectContaining({
+        path: ['ballotStyles', 0, 'precincts', 0],
+        message:
+          "Ballot style '1' districts do not match the districts of precinct 'P'.",
+      }),
+    ]);
+  }
+
+  // The mismatched precinct's index is reported
+  const multiPrecinctError = t
+    .safeParseVxfElection({
+      ...electionGeneral,
+      districts,
+      ballotStyles: [
+        { ...electionGeneral.ballotStyles[0], precincts: ['P', 'P2'] },
+      ],
+      precincts: [
+        ...electionGeneral.precincts,
+        { id: 'P2', name: 'PRECINCT 2', districtIds: ['D2'] },
+      ],
+    })
+    .unsafeUnwrapErr();
+  expect(multiPrecinctError.issues).toEqual([
+    expect.objectContaining({
+      path: ['ballotStyles', 0, 'precincts', 1],
+      message:
+        "Ballot style '1' districts do not match the districts of precinct 'P2'.",
+    }),
+  ]);
+
+  // Matching districts in a different order pass
+  t.safeParseVxfElection(
+    electionWithDistricts(['D2', 'D'], ['D', 'D2'])
+  ).unsafeUnwrap();
+  t.safeParseVxfElection(
+    electionWithDistricts(['D', 'D2'], ['D2', 'D'])
+  ).unsafeUnwrap();
+
+  // A precinct not assigned to any ballot style is not checked
+  t.safeParseVxfElection({
+    ...electionGeneral,
+    districts,
+    precincts: [
+      ...electionGeneral.precincts,
+      { id: 'P2', name: 'PRECINCT 2', districtIds: ['D2'] },
+    ],
+  }).unsafeUnwrap();
+});
+
+test('parsing validates that ballot style districts match a precinct split', () => {
+  function electionWithSplits(ballotStyleDistricts: string[]): unknown {
+    return {
+      ...electionGeneral,
+      districts: [
+        { id: 'D', name: 'DISTRICT' },
+        { id: 'D2', name: 'DISTRICT 2' },
+      ],
+      ballotStyles: [
+        { ...electionGeneral.ballotStyles[0], districts: ballotStyleDistricts },
+      ],
+      precincts: [
+        {
+          id: 'P',
+          name: 'PRECINCT',
+          splits: [
+            { id: 'S1', name: 'Split 1', districtIds: ['D'] },
+            { id: 'S2', name: 'Split 2', districtIds: ['D2'] },
+          ],
+        },
+      ],
+    };
+  }
+
+  // Matching one of the precinct's splits passes
+  t.safeParseVxfElection(electionWithSplits(['D'])).unsafeUnwrap();
+  t.safeParseVxfElection(electionWithSplits(['D2'])).unsafeUnwrap();
+
+  // Matching no split fails
+  const error = t
+    .safeParseVxfElection(electionWithSplits(['D', 'D2']))
+    .unsafeUnwrapErr();
+  expect(error.issues).toEqual([
+    expect.objectContaining({
+      path: ['ballotStyles', 0, 'precincts', 0],
+      message:
+        "Ballot style '1' districts do not match the districts of any split of precinct 'P'.",
+    }),
+  ]);
+});
+
 test('parsing validates contest party references', () => {
   const contest = electionGeneral.contests.find(
     ({ id }) => id === 'CC'
