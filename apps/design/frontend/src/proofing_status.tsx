@@ -194,17 +194,7 @@ export function ProofingStatus(): React.ReactNode {
                   want to approve these ballots?
                 </P>
               )}
-              {latestQaRun?.resultsUrl && (
-                <P>
-                  <a
-                    href={latestQaRun.resultsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    (📑 Results)
-                  </a>
-                </P>
-              )}
+              <ResultsLink resultsUrl={latestQaRun?.resultsUrl} />
             </div>
           }
           actions={
@@ -285,20 +275,40 @@ export function ProofingStatus(): React.ReactNode {
   );
 }
 
-function JobLink({ jobUrl }: { jobUrl?: string }): React.ReactNode {
-  if (!jobUrl) return null;
+function ExternalLink(props: {
+  children: React.ReactNode;
+  href: string;
+}): React.ReactNode {
+  const { children, href } = props;
+
   return (
     <Caption>
-      <a href={jobUrl} target="_blank" rel="noopener noreferrer">
-        (View CI Job)
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
       </a>
     </Caption>
   );
 }
 
+function JobLink({ jobUrl }: { jobUrl?: string }): React.ReactNode {
+  if (!jobUrl) return null;
+  return <ExternalLink href={jobUrl}>View CI Job</ExternalLink>;
+}
+
+function LinkSeparator(): React.ReactNode {
+  return <Caption>&nbsp;|&nbsp;</Caption>;
+}
+
+function ResultsLink({ resultsUrl }: { resultsUrl?: string }): React.ReactNode {
+  if (!resultsUrl) return null;
+  return <ExternalLink href={resultsUrl}>View QA Results</ExternalLink>;
+}
+
 function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
   const { status, statusMessage, resultsUrl, jobUrl, createdAt, updatedAt } =
     qaRun;
+  const hasJobLink = !!jobUrl;
+  const hasResultsLink = !!resultsUrl;
 
   if (status === 'pending') {
     return <StatusLine done={false}>QA check pending&hellip;</StatusLine>;
@@ -309,7 +319,7 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
       <Callout
         color="primary"
         icon="Info"
-        // Matching styling of the other other `TaskProgress` elements:
+        // Matching styling of the other `TaskProgress` elements:
         style={{ alignSelf: 'stretch', maxWidth: '35rem' }}
       >
         <div>
@@ -329,16 +339,11 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
         <div>
           <P style={{ lineHeight: 1 }} weight="bold">
             QA Check Failed
-            {resultsUrl && (
-              <P>
-                <a href={resultsUrl} target="_blank" rel="noopener noreferrer">
-                  (📑 Results)
-                </a>
-              </P>
-            )}
           </P>
           {statusMessage && <P>{statusMessage}</P>}
           <JobLink jobUrl={jobUrl} />
+          {hasJobLink && hasResultsLink && <LinkSeparator />}
+          <ResultsLink resultsUrl={resultsUrl} />
         </div>
       </Callout>
     );
@@ -348,14 +353,10 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
     return (
       <StatusLine date={updatedAt ?? createdAt} done>
         QA check passed
-        {resultsUrl && (
-          <Caption>
-            <a href={resultsUrl} target="_blank" rel="noopener noreferrer">
-              (📑 Results)
-            </a>
-          </Caption>
-        )}
+        {(hasJobLink || hasResultsLink) && <LinkSeparator />}
         <JobLink jobUrl={jobUrl} />
+        {hasJobLink && hasResultsLink && <LinkSeparator />}
+        <ResultsLink resultsUrl={resultsUrl} />
       </StatusLine>
     );
   }
