@@ -1702,6 +1702,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
+name = "vx-fs"
+version = "0.0.0"
+dependencies = [
+ "napi",
+ "napi-build",
+ "napi-derive",
+ "nix 0.26.4",
+]
+
+[[package]]
 name = "vx-logging"
 version = "0.1.0"
 dependencies = [
