@@ -89,6 +89,7 @@ import {
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
   SetPollingPlaceError,
+  Store,
 } from './store.js';
 import {
   AggregatedLiveReportActivityLog,
@@ -112,13 +113,15 @@ import {
   auth0ClientId,
   auth0IssuerBaseUrl,
   auth0Secret,
-  circleCiWebhookSecret,
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots.js';
+import {
+  createBallotPropsForTemplate,
+  defaultBallotTemplate,
+} from './ballots.js';
 import {
   getBallotPdfFileName,
   regenerateElectionIds,
@@ -131,10 +134,14 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features.js';
+import { isQaEnabledForOrganization, qaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
-import { convertMsResults, ConvertMsResultsError } from './convert_ms_results.js';
+import {
+  convertMsResults,
+  ConvertMsResultsError,
+} from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
 import { logActivity } from './activity_logs.js';
 
@@ -194,6 +201,14 @@ function requireJurisdictionAccess(user: User, jurisdiction: Jurisdiction) {
   if (!userCanAccessJurisdiction(user, jurisdiction)) {
     throw new AuthError('auth:forbidden');
   }
+}
+
+async function isQaEnabledForElection(
+  store: Store,
+  electionId: ElectionId
+): Promise<boolean> {
+  const jurisdiction = await store.getElectionJurisdiction(electionId);
+  return isQaEnabledForOrganization(jurisdiction.organization.id);
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -912,12 +927,15 @@ export function buildApi(ctx: AppContext) {
       return store.createElectionPackageBackgroundTask(input);
     },
 
-    getLatestExportQaRun({
+    async getLatestExportQaRun({
       electionId,
     }: {
       electionId: ElectionId;
     }): Promise<Optional<ExportQaRun>> {
-      return store.getLatestExportQaRunForElection(electionId);
+      if (!(await isQaEnabledForElection(store, electionId))) {
+        return undefined;
+      }
+      return await store.getLatestExportQaRunForElection(electionId);
     },
 
     getExportQaRun({
@@ -1562,7 +1580,7 @@ export function buildApp(context: AppContext): Application {
   app.post('/api/export-qa-webhook/:qaRunId', async (req, res, next) => {
     try {
       const { qaRunId } = req.params;
-      const webhookSecret = circleCiWebhookSecret();
+      const webhookSecret = qaConfig()?.webhookSecret;
 
       // Validate webhook secret
       const providedSecret = req.headers['x-webhook-secret'];

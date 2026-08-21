@@ -4,11 +4,41 @@ This backend is used by the [VxDesign frontend](../frontend) and isn't intended
 to be run on its own. The best way to develop on the backend is by running the
 frontend.
 
-## CircleCI QA Integration
+## Automated QA
 
 When an election package export completes, VxDesign can trigger a CircleCI
-pipeline to run automated QA. The integration is disabled by default and
-activates only when the required environment variables are set.
+pipeline in the [vx-qa](https://github.com/votingworks/vx-qa) project to run
+automated QA against the exported package. The integration is off by default and
+turns on only when the environment is configured.
+
+All of the configuration is read in [`src/qa_config.ts`](./src/qa_config.ts),
+which is the single source of truth for these variables.
+
+### Environment Variables
+
+| Variable                  | Required | Description                                                                                                                                                                                |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `CIRCLECI_API_TOKEN`      | Yes      | CircleCI API token authorizing pipeline triggers. In 1Password as "VxQA Admin API token" (`op read 'op://Software Eng/sa6u6uues7p6hqrje7x5lexalq/password'`).                              |
+| `CIRCLECI_BASE_URL`       | No       | CircleCI API root. Defaults to `https://circleci.com`; point it at a stand-in server to test locally.                                                                                      |
+| `CIRCLECI_BRANCH`         | No       | The vx-qa branch to run. Defaults to the project's default branch.                                                                                                                         |
+| `CIRCLECI_PROJECT_SLUG`   | Yes      | The vx-qa CircleCI project, e.g. `gh/votingworks/vx-qa-internal` — the internal version of vx-qa we use for QA of customer elections.                                                      |
+| `CIRCLECI_QA_ORG_IDS`     | No       | Comma-separated allowlist of organization IDs to run QA for. Empty or unset means no organizations, i.e. QA off. Use `pnpm list-organizations` to look up IDs.                             |
+| `CIRCLECI_WEBHOOK_SECRET` | Yes      | Shared secret CircleCI presents when calling back with status updates. In 1Password as "VxQA CircleCI Webhook Secret" (`op read 'op://Software Eng/5nl3dggiufl6z7flk3e22oe7cy/password'`). |
+
+The QA flow also uses `BASE_URL` (shared with the rest of the backend), both for
+the webhook callback URL and, outside of production, as the URL CircleCI
+downloads the election package from.
+
+### How It Turns On and Off
+
+The three required variables are all-or-nothing. Set all of them to configure
+the integration, or none of them to disable it. A partial configuration throws
+at startup rather than silently disabling QA. The backend logs a one-line
+summary of the resulting configuration when it starts.
+
+`CIRCLECI_QA_ORG_IDS` then decides which organizations QA actually runs for. For
+elections belonging to any other organization, QA is neither triggered on export
+nor returned by the API, so the proofing status UI shows no QA status.
 
 ### Testing with the Mock Server
 
@@ -27,7 +57,7 @@ failure.
 **Terminal 2** — start VxDesign pointed at the mock server:
 
 ```bash
-./run-vxdesign-with-fake-circleci.sh
+pnpm -C apps/design/backend start-with-mock-circleci
 ```
 
 Then export an election in VxDesign and watch the status updates appear in the
@@ -60,16 +90,12 @@ Options: `--port <port>` (default 9000), `--webhook-secret <secret>` (default
 `test-secret`), `--no-headless` for headed mode, `--limit-ballots <n>` and
 `--limit-manual-tallies <n>` for faster test runs.
 
-**Terminal 2** — start VxDesign pointed at the vx-qa server:
+**Terminal 2** — start VxDesign pointed at the vx-qa server. The same launcher
+as above works, with the ports overridden:
 
 ```bash
-CIRCLECI_API_TOKEN=test-token \
-  CIRCLECI_PROJECT_SLUG=gh/test/repo \
-  CIRCLECI_WEBHOOK_SECRET=test-secret \
-  CIRCLECI_BASE_URL=http://localhost:9000 \
-  FRONTEND_PORT=4000 \
-  BASE_URL=http://localhost:4000 \
-  pnpm -C apps/design/frontend start
+FRONTEND_PORT=4000 BASE_URL=http://localhost:4000 \
+  pnpm -C apps/design/backend start-with-mock-circleci
 ```
 
 Then export an election in VxDesign. The vx-qa server will pick up the export,
@@ -97,23 +123,13 @@ CIRCLECI_API_TOKEN=<your personal CircleCI API token> \
   CIRCLECI_PROJECT_SLUG=gh/votingworks/vx-qa-internal \
   CIRCLECI_WEBHOOK_SECRET=<webhook secret> \
   CIRCLECI_BRANCH=<branch to run, e.g. main> \
+  CIRCLECI_QA_ORG_IDS=<organization IDs to run QA for> \
   BASE_URL=https://<your-subdomain>.ngrok-free.app \
   pnpm -C apps/design/frontend start
 ```
 
-Where:
+Where `BASE_URL` is the ngrok forwarding URL and the `CIRCLECI_*` variables are
+as described in [Environment Variables](#environment-variables) above.
 
-- **`CIRCLECI_API_TOKEN`** — found in the shared 1Password vault as "VxQA Admin
-  API token"
-  (`op read 'op://Software Eng/sa6u6uues7p6hqrje7x5lexalq/password'`).
-- **`CIRCLECI_PROJECT_SLUG`** — `gh/votingworks/vx-qa-internal` is the internal
-  version of vx-qa we use for QA of customer elections.
-- **`CIRCLECI_WEBHOOK_SECRET`** — found in the shared 1Password vault as "VxQA
-  CircleCI Webhook Secret"
-  (`op read 'op://Software Eng/5nl3dggiufl6z7flk3e22oe7cy/password'`).
-- **`CIRCLECI_BRANCH`** — the vx-qa branch to run (optional, defaults to the
-  project default branch).
-- **`BASE_URL`** — the ngrok forwarding URL (fetch automatically using
-  `curl -sq http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'`).
-  This is used both for webhook callbacks and for CircleCI to download the
-  election package.
+Fetch the ngrok URL automatically with
+`curl -sq http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'`.

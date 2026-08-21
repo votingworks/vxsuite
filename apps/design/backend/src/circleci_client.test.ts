@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import { CircleCiClient } from './circleci_client.js';
+import { QaConfig } from './qa_config.js';
+
+const config: QaConfig = {
+  apiBaseUrl: 'https://circleci.com',
+  apiToken: 'test-token',
+  organizationIds: ['org-1'],
+  projectSlug: 'gh/org/repo',
+  webhookSecret: 'test-secret',
+};
 
 describe('CircleCiClient', () => {
   let mockFetch: Mock<typeof fetch>;
@@ -7,39 +16,6 @@ describe('CircleCiClient', () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     global.fetch = mockFetch;
-  });
-
-  test('isConfigured returns false when not configured', () => {
-    const client = new CircleCiClient('', '');
-    expect(client.isConfigured()).toEqual(false);
-  });
-
-  test('isConfigured returns false when only token is provided', () => {
-    const client = new CircleCiClient('test-token', '');
-    expect(client.isConfigured()).toEqual(false);
-  });
-
-  test('isConfigured returns false when only project slug is provided', () => {
-    const client = new CircleCiClient('', 'gh/org/repo');
-    expect(client.isConfigured()).toEqual(false);
-  });
-
-  test('isConfigured returns true when both token and project slug are provided', () => {
-    const client = new CircleCiClient('test-token', 'gh/org/repo');
-    expect(client.isConfigured()).toEqual(true);
-  });
-
-  test('triggerPipeline throws error when not configured', async () => {
-    const client = new CircleCiClient('', '');
-    await expect(
-      client.triggerPipeline({
-        exportPackageUrl: 'https://example.com/package.zip',
-        webhookUrl: 'https://example.com/webhook',
-        qaRunId: 'qa-run-123',
-        electionId: 'election-123',
-        vxsuiteVersion: 'v4.1',
-      })
-    ).rejects.toThrow('CircleCI client is not configured');
   });
 
   test('triggerPipeline makes correct API request', async () => {
@@ -56,7 +32,7 @@ describe('CircleCiClient', () => {
     };
     mockFetch.mockResolvedValueOnce(fakeResponse as Response);
 
-    const client = new CircleCiClient('test-token', 'gh/org/repo');
+    const client = new CircleCiClient(config);
     const result = await client.triggerPipeline({
       exportPackageUrl: 'https://example.com/package.zip',
       webhookUrl: 'https://example.com/webhook',
@@ -103,7 +79,7 @@ describe('CircleCiClient', () => {
     };
     mockFetch.mockResolvedValueOnce(fakeResponse as Response);
 
-    const client = new CircleCiClient('test-token', 'gh/org/repo');
+    const client = new CircleCiClient(config);
     await expect(
       client.triggerPipeline({
         exportPackageUrl: 'https://example.com/package.zip',
@@ -118,7 +94,7 @@ describe('CircleCiClient', () => {
   test('triggerPipeline handles network errors', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const client = new CircleCiClient('test-token', 'gh/org/repo');
+    const client = new CircleCiClient(config);
     await expect(
       client.triggerPipeline({
         exportPackageUrl: 'https://example.com/package.zip',
@@ -128,5 +104,45 @@ describe('CircleCiClient', () => {
         vxsuiteVersion: 'v4.1',
       })
     ).rejects.toThrow('Network error');
+  });
+
+  test('triggerPipeline honors the branch and API base URL from config', async () => {
+    const fakeResponse: Partial<Response> = {
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: 'pipeline-123',
+          number: 456,
+          state: 'pending',
+          created_at: '2024-01-01T00:00:00Z',
+        }),
+    };
+    mockFetch.mockResolvedValueOnce(fakeResponse as Response);
+
+    const client = new CircleCiClient({
+      ...config,
+      apiBaseUrl: 'http://localhost:9000',
+      branch: 'some-branch',
+    });
+    await client.triggerPipeline({
+      exportPackageUrl: 'https://example.com/package.zip',
+      webhookUrl: 'https://example.com/webhook',
+      qaRunId: 'qa-run-123',
+      electionId: 'election-123',
+      vxsuiteVersion: 'v4.1',
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:9000/api/v2/project/gh/org/repo/pipeline',
+      expect.objectContaining({
+        body: expect.stringContaining('"branch":"some-branch"'),
+      })
+    );
+  });
+
+  test('pipelineUrl links to the pipeline in the configured project', () => {
+    expect(new CircleCiClient(config).pipelineUrl(456)).toEqual(
+      'https://app.circleci.com/pipelines/gh/org/repo/456'
+    );
   });
 });

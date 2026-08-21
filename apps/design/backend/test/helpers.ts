@@ -30,7 +30,7 @@ import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { Readable } from 'node:stream';
 import * as tmp from 'tmp';
-import { vi } from 'vitest';
+import { onTestFinished, vi } from 'vitest';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
@@ -169,11 +169,14 @@ export function testSetupHelpers() {
     users: User[];
     env?: Record<string, string>;
   }) {
-    // Set environment variables for this test
-    const originalEnv = { ...process.env } as const;
-    if (env) {
-      Object.assign(process.env, env);
+    // Set environment variables for this test, restoring them when it finishes
+    // so they don't leak into other tests.
+    for (const [key, value] of Object.entries(env ?? {})) {
+      vi.stubEnv(key, value);
     }
+    onTestFinished(() => {
+      vi.unstubAllEnvs();
+    });
     const store = testStore.getStore();
     await testStore.init();
     for (const organization of organizations) {
@@ -237,16 +240,6 @@ export function testSetupHelpers() {
           post: (path: string) => createRequestBuilder(baseUrl, 'POST', path),
           get: (path: string) => createRequestBuilder(baseUrl, 'GET', path),
         },
-      },
-      restoreEnv: () => {
-        // Restore original environment
-        for (const key of Object.keys(env || {})) {
-          if (originalEnv[key] === undefined) {
-            delete process.env[key];
-          } else {
-            process.env[key] = originalEnv[key];
-          }
-        }
       },
     };
   }

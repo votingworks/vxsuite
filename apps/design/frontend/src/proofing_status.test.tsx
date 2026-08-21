@@ -11,7 +11,12 @@ import {
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
 import { ProofingStatus } from './proofing_status.js';
@@ -319,7 +324,7 @@ test('QA run in progress status is displayed', async () => {
 
   screen.getByText('QA Check Running');
   screen.getByText('Scanning ballots with VxScan');
-  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+  expect(screen.getByText('View CI Job')).toHaveAttribute(
     'href',
     'https://circleci.com/job/123'
   );
@@ -345,14 +350,37 @@ test('QA run failure status is displayed', async () => {
 
   screen.getByText('QA Check Failed');
   screen.getByText('QA tests failed: 3 ballot validation errors found');
-  expect(screen.getByText('(📑 Results)')).toHaveAttribute(
+  expect(screen.getByText('View QA Results')).toHaveAttribute(
     'href',
     'https://example.com/results/failure.html'
   );
-  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+  expect(screen.getByText('View CI Job')).toHaveAttribute(
     'href',
     'https://circleci.com/job/456'
   );
+});
+
+test('QA run failure with no links renders no separator', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  // A failed CircleCI trigger records neither a job URL nor a results URL.
+  mockLatestQaRun(api, {
+    status: 'failure',
+    statusMessage: 'Error starting QA job in CircleCI: 401 Unauthorized',
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  screen.getByText('QA Check Failed');
+  expect(screen.queryByText('View CI Job')).toBeNull();
+  expect(screen.queryByText('View QA Results')).toBeNull();
+  expect(screen.queryByText('|')).toBeNull();
 });
 
 test('QA run success status is displayed', async () => {
@@ -378,14 +406,44 @@ test('QA run success status is displayed', async () => {
   // Check QA status is displayed with correct info
   screen.getByText('QA check passed');
   expect(screen.getByText(/1\/21\/2026.*2:15.*PM/)).toBeInTheDocument();
-  expect(screen.getByText('(📑 Results)')).toHaveAttribute(
+  expect(screen.getByText('View QA Results')).toHaveAttribute(
     'href',
     'https://example.com/results/success.html'
   );
-  expect(screen.getByText('(View CI Job)')).toHaveAttribute(
+  expect(screen.getByText('View CI Job')).toHaveAttribute(
     'href',
     'https://circleci.com/job/789'
   );
+});
+
+test('QA run success without a results URL renders one separator', async () => {
+  const api = createMockApiClient();
+  mockFinalizedAt(api, finalizedAt);
+  mockApprovedAt(api, null);
+  mockMainExports(api, { completedAt: mainExportsDoneAt });
+  mockTestDecks(api, { completedAt: testDecksDoneAt });
+  const qaCompletedAt = new Date('1/21/2026, 2:15 PM');
+  // The status webhook's results URL is optional.
+  mockLatestQaRun(api, {
+    status: 'success',
+    jobUrl: 'https://circleci.com/job/789',
+    createdAt: qaCompletedAt,
+    updatedAt: qaCompletedAt,
+  });
+
+  renderUi(api);
+
+  await screen.findByText('Proofing Status');
+  api.assertComplete();
+
+  screen.getByText('QA check passed');
+  expect(screen.getByText('View CI Job')).toHaveAttribute(
+    'href',
+    'https://circleci.com/job/789'
+  );
+  expect(screen.queryByText('View QA Results')).toBeNull();
+  // One separator before the single link, and none trailing it.
+  expect(screen.getAllByText('|')).toHaveLength(1);
 });
 
 test('approve button shows warning when QA is in progress', async () => {
@@ -455,7 +513,7 @@ test('approve button shows warning when QA failed', async () => {
   within(modal).getByText(
     /automated QA check has failed: QA tests failed.*approve these ballots/i
   );
-  expect(within(modal).getByText('(📑 Results)')).toHaveAttribute(
+  expect(within(modal).getByText('View QA Results')).toHaveAttribute(
     'href',
     'https://example.com/results.html'
   );
