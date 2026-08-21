@@ -174,3 +174,14 @@ pnpm send-welcome-email "someone@example.com"
 
 ✅ Welcome email sent to someone@example.com
 ```
+
+## Convert NH Election
+
+Converts NH ballot style export JSON files into a VxSuite election definition.
+The Secretary of State's signature (SVG) is not committed to this public repo,
+so it must be passed as an argument:
+
+```sh
+./scripts/convert-nh-election --signature signature.svg dover-ward-*.json \
+  > dover-election.json
+```
