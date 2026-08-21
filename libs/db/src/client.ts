@@ -625,9 +625,11 @@ export class Client {
   /**
    * Writes a copy of the database to the given path.
    */
-  backup(filePath: string): void {
-    assert(!this.isMemoryDatabase(), 'cannot backup a memory database');
-    this.run('vacuum into ?', filePath);
+  async backup(
+    filePath: string,
+    options?: Parameters<Database['backup']>[1]
+  ): Promise<void> {
+    await this.getDatabase().backup(filePath, options);
   }
 
   /**
