@@ -48,16 +48,10 @@ import {
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
 } from './ballot_pdfs.js';
-import {
-  createCircleCiClient,
-  shouldTriggerCircleCi,
-} from '../circleci_client.js';
+import { CircleCiClient } from '../circleci_client.js';
 import { FileStorageClient } from '../file_storage_client.js';
-import {
-  baseUrl,
-  circleCiProjectSlug,
-  circleCiWebhookSecret,
-} from '../globals.js';
+import { baseUrl } from '../globals.js';
+import { qaConfig } from '../qa_config.js';
 import { Store } from '../store.js';
 import { rootDebug } from '../debug.js';
 
@@ -120,19 +114,13 @@ async function triggerCircleCiQaBuild(params: {
     vxsuiteVersion,
   } = params;
 
-  // Check if CircleCI integration is enabled
-  if (!shouldTriggerCircleCi()) {
-    debug('CircleCI integration not enabled, skipping QA build trigger');
+  const config = qaConfig();
+  if (!config) {
+    debug('Automated QA is not configured, skipping QA build trigger');
     return;
   }
 
   const qaRunId = uuid();
-  const webhookSecret = circleCiWebhookSecret();
-
-  if (!webhookSecret) {
-    debug('CircleCI webhook secret not configured, cannot trigger QA build');
-    return;
-  }
 
   // Use a presigned S3 URL if available (production), otherwise fall back to
   // the app URL (dev/test where files are on the local filesystem)
@@ -168,7 +156,7 @@ async function triggerCircleCiQaBuild(params: {
 
   try {
     // Trigger CircleCI pipeline
-    const circleCiClient = createCircleCiClient();
+    const circleCiClient = new CircleCiClient(config);
     const result = await circleCiClient.triggerPipeline({
       exportPackageUrl: fullExportUrl,
       webhookUrl,
@@ -177,18 +165,12 @@ async function triggerCircleCiQaBuild(params: {
       vxsuiteVersion,
     });
 
-    // Construct a link to the pipeline page
-    const projectSlug = circleCiProjectSlug();
-    const jobUrl = projectSlug
-      ? `https://app.circleci.com/pipelines/${projectSlug}/${result.pipelineNumber}`
-      : undefined;
-
     // Update QA run with CircleCI pipeline ID and job URL
     await store.updateExportQaRunStatus(qaRunId, {
       status: 'in_progress',
       statusMessage: 'Waiting for CI job to start',
       circleCiWorkflowId: result.pipelineId,
-      jobUrl,
+      jobUrl: circleCiClient.pipelineUrl(result.pipelineNumber),
     });
 
     debug(

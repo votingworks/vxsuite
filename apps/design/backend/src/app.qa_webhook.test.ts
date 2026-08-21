@@ -12,6 +12,16 @@ import {
 
 const { setupApp, cleanup } = testSetupHelpers();
 
+/**
+ * A fully configured automated QA environment. Partial configurations are
+ * rejected, so tests set all of these together.
+ */
+const qaEnv = {
+  CIRCLECI_API_TOKEN: 'test-token',
+  CIRCLECI_PROJECT_SLUG: 'gh/test/repo',
+  CIRCLECI_WEBHOOK_SECRET: 'test-secret',
+} as const;
+
 afterAll(async () => {
   await cleanup();
 });
@@ -78,9 +88,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     const nonExistentQaRunId = uuid();
@@ -101,9 +109,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -133,9 +139,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -179,9 +183,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -249,9 +251,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -293,9 +293,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);

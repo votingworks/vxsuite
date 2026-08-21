@@ -112,13 +112,15 @@ import {
   auth0ClientId,
   auth0IssuerBaseUrl,
   auth0Secret,
-  circleCiWebhookSecret,
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots.js';
+import {
+  createBallotPropsForTemplate,
+  defaultBallotTemplate,
+} from './ballots.js';
 import {
   getBallotPdfFileName,
   regenerateElectionIds,
@@ -131,10 +133,14 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features.js';
+import { qaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
-import { convertMsResults, ConvertMsResultsError } from './convert_ms_results.js';
+import {
+  convertMsResults,
+  ConvertMsResultsError,
+} from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
 import { logActivity } from './activity_logs.js';
 
@@ -1562,7 +1568,7 @@ export function buildApp(context: AppContext): Application {
   app.post('/api/export-qa-webhook/:qaRunId', async (req, res, next) => {
     try {
       const { qaRunId } = req.params;
-      const webhookSecret = circleCiWebhookSecret();
+      const webhookSecret = qaConfig()?.webhookSecret;
 
       // Validate webhook secret
       const providedSecret = req.headers['x-webhook-secret'];

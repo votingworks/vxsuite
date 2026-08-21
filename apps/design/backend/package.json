@@ -49,6 +49,7 @@
     "mock-circleci-server": "pnpm build:self && node ./build/scripts/mock_circleci_server.js",
     "send-welcome-email": "pnpm build:self && node ./build/scripts/send_welcome_email.js",
     "start": "./scripts/start.sh",
+    "start-with-mock-circleci": "./scripts/start-with-mock-circleci.sh",
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:ci": "pnpm -w vx-task test:ci $npm_package_name",
     "test:ci:self": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",

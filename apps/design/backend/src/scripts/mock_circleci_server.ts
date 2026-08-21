@@ -217,12 +217,10 @@ server.listen(PORT, () => {
   console.log('');
   console.log('Start VxDesign with:');
   console.log('');
-  console.log('  CIRCLECI_API_TOKEN=test-token \\');
-  console.log('  CIRCLECI_PROJECT_SLUG=gh/test/repo \\');
-  console.log(`  CIRCLECI_WEBHOOK_SECRET=${WEBHOOK_SECRET} \\`);
-  console.log(`  CIRCLECI_BASE_URL=http://localhost:${PORT} \\`);
-  console.log('  BASE_URL=http://localhost:3000 \\');
-  console.log('  pnpm -C apps/design start');
+  console.log(
+    `  CIRCLECI_BASE_URL=http://localhost:${PORT} CIRCLECI_WEBHOOK_SECRET=${WEBHOOK_SECRET} \\`
+  );
+  console.log('  pnpm -C apps/design/backend start-with-mock-circleci');
   console.log('');
   console.log('Then export an election in VxDesign.');
   console.log(line);
