@@ -22,6 +22,7 @@ which is the single source of truth for these variables.
 | `CIRCLECI_BASE_URL`       | No       | CircleCI API root. Defaults to `https://circleci.com`; point it at a stand-in server to test locally.                                                                                      |
 | `CIRCLECI_BRANCH`         | No       | The vx-qa branch to run. Defaults to the project's default branch.                                                                                                                         |
 | `CIRCLECI_PROJECT_SLUG`   | Yes      | The vx-qa CircleCI project, e.g. `gh/votingworks/vx-qa-internal` — the internal version of vx-qa we use for QA of customer elections.                                                      |
+| `CIRCLECI_QA_ORG_IDS`     | No       | Comma-separated allowlist of organization IDs to run QA for. Empty or unset means no organizations, i.e. QA off. Use `pnpm list-organizations` to look up IDs.                             |
 | `CIRCLECI_WEBHOOK_SECRET` | Yes      | Shared secret CircleCI presents when calling back with status updates. In 1Password as "VxQA CircleCI Webhook Secret" (`op read 'op://Software Eng/5nl3dggiufl6z7flk3e22oe7cy/password'`). |
 
 The QA flow also uses `BASE_URL` (shared with the rest of the backend), both for
@@ -34,6 +35,10 @@ The three required variables are all-or-nothing. Set all of them to configure
 the integration, or none of them to disable it. A partial configuration throws
 at startup rather than silently disabling QA. The backend logs a one-line
 summary of the resulting configuration when it starts.
+
+`CIRCLECI_QA_ORG_IDS` then decides which organizations QA actually runs for. For
+elections belonging to any other organization, QA is neither triggered on export
+nor returned by the API, so the proofing status UI shows no QA status.
 
 ### Testing with the Mock Server
 

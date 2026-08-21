@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { qaConfig, qaConfigSummary } from './qa_config.js';
+import {
+  isQaEnabledForOrganization,
+  qaConfig,
+  qaConfigSummary,
+} from './qa_config.js';
 
 const requiredEnv = {
   CIRCLECI_API_TOKEN: 'test-token',
@@ -40,6 +44,7 @@ describe('qaConfig', () => {
       apiBaseUrl: 'https://circleci.com',
       apiToken: 'test-token',
       branch: undefined,
+      organizationIds: [],
       projectSlug: 'gh/test/repo',
       webhookSecret: 'test-secret',
     });
@@ -50,11 +55,25 @@ describe('qaConfig', () => {
       ...requiredEnv,
       CIRCLECI_BASE_URL: 'http://localhost:9000',
       CIRCLECI_BRANCH: 'some-branch',
+      CIRCLECI_QA_ORG_IDS: ' org-1 , org-2,,',
     });
     expect(qaConfig()).toMatchObject({
       apiBaseUrl: 'http://localhost:9000',
       branch: 'some-branch',
+      organizationIds: ['org-1', 'org-2'],
     });
+  });
+});
+
+describe('isQaEnabledForOrganization', () => {
+  test('is false when automated QA is not configured', () => {
+    expect(isQaEnabledForOrganization('org-1')).toEqual(false);
+  });
+
+  test('is true only for organizations in the allowlist', () => {
+    stubEnv({ ...requiredEnv, CIRCLECI_QA_ORG_IDS: 'org-1,org-2' });
+    expect(isQaEnabledForOrganization('org-1')).toEqual(true);
+    expect(isQaEnabledForOrganization('org-3')).toEqual(false);
   });
 });
 
@@ -63,15 +82,22 @@ describe('qaConfigSummary', () => {
     expect(qaConfigSummary()).toEqual('Automated QA: disabled');
   });
 
-  test('reports the project and branch when enabled', () => {
+  test('reports when no organizations are enabled', () => {
     stubEnv(requiredEnv);
     expect(qaConfigSummary()).toEqual(
-      'Automated QA: enabled (project gh/test/repo, default branch)'
+      'Automated QA: no organizations enabled, set CIRCLECI_QA_ORG_IDS (project gh/test/repo)'
+    );
+  });
+
+  test('reports the enabled organizations, project, and branch', () => {
+    stubEnv({ ...requiredEnv, CIRCLECI_QA_ORG_IDS: 'org-1,org-2' });
+    expect(qaConfigSummary()).toEqual(
+      'Automated QA: enabled for organizations org-1, org-2 (project gh/test/repo, default branch)'
     );
 
     stubEnv({ CIRCLECI_BRANCH: 'some-branch' });
     expect(qaConfigSummary()).toEqual(
-      'Automated QA: enabled (project gh/test/repo, some-branch)'
+      'Automated QA: enabled for organizations org-1, org-2 (project gh/test/repo, some-branch)'
     );
   });
 });

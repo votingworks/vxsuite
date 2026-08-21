@@ -5,6 +5,7 @@ import { QaConfig } from './qa_config.js';
 const config: QaConfig = {
   apiBaseUrl: 'https://circleci.com',
   apiToken: 'test-token',
+  organizationIds: ['org-1'],
   projectSlug: 'gh/org/repo',
   webhookSecret: 'test-secret',
 };

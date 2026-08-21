@@ -89,6 +89,7 @@ import {
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
   SetPollingPlaceError,
+  Store,
 } from './store.js';
 import {
   AggregatedLiveReportActivityLog,
@@ -133,7 +134,7 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features.js';
-import { qaConfig } from './qa_config.js';
+import { isQaEnabledForOrganization, qaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
@@ -200,6 +201,14 @@ function requireJurisdictionAccess(user: User, jurisdiction: Jurisdiction) {
   if (!userCanAccessJurisdiction(user, jurisdiction)) {
     throw new AuthError('auth:forbidden');
   }
+}
+
+async function isQaEnabledForElection(
+  store: Store,
+  electionId: ElectionId
+): Promise<boolean> {
+  const jurisdiction = await store.getElectionJurisdiction(electionId);
+  return isQaEnabledForOrganization(jurisdiction.organization.id);
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -918,12 +927,15 @@ export function buildApi(ctx: AppContext) {
       return store.createElectionPackageBackgroundTask(input);
     },
 
-    getLatestExportQaRun({
+    async getLatestExportQaRun({
       electionId,
     }: {
       electionId: ElectionId;
     }): Promise<Optional<ExportQaRun>> {
-      return store.getLatestExportQaRunForElection(electionId);
+      if (!(await isQaEnabledForElection(store, electionId))) {
+        return undefined;
+      }
+      return await store.getLatestExportQaRunForElection(electionId);
     },
 
     getExportQaRun({

@@ -25,6 +25,13 @@ export interface QaConfig {
   readonly branch?: string;
 
   /**
+   * The organizations whose exports get QA'd (`CIRCLECI_QA_ORG_IDS`). Elections
+   * belonging to any other organization are skipped, and their QA runs are
+   * hidden from the API. Use `pnpm list-organizations` to look up IDs.
+   */
+  readonly organizationIds: readonly string[];
+
+  /**
    * The vx-qa CircleCI project, e.g. `gh/votingworks/vx-qa-internal`
    * (`CIRCLECI_PROJECT_SLUG`).
    */
@@ -74,9 +81,21 @@ export function qaConfig(): Optional<QaConfig> {
     apiBaseUrl: process.env.CIRCLECI_BASE_URL ?? DEFAULT_API_BASE_URL,
     apiToken,
     branch: process.env.CIRCLECI_BRANCH || undefined,
+    organizationIds: (process.env.CIRCLECI_QA_ORG_IDS ?? '')
+      .split(',')
+      .map((organizationId) => organizationId.trim())
+      .filter((organizationId) => organizationId !== ''),
     projectSlug,
     webhookSecret,
   };
+}
+
+/**
+ * Whether automated QA is enabled for the given organization. Gates both
+ * triggering QA on export and returning QA runs from the API.
+ */
+export function isQaEnabledForOrganization(organizationId: string): boolean {
+  return qaConfig()?.organizationIds.includes(organizationId) ?? false;
 }
 
 /**
@@ -88,6 +107,11 @@ export function qaConfigSummary(): string {
   if (!config) {
     return 'Automated QA: disabled';
   }
+  if (config.organizationIds.length === 0) {
+    return `Automated QA: no organizations enabled, set CIRCLECI_QA_ORG_IDS (project ${config.projectSlug})`;
+  }
   const branch = config.branch ?? 'default branch';
-  return `Automated QA: enabled (project ${config.projectSlug}, ${branch})`;
+  return `Automated QA: enabled for organizations ${config.organizationIds.join(
+    ', '
+  )} (project ${config.projectSlug}, ${branch})`;
 }

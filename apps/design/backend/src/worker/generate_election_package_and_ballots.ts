@@ -104,6 +104,7 @@ async function triggerCircleCiQaBuild(params: {
   electionId: ElectionId;
   electionPackageUrl: string;
   fileStorageClient: FileStorageClient;
+  organizationId: string;
   vxsuiteVersion: SoftwareVersion;
 }): Promise<void> {
   const {
@@ -111,12 +112,16 @@ async function triggerCircleCiQaBuild(params: {
     electionId,
     electionPackageUrl,
     fileStorageClient,
+    organizationId,
     vxsuiteVersion,
   } = params;
 
   const config = qaConfig();
-  if (!config) {
-    debug('Automated QA is not configured, skipping QA build trigger');
+  if (!config?.organizationIds.includes(organizationId)) {
+    debug(
+      'Automated QA is either not configured or not enabled for this organization: organizationId=%s',
+      organizationId
+    );
     return;
   }
 
@@ -501,6 +506,7 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionPackageUrl,
     fileStorageClient: ctx.fileStorageClient,
+    organizationId: jurisdiction.organization.id,
     vxsuiteVersion: jurisdiction.softwareVersion,
   });
 }

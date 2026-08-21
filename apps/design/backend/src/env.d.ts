@@ -14,6 +14,7 @@ declare namespace NodeJS {
     readonly CIRCLECI_BASE_URL?: string;
     readonly CIRCLECI_BRANCH?: string;
     readonly CIRCLECI_PROJECT_SLUG?: string;
+    readonly CIRCLECI_QA_ORG_IDS?: string;
     readonly CIRCLECI_WEBHOOK_SECRET?: string;
     readonly DATABASE_URL?: string;
     readonly DEPLOY_ENV: 'development' | 'staging' | 'production';
