@@ -181,6 +181,7 @@ async function create(
     `the backups CLI is a development tool, but NODE_ENV is ${NODE_ENV}`
   );
   (process.env as { NODE_ENV?: string }).NODE_ENV = NODE_ENV;
+  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
 
   const logger = new BaseLogger(LogSource.VxAdminService);
 
