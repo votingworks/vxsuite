@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { readFileSync, unlinkSync } from 'node:fs';
+import { readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -160,6 +160,103 @@ test('fails when no election is configured', async () => {
     type: 'unconfigured',
     message: 'An unconfigured VxAdmin cannot be backed up',
   });
+});
+
+test('fails when the backup target directory does not exist', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = join(makeTemporaryDirectory(), 'not-mounted');
+
+  const result = await prepare({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'file-not-found',
+    path: target,
+    message: 'Backup target directory could not be found',
+  });
+});
+
+test('fails when the backup target is not a directory', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = join(makeTemporaryDirectory(), 'target-file');
+  writeFileSync(target, 'not a directory');
+
+  const result = await prepare({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'not-directory',
+    path: target,
+    message: `${target} is not a directory`,
+  });
+});
+
+test('fails when the backup target goes away while staging', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) => {
+    if (paths.includes(target)) {
+      // How an unplugged drive shows up: `df` exits non-zero, and the error
+      // carries that exit code rather than an ENOENT.
+      rmSync(target, { recursive: true, force: true });
+      const error: NodeJS.ErrnoException = new Error('df exited with code 1');
+      error.code = '1';
+      return Promise.reject(error);
+    }
+    return Promise.resolve(
+      paths.map((path) => ({
+        path,
+        mountpoint: '/',
+        total: GENEROUS_AVAILABLE_KB,
+        used: 0,
+        available: GENEROUS_AVAILABLE_KB,
+      }))
+    );
+  });
+
+  const result = await prepare({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'file-not-found',
+    path: target,
+    message: 'Backup target directory could not be found',
+  });
+});
+
+test('fails fast when the target disk space check fails for another reason', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
+    paths.includes(target)
+      ? Promise.reject(new Error('df is broken'))
+      : Promise.resolve(
+          paths.map((path) => ({
+            path,
+            mountpoint: '/',
+            total: GENEROUS_AVAILABLE_KB,
+            used: 0,
+            available: GENEROUS_AVAILABLE_KB,
+          }))
+        )
+  );
+
+  await expect(
+    prepare({
+      workspace: workspace.path,
+      target,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    })
+  ).rejects.toThrow('df is broken');
 });
 
 test('fails with insufficient-workspace-storage when the workspace volume is too full', async () => {

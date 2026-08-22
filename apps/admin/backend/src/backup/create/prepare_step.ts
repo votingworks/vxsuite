@@ -8,6 +8,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { Stats } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { openWorkspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
@@ -17,12 +18,25 @@ import { ElectionRecord } from '../../types.js';
 
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 
+async function statOrUndefined(path: string): Promise<Stats | undefined> {
+  try {
+    return await stat(path);
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Possible expected errors that might occur during {@link prepare}.
  */
 export type PrepareError =
   | {
       type: 'file-not-found';
+      path: string;
+      message: string;
+    }
+  | {
+      type: 'not-directory';
       path: string;
       message: string;
     }
@@ -61,13 +75,32 @@ export async function prepare(
     options.minAvailableStorageBytes ?? DEFAULT_MIN_AVAILABLE_STORAGE_BYTES;
   options.onProgressEvent?.({ type: 'preparing' });
 
-  try {
-    await stat(options.workspace);
-  } catch {
+  if (!(await statOrUndefined(options.workspace))) {
     return err({
       type: 'file-not-found',
       path: options.workspace,
       message: 'Workspace directory could not be found',
+    });
+  }
+
+  // Check the target up front: an unmounted backup drive is the likeliest
+  // reason for a backup to fail, and snapshotting the database before noticing
+  // would waste a full copy of it.
+  const targetStat = await statOrUndefined(options.target);
+
+  if (!targetStat) {
+    return err({
+      type: 'file-not-found',
+      path: options.target,
+      message: 'Backup target directory could not be found',
+    });
+  }
+
+  if (!targetStat.isDirectory()) {
+    return err({
+      type: 'not-directory',
+      path: options.target,
+      message: `${options.target} is not a directory`,
     });
   }
 
@@ -167,8 +200,24 @@ export async function prepare(
       .async()
       .map(({ size }) => size)
       .sum();
-    const [targetDiskSpace] = await getDiskSpaceSummaries([options.target]);
-    const targetDiskAvailableBytes = targetDiskSpace.available * 1024;
+    let targetDiskAvailableBytes: number;
+    try {
+      const [targetDiskSpace] = await getDiskSpaceSummaries([options.target]);
+      targetDiskAvailableBytes = targetDiskSpace.available * 1024;
+    } catch (error) {
+      // `df` exits non-zero when its path is gone and rejects with that exit
+      // code rather than an ENOENT, so ask the filesystem directly to tell a
+      // drive removed mid-backup from a genuine failure.
+      if (await statOrUndefined(options.target)) {
+        throw error;
+      }
+
+      return err({
+        type: 'file-not-found',
+        path: options.target,
+        message: 'Backup target directory could not be found',
+      });
+    }
 
     if (targetDiskAvailableBytes - backupSizeBytes < minAvailableStorageBytes) {
       return err({

@@ -3,6 +3,7 @@ import { ok } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -19,6 +20,8 @@ import {
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { createBackup } from './index.js';
+import { copy } from './copy_step.js';
+import { writeManifest } from './manifest_step.js';
 import { BackupManifestStructSchema } from '../backup_manifest.js';
 
 vi.mock(
@@ -29,6 +32,30 @@ vi.mock(
       ...actual,
       getDiskSpaceSummaries: vi.fn(),
     };
+  }
+);
+
+vi.mock(
+  import('node:fs/promises'),
+  async (importActual): Promise<typeof import('node:fs/promises')> => {
+    const actual = await importActual();
+    return { ...actual, rm: vi.fn(actual.rm) as unknown as typeof rm };
+  }
+);
+
+vi.mock(
+  import('./copy_step.js'),
+  async (importActual): Promise<typeof import('./copy_step.js')> => {
+    const actual = await importActual();
+    return { ...actual, copy: vi.fn(actual.copy) };
+  }
+);
+
+vi.mock(
+  import('./manifest_step.js'),
+  async (importActual): Promise<typeof import('./manifest_step.js')> => {
+    const actual = await importActual();
+    return { ...actual, writeManifest: vi.fn(actual.writeManifest) };
   }
 );
 
@@ -226,4 +253,83 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   // No `-in-progress` (or old `-previous`) directory left behind.
   const targetEntries = readdirSync(target);
   expect(targetEntries).toEqual([backupName]);
+});
+
+function outOfSpaceError(): NodeJS.ErrnoException {
+  const error: NodeJS.ErrnoException = new Error('no space left on device');
+  error.code = 'ENOSPC';
+  return error;
+}
+
+test('reports an error when copying the backup fails', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockRejectedValueOnce(outOfSpaceError());
+
+  const result = await createBackup({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'no space left on device',
+  });
+});
+
+test('reports an error when writing the manifest fails, leaving no partial backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(writeManifest).mockRejectedValueOnce(outOfSpaceError());
+
+  const result = await createBackup({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'no space left on device',
+  });
+  expect(readdirSync(target)).toEqual([]);
+});
+
+test('fails fast when writing the backup fails unexpectedly', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockRejectedValueOnce(new Error('kaboom'));
+
+  await expect(
+    createBackup({
+      workspace: workspace.path,
+      target,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    })
+  ).rejects.toThrow('kaboom');
+});
+
+test('reports an error when clearing a leftover in-progress backup fails', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  const error: NodeJS.ErrnoException = new Error('input/output error');
+  error.code = 'EIO';
+  const fileStore = vi.spyOn(Store, 'fileStore');
+  vi.mocked(rm).mockRejectedValueOnce(error);
+
+  const result = await createBackup({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'input/output error',
+  });
+
+  // Failing this early must still release the snapshot's connection.
+  const snapshotStore = fileStore.mock.results.at(-1)!.value as Store;
+  expect(() => snapshotStore.getCurrentElectionId()).toThrow('is closed');
 });
