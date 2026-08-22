@@ -100,6 +100,18 @@ export class ProgressDisplay {
   }
 
   /**
+   * Erases the bar so the caller can print something in its place. A stream
+   * with no cursor has nothing to erase: each update was its own line, and
+   * those stay as the record of what happened.
+   */
+  clear(): void {
+    if (this.isTerminal) {
+      // \u001b[2K is the ANSI erase-line control sequence.
+      this.stream.write('\r\u001b[2K');
+    }
+  }
+
+  /**
    * Leaves the cursor somewhere sane for whatever the caller prints next.
    */
   finish(): void {

@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -12,6 +19,7 @@ import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
+import { BackupStagingArea } from '../staging_area.js';
 import { prepare } from './prepare_step.js';
 
 vi.mock(
@@ -136,6 +144,75 @@ function addCvrWithBallotImage(
     ),
   };
 }
+
+test('reclaims a killed run’s staging area before measuring free space', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+
+  // What a run killed mid-copy leaves: a staging area holding a real copy of
+  // the database, at the one path a staging area ever occupies.
+  const stagingAreaPath = BackupStagingArea.pathIn(workspace.path);
+  mkdirSync(join(stagingAreaPath, 'copy-root'), { recursive: true });
+  writeFileSync(join(stagingAreaPath, 'copy-root', 'data.db'), 'stale');
+
+  // A killed run's snapshot is a real copy, so it has to be reclaimed before
+  // free space is measured or it counts against the space this backup needs.
+  let staleBytesAtMeasureTime: number | undefined;
+  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) => {
+    staleBytesAtMeasureTime ??= existsSync(
+      join(stagingAreaPath, 'copy-root', 'data.db')
+    )
+      ? 1
+      : 0;
+    return Promise.resolve(
+      paths.map((path) => ({
+        path,
+        mountpoint: '/',
+        total: GENEROUS_AVAILABLE_KB,
+        used: 0,
+        available: GENEROUS_AVAILABLE_KB,
+      }))
+    );
+  });
+
+  const result = await prepare({
+    workspace: workspace.path,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { source, store } = result.unsafeUnwrap();
+
+  expect(staleBytesAtMeasureTime).toEqual(0);
+
+  // The stale copy is gone, replaced by this run's staging area.
+  expect(
+    readFileSync(join(stagingAreaPath, 'copy-root', 'data.db')).toString()
+  ).not.toEqual('stale');
+
+  store.close();
+  await source.cleanup();
+  expect(existsSync(stagingAreaPath)).toEqual(false);
+});
+
+test('refuses when a backup of the workspace is already running', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const held = (
+    await BackupStagingArea.inWorkspace(workspace.path)
+  ).unsafeUnwrap();
+
+  const result = await prepare({
+    workspace: workspace.path,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-in-progress',
+    message: 'Another backup of this workspace is already running',
+  });
+
+  await held.cleanup();
+});
 
 test('fails when the workspace directory does not exist', async () => {
   const result = await prepare({

@@ -1,6 +1,6 @@
-import { join } from 'node:path';
-import { rm } from 'node:fs/promises';
-import { err, extractErrorMessage, Result } from '@votingworks/basics';
+import { dirname } from 'node:path';
+import { mkdir, rm } from 'node:fs/promises';
+import { err, extractErrorMessage, ok, Result } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { prepare, PrepareError } from './prepare_step.js';
 import { PrepareBackupOptions } from './types.js';
@@ -8,6 +8,7 @@ import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
 import { swap, SwapError } from './swap_step.js';
 import { BackupManifest } from '../backup_manifest.js';
+import { BackupRoot } from '../backup_root.js';
 
 /**
  * Possible expected errors that can occur while writing a backup's files to
@@ -38,12 +39,20 @@ const EXPECTED_WRITE_ERROR_CODES: readonly string[] = [
 ];
 
 /**
+ * A finished backup: where it landed, and the manifest describing it.
+ */
+export interface CreatedBackup {
+  path: string;
+  manifest: BackupManifest;
+}
+
+/**
  * Creates a full backup of the currently configured election, including the
  * database, ballot images, and election packages.
  */
 export async function createBackup(
   options: PrepareBackupOptions
-): Promise<Result<void, CreateBackupError>> {
+): Promise<Result<CreatedBackup, CreateBackupError>> {
   const prepareResult = await prepare(options);
   if (prepareResult.isErr()) {
     return prepareResult;
@@ -56,17 +65,20 @@ export async function createBackup(
     electionRecord.electionDefinition.ballotHash
   );
 
-  const backupPath = join(options.target, electionBackupName);
-
-  const inProgressBackupPath = join(
-    options.target,
+  const root = new BackupRoot(options.target);
+  const backupPath = root.pathFor(electionBackupName);
+  const inProgressBackupPath = root.pathFor(
     `${electionBackupName}-in-progress`
   );
 
-  try {
-    let manifest: BackupManifest;
+  let manifest: BackupManifest;
 
+  try {
     try {
+      // The backups directory may not exist yet on a drive that has never been
+      // backed up to.
+      await mkdir(dirname(inProgressBackupPath), { recursive: true });
+
       // Clear the leftovers of any interrupted run before writing.
       await rm(inProgressBackupPath, { recursive: true, force: true });
 
@@ -113,11 +125,16 @@ export async function createBackup(
     });
   }
 
-  return await swap({
+  const swapResult = await swap({
     inProgressBackup: inProgressBackupPath,
     target: options.target,
     backup: backupPath,
     logger: options.logger,
     onProgressEvent: options.onProgressEvent,
   });
+  if (swapResult.isErr()) {
+    return swapResult;
+  }
+
+  return ok({ path: backupPath, manifest });
 }

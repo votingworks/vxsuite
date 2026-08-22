@@ -198,14 +198,17 @@ async function create(
     logger,
     onProgressEvent: (event) => display.update(displayProgress(event)),
   });
-  display.finish();
 
   if (createBackupResult.isErr()) {
+    // Leave the bar where it stopped: it says which step failed.
+    display.finish();
     stderr.write(`Error: ${createBackupResult.err().message}\n`);
     return 1;
   }
 
-  stdout.write('Backup done!\n');
+  // Replace the bar with what `list` would show for the backup just written.
+  display.clear();
+  views.backupInfo(new StyledPrinter(stdout), createBackupResult.ok());
 
   return 0;
 }

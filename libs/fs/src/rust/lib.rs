@@ -10,7 +10,7 @@
 use napi::{Error, Result};
 use napi_derive::napi;
 use nix::errno::Errno;
-use nix::fcntl::{posix_fadvise, renameat2, PosixFadviseAdvice, RenameFlags};
+use nix::fcntl::{flock, posix_fadvise, renameat2, FlockArg, PosixFadviseAdvice, RenameFlags};
 use nix::unistd::syncfs as nix_syncfs;
 
 fn errno_error(errno: Errno) -> Error {
@@ -80,4 +80,19 @@ pub fn fadvise_dont_need(fd: i32) -> Result<()> {
 #[napi]
 pub fn syncfs(fd: i32) -> Result<()> {
     nix_syncfs(fd).map_err(errno_error)
+}
+
+/// Takes an exclusive advisory lock on an open file without waiting, via
+/// `flock(2)` with `LOCK_EX | LOCK_NB`. The kernel drops the lock when the
+/// descriptor closes, including when the process holding it dies, so a lock
+/// can never be left stranded by a crash.
+///
+/// # Errors
+///
+/// Fails with the syscall's errno: `EWOULDBLOCK` (reported as `EAGAIN`) when
+/// another open file description already holds the lock, or `EBADF` if `fd` is
+/// not an open file descriptor.
+#[napi]
+pub fn flock_exclusive_nonblocking(fd: i32) -> Result<()> {
+    flock(fd, FlockArg::LockExclusiveNonblock).map_err(errno_error)
 }

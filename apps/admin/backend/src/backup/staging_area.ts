@@ -1,11 +1,24 @@
 import assert from 'node:assert';
-import { link, mkdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { link, mkdir, rm, stat } from 'node:fs/promises';
 import { dirname, isAbsolute, join, normalize, relative } from 'node:path';
-import { iter } from '@votingworks/basics';
+import { err, iter, ok, Result } from '@votingworks/basics';
+import {
+  FileLock,
+  isLockHeldElsewhereError,
+  tryLockFileExclusive,
+} from '@votingworks/fs';
 
-const PREFIX = 'backup-staging-area-';
-const PIDFILE = 'vxadmin.pid';
+const DIRECTORY_NAME = 'backup-staging';
+const LOCKFILE_NAME = 'backup-staging.lock';
 const COPY_ROOT = 'copy-root';
+
+/**
+ * Returned when a workspace already has a backup running against it.
+ */
+export interface StagingAreaBusyError {
+  type: 'staging-area-busy';
+  message: string;
+}
 
 /**
  * Details for files that have been staged.
@@ -31,17 +44,69 @@ export class BackupStagingArea {
 
   private constructor(
     private readonly workspacePath: string,
-    private readonly stagingAreaPath: string
+    private readonly stagingAreaPath: string,
+    private readonly lock: FileLock
   ) {}
 
   /**
-   * Creates a temporary directory within the workspace for the links to go.
-   * When you're done with it you must call {@link cleanup}.
+   * Path a workspace's staging area always occupies. Fixed rather than unique
+   * so that whatever an interrupted run left behind is found and reclaimed by
+   * the next one, instead of accumulating.
    */
-  static async inWorkspace(workspacePath: string): Promise<BackupStagingArea> {
-    const stagingAreaPath = await mkdtemp(join(workspacePath, PREFIX));
-    await writeFile(join(stagingAreaPath, PIDFILE), `${process.pid}`);
-    return new BackupStagingArea(workspacePath, stagingAreaPath);
+  static pathIn(workspacePath: string): string {
+    return join(workspacePath, DIRECTORY_NAME);
+  }
+
+  /**
+   * Path of the lock held for as long as a workspace has a staging area. Kept
+   * outside the staging area itself, which is deleted and recreated.
+   */
+  static lockPathIn(workspacePath: string): string {
+    return join(workspacePath, LOCKFILE_NAME);
+  }
+
+  /**
+   * Creates the workspace's staging area for the links to go, reclaiming any a
+   * killed run left behind, and holds a lock for as long as it exists. When
+   * you're done with it you must call {@link cleanup}.
+   *
+   * The lock is what makes reclaiming safe: the staging area is at a fixed
+   * path, so without it a second run would delete a live one's staged files.
+   * It covers staging only — the target's in-progress directory is a separate
+   * race, and one that predates this.
+   */
+  static async inWorkspace(
+    workspacePath: string
+  ): Promise<Result<BackupStagingArea, StagingAreaBusyError>> {
+    const lockResult = await tryLockFileExclusive(
+      BackupStagingArea.lockPathIn(workspacePath)
+    );
+
+    if (lockResult.isErr() && isLockHeldElsewhereError(lockResult.err())) {
+      return err({
+        type: 'staging-area-busy',
+        message: 'Another backup of this workspace is already running',
+      });
+    }
+
+    // Any other failure to lock is not something a caller can act on.
+    const lock = lockResult.unsafeUnwrap();
+    const stagingAreaPath = BackupStagingArea.pathIn(workspacePath);
+
+    try {
+      // A staging area only outlives the run that made it when that run was
+      // killed, so anything here is dead. Reclaiming it before free space is
+      // measured matters: a killed run's database snapshot is a real copy, and
+      // counting it against the space this backup needs would block every
+      // later backup until someone cleaned up by hand.
+      await rm(stagingAreaPath, { recursive: true, force: true });
+      await mkdir(stagingAreaPath, { recursive: true });
+    } catch (error) {
+      await lock.release();
+      throw error;
+    }
+
+    return ok(new BackupStagingArea(workspacePath, stagingAreaPath, lock));
   }
 
   /**
@@ -153,5 +218,6 @@ export class BackupStagingArea {
     await rm(this.stagingAreaPath, { recursive: true, force: true });
     this.preparedPaths.clear();
     this.readyFiles.clear();
+    await this.lock.release();
   }
 }

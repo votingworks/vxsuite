@@ -143,3 +143,26 @@ test('a non-terminal display leaves the cursor alone when finishing', () => {
 
   expect(stream.toString()).toEqual('');
 });
+
+test('clearing takes the bar off a terminal', () => {
+  const stream = mockWritable();
+  const display = new ProgressDisplay(stream, true);
+
+  display.update({ label: 'Copying', bytesCompleted: 50, bytesTotal: 100 });
+  display.clear();
+
+  // The erase leaves the cursor where the bar was, for a caller to print over.
+  expect(stream.toString().endsWith(ERASE_LINE)).toEqual(true);
+});
+
+test('clearing writes nothing where there is no cursor', () => {
+  const stream = mockWritable();
+  const display = new ProgressDisplay(stream, false);
+
+  display.update({ label: 'Copying', bytesCompleted: 50, bytesTotal: 100 });
+  const beforeClear = stream.toString();
+  display.clear();
+
+  // The line already written stands as the record of what happened.
+  expect(stream.toString()).toEqual(beforeClear);
+});

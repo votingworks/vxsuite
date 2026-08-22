@@ -149,15 +149,14 @@ test('create refuses when no election is configured', async () => {
   ]);
   expect(code).toEqual(1);
 
-  const backups = readdirSync(target, { withFileTypes: true });
-  expect(backups).toHaveLength(0);
+  expect(readdirSync(target)).toEqual([]);
 });
 
 test('create copies the database into a directory within the target', async () => {
   const logger = new BaseLogger(LogSource.VxAdminService);
   const workspace = await makeWorkspace(logger);
   const target = makeTemporaryDirectory();
-  const { code, stderr } = await run([
+  const { code, stdout, stderr } = await run([
     'create',
     '--workspace',
     workspace.path,
@@ -174,7 +173,17 @@ test('create copies the database into a directory within the target', async () =
   // \u001b is ESC: nothing tries to move a cursor that isn't there.
   expect(stderr).not.toContain('\u001b');
 
-  const backups = readdirSync(target, { withFileTypes: true });
+  // Once done, stdout carries the same summary `list` would show for it.
+  expect(stdout).toContain(
+    '● franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+  expect(stdout).toContain('Election  Lincoln Municipal General Election · ');
+  expect(stdout).toContain('Files     ');
+
+  // `create` writes where `list` reads: under `vxadmin-backups`.
+  const backups = readdirSync(join(target, 'vxadmin-backups'), {
+    withFileTypes: true,
+  });
   expect(backups).toHaveLength(1);
   const backup = backups[0]!;
   expect(backup.isDirectory()).toBeTruthy();

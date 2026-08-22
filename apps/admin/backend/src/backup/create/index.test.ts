@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { ok } from '@votingworks/basics';
-import { join } from 'node:path';
+import { err, ok } from '@votingworks/basics';
+import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -20,8 +20,10 @@ import {
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { createBackup } from './index.js';
+import { BackupRoot } from '../backup_root.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
+import { swap } from './swap_step.js';
 import { BackupManifestStructSchema } from '../backup_manifest.js';
 
 vi.mock(
@@ -48,6 +50,14 @@ vi.mock(
   async (importActual): Promise<typeof import('./copy_step.js')> => {
     const actual = await importActual();
     return { ...actual, copy: vi.fn(actual.copy) };
+  }
+);
+
+vi.mock(
+  import('./swap_step.js'),
+  async (importActual): Promise<typeof import('./swap_step.js')> => {
+    const actual = await importActual();
+    return { ...actual, swap: vi.fn(actual.swap) };
   }
 );
 
@@ -176,7 +186,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
     target,
     logger,
   });
-  expect(firstResult).toEqual(ok());
+  const firstCreated = firstResult.unsafeUnwrap();
 
   // The staging area holding the snapshot is deleted once the copy is done, so
   // its connection has to be closed or the space it holds is never reclaimed.
@@ -189,7 +199,11 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
     electionRecord.electionDefinition.election,
     electionRecord.electionDefinition.ballotHash
   );
-  const backupPath = join(target, backupName);
+  const backupPath = new BackupRoot(target).pathFor(backupName);
+
+  // `createBackup` reports where it put the backup, so a caller doesn't have to
+  // rebuild the name itself.
+  expect(firstCreated.path).toEqual(backupPath);
 
   function readManifest() {
     return BackupManifestStructSchema.parse(
@@ -231,7 +245,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
     target,
     logger,
   });
-  expect(secondResult).toEqual(ok());
+  expect(secondResult.unsafeUnwrap().path).toEqual(backupPath);
 
   const secondManifest = readManifest();
   expect(await authenticateBackup()).toEqual(ok());
@@ -251,8 +265,11 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   expect(secondBallotImages).toHaveLength(2);
 
   // No `-in-progress` (or old `-previous`) directory left behind.
-  const targetEntries = readdirSync(target);
-  expect(targetEntries).toEqual([backupName]);
+  expect(readdirSync(dirname(backupPath))).toEqual([backupName]);
+
+  // What `create` wrote is what `list` finds: the two agreed on the layout.
+  const listed = (await new BackupRoot(target).listBackups()).unsafeUnwrap();
+  expect(listed.map((b) => b.path)).toEqual([backupPath]);
 });
 
 function outOfSpaceError(): NodeJS.ErrnoException {
@@ -293,7 +310,8 @@ test('reports an error when writing the manifest fails, leaving no partial backu
     type: 'backup-write-failed',
     message: 'no space left on device',
   });
-  expect(readdirSync(target)).toEqual([]);
+  // The backups directory is left, but with nothing in it.
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
 });
 
 test('fails fast when writing the backup fails unexpectedly', async () => {
@@ -316,7 +334,19 @@ test('reports an error when clearing a leftover in-progress backup fails', async
   const error: NodeJS.ErrnoException = new Error('input/output error');
   error.code = 'EIO';
   const fileStore = vi.spyOn(Store, 'fileStore');
-  vi.mocked(rm).mockRejectedValueOnce(error);
+
+  // `prepare` reclaims the workspace's staging area with `rm` first, so target
+  // only the in-progress directory. Restored at the end of the test, since a
+  // delegating `vi.fn` is not something `restoreAllMocks` puts back.
+  const actualFs =
+    await vi.importActual<typeof import('node:fs/promises')>(
+      'node:fs/promises'
+    );
+  vi.mocked(rm).mockImplementation((path, options) =>
+    String(path).endsWith('-in-progress')
+      ? Promise.reject(error)
+      : actualFs.rm(path, options)
+  );
 
   const result = await createBackup({
     workspace: workspace.path,
@@ -332,4 +362,25 @@ test('reports an error when clearing a leftover in-progress backup fails', async
   // Failing this early must still release the snapshot's connection.
   const snapshotStore = fileStore.mock.results.at(-1)!.value as Store;
   expect(() => snapshotStore.getCurrentElectionId()).toThrow('is closed');
+
+  vi.mocked(rm).mockImplementation(actualFs.rm);
+});
+
+test('reports a failed swap rather than a created backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(swap).mockResolvedValueOnce(
+    err({ type: 'backup-swap-failed', message: 'could not swap' })
+  );
+
+  const result = await createBackup({
+    workspace: workspace.path,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-swap-failed',
+    message: 'could not swap',
+  });
 });

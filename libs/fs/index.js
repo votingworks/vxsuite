@@ -577,6 +577,7 @@ if (!nativeBinding) {
 
 module.exports = nativeBinding
 module.exports.fadviseDontNeed = nativeBinding.fadviseDontNeed
+module.exports.flockExclusiveNonblocking = nativeBinding.flockExclusiveNonblocking
 module.exports.renameExchange = nativeBinding.renameExchange
 module.exports.renameNoReplace = nativeBinding.renameNoReplace
 module.exports.syncfs = nativeBinding.syncfs

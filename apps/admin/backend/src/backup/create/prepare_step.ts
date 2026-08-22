@@ -45,6 +45,10 @@ export type PrepareError =
       message: string;
     }
   | {
+      type: 'backup-in-progress';
+      message: string;
+    }
+  | {
       type: 'insufficient-workspace-storage';
       available: number;
       required: number;
@@ -104,48 +108,61 @@ export async function prepare(
     });
   }
 
-  const [workspaceDiskSpace] = await getDiskSpaceSummaries([options.workspace]);
-  const workspaceDiskAvailableBytes = workspaceDiskSpace.available * 1024;
-
-  //
-  // Ensure the local workspace directory has enough space to store a full copy
-  // of the database since we need a stable snapshot to serve as the basis of
-  // the backup.
-  //
-
-  using workspace = openWorkspace(options.workspace, options.logger);
-  const currentElectionId = workspace.store.getCurrentElectionId();
-  const currentElectionRecord =
-    currentElectionId && workspace.store.getElection(currentElectionId);
-
-  if (!currentElectionRecord) {
+  // Claim the staging area first. It reclaims what a killed run left behind,
+  // so the free space measured below doesn't count a dead run's snapshot
+  // against this one, and it holds the lock that makes reclaiming safe.
+  const stagingAreaResult = await BackupStagingArea.inWorkspace(
+    options.workspace
+  );
+  if (stagingAreaResult.isErr()) {
     return err({
-      type: 'unconfigured',
-      message: 'An unconfigured VxAdmin cannot be backed up',
+      type: 'backup-in-progress',
+      message: stagingAreaResult.err().message,
     });
   }
-
-  const dbStat = await stat(workspace.store.getDbPath());
-
-  if (workspaceDiskAvailableBytes - dbStat.size < minAvailableStorageBytes) {
-    return err({
-      type: 'insufficient-workspace-storage',
-      available: workspaceDiskAvailableBytes,
-      required: minAvailableStorageBytes + dbStat.size,
-      message: 'Not enough free space to snapshot the database',
-    });
-  }
-
-  //
-  // Prepare the staging area with a database snapshot and cheap clones of all
-  // the files to copy over to the backup target location.
-  //
-
-  const stagingArea = await BackupStagingArea.inWorkspace(workspace.path);
+  const stagingArea = stagingAreaResult.ok();
   let snapshotStore: Store | undefined;
   let shouldPurgeStagingArea = true;
 
   try {
+    const [workspaceDiskSpace] = await getDiskSpaceSummaries([
+      options.workspace,
+    ]);
+    const workspaceDiskAvailableBytes = workspaceDiskSpace.available * 1024;
+
+    //
+    // Ensure the local workspace directory has enough space to store a full
+    // copy of the database since we need a stable snapshot to serve as the
+    // basis of the backup.
+    //
+
+    using workspace = openWorkspace(options.workspace, options.logger);
+    const currentElectionId = workspace.store.getCurrentElectionId();
+    const currentElectionRecord =
+      currentElectionId && workspace.store.getElection(currentElectionId);
+
+    if (!currentElectionRecord) {
+      return err({
+        type: 'unconfigured',
+        message: 'An unconfigured VxAdmin cannot be backed up',
+      });
+    }
+
+    const dbStat = await stat(workspace.store.getDbPath());
+
+    if (workspaceDiskAvailableBytes - dbStat.size < minAvailableStorageBytes) {
+      return err({
+        type: 'insufficient-workspace-storage',
+        available: workspaceDiskAvailableBytes,
+        required: minAvailableStorageBytes + dbStat.size,
+        message: 'Not enough free space to snapshot the database',
+      });
+    }
+
+    //
+    // Prepare the staging area with a database snapshot and cheap clones of
+    // all the files to copy over to the backup target location.
+    //
     const dbSnapshotPath = await stagingArea.prepareStagingPath(
       workspace.store.getDbPath()
     );

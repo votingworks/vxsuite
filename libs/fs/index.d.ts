@@ -12,6 +12,20 @@
 export declare function fadviseDontNeed(fd: number): void
 
 /**
+ * Takes an exclusive advisory lock on an open file without waiting, via
+ * `flock(2)` with `LOCK_EX | LOCK_NB`. The kernel drops the lock when the
+ * descriptor closes, including when the process holding it dies, so a lock
+ * can never be left stranded by a crash.
+ *
+ * # Errors
+ *
+ * Fails with the syscall's errno: `EWOULDBLOCK` (reported as `EAGAIN`) when
+ * another open file description already holds the lock, or `EBADF` if `fd` is
+ * not an open file descriptor.
+ */
+export declare function flockExclusiveNonblocking(fd: number): void
+
+/**
  * Atomically exchanges two paths using `renameat2(2)` with `RENAME_EXCHANGE`.
  * Both paths must exist; at no point during the call does either name not
  * exist.

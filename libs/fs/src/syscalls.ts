@@ -126,3 +126,59 @@ export async function syncFilesystem(
     await file.close();
   }
 }
+
+/**
+ * A held exclusive file lock. The kernel releases it when the descriptor
+ * closes, so dropping this on the floor — or dying — releases the lock; the
+ * only reason to release it explicitly is to do so before the process exits.
+ */
+export interface FileLock extends AsyncDisposable {
+  release: () => Promise<void>;
+}
+
+/**
+ * Whether a failed {@link tryLockFileExclusive} failed because someone else
+ * holds the lock, as opposed to something being wrong.
+ */
+export function isLockHeldElsewhereError(error: SyscallError): boolean {
+  // `flock(2)` reports this as EWOULDBLOCK, which is EAGAIN on Linux.
+  return error.code === 'EAGAIN' || error.code === 'EWOULDBLOCK';
+}
+
+/**
+ * Takes an exclusive lock on `path`, creating the file if it isn't there, and
+ * returns without waiting if someone else holds it — see
+ * {@link isLockHeldElsewhereError} to tell that case from a real failure.
+ *
+ * Unlike a lock file whose existence is the lock, this cannot be stranded: the
+ * lock lives on the open descriptor, so the kernel drops it if the holder is
+ * killed or the machine restarts. For the same reason the file is left in
+ * place when the lock is released, rather than unlinked — deleting it would
+ * let a waiter lock a path the next arrival no longer shares.
+ */
+export async function tryLockFileExclusive(
+  path: string
+): Promise<Result<FileLock, SyscallError>> {
+  const openResult = await open(path, 'a');
+  if (openResult.isErr()) {
+    return err(syscallError(openResult.err()));
+  }
+  const file = openResult.ok();
+
+  try {
+    napi.flockExclusiveNonblocking(file.fd);
+  } catch (error) {
+    await file.close();
+    return err(syscallError(error));
+  }
+
+  let released = false;
+  async function release(): Promise<void> {
+    if (!released) {
+      released = true;
+      await file.close();
+    }
+  }
+
+  return ok({ release, [Symbol.asyncDispose]: release });
+}
