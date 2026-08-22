@@ -92,9 +92,6 @@ export async function main(
       })
     )
     .demandCommand(1, 'A command is required')
-    .epilogue(
-      'Stop VxAdmin before running these commands: they use its workspace.'
-    )
     .strict()
     .exitProcess(false)
     .version(false);
@@ -140,9 +137,15 @@ async function create(
   assert(typeof args.workspace === 'string');
   assert(typeof args.target === 'string');
 
-  if (NODE_ENV === 'development') {
-    (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
-  }
+  // The `backups` CLI is a development tool. `libs/auth` reads `NODE_ENV`
+  // straight from the environment and throws when it isn't set, so normalize
+  // whatever we resolved into the environment instead of making the caller
+  // export it.
+  assert(
+    NODE_ENV !== 'production',
+    `the backups CLI is a development tool, but NODE_ENV is ${NODE_ENV}`
+  );
+  (process.env as { NODE_ENV?: string }).NODE_ENV = NODE_ENV;
 
   const logger = new BaseLogger(LogSource.VxAdminService);
 
