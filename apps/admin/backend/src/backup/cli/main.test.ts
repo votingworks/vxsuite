@@ -164,7 +164,15 @@ test('create copies the database into a directory within the target', async () =
     '--target',
     target,
   ]);
-  expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
+  expect(code).toEqual(0);
+
+  // Progress is reported on stderr, one line per step since the mock stream is
+  // not a terminal, and never mixed into stdout.
+  expect(stderr).toContain('Snapshotting database');
+  expect(stderr).toContain('Copying files');
+  expect(stderr).toContain('Swapping into place');
+  // \u001b is ESC: nothing tries to move a cursor that isn't there.
+  expect(stderr).not.toContain('\u001b');
 
   const backups = readdirSync(target, { withFileTypes: true });
   expect(backups).toHaveLength(1);

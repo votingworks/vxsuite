@@ -8,6 +8,7 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { NODE_ENV } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
+import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
 import { Backup } from '../backup.js';
 import { ProgressEvent } from '../create/types.js';
@@ -128,6 +129,40 @@ export async function main(
 }
 
 /**
+ * What each backup step is called on screen. A `Record` over the event union
+ * so that adding an event without a label fails to compile.
+ */
+const PROGRESS_LABELS: Record<ProgressEvent['type'], string> = {
+  preparing: 'Preparing',
+  db_snapshot: 'Snapshotting database',
+  staging_files: 'Staging files',
+  copy_files: 'Copying files',
+  writing_manifest: 'Writing manifest',
+  flushing_backup: 'Flushing to device',
+  swapping_backup: 'Swapping into place',
+};
+
+function displayProgress(event: ProgressEvent): DisplayProgress {
+  const label = PROGRESS_LABELS[event.type];
+
+  switch (event.type) {
+    case 'copy_files':
+      return {
+        label,
+        bytesCompleted: event.copiedBytes,
+        bytesTotal: event.totalBytes,
+      };
+
+    case 'db_snapshot':
+    case 'staging_files':
+      return { label, fraction: event.progress };
+
+    default:
+      return { label };
+  }
+}
+
+/**
  * Create a backup using the CLI-provided arguments.
  */
 async function create(
@@ -149,16 +184,21 @@ async function create(
 
   const logger = new BaseLogger(LogSource.VxAdminService);
 
-  function onProgressEvent(event: ProgressEvent) {
-    console.log(event);
-  }
+  // Progress goes to stderr so that stdout carries only the command's own
+  // output, and so redirecting one doesn't garble the other.
+  const display = new ProgressDisplay(
+    stderr,
+    Boolean((stderr as NodeJS.WriteStream).isTTY)
+  );
 
   const createBackupResult = await createBackup({
     workspace: args.workspace,
     target: args.target,
     logger,
-    onProgressEvent,
+    onProgressEvent: (event) => display.update(displayProgress(event)),
   });
+  display.finish();
+
   if (createBackupResult.isErr()) {
     stderr.write(`Error: ${createBackupResult.err().message}\n`);
     return 1;
