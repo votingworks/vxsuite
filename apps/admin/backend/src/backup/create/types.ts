@@ -37,8 +37,7 @@ export type ProgressEvent =
     }
   | { type: 'writing_manifest' }
   | { type: 'flushing_backup' }
-  | { type: 'swapping_backup' }
-  | { type: 'error'; error: Error };
+  | { type: 'swapping_backup' };
 
 /**
  * Options for preparing a backup to copy from the given workspace to a target.
