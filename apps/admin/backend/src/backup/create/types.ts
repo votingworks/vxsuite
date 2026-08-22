@@ -86,6 +86,15 @@ export interface CopyBackupOptions extends ProgressTracking {
    * Directory path to place the backup. This may not be the final location.
    */
   backup: string;
+
+  /**
+   * How many bytes of a single file must be copied before another progress
+   * event is emitted for it. Copying a large file emits an event roughly every
+   * this many bytes rather than once per stream chunk.
+   *
+   * @default DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES
+   */
+  progressEventIntervalBytes?: number;
 }
 
 /**

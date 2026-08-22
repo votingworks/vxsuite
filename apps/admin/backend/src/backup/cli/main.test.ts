@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   electionFamousNames2021Fixtures,
@@ -19,8 +19,10 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   LATEST_SOFTWARE_VERSION,
+  safeParseJson,
 } from '@votingworks/types';
 import { createHash } from 'node:crypto';
+import { readFile, stat } from 'node:fs/promises';
 import {
   BackupManifest,
   BackupManifestStructSchema,
@@ -185,9 +187,10 @@ test('create copies the database into a directory within the target', async () =
   expect(count).toEqual(1);
 
   const manifestPath = join(backup.parentPath, backup.name, 'manifest.json');
-  const manifest = BackupManifestStructSchema.parse(
-    JSON.parse(readFileSync(manifestPath, 'utf-8'))
-  );
+  const manifest = safeParseJson(
+    await readFile(manifestPath, 'utf-8'),
+    BackupManifestStructSchema
+  ).unsafeUnwrap();
   expect(manifest.machineId).toEqual(DEV_MACHINE_ID);
   expect(manifest.softwareVersion).toEqual(LATEST_SOFTWARE_VERSION);
   expect(manifest.election.title).toEqual(
@@ -197,13 +200,12 @@ test('create copies the database into a directory within the target', async () =
   const dbEntry = manifest.files.find(
     (file) => file.path === 'workspace/data.db'
   );
+  const expectedDbPath = join(backupWorkspace, 'data.db');
   expect(dbEntry).toBeDefined();
-  expect(dbEntry?.size).toEqual(
-    readFileSync(join(backupWorkspace, 'data.db')).length
-  );
+  expect(dbEntry?.size).toEqual((await stat(expectedDbPath)).size);
   expect(dbEntry?.hash).toEqual(
     createHash('sha256')
-      .update(readFileSync(join(backupWorkspace, 'data.db')))
+      .update(await readFile(expectedDbPath))
       .digest('hex')
   );
 });
