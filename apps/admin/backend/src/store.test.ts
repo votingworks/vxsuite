@@ -66,6 +66,61 @@ test('create a memory store', () => {
   expect(store.getDbPath()).toEqual(':memory:');
 });
 
+test('getAllBallotImagePaths distinguishes no images from no election', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionPackageFileContents = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: systemSettingsData,
+  });
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile({
+      content: electionPackageFileContents,
+    }),
+    electionPackageHash: createHash('sha256')
+      .update(electionPackageFileContents)
+      .digest('hex'),
+  });
+
+  // An election that simply has no adjudicated ballots has no images, which is
+  // a perfectly good backup.
+  expect(store.getAllBallotImagePaths(electionId)).toEqual([]);
+
+  // The `elections` row id is what this takes; anything else — an
+  // election-definition id, say — would otherwise look the same as the above.
+  expect(() =>
+    store.getAllBallotImagePaths(electionDefinition.election.id)
+  ).toThrow(`Election not found: ${electionDefinition.election.id}`);
+});
+
+test('closing a store is terminal', () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+
+  expect(store.getCurrentElectionId()).toBeUndefined();
+  store.close();
+
+  expect(() => store.getCurrentElectionId()).toThrow(
+    'database client for :memory: is closed'
+  );
+});
+
+test('`using` closes the store at the end of the scope', () => {
+  let storeRef: Store;
+
+  {
+    using store = Store.memoryStore(makeTemporaryDirectory());
+    expect(store.getCurrentElectionId()).toBeUndefined();
+    storeRef = store;
+  }
+
+  expect(() => storeRef.getCurrentElectionId()).toThrow(
+    'database client for :memory: is closed'
+  );
+});
+
 test('add an election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();

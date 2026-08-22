@@ -4,10 +4,14 @@ import { inspect } from 'node:util';
 import yargs from 'yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { NODE_ENV } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
 import * as views from './views.js';
 import { Backup } from '../backup.js';
+import { ProgressEvent } from '../create/types.js';
+import { createBackup } from '../create/index.js';
 
 /**
  * IO streams given to the CLI.
@@ -133,18 +137,33 @@ async function create(
   args: BackupArguments,
   { stdout, stderr }: Streams
 ): Promise<number> {
-  const { workspace, target } = args;
-  assert(typeof workspace === 'string');
-  assert(typeof target === 'string');
+  assert(typeof args.workspace === 'string');
+  assert(typeof args.target === 'string');
 
-  stderr.write('NOT IMPLEMENTED YET.\n');
-  stdout.write('Here are the workspace files to be backed up:\n');
+  if (NODE_ENV === 'development') {
+    (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
+  }
 
-  const { errorCount } = await enumerateSourceFiles(workspace, {
-    stdout,
-    stderr,
+  const logger = new BaseLogger(LogSource.VxAdminService);
+
+  function onProgressEvent(event: ProgressEvent) {
+    console.log(event);
+  }
+
+  const createBackupResult = await createBackup({
+    workspace: args.workspace,
+    target: args.target,
+    logger,
+    onProgressEvent,
   });
-  return errorCount ? 1 : 0;
+  if (createBackupResult.isErr()) {
+    stderr.write(`Error: ${createBackupResult.err().message}\n`);
+    return 1;
+  }
+
+  stdout.write('Backup done!\n');
+
+  return 0;
 }
 
 /**

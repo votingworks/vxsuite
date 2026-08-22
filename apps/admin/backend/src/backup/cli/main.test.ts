@@ -1,7 +1,10 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { format } from '@votingworks/utils';
 import {
   MockReadable,
@@ -9,8 +12,21 @@ import {
   mockReadable,
   mockWritable,
 } from '@votingworks/test-utils';
-import { BACKUP_MANIFEST_VERSION } from '../backup_manifest.js';
+import { Client } from '@votingworks/db';
+import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { DateWithoutTime } from '@votingworks/basics';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
+  LATEST_SOFTWARE_VERSION,
+} from '@votingworks/types';
+import { createHash } from 'node:crypto';
+import {
+  BackupManifest,
+  BackupManifestStructSchema,
+} from '../backup_manifest.js';
 import { main } from './main.js';
+import { createWorkspace, Workspace } from '../../util/workspace.js';
 
 interface RunResult {
   code: number;
@@ -38,10 +54,21 @@ async function run(args: string[]): Promise<RunResult> {
   };
 }
 
-function makeWorkspace(): string {
-  const workspace = makeTemporaryDirectory();
-  mkdirSync(join(workspace, 'data'));
-  writeFileSync(join(workspace, 'data', 'election.db'), 'sqlite');
+async function makeWorkspace(logger: BaseLogger): Promise<Workspace> {
+  const workspace = createWorkspace(makeTemporaryDirectory(), logger);
+  const { electionPackage, readElectionDefinition } =
+    electionFamousNames2021Fixtures;
+  const electionPackageSourceFilePath = electionPackage.asFilePath();
+  const electionPackageHash = createHash('sha256')
+    .update(electionPackage.asBuffer())
+    .digest('hex');
+  const electionId = await workspace.store.addElection({
+    electionData: readElectionDefinition().electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageSourceFilePath,
+    electionPackageHash,
+  });
+  workspace.store.setCurrentElectionId(electionId);
   return workspace;
 }
 
@@ -50,24 +77,26 @@ const MANIFEST_CREATED_AT = '2026-08-18T12:00:00.000Z';
 function writeManifest(backupPath: string): void {
   writeFileSync(
     join(backupPath, 'manifest.json'),
-    JSON.stringify({
-      version: BACKUP_MANIFEST_VERSION,
-      softwareVersion: '4.0.0',
-      machineId: 'VX-00-001',
-      createdAt: MANIFEST_CREATED_AT,
-      election: {
-        id: 'election-1',
-        title: 'General Election',
-        date: '2026-11-03',
-      },
-      files: [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }],
-    })
+    JSON.stringify(
+      new BackupManifest(
+        '4.0.0',
+        'VX-00-001',
+        MANIFEST_CREATED_AT,
+        {
+          id: 'election-1',
+          title: 'General Election',
+          date: new DateWithoutTime('2026-11-03'),
+        },
+        [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
+      )
+    )
   );
 }
 
 function makeBackup(): string {
   const backup = makeTemporaryDirectory();
   writeManifest(backup);
+  mkdirSync(join(backup, 'workspace'));
   return backup;
 }
 
@@ -103,30 +132,88 @@ test('create requires a target', async () => {
   expect(stderr).toContain('target');
 });
 
-test('create lists the workspace files', async () => {
-  const { code, stdout, stderr } = await run([
+test('create refuses when no election is configured', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const workspace = await makeWorkspace(logger);
+  await workspace.store.reset();
+
+  const target = makeTemporaryDirectory();
+  const { code } = await run([
     'create',
     '--workspace',
-    makeWorkspace(),
+    workspace.path,
     '--target',
-    makeTemporaryDirectory(),
+    target,
   ]);
-  expect(code).toEqual(0);
-  expect(stderr).toContain('NOT IMPLEMENTED YET.');
-  expect(stdout).toContain('Here are the workspace files to be backed up:');
-  expect(stdout).toContain('data/');
-  expect(stdout).toContain('data/election.db');
+  expect(code).toEqual(1);
+
+  const backups = readdirSync(target, { withFileTypes: true });
+  expect(backups).toHaveLength(0);
+});
+
+test('create copies the database into a directory within the target', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const workspace = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+  const { code, stderr } = await run([
+    'create',
+    '--workspace',
+    workspace.path,
+    '--target',
+    target,
+  ]);
+  expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
+
+  const backups = readdirSync(target, { withFileTypes: true });
+  expect(backups).toHaveLength(1);
+  const backup = backups[0]!;
+  expect(backup.isDirectory()).toBeTruthy();
+  expect(backup.name).toEqual(
+    'franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+
+  const backupWorkspace = join(backup.parentPath, backup.name, 'workspace');
+  const backupWorkspaceNames = readdirSync(backupWorkspace);
+  expect(backupWorkspaceNames).toContain('data.db');
+  const client = Client.fileClient(
+    join(backupWorkspace, 'data.db'),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const { count } = client.one('select count(*) as count from elections') as {
+    count: number;
+  };
+  expect(count).toEqual(1);
+
+  const manifestPath = join(backup.parentPath, backup.name, 'manifest.json');
+  const manifest = BackupManifestStructSchema.parse(
+    JSON.parse(readFileSync(manifestPath, 'utf-8'))
+  );
+  expect(manifest.machineId).toEqual(DEV_MACHINE_ID);
+  expect(manifest.softwareVersion).toEqual(LATEST_SOFTWARE_VERSION);
+  expect(manifest.election.title).toEqual(
+    electionFamousNames2021Fixtures.readElectionDefinition().election.title
+  );
+
+  const dbEntry = manifest.files.find(
+    (file) => file.path === 'workspace/data.db'
+  );
+  expect(dbEntry).toBeDefined();
+  expect(dbEntry?.size).toEqual(
+    readFileSync(join(backupWorkspace, 'data.db')).length
+  );
+  expect(dbEntry?.hash).toEqual(
+    createHash('sha256')
+      .update(readFileSync(join(backupWorkspace, 'data.db')))
+      .digest('hex')
+  );
 });
 
 test('create uses $ADMIN_WORKSPACE as the default workspace', async () => {
-  vi.stubEnv('ADMIN_WORKSPACE', makeWorkspace());
-  const { code, stdout } = await run([
-    'create',
-    '--target',
-    makeTemporaryDirectory(),
-  ]);
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const workspace = await makeWorkspace(logger);
+  vi.stubEnv('ADMIN_WORKSPACE', workspace.path);
+  const { code } = await run(['create', '--target', makeTemporaryDirectory()]);
   expect(code).toEqual(0);
-  expect(stdout).toContain('data/election.db');
 });
 
 test('create fails when the workspace cannot be read', async () => {
@@ -138,7 +225,7 @@ test('create fails when the workspace cannot be read', async () => {
     makeTemporaryDirectory(),
   ]);
   expect(code).toEqual(1);
-  expect(stderr).toContain('!! Failed to read source entry: [no-entity]');
+  expect(stderr).toContain('Workspace directory could not be found');
 });
 
 test('validate lists the backup files', async () => {
@@ -147,6 +234,7 @@ test('validate lists the backup files', async () => {
   expect(stderr).toContain('NOT IMPLEMENTED YET.');
   expect(stdout).toContain('Here are the backup files to be validated:');
   expect(stdout).toContain('manifest.json');
+  expect(stdout).toContain('workspace/');
 });
 
 test('validate fails when the backup cannot be read', async () => {

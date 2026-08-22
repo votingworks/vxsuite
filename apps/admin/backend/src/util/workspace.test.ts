@@ -23,6 +23,19 @@ test('createWorkspace', () => {
   expect(workspace.store).toBeInstanceOf(Store);
 }, 30_000);
 
+test('disposing a workspace closes its store', () => {
+  const dir = makeTemporaryDirectory();
+  let store: Store;
+
+  {
+    using workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
+    store = workspace.store;
+    expect(store.getCurrentElectionId()).toBeUndefined();
+  }
+
+  expect(() => store.getCurrentElectionId()).toThrow('is closed');
+}, 30_000);
+
 test('createClientWorkspace', async () => {
   const dir = makeTemporaryDirectory();
   const workspace = createClientWorkspace(dir);
