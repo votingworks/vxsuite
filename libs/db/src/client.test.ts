@@ -141,6 +141,50 @@ test('file database client with regex enabled in connectionOptions', () => {
   );
 });
 
+test('closing a client is terminal', () => {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+
+  client.exec('create table muppets (name varchar(255) not null)');
+  client.close();
+
+  // Closing again is harmless, but the client must not silently reconnect.
+  client.close();
+  expect(() => client.all('select * from muppets')).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+  expect(() => client.connect()).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+});
+
+test('closing a client that never connected', () => {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+
+  client.close();
+
+  expect(() => client.connect()).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+});
+
+test('`using` closes the client at the end of the scope', () => {
+  const dbFile = makeTemporaryFile();
+  let clientRef: Client;
+
+  {
+    using client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+    client.exec('create table muppets (name varchar(255) not null)');
+    expect(client.all('select * from muppets')).toEqual([]);
+    clientRef = client;
+  }
+
+  expect(() => clientRef.all('select * from muppets')).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+});
+
 test('reset file database client', () => {
   const dbFile = makeTemporaryFile();
   const schemaFile = join(__dirname, '../test/fixtures/schema.sql');

@@ -5,6 +5,7 @@
   "compilerOptions": {
     "module": "node16",
     "allowJs": true,
+    "lib": ["esnext"],
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,

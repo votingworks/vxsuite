@@ -70,6 +70,7 @@ export interface DbConnectionOptions {
  */
 export class Client {
   private db?: Database;
+  private closed = false;
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
@@ -507,6 +508,11 @@ export class Client {
    * Connects to the database, creating it if it doesn't exist.
    */
   connect(): Database {
+    assert(
+      !this.closed,
+      `database client for ${this.getDatabasePath()} is closed`
+    );
+
     this.logger.log(
       LogEventId.DatabaseConnectInit,
       'system',
@@ -593,11 +599,27 @@ export class Client {
     }
   }
 
-  private close(): void {
+  private disconnect(): void {
     if (this.db) {
       this.db.close();
       this.db = undefined;
     }
+  }
+
+  /**
+   * Closes the database connection. Unlike {@link disconnect}, this is
+   * terminal: the client will not reconnect and any further use of it throws.
+   */
+  close(): void {
+    this.disconnect();
+    this.closed = true;
+  }
+
+  /**
+   * Closes the client, allowing it to be used with `using`.
+   */
+  [Symbol.dispose](): void {
+    this.close();
   }
 
   /**
@@ -613,7 +635,7 @@ export class Client {
    */
   reset(): void {
     if (this.isMemoryDatabase()) {
-      this.close();
+      this.disconnect();
       this.create();
     } else {
       this.atomicDatabaseFileReset();
@@ -646,10 +668,10 @@ export class Client {
       this.connectionOptions
     );
     tempClient.create();
-    tempClient.close(); // Close the temporary database
+    tempClient.disconnect(); // Close the temporary database
 
     // close the current database connection
-    this.close();
+    this.disconnect();
 
     // swap in newly created database
     fs.renameSync(tempDbPath, dbPath);
