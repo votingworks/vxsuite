@@ -13,6 +13,13 @@ import { CopyBackupOptions } from './types.js';
 import { getMachineConfig } from '../../machine_config.js';
 
 /**
+ * How many bytes of a single file must be copied before another progress event
+ * is emitted. Streams arrive in 64 KB chunks, so reporting every chunk would
+ * emit tens of thousands of events for one multi-gigabyte database snapshot.
+ */
+const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
+
+/**
  * Copies files from a backup staging area to the target, building a manifest
  * as it does so.
  */
@@ -20,6 +27,8 @@ export async function copy(
   options: CopyBackupOptions
 ): Promise<BackupManifest> {
   const { source, store, electionRecord } = options;
+  const progressEventIntervalBytes =
+    options.progressEventIntervalBytes ?? DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES;
   let copiedCount = 0;
   let copiedBytes = 0;
   const totalCount = source.fileCount;
@@ -44,14 +53,15 @@ export async function copy(
       copiedBytes,
       totalBytes,
     });
-    copiedCount += 1;
-    copiedBytes += file.size;
     const targetFilePath = join(backupWorkspacePath, file.relativePath);
     await mkdir(dirname(targetFilePath), { recursive: true });
     const reader = createReadStream(file.path);
     const writer = createWriteStream(targetFilePath);
     const hash = createHash('sha256');
+    const baseCopiedCount = copiedCount;
+    const baseCopiedBytes = copiedBytes;
     let size = 0;
+    let reportedSize = 0;
 
     await pipeline(
       reader,
@@ -59,11 +69,27 @@ export async function copy(
         transform(chunk: Buffer, _encoding, callback) {
           hash.write(chunk);
           size += chunk.byteLength;
+
+          if (size - reportedSize >= progressEventIntervalBytes) {
+            reportedSize = size;
+            options.onProgressEvent?.({
+              type: 'copy_files',
+              current: file.relativePath,
+              copiedCount: baseCopiedCount,
+              totalCount,
+              copiedBytes: baseCopiedBytes + size,
+              totalBytes,
+            });
+          }
+
           callback(null, chunk);
         },
       }),
       writer
     );
+
+    copiedCount += 1;
+    copiedBytes += file.size;
 
     assert(
       size === file.size,
