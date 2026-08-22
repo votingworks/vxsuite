@@ -12,6 +12,10 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import {
+  authenticateArtifactUsingSignatureFile,
+  VXADMIN_BACKUP_MANIFEST_FILE_NAME,
+} from '@votingworks/auth';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { createBackup } from './index.js';
@@ -162,11 +166,25 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
 
   function readManifest() {
     return BackupManifestStructSchema.parse(
-      JSON.parse(readFileSync(join(backupPath, 'manifest.json'), 'utf-8'))
+      JSON.parse(
+        readFileSync(
+          join(backupPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME),
+          'utf-8'
+        )
+      )
     );
   }
 
+  function authenticateBackup() {
+    return authenticateArtifactUsingSignatureFile({
+      type: 'vxadmin_backup',
+      context: 'import',
+      directoryPath: backupPath,
+    });
+  }
+
   const firstManifest = readManifest();
+  expect(await authenticateBackup()).toEqual(ok());
   const firstBallotImages = readdirSync(
     join(
       backupPath,
@@ -189,6 +207,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   expect(secondResult).toEqual(ok());
 
   const secondManifest = readManifest();
+  expect(await authenticateBackup()).toEqual(ok());
   expect(secondManifest.createdAt).not.toEqual(firstManifest.createdAt);
   expect(secondManifest.files.length).toBeGreaterThan(
     firstManifest.files.length

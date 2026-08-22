@@ -2,6 +2,7 @@ import { BaseLogger } from '@votingworks/logging';
 import { BackupStagingArea } from '../staging_area.js';
 import { Store } from '../../store.js';
 import { ElectionRecord } from '../../types.js';
+import { BackupManifest } from '../backup_manifest.js';
 
 /**
  * Basic options for all steps.
@@ -34,6 +35,8 @@ export type ProgressEvent =
       copiedBytes: number;
       totalBytes: number;
     }
+  | { type: 'writing_manifest' }
+  | { type: 'swapping_backup' }
   | { type: 'error'; error: Error };
 
 /**
@@ -80,6 +83,37 @@ export interface CopyBackupOptions extends ProgressTracking {
 
   /**
    * Directory path to place the backup. This may not be the final location.
+   */
+  backup: string;
+}
+
+/**
+ * Options for writing and signing a backup's manifest.
+ */
+export interface WriteManifestOptions extends ProgressTracking {
+  /**
+   * The manifest describing the backup's copied files.
+   */
+  manifest: BackupManifest;
+
+  /**
+   * Directory path of the backup whose manifest to write. This may not be the
+   * final location.
+   */
+  backup: string;
+}
+
+/**
+ * Options for swapping a finished backup into its final location.
+ */
+export interface SwapBackupOptions extends ProgressTracking {
+  /**
+   * Directory path of the finished backup awaiting its final location.
+   */
+  inProgressBackup: string;
+
+  /**
+   * Final directory path for the backup.
    */
   backup: string;
 }

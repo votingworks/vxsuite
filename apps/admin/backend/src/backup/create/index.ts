@@ -1,20 +1,18 @@
-import { Buffer } from 'node:buffer';
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { rename, rm, writeFile } from 'node:fs/promises';
-import { err, ok, Result } from '@votingworks/basics';
-import { exchangePaths } from '@votingworks/fs';
+import { rm } from 'node:fs/promises';
+import { Result } from '@votingworks/basics';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { prepare, PrepareError } from './prepare_step.js';
 import { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
+import { writeManifest } from './manifest_step.js';
+import { swap, SwapError } from './swap_step.js';
 import { BackupManifest } from '../backup_manifest.js';
 
 /**
+ * Possible expected errors that can occur when creating a backup.
  */
-export type RunBackupCreateError =
-  | PrepareError
-  | { type: 'backup-swap-failed'; message: string };
+export type CreateBackupError = PrepareError | SwapError;
 
 /**
  * Creates a full backup of the currently configured election, including the
@@ -22,7 +20,7 @@ export type RunBackupCreateError =
  */
 export async function createBackup(
   options: PrepareBackupOptions
-): Promise<Result<void, RunBackupCreateError>> {
+): Promise<Result<void, CreateBackupError>> {
   const prepareResult = await prepare(options);
   if (prepareResult.isErr()) {
     return prepareResult;
@@ -62,31 +60,17 @@ export async function createBackup(
     await source.cleanup();
   }
 
-  const manifestPath = join(inProgressBackupPath, 'manifest.json');
-  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2));
-  await writeFile(manifestPath, manifestBytes);
+  await writeManifest({
+    manifest,
+    backup: inProgressBackupPath,
+    logger: options.logger,
+    onProgressEvent: options.onProgressEvent,
+  });
 
-  // TODO: sign the manifest
-
-  if (existsSync(backupPath)) {
-    // Atomically swap the new backup into place: `renameat2(RENAME_EXCHANGE)`
-    // guarantees that at no point does `backupPath` fail to name a valid
-    // backup, unlike a plain rename-aside-then-rename-in dance, which has a
-    // window where a crash leaves no backup at `backupPath` at all.
-    // `inProgressBackupPath` now names the previous backup, which we discard.
-    const exchangeResult = exchangePaths(backupPath, inProgressBackupPath);
-    if (exchangeResult.isErr()) {
-      return err({
-        type: 'backup-swap-failed',
-        message: `Failed to swap in the new backup: ${
-          exchangeResult.err().message
-        }`,
-      });
-    }
-  } else {
-    await rename(inProgressBackupPath, backupPath);
-  }
-  await rm(inProgressBackupPath, { recursive: true, force: true });
-
-  return ok();
+  return await swap({
+    inProgressBackup: inProgressBackupPath,
+    backup: backupPath,
+    logger: options.logger,
+    onProgressEvent: options.onProgressEvent,
+  });
 }
