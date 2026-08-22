@@ -36,6 +36,7 @@ export type ProgressEvent =
       totalBytes: number;
     }
   | { type: 'writing_manifest' }
+  | { type: 'flushing_backup' }
   | { type: 'swapping_backup' }
   | { type: 'error'; error: Error };
 
@@ -111,6 +112,12 @@ export interface SwapBackupOptions extends ProgressTracking {
    * Directory path of the finished backup awaiting its final location.
    */
   inProgressBackup: string;
+
+  /**
+   * Directory path of the root location containing all election backups.
+   * Typically a USB drive's mount point.
+   */
+  target: string;
 
   /**
    * Final directory path for the backup.

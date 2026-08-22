@@ -94,3 +94,35 @@ export async function dropPageCache(
     await file.close();
   }
 }
+
+/**
+ * Flushes the filesystem containing `path`, using `syncfs(2)`: every dirty
+ * page and metadata change on that filesystem is written to the device before
+ * this resolves. One flush covers the whole filesystem, so this is far cheaper
+ * than fsyncing each file when many files have just been written.
+ *
+ * This is the durability half of {@link exchangePaths} and of writing files at
+ * all: without it, data and renames live in the page cache and are lost if the
+ * device is removed or power is cut. Note it flushes the entire filesystem,
+ * including writes made by other processes.
+ *
+ * An `EIO` here means the device rejected the data, i.e. what was written is
+ * not what will be read back.
+ */
+export async function syncFilesystem(
+  path: string
+): Promise<Result<void, SyscallError>> {
+  const openResult = await open(path);
+  if (openResult.isErr()) {
+    return err(syscallError(openResult.err()));
+  }
+  const file = openResult.ok();
+  try {
+    napi.syncfs(file.fd);
+    return ok();
+  } catch (error) {
+    return err(syscallError(error));
+  } finally {
+    await file.close();
+  }
+}

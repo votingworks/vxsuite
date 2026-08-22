@@ -115,6 +115,7 @@ export async function createBackup(
 
   return await swap({
     inProgressBackup: inProgressBackupPath,
+    target: options.target,
     backup: backupPath,
     logger: options.logger,
     onProgressEvent: options.onProgressEvent,

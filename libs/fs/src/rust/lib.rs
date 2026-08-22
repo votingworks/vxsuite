@@ -11,6 +11,7 @@ use napi::{Error, Result};
 use napi_derive::napi;
 use nix::errno::Errno;
 use nix::fcntl::{posix_fadvise, renameat2, PosixFadviseAdvice, RenameFlags};
+use nix::unistd::syncfs as nix_syncfs;
 
 fn errno_error(errno: Errno) -> Error {
     Error::from_reason(format!("{errno:?}: {}", errno.desc()))
@@ -66,4 +67,17 @@ pub fn rename_no_replace(old_path: String, new_path: String) -> Result<()> {
 #[napi]
 pub fn fadvise_dont_need(fd: i32) -> Result<()> {
     posix_fadvise(fd, 0, 0, PosixFadviseAdvice::POSIX_FADV_DONTNEED).map_err(errno_error)
+}
+
+/// Flushes the filesystem containing the file referred to by `fd`, via
+/// `syncfs(2)`: all of that filesystem's dirty data and metadata is written to
+/// the device before this returns.
+///
+/// # Errors
+///
+/// Fails with the syscall's errno, e.g. `EBADF` if `fd` is not an open file
+/// descriptor, or `EIO` if writing the data back failed.
+#[napi]
+pub fn syncfs(fd: i32) -> Result<()> {
+    nix_syncfs(fd).map_err(errno_error)
 }

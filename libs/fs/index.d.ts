@@ -32,3 +32,15 @@ export declare function renameExchange(oldPath: string, newPath: string): void
  * Fails with the syscall's errno, e.g. `EEXIST` if `new_path` exists.
  */
 export declare function renameNoReplace(oldPath: string, newPath: string): void
+
+/**
+ * Flushes the filesystem containing the file referred to by `fd`, via
+ * `syncfs(2)`: all of that filesystem's dirty data and metadata is written to
+ * the device before this returns.
+ *
+ * # Errors
+ *
+ * Fails with the syscall's errno, e.g. `EBADF` if `fd` is not an open file
+ * descriptor, or `EIO` if writing the data back failed.
+ */
+export declare function syncfs(fd: number): void

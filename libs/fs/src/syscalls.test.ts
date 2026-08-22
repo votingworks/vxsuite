@@ -4,7 +4,12 @@ import { join } from 'node:path';
 import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { napi } from './napi';
-import { dropPageCache, exchangePaths, renameNoReplace } from './syscalls';
+import {
+  dropPageCache,
+  exchangePaths,
+  renameNoReplace,
+  syncFilesystem,
+} from './syscalls';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -98,6 +103,37 @@ test('dropPageCache reports a failed fadvise', async () => {
   });
 
   expect(await dropPageCache(join(root, 'file'))).toEqual(
+    err({ code: 'EIO', message: 'EIO: I/O error' })
+  );
+});
+
+test('syncFilesystem flushes the filesystem containing a directory', async () => {
+  const root = makeTemporaryDirectory();
+  writeFileSync(join(root, 'file'), 'contents');
+
+  expect(await syncFilesystem(root)).toEqual(ok());
+
+  expect(readFileSync(join(root, 'file'), 'utf-8')).toEqual('contents');
+});
+
+test('syncFilesystem fails on a path that cannot be opened', async () => {
+  const root = makeTemporaryDirectory();
+
+  expect(await syncFilesystem(join(root, 'missing'))).toEqual(
+    err({ code: 'ENOENT', message: expect.stringContaining('ENOENT') })
+  );
+});
+
+test('syncFilesystem reports a failed syncfs', async () => {
+  const root = makeTemporaryDirectory();
+
+  // A writeback failure is the case that matters and can't be provoked on a
+  // temporary directory, so make the addon fail the way it would.
+  vi.spyOn(napi, 'syncfs').mockImplementation(() => {
+    throw new Error('EIO: I/O error');
+  });
+
+  expect(await syncFilesystem(root)).toEqual(
     err({ code: 'EIO', message: 'EIO: I/O error' })
   );
 });
