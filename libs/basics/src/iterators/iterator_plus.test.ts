@@ -352,6 +352,11 @@ test('toMap from iterable', () => {
 test('toSet', () => {
   expect(iter([]).toSet()).toEqual(new Set());
   expect(iter([1, 2, 3]).toSet()).toEqual(new Set([1, 2, 3]));
+  expect(
+    iter([1, 2, 3])
+      .map((n) => n % 2)
+      .toSet()
+  ).toEqual(new Set([1, 0]));
 });
 
 test('join', () => {
@@ -364,6 +369,109 @@ test('join', () => {
 
   // `toString` is an alias for `join`
   expect(iter(['a', 'b', 'c']).toString()).toEqual('abc');
+});
+
+test('flatMap stops mid-group when the consumer stops', () => {
+  const groupsRead: number[] = [];
+  expect(
+    iter([1, 2, 3])
+      .flatMap((a) => {
+        groupsRead.push(a);
+        return [a * 10, a * 100];
+      })
+      .first()
+  ).toEqual(10);
+  expect(groupsRead).toEqual([1]);
+
+  expect(
+    iter([1, 2, 3])
+      .flatMap((a) => [a, a * 10])
+      .find((a) => a >= 10)
+  ).toEqual(10);
+});
+
+test('take is lazy when pulled rather than consumed', () => {
+  expect([...iter([1, 2, 3, 4]).take(2)]).toEqual([1, 2]);
+  expect([...iter(integers()).take(3)]).toEqual([0, 1, 2]);
+  expect(
+    iter(integers())
+      .take(4)
+      .chunks(2)
+      .map((chunk) => chunk.join(''))
+      .toArray()
+  ).toEqual(['01', '23']);
+
+  let pulled = 0;
+  const counted: Iterable<number> = {
+    [Symbol.iterator]: () => ({
+      next: () => {
+        pulled += 1;
+        return { value: pulled, done: false };
+      },
+    }),
+  };
+  expect([
+    ...iter(counted)
+      .map((n) => n * 2)
+      .take(3),
+  ]).toEqual([2, 4, 6]);
+  expect(pulled).toEqual(3);
+});
+
+test('staged pipelines can be pulled directly', () => {
+  expect([...iter([1, 2, 3]).map((n) => n * 2)]).toEqual([2, 4, 6]);
+  expect([...iter([1, 2, 3, 4]).filter((n) => n % 2 === 0)]).toEqual([2, 4]);
+  expect([...iter([]).map((n) => n)]).toEqual([]);
+
+  const seen: number[] = [];
+  for (const value of iter([1, 2, 3]).map((n) => n * 10)) {
+    seen.push(value);
+  }
+  expect(seen).toEqual([10, 20, 30]);
+
+  expect(
+    iter([1, 2, 3])
+      .map((n) => n * 2)
+      .chunks(2)
+      .toArray()
+  ).toEqual([[2, 4], [6]]);
+});
+
+test('zip and zipMin over non-array iterables', () => {
+  expect(
+    iter(new Set([1, 2]))
+      .zip(new Set([3, 4]))
+      .toArray()
+  ).toEqual([
+    [1, 3],
+    [2, 4],
+  ]);
+  expect(() =>
+    iter(new Set([1, 2, 3]))
+      .zip(new Set([4, 5]))
+      .toArray()
+  ).toThrowError('not all iterables are the same length');
+  expect(() =>
+    iter(new Set([1, 2]))
+      .zip(new Set([3, 4, 5]))
+      .toArray()
+  ).toThrowError('not all iterables are the same length');
+  expect(
+    iter(new Set([1, 2, 3]))
+      .zipMin(new Set([4, 5]))
+      .toArray()
+  ).toEqual([
+    [1, 4],
+    [2, 5],
+  ]);
+  expect(
+    iter(new Set([1, 2]))
+      .zipMin(new Set([3, 4, 5]))
+      .toArray()
+  ).toEqual([
+    [1, 3],
+    [2, 4],
+  ]);
 });
 
 test('first', () => {
