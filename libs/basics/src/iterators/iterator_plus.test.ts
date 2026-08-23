@@ -140,24 +140,6 @@ test('zip length mismatch', () => {
   );
 });
 
-test('zipMin', () => {
-  expect(iter([]).zipMin().toArray()).toEqual([]);
-  expect(iter([]).zipMin([1]).toArray()).toEqual([]);
-  expect(iter([]).zipMin([1]).toArray()).toEqual([]);
-  expect(iter([1]).zipMin([2]).toArray()).toEqual([[1, 2]]);
-  expect(iter([1, 2]).zipMin([4, 5, 6]).toArray()).toEqual([
-    [1, 4],
-    [2, 5],
-  ]);
-  expect(iter([1]).zipMin([2, 3], [4, 5, 6]).toArray()).toEqual([[1, 2, 4]]);
-
-  expect(iter(['a', 'b', 'c']).zipMin(naturals()).toArray()).toEqual([
-    ['a', 1],
-    ['b', 2],
-    ['c', 3],
-  ]);
-});
-
 test('chunks types', () => {
   expectTypeOf(iter([0]).chunks(1)).toEqualTypeOf<IteratorPlus<[number]>>();
   expectTypeOf(iter([0]).chunks(2)).toEqualTypeOf<
@@ -263,12 +245,6 @@ test('chunksExact must have element count as a multiple of chunkSize', () => {
   );
 });
 
-test('rev', () => {
-  expect(iter([]).rev().toArray()).toEqual([]);
-  expect(iter([1]).rev().toArray()).toEqual([1]);
-  expect(iter([1, 2, 3]).rev().toArray()).toEqual([3, 2, 1]);
-});
-
 test('take', () => {
   expect(iter([]).take(0).toArray()).toEqual([]);
   expect(iter([]).take(1).toArray()).toEqual([]);
@@ -349,16 +325,6 @@ test('toMap from iterable', () => {
   );
 });
 
-test('toSet', () => {
-  expect(iter([]).toSet()).toEqual(new Set());
-  expect(iter([1, 2, 3]).toSet()).toEqual(new Set([1, 2, 3]));
-  expect(
-    iter([1, 2, 3])
-      .map((n) => n % 2)
-      .toSet()
-  ).toEqual(new Set([1, 0]));
-});
-
 test('join', () => {
   expect(iter([]).join()).toEqual('');
   expect(iter([1, 2, 3]).join()).toEqual('123');
@@ -437,7 +403,7 @@ test('staged pipelines can be pulled directly', () => {
   ).toEqual([[2, 4], [6]]);
 });
 
-test('zip and zipMin over non-array iterables', () => {
+test('zip over non-array iterables', () => {
   expect(
     iter(new Set([1, 2]))
       .zip(new Set([3, 4]))
@@ -456,22 +422,6 @@ test('zip and zipMin over non-array iterables', () => {
       .zip(new Set([3, 4, 5]))
       .toArray()
   ).toThrowError('not all iterables are the same length');
-  expect(
-    iter(new Set([1, 2, 3]))
-      .zipMin(new Set([4, 5]))
-      .toArray()
-  ).toEqual([
-    [1, 4],
-    [2, 5],
-  ]);
-  expect(
-    iter(new Set([1, 2]))
-      .zipMin(new Set([3, 4, 5]))
-      .toArray()
-  ).toEqual([
-    [1, 3],
-    [2, 4],
-  ]);
 });
 
 test('first', () => {
@@ -499,53 +449,6 @@ test('flatMap', () => {
       })
       .toArray()
   ).toEqual([1, 1, 2, 2, 3, 3]);
-});
-
-test('groupBy', () => {
-  expect(
-    iter([])
-      .groupBy(() => true)
-      .toArray()
-  ).toEqual([]);
-  expect(
-    iter([1, 1, 1, 3, 3, 2, 2, 2])
-      .groupBy((a, b) => a === b)
-      .toArray()
-  ).toEqual([
-    [1, 1, 1],
-    [3, 3],
-    [2, 2, 2],
-  ]);
-  expect(
-    iter([1, 1, 2, 3, 2, 3, 2, 3, 4])
-      .groupBy((a, b) => a <= b)
-      .toArray()
-  ).toEqual([
-    [1, 1, 2, 3],
-    [2, 3],
-    [2, 3, 4],
-  ]);
-
-  fc.assert(
-    fc.property(
-      fc.nat({ max: 100 }).chain((n) =>
-        fc.tuple(
-          // make `n` values to group
-          fc.array(fc.anything(), { minLength: n, maxLength: n }),
-          // decide how to group them randomly
-          fc.array(fc.boolean(), { minLength: n, maxLength: n })
-        )
-      ),
-      fc.array(fc.integer()),
-      ([values, groupByReturnValues]) => {
-        const groups = iter(values)
-          .groupBy(() => groupByReturnValues.shift() ?? false)
-          .toArray();
-        // flattening the groups should give us the original list
-        expect(groups.flat()).toEqual(values);
-      }
-    )
-  );
 });
 
 test('isEmpty', () => {
@@ -603,14 +506,6 @@ test('min', () => {
   iter(['a']).min();
 });
 
-test('minBy', () => {
-  expect(iter([]).minBy(() => 0)).toEqual(undefined);
-  expect(iter([1]).minBy(() => 0)).toEqual(1);
-  expect(iter([1, 1, 1]).minBy(() => 0)).toEqual(1);
-  expect(iter([1, 2, 3]).minBy((a) => a)).toEqual(1);
-  expect(iter([{ t: 1 }, { t: 2 }]).minBy((a) => a.t)).toEqual({ t: 1 });
-});
-
 test('max', () => {
   expect(iter([]).max()).toEqual(undefined);
   expect(iter([1]).max()).toEqual(1);
@@ -661,24 +556,6 @@ test('partition', () => {
   expect(iter([1, 2, 3]).partition(() => true)).toEqual([[1, 2, 3], []]);
   expect(iter([1, 2, 3]).partition((a) => a % 2 === 0)).toEqual([[2], [1, 3]]);
   expect(iter([1, 2, 3]).partition((a) => a % 2)).toEqual([[1, 3], [2]]);
-});
-
-test('windows', () => {
-  expect(() => iter([]).windows(0)).toThrowError();
-  expect(iter([]).windows(2).toArray()).toEqual([]);
-  expect(iter([1]).windows(2).toArray()).toEqual([]);
-  expect(iter([1, 2]).windows(2).toArray()).toEqual([[1, 2]]);
-  expect(iter([1, 2, 3]).windows(2).toArray()).toEqual([
-    [1, 2],
-    [2, 3],
-  ]);
-  expect(iter([1, 2, 3]).windows(3).toArray()).toEqual([[1, 2, 3]]);
-  expect(iter([1, 2, 3]).windows(4).toArray()).toEqual([]);
-  expect(iter('rust').windows(2).toArray()).toEqual([
-    ['r', 'u'],
-    ['u', 's'],
-    ['s', 't'],
-  ]);
 });
 
 test('reduce', () => {

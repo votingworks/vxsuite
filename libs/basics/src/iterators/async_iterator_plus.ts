@@ -254,32 +254,6 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     );
   }
 
-  groupBy(
-    predicate: (a: T, b: T) => MaybePromise<boolean>
-  ): AsyncIteratorPlus<T[]> {
-    const iterable = this.intoInner();
-    return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncIterableIterator<T[]> {
-        let group: T[] = [];
-        let previous: T | undefined;
-        let isFirst = true;
-        for await (const value of iterable) {
-          if (isFirst || (await predicate(previous as T, value))) {
-            group.push(value);
-          } else {
-            yield group;
-            group = [value];
-          }
-          previous = value;
-          isFirst = false;
-        }
-        if (group.length > 0) {
-          yield group;
-        }
-      })()
-    );
-  }
-
   async isEmpty(): Promise<boolean> {
     /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
     return (await this.intoInner()[Symbol.asyncIterator]().next()).done ?? true;
@@ -321,8 +295,17 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return this.min((a, b) => compareFn(b, a));
   }
 
-  maxBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined> {
-    return this.minBy(async (item) => -(await fn(item)));
+  async maxBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined> {
+    let max: number | undefined;
+    let maxItem: T | undefined;
+    for await (const it of this.intoInner()) {
+      const value = await fn(it);
+      if (max === undefined || value > max) {
+        max = value;
+        maxItem = it;
+      }
+    }
+    return maxItem;
   }
 
   min(this: AsyncIteratorPlus<number>): Promise<T | undefined>;
@@ -338,19 +321,6 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       }
     }
     return min;
-  }
-
-  async minBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined> {
-    let min: number | undefined;
-    let minItem: T | undefined;
-    for await (const it of this.intoInner()) {
-      const value = await fn(it);
-      if (min === undefined || value < min) {
-        min = value;
-        minItem = it;
-      }
-    }
-    return minItem;
   }
 
   async partition(predicate: (item: T) => unknown): Promise<[T[], T[]]> {
@@ -389,18 +359,6 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       accumulator = await fn(accumulator as T | U, next.value, index);
     }
     return accumulator;
-  }
-
-  rev(): AsyncIteratorPlus<T> {
-    const toArrayPromise = this.toArray();
-    return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncIterableIterator<T> {
-        const array = await toArrayPromise;
-        for (let i = array.length - 1; i >= 0; i -= 1) {
-          yield array[i] as T;
-        }
-      })()
-    );
   }
 
   async some(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean> {
@@ -476,43 +434,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return result;
   }
 
-  async toSet(): Promise<Set<T>> {
-    const set = new Set<T>();
-    for await (const item of this.intoInner()) {
-      set.add(item);
-    }
-    return set;
-  }
-
   toString(separator?: string): Promise<string> {
     return this.join(separator);
-  }
-
-  windows(groupSize: 0): never;
-  windows(groupSize: 1): AsyncIteratorPlus<[T]>;
-  windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;
-  windows(groupSize: 3): AsyncIteratorPlus<[T, T, T]>;
-  windows(groupSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
-  windows(groupSize: 5): AsyncIteratorPlus<[T, T, T, T, T]>;
-  windows(groupSize: number): AsyncIteratorPlus<T[]>;
-  windows(groupSize: number): AsyncIteratorPlus<T[]> {
-    if (groupSize <= 0) {
-      throw new Error('groupSize must be greater than 0');
-    }
-
-    const iterable = this.intoInner();
-    return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncIterableIterator<T[]> {
-        const window: T[] = [];
-        for await (const value of iterable) {
-          window.push(value);
-          if (window.length === groupSize) {
-            yield window.slice();
-            window.shift();
-          }
-        }
-      })()
-    );
   }
 
   zip<Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>>(
@@ -542,37 +465,6 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
             break;
           } else if (dones.length > 0) {
             throw new Error('not all iterables are the same length');
-          }
-
-          yield nexts.map(({ value }) => value);
-        }
-      })()
-    );
-  }
-
-  zipMin<
-    Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>,
-  >(...others: Others): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
-  zipMin(
-    ...others: Array<AsyncIterable<unknown>>
-  ): AsyncIteratorPlus<unknown[]> {
-    const iterable = this.intoInner();
-    return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncIterableIterator<unknown[]> {
-        const iterators = [iterable, ...others].map((it) =>
-          it[Symbol.asyncIterator]()
-        );
-
-        while (true) {
-          const nexts = await Promise.all(
-            iterators.map((iterator) => iterator.next())
-          );
-          const dones = nexts.filter(({ done }) => done);
-
-          if (dones.length === nexts.length) {
-            break;
-          } else if (dones.length > 0) {
-            break;
           }
 
           yield nexts.map(({ value }) => value);

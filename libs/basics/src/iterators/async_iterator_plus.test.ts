@@ -180,54 +180,6 @@ test('zip length mismatch', async () => {
   ).rejects.toThrowError('not all iterables are the same length');
 });
 
-test('zipMin', async () => {
-  expect(await iter([]).async().zipMin().toArray()).toEqual([]);
-  expect(
-    await iter([])
-      .async()
-      .zipMin(iter([1]).async())
-      .toArray()
-  ).toEqual([]);
-  expect(
-    await iter([])
-      .async()
-      .zipMin(iter([1]).async())
-      .toArray()
-  ).toEqual([]);
-  expect(
-    await iter([1])
-      .async()
-      .zipMin(iter([2]).async())
-      .toArray()
-  ).toEqual([[1, 2]]);
-  expect(
-    await iter([1, 2])
-      .async()
-      .zipMin(iter([4, 5, 6]).async())
-      .toArray()
-  ).toEqual([
-    [1, 4],
-    [2, 5],
-  ]);
-  expect(
-    await iter([1])
-      .async()
-      .zipMin(iter([2, 3]).async(), iter([4, 5, 6]).async())
-      .toArray()
-  ).toEqual([[1, 2, 4]]);
-
-  expect(
-    await iter(['a', 'b', 'c'])
-      .async()
-      .zipMin(iter(naturals()).async())
-      .toArray()
-  ).toEqual([
-    ['a', 1],
-    ['b', 2],
-    ['c', 3],
-  ]);
-});
-
 test('chunks types', () => {
   expectTypeOf(iter([0]).async().chunks(1)).toEqualTypeOf<
     AsyncIteratorPlus<[number]>
@@ -339,12 +291,6 @@ test('chunksExact must have element count as a multiple of chunkSize', async () 
     )
   );
 });
-test('rev', async () => {
-  expect(await iter([]).async().rev().toArray()).toEqual([]);
-  expect(await iter([1]).async().rev().toArray()).toEqual([1]);
-  expect(await iter([1, 2, 3]).async().rev().toArray()).toEqual([3, 2, 1]);
-});
-
 test('take', async () => {
   expect(await iter([]).async().take(0).toArray()).toEqual([]);
   expect(await iter([]).async().take(1).toArray()).toEqual([]);
@@ -451,11 +397,6 @@ test('toMap from iterable', async () => {
   );
 });
 
-test('toSet', async () => {
-  expect(await iter([]).async().toSet()).toEqual(new Set());
-  expect(await iter([1, 2, 3]).async().toSet()).toEqual(new Set([1, 2, 3]));
-});
-
 test('join', async () => {
   expect(await iter([]).async().join()).toEqual('');
   expect(await iter([1, 2, 3]).async().join()).toEqual('123');
@@ -504,57 +445,6 @@ test('flatMap', async () => {
       .flatMap((a) => Promise.resolve([a, a]))
       .toArray()
   ).toEqual([1, 1, 2, 2, 3, 3]);
-});
-
-test('groupBy', async () => {
-  expect(
-    await iter([])
-      .async()
-      .groupBy(() => true)
-      .toArray()
-  ).toEqual([]);
-  expect(
-    await iter([1, 1, 1, 3, 3, 2, 2, 2])
-      .async()
-      .groupBy((a, b) => Promise.resolve(a === b))
-      .toArray()
-  ).toEqual([
-    [1, 1, 1],
-    [3, 3],
-    [2, 2, 2],
-  ]);
-  expect(
-    await iter([1, 1, 2, 3, 2, 3, 2, 3, 4])
-      .async()
-      .groupBy((a, b) => a <= b)
-      .toArray()
-  ).toEqual([
-    [1, 1, 2, 3],
-    [2, 3],
-    [2, 3, 4],
-  ]);
-
-  await fc.assert(
-    fc.asyncProperty(
-      fc.nat({ max: 100 }).chain((n) =>
-        fc.tuple(
-          // make `n` values to group
-          fc.array(fc.anything(), { minLength: n, maxLength: n }),
-          // decide how to group them randomly
-          fc.array(fc.boolean(), { minLength: n, maxLength: n })
-        )
-      ),
-      fc.array(fc.integer()),
-      async ([values, groupByReturnValues]) => {
-        const groups = await iter(values)
-          .async()
-          .groupBy(() => groupByReturnValues.shift() ?? false)
-          .toArray();
-        // flattening the groups should give us the original list
-        expect(groups.flat()).toEqual(values);
-      }
-    )
-  );
 });
 
 test('isEmpty', async () => {
@@ -676,49 +566,6 @@ test('min', async () => {
   await iter(['a']).async().min();
 });
 
-test('minBy', async () => {
-  expect(
-    await iter([])
-      .async()
-      .minBy(() => 0)
-  ).toEqual(undefined);
-  expect(
-    await iter([1])
-      .async()
-      .minBy(() => 0)
-  ).toEqual(1);
-  expect(
-    await iter([1, 1, 1])
-      .async()
-      .minBy(() => 0)
-  ).toEqual(1);
-  expect(
-    await iter([1, 2, 3])
-      .async()
-      .minBy(() => 0)
-  ).toEqual(1);
-  expect(
-    await iter([{ t: 1 }, { t: 2 }])
-      .async()
-      .minBy((a) => a.t)
-  ).toEqual({ t: 1 });
-  expect(
-    await iter([{ t: 1 }, { t: 2 }])
-      .async()
-      .minBy((a) => -a.t)
-  ).toEqual({ t: 2 });
-
-  await fc.assert(
-    fc.asyncProperty(fc.array(fc.integer(), { minLength: 1 }), async (arr) => {
-      expect(
-        await iter(arr)
-          .async()
-          .minBy((a) => a)
-      ).toEqual(Math.min(...arr));
-    })
-  );
-});
-
 test('max', async () => {
   expect(await iter([]).async().max()).toEqual(undefined);
   expect(await iter([1]).async().max()).toEqual(1);
@@ -822,26 +669,6 @@ test('partition', async () => {
       .async()
       .partition((a) => a % 2)
   ).toEqual([[1, 3], [2]]);
-});
-
-test('windows', async () => {
-  expect(() => iter([]).async().windows(0)).toThrowError();
-  expect(await iter([]).async().windows(2).toArray()).toEqual([]);
-  expect(await iter([1]).async().windows(2).toArray()).toEqual([]);
-  expect(await iter([1, 2]).async().windows(2).toArray()).toEqual([[1, 2]]);
-  expect(await iter([1, 2, 3]).async().windows(2).toArray()).toEqual([
-    [1, 2],
-    [2, 3],
-  ]);
-  expect(await iter([1, 2, 3]).async().windows(3).toArray()).toEqual([
-    [1, 2, 3],
-  ]);
-  expect(await iter([1, 2, 3]).async().windows(4).toArray()).toEqual([]);
-  expect(await iter('rust').async().windows(2).toArray()).toEqual([
-    ['r', 'u'],
-    ['u', 's'],
-    ['s', 't'],
-  ]);
 });
 
 test('reduce', async () => {

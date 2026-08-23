@@ -291,27 +291,6 @@ export interface IteratorPlus<T> extends Iterable<T> {
   flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U>;
 
   /**
-   * Returns an iterator that produces non-overlapping runs of elements from
-   * `this` using `predicate` to separate runs.
-   *
-   * @example
-   *
-   * ```ts
-   * const input = [1, 1, 2, 3, 3, 4, 5, 5, 5];
-   * const groups = iter(input).groupBy((a, b) => a === b);
-   *
-   * expect(groups.toArray()).toEqual([
-   *   [1, 1],
-   *   [2],
-   *   [3, 3],
-   *   [4],
-   *   [5, 5, 5],
-   * ]);
-   * ```
-   */
-  groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]>;
-
-  /**
    * Determines whether there are no elements in `this`. Consumes the first
    * element, if any.
    *
@@ -430,21 +409,6 @@ export interface IteratorPlus<T> extends Iterable<T> {
   min(compareFn: (a: T, b: T) => number): T | undefined;
 
   /**
-   * Returns the element of `this` whose return value from `fn` is the minimum.
-   * Returns `undefined` if `this` is empty. Comparison happens using `<` on the
-   * return values of `fn`. Consumes the entire contained iterable.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(
-   *   iter(['a', 'bb', 'ccc']).minBy((s) => s.length)
-   * ).toEqual('a');
-   * ```
-   */
-  minBy(fn: (item: T) => number): T | undefined;
-
-  /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are
    * placed in the first group, and the rest are placed in the second group.
    * Consumes the entire contained iterable. Element order is preserved.
@@ -487,20 +451,6 @@ export interface IteratorPlus<T> extends Iterable<T> {
     fn: (accumulator: U, value: T, index: number) => U,
     initialValue: U
   ): U;
-
-  /**
-   * Yields elements in reverse order. Consumes the entire contained iterable.
-   *
-   * **Caution:** this method consumes and stores the entire iterable before
-   * yielding any elements.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).rev().toArray()).toEqual([3, 2, 1]);
-   * ```
-   */
-  rev(): IteratorPlus<T>;
 
   /**
    * Ignore the first `count` values.
@@ -597,89 +547,9 @@ export interface IteratorPlus<T> extends Iterable<T> {
   toMap<K>(keySelector: (item: T) => K): Map<K, Set<T>>;
 
   /**
-   * Collects all elements from `this` into a set. Consumes the entire contained
-   * iterable.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 1, 3, 2]).toSet()).toEqual(new Set([1, 2, 3]));
-   * ```
-   */
-  toSet(): Set<T>;
-
-  /**
    * Alias for {@link join}.
    */
   toString(separator?: string): string;
-
-  /**
-   * Throws an error because `groupSize` must be greater than 0.
-   */
-  windows(groupSize: 0): never;
-
-  /**
-   * Yields elements from `this` as 1-element tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(1).toArray()).toEqual([[1], [2], [3]]);
-   * ```
-   */
-  windows(groupSize: 1): IteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of two elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(2).toArray()).toEqual([[1, 2], [2, 3]]);
-   * ```
-   */
-  windows(groupSize: 2): IteratorPlus<[T, T]>;
-
-  /**
-   * Yields tuples of three elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(3).toArray()).toEqual([[1, 2, 3]]);
-   * expect(iter([1, 2, 3, 4]).windows(3).toArray()).toEqual([[1, 2, 3], [2, 3, 4]]);
-   * ```
-   */
-  windows(groupSize: 3): IteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields tuples of four elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(4).toArray()).toEqual([]);
-   * expect(
-   *   naturals()
-   *     .windows(4)
-   *     .take(2)
-   *     .toArray()
-   * ).toEqual([
-   *   [1, 2, 3, 4],
-   *   [2, 3, 4, 5]
-   * ]);
-   */
-  windows(groupSize: 4): IteratorPlus<[T, T, T, T]>;
-
-  /**
-   * Yields tuples of five elements at a time.
-   */
-  windows(groupSize: 5): IteratorPlus<[T, T, T, T, T]>;
-
-  /**
-   * Yields tuples of elements at a time.
-   */
-  windows(groupSize: number): IteratorPlus<T[]>;
 
   /**
    * Yields tuples pairing each element of `this` with the corresponding element
@@ -698,24 +568,6 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * ```
    */
   zip<Others extends ReadonlyArray<Iterable<unknown>>>(
-    ...others: Others
-  ): IteratorPlus<[T, ...ZipElements<Others>]>;
-
-  /**
-   * Yields tuples pairing each element of `this` with the corresponding element
-   * of each of `others`, until one iterable is exhausted. Zipping N others
-   * yields (N + 1)-tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).zipMin(['a', 'b']).toArray()).toEqual([
-   *   [1, 'a'],
-   *   [2, 'b'],
-   * ]);
-   * ```
-   */
-  zipMin<Others extends ReadonlyArray<Iterable<unknown>>>(
     ...others: Others
   ): IteratorPlus<[T, ...ZipElements<Others>]>;
 }
@@ -976,30 +828,6 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   ): AsyncIteratorPlus<U>;
 
   /**
-   * Returns an iterator that produces non-overlapping runs of elements from
-   * `this` using `predicate` to separate runs.
-   *
-   * @example
-   *
-   * ```ts
-   * const input = promptUserForNumbers();
-   * const groups = iter(input).groupBy((a, b) => a === b);
-   *
-   * // user types 1↩️ 1↩️ 2↩️ 3↩️ 3↩️ 4↩️ 5↩️ 5↩️ 5↩️ ↩ ️
-   * expect(await groups.toArray()).toEqual([
-   *   [1, 1],
-   *   [2],
-   *   [3, 3],
-   *   [4],
-   *   [5, 5, 5],
-   * ]);
-   * ```
-   */
-  groupBy(
-    predicate: (a: T, b: T) => MaybePromise<boolean>
-  ): AsyncIteratorPlus<T[]>;
-
-  /**
    * Determines whether there are no elements in `this`. Consumes the first
    * element, if any.
    *
@@ -1107,13 +935,6 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   min(compareFn: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
 
   /**
-   * Returns the element of `this` whose return value from `fn` is the minimum.
-   * Returns `undefined` if `this` is empty. Comparison happens using `<` on the
-   * return values of `fn`. Consumes the entire contained iterable.
-   */
-  minBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined>;
-
-  /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are
    * placed in the first group, and the rest are placed in the second group.
    * Consumes the entire contained iterable. Element order is preserved.
@@ -1156,22 +977,6 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
     fn: (accumulator: U, value: T, index: number) => MaybePromise<U>,
     initialValue: U
   ): Promise<U>;
-
-  /**
-   * Yields elements in reverse order. Consumes the entire contained iterable.
-   *
-   * **Caution:** this method consumes and stores the entire iterable before
-   * yielding any elements.
-   *
-   * @example
-   *
-   * ```ts
-   * const input = fs.createReadStream('file.txt', { encoding: 'utf8' });
-   * const output = fs.createWriteStream('file-reversed.txt', { encoding: 'utf8' });
-   * Readable.from(lines(input).rev().map((line) => `${line}\n`)).pipe(output);
-   * ```
-   */
-  rev(): AsyncIteratorPlus<T>;
 
   /**
    * Ignore the first `count` values from the given iterable.
@@ -1268,81 +1073,9 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   toMap<K>(keySelector: (item: T) => MaybePromise<K>): Promise<Map<K, Set<T>>>;
 
   /**
-   * Collects all elements from `this` into a set. Consumes the contained
-   * iterable.
-   *
-   * @example
-   *
-   * ```ts
-   * const uniqueWords = await lines(process.stdin)
-   *   .flatMap((line) => line.split(/\s+/))
-   *   .toSet();
-   * ```
-   */
-  toSet(): Promise<Set<T>>;
-
-  /**
    * Alias for {@link join}.
    */
   toString(separator?: string): Promise<string>;
-
-  /**
-   * Throws an error because `groupSize` must be greater than 0.
-   */
-  windows(groupSize: 0): never;
-
-  /**
-   * Yields elements from `this` as 1-element tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * const linesAsTuples = await lines(process.stdin).windows(1).toArray();
-   * ```
-   */
-  windows(groupSize: 1): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of two elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * // find pairs of consecutive lines that are the same
-   * const pairsOfLinesAndLineNumbers = lines(process.stdin)
-   *   .enumerate()
-   *   .windows(2);
-   * for await (const [
-   *   [line, lineno],
-   *   [nextLine, nextLineno]
-   * ] of pairsOfLinesAndLineNumbers) {
-   *   if (line === nextLine) {
-   *     console.log(`lines ${lineno} and ${nextLineno} are the same`);
-   *   }
-   * }
-   * ```
-   */
-  windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;
-
-  /**
-   * Yields tuples of three elements at a time.
-   */
-  windows(groupSize: 3): AsyncIteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields tuples of four elements at a time.
-   */
-  windows(groupSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
-
-  /**
-   * Yields tuples of five elements at a time.
-   */
-  windows(groupSize: 5): AsyncIteratorPlus<[T, T, T, T, T]>;
-
-  /**
-   * Yields tuples of elements at a time.
-   */
-  windows(groupSize: number): AsyncIteratorPlus<T[]>;
 
   /**
    * Yields tuples pairing each element of `this` with the corresponding element
@@ -1362,26 +1095,6 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * ```
    */
   zip<Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>>(
-    ...others: Others
-  ): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
-
-  /**
-   * Yields tuples pairing each element of `this` with the corresponding element
-   * of each of `others`, until one iterable is exhausted. Zipping N others
-   * yields (N + 1)-tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * // join all lines from two files until one runs out
-   * const file1 = fs.createReadStream('file1.txt', { encoding: 'utf8' });
-   * const file2 = fs.createReadStream('file2.txt', { encoding: 'utf8' });
-   * const joinedLines = lines(file1).zipMin(lines(file2)).map(([line1, line2]) => `${line1} ${line2}`);
-   * ```
-   */
-  zipMin<
-    Others extends ReadonlyArray<Iterable<unknown> | AsyncIterable<unknown>>,
-  >(
     ...others: Others
   ): AsyncIteratorPlus<[T, ...AsyncZipElements<Others>]>;
 }

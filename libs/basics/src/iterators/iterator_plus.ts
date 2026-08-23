@@ -291,30 +291,6 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return this.withStage(flatMapStage(fn)) as IteratorPlus<U>;
   }
 
-  groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]> {
-    const iterable = this.intoInner();
-    return new IteratorPlusImpl(
-      (function* gen(): IterableIterator<T[]> {
-        let group: T[] = [];
-        let previous: T | undefined;
-        let isFirst = true;
-        for (const value of iterable) {
-          if (isFirst || predicate(previous as T, value)) {
-            group.push(value);
-          } else {
-            yield group;
-            group = [value];
-          }
-          previous = value;
-          isFirst = false;
-        }
-        if (group.length > 0) {
-          yield group;
-        }
-      })()
-    );
-  }
-
   isEmpty(): boolean {
     let empty = true;
     this.drive(() => {
@@ -350,7 +326,17 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   }
 
   maxBy(fn: (item: T) => number): T | undefined {
-    return this.minBy((item) => -fn(item));
+    let max: number | undefined;
+    let maxItem: T | undefined;
+    this.drive((item) => {
+      const value = fn(item);
+      if (max === undefined || value > max) {
+        max = value;
+        maxItem = item;
+      }
+      return true;
+    });
+    return maxItem;
   }
 
   min(this: IteratorPlus<number>): T;
@@ -366,20 +352,6 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
       return true;
     });
     return min;
-  }
-
-  minBy(fn: (item: T) => number): T | undefined {
-    let min: number | undefined;
-    let minItem: T | undefined;
-    this.drive((item) => {
-      const value = fn(item);
-      if (min === undefined || value < min) {
-        min = value;
-        minItem = item;
-      }
-      return true;
-    });
-    return minItem;
   }
 
   partition(predicate: (item: T) => unknown): [T[], T[]] {
@@ -419,18 +391,6 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
       return true;
     });
     return accumulator;
-  }
-
-  rev(): IteratorPlus<T> {
-    const iterable = this.intoInner();
-    return new IteratorPlusImpl(
-      (function* gen(): IterableIterator<T> {
-        const array = [...iterable];
-        for (let i = array.length - 1; i >= 0; i -= 1) {
-          yield array[i] as T;
-        }
-      })()
-    );
   }
 
   skip(count: number): IteratorPlus<T> {
@@ -489,48 +449,8 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return result;
   }
 
-  toSet(): Set<T> {
-    this.claim();
-    if (this.stages.length === 0) {
-      return new Set(this.source as Iterable<T>);
-    }
-    const result = new Set<T>();
-    drivePipeline(this.source, this.stages, (value: T) => {
-      result.add(value);
-      return true;
-    });
-    return result;
-  }
-
   toString(separator?: string): string {
     return this.join(separator);
-  }
-
-  windows(groupSize: 0): never;
-  windows(groupSize: 1): IteratorPlus<[T]>;
-  windows(groupSize: 2): IteratorPlus<[T, T]>;
-  windows(groupSize: 3): IteratorPlus<[T, T, T]>;
-  windows(groupSize: 4): IteratorPlus<[T, T, T, T]>;
-  windows(groupSize: 5): IteratorPlus<[T, T, T, T, T]>;
-  windows(groupSize: number): IteratorPlus<T[]>;
-  windows(groupSize: number): IteratorPlus<T[]> {
-    if (groupSize <= 0) {
-      throw new Error('groupSize must be greater than 0');
-    }
-
-    const iterable = this.intoInner();
-    return new IteratorPlusImpl(
-      (function* gen(): IterableIterator<T[]> {
-        const window: T[] = [];
-        for (const value of iterable) {
-          window.push(value);
-          if (window.length === groupSize) {
-            yield window.slice();
-            window.shift();
-          }
-        }
-      })()
-    );
   }
 
   zip<Others extends ReadonlyArray<Iterable<unknown>>>(
@@ -540,7 +460,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     if (this.canZipAsArrays(others)) {
       this.claim();
       return new IteratorPlusImpl(
-        zipArrays([this.source as readonly unknown[], ...others], true)
+        zipArrays([this.source as readonly unknown[], ...others])
       );
     }
     const iterable = this.intoInner();
@@ -568,47 +488,6 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
             break;
           } else if (doneCount > 0) {
             throw new Error('not all iterables are the same length');
-          }
-
-          yield values;
-        }
-      })()
-    );
-  }
-
-  zipMin<Others extends ReadonlyArray<Iterable<unknown>>>(
-    ...others: Others
-  ): IteratorPlus<[T, ...ZipElements<Others>]>;
-  zipMin(...others: Array<Iterable<unknown>>): IteratorPlus<unknown[]> {
-    if (this.canZipAsArrays(others)) {
-      this.claim();
-      return new IteratorPlusImpl(
-        zipArrays([this.source as readonly unknown[], ...others], false)
-      );
-    }
-    const iterable = this.intoInner();
-    return new IteratorPlusImpl(
-      (function* gen(): IterableIterator<unknown[]> {
-        const iterators = [iterable, ...others].map((it) =>
-          it[Symbol.iterator]()
-        );
-        const arity = iterators.length;
-
-        while (true) {
-          const values = Array.of<unknown>();
-          let doneCount = 0;
-
-          for (let i = 0; i < arity; i += 1) {
-            const next = (iterators[i] as Iterator<unknown>).next();
-            if (next.done) {
-              doneCount += 1;
-            } else {
-              values.push(next.value);
-            }
-          }
-
-          if (doneCount > 0) {
-            break;
           }
 
           yield values;

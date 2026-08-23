@@ -242,8 +242,7 @@ export function buildIterable(
  * iterables.
  */
 export function zipArrays(
-  arrays: ReadonlyArray<readonly unknown[]>,
-  strict: boolean
+  arrays: ReadonlyArray<readonly unknown[]>
 ): Iterable<unknown[]> {
   let shortest = Number.POSITIVE_INFINITY;
   let longest = 0;
@@ -257,7 +256,7 @@ export function zipArrays(
   const iterator: Iterator<unknown[]> = {
     next(): IteratorResult<unknown[]> {
       if (index >= shortest) {
-        if (strict && longest !== shortest) {
+        if (longest !== shortest) {
           throw new Error('not all iterables are the same length');
         }
         return { value: undefined, done: true };
