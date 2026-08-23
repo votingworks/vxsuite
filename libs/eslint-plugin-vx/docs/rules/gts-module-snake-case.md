@@ -22,6 +22,5 @@ import * as fooBar from './foo_bar';
 
 ## Notes
 
-There is no fixer for this as renaming files is outside the scope of ESLint's
-fixing API, but there is a codemod at `codemods/src/snake_case.ts` that can be
-run to fix violations in bulk. It's not worth it for a single violation, though.
+There is no fixer for this, as renaming files is outside the scope of ESLint's
+fixing API.

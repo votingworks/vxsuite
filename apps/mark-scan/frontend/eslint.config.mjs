@@ -1,7 +1,7 @@
 import { react, ignores } from 'eslint-plugin-vx';
 
 export default [
-  { ignores: [...ignores.frontend, 'codemods/**', 'script/**/*.js'] },
+  { ignores: [...ignores.frontend, 'script/**/*.js'] },
   ...react,
   {
     rules: {

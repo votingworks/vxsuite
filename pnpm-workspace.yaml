@@ -13,7 +13,6 @@ packages:
   - 'libs/dev-dock/*'
 
   # include top-level development project
-  - 'codemods'
   - 'script'
 
 # typescript-eslint runs against the classic compiler API from the
