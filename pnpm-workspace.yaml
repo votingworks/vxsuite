@@ -16,9 +16,6 @@ packages:
   - 'codemods'
   - 'script'
 
-  # code exercises
-  - 'docs/exercises'
-
 # typescript-eslint runs against the classic compiler API from the
 # `@typescript/typescript6` alias (see CLAUDE.md), which satisfies its
 # `typescript` peer range. But peer *resolution* can instead find the

@@ -3062,30 +3062,6 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
 
-  docs/exercises:
-    dependencies:
-      '@types/node':
-        specifier: 24.13.3
-        version: 24.13.3
-      '@vitest/coverage-istanbul':
-        specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../../libs/basics
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../../libs/utils
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../../libs/eslint-plugin-vx
-      sort-package-json:
-        specifier: ^1.50.0
-        version: 1.53.1
-      vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
-
   libs/@types/compress-commons:
     dependencies:
       '@types/readable-stream':

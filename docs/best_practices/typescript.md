@@ -179,9 +179,6 @@ function pickRandom<T>(array: readonly T[]): T {
 }
 ```
 
-For more information on using iterables with `iter`, see the
-[iteration exercises](../../exercises/01-iteration).
-
 ### Avoid exceptions when possible
 
 If you expect a situation to happen and you expect to handle it specifically,

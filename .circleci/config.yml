@@ -667,30 +667,6 @@ jobs:
                       --exclude "*" --include "*.png" --delete
                   fi
 
-  # @votingworks/exercises
-  test-docs-exercises:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir docs/exercises build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir docs/exercises lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir docs/exercises test:run
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: docs/exercises/reports/
-
   # @votingworks/auth
   test-libs-auth:
     executor: nodejs
@@ -1710,9 +1686,6 @@ workflows:
           context:
             - screenshots-publishing
       - test-apps-scan-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-docs-exercises:
           context:
             - screenshots-publishing
       - test-libs-auth:
