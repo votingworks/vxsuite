@@ -84,6 +84,7 @@ let kiosk: Mocked<KioskBrowser.Kiosk>;
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
   mockApiClient.getMockSpec.expectCallWith().resolves({});
+  mockApiClient.getDockSide.expectCallWith().resolves('top');
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus
     .expectRepeatedCallsWith()
@@ -132,6 +133,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getElection.reset();
   mockApiClient.getUsbDriveStatus.reset();
   mockApiClient.getMockSpec.reset();
+  mockApiClient.getDockSide.reset();
   mockApiClient.getAvailableElections.reset();
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -1040,6 +1042,82 @@ test('quick configure button is hidden in apps that do not support it', async ()
   renderDock(mockApiClient);
   await screen.findByRole('button', { name: 'Election Manager' });
   expect(screen.queryByRole('button', { name: 'Quick Configure' })).toBeNull();
+});
+
+test('dock position menu moves the dock to a chosen side', async () => {
+  renderDock(mockApiClient);
+  const positionButton = await screen.findByRole('button', {
+    name: 'Dock Position',
+  });
+
+  // Open the menu and move the dock to the bottom
+  userEvent.click(positionButton);
+  expect(screen.getByRole('button', { name: 'Top' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+
+  mockApiClient.setDockSide.expectCallWith({ side: 'bottom' }).resolves();
+  mockApiClient.getDockSide.expectCallWith().resolves('bottom');
+  userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
+
+  // The menu closes on selection
+  expect(
+    screen.queryByRole('button', { name: 'Bottom' })
+  ).not.toBeInTheDocument();
+
+  // Reopening shows the new side as active
+  userEvent.click(positionButton);
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Bottom' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  // Selecting the current side just closes the menu without a backend call
+  userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
+  expect(
+    screen.queryByRole('button', { name: 'Bottom' })
+  ).not.toBeInTheDocument();
+
+  // The menu can be toggled closed with the gear button
+  userEvent.click(positionButton);
+  screen.getByRole('button', { name: 'Top' });
+  userEvent.click(positionButton);
+  expect(screen.queryByRole('button', { name: 'Top' })).not.toBeInTheDocument();
+});
+
+test('dock side is loaded from the backend', async () => {
+  mockApiClient.getDockSide.reset();
+  mockApiClient.getDockSide.expectCallWith().resolves('left');
+  renderDock(mockApiClient);
+
+  const positionButton = await screen.findByRole('button', {
+    name: 'Dock Position',
+  });
+  userEvent.click(positionButton);
+  expect(screen.getByRole('button', { name: 'Left' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  expect(screen.getByRole('button', { name: 'Top' })).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  );
+});
+
+test('handle toggles the dock open and closed', async () => {
+  renderDock(mockApiClient);
+  const handle = await screen.findByRole('button', { name: 'Toggle Dock' });
+  const container = assertDefined(handle.parentElement);
+  expect(container).not.toHaveClass('closed');
+
+  userEvent.click(handle);
+  expect(container).toHaveClass('closed');
+
+  userEvent.click(handle);
+  expect(container).not.toHaveClass('closed');
 });
 
 test('polls for newly exported elections', async () => {

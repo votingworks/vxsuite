@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import styled from 'styled-components';
+import styled, { css, FlattenSimpleInterpolation } from 'styled-components';
 import * as grout from '@votingworks/grout';
 import {
   assert,
@@ -16,18 +16,30 @@ import {
   sleep,
   uniqueBy,
 } from '@votingworks/basics';
-import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
+import type {
+  Api,
+  DevDockSide,
+  DevDockUserRole,
+} from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faArrowDown,
+  faArrowLeft,
+  faArrowRight,
+  faArrowUp,
   faCamera,
   faCaretDown,
+  faCaretLeft,
+  faCaretRight,
   faCaretUp,
   faCircleDown,
   faGamepad,
+  faGear,
   faGift,
   faPrint,
   faQrcode,
   faXmark,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   isFeatureFlagEnabled,
@@ -59,9 +71,10 @@ const IconsGrid = styled.div`
 `;
 
 const ElectionControlSelect = styled.select`
-  /* Use the exact width of the flex parent based on the width of the next row. */
+  /* Fill the remaining width of the flex parent (whose width is set by the
+   * next row) without contributing to it. */
   width: 0;
-  min-width: 100%;
+  flex: 1;
   padding: 8px;
   border-radius: 4px;
   background-color: white;
@@ -993,13 +1006,65 @@ function PdiScannerMockControl() {
   );
 }
 
-const Container = styled.div`
+const DOCK_SIDES: readonly DevDockSide[] = ['top', 'right', 'bottom', 'left'];
+
+/* When closed, the dock slides off-screen far enough to hide its shadow, and
+ * the handle is offset in the opposite direction to compensate so it stays
+ * visible. */
+const CONTAINER_SIDE_STYLES: Record<DevDockSide, FlattenSimpleInterpolation> = {
+  top: css`
+    top: 0;
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    &.closed {
+      transform: translateY(-100%);
+      #handle {
+        top: 60px;
+      }
+    }
+  `,
+  right: css`
+    top: 0;
+    right: 0;
+    height: 100%;
+    flex-direction: row-reverse;
+    &.closed {
+      transform: translateX(100%);
+      #handle {
+        left: -60px;
+      }
+    }
+  `,
+  bottom: css`
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    flex-direction: column-reverse;
+    &.closed {
+      transform: translateY(100%);
+      #handle {
+        top: -60px;
+      }
+    }
+  `,
+  left: css`
+    top: 0;
+    left: 0;
+    height: 100%;
+    flex-direction: row;
+    &.closed {
+      transform: translateX(-100%);
+      #handle {
+        left: 60px;
+      }
+    }
+  `,
+};
+
+const Container = styled.div<{ side: DevDockSide }>`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   z-index: 1000; /* Above react-modal z-index of 999 */
   pointer-events: none;
@@ -1014,22 +1079,22 @@ const Container = styled.div`
     outline: none;
   }
 
-  /* Slide the dock up when closed */
-  &.closed {
-    /* Slide up enough to hide the shadow */
-    transform: translateY(-100%);
-    transition: all 0.15s ease-out;
-    /* Move the handle down a bit to compensate for sliding up extra to hide the
-     * shadow */
-    #handle {
-      top: 60px;
-    }
-  }
-  /* Slide the dock down when open */
+  /* Animate sliding open/closed */
   transition: all 0.15s ease-out;
+  &.closed {
+    transition: all 0.15s ease-out;
+  }
+  ${(props) => CONTAINER_SIDE_STYLES[props.side]}
 `;
 
-const Content = styled.div`
+const CONTENT_BORDER_RADIUS: Record<DevDockSide, string> = {
+  top: '0 0 10px 10px',
+  right: '10px 0 0 10px',
+  bottom: '10px 10px 0 0',
+  left: '0 10px 10px 0',
+};
+
+const Content = styled.div<{ side: DevDockSide }>`
   font-size: 24px !important;
   background-color: ${Colors.BACKGROUND};
   padding: 15px 15px 20px 15px;
@@ -1037,20 +1102,158 @@ const Content = styled.div`
   flex-direction: column;
   gap: 15px;
   pointer-events: auto;
-  border-radius: 0px 0px 10px 10px;
+  border-radius: ${(props) => CONTENT_BORDER_RADIUS[props.side]};
 `;
 
-const Handle = styled.button`
+const HANDLE_SIDE_STYLES: Record<DevDockSide, FlattenSimpleInterpolation> = {
+  top: css`
+    height: 60px;
+    width: 100px;
+    border-radius: 0 0 10px 10px;
+    top: -2px;
+  `,
+  right: css`
+    height: 100px;
+    width: 60px;
+    border-radius: 10px 0 0 10px;
+    left: 2px;
+  `,
+  bottom: css`
+    height: 60px;
+    width: 100px;
+    border-radius: 10px 10px 0 0;
+    top: 2px;
+  `,
+  left: css`
+    height: 100px;
+    width: 60px;
+    border-radius: 0 10px 10px 0;
+    left: -2px;
+  `,
+};
+
+const Handle = styled.button<{ side: DevDockSide }>`
   background-color: ${Colors.BACKGROUND};
-  height: 60px;
-  width: 100px;
   border-width: 0;
   pointer-events: auto;
-  border-radius: 0px 0px 10px 10px;
   position: relative;
   /* Overlap with content so that filter shadow is not visible */
-  top: -2px;
+  ${(props) => HANDLE_SIDE_STYLES[props.side]}
 `;
+
+const HANDLE_CARET_ICONS: Record<
+  DevDockSide,
+  { open: IconDefinition; closed: IconDefinition }
+> = {
+  top: { open: faCaretUp, closed: faCaretDown },
+  right: { open: faCaretRight, closed: faCaretLeft },
+  bottom: { open: faCaretDown, closed: faCaretUp },
+  left: { open: faCaretLeft, closed: faCaretRight },
+};
+
+const DOCK_SIDE_ICONS: Record<DevDockSide, IconDefinition> = {
+  top: faArrowUp,
+  right: faArrowRight,
+  bottom: faArrowDown,
+  left: faArrowLeft,
+};
+
+const DOCK_SIDE_LABELS: Record<DevDockSide, string> = {
+  top: 'Top',
+  right: 'Right',
+  bottom: 'Bottom',
+  left: 'Left',
+};
+
+const DockSideControlContainer = styled.div`
+  position: relative;
+`;
+
+const DockSideControlButton = styled.button`
+  height: 100%;
+  background-color: white;
+  border: 1px solid ${Colors.BORDER};
+  border-radius: 4px;
+  padding: 0 10px;
+  color: ${Colors.TEXT};
+
+  &:active {
+    color: ${Colors.ACTIVE};
+    border-color: ${Colors.ACTIVE};
+  }
+`;
+
+const DockSideMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 1;
+  background-color: ${Colors.BACKGROUND};
+  border: 1px solid ${Colors.BORDER};
+  border-radius: 4px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
+const DockSideMenuItem = styled.button<{ isActive: boolean }>`
+  background-color: white;
+  border: ${(props) =>
+    props.isActive
+      ? `2px solid ${Colors.ACTIVE}`
+      : `1px solid ${Colors.BORDER}`};
+  color: ${(props) => (props.isActive ? Colors.ACTIVE : Colors.TEXT)};
+  border-radius: 4px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+`;
+
+function DockSideControl({ side }: { side: DevDockSide }): JSX.Element {
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const setDockSideMutation = useMutation(apiClient.setDockSide, {
+    onSuccess: async () => await queryClient.invalidateQueries(['getDockSide']),
+  });
+
+  function onSelectSide(newSide: DevDockSide) {
+    setIsMenuOpen(false);
+    if (newSide !== side) {
+      setDockSideMutation.mutate({ side: newSide });
+    }
+  }
+
+  return (
+    <DockSideControlContainer>
+      <DockSideControlButton
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label="Dock Position"
+        aria-expanded={isMenuOpen}
+      >
+        <FontAwesomeIcon icon={faGear} size="sm" />
+      </DockSideControlButton>
+      {isMenuOpen && (
+        <DockSideMenu>
+          {DOCK_SIDES.map((menuSide) => (
+            <DockSideMenuItem
+              key={menuSide}
+              isActive={menuSide === side}
+              aria-pressed={menuSide === side}
+              onClick={() => onSelectSide(menuSide)}
+            >
+              <FontAwesomeIcon icon={DOCK_SIDE_ICONS[menuSide]} />
+              {DOCK_SIDE_LABELS[menuSide]}
+            </DockSideMenuItem>
+          ))}
+        </DockSideMenu>
+      )}
+    </DockSideControlContainer>
+  );
+}
 
 function createQueryClient() {
   return new QueryClient({
@@ -1084,6 +1287,9 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   const getMockSpecQuery = useQuery(['getMockSpec'], () =>
     apiClient.getMockSpec()
   );
+  const getDockSideQuery = useQuery(['getDockSide'], () =>
+    apiClient.getDockSide()
+  );
 
   function onKeyDown(event: KeyboardEvent): void {
     if (event.key.toLowerCase() === 'd' && event.metaKey) {
@@ -1101,8 +1307,9 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  if (!getMockSpecQuery.isSuccess) return null;
+  if (!getMockSpecQuery.isSuccess || !getDockSideQuery.isSuccess) return null;
   const mockSpec = getMockSpecQuery.data;
+  const side = getDockSideQuery.data;
 
   // Quick configure stages an election package on the mock USB drive, programs
   // an election manager card for it, and lets the machine configure itself.
@@ -1125,12 +1332,14 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
       aria-hidden={!enableAccessibleNav}
       ref={containerRef}
       className={isOpen ? '' : 'closed'}
+      side={side}
       // Don't flip the dev dock when using an RTL language
       dir="ltr"
     >
-      <Content>
+      <Content side={side}>
         <Row>
           <ElectionControl />
+          <DockSideControl side={side} />
         </Row>
         <Row>
           <Column>
@@ -1163,8 +1372,16 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
           {mockSpec.mockBatchScanner && <BatchScannerMockControl />}
         </Row>
       </Content>
-      <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
-        <FontAwesomeIcon icon={isOpen ? faCaretUp : faCaretDown} size="lg" />
+      <Handle
+        id="handle"
+        side={side}
+        aria-label="Toggle Dock"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <FontAwesomeIcon
+          icon={HANDLE_CARET_ICONS[side][isOpen ? 'open' : 'closed']}
+          size="lg"
+        />
       </Handle>
     </Container>
   );

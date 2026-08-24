@@ -65,6 +65,7 @@ import {
   MockSpec,
   MockBatchScannerApi,
   DEV_DOCK_ELECTION_FILE_NAME,
+  DevDockSide,
   PdiScannerStatus,
 } from './dev_dock_api.js';
 import {
@@ -139,6 +140,19 @@ test('does not mount dev dock endpoints when feature flag is disabled', async ()
   await expect(apiClient.getElection()).rejects.toThrow();
   await expect(apiClient.getUsbDriveStatus()).rejects.toThrow();
   await expect(apiClient.getCardStatus()).rejects.toThrow();
+});
+
+test('dock side endpoints', async () => {
+  const { apiClient } = setup();
+  await expect(apiClient.getDockSide()).resolves.toEqual('top');
+
+  await apiClient.setDockSide({ side: 'left' });
+  await expect(apiClient.getDockSide()).resolves.toEqual('left');
+
+  await expect(
+    apiClient.setDockSide({ side: 'diagonal' as DevDockSide })
+  ).rejects.toThrow();
+  await expect(apiClient.getDockSide()).resolves.toEqual('left');
 });
 
 // Note: This test overwrites the global mock card state.
