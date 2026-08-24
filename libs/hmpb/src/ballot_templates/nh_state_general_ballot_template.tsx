@@ -13,6 +13,7 @@ import {
 import {
   BallotMode,
   ballotPaperDimensions,
+  BallotStyle,
   BallotType,
   Candidate,
   CandidateContest as CandidateContestStruct,
@@ -20,6 +21,7 @@ import {
   ContestId,
   Election,
   getBallotStyle,
+  getOrderedCandidatesForContestInBallotStyle,
   Party,
   straightPartyNotYetImplemented,
   YesNoContest,
@@ -447,9 +449,11 @@ function CandidateList({
 function CandidateContest({
   election,
   contest,
+  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  ballotStyle: BallotStyle;
 }) {
   const seatsWord = {
     2: 'Two',
@@ -464,7 +468,7 @@ function CandidateContest({
   }[contest.seats];
 
   const candidatesByParty = groupBy(
-    [...contest.candidates],
+    getOrderedCandidatesForContestInBallotStyle({ contest, ballotStyle }),
     (candidate) => candidate.partyIds?.[0]
   );
   const { parties } = election;
@@ -707,6 +711,7 @@ export async function BallotPageContent(
           key={contest.id}
           contest={contest}
           election={election}
+          ballotStyle={ballotStyle}
         />
       ) : (
         <BallotMeasureContest

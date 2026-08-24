@@ -1143,6 +1143,34 @@
       "languages": [
         "en"
       ],
+      "orderedCandidatesByContest": {
+        "congressional-1-mammal": [
+          {
+            "id": "elephant-1",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "kangaroo-1",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "lion-1",
+            "partyIds": [
+              "0"
+            ]
+          },
+          {
+            "id": "zebra-1",
+            "partyIds": [
+              "0"
+            ]
+          }
+        ]
+      },
       "ballotPositions": [
         [
           [
@@ -1240,7 +1268,7 @@
                     "width": 10.218645948945618,
                     "height": 0.9553045186640472
                   },
-                  "optionId": "zebra-1"
+                  "optionId": "elephant-1"
                 },
                 {
                   "type": "option",
@@ -1254,7 +1282,7 @@
                     "width": 10.218645948945618,
                     "height": 0.9553045186640472
                   },
-                  "optionId": "lion-1"
+                  "optionId": "kangaroo-1"
                 },
                 {
                   "type": "option",
@@ -1268,7 +1296,7 @@
                     "width": 10.218645948945618,
                     "height": 0.9553045186640472
                   },
-                  "optionId": "kangaroo-1"
+                  "optionId": "lion-1"
                 },
                 {
                   "type": "option",
@@ -1282,7 +1310,7 @@
                     "width": 10.218645948945618,
                     "height": 0.9553045186640472
                   },
-                  "optionId": "elephant-1"
+                  "optionId": "zebra-1"
                 },
                 {
                   "type": "write-in",
@@ -7636,15 +7664,8 @@
       "seats": 1,
       "candidates": [
         {
-          "id": "zebra-1",
-          "name": "Zebra",
-          "partyIds": [
-            "0"
-          ]
-        },
-        {
-          "id": "lion-1",
-          "name": "Lion",
+          "id": "elephant-1",
+          "name": "Elephant",
           "partyIds": [
             "0"
           ]
@@ -7657,8 +7678,15 @@
           ]
         },
         {
-          "id": "elephant-1",
-          "name": "Elephant",
+          "id": "lion-1",
+          "name": "Lion",
+          "partyIds": [
+            "0"
+          ]
+        },
+        {
+          "id": "zebra-1",
+          "name": "Zebra",
           "partyIds": [
             "0"
           ]
