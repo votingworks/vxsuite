@@ -13,12 +13,17 @@
 # dependencies followed by existence checks for each and 2) checking for a
 # network connection before running the install commands. All felt fragile in
 # their own ways.
+#
+# The flag file deliberately lives outside the Playwright browser cache. CI
+# caches that directory but not the system packages installed alongside it, so
+# a flag file stored there would outlive the packages it vouches for and let a
+# job run against a partial install.
 
 set -euo pipefail
 
-PLAYWRIGHT_CACHE_DIRECTORY="${HOME}/.cache/ms-playwright"
+PLAYWRIGHT_DEPS_FLAG_DIRECTORY="${HOME}/.cache/vx-playwright-deps"
 PLAYWRIGHT_VERSION="$(pnpm exec playwright --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
-PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE="${PLAYWRIGHT_CACHE_DIRECTORY}/${PLAYWRIGHT_VERSION}_DEPS_INSTALLED"
+PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE="${PLAYWRIGHT_DEPS_FLAG_DIRECTORY}/${PLAYWRIGHT_VERSION}_DEPS_INSTALLED"
 
 if [[ -f "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}" ]]; then
   message="Playwright dependencies already installed for version ${PLAYWRIGHT_VERSION}
@@ -29,5 +34,6 @@ To force a reinstall, delete this file.
   echo "${message}"
 else
   pnpm exec playwright install --with-deps chromium
+  mkdir -p "${PLAYWRIGHT_DEPS_FLAG_DIRECTORY}"
   touch "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}"
 fi
