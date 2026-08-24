@@ -41,8 +41,8 @@ function generateTestJobForNodeJsPackage(
   const testScript = pkg.packageJson?.scripts?.['test:ci']
     ? 'test:ci'
     : pkg.packageJson?.scripts?.['test:run']
-      ? 'test:run'
-      : 'test';
+    ? 'test:run'
+    : 'test';
 
   const lines = [
     `# ${pkg.name}`,
@@ -281,7 +281,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     'executors:',
     '  nodejs:',
     '    docker:',
-    '      - image: votingworks/cimg-debian12:4.7.0',
+    '      - image: votingworks/cimg-debian12:4.8.0',
     '        auth:',
     '          username: $VX_DOCKER_USERNAME',
     '          password: $VX_DOCKER_PASSWORD',
@@ -437,14 +437,14 @@ orbs:
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.7.0
+      - image: votingworks/cimg-debian12:4.8.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.7.0
+      - image: votingworks/cimg-debian12:4.8.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
