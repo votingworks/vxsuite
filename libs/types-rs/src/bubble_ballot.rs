@@ -371,6 +371,7 @@ pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metad
 #[allow(clippy::unwrap_used)]
 mod test {
     use std::{
+        assert_matches,
         fs::File,
         io::{BufReader, Cursor},
         path::PathBuf,
@@ -478,11 +479,10 @@ mod test {
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let mut reader = BitReader::endian(Cursor::new(&[]), BigEndian);
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(matches!(
+        assert_matches!(
             reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::Io(_))
-        ));
+        );
     }
 
     #[test]
@@ -494,11 +494,10 @@ mod test {
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let mut reader = BitReader::endian(Cursor::new(b"NOT"), BigEndian);
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(matches!(
+        assert_matches!(
             reader.parse_with::<Metadata>(&(&election, PartialBallotHash::default())),
             Err(Error::InvalidPrelude([b'N', b'O', b'T']))
-        ));
+        );
     }
 
     #[test]
@@ -594,12 +593,9 @@ mod test {
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(
-            matches!(
-                result,
-                Err(Error::Index(IndexError::BallotStyle(index))) if index.get() == 513
-            ),
+        assert_matches!(
+            result,
+            Err(Error::Index(IndexError::BallotStyle(index))) if index.get() == 513,
             "Result is wrong: {result:?}"
         );
     }
@@ -647,14 +643,11 @@ mod test {
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(
-            matches!(
-                result,
-                Err(Error::InvalidBallotType(
-                    BallotTypeCodingError::InvalidNumericValue(0b1111)
-                ))
-            ),
+        assert_matches!(
+            result,
+            Err(Error::InvalidBallotType(
+                BallotTypeCodingError::InvalidNumericValue(0b1111)
+            )),
             "Result is wrong: {result:?}"
         );
     }
@@ -702,8 +695,7 @@ mod test {
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
+        assert_matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31");
     }
 
     #[test]
@@ -756,8 +748,7 @@ mod test {
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = reader.parse_with::<Metadata>(&(&election, ballot_hash));
 
-        // TODO: use `assert_matches!` once that API is stable.
-        assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));
+        assert_matches!(result, Err(Error::InvalidBallotAuditId(_)));
     }
 
     fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {

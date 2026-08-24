@@ -66,9 +66,12 @@ impl<'de> Deserialize<'de> for HexString {
         D: serde::Deserializer<'de>,
     {
         let s: String = Deserialize::deserialize(deserializer)?;
+        let (chunks, remainder) = s.as_bytes().as_chunks::<2>();
+        assert!(remainder.is_empty());
+
         Ok(Self(
-            s.as_bytes()
-                .chunks_exact(2)
+            chunks
+                .iter()
                 .map(|chunk| {
                     u8::from_str_radix(
                         std::str::from_utf8(chunk).map_err(|e| {

@@ -167,7 +167,7 @@ mod tests {
         assert!(a <= b);
         assert!(b > a);
         assert!(b >= a);
-        assert!(b != a);
+        assert_ne!(b, a);
     }
 
     #[test]

@@ -81,7 +81,7 @@ pub enum VerticalStreakDetection {
 impl Display for VerticalStreakDetection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Enabled => write!(f, "enabled",),
+            Self::Enabled => write!(f, "enabled"),
             Self::Disabled => write!(f, "disabled"),
         }
     }
