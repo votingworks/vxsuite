@@ -824,13 +824,19 @@
         ],
         "city-council": [
           {
+            "id": "rupp",
+            "partyIds": [
+              "7"
+            ]
+          },
+          {
             "id": "eagle",
             "partyIds": [
               "7"
             ]
           },
           {
-            "id": "rupp",
+            "id": "barker",
             "partyIds": [
               "8"
             ]
@@ -838,7 +844,13 @@
           {
             "id": "shry",
             "partyIds": [
-              "0"
+              "8"
+            ]
+          },
+          {
+            "id": "davis",
+            "partyIds": [
+              "1"
             ]
           }
         ]
@@ -1648,6 +1660,20 @@
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
                   },
+                  "optionId": "rupp"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 9.648821218074657,
+                    "column": 12.379578246392898
+                  },
+                  "bounds": {
+                    "row": 8.82367387033399,
+                    "column": 7.3102725366876316,
+                    "width": 5.698729806387965,
+                    "height": 1.5717092337917484
+                  },
                   "optionId": "eagle"
                 },
                 {
@@ -1662,7 +1688,21 @@
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
                   },
-                  "optionId": "rupp"
+                  "optionId": "barker"
+                },
+                {
+                  "type": "option",
+                  "bubbleCenter": {
+                    "row": 8.862966601178782,
+                    "column": 19.084165741768405
+                  },
+                  "bounds": {
+                    "row": 8.037819253438114,
+                    "column": 14.01486003206314,
+                    "width": 5.698729806387965,
+                    "height": 1.5717092337917484
+                  },
+                  "optionId": "shry"
                 },
                 {
                   "type": "option",
@@ -1676,7 +1716,7 @@
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
                   },
-                  "optionId": "shry"
+                  "optionId": "davis"
                 },
                 {
                   "type": "write-in",
@@ -3066,6 +3106,13 @@
       "seats": 3,
       "candidates": [
         {
+          "id": "rupp",
+          "name": "Randall Rupp",
+          "partyIds": [
+            "7"
+          ]
+        },
+        {
           "id": "eagle",
           "name": "Harvey Eagle",
           "partyIds": [
@@ -3073,8 +3120,8 @@
           ]
         },
         {
-          "id": "rupp",
-          "name": "Randall Rupp",
+          "id": "barker",
+          "name": "Beverly Barker",
           "partyIds": [
             "8"
           ]
@@ -3083,7 +3130,14 @@
           "id": "shry",
           "name": "Carroll Shry",
           "partyIds": [
-            "0"
+            "8"
+          ]
+        },
+        {
+          "id": "davis",
+          "name": "Donald Davis",
+          "partyIds": [
+            "1"
           ]
         }
       ],
