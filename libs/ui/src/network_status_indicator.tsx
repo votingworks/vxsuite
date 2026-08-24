@@ -1,6 +1,6 @@
-import React, { useId } from 'react';
-import styled from 'styled-components';
-import { Icons } from './icons';
+import { useId } from 'react';
+import styled, { useTheme } from 'styled-components';
+import { iconColor, IconProps, Icons } from './icons';
 
 /**
  * The network statuses a machine's toolbar indicator can display, grouped by
@@ -32,7 +32,7 @@ export type HostNetworkIndicatorStatus = Exclude<
 const IndicatorRow = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 0.4rem;
+  gap: 0.5rem;
   align-items: center;
   white-space: nowrap;
 `;
@@ -44,49 +44,45 @@ const IndicatorRow = styled.div`
  */
 const NetworkOffSvg = styled.svg`
   height: 1em;
-  width: 1em;
+  width: 1.125em;
   vertical-align: -0.125em;
-  color: ${(p) => p.theme.colors.onInverse};
 `;
 
-function NetworkOffIcon(): JSX.Element {
+function NetworkOffIcon({ color }: Pick<IconProps, 'color'>): JSX.Element {
   const maskId = useId();
+  const theme = useTheme();
   return (
     <NetworkOffSvg
       data-testid="network-off-icon"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 640 640"
-      fill="currentColor"
+      viewBox="0 0 576 512"
+      fill="none"
       aria-hidden="true"
+      style={{ color: iconColor(theme, color) }}
     >
       <mask
         id={maskId}
         maskUnits="userSpaceOnUse"
         x="0"
-        y="0"
-        width="640"
+        y="-64"
+        width="576"
         height="640"
       >
-        <rect width="640" height="640" fill="#fff" />
-        <line
-          x1="60"
-          y1="85.2"
-          x2="568"
-          y2="629.9"
-          stroke="#000"
-          strokeWidth="150"
+        <rect y="-64" width="576" height="640" fill="white" />
+        <path
+          d="M53 4L523 508"
+          stroke="black"
+          strokeWidth="110"
           strokeLinecap="round"
         />
       </mask>
       <path
         mask={`url(#${maskId})`}
-        d="M256 128C256 110.3 270.3 96 288 96L352 96C369.7 96 384 110.3 384 128L384 192C384 209.7 369.7 224 352 224L344 224L344 288L464 288C503.8 288 536 320.2 536 360L536 416L544 416C561.7 416 576 430.3 576 448L576 512C576 529.7 561.7 544 544 544L480 544C462.3 544 448 529.7 448 512L448 448C448 430.3 462.3 416 480 416L488 416L488 360C488 346.7 477.3 336 464 336L344 336L344 416L352 416C369.7 416 384 430.3 384 448L384 512C384 529.7 369.7 544 352 544L288 544C270.3 544 256 529.7 256 512L256 448C256 430.3 270.3 416 288 416L296 416L296 336L176 336C162.7 336 152 346.7 152 360L152 416L160 416C177.7 416 192 430.3 192 448L192 512C192 529.7 177.7 544 160 544L96 544C78.3 544 64 529.7 64 512L64 448C64 430.3 78.3 416 96 416L104 416L104 360C104 320.2 136.2 288 176 288L296 288L296 224L288 224C270.3 224 256 209.7 256 192L256 128z"
+        fill="currentColor"
+        d="M208 80c0-26.5 21.5-48 48-48l64 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-8 0 0 40 152 0c30.9 0 56 25.1 56 56l0 32 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-32c0-4.4-3.6-8-8-8l-152 0 0 40 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-40-152 0c-4.4 0-8 3.6-8 8l0 32 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-32c0-30.9 25.1-56 56-56l152 0 0-40-8 0c-26.5 0-48-21.5-48-48l0-64z"
       />
-      <line
-        x1="120"
-        y1="149.5"
-        x2="508"
-        y2="565.6"
+      <path
+        d="M94 48L482 464"
         stroke="currentColor"
         strokeWidth="54"
         strokeLinecap="round"
@@ -117,20 +113,16 @@ export function NetworkStatusIndicator(
       label: isHost ? 'Network Online' : 'Connected',
     },
     'no-host-connected': {
-      icon: <NetworkOffIcon />,
+      icon: <NetworkOffIcon color="inverse" />,
+
       label: 'No VxAdmin Connected',
     },
     'no-network': {
-      icon: <NetworkOffIcon />,
+      icon: <NetworkOffIcon color="inverse" />,
       label: 'No Network',
     },
     error: {
-      icon: (
-        <React.Fragment>
-          <NetworkOffIcon />
-          <Icons.Danger color="inverseDanger" />
-        </React.Fragment>
-      ),
+      icon: <NetworkOffIcon color="inverseDanger" />,
       label: 'Network Error',
     },
   };
