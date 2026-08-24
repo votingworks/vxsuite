@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+// Runs the compiled output; run `pnpm build:self` first.
+import { main } from '../build/scripts/convert_nh_election.js';
+
+main(process.argv.slice(2));
