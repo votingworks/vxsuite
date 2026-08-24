@@ -1,7 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
 import React from 'react';
 import { LoremIpsum } from 'lorem-ipsum';
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import {
   Caption,

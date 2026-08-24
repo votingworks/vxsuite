@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { safeParseElectionDefinition } from '@votingworks/types';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import { assertDefined } from '@votingworks/basics';
@@ -25,7 +27,7 @@ const meta: Meta<typeof ElectionInfoBar> = {
   args: initialArgs,
   argTypes: {
     pollingPlaceId: {
-      type: 'select',
+      control: 'select',
       options: [undefined, ...pollingPlaces.map((p) => p.id)],
     },
   },

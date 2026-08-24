@@ -39,8 +39,7 @@ libs/ui
 
 This file should contain at least one named export containing a render function
 for the new component and one default export containing the component metadata
-in the
-[Component Story Format](https://storybook.js.org/docs/7.0/react/api/csf).
+in the [Component Story Format](https://storybook.js.org/docs/api/csf).
 
 **Example:**
 
@@ -48,7 +47,9 @@ in the
 // src/my_component.stories.tsx
 
 import React from 'react';
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import { MyComponent, MyComponentProps } from './my_component';
 

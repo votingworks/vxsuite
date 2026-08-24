@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import {
   CandidateContest,
   Election,
@@ -216,7 +218,9 @@ const Container = styled.div`
   }
 `;
 
-const meta: Meta<typeof Component> = {
+type BmdPaperBallotArgs = BmdPaperBallotProps & { numMockContests: number };
+
+const meta: Meta<BmdPaperBallotArgs> = {
   title: 'libs-ui/BmdPaperBallot',
   component: Component,
   args: { ...initialArgs, numMockContests: 20 },
@@ -248,17 +252,15 @@ const meta: Meta<typeof Component> = {
   ],
   parameters: {
     backgrounds: {
-      default: 'gray',
-      values: [{ name: 'gray', value: TouchscreenPalette.Gray50 }],
+      options: { gray: { name: 'gray', value: TouchscreenPalette.Gray50 } },
     },
   },
+  globals: { backgrounds: { value: 'gray' } },
 };
 
 export default meta;
 
-export function BmdPaperBallot(
-  props: BmdPaperBallotProps & { numMockContests: number }
-): JSX.Element {
+export function BmdPaperBallot(props: BmdPaperBallotArgs): JSX.Element {
   const { ballotStyleId, electionDefinition, numMockContests, votes, ...rest } =
     props;
 

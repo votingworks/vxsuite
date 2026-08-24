@@ -23,10 +23,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.5",
-    "@storybook/addon-a11y": "9.1.20",
-    "@storybook/addon-docs": "9.1.20",
-    "@storybook/addon-links": "9.1.20",
-    "@storybook/react-vite": "9.1.20",
     "@typescript-eslint/parser": "8.67.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "eslint": "9.39.5",
@@ -36,7 +32,6 @@
     "postcss-styled-syntax": "^0.4.0",
     "prettier": "^3.0.3",
     "sort-package-json": "^1.50.0",
-    "storybook": "9.1.20",
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0",
     "turbo": "2.10.5",

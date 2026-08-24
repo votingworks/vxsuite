@@ -25,6 +25,11 @@ const config: StorybookConfig = {
 
   staticDirs: ['../.storybook-static'],
 
+  features: {
+    sidebarOnboardingChecklist: false,
+    menuOnboardingChecklist: false,
+  },
+
   async viteFinal(config) {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(dirname, '../..')

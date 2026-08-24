@@ -1,4 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import electionFamousNamesData from '@fixtures/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json?raw';
 import { safeParseElectionDefinition } from '@votingworks/types';
@@ -32,13 +34,13 @@ const meta: Meta<typeof WriteInTallyReportPreview> = {
   component: WriteInTallyReportPreview,
   parameters: {
     backgrounds: {
-      default: 'light gray',
-      values: [
-        { name: 'light gray', value: '#D3D3D3' },
-        { name: 'black', value: '#000000' },
-      ],
+      options: {
+        lightGray: { name: 'light gray', value: '#D3D3D3' },
+        black: { name: 'black', value: '#000000' },
+      },
     },
   },
+  globals: { backgrounds: { value: 'lightGray' } },
 };
 
 const generalReportArgs: WriteInAdjudicationReportProps = {
@@ -240,7 +242,6 @@ export const EmptyPrimaryReport: Story = {
   args: {
     electionDefinition: electionTwoPartyPrimaryDefinition,
     electionPackageHash: '11111111111111111111',
-    isOfficialResults: true,
     generatedAtTime: new Date('2020-11-03T12:00:00.000'),
     electionWriteInSummary: {
       contestWriteInSummaries: {},

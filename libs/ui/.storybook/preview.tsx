@@ -10,8 +10,7 @@ import { AppBase, VoterSettingsManagerContext } from '../src/index.js';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
 
-// TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
-// the @storybook/types repo.
+// Storybook doesn't export a type for toolbar items.
 interface ToolbarItem<T> {
   value: T;
   title: string;
@@ -94,8 +93,6 @@ export const globalTypes: GlobalTypes = {
     defaultValue: DEFAULT_SIZE_MODE,
   },
 };
-
-export const tags = ['autodocs'];
 
 export const parameters: Parameters = {
   // This defines which prop name patterns are recognized as event handler

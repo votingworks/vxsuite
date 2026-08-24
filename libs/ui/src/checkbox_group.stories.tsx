@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import {
   CheckboxGroupProps,
   CheckboxGroup as Component,

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { LoremIpsum } from 'lorem-ipsum';
 
 import { useTheme } from 'styled-components';

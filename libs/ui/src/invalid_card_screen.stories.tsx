@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { InvalidCardScreen, Props } from './invalid_card_screen';
 
 const args: Props = {
