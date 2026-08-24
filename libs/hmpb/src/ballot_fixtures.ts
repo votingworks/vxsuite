@@ -830,19 +830,25 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       };
     }
     if (contest.type !== 'candidate') return contest;
-    // Rearrange candidates so we get one per column (Dem, Rep, single Other) so
-    // the layout matches what a real NH ballot would have.
+    // Rearrange candidates so we get at least one per column (Dem, Rep, single
+    // Other) so the layout matches what a real NH ballot would have.
     const democraticPartyId = assertDefined(
       baseElection.parties.find((p) => p.name.toLowerCase().startsWith('dem'))
     ).id;
     const republicanPartyId = assertDefined(
       baseElection.parties.find((p) => p.name.toLowerCase().startsWith('rep'))
     ).id;
+    const [numDemocratic, numRepublican] =
+      contest.id === 'city-council' ? [2, 2] : [1, 1];
     const trimmedCandidates = contest.candidates
-      .slice(0, 3)
+      .slice(0, numDemocratic + numRepublican + 1)
       .map((candidate, index) => {
-        if (index === 0) return { ...candidate, partyIds: [democraticPartyId] };
-        if (index === 1) return { ...candidate, partyIds: [republicanPartyId] };
+        if (index < numDemocratic) {
+          return { ...candidate, partyIds: [democraticPartyId] };
+        }
+        if (index < numDemocratic + numRepublican) {
+          return { ...candidate, partyIds: [republicanPartyId] };
+        }
         return candidate;
       });
     return {
@@ -851,6 +857,16 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       candidates: trimmedCandidates,
     };
   });
+  // Rotate candidates for one contest to make sure the template uses the
+  // specified candidate order within each party
+  const cityCouncilContest = find(
+    contests,
+    (contest) => contest.id === 'city-council'
+  );
+  assert(cityCouncilContest.type === 'candidate');
+  const rotatedCityCouncilCandidates = [1, 0, 3, 2, 4].map((index) =>
+    assertDefined(cityCouncilContest.candidates[index])
+  );
   const election: Election = {
     ...baseElection,
     contests,
@@ -867,7 +883,22 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       parties: baseElection.parties,
       contests,
       electionId: baseElection.id,
-    }),
+    }).map((ballotStyle) =>
+      ballotStyle.districts.includes(cityCouncilContest.districtId)
+        ? {
+            ...ballotStyle,
+            orderedCandidatesByContest: {
+              ...(ballotStyle.orderedCandidatesByContest ?? {}),
+              [cityCouncilContest.id]: rotatedCityCouncilCandidates.map(
+                (candidate) => ({
+                  id: candidate.id,
+                  partyIds: candidate.partyIds,
+                })
+              ),
+            },
+          }
+        : ballotStyle
+    ),
     signature: NH_STATE_TEST_SIGNATURE,
   };
 
@@ -1024,8 +1055,31 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
   // template's color tinting (which keys off isDemocraticParty /
   // isRepublicanParty name matching) takes effect.
   const enStrings = baseElection.ballotStrings['en'] ?? {};
+  // Rotate candidates for one contest to make sure the template uses the
+  // specified candidate order
+  const congressionalContest = find(
+    baseElection.contests,
+    (contest): contest is CandidateContest =>
+      contest.id === 'congressional-1-mammal'
+  );
   const election: Election = {
     ...baseElection,
+    ballotStyles: baseElection.ballotStyles.map((ballotStyle) =>
+      ballotStyle.id === '1-Ma_en'
+        ? {
+            ...ballotStyle,
+            orderedCandidatesByContest: {
+              ...(ballotStyle.orderedCandidatesByContest ?? {}),
+              [congressionalContest.id]: [...congressionalContest.candidates]
+                .reverse()
+                .map((candidate) => ({
+                  id: candidate.id,
+                  partyIds: candidate.partyIds,
+                })),
+            },
+          }
+        : ballotStyle
+    ),
     parties: baseElection.parties.map((party) => {
       if (party.name === 'Mammal') {
         return {
