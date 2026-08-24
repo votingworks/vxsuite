@@ -15,6 +15,7 @@ import {
   H1,
   Route,
   Breadcrumbs,
+  ToolbarButtons,
 } from '@votingworks/ui';
 import {
   BooleanEnvironmentVariableName,
@@ -191,12 +192,14 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
               <BatteryStatus batteryInfo={batteryInfoQuery.data} />
             )}
             <DateTimeDisplay />
-            <UsbEjectButton
-              usbDriveStatus={usbDriveStatus}
-              onEject={() => ejectUsbDriveMutation.mutate()}
-              isEjecting={ejectUsbDriveMutation.isLoading}
-            />
-            <LockMachineButton onLock={() => logOutMutation.mutate()} />
+            <ToolbarButtons>
+              <UsbEjectButton
+                usbDriveStatus={usbDriveStatus}
+                onEject={() => ejectUsbDriveMutation.mutate()}
+                isEjecting={ejectUsbDriveMutation.isLoading}
+              />
+              <LockMachineButton onLock={() => logOutMutation.mutate()} />
+            </ToolbarButtons>
           </Toolbar>
         )}
         <SessionTimeLimitTimer authStatus={auth} />

@@ -15,6 +15,7 @@ import {
   SessionTimeLimitTimer,
   TestModeBanner,
   Toolbar,
+  ToolbarButtons,
   UsbEjectButton,
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
@@ -96,12 +97,14 @@ function NavigationToolbar(): JSX.Element {
         <BatteryStatus batteryInfo={batteryInfoQuery.data} />
       )}
       <DateTimeDisplay />
-      <UsbEjectButton
-        usbDriveStatus={usbDriveStatus}
-        onEject={() => ejectUsbDriveMutation.mutate()}
-        isEjecting={ejectUsbDriveMutation.isLoading}
-      />
-      <LockMachineButton onLock={() => logOutMutation.mutate()} />
+      <ToolbarButtons>
+        <UsbEjectButton
+          usbDriveStatus={usbDriveStatus}
+          onEject={() => ejectUsbDriveMutation.mutate()}
+          isEjecting={ejectUsbDriveMutation.isLoading}
+        />
+        <LockMachineButton onLock={() => logOutMutation.mutate()} />
+      </ToolbarButtons>
     </Toolbar>
   );
 }

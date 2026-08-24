@@ -9,6 +9,7 @@ import {
   IconName,
   Icons,
   LockMachineButton,
+  ToolbarButtons,
   Toolbar as ToolbarContainer,
 } from '@votingworks/ui';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -211,8 +212,10 @@ export function Toolbar(): JSX.Element {
       <PrinterStatus status={printer} />
       {battery && <BatteryStatus batteryInfo={battery} />}
       <DateTimeDisplay />
-      <UsbControllerButton status={usbDrive} />
-      <LockMachineButton onLock={handleLock} />
+      <ToolbarButtons>
+        <UsbControllerButton status={usbDrive} />
+        <LockMachineButton onLock={handleLock} />
+      </ToolbarButtons>
     </ToolbarContainer>
   );
 }
