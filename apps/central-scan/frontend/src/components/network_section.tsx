@@ -30,14 +30,14 @@ function ConnectionStatusMessage({
     case 'online-multiple-hosts-detected':
       return (
         <P>
-          <Icons.Warning color="warning" /> Multiple VxAdmins detected on the
+          <Icons.Danger color="danger" /> Multiple VxAdmins detected on the
           network. Ensure only one VxAdmin is connected.
         </P>
       );
     case 'online-code-version-mismatch':
       return (
         <P>
-          <Icons.Warning color="warning" /> VxAdmin ({connection.hostMachineId})
+          <Icons.Danger color="danger" /> VxAdmin ({connection.hostMachineId})
           is running a different software version
         </P>
       );
@@ -58,8 +58,8 @@ function ConnectionStatusMessage({
     case 'online-ballot-hash-mismatch':
       return (
         <P>
-          <Icons.Warning color="warning" /> VxAdmin ({connection.hostMachineId})
-          is configured for a different election
+          <Icons.Info /> VxAdmin ({connection.hostMachineId}) is configured for
+          a different election
         </P>
       );
     case 'online-host-detected':

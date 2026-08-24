@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import type { BatteryInfo } from '@votingworks/backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
 import { Button } from './button';
 import { getBatteryIcon } from './battery_display';
-import { Icons } from './icons';
+import { IconName, Icons } from './icons';
 
 export const Toolbar = styled.div`
   display: flex;
@@ -68,6 +69,43 @@ function useCurrentDate(): Date {
 export function DateTimeDisplay(): JSX.Element {
   const currentDate = useCurrentDate();
   return <span>{format.clockDateAndTime(currentDate)}</span>;
+}
+
+type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
+const USB_BUTTON_ICON_AND_TEXT: Record<
+  ExtendedUsbDriveStatus,
+  [IconName, string]
+> = {
+  no_drive: ['Disabled', 'No USB'],
+  error: ['Disabled', 'No USB'],
+  mounted: ['Eject', 'Eject USB'],
+  ejecting: ['Eject', 'Ejecting...'],
+  ejected: ['Disabled', 'USB Ejected'],
+};
+
+export function UsbEjectButton({
+  usbDriveStatus,
+  onEject,
+  isEjecting,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+  onEject: () => void;
+  isEjecting: boolean;
+}): JSX.Element {
+  const extendedStatus: ExtendedUsbDriveStatus = isEjecting
+    ? 'ejecting'
+    : usbDriveStatus.status;
+  const [icon, text] = USB_BUTTON_ICON_AND_TEXT[extendedStatus];
+  return (
+    <CompactButton
+      icon={icon}
+      onPress={onEject}
+      color="inverseNeutral"
+      disabled={extendedStatus !== 'mounted' || isEjecting}
+    >
+      {text}
+    </CompactButton>
+  );
 }
 
 export function LockMachineButton({

@@ -123,6 +123,7 @@ export const ICON_COLORS = [
   'inverse',
   'inversePrimary',
   'inverseWarning',
+  'inverseDanger',
 ] as const;
 
 export type IconColor = (typeof ICON_COLORS)[number];
@@ -171,6 +172,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
     inverse: colors.onInverse,
     inversePrimary: colors.inversePrimary,
     inverseWarning: colors.inverseWarningAccent,
+    inverseDanger: colors.inverseDangerAccent,
     default: undefined,
   }[color];
 }
