@@ -83,6 +83,13 @@ export interface MockBatchScannerApi {
 }
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
+export type DevDockSide = 'top' | 'right' | 'bottom' | 'left';
+export const DEV_DOCK_SIDES: readonly DevDockSide[] = [
+  'top',
+  'right',
+  'bottom',
+  'left',
+];
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
 export interface DevDockUsbDriveInfo {
   diskPath: UsbDiskDevPath;
@@ -356,6 +363,9 @@ function buildApi(
   const usbDriveHandler = getMockUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
   let pdiScannerSheetQueue: PdiScannerSheetQueueState | undefined;
+  // Which side of the screen the dock is on. Held in memory so it persists
+  // across page reloads but resets when the backend restarts.
+  let dockSide: DevDockSide = 'top';
 
   return grout.createApi({
     getMockSpec(): SerializableMockSpec {
@@ -374,6 +384,15 @@ function buildApi(
           Boolean(mockSpec.setPatInputConnected),
         hasQuickConfigure: Boolean(mockSpec.quickConfigure),
       };
+    },
+
+    getDockSide(): DevDockSide {
+      return dockSide;
+    },
+
+    setDockSide(input: { side: DevDockSide }): void {
+      assert(DEV_DOCK_SIDES.includes(input.side));
+      dockSide = input.side;
     },
 
     async setElection(input: { inputPath: string }): Promise<void> {
