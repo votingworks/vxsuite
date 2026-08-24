@@ -32,7 +32,7 @@ function* generateEnum(
 ): Generator<string> {
   yield `export enum ${name} {\n`;
   for (const [enumMember, value] of entries) {
-    yield `${enumMember} = '${value}',\n`;
+    yield `${enumMember} = ${JSON.stringify(value)},\n`;
   }
   yield '}\n';
 }
@@ -49,10 +49,10 @@ function* generateLogDetails(config: LoggingConfig): Generator<string> {
     const ${titleCaseEventId}: LogDetails = {
       eventId: LogEventId.${titleCaseEventId},
       eventType: LogEventType.${eventTypeEnumMember},
-      documentationMessage: '${details.documentationMessage}',
+      documentationMessage: ${JSON.stringify(details.documentationMessage)},
   `;
     if (details.defaultMessage) {
-      yield `defaultMessage: '${details.defaultMessage}',`;
+      yield `defaultMessage: ${JSON.stringify(details.defaultMessage)},`;
     }
     if (details.restrictInDocumentationToApps) {
       yield `restrictInDocumentationToApps: [${details.restrictInDocumentationToApps.map(
@@ -166,7 +166,7 @@ async function main(): Promise<void> {
 
   const out = createWriteStream(filepath);
 
-  await pipeline(async function* makeRustFile() {
+  await pipeline(async function* makeTsFile() {
     yield* createReadStream(logEventIdsTemplateFilepath);
     yield* '\n';
     yield* generateEnum('AppName', appNameConfig);

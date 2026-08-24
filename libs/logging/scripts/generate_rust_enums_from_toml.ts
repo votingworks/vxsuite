@@ -1,4 +1,5 @@
 import toml from '@iarna/toml';
+import { assertDefined } from '@votingworks/basics';
 import { execFileSync } from 'node:child_process';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
@@ -15,6 +16,23 @@ import {
   diffAndCleanUp,
   parseConfig,
 } from './types';
+
+const RUST_STRING_ESCAPES: ReadonlyMap<string, string> = new Map([
+  ['\\', '\\\\'],
+  ['"', '\\"'],
+  ['\n', '\\n'],
+  ['\r', '\\r'],
+  ['\t', '\\t'],
+]);
+
+// Renders `value` as a double-quoted Rust string literal, escaping the
+// characters that would otherwise terminate or alter it.
+function rustStringLiteral(value: string): string {
+  const escaped = value.replace(/[\\"\n\r\t]/g, (char) =>
+    assertDefined(RUST_STRING_ESCAPES.get(char))
+  );
+  return `"${escaped}"`;
+}
 
 function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   yield `
@@ -36,7 +54,7 @@ function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   `;
 
   for (const [enumMember, eventType] of config.apps) {
-    yield `#[serde(rename = "${eventType.name}")]
+    yield `#[serde(rename = ${rustStringLiteral(eventType.name)})]
       ${enumMember},`;
   }
 
@@ -49,7 +67,7 @@ function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   `;
 
   for (const [enumMember, eventType] of config.logSources) {
-    yield `#[serde(rename = "${eventType.source}")]
+    yield `#[serde(rename = ${rustStringLiteral(eventType.source)})]
       ${enumMember},`;
   }
 
@@ -62,7 +80,7 @@ function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   `;
 
   for (const [enumMember, eventType] of config.eventTypes) {
-    yield `#[serde(rename = "${eventType.eventType}")]
+    yield `#[serde(rename = ${rustStringLiteral(eventType.eventType)})]
       ${enumMember},`;
   }
 
@@ -81,7 +99,7 @@ function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   `;
 
   for (const [enumMember, logDetails] of config.events) {
-    yield `#[serde(rename = "${logDetails.eventId}")]
+    yield `#[serde(rename = ${rustStringLiteral(logDetails.eventId)})]
       ${enumMember},`;
   }
   yield '}';
