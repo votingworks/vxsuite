@@ -196,6 +196,10 @@ export class Store implements BaseStore {
     return this.ballotImagesPath;
   }
 
+  getElectionPackagesPath(): string {
+    return this.electionPackagesPath;
+  }
+
   /**
    * Builds and returns a new store whose data is kept in memory. A
    * `persistenceDirPath` must be provided, but may be a temporary directory if
@@ -225,6 +229,21 @@ export class Store implements BaseStore {
       ballotImagesPath,
       electionPackagesPath
     );
+  }
+
+  /**
+   * Closes the underlying database connection. The store is unusable
+   * afterwards.
+   */
+  close(): void {
+    this.client.close();
+  }
+
+  /**
+   * Closes the store, allowing it to be used with `using`.
+   */
+  [Symbol.dispose](): void {
+    this.close();
   }
 
   /**
@@ -1469,6 +1488,30 @@ export class Store implements BaseStore {
     );
 
     return id;
+  }
+
+  getAllBallotImagePaths(electionId: Id): string[] {
+    // An election with no ballot images and an election that doesn't exist both
+    // select zero rows below, and the difference matters: the first is a valid
+    // backup, the second is a caller passing the wrong kind of id.
+    this.assertElectionExists(electionId);
+
+    const rows = this.client.all(
+      `
+      select
+        bi.cvr_id as cvrId,
+        bi.side,
+        e.election_data ->> 'id' as electionDefinitionId
+      from ballot_images bi
+      join cvrs c on c.id = bi.cvr_id
+      join elections e on e.id = c.election_id
+      where e.id = ?
+      `,
+      electionId
+    ) as Array<{ cvrId: string; side: Side; electionDefinitionId: string }>;
+    return rows.map(({ cvrId, side, electionDefinitionId }) =>
+      this.getBallotImageFilePath(electionDefinitionId, cvrId, side)
+    );
   }
 
   /**

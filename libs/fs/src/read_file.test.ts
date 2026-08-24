@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok, typedAs } from '@votingworks/basics';
-import { makeTemporaryFile, makeTemporaryPath } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+  makeTemporaryPath,
+} from '@votingworks/fixtures';
 import fc from 'fast-check';
 import { ReadFileError, readFile } from './read_file';
 
@@ -14,6 +18,25 @@ test('file open error', async () => {
         error: expect.objectContaining({ code: 'ENOENT' }),
       })
     )
+  );
+});
+
+test('file read error after a successful open', async () => {
+  // A directory opens fine and then fails the read itself, with EISDIR. Before
+  // the try/finally around the read this threw past the `Result` contract and
+  // leaked the file descriptor.
+  const path = makeTemporaryDirectory();
+
+  // Comfortably above the size a directory inode stats at, so the size check
+  // passes and the read itself is what fails.
+  const result = await readFile(path, { maxSize: 1024 * 1024 });
+  expect(result).toEqual(
+    err({
+      type: 'ReadFileError',
+      error: expect.objectContaining({
+        message: expect.stringContaining('EISDIR'),
+      }),
+    })
   );
 });
 

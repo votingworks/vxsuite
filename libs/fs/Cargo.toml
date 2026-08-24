@@ -1,0 +1,19 @@
+[package]
+edition = "2021"
+name = "vx-fs"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/rust/lib.rs"
+
+[dependencies]
+napi.workspace = true
+napi-derive.workspace = true
+nix.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true
+
+[lints]
+workspace = true

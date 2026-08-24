@@ -1,10 +1,16 @@
-import { ensureDirSync } from 'fs-extra';
+import { statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { ensureDirSync } from 'fs-extra';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
 import { ClientStore } from '../client_store.js';
+
+/**
+ * Base name of the VxAdmin SQLite database.
+ */
+export const ADMIN_WORKSPACE_DATABASE_NAME = 'data.db';
 
 /**
  * Shared workspace interface for both host and client machines.
@@ -17,7 +23,7 @@ export interface BaseWorkspace {
 /**
  * Workspace for a host machine with full election data support.
  */
-export interface Workspace extends BaseWorkspace {
+export interface Workspace extends BaseWorkspace, Disposable {
   readonly store: Store;
 }
 
@@ -28,30 +34,80 @@ export interface ClientWorkspace extends BaseWorkspace {
   readonly clientStore: ClientStore;
 }
 
+function workspacePaths(root: string): {
+  workspace: string;
+  ballotImages: string;
+  electionPackages: string;
+  db: string;
+} {
+  const resolvedRoot = resolve(root);
+  const ballotImagesPath = join(resolvedRoot, 'ballot-images');
+  const electionPackagesPath = join(resolvedRoot, 'election-packages');
+  const dbPath = join(resolvedRoot, ADMIN_WORKSPACE_DATABASE_NAME);
+
+  return {
+    workspace: resolvedRoot,
+    ballotImages: ballotImagesPath,
+    electionPackages: electionPackagesPath,
+    db: dbPath,
+  };
+}
+
 /**
  * Returns a host Workspace with ballot image storage and disk space monitoring.
  */
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
-  const resolvedRoot = resolve(root);
-  const ballotImagesPath = join(resolvedRoot, 'ballot-images');
-  const electionPackagesPath = join(resolvedRoot, 'election-packages');
-  const dbPath = join(resolvedRoot, 'data.db');
+  const paths = workspacePaths(root);
 
-  ensureDirSync(ballotImagesPath);
-  ensureDirSync(electionPackagesPath);
+  ensureDirSync(paths.ballotImages);
+  ensureDirSync(paths.electionPackages);
   const store = Store.fileStore(
-    dbPath,
-    ballotImagesPath,
-    electionPackagesPath,
+    paths.db,
+    paths.ballotImages,
+    paths.electionPackages,
     logger
   );
 
   return {
-    path: resolvedRoot,
+    path: paths.workspace,
     store,
     getDiskSpaceSummary: async () => {
-      const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
+      const [summary] = await getDiskSpaceSummaries([paths.workspace]);
       return summary;
+    },
+    [Symbol.dispose]: () => {
+      store.close();
+    },
+  };
+}
+
+/**
+ * Opens an existing workspace and throws ENOENT if it does not exist.
+ */
+export function openWorkspace(root: string, logger: BaseLogger): Workspace {
+  const paths = workspacePaths(root);
+
+  // Ensure everything we expect is already there.
+  statSync(paths.db);
+  statSync(paths.ballotImages);
+  statSync(paths.electionPackages);
+
+  const store = Store.fileStore(
+    paths.db,
+    paths.ballotImages,
+    paths.electionPackages,
+    logger
+  );
+
+  return {
+    path: paths.workspace,
+    store,
+    getDiskSpaceSummary: async () => {
+      const [summary] = await getDiskSpaceSummaries([paths.workspace]);
+      return summary;
+    },
+    [Symbol.dispose]: () => {
+      store.close();
     },
   };
 }

@@ -54,31 +54,36 @@ export async function readFile(
   }
 
   const fd = openResult.ok();
-  const stat = await fd.stat();
+  try {
+    const stat = await fd.stat();
 
-  if (maxSize !== undefined && stat.size > maxSize) {
+    if (maxSize !== undefined && stat.size > maxSize) {
+      return err({
+        type: 'FileExceedsMaxSize',
+        maxSize,
+        fileSize: stat.size,
+      });
+    }
+
+    const buffer = Buffer.allocUnsafe(stat.size);
+    const readResult = await fd.read(buffer, 0, stat.size, 0);
+
+    /* istanbul ignore next */
+    if (readResult.bytesRead !== stat.size) {
+      return err({
+        type: 'ReadFileError',
+        error: new Error(
+          `unexpected number of bytes read: ${readResult.bytesRead} instead of ${stat.size}`
+        ),
+      });
+    }
+
+    return ok(encoding ? buffer.toString(encoding) : buffer);
+  } catch (error) {
+    // e.g. EISDIR reading a directory, or EIO from a failing disk. These are
+    // read failures like any other, and must not leak the file descriptor.
+    return err({ type: 'ReadFileError', error: error as Error });
+  } finally {
     await fd.close();
-    return err({
-      type: 'FileExceedsMaxSize',
-      maxSize,
-      fileSize: stat.size,
-    });
   }
-
-  const buffer = Buffer.allocUnsafe(stat.size);
-  const readResult = await fd.read(buffer, 0, stat.size, 0);
-
-  /* istanbul ignore next */
-  if (readResult.bytesRead !== stat.size) {
-    await fd.close();
-    return err({
-      type: 'ReadFileError',
-      error: new Error(
-        `unexpected number of bytes read: ${readResult.bytesRead} instead of ${stat.size}`
-      ),
-    });
-  }
-
-  await fd.close();
-  return ok(encoding ? buffer.toString(encoding) : buffer);
 }

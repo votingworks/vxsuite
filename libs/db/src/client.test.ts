@@ -11,7 +11,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-test('file database client', () => {
+test('file database client', async () => {
   const dbFile = makeTemporaryFile();
   const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
 
@@ -27,7 +27,7 @@ test('file database client', () => {
   client.run('insert into muppets (name) values (?)', 'Fozzie');
 
   const backupDbFile = makeTemporaryFile();
-  client.backup(backupDbFile);
+  await client.backup(backupDbFile);
 
   const clientForBackup = Client.fileClient(
     backupDbFile,
@@ -41,6 +41,48 @@ test('file database client', () => {
   expect([...clientForBackup.each('select * from muppets')]).toEqual([
     { name: 'Kermit' },
     { name: 'Fozzie' },
+  ]);
+});
+
+test('backs up a database whose connection is not yet established', async () => {
+  const dbFile = makeTemporaryFile();
+  const seedClient = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+  seedClient.exec(
+    'create table if not exists muppets (name varchar(255) unique not null)'
+  );
+  seedClient.run('insert into muppets (name) values (?)', 'Gonzo');
+
+  // A client with no schema connects lazily, so `backup` is the first thing
+  // here to touch the database.
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+  const backupDbFile = makeTemporaryFile();
+  await client.backup(backupDbFile);
+
+  const clientForBackup = Client.fileClient(
+    backupDbFile,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  expect(clientForBackup.all('select * from muppets')).toEqual([
+    { name: 'Gonzo' },
+  ]);
+});
+
+test('backs up a memory database', async () => {
+  const client = Client.memoryClient();
+  client.exec(
+    'create table if not exists muppets (name varchar(255) unique not null)'
+  );
+  client.run('insert into muppets (name) values (?)', 'Rizzo');
+
+  const backupDbFile = makeTemporaryFile();
+  await client.backup(backupDbFile);
+
+  const clientForBackup = Client.fileClient(
+    backupDbFile,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  expect(clientForBackup.all('select * from muppets')).toEqual([
+    { name: 'Rizzo' },
   ]);
 });
 
@@ -138,6 +180,50 @@ test('file database client with regex enabled in connectionOptions', () => {
   );
   expect(() => anotherClient.all(queryString, '.*ermi.*')).toThrow(
     new SqliteError('no such function: REGEXP', 'SQLITE_ERROR')
+  );
+});
+
+test('closing a client is terminal', () => {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+
+  client.exec('create table muppets (name varchar(255) not null)');
+  client.close();
+
+  // Closing again is harmless, but the client must not silently reconnect.
+  client.close();
+  expect(() => client.all('select * from muppets')).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+  expect(() => client.connect()).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+});
+
+test('closing a client that never connected', () => {
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+
+  client.close();
+
+  expect(() => client.connect()).toThrow(
+    `database client for ${dbFile} is closed`
+  );
+});
+
+test('`using` closes the client at the end of the scope', () => {
+  const dbFile = makeTemporaryFile();
+  let clientRef: Client;
+
+  {
+    using client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
+    client.exec('create table muppets (name varchar(255) not null)');
+    expect(client.all('select * from muppets')).toEqual([]);
+    clientRef = client;
+  }
+
+  expect(() => clientRef.all('select * from muppets')).toThrow(
+    `database client for ${dbFile} is closed`
   );
 });
 

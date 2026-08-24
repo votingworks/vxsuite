@@ -4,10 +4,15 @@ import { inspect } from 'node:util';
 import yargs from 'yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { NODE_ENV } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
+import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
 import { Backup } from '../backup.js';
+import { ProgressEvent } from '../create/types.js';
+import { createBackup } from '../create/index.js';
 
 /**
  * IO streams given to the CLI.
@@ -88,9 +93,6 @@ export async function main(
       })
     )
     .demandCommand(1, 'A command is required')
-    .epilogue(
-      'Stop VxAdmin before running these commands: they use its workspace.'
-    )
     .strict()
     .exitProcess(false)
     .version(false);
@@ -127,24 +129,88 @@ export async function main(
 }
 
 /**
+ * What each backup step is called on screen. A `Record` over the event union
+ * so that adding an event without a label fails to compile.
+ */
+const PROGRESS_LABELS: Record<ProgressEvent['type'], string> = {
+  preparing: 'Preparing',
+  db_snapshot: 'Snapshotting database',
+  staging_files: 'Staging files',
+  copy_files: 'Copying files',
+  writing_manifest: 'Writing manifest',
+  flushing_backup: 'Flushing to device',
+  swapping_backup: 'Swapping into place',
+};
+
+function displayProgress(event: ProgressEvent): DisplayProgress {
+  const label = PROGRESS_LABELS[event.type];
+
+  switch (event.type) {
+    case 'copy_files':
+      return {
+        label,
+        bytesCompleted: event.copiedBytes,
+        bytesTotal: event.totalBytes,
+      };
+
+    case 'db_snapshot':
+    case 'staging_files':
+      return { label, fraction: event.progress };
+
+    default:
+      return { label };
+  }
+}
+
+/**
  * Create a backup using the CLI-provided arguments.
  */
 async function create(
   args: BackupArguments,
   { stdout, stderr }: Streams
 ): Promise<number> {
-  const { workspace, target } = args;
-  assert(typeof workspace === 'string');
-  assert(typeof target === 'string');
+  assert(typeof args.workspace === 'string');
+  assert(typeof args.target === 'string');
 
-  stderr.write('NOT IMPLEMENTED YET.\n');
-  stdout.write('Here are the workspace files to be backed up:\n');
+  // The `backups` CLI is a development tool. `libs/auth` reads `NODE_ENV`
+  // straight from the environment and throws when it isn't set, so normalize
+  // whatever we resolved into the environment instead of making the caller
+  // export it.
+  assert(
+    NODE_ENV !== 'production',
+    `the backups CLI is a development tool, but NODE_ENV is ${NODE_ENV}`
+  );
+  (process.env as { NODE_ENV?: string }).NODE_ENV = NODE_ENV;
+  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
 
-  const { errorCount } = await enumerateSourceFiles(workspace, {
-    stdout,
+  const logger = new BaseLogger(LogSource.VxAdminService);
+
+  // Progress goes to stderr so that stdout carries only the command's own
+  // output, and so redirecting one doesn't garble the other.
+  const display = new ProgressDisplay(
     stderr,
+    Boolean((stderr as NodeJS.WriteStream).isTTY)
+  );
+
+  const createBackupResult = await createBackup({
+    workspace: args.workspace,
+    target: args.target,
+    logger,
+    onProgressEvent: (event) => display.update(displayProgress(event)),
   });
-  return errorCount ? 1 : 0;
+
+  if (createBackupResult.isErr()) {
+    // Leave the bar where it stopped: it says which step failed.
+    display.finish();
+    stderr.write(`Error: ${createBackupResult.err().message}\n`);
+    return 1;
+  }
+
+  // Replace the bar with what `list` would show for the backup just written.
+  display.clear();
+  views.backupInfo(new StyledPrinter(stdout), createBackupResult.ok());
+
+  return 0;
 }
 
 /**

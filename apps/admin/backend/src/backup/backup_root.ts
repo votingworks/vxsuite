@@ -27,6 +27,14 @@ export class BackupRoot {
   }
 
   /**
+   * Where a backup named `name` belongs within this root. Writers use this so
+   * that what they produce is what {@link listBackups} finds.
+   */
+  pathFor(name: string): string {
+    return join(this.rootPath, BACKUPS_DIRECTORY_NAME, name);
+  }
+
+  /**
    * Lists the backups within this root. A root without a backups directory
    * has no backups, e.g. a backup drive that has never been backed up to.
    */
