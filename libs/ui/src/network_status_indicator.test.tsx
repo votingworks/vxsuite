@@ -5,6 +5,10 @@ import {
   NetworkIndicatorStatus,
   NetworkStatusIndicator,
 } from './network_status_indicator';
+import { makeTheme } from './themes/make_theme';
+
+const THEME = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
+const DANGER_COLOR = THEME.colors.inverseDangerAccent;
 
 const testCases: Array<{
   status: NetworkIndicatorStatus;
@@ -36,7 +40,9 @@ const testCases: Array<{
 test.each(testCases)(
   'renders $status',
   ({ status, expectedLabel, expectedTreatment }) => {
-    const { unmount } = render(<NetworkStatusIndicator status={status} />);
+    const { unmount } = render(<NetworkStatusIndicator status={status} />, {
+      vxTheme: { colorMode: 'desktop', sizeMode: 'desktop' },
+    });
     const indicator = screen.getByTestId('network-status');
     expect(indicator).toHaveTextContent(expectedLabel);
     switch (expectedTreatment) {
@@ -47,26 +53,24 @@ test.each(testCases)(
         ).toBeInTheDocument();
         expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(1);
         expect(
-          indicator.querySelector(`[data-testid='network-off-icon']`)
+          indicator.querySelector(`[data-icon='network-off']`)
         ).not.toBeInTheDocument();
         break;
       // Warning states show the slashed network icon
       case 'warning':
         expect(
-          indicator.querySelector(`[data-testid='network-off-icon']`)
+          indicator.querySelector(`[data-icon='network-off']`)
         ).toBeInTheDocument();
-        expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(0);
+        expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(1);
         break;
-      // Error states show the slashed network icon with a danger icon next
-      // to it
-      case 'error':
-        expect(
-          indicator.querySelector(`[data-testid='network-off-icon']`)
-        ).toBeInTheDocument();
-        expect(
-          indicator.querySelector(`[data-icon='circle-exclamation']`)
-        ).toBeInTheDocument();
+      // Error states show the slashed network icon in the danger color
+      case 'error': {
+        const icon = indicator.querySelector(`[data-icon='network-off']`);
+        expect(icon).toBeInTheDocument();
+        expect(indicator.querySelectorAll('[data-icon]')).toHaveLength(1);
+        expect(icon).toHaveStyle(`color: ${DANGER_COLOR}`);
         break;
+      }
       /* istanbul ignore next - compile-time check */
       default:
         throw new Error('unreachable');

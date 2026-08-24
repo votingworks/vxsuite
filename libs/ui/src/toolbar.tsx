@@ -14,12 +14,18 @@ export const Toolbar = styled.div`
   top: 0;
   width: 100%;
   height: 2.2rem;
-  gap: 1.25rem;
+  gap: 1.5rem;
   justify-content: flex-end;
   align-items: center;
   background: ${(p) => p.theme.colors.inverseContainer};
   color: ${(p) => p.theme.colors.onInverse};
   padding: 0.25rem 1rem;
+`;
+
+export const ToolbarButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 `;
 
 const Row = styled.div`
