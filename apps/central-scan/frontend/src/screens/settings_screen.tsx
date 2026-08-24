@@ -85,7 +85,7 @@ export function SettingsScreen({
       )}
 
       <H2>Polling Place</H2>
-      <P>
+      <P as="div">
         <PollingPlacePicker
           mode={hasScannedBatches ? 'disabled' : 'default'}
           includedTypes={['absentee', 'election_day', 'early_voting']}

@@ -106,7 +106,7 @@ export function AdminScreen({
           {format.count(ballotsPrintedCount)}
         </P>
         <H3 as="h2">Configuration</H3>
-        <P>
+        <P as="div">
           <LocationPicker
             election={election}
             pollsState={pollsState}

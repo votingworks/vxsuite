@@ -230,7 +230,7 @@ export function ProofingStatus(): React.ReactNode {
                 Unfinalizing will clear exports and reenable editing. Enter a
                 reason for unfinalizing.
               </P>
-              <P>
+              <P as="div">
                 <InputGroup label="Reason">
                   <TextArea
                     id="reason-for-unfinalizing"
@@ -327,7 +327,7 @@ function QaStatus({ qaRun }: { qaRun: ExportQaRun }): React.ReactNode {
     return (
       <Callout color="danger" icon="Danger">
         <div>
-          <P style={{ lineHeight: 1 }} weight="bold">
+          <P as="div" style={{ lineHeight: 1 }} weight="bold">
             QA Check Failed
             {resultsUrl && (
               <P>

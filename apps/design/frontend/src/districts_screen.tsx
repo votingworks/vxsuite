@@ -237,7 +237,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                   </strong>
                 </P>
               ) : (
-                <P>
+                <P as="div">
                   Are you sure you want to delete the following districts?{' '}
                   <strong>
                     This will delete all contests associated with these
