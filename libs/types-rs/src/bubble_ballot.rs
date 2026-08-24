@@ -191,7 +191,7 @@ pub mod ballot_hash_serde {
     }
 }
 
-/// The `VxSuite` version an encoded [`Metadata`] targets. `VxDesign` still
+/// The `VxSuite` version and encoded [`Metadata`] targets. `VxDesign` still
 /// renders v4.0 ballots, which use a different prelude and a narrower ballot
 /// style index than v4.1.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
