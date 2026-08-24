@@ -630,7 +630,7 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faSimCard} />;
   },
 
-  Sitemap(props) {
+  Network(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faSitemap} />;
   },
 

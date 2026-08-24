@@ -109,7 +109,7 @@ export function NetworkStatusIndicator(
     { icon: JSX.Element; label: string }
   > = {
     connected: {
-      icon: <Icons.Sitemap color="inverse" />,
+      icon: <Icons.Network color="inverse" />,
       label: isHost ? 'Network Online' : 'Connected',
     },
     'no-host-connected': {
