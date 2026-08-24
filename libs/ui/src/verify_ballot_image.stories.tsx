@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 
 import { VerifyBallotImage } from './verify_ballot_image';
 

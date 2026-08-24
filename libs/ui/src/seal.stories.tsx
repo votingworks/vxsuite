@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
 import { safeParseElection } from '@votingworks/types';
 import { Seal, SealProps } from './seal';

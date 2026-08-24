@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 import { InvalidCardScreen, Props } from './invalid_card_screen';
 
 const args: Props = {

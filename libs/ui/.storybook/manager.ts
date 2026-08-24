@@ -1,6 +1,6 @@
-import * as storybookThemes from '@storybook/theming';
-import { addons } from '@storybook/manager-api';
-import { Addon_Config, API_Layout } from '@storybook/types';
+import * as storybookThemes from 'storybook/theming';
+import { addons } from 'storybook/manager-api';
+import type { Addon_Config, API_Layout } from 'storybook/internal/types';
 
 const config: Addon_Config & Partial<API_Layout> = {
   panelPosition: 'right',

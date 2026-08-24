@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 import { safeParseElectionDefinition } from '@votingworks/types';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import { assertDefined } from '@votingworks/basics';

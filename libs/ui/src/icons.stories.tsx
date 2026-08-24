@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 import styled from 'styled-components';
 
 import { ICON_COLORS, IconComponent, IconProps, Icons } from './icons';

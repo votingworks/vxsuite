@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 
 import { Callout as Component, CalloutProps as Props } from './callout';
 

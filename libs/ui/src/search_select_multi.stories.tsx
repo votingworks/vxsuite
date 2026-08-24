@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 
 import { useState } from 'react';
 import { SearchSelect, SearchSelectMultiProps } from './search_select';

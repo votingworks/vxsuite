@@ -1,12 +1,12 @@
 import React from 'react';
-import {
+import type {
   DecoratorFunction,
   GlobalTypes,
   Parameters,
   StoryContext,
-} from '@storybook/types';
+} from 'storybook/internal/types';
 
-import { AppBase, VoterSettingsManagerContext } from '../src';
+import { AppBase, VoterSettingsManagerContext } from '../src/index.js';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
 

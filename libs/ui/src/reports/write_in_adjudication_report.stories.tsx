@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import electionFamousNamesData from '@fixtures/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json?raw';
 import { safeParseElectionDefinition } from '@votingworks/types';

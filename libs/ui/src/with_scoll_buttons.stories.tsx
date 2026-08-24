@@ -1,4 +1,4 @@
-import { Meta, StoryFn } from '@storybook/react';
+import { Meta, StoryFn } from '@storybook/react-vite';
 
 import { LoremIpsum } from 'lorem-ipsum';
 import styled from 'styled-components';

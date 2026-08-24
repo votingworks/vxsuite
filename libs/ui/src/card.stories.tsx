@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta } from '@storybook/react-vite';
 
 import { LoremIpsum } from 'lorem-ipsum';
 import { Card as Component, CardProps as Props } from './card';
