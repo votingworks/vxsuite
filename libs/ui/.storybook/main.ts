@@ -7,20 +7,21 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
+
   addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-a11y',
-    '@storybook/addon-interactions',
+    getAbsolutePath('@storybook/addon-links'),
+    getAbsolutePath('@storybook/addon-essentials'),
+    getAbsolutePath('@storybook/addon-a11y'),
+    getAbsolutePath('@storybook/addon-interactions'),
   ],
+
   framework: {
-    name: '@storybook/react-vite',
+    name: getAbsolutePath('@storybook/react-vite'),
     options: {},
   },
-  docs: {
-    autodocs: 'tag',
-  },
+
   staticDirs: ['../.storybook-static'],
+
   async viteFinal(config) {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
@@ -125,6 +126,14 @@ const config: StorybookConfig = {
       },
     });
   },
+
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
+  },
 };
 
 module.exports = config;
+
+function getAbsolutePath(value: string): any {
+  return path.dirname(require.resolve(path.join(value, 'package.json')));
+}

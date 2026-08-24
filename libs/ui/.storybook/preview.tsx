@@ -95,6 +95,8 @@ export const globalTypes: GlobalTypes = {
   },
 };
 
+export const tags = ['autodocs'];
+
 export const parameters: Parameters = {
   // This defines which prop name patterns are recognized as event handler
   // (action) props by storybook. They will be auto-populated by a default
