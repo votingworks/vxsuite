@@ -24,7 +24,10 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { zipFile } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  generateElectionBasedSubfolderName,
+  getGroupedBallotStyles,
+} from '@votingworks/utils';
 import {
   addMockCvrFileToStore,
   MockCastVoteRecordFile,
@@ -158,6 +161,33 @@ test('add an election', async () => {
 
   expect(store.getElection('nonexistent-id')).toEqual(undefined);
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
+});
+
+test('reads election metadata without parsing the election definition', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  const { election } = electionDefinition;
+  expect(store.getElectionMetadata(electionId)).toEqual({
+    id: election.id,
+    title: election.title,
+    date: election.date,
+  });
+  expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
+    generateElectionBasedSubfolderName(election, electionDefinition.ballotHash)
+  );
+
+  expect(store.getElectionMetadata('nonexistent-id')).toEqual(undefined);
+  expect(store.getElectionBasedSubfolderName('nonexistent-id')).toEqual(
+    undefined
+  );
 });
 
 test('addElection surfaces the copy error when the package source is missing', async () => {

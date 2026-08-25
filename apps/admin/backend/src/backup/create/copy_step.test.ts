@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
+import { assertDefined } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
@@ -139,19 +140,22 @@ test('copies staged files to the backup directory and builds a manifest', async 
   addCvrWithBallotImage(workspace);
 
   const prepareResult = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
-  const { source, store, electionRecord } = prepareResult.unsafeUnwrap();
+  const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
 
   const backupPath = join(makeTemporaryDirectory(), 'backup');
   const progressEvents: ProgressEvent[] = [];
 
+  const electionMetadata = assertDefined(
+    snapshotStore.getElectionMetadata(electionId)
+  );
   const manifest = await copy({
+    electionId,
     source,
-    store,
-    electionRecord,
+    store: snapshotStore,
     backup: backupPath,
     logger: mockBaseLogger({ fn: vi.fn }),
     onProgressEvent: (event) => progressEvents.push(event),
@@ -178,11 +182,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
 
   expect(manifest.machineId).toEqual(DEV_MACHINE_ID);
   expect(manifest.softwareVersion).toEqual(LATEST_SOFTWARE_VERSION);
-  expect(manifest.election).toEqual({
-    id: electionRecord.electionDefinition.election.id,
-    title: electionRecord.electionDefinition.election.title,
-    date: electionRecord.electionDefinition.election.date,
-  });
+  expect(manifest.election).toEqual(electionMetadata);
 
   // Progress events bracket the copy with 0/total and total/total, and each
   // in-between event names the file currently being copied.
@@ -225,17 +225,21 @@ async function copyWithProgress(
   addCvrWithBallotImage(workspace);
 
   const prepareResult = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
-  const { source, store, electionRecord } = prepareResult.unsafeUnwrap();
+  const {
+    electionId,
+    source,
+    snapshotStore: store,
+  } = prepareResult.unsafeUnwrap();
   const events: ProgressEvent[] = [];
 
   await copy({
+    electionId,
     source,
     store,
-    electionRecord,
     backup: join(makeTemporaryDirectory(), 'backup'),
     logger: mockBaseLogger({ fn: vi.fn }),
     progressEventIntervalBytes,

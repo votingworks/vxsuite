@@ -1,8 +1,9 @@
 import { BaseLogger } from '@votingworks/logging';
+import { Id } from '@votingworks/types';
 import { BackupStagingArea } from '../staging_area.js';
 import { Store } from '../../store.js';
-import { ElectionRecord } from '../../types.js';
 import { BackupManifest } from '../backup_manifest.js';
+import { Workspace } from '../../util/workspace.js';
 
 /**
  * Basic options for all steps.
@@ -44,9 +45,12 @@ export type ProgressEvent =
  */
 export interface PrepareBackupOptions extends ProgressTracking {
   /**
-   * Directory path of the workspace to back up.
+   * The workspace to back up with an already-open client for the database.
+   * Using the same database as the running app means backups do not get
+   * restarted out from under us whenever a write occurs. If writes come in from
+   * other connections then the backup will be restarted.
    */
-  workspace: string;
+  workspace: Workspace;
 
   /**
    * Directory path of the root location containing all election backups.
@@ -69,6 +73,11 @@ export interface PrepareBackupOptions extends ProgressTracking {
  */
 export interface CopyBackupOptions extends ProgressTracking {
   /**
+   * The database ID of the election to be backed up.
+   */
+  electionId: Id;
+
+  /**
    * The already-prepared backup staging area to copy.
    */
   source: BackupStagingArea;
@@ -78,8 +87,6 @@ export interface CopyBackupOptions extends ProgressTracking {
    * database in a way that would produce an invalid backup.
    */
   store: Store;
-
-  electionRecord: ElectionRecord;
 
   /**
    * Directory path to place the backup. This may not be the final location.

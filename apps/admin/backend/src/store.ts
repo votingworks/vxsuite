@@ -47,6 +47,7 @@ import {
   BallotStyleGroup,
   getContests,
   SheetOf,
+  ElectionId,
   ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
   UserRole,
@@ -57,11 +58,12 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
-import { randomUUID as uuid } from 'node:crypto';
+import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
   asSqliteBool,
   fromSqliteBool,
+  generateElectionBasedSubfolderName,
   getBallotStyleGroup,
   getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
@@ -116,6 +118,7 @@ import { deriveCvrContestTag } from './util/cast_vote_records.js';
 import { rootDebug } from './util/debug.js';
 import { getCurrentTime } from './get_current_time.js';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
+import { type ElectionMetadata } from './backup/backup_manifest.js';
 
 const debug = rootDebug.extend('store');
 
@@ -308,6 +311,7 @@ export class Store implements BaseStore {
     electionPackageHash: string;
   }): Promise<Id> {
     const id = uuid();
+    const ballotHash = createHash('sha256').update(electionData).digest('hex');
 
     const electionPackageFilePath = constructElectionPackageFilePath(
       this.electionPackagesPath,
@@ -323,12 +327,14 @@ export class Store implements BaseStore {
           insert into elections (
             id,
             election_data,
+            ballot_hash,
             system_settings_data,
             election_package_hash
-          ) values (?, ?, ?, ?)
+          ) values (?, ?, ?, ?, ?)
           `,
           id,
           electionData,
+          ballotHash,
           systemSettingsData,
           electionPackageHash
         );
@@ -414,6 +420,63 @@ export class Store implements BaseStore {
       isOfficialResults: result.isOfficialResults === 1,
       electionPackageHash: result.electionPackageHash,
     };
+  }
+
+  /**
+   * Fetches the identifying election data a backup's manifest records.
+   */
+  getElectionMetadata(electionId: Id): ElectionMetadata | undefined {
+    const row = this.client.one(
+      `
+      select
+        election_data ->> '$.id' as id,
+        election_data ->> '$.title' as title,
+        election_data ->> '$.date' as date
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { id: ElectionId; title: string; date: string } | undefined;
+
+    if (!row) {
+      return undefined;
+    }
+
+    return {
+      id: row.id,
+      title: row.title,
+      date: new DateWithoutTime(row.date),
+    };
+  }
+
+  /**
+   * Builds the name of the directory that holds this election's exports, e.g.
+   * backups. As with {@link getElectionMetadata}, this reads only the fields it
+   * needs rather than the whole election definition.
+   */
+  getElectionBasedSubfolderName(electionId: Id): string | undefined {
+    const row = this.client.one(
+      `
+      select
+        election_data ->> '$.title' as title,
+        election_data ->> '$.jurisdiction.name' as jurisdictionName,
+        ballot_hash as ballotHash
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as
+      | { title: string; jurisdictionName: string; ballotHash: string }
+      | undefined;
+
+    if (!row) {
+      return undefined;
+    }
+
+    return generateElectionBasedSubfolderName(
+      { title: row.title, jurisdiction: { name: row.jurisdictionName } },
+      row.ballotHash
+    );
   }
 
   getElectionPackageFilePath(electionId: string): string | undefined {

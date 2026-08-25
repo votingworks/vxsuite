@@ -324,6 +324,25 @@ test('read/write', () => {
   );
 });
 
+test('isInTransaction', () => {
+  const client = Client.memoryClient();
+  client.exec('create table muppets (name varchar(255) unique not null)');
+
+  expect(client.isInTransaction()).toEqual(false);
+
+  client.transaction(() => {
+    expect(client.isInTransaction()).toEqual(true);
+  });
+
+  expect(client.isInTransaction()).toEqual(false);
+
+  // Also true for a transaction begun by running `begin` directly.
+  client.run('begin transaction');
+  expect(client.isInTransaction()).toEqual(true);
+  client.run('rollback');
+  expect(client.isInTransaction()).toEqual(false);
+});
+
 test('transactions', async () => {
   const client = Client.memoryClient();
 
