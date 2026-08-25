@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer';
-import * as fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {
   err,
@@ -15,6 +14,7 @@ import {
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
+import { CastVoteRecordFileSource } from './file_source';
 
 /**
  * A file referenced by a cast vote record report
@@ -33,14 +33,15 @@ export interface ReferencedFiles {
 
 function referencedFile(input: {
   expectedFileHash: string;
-  filePath: string;
+  source: CastVoteRecordFileSource;
+  fileName: string;
   fileType: ReferencedFileType;
 }): ReferencedFile<Buffer> {
   return {
     read: async () => {
       let fileContents: Buffer;
       try {
-        fileContents = await fs.readFile(input.filePath);
+        fileContents = await input.source.readFile(input.fileName);
       } catch (error) {
         if (isNonExistentFileOrDirectoryError(error)) {
           return err({
@@ -75,7 +76,8 @@ function referencedFile(input: {
  */
 export function referencedImageFile(input: {
   expectedFileHash: string;
-  filePath: string;
+  source: CastVoteRecordFileSource;
+  fileName: string;
 }): ReferencedFile<Buffer> {
   return referencedFile({
     ...input,
@@ -89,7 +91,8 @@ export function referencedImageFile(input: {
  */
 export function referencedLayoutFile(input: {
   expectedFileHash: string;
-  filePath: string;
+  source: CastVoteRecordFileSource;
+  fileName: string;
 }): ReferencedFile<BallotPageLayout> {
   const file = referencedFile({
     ...input,

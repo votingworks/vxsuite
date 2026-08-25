@@ -12,5 +12,6 @@ export {
   buildBatchManifest,
 } from './build_report_metadata';
 export * from './export';
+export * from './file_source';
 export * from './import';
 export * from './test_utils';
