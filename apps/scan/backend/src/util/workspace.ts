@@ -1,9 +1,9 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
-import { Mutex } from '@votingworks/utils';
-import type { DiskSpaceSummary } from '@votingworks/utils';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { BaseLogger } from '@votingworks/logging';
+import { Optional } from '@votingworks/basics';
+import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type DiskSpaceSummary, Mutex } from '@votingworks/utils';
 import { Store } from '../store.js';
 
 export interface Workspace {
@@ -103,4 +103,31 @@ export function createWorkspace(
       return summary;
     },
   };
+}
+
+export function resolveWorkspace(baseLogger: BaseLogger): Workspace {
+  const workspacePath = getScanWorkspace();
+  if (!workspacePath) {
+    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      message:
+        'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
+      disposition: 'failure',
+    });
+    throw new Error(
+      'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
+    );
+  }
+  return createWorkspace(workspacePath, baseLogger);
+}
+
+/**
+ * Where should the database and image files etc go?
+ */
+export function getScanWorkspace(): Optional<string> {
+  return (
+    process.env.SCAN_WORKSPACE ??
+    (getNodeEnv() === 'development'
+      ? join(import.meta.dirname, '../dev-workspace')
+      : undefined)
+  );
 }

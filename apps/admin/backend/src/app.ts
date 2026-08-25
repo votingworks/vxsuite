@@ -56,6 +56,7 @@ import {
   ElectionPackageError,
   ExportDataError,
   createSystemCallApi,
+  getNodeEnv,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import {
@@ -128,7 +129,7 @@ import {
   generateAdminLiveResultsReportingUrls,
   getLiveReportsPollingPlaces,
 } from './live_results_reporting.js';
-import { NODE_ENV, USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals.js';
+import { USB_DRIVE_CHANGE_LONG_POLL_TIMEOUT_MS } from './globals.js';
 import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
@@ -568,7 +569,7 @@ function buildApi({
     }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
       // A check for defense-in-depth
       assert(
-        NODE_ENV === 'production' && !isIntegrationTest()
+        getNodeEnv() === 'production' && !isIntegrationTest()
           ? micromatch.isMatch(
               input.electionFilePath,
               REAL_USB_DRIVE_GLOB_PATTERN

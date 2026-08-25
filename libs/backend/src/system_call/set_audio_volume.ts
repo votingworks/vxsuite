@@ -1,7 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert, err, ok, Result } from '@votingworks/basics';
 import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 
 /**
  * Errors returned by {@link setAudioVolume}.
@@ -20,7 +20,7 @@ export type SetAudioVolumeResult = Result<void, SetAudioVolumeErr>;
  */
 export async function setAudioVolume(params: {
   logger: Logger;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: NODE_ENV;
   /**
    * Name of the output device (see `./get_audio_info.ts`).
    */

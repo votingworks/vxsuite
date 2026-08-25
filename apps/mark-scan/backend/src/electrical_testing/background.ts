@@ -19,14 +19,17 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
-import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
+import {
+  AudioPort,
+  getNodeEnv,
+  setBuiltinAudioPort,
+} from '@votingworks/backend';
 import {
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
 } from '../custom-paper-handler/application_driver.js';
 import { ServerContext } from './context.js';
-import { getNodeEnv } from '../globals.js';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;

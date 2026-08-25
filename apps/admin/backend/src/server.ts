@@ -29,9 +29,12 @@ import {
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { resolve } from 'node:path';
-import { ADMIN_WORKSPACE, PEER_PORT, PORT } from './globals.js';
-import { createWorkspace, createClientWorkspace } from './util/workspace.js';
+import { PEER_PORT, PORT } from './globals.js';
+import {
+  createWorkspace,
+  createClientWorkspace,
+  resolveWorkspacePath,
+} from './util/workspace.js';
 import { buildApp } from './app.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
@@ -44,22 +47,6 @@ import { getUserRole } from './util/auth.js';
 import type { MachineMode } from './types.js';
 
 const debug = rootDebug.extend('server');
-
-/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests */
-function resolveWorkspacePath(baseLogger: BaseLogger): string {
-  const workspacePath = ADMIN_WORKSPACE;
-  if (!workspacePath) {
-    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
-      message:
-        'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
-      disposition: 'failure',
-    });
-    throw new Error(
-      'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
-    );
-  }
-  return resolve(workspacePath);
-}
 
 function createAuth(
   machineMode: MachineMode,

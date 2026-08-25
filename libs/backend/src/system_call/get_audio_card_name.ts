@@ -4,7 +4,7 @@ import { assertDefined, err, ok, Result, sleep } from '@votingworks/basics';
 import { safeParse, safeParseJson } from '@votingworks/types';
 
 import { LogEventId, Logger } from '@votingworks/logging';
-import { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 import { pactl } from './pulse_audio';
 
 const PactlListCardsSchema = z.array(z.object({ name: z.string() }));
@@ -13,7 +13,7 @@ const PactlListCardsSchema = z.array(z.object({ name: z.string() }));
 export interface GetAudioCardNameParams {
   logger: Logger;
   maxRetries?: number;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: NODE_ENV;
 }
 
 /** The device name for the default audio card. */

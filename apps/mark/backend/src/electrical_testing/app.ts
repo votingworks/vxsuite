@@ -4,6 +4,7 @@ import {
   getCpuMetrics,
   CpuMetrics,
   setAudioVolume,
+  getNodeEnv,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -15,7 +16,6 @@ import * as hid from 'node-hid';
 import express, { Application } from 'express';
 import { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
-import { NODE_ENV } from '../globals.js';
 import { sendTestPrint } from './background.js';
 import { SoundName } from '../audio/player.js';
 
@@ -168,7 +168,7 @@ function buildApi({
     async setVolume(input: { volumePct: number }): Promise<void> {
       const result = await setAudioVolume({
         logger,
-        nodeEnv: NODE_ENV,
+        nodeEnv: getNodeEnv(),
         sinkName: AUDIO_DEVICE_DEFAULT_SINK,
         volumePct: input.volumePct,
       });

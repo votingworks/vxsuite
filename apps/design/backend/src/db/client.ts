@@ -4,8 +4,8 @@ import { Buffer } from 'node:buffer';
 // Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
 import type * as pg from 'pg';
 import * as migrate from 'node-pg-migrate';
-import { NODE_ENV } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
+import { NODE_ENV } from '../globals.js';
 
 /**
  * Types supported for query value substitution.

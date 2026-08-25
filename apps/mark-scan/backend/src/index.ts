@@ -17,7 +17,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { startElectricalTestingServer } from './electrical_testing/server.js';
-import { MARK_SCAN_WORKSPACE, PORT } from './globals.js';
+import { getMarkScanWorkspace, PORT } from './globals.js';
 import * as server from './server.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
@@ -32,7 +32,7 @@ loadEnvVarsFromDotenvFiles();
 const baseLogger = new BaseLogger(LogSource.VxMarkScanBackend);
 
 function resolveWorkspace(): Workspace {
-  const workspacePath = MARK_SCAN_WORKSPACE;
+  const workspacePath = getMarkScanWorkspace();
   if (!workspacePath) {
     baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:

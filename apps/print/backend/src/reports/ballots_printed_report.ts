@@ -12,7 +12,7 @@ import {
 } from '@votingworks/utils';
 import { ElectionDefinition } from '@votingworks/types';
 import { Store } from '../store.js';
-import { PRINT_ALLOWED_EXPORT_PATTERNS } from '../globals.js';
+import { getPrintAllowedExportPatterns } from '../globals.js';
 
 export function generateReportsDirectoryPath(
   electionDefinition: ElectionDefinition
@@ -119,7 +119,7 @@ export async function exportBallotsPrintedReportPdf({
   )}.pdf`;
 
   const exporter = new Exporter({
-    allowedExportPatterns: PRINT_ALLOWED_EXPORT_PATTERNS,
+    allowedExportPatterns: getPrintAllowedExportPatterns(),
     usbDrive,
   });
 

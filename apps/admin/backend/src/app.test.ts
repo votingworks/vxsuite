@@ -42,24 +42,12 @@ import { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-let mockNodeEnv: 'production' | 'test' = 'test';
-
-vi.mock(
-  './globals.js',
-  async (importActual): Promise<typeof import('./globals.js')> => ({
-    ...(await importActual()),
-    get NODE_ENV(): 'production' | 'test' {
-      return mockNodeEnv;
-    },
-  })
-);
-
 vi.mock('./multi_station_config', () => ({
   isMultiStationAdjudicationEnabled: vi.fn(() => false),
 }));
 
 beforeEach(() => {
-  mockNodeEnv = 'test';
+  vi.unstubAllEnvs();
   vi.clearAllMocks();
 });
 
@@ -430,7 +418,7 @@ test('configuring with a CDF election', async () => {
 
 test('configuring with an election not from removable media in prod errs', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  mockNodeEnv = 'production';
+  vi.stubEnv('NODE_ENV', 'production');
 
   mockSystemAdministratorAuth(auth);
 

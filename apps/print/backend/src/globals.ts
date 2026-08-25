@@ -1,43 +1,23 @@
 /* istanbul ignore file */
-import { unsafeParse } from '@votingworks/types';
-import {
-  DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
-  REAL_USB_DRIVE_GLOB_PATTERN,
-} from '@votingworks/usb-drive';
-import { isIntegrationTest } from '@votingworks/utils';
-import { z } from 'zod/v4';
+import { getAllowedExportPatterns } from '@votingworks/backend';
 
 /**
  * Default port for the server.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
-export const WORKSPACE = process.env.PRINT_WORKSPACE || 'dev-workspace';
 
-const NodeEnvSchema = z.union([
-  z.literal('development'),
-  z.literal('test'),
-  z.literal('production'),
-]);
+/**
+ * Where should the database and other files go?
+ */
+export function getPrintWorkspace(): string {
+  return process.env.PRINT_WORKSPACE || 'dev-workspace';
+}
 
-const NODE_ENV = unsafeParse(
-  NodeEnvSchema,
-  process.env['NODE_ENV'] ?? 'development'
-);
-
-export const PRINT_ALLOWED_EXPORT_PATTERNS =
-  NODE_ENV === 'production'
-    ? isIntegrationTest()
-      ? [
-          REAL_USB_DRIVE_GLOB_PATTERN,
-          DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
-          '/tmp/**/*',
-        ]
-      : [REAL_USB_DRIVE_GLOB_PATTERN, '/tmp/**/*']
-    : NODE_ENV === 'development'
-    ? [
-        REAL_USB_DRIVE_GLOB_PATTERN,
-        DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
-        '/tmp/**/*',
-      ]
-    : ['/tmp/**/*', DEV_MOCK_USB_DRIVE_GLOB_PATTERN]; // Where mock USB drives are created within tests
+/**
+ * Where are exported files allowed to be written to?
+ */
+export function getPrintAllowedExportPatterns(): string[] {
+  // Where data is first written for signature file creation
+  return getAllowedExportPatterns(['/tmp/**/*']);
+}

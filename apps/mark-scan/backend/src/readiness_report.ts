@@ -4,8 +4,8 @@ import { MarkScanReadinessReport } from '@votingworks/ui';
 import {
   ExportDataResult,
   Exporter,
-  SCAN_ALLOWED_EXPORT_PATTERNS,
-  VX_MACHINE_ID,
+  getScanAllowedExportPatterns,
+  getMachineId,
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
@@ -83,7 +83,7 @@ export async function saveReadinessReport({
         'uninterruptible-power-supply'
       ),
     },
-    machineId: VX_MACHINE_ID,
+    machineId: getMachineId(),
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
@@ -94,13 +94,13 @@ export async function saveReadinessReport({
 
   const exporter = new Exporter({
     usbDrive,
-    allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+    allowedExportPatterns: getScanAllowedExportPatterns(),
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(
     '.',
     generateReadinessReportFilename({
       generatedAtTime,
-      machineId: VX_MACHINE_ID,
+      machineId: getMachineId(),
     }),
     data
   );

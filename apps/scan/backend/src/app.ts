@@ -19,9 +19,9 @@ import {
   configureUiStrings,
   configureUiStringAudioClipsStreaming,
   Exporter,
-  SCAN_ALLOWED_EXPORT_PATTERNS,
   ExportDataResult,
   withElectionPackageZip,
+  getScanAllowedExportPatterns,
 } from '@votingworks/backend';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -603,7 +603,7 @@ export function buildApi({
       const ballotAuditIdSecretKey = store.getBallotAuditIdSecretKey();
       const exporter = new Exporter({
         usbDrive,
-        allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+        allowedExportPatterns: getScanAllowedExportPatterns(),
       });
       const exportResult = await exporter.exportDataToUsbDrive(
         '.',

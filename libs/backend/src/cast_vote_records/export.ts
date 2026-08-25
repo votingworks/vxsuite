@@ -48,7 +48,7 @@ import {
 } from '@votingworks/utils';
 
 import { Exporter } from '../exporter';
-import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
+import { getScanAllowedExportPatterns, getMachineId } from '../globals';
 import {
   buildCastVoteRecord as baseBuildCastVoteRecord,
   CvrImageDataInput,
@@ -241,7 +241,7 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
     case 'central': {
       exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode,
-        machineId: VX_MACHINE_ID,
+        machineId: getMachineId(),
       });
       break;
     }
@@ -251,7 +251,7 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
       if (!exportDirectoryName || exportOptions.isFullExport) {
         exportDirectoryName = generateCastVoteRecordExportDirectoryName({
           inTestMode,
-          machineId: VX_MACHINE_ID,
+          machineId: getMachineId(),
         });
         scannerStore.setExportDirectoryName(exportDirectoryName);
       }
@@ -290,7 +290,7 @@ function buildCastVoteRecordReportMetadata(
   const { scannerState } = exportContext;
   const { batches, electionDefinition, inTestMode } = scannerState;
   const { election, ballotHash: electionId } = electionDefinition;
-  const scannerId = VX_MACHINE_ID;
+  const scannerId = getMachineId();
 
   return baseBuildCastVoteRecordReportMetadata({
     batchInfo: batches,
@@ -318,7 +318,7 @@ async function buildCastVoteRecord(
   const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
   const { ballotHash: electionId } = electionDefinition;
-  const scannerId = VX_MACHINE_ID;
+  const scannerId = getMachineId();
 
   const { id, batchId, indexInBatch, ballotAuditId } = sheet;
   const castVoteRecordId = unsafeParse(BallotIdSchema, id);
@@ -542,7 +542,7 @@ async function exportMetadataFileToUsbDrive(
     castVoteRecordRootHash,
     batchManifest: buildBatchManifest({
       batches: exportContext.scannerState.batches,
-      scannerId: VX_MACHINE_ID,
+      scannerId: getMachineId(),
       scannerMachineType: exportOptions.scannerType,
     }),
   };
@@ -660,7 +660,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   const systemSettings = assertDefined(scannerStore.getSystemSettings());
   const exportContext: ExportContext = {
     exporter: new Exporter({
-      allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+      allowedExportPatterns: getScanAllowedExportPatterns(),
       usbDrive,
     }),
     exportOptions,

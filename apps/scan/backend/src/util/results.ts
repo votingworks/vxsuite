@@ -23,7 +23,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { createRequire } from 'node:module';
-import { VX_MACHINE_ID } from '@votingworks/backend';
+import { getMachineId } from '@votingworks/backend';
 import type { Store } from '../store.js';
 
 // `memoize-one` is CJS (`module.exports = fn`), but its types declare a
@@ -99,7 +99,7 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       votes,
       card,
       batchId,
-      scannerId: VX_MACHINE_ID,
+      scannerId: getMachineId(),
       precinctId: metadata.precinctId,
       ballotStyleGroupId,
       partyId: isCombinedBallotPrimary(election)

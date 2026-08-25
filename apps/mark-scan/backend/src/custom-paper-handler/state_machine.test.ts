@@ -99,7 +99,6 @@ import {
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers.js';
 import { BmdModelNumber } from '../types.js';
-import { getNodeEnv } from '../globals.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
@@ -107,8 +106,6 @@ const { election } = electionGeneralDefinition;
 const [pollingPlace] = assertDefined(election.pollingPlaces);
 const precinctId = electionGeneralDefinition.election.precincts[0].id;
 assert(precinctId in pollingPlace.precincts);
-
-vi.mock('../globals');
 
 vi.mock(import('@votingworks/ballot-interpreter'), async (importActual) => ({
   ...(await importActual()),
@@ -257,6 +254,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await machine.cleanUp();
   vi.resetAllMocks();
+  vi.unstubAllEnvs();
 });
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
@@ -1270,7 +1268,7 @@ describe('open cover detection', () => {
     workspace.store.setPollsState('polls_open');
     mockLoggedOutAuth(auth);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    vi.mocked(getNodeEnv).mockReturnValue('production');
+    vi.stubEnv('NODE_ENV', 'production');
 
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');

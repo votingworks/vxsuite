@@ -3,8 +3,8 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ExportDataResult,
   Exporter,
-  SCAN_ALLOWED_EXPORT_PATTERNS,
-  VX_MACHINE_ID,
+  getScanAllowedExportPatterns,
+  getMachineId,
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
@@ -52,7 +52,7 @@ export async function saveReadinessReport({
     mostRecentUpsDiagnostic: store.getMostRecentDiagnosticRecord(
       'uninterruptible-power-supply'
     ),
-    machineId: VX_MACHINE_ID,
+    machineId: getMachineId(),
     generatedAtTime,
     markThresholds,
   });
@@ -61,13 +61,13 @@ export async function saveReadinessReport({
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
-    allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+    allowedExportPatterns: getScanAllowedExportPatterns(),
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(
     '.',
     generateReadinessReportFilename({
       generatedAtTime,
-      machineId: VX_MACHINE_ID,
+      machineId: getMachineId(),
     }),
     data
   );

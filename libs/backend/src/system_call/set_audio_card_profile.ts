@@ -1,14 +1,14 @@
 import { ok, Result, sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
-import type { NODE_ENV } from '../scan_globals';
 import { pactl } from './pulse_audio';
+import { type NODE_ENV } from '../globals';
 
 /** {@link setAudioCardProfile} params. */
 export interface SetAudioCardProfileParams {
   /** Name of the target audio card (see `./get_audio_card_name.ts`). */
   cardName: string;
   logger: Logger;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: NODE_ENV;
   profile: AudioCardProfile;
 }
 

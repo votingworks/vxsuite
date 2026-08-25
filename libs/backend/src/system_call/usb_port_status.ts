@@ -2,7 +2,7 @@
 import { isIntegrationTest } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 
 const SCRIPT_PATH = '/vx/code/app-scripts/set-usb-port-status.sh';
 
@@ -25,7 +25,7 @@ export async function getUsbPortStatus({
   nodeEnv,
 }: {
   logger: Logger;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: NODE_ENV;
 }): Promise<UsbPortStatus> {
   let usbPortStatus: UsbPortStatus;
   if (nodeEnv !== 'production' || isIntegrationTest()) {
@@ -55,7 +55,7 @@ export async function toggleUsbPorts({
 }: {
   action: UsbPortAction;
   logger: Logger;
-  nodeEnv: typeof NODE_ENV;
+  nodeEnv: NODE_ENV;
 }): Promise<void> {
   if (nodeEnv !== 'production' || isIntegrationTest()) {
     MOCK_DEV_USB_PORT_STATUS.enabled = action === 'enable';

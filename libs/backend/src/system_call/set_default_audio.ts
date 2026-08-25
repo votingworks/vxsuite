@@ -1,7 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { err, ok, Result } from '@votingworks/basics';
 import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 
 /**
  * Errors returned by {@link setDefaultAudio}.
@@ -25,7 +25,7 @@ export async function setDefaultAudio(
   sinkName: string,
   ctx: {
     logger: Logger;
-    nodeEnv: typeof NODE_ENV;
+    nodeEnv: NODE_ENV;
   }
 ): Promise<SetDefaultAudioResult> {
   const { logger, nodeEnv } = ctx;

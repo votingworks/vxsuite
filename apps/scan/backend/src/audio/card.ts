@@ -2,11 +2,11 @@ import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
+  type NODE_ENV,
   setAudioCardProfile,
   setAudioVolume,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
-import { NODE_ENV } from '../globals.js';
 
 /**
  * Headphone-based screen reader audio is calibrated against a 100% system
@@ -33,15 +33,12 @@ export const MAX_CARD_DETECTION_RETRIES = 6;
 
 export class AudioCard {
   constructor(
-    private readonly nodeEnv: typeof NODE_ENV,
+    private readonly nodeEnv: NODE_ENV,
     private readonly logger: Logger,
     private readonly card: { name: string }
   ) {}
 
-  static async default(
-    nodeEnv: typeof NODE_ENV,
-    logger: Logger
-  ): Promise<AudioCard> {
+  static async default(nodeEnv: NODE_ENV, logger: Logger): Promise<AudioCard> {
     const nameRes = await getAudioCardName({
       logger,
       maxRetries: MAX_CARD_DETECTION_RETRIES,

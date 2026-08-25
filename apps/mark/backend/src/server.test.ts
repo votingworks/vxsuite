@@ -12,6 +12,7 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { Application } from 'express';
 import {
   getAudioInfoWithRetry,
+  getNodeEnv,
   setAudioVolume,
   setDefaultAudio,
 } from '@votingworks/backend';
@@ -20,7 +21,6 @@ import { mockConstructor } from '@votingworks/test-utils';
 import { start } from './server.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { buildApp } from './app.js';
-import { NODE_ENV } from './globals.js';
 import { Player as AudioPlayer } from './audio/player.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 
@@ -119,10 +119,10 @@ test('start passes context to `buildApp`', async () => {
       (attempts: number) => attempts >= 2,
       'should be at least 2'
     ),
-    nodeEnv: NODE_ENV,
+    nodeEnv: getNodeEnv(),
   });
   expect(mockAudioPlayerClass).toHaveBeenCalledWith(
-    NODE_ENV,
+    getNodeEnv(),
     expect.anything(),
     'pci.stereo'
   );
@@ -158,11 +158,11 @@ test('configures USB audio device, if present', async () => {
 
   expect(mockSetDefaultAudio).toHaveBeenCalledWith('usb.stereo', {
     logger: expect.anything(),
-    nodeEnv: NODE_ENV,
+    nodeEnv: getNodeEnv(),
   });
   expect(mockSetAudioVolume).toHaveBeenCalledWith({
     logger: expect.anything(),
-    nodeEnv: NODE_ENV,
+    nodeEnv: getNodeEnv(),
     sinkName: 'usb.stereo',
     volumePct: 100,
   });

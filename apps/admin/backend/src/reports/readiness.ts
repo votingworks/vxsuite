@@ -4,14 +4,14 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ExportDataResult,
   Exporter,
-  VX_MACHINE_ID,
+  getMachineId,
   getBatteryInfo,
 } from '@votingworks/backend';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Workspace } from '../util/workspace.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals.js';
+import { getAdminAllowedExportPatterns } from '../globals.js';
 
 async function getReadinessReport({
   workspace,
@@ -39,7 +39,7 @@ async function getReadinessReport({
     printerStatus: await printer.status(),
     mostRecentPrinterDiagnostic:
       store.getMostRecentDiagnosticRecord('test-print'),
-    machineId: VX_MACHINE_ID,
+    machineId: getMachineId(),
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
@@ -68,13 +68,13 @@ export async function saveReadinessReport({
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
-    allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
+    allowedExportPatterns: getAdminAllowedExportPatterns(),
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(
     '.',
     generateReadinessReportFilename({
       generatedAtTime,
-      machineId: VX_MACHINE_ID,
+      machineId: getMachineId(),
     }),
     data
   );
