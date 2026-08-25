@@ -856,6 +856,35 @@ export class Store {
   }
 
   /**
+   * Returns the oldest completed batch whose cast vote records have not yet
+   * been sent to a VxAdmin host, if any. Batches send strictly oldest-first.
+   */
+  getNextBatchToSendToAdmin(): BatchInfo | undefined {
+    const row = this.client.one(`
+      select id
+      from batches
+      where
+        ended_at is not null
+        and deleted_at is null
+        and sent_to_admin_at is null
+      order by started_at asc, batch_number asc
+      limit 1
+    `) as { id: string } | undefined;
+    return row ? this.getBatch(row.id) : undefined;
+  }
+
+  /**
+   * Records that a batch's cast vote records were successfully sent to a
+   * VxAdmin host.
+   */
+  setBatchSentToAdmin(batchId: string): void {
+    this.client.run(
+      'update batches set sent_to_admin_at = current_timestamp where id = ?',
+      batchId
+    );
+  }
+
+  /**
    * Gets a batch by ID, expecting it to exist.
    */
   getBatch(batchId: string): BatchInfo {

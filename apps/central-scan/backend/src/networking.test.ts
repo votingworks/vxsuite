@@ -146,6 +146,7 @@ test('ignores a stale advertisement and connects to the single reachable host', 
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
     hostMachineId: '0002',
+    hostAddress: HOST_MACHINE.address,
   });
   expect(staleClient.registerScanner).not.toHaveBeenCalled();
 });
@@ -257,6 +258,7 @@ test('reports host-detected when everything matches', async () => {
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
     hostMachineId: '0002',
+    hostAddress: HOST_MACHINE.address,
   });
   expect(mockClient.registerScanner).toHaveBeenCalledWith({
     machineId: DEV_MACHINE_ID,
@@ -276,6 +278,7 @@ test('logs status transitions and returns to offline when the interface goes dow
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
     hostMachineId: '0002',
+    hostAddress: HOST_MACHINE.address,
   });
   expect(logger.log).toHaveBeenCalledWith(
     expect.anything(),

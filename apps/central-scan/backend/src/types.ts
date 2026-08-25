@@ -44,6 +44,11 @@ export interface NetworkConnectionInfo {
    * Present whenever exactly one host was found on the network.
    */
   hostMachineId?: string;
+  /**
+   * Address of the host the scanner is registered with. Present only in the
+   * `online-host-detected` state; used by the CVR sync loop.
+   */
+  hostAddress?: string;
 }
 
 /** The scanner's network status, as reported to the frontend. */

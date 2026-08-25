@@ -38,6 +38,21 @@ export function readFile(file: File): Promise<Buffer> {
   });
 }
 
+/**
+ * Builds a zip archive from named files. Entries are stored uncompressed —
+ * callers' payloads are already-compressed images and small JSON — so this
+ * is essentially a container format.
+ */
+export async function createZip(
+  files: Record<string, Buffer | Uint8Array | string>
+): Promise<Buffer> {
+  const zip = new JsZip();
+  for (const [name, data] of Object.entries(files)) {
+    zip.file(name, data);
+  }
+  return await zip.generateAsync({ type: 'nodebuffer', compression: 'STORE' });
+}
+
 export async function openZip(data: Uint8Array): Promise<JsZip> {
   return await new JsZip().loadAsync(data);
 }

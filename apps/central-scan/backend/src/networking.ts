@@ -164,6 +164,7 @@ export function startScannerNetworking({
         setConnectionInfo({
           status: 'online-host-detected',
           hostMachineId,
+          hostAddress: hostMachine.address,
         });
       } catch (error) {
         /* istanbul ignore next - defensive */
