@@ -324,9 +324,7 @@ function buildApi({
 
     /**
      * Counts of CVRs and batches imported from each scanner for the current
-     * election. Counting scans every CVR row, so this is too expensive for
-     * the frequently-polled getNetworkStatus — it's a separate method for
-     * the screens that need it, polled at a slower interval.
+     * election.
      */
     getScannerImportCounts(): Record<
       string,

@@ -65,6 +65,11 @@ test('renders a row per scanner with polling place and status', async () => {
     'CS-02— Offline00Now',
     'CS-03not-a-real-place Connected00Now',
   ]);
+  // Distinct glyphs, not just color, differentiate connected/offline
+  expect(rows[0].querySelector("[data-icon='circle-check']")).toBeTruthy();
+  expect(
+    rows[1].querySelector("[data-icon='circle-exclamation']")
+  ).toBeTruthy();
 });
 
 test('renders scanners in error states with the rejection reason', async () => {

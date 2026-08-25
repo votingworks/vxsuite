@@ -32,10 +32,6 @@ const InlineStatus = styled.div`
   white-space: nowrap;
 `;
 
-const StatusDot = styled(Icons.CircleSolid)`
-  font-size: 0.625em;
-`;
-
 const TableWrapper = styled.div`
   & th,
   & td {
@@ -51,7 +47,7 @@ function ScannerStatus({ scanner }: { scanner: MachineRecord }): JSX.Element {
   if (scanner.status === Admin.ClientMachineStatus.Offline) {
     return (
       <InlineStatus>
-        <StatusDot /> Offline
+        <Icons.Danger color="danger" /> Offline
       </InlineStatus>
     );
   }
@@ -89,7 +85,7 @@ function ScannerStatus({ scanner }: { scanner: MachineRecord }): JSX.Element {
   }
   return (
     <InlineStatus>
-      <StatusDot color="success" /> Connected
+      <Icons.Done color="success" /> Connected
     </InlineStatus>
   );
 }
