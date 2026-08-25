@@ -30,7 +30,7 @@ import {
 } from '@votingworks/types';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { readMachineMode, writeMachineMode } from './machine_mode.js';
+import { MachineModeController } from './machine_mode.js';
 import {
   type MachineMode,
   BallotPageImage,
@@ -139,11 +139,13 @@ async function fetchBallotImagesFromHost(
 function buildClientApi({
   auth,
   workspace,
+  machineMode,
   logger,
   multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
+  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }) {
@@ -166,7 +168,7 @@ function buildClientApi({
     getMachineConfig,
 
     getMachineMode(): MachineMode {
-      return readMachineMode(workspace.path);
+      return machineMode.get();
     },
 
     isMultiStationAdjudicationEnabled(): boolean {
@@ -178,7 +180,7 @@ function buildClientApi({
         clientStore.getCurrentElectionId() === undefined,
         'Cannot change machine mode while an election is configured.'
       );
-      writeMachineMode(workspace.path, input.mode);
+      machineMode.set(input.mode);
       await logger.logAsCurrentRole(LogEventId.AdminMachineModeChanged, {
         message: `Machine mode changed to ${input.mode}.`,
         disposition: 'success',
@@ -412,16 +414,24 @@ export type ClientApi = ReturnType<typeof buildClientApi>;
 export function buildClientApp({
   auth,
   workspace,
+  machineMode,
   logger,
   multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: ClientWorkspace;
+  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }): Application {
   const app: Application = express();
-  const api = buildClientApi({ auth, workspace, logger, multiUsbDrive });
+  const api = buildClientApi({
+    auth,
+    workspace,
+    machineMode,
+    logger,
+    multiUsbDrive,
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

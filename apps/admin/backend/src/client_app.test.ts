@@ -24,7 +24,11 @@ import { buildClientApp, ClientApi } from './client_app.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { PeerApi } from './peer_app.js';
 import { createClientWorkspace } from './util/workspace.js';
-import { ClientConnectionStatus, ElectionRecord } from './types.js';
+import {
+  ClientConnectionStatus,
+  ElectionRecord,
+  MachineMode,
+} from './types.js';
 
 import {
   attachUsbDrive,
@@ -48,11 +52,18 @@ function buildClientTestEnvironment() {
     logger,
     platform: usbPlatform,
   });
+  let machineMode: MachineMode = 'host';
   const app = buildClientApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
+    machineMode: {
+      get: () => machineMode,
+      set: (newMachineMode) => {
+        machineMode = newMachineMode;
+      },
+    },
   });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;

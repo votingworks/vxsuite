@@ -24,7 +24,6 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server.js';
 import { createWorkspace } from './util/workspace.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
-import { writeMachineMode } from './machine_mode.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
 
 // Mock modules that start() creates or calls internally
@@ -325,14 +324,20 @@ test('starts client networking in client mode', async () => {
   const workspacePath = makeTemporaryDirectory();
   const logger = mockLogger({ fn: vi.fn });
 
-  writeMachineMode(workspacePath, 'client');
-
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_MULTI_STATION_ADMIN
   );
 
   server = await suppressingConsoleOutput(() =>
-    start({ workspacePath, logger, port: 0 })
+    start({
+      workspacePath,
+      logger,
+      port: 0,
+      machineMode: {
+        get: () => 'client',
+        set: vi.fn().mockThrow('do not set machineMode'),
+      },
+    })
   );
 
   expect(startClientNetworking).toHaveBeenCalled();

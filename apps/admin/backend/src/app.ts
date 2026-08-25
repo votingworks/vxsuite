@@ -100,7 +100,7 @@ import {
 import { Workspace } from './util/workspace.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { readMachineMode, writeMachineMode } from './machine_mode.js';
+import { MachineModeController } from './machine_mode.js';
 import { getBallotImages } from './util/adjudication.js';
 import {
   transformWriteInsAndSetManualResults,
@@ -192,12 +192,14 @@ function getCurrentElectionRecord(
 function buildApi({
   auth,
   workspace,
+  machineMode,
   logger,
   multiUsbDrive,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
+  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
@@ -280,7 +282,7 @@ function buildApi({
     getMachineConfig,
 
     getMachineMode(): MachineMode {
-      return readMachineMode(workspace.path);
+      return machineMode.get();
     },
 
     async setMachineMode(input: { mode: MachineMode }): Promise<void> {
@@ -288,15 +290,21 @@ function buildApi({
         store.getCurrentElectionId() === undefined,
         'Cannot change machine mode while an election is configured.'
       );
-      if (input.mode === 'client') {
+
+      // Set the value and re-read it so the value is normalized before we take
+      // action based on its value.
+      machineMode.set(input.mode);
+      const newMachineMode = machineMode.get();
+
+      if (newMachineMode === 'client') {
         const { machineId } = getMachineConfig();
         AvahiService.stopAdvertisedService(getHostServiceName(machineId));
       }
-      writeMachineMode(workspace.path, input.mode);
+
       await logger.logAsCurrentRole(LogEventId.AdminMachineModeChanged, {
-        message: `Machine mode changed to ${input.mode}.`,
+        message: `Machine mode changed to ${newMachineMode}.`,
         disposition: 'success',
-        newMode: input.mode,
+        newMode: newMachineMode,
       });
     },
 
@@ -1625,12 +1633,14 @@ export type Api = ReturnType<typeof buildApi>;
 export function buildApp({
   auth,
   workspace,
+  machineMode,
   logger,
   multiUsbDrive,
   printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
+  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
@@ -1639,6 +1649,7 @@ export function buildApp({
   const api = buildApi({
     auth,
     workspace,
+    machineMode,
     logger,
     multiUsbDrive,
     printer,

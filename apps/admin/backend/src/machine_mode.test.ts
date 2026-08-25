@@ -1,63 +1,88 @@
-import { existsSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { describe, expect, test, beforeEach } from 'vitest';
-import tmp from 'tmp';
-import { readMachineMode, writeMachineMode } from './machine_mode.js';
+import { existsSync, readFileSync } from 'node:fs';
+import { describe, expect, test } from 'vitest';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+  makeTemporaryPath,
+} from '@votingworks/fixtures';
+import { FileBackedMachineModeController } from './machine_mode.js';
+import { MachineMode } from './types.js';
 
-let workspacePath: string;
-
-beforeEach(() => {
-  workspacePath = tmp.dirSync().name;
-});
-
-describe('readMachineMode', () => {
+describe('FileBackedMachineModeController::get', () => {
   test('returns host when no mode file exists', () => {
-    expect(readMachineMode(workspacePath)).toEqual('host');
+    const controller = new FileBackedMachineModeController(makeTemporaryPath());
+    expect(controller.get()).toEqual('host');
   });
 
   test('returns host when mode file contains host', () => {
-    writeFileSync(join(workspacePath, 'machine_mode'), 'host', 'utf-8');
-    expect(readMachineMode(workspacePath)).toEqual('host');
+    const controller = new FileBackedMachineModeController(
+      makeTemporaryFile({ content: 'host' })
+    );
+    expect(controller.get()).toEqual('host');
   });
 
   test('returns client when mode file contains client', () => {
-    writeFileSync(join(workspacePath, 'machine_mode'), 'client', 'utf-8');
-    expect(readMachineMode(workspacePath)).toEqual('client');
+    const controller = new FileBackedMachineModeController(
+      makeTemporaryFile({ content: 'client' })
+    );
+    expect(controller.get()).toEqual('client');
   });
 
   test('returns host for unrecognized mode file contents', () => {
-    writeFileSync(join(workspacePath, 'machine_mode'), 'unknown', 'utf-8');
-    expect(readMachineMode(workspacePath)).toEqual('host');
+    const controller = new FileBackedMachineModeController(
+      makeTemporaryFile({ content: 'unknown' })
+    );
+    expect(controller.get()).toEqual('host');
   });
 
   test('trims whitespace from mode file', () => {
-    writeFileSync(join(workspacePath, 'machine_mode'), '  client\n', 'utf-8');
-    expect(readMachineMode(workspacePath)).toEqual('client');
+    const controller = new FileBackedMachineModeController(
+      makeTemporaryFile({ content: '  client\n' })
+    );
+    expect(controller.get()).toEqual('client');
+  });
+
+  test('fails if an existing mode file exists but cannot be read', () => {
+    const controller = new FileBackedMachineModeController(
+      makeTemporaryDirectory()
+    );
+    expect(() => controller.get()).toThrow();
   });
 });
 
-describe('writeMachineMode', () => {
+describe('FileBackedMachineModeController::set', () => {
   test('writes host mode', () => {
-    writeMachineMode(workspacePath, 'host');
-    expect(readMachineMode(workspacePath)).toEqual('host');
+    const controller = new FileBackedMachineModeController(makeTemporaryFile());
+    controller.set('host');
+    expect(controller.get()).toEqual('host');
   });
 
   test('writes client mode', () => {
-    writeMachineMode(workspacePath, 'client');
-    expect(readMachineMode(workspacePath)).toEqual('client');
+    const controller = new FileBackedMachineModeController(makeTemporaryFile());
+    controller.set('client');
+    expect(controller.get()).toEqual('client');
   });
 
   test('creates the file if it does not exist', () => {
-    const filePath = join(workspacePath, 'machine_mode');
-    expect(existsSync(filePath)).toEqual(false);
-    writeMachineMode(workspacePath, 'client');
-    expect(existsSync(filePath)).toEqual(true);
+    const filePath = makeTemporaryPath();
+    expect(existsSync(filePath)).toBeFalsy();
+    const controller = new FileBackedMachineModeController(filePath);
+    controller.set('client');
+    expect(existsSync(filePath)).toBeTruthy();
   });
 
   test('overwrites existing mode', () => {
-    writeMachineMode(workspacePath, 'client');
-    expect(readMachineMode(workspacePath)).toEqual('client');
-    writeMachineMode(workspacePath, 'host');
-    expect(readMachineMode(workspacePath)).toEqual('host');
+    const controller = new FileBackedMachineModeController(makeTemporaryFile());
+    controller.set('client');
+    expect(controller.get()).toEqual('client');
+    controller.set('host');
+    expect(controller.get()).toEqual('host');
+  });
+
+  test('replaces junk data with the default', () => {
+    const filePath = makeTemporaryFile();
+    const controller = new FileBackedMachineModeController(filePath);
+    controller.set('#!/usr/bin/env bash\nreboot' as unknown as MachineMode);
+    expect(readFileSync(filePath, 'utf-8')).toEqual('host');
   });
 });

@@ -43,7 +43,7 @@ import {
   mockLogger,
 } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { Api, PeerApi } from '../src/index.js';
+import { Api, MachineMode, PeerApi } from '../src/index.js';
 import { BaseStore } from '../src/types.js';
 import { createWorkspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
@@ -201,12 +201,19 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const mockPrinterHandler = createMockPrinterHandler();
+  let machineMode: MachineMode = 'host';
   const app = buildApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
     printer: mockPrinterHandler.printer,
+    machineMode: {
+      get: () => machineMode,
+      set: (newMachineMode) => {
+        machineMode = newMachineMode;
+      },
+    },
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
