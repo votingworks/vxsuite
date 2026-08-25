@@ -22,6 +22,9 @@ RUN apt update && apt install -y --no-install-recommends \
 # VxSuite transitive deps:
 RUN sudo apt update && apt install -y --no-install-recommends \
   build-essential \
+  fonts-noto-core \
+  fonts-roboto \
+  fonts-wqy-zenhei \
   g++ \
   gcc \
   ghostscript \

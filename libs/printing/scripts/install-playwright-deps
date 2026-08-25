@@ -37,3 +37,12 @@ else
   mkdir -p "${PLAYWRIGHT_DEPS_FLAG_DIRECTORY}"
   touch "${PLAYWRIGHT_DEPS_INSTALLED_FLAG_FILE}"
 fi
+
+# [TODO] Move/copy font installation to vxsuite-build-system CI image and build
+# inventory (the latter already includes noto-core and wqy-zenhei) - may still
+# need to live on here, to ensure dev environments have canonical fonts
+# installed.
+sudo apt-get install -y --no-upgrade --no-install-recommends \
+  fonts-noto-core \
+  fonts-roboto \
+  fonts-wqy-zenhei

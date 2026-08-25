@@ -1,9 +1,3 @@
-import React from 'react';
-import {
-  ROBOTO_REGULAR_FONT_DECLARATIONS,
-  ROBOTO_ITALIC_FONT_DECLARATIONS,
-} from '@votingworks/ui';
-
 export interface BaseStylesProps {
   compact?: boolean;
 }
@@ -24,7 +18,7 @@ function baseStyles(params: BaseStylesProps) {
 
   html {
     box-sizing: border-box;
-    font-family: Vx Roboto;
+    font-family: Roboto; /* TODO: Support language/script-specific overrides. */
     font-variant-ligatures: none;
     /*
      * 12pt is the Center for Civic Design's recommended default font size, and
@@ -70,15 +64,6 @@ function baseStyles(params: BaseStylesProps) {
 export function BaseStyles(props: BaseStylesProps): JSX.Element {
   return (
     <>
-      <style
-        type="text/css"
-        dangerouslySetInnerHTML={{
-          __html: [
-            ROBOTO_REGULAR_FONT_DECLARATIONS,
-            ROBOTO_ITALIC_FONT_DECLARATIONS,
-          ].join('\n'),
-        }}
-      />
       <style
         type="text/css"
         dangerouslySetInnerHTML={{
