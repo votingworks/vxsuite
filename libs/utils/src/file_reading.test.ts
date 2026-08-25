@@ -2,15 +2,16 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import JsZip, { JSZipObject } from 'jszip';
 import {
-  openZip,
+  createZip,
   getEntries,
   getEntryStream,
-  readEntry,
-  readTextEntry,
-  readJsonEntry,
-  getFilePrefixedByName,
   getFileByName,
+  getFilePrefixedByName,
   maybeGetFileByName,
+  openZip,
+  readEntry,
+  readJsonEntry,
+  readTextEntry,
 } from './file_reading';
 
 // Helper function to create mock JSZipObject entries
@@ -177,4 +178,21 @@ test('maybeGetFileByName returns undefined when file not found', () => {
 
   const result = maybeGetFileByName(entries, 'config.json');
   expect(result).toBeUndefined();
+});
+
+test('createZip round-trips through openZip with stored entries', async () => {
+  const zip = await openZip(
+    await createZip({ 'a.json': '{"a":1}', 'b.bin': Buffer.from([1, 2, 3]) })
+  );
+  const entries = getEntries(zip);
+  expect(entries.map((entry) => entry.name).sort()).toEqual([
+    'a.json',
+    'b.bin',
+  ]);
+  expect(await readTextEntry(getFileByName(entries, 'a.json'))).toEqual(
+    '{"a":1}'
+  );
+  expect(await readEntry(getFileByName(entries, 'b.bin'))).toEqual(
+    Buffer.from([1, 2, 3])
+  );
 });
