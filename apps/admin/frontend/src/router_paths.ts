@@ -10,6 +10,7 @@ export const routerPaths = {
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
+  tallyScanners: '/tally/scanners',
   tallyManual: '/tally/manual',
   tallyManualForm: ({
     precinctId,

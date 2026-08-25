@@ -16,6 +16,7 @@ import {
 } from '../api.js';
 import { systemCallApi } from '../shared_api.js';
 import { PrintTestPageButton } from '../components/print_test_page_button.js';
+import { NetworkSection } from '../components/network_section.js';
 import { AppContext } from '../contexts/app_context.js';
 
 const PageLayout = styled.div`
@@ -65,6 +66,7 @@ export function DiagnosticsScreen(): JSX.Element {
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
             printerDiagnosticUi={<PrintTestPageButton />}
+            networkSectionUi={<NetworkSection />}
           />
         </div>
         <SaveReadinessReportButton

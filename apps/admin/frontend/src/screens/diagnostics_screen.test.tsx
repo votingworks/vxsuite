@@ -223,6 +223,48 @@ test('configuration info', async () => {
   await screen.findByText(/Example Primary Election/);
 });
 
+describe('network section', () => {
+  beforeEach(() => {
+    apiMock.setPrinterStatus({ connected: false });
+    apiMock.expectGetMostRecentPrinterDiagnostic();
+    apiMock.setMultiStationAdjudicationEnabled(true);
+  });
+
+  test('shows online status', async () => {
+    apiMock.expectGetNetworkStatus();
+    renderInAppContext(<DiagnosticsScreen />, { apiMock });
+
+    await screen.findByRole('heading', { name: 'Network' });
+    await expectTextWithIcon('Online', 'square-check');
+  });
+
+  test('shows offline status', async () => {
+    apiMock.expectGetNetworkStatus({ isOnline: false });
+    renderInAppContext(<DiagnosticsScreen />, { apiMock });
+
+    await screen.findByRole('heading', { name: 'Network' });
+    await expectTextWithIcon('Offline', 'circle-info');
+  });
+
+  test('shows multiple hosts detected warning', async () => {
+    apiMock.expectGetNetworkStatus({ multipleHostsDetected: true });
+    renderInAppContext(<DiagnosticsScreen />, { apiMock });
+
+    await screen.findByText(/Multiple VxAdmins detected/);
+  });
+
+  test('hidden when multi-station adjudication is disabled', async () => {
+    apiMock.setMultiStationAdjudicationEnabled(false);
+    renderInAppContext(<DiagnosticsScreen />, { apiMock });
+
+    await screen.findByRole('heading', { name: 'Diagnostics' });
+    await screen.findByText(/Battery Level/);
+    expect(
+      screen.queryByRole('heading', { name: 'Network' })
+    ).not.toBeInTheDocument();
+  });
+});
+
 test('saving the readiness report', async () => {
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetMostRecentPrinterDiagnostic();

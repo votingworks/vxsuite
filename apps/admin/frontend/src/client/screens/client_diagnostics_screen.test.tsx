@@ -34,6 +34,7 @@ test('shows diagnostics sections and battery info', async () => {
     level: 0.75,
     discharging: true,
   });
+  apiMock.expectGetNetworkConnectionStatus('online-connected-to-host', '0001');
   renderInClientContext(<ClientDiagnosticsScreen />, {
     auth: sysAdminAuth,
     apiMock,
@@ -42,4 +43,42 @@ test('shows diagnostics sections and battery info', async () => {
   screen.getByRole('heading', { name: 'Storage' });
   screen.getByRole('heading', { name: 'Battery' });
   screen.getByText(/Battery Level: 75%/);
+  screen.getByRole('heading', { name: 'Network' });
+  await screen.findByText(/Online — VxAdmin \(0001\) connected on the network/);
+});
+
+test('shows offline status', async () => {
+  apiMock.expectGetNetworkConnectionStatus('offline');
+  renderInClientContext(<ClientDiagnosticsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/Offline/);
+});
+
+test('shows waiting for host status', async () => {
+  apiMock.expectGetNetworkConnectionStatus('online-waiting-for-host');
+  renderInClientContext(<ClientDiagnosticsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/Online — no VxAdmin detected on the network/);
+});
+
+test('shows multiple hosts detected warning', async () => {
+  apiMock.expectGetNetworkConnectionStatus('online-multiple-hosts-detected');
+  renderInClientContext(<ClientDiagnosticsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/Multiple VxAdmins detected/);
+});
+
+test('shows incompatible host version warning', async () => {
+  apiMock.expectGetNetworkConnectionStatus('online-incompatible-host-version');
+  renderInClientContext(<ClientDiagnosticsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(/running a different software version/);
 });

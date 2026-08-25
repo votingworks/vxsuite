@@ -302,6 +302,7 @@ function buildApi({
     getNetworkStatus(): {
       isOnline: boolean;
       connectedClients: MachineRecord[];
+      connectedScanners: MachineRecord[];
       multipleHostsDetected: boolean;
     } {
       const { machineId } = getMachineConfig();
@@ -316,8 +317,21 @@ function buildApi({
         connectedClients: machines.filter(
           (m) => m.machineRole === 'admin-client'
         ),
+        connectedScanners: machines.filter((m) => m.machineRole === 'scanner'),
         multipleHostsDetected: store.getMultipleHostsDetected(machineId),
       };
+    },
+
+    /**
+     * Counts of CVRs and batches imported from each scanner for the current
+     * election.
+     */
+    getScannerImportCounts(): Record<
+      string,
+      { cvrCount: number; batchCount: number }
+    > {
+      const electionId = store.getCurrentElectionId();
+      return electionId ? store.getScannerImportCounts(electionId) : {};
     },
 
     getIsClientAdjudicationEnabled(): boolean {

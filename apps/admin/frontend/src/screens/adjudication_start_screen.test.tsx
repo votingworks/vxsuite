@@ -207,6 +207,8 @@ describe('multi-station adjudication', () => {
         machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Active,
         authType: 'election_manager',
+        pollingPlaceId: null,
+        registrationError: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
@@ -214,6 +216,8 @@ describe('multi-station adjudication', () => {
         machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.OnlineLocked,
         authType: null,
+        pollingPlaceId: null,
+        registrationError: null,
         lastSeenAt: Date.now(),
       }),
       typedAs<MachineRecord>({
@@ -221,6 +225,8 @@ describe('multi-station adjudication', () => {
         machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Offline,
         authType: null,
+        pollingPlaceId: null,
+        registrationError: null,
         lastSeenAt: Date.now() - 60000,
       }),
       typedAs<MachineRecord>({
@@ -228,6 +234,17 @@ describe('multi-station adjudication', () => {
         machineRole: 'admin-client',
         status: Admin.ClientMachineStatus.Adjudicating,
         authType: 'election_manager',
+        pollingPlaceId: null,
+        registrationError: null,
+        lastSeenAt: Date.now(),
+      }),
+      typedAs<MachineRecord>({
+        machineId: 'CLIENT-005',
+        machineRole: 'admin-client',
+        status: Admin.ClientMachineStatus.Active,
+        authType: null,
+        pollingPlaceId: null,
+        registrationError: 'code-version-mismatch',
         lastSeenAt: Date.now(),
       }),
     ];
@@ -245,8 +262,8 @@ describe('multi-station adjudication', () => {
 
     await screen.findByText('CLIENT-001');
     const rows = screen.getAllByRole('row');
-    // header + 4 clients = 5 rows
-    expect(rows).toHaveLength(5);
+    // header + 5 clients = 6 rows
+    expect(rows).toHaveLength(6);
 
     const row1 = rows[1];
     within(row1).getByText('CLIENT-001');
@@ -264,6 +281,10 @@ describe('multi-station adjudication', () => {
     const row4 = rows[4];
     within(row4).getByText('CLIENT-004');
     within(row4).getByText('Adjudicating');
+
+    const row5 = rows[5];
+    within(row5).getByText('CLIENT-005');
+    within(row5).getByText('Incompatible Software');
   });
 
   test('shows network section on callout screens', async () => {

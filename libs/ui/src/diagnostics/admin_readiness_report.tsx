@@ -1,3 +1,4 @@
+import React from 'react';
 import { ThemeProvider } from 'styled-components';
 import { PrinterSection, PrinterSectionProps } from './printer_section';
 import { PrintedReport } from '../reports/layout';
@@ -15,12 +16,15 @@ import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
 type ReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &
   StorageSectionProps &
-  PrinterSectionProps;
+  PrinterSectionProps & {
+    /** On-screen-only network status section, not part of the printed report. */
+    networkSectionUi?: React.ReactNode;
+  };
 
 export function AdminReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
-  const { electionDefinition } = props;
+  const { electionDefinition, networkSectionUi } = props;
 
   return (
     <ReportContents>
@@ -28,6 +32,7 @@ export function AdminReadinessReportContents(
       <BatterySection {...props} />
       <StorageSection {...props} />
       <PrinterSection {...props} />
+      {networkSectionUi}
       {electionDefinition && (
         <BallotStyleReadinessReport electionDefinition={electionDefinition} />
       )}
@@ -37,18 +42,22 @@ export function AdminReadinessReportContents(
 
 type ClientReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &
-  StorageSectionProps;
+  StorageSectionProps & {
+    /** On-screen-only network status section, not part of the printed report. */
+    networkSectionUi?: React.ReactNode;
+  };
 
 export function AdminClientReadinessReportContents(
   props: ClientReportContentsProps
 ): JSX.Element {
-  const { electionDefinition } = props;
+  const { electionDefinition, networkSectionUi } = props;
 
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
       <BatterySection {...props} />
       <StorageSection {...props} />
+      {networkSectionUi}
       {electionDefinition && (
         <BallotStyleReadinessReport electionDefinition={electionDefinition} />
       )}

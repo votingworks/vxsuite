@@ -81,7 +81,7 @@ test('shows the network status when networking is enabled', async () => {
     connection: { status: 'online-host-detected', hostMachineId: '0002' },
   });
   await screen.findByText(
-    'Online — VxAdmin (0002) detected on the network',
+    'Online — VxAdmin (0002) connected on the network',
     {},
     { timeout: 3000 }
   );

@@ -627,5 +627,8 @@ test('network status in toolbar', async () => {
   await screen.findByText('Network Online');
 
   apiMock.expectGetNetworkStatus({ isOnline: false });
-  await screen.findByText('Network Offline');
+  await screen.findByText('No Network');
+
+  apiMock.expectGetNetworkStatus({ multipleHostsDetected: true });
+  await screen.findByText('Network Error');
 });

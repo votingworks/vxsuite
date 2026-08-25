@@ -103,6 +103,7 @@ import {
   BaseStore,
   MachineRecord,
   NetworkedMachineRole,
+  RegistrationErrorType,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   ContestAdjudicationData,
@@ -3414,20 +3415,26 @@ export class Store implements BaseStore {
     machineId: string,
     machineRole: NetworkedMachineRole,
     status: Admin.ClientMachineStatus,
-    authType: UserRole | null = null
+    authType: UserRole | null = null,
+    pollingPlaceId: string | null = null,
+    registrationError: RegistrationErrorType | null = null
   ): void {
     this.client.run(
-      `insert into machines (machine_id, machine_role, status, auth_type, last_seen_at)
-       values (?, ?, ?, ?, ?)
+      `insert into machines (machine_id, machine_role, status, auth_type, polling_place_id, registration_error, last_seen_at)
+       values (?, ?, ?, ?, ?, ?, ?)
        on conflict (machine_id) do update set
          machine_role = excluded.machine_role,
          status = excluded.status,
          auth_type = excluded.auth_type,
+         polling_place_id = excluded.polling_place_id,
+         registration_error = excluded.registration_error,
          last_seen_at = excluded.last_seen_at`,
       machineId,
       machineRole,
       status,
       authType,
+      pollingPlaceId,
+      registrationError,
       getCurrentTime()
     );
   }
@@ -3439,6 +3446,8 @@ export class Store implements BaseStore {
          machine_role as machineRole,
          status,
          auth_type as authType,
+         polling_place_id as pollingPlaceId,
+         registration_error as registrationError,
          last_seen_at as lastSeenAt
        from machines
        where machine_id = ?`,
@@ -3459,6 +3468,8 @@ export class Store implements BaseStore {
            else machines.status
          end as status,
          auth_type as authType,
+         polling_place_id as pollingPlaceId,
+         registration_error as registrationError,
          last_seen_at as lastSeenAt
        from machines`,
       Admin.ClientMachineStatus.Active,
@@ -3518,6 +3529,32 @@ export class Store implements BaseStore {
     if (currentElectionId) {
       this.releaseAllActiveClaims({ electionId: currentElectionId });
     }
+  }
+
+  getScannerImportCounts(
+    electionId: Id
+  ): Record<string, { cvrCount: number; batchCount: number }> {
+    const rows = this.client.all(
+      `
+        select
+          scanner_batches.scanner_id as scannerId,
+          count(distinct scanner_batches.id) as batchCount,
+          count(cvrs.id) as cvrCount
+        from scanner_batches
+        left join cvrs
+          on cvrs.batch_id = scanner_batches.id
+          and cvrs.election_id = scanner_batches.election_id
+        where scanner_batches.election_id = ?
+        group by scanner_batches.scanner_id
+      `,
+      electionId
+    ) as Array<{ scannerId: string; batchCount: number; cvrCount: number }>;
+    return Object.fromEntries(
+      rows.map((row) => [
+        row.scannerId,
+        { cvrCount: row.cvrCount, batchCount: row.batchCount },
+      ])
+    );
   }
 
   getMultipleHostsDetected(selfMachineId: string): boolean {

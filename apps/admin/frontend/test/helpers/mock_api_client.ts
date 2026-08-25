@@ -836,14 +836,24 @@ export function createApiMock(
       overrides: {
         isOnline?: boolean;
         connectedClients?: MachineRecord[];
+        connectedScanners?: MachineRecord[];
         multipleHostsDetected?: boolean;
       } = {}
     ): void {
       apiClient.getNetworkStatus.expectRepeatedCallsWith().resolves({
         isOnline: overrides.isOnline ?? true,
         connectedClients: overrides.connectedClients ?? [],
+        connectedScanners: overrides.connectedScanners ?? [],
         multipleHostsDetected: overrides.multipleHostsDetected ?? false,
       });
+    },
+
+    expectGetScannerImportCounts(
+      counts: Record<string, { cvrCount: number; batchCount: number }> = {}
+    ): void {
+      apiClient.getScannerImportCounts
+        .expectRepeatedCallsWith()
+        .resolves(counts);
     },
 
     expectGetIsClientAdjudicationEnabled(enabled = false): void {

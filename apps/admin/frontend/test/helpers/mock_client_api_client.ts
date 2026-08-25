@@ -1,5 +1,9 @@
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type { ClientApi, MachineConfig } from '@votingworks/admin-backend';
+import type {
+  ClientApi,
+  MachineConfig,
+  NetworkConnectionStatus,
+} from '@votingworks/admin-backend';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -16,11 +20,15 @@ import { Mock, vi } from 'vitest';
 
 type MockClientApiClient = Omit<
   MockClient<ClientApi>,
-  'getBatteryInfo' | 'getDiskSpaceSummary' | 'isMultiStationAdjudicationEnabled'
+  | 'getBatteryInfo'
+  | 'getDiskSpaceSummary'
+  | 'isMultiStationAdjudicationEnabled'
+  | 'getNetworkConnectionStatus'
 > & {
   getBatteryInfo: Mock;
   getDiskSpaceSummary: Mock;
   isMultiStationAdjudicationEnabled: Mock;
+  getNetworkConnectionStatus: Mock;
 };
 
 function createMockClientApiClient(): MockClientApiClient {
@@ -33,6 +41,12 @@ function createMockClientApiClient(): MockClientApiClient {
   );
   (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
     () => Promise.resolve(false)
+  );
+  (mockApiClient.getNetworkConnectionStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve<NetworkConnectionStatus>({
+      status: 'online-connected-to-host',
+      hostMachineId: '0001',
+    })
   );
   return mockApiClient as unknown as MockClientApiClient;
 }
@@ -104,9 +118,7 @@ export function createClientApiMock(
         status === 'online-connected-to-host'
           ? { status, hostMachineId: hostMachineId ?? '0001' }
           : { status };
-      apiClient.getNetworkConnectionStatus
-        .expectRepeatedCallsWith()
-        .resolves(value);
+      apiClient.getNetworkConnectionStatus.mockResolvedValue(value);
     },
 
     expectGetAdjudicationSessionStatus(

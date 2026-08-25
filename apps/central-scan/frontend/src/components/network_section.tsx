@@ -66,7 +66,7 @@ function ConnectionStatusMessage({
       return (
         <P>
           <Icons.Checkbox color="success" /> Online &mdash; VxAdmin (
-          {connection.hostMachineId}) detected on the network
+          {connection.hostMachineId}) connected on the network
         </P>
       );
     // istanbul ignore next -- compile-time check

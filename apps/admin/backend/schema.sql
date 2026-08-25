@@ -159,6 +159,7 @@ create table cvrs (
 
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
+create index idx_cvrs_batch_id on cvrs(election_id, batch_id);
 
 create table scanner_batches (
   id text not null,
@@ -264,6 +265,8 @@ create table machines (
   status text not null
     check (status in ('offline', 'online_locked', 'active', 'adjudicating')),
   auth_type text,
+  polling_place_id text,
+  registration_error text,
   last_seen_at integer not null
 ) strict;
 
