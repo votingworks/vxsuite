@@ -1,11 +1,12 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import React from 'react';
 
 import { DateWithoutTime } from '@votingworks/basics';
 import {
   SECURITY_PIN_LENGTH,
   UnlockMachineScreen as UnlockMachineScreenComponent,
-  UnlockMachineScreenProps,
 } from './unlock_machine_screen';
 import { PinLength } from './utils/pin_length';
 
@@ -43,9 +44,9 @@ export const UnlockMachineScreen: StoryObj<PropsAndCustomArgs> = {
   ),
 };
 
-const meta: Meta<UnlockMachineScreenProps> = {
+const meta: Meta<PropsAndCustomArgs> = {
   title: 'libs-ui/UnlockMachineScreen',
-  component: UnlockMachineScreen,
+  component: UnlockMachineScreenComponent,
   args: initialProps,
   argTypes: {
     minPinLength: {

@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import { Callout as Component, CalloutProps as Props } from './callout';
 

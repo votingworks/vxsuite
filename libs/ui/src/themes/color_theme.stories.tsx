@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { ColorMode } from '@votingworks/types';
 import styled, { useTheme } from 'styled-components';
 import { useLayoutEffect, useRef, useState } from 'react';

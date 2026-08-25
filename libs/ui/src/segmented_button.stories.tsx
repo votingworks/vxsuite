@@ -1,5 +1,7 @@
 import React from 'react';
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import {
   SegmentedButton as Component,
@@ -27,7 +29,7 @@ const initialProps: SegmentedButtonProps<string> = {
   ],
 };
 
-const meta: Meta<typeof Component> = {
+const meta: Meta<SegmentedButtonProps<string>> = {
   title: 'libs-ui/SegmentedButton',
   component: Component,
   args: initialProps,

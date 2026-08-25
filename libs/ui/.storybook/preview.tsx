@@ -1,17 +1,16 @@
 import React from 'react';
-import {
+import type {
   DecoratorFunction,
   GlobalTypes,
   Parameters,
   StoryContext,
-} from '@storybook/types';
+} from 'storybook/internal/types';
 
-import { AppBase, VoterSettingsManagerContext } from '../src';
+import { AppBase, VoterSettingsManagerContext } from '../src/index.js';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
 
-// TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
-// the @storybook/types repo.
+// Storybook doesn't export a type for toolbar items.
 interface ToolbarItem<T> {
   value: T;
   title: string;

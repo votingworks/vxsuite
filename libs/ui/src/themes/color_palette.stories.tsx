@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { ColorPalette } from '@votingworks/types';
 import { groupBy } from '@votingworks/basics';
 import { DesktopPalette, TouchscreenPalette } from './make_theme';

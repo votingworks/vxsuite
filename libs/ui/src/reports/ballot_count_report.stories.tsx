@@ -1,4 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import {
   ContestPosition,
   ElectionDefinition,
@@ -55,13 +57,13 @@ const meta: Meta<typeof BallotCountReportPreview> = {
   component: BallotCountReportPreview,
   parameters: {
     backgrounds: {
-      default: 'light gray',
-      values: [
-        { name: 'light gray', value: '#D3D3D3' },
-        { name: 'black', value: '#000000' },
-      ],
+      options: {
+        lightGray: { name: 'light gray', value: '#D3D3D3' },
+        black: { name: 'black', value: '#000000' },
+      },
     },
   },
+  globals: { backgrounds: { value: 'lightGray' } },
 };
 
 function cc(

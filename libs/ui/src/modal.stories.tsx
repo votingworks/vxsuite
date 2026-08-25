@@ -1,5 +1,7 @@
 import React from 'react';
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import { Modal as Component, ModalProps } from './modal';
 import { Button } from './button';

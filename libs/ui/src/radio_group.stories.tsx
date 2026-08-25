@@ -1,5 +1,7 @@
 import React from 'react';
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import { RadioGroup as Component, RadioGroupProps } from '.';
 
@@ -15,7 +17,7 @@ const initialArgs: Partial<RadioGroupProps<string>> = {
   disabled: false,
 };
 
-const meta: Meta<typeof Component> = {
+const meta: Meta<RadioGroupProps<string>> = {
   title: 'libs-ui/RadioGroup',
   component: Component,
   args: initialArgs,

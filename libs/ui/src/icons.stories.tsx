@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import styled from 'styled-components';
 
 import { ICON_COLORS, IconComponent, IconProps, Icons } from './icons';
@@ -6,12 +8,9 @@ import { H1, H5, P } from './typography';
 
 const meta: Meta<IconComponent> = {
   title: 'libs-ui/Icons',
-  args: {
-    color: 'default',
-  },
   argTypes: {
     color: {
-      type: 'select',
+      control: 'select',
       options: [undefined, ...ICON_COLORS],
     },
   },

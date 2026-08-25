@@ -1,4 +1,6 @@
-import { Meta, StoryFn } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import styled from 'styled-components';
 import { QrCode, QrCodeProps } from './qrcode';

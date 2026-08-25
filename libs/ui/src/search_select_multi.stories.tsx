@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import { useState } from 'react';
 import { SearchSelect, SearchSelectMultiProps } from './search_select';
@@ -27,7 +29,7 @@ const initialProps: SearchSelectMultiProps = {
   disabled: false,
 };
 
-const meta: Meta<typeof SearchSelect> = {
+const meta: Meta<SearchSelectMultiProps> = {
   title: 'libs-ui/SearchSelect',
   component: SearchSelect,
   args: initialProps,

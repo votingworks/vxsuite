@@ -1,5 +1,7 @@
 import React from 'react';
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 
 import {
   ContestChoiceButton as Component,
@@ -13,7 +15,7 @@ const initialProps: Props<string> = {
   choice: 'edison',
 };
 
-const meta: Meta<typeof Component> = {
+const meta: Meta<Props<string>> = {
   title: 'libs-ui/ContestChoiceButton',
   component: Component,
   args: initialProps,

@@ -1,4 +1,6 @@
-import { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite' with {
+  'resolution-mode': 'import',
+};
 import { MemoryRouter } from 'react-router-dom';
 import { BreadcrumbsProps, Breadcrumbs as Component } from './breadcrumbs';
 import { H1 } from './typography';
