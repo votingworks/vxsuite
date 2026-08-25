@@ -35,13 +35,16 @@ import { createWorkspace, createClientWorkspace } from './util/workspace.js';
 import { buildApp } from './app.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
-import { readMachineMode } from './machine_mode.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
 import { rootDebug } from './util/debug.js';
 import { getUserRole } from './util/auth.js';
 import type { MachineMode } from './types.js';
+import {
+  FileBackedMachineModeController,
+  MachineModeController,
+} from './machine_mode.js';
 
 const debug = rootDebug.extend('server');
 
@@ -98,6 +101,7 @@ export interface StartOptions {
   workspacePath?: string;
   multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
+  machineMode?: MachineModeController;
 }
 
 /**
@@ -115,11 +119,14 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
-  const machineMode = readMachineMode(workspacePath);
+  const machineMode =
+    options.machineMode ??
+    FileBackedMachineModeController.forWorkspace(workspacePath);
 
   let app;
 
-  switch (machineMode) {
+  const machineModeValue = machineMode.get();
+  switch (machineModeValue) {
     case 'host': {
       // TODO(CARO) add some kind of validation that the workspace is properly configured for host mode
       const workspace = createWorkspace(workspacePath, baseLogger);
@@ -173,6 +180,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         multiUsbDrive,
         printer,
         workspace,
+        machineMode,
       });
 
       // Log election results data check at startup
@@ -232,6 +240,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         logger,
         workspace: clientWorkspace,
         multiUsbDrive,
+        machineMode,
       });
 
       baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
@@ -245,7 +254,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
     default:
       /* istanbul ignore next */
-      throwIllegalValue(machineMode);
+      throwIllegalValue(machineModeValue);
   }
 
   useDevDockRouter(app, express, {

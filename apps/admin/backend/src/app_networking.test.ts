@@ -33,7 +33,7 @@ import type { PeerApi } from './peer_app.js';
 import { buildClientApp } from './client_app.js';
 import type { ClientApi } from './client_app.js';
 import { Store } from './store.js';
-import { ClientConnectionStatus } from './types.js';
+import { ClientConnectionStatus, MachineMode } from './types.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import {
   buildMockLogger,
@@ -130,6 +130,7 @@ async function setupHostAndClient(
   const { clientStore } = clientWorkspace;
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const mockLogger = buildMockLogger(auth, clientStore);
+  let machineMode: MachineMode = 'host';
   const clientApp = buildClientApp({
     auth,
     workspace: clientWorkspace,
@@ -138,6 +139,12 @@ async function setupHostAndClient(
       logger: mockLogger,
       platform: new SimulatedUsbPlatform(makeTemporaryDirectory()),
     }),
+    machineMode: {
+      get: () => machineMode,
+      set: (newMachineMode) => {
+        machineMode = newMachineMode;
+      },
+    },
   });
   clientServer = clientApp.listen();
   const { port: clientPort } = clientServer.address() as AddressInfo;

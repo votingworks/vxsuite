@@ -1,36 +1,45 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import type { MachineMode } from './types.js';
 
-const MACHINE_MODE_FILENAME = 'machine_mode';
-
-function machineModeFilePath(workspacePath: string): string {
-  return join(workspacePath, MACHINE_MODE_FILENAME);
+/**
+ * Provides machine mode switching between `host` and `client` modes.
+ */
+export interface MachineModeController {
+  get(): MachineMode;
+  set(mode: MachineMode): void;
 }
 
 /**
- * Reads the machine mode from the workspace directory. Returns 'host' if no
- * mode file exists.
+ * Builds a controller that uses `filePath` as the backing store for the current
+ * machine mode setting.
  */
-export function readMachineMode(workspacePath: string): MachineMode {
-  const filePath = machineModeFilePath(workspacePath);
-  if (!existsSync(filePath)) {
+export class FileBackedMachineModeController {
+  constructor(private readonly filePath: string) {}
+
+  get(): MachineMode {
+    try {
+      const contents = readFileSync(this.filePath, 'utf-8').trim();
+      if (contents === 'client') {
+        return 'client';
+      }
+    } catch (error) {
+      if (!isNonExistentFileOrDirectoryError(error)) {
+        throw error;
+      }
+    }
+
     return 'host';
   }
-  const contents = readFileSync(filePath, 'utf-8').trim();
-  if (contents === 'client') {
-    return 'client';
-  }
-  return 'host';
-}
 
-/**
- * Writes the machine mode to the workspace directory.
- */
-export function writeMachineMode(
-  workspacePath: string,
-  mode: MachineMode
-): void {
-  const filePath = machineModeFilePath(workspacePath);
-  writeFileSync(filePath, mode, 'utf-8');
+  set(mode: MachineMode): void {
+    writeFileSync(this.filePath, mode === 'client' ? mode : 'host', 'utf-8');
+  }
+
+  static forWorkspace(workspacePath: string): FileBackedMachineModeController {
+    return new FileBackedMachineModeController(
+      join(workspacePath, 'machine_mode')
+    );
+  }
 }
