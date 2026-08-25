@@ -2,7 +2,11 @@ import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
-import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
+import {
+  detectDevices,
+  getNodeEnv,
+  startCpuMetricsLogging,
+} from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
   createMockFilePdiScanner,
@@ -19,7 +23,7 @@ import {
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
 import { buildApi, buildApp } from './app.js';
-import { NODE_ENV, PORT } from './globals.js';
+import { PORT } from './globals.js';
 import { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
 import {
@@ -80,13 +84,10 @@ export async function start({
   workspace.clearUploads();
 
   /* istanbul ignore next */
+  const nodeEnv = getNodeEnv();
   const resolvedAudioPlayer =
     audioPlayer ??
-    new AudioPlayer(
-      NODE_ENV,
-      logger,
-      await AudioCard.default(NODE_ENV, logger)
-    );
+    new AudioPlayer(nodeEnv, logger, await AudioCard.default(nodeEnv, logger));
 
   const systemSettings = workspace.store.getSystemSettings();
   const isScreenReaderEnabled = Boolean(

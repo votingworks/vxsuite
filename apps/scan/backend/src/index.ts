@@ -24,14 +24,13 @@ import {
   TaskController,
 } from '@votingworks/backend';
 import { getFujitsuThermalPrinter } from '@votingworks/fujitsu-thermal-printer';
-import { SCAN_WORKSPACE } from './globals.js';
 import { getMockPlayer as getMockAudioPlayer } from './audio/player.js';
 import * as server from './server.js';
 import { startElectricalTestingServer } from './electrical_testing/server.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
 import { getUserRole } from './util/auth.js';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client.js';
 import { ScanningSession } from './electrical_testing/analysis/scan.js';
+import { resolveWorkspace } from './util/workspace.js';
 
 export type { Api } from './app.js';
 export type * as HWTA from './electrical_testing/exports.js';
@@ -42,21 +41,6 @@ export * from './types.js';
 loadEnvVarsFromDotenvFiles();
 
 const baseLogger = new BaseLogger(LogSource.VxScanBackend);
-
-function resolveWorkspace(): Workspace {
-  const workspacePath = SCAN_WORKSPACE;
-  if (!workspacePath) {
-    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
-      message:
-        'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
-      disposition: 'failure',
-    });
-    throw new Error(
-      'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
-    );
-  }
-  return createWorkspace(workspacePath, baseLogger);
-}
 
 async function main(): Promise<number> {
   handleUncaughtExceptions(baseLogger);
@@ -71,7 +55,7 @@ async function main(): Promise<number> {
     config: {},
     logger: baseLogger,
   });
-  const workspace = resolveWorkspace();
+  const workspace = resolveWorkspace(baseLogger);
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDriveFromEnv({ logger });
   const printer = getFujitsuThermalPrinter(logger);

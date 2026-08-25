@@ -1,7 +1,7 @@
 import {
   AudioInfoWithBuiltin,
   getAudioInfoWithRetry,
-  NODE_ENV,
+  getNodeEnv,
   setAudioVolume,
   setDefaultAudio,
 } from '@votingworks/backend';
@@ -11,17 +11,18 @@ export async function initializeAudio(
   logger: Logger,
   options: { defaultVolumeOverride?: number } = {}
 ): Promise<AudioInfoWithBuiltin> {
+  const nodeEnv = getNodeEnv();
   const audioInfo = await getAudioInfoWithRetry({
     baseRetryDelayMs: 2000,
     logger,
     maxAttempts: 4,
-    nodeEnv: NODE_ENV,
+    nodeEnv,
   });
 
   if (audioInfo.usb) {
     const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
       logger,
-      nodeEnv: NODE_ENV,
+      nodeEnv,
     });
     resultDefaultAudio.assertOk('unable to set USB audio as default output');
 
@@ -29,7 +30,7 @@ export async function initializeAudio(
     // volume setting:
     const resultVolume = await setAudioVolume({
       logger,
-      nodeEnv: NODE_ENV,
+      nodeEnv,
       sinkName: audioInfo.usb.name,
       volumePct: options.defaultVolumeOverride ?? 100,
     });

@@ -18,7 +18,7 @@ import { systemLimitViolationToString } from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
-import { NODE_ENV, TIME_FORMAT } from '../config/globals.js';
+import { TIME_FORMAT } from '../config/globals.js';
 
 const Heading = styled(H2)`
   margin-bottom: 1rem;
@@ -66,7 +66,8 @@ function SelectElectionPackage({
       filters: [
         {
           name: '',
-          extensions: NODE_ENV === 'development' ? ['zip', 'json'] : ['zip'],
+          extensions:
+            process.env.NODE_ENV === 'development' ? ['zip', 'json'] : ['zip'],
         },
       ],
     });

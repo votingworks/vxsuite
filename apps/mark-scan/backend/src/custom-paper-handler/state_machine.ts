@@ -56,7 +56,11 @@ import {
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
 import type { Clock } from 'xstate/lib/interpreter.js';
-import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
+import {
+  AudioPort,
+  getNodeEnv,
+  setBuiltinAudioPort,
+} from '@votingworks/backend';
 import { Workspace } from '../util/workspace.js';
 import { SimpleServerStatus } from './types.js';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants.js';
@@ -80,7 +84,6 @@ import { constructAuthMachineState } from '../util/auth.js';
 import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error.js';
 import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error.js';
 import { DiagnosticError } from './diagnostic/diagnostic_error.js';
-import { getNodeEnv } from '../globals.js';
 import { Store } from '../store.js';
 
 interface CoverStatus {

@@ -1,12 +1,6 @@
-import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
-import { z } from 'zod/v4';
-
-const NodeEnvSchema = z.union([
-  z.literal('development'),
-  z.literal('test'),
-  z.literal('production'),
-]);
+import { getNodeEnv } from '@votingworks/backend';
+import { Optional } from '@votingworks/basics';
 
 /**
  * Default port for the backend server.
@@ -25,21 +19,16 @@ export const PEER_PORT = Number(
 /* eslint-enable vx/gts-safe-number-parse */
 
 /**
- * Which node environment is this?
- */
-export const NODE_ENV = unsafeParse(
-  NodeEnvSchema,
-  process.env.NODE_ENV ?? 'development'
-);
-
-/**
  * Where should the database go?
  */
-export const WORKSPACE =
-  process.env.WORKSPACE ??
-  (NODE_ENV === 'development'
-    ? join(import.meta.dirname, '../dev-workspace')
-    : undefined);
+export function getWorkspace(): Optional<string> {
+  return (
+    process.env.WORKSPACE ??
+    (getNodeEnv() === 'development'
+      ? join(import.meta.dirname, '../dev-workspace')
+      : undefined)
+  );
+}
 
 export const CONFIGURATION_POLLING_INTERVAL = 100;
 export const EVENT_POLLING_INTERVAL = 200;

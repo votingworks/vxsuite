@@ -1,9 +1,9 @@
 import { statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { ensureDirSync } from 'fs-extra';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { BaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { Store } from '../store.js';
 import { ClientStore } from '../client_store.js';
 
@@ -126,4 +126,27 @@ export function createClientWorkspace(root: string): ClientWorkspace {
       return summary;
     },
   };
+}
+
+/**
+ * Path for the database file and other files
+ */
+/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests */
+export function resolveWorkspacePath(logger: BaseLogger): string {
+  const workspacePath =
+    process.env.ADMIN_WORKSPACE ??
+    (getNodeEnv() === 'development'
+      ? join(import.meta.dirname, '../dev-workspace')
+      : undefined);
+  if (!workspacePath) {
+    logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      message:
+        'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
+      disposition: 'failure',
+    });
+    throw new Error(
+      'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
+    );
+  }
+  return resolve(workspacePath);
 }

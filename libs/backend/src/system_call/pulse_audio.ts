@@ -4,7 +4,7 @@ import { err, ok, Result } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { execFile } from '../exec';
-import { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 
 /**
  * Pulse Audio special name for the default sink for the currently active audio
@@ -18,7 +18,7 @@ export const AUDIO_DEVICE_DEFAULT_SINK = '@DEFAULT_SINK@';
  * the resulting output on success.
  */
 export async function pactl(
-  nodeEnv: typeof NODE_ENV,
+  nodeEnv: NODE_ENV,
   logger: Logger,
   args: string[]
 ): Promise<Result<string, string>> {

@@ -11,11 +11,15 @@ import { EventEmitter } from 'node:events';
 import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { testDetectDevices } from '@votingworks/backend';
+import {
+  getNodeEnv,
+  type NODE_ENV,
+  testDetectDevices,
+} from '@votingworks/backend';
 import { mockConstructor } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { buildApp } from './app.js';
-import { NODE_ENV, PORT } from './globals.js';
+import { PORT } from './globals.js';
 import { start } from './server.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/shared_helpers.js';
@@ -70,7 +74,7 @@ test('start passes context to `buildApp`', async () => {
     mockConstructor(() => mockAudioPlayer)
   );
 
-  const mockAudioCard = initMockAudioCard(NODE_ENV, logger, audioCardName);
+  const mockAudioCard = initMockAudioCard(getNodeEnv(), logger, audioCardName);
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -90,7 +94,7 @@ test('start passes context to `buildApp`', async () => {
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
   expect(mockAudioPlayerClass).toHaveBeenCalledWith(
-    NODE_ENV,
+    getNodeEnv(),
     logger,
     mockAudioCard
   );
@@ -140,7 +144,7 @@ test.each([
       workspace.store.setSystemSettings(systemSettings);
     }
 
-    initMockAudioCard(NODE_ENV, logger, audioCardName);
+    initMockAudioCard(getNodeEnv(), logger, audioCardName);
 
     await start({
       auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -161,7 +165,7 @@ test('logs device attach/unattach events', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  initMockAudioCard(NODE_ENV, logger, audioCardName);
+  initMockAudioCard(getNodeEnv(), logger, audioCardName);
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -172,11 +176,7 @@ test('logs device attach/unattach events', async () => {
   testDetectDevices(logger, expect);
 });
 
-function initMockAudioCard(
-  nodeEnv: typeof NODE_ENV,
-  logger: Logger,
-  name: string
-) {
+function initMockAudioCard(nodeEnv: NODE_ENV, logger: Logger, name: string) {
   const mockAudioCard = new AudioCard(nodeEnv, logger, { name });
 
   const mockAudioCardDefault = vi.spyOn(AudioCard, 'default');

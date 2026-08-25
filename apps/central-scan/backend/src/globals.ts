@@ -1,12 +1,6 @@
-import { unsafeParse } from '@votingworks/types';
+import { getNodeEnv } from '@votingworks/backend';
+import { Optional } from '@votingworks/basics';
 import { join } from 'node:path';
-import { z } from 'zod/v4';
-
-const NodeEnvSchema = z.union([
-  z.literal('development'),
-  z.literal('test'),
-  z.literal('production'),
-]);
 
 /**
  * Default port for the scan API.
@@ -15,18 +9,13 @@ const NodeEnvSchema = z.union([
 export const PORT = Number(process.env.FRONTEND_PORT || 3000) + 1;
 
 /**
- * Which node environment is this?
- */
-export const NODE_ENV = unsafeParse(
-  NodeEnvSchema,
-  process.env.NODE_ENV ?? 'development'
-);
-
-/**
  * Where should the database and image files etc go?
  */
-export const SCAN_WORKSPACE =
-  process.env.SCAN_WORKSPACE ??
-  (NODE_ENV === 'development'
-    ? join(import.meta.dirname, '../dev-workspace')
-    : undefined);
+export function getScanWorkspace(): Optional<string> {
+  return (
+    process.env.SCAN_WORKSPACE ??
+    (getNodeEnv() === 'development'
+      ? join(import.meta.dirname, '../dev-workspace')
+      : undefined)
+  );
+}

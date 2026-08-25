@@ -1,6 +1,5 @@
 /* istanbul ignore file */
 
-import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
@@ -13,11 +12,11 @@ import {
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
 import { AvahiService } from '@votingworks/networking';
 import { detectPrinter } from '@votingworks/printing';
-import { WORKSPACE } from './globals.js';
 import * as localServer from './server.js';
 import * as peerServer from './peer_server.js';
 import * as backupWorker from './backup_worker.js';
 import { createLocalWorkspace, createPeerWorkspace } from './workspace.js';
+import { getWorkspace } from './globals.js';
 
 export type { LocalApi as Api } from './app.js';
 export * from './types.js';
@@ -27,12 +26,12 @@ loadEnvVarsFromDotenvFiles();
 function main(): Promise<number> {
   const baseLogger = new BaseLogger(LogSource.VxPollBookBackend);
 
-  if (!WORKSPACE) {
+  const workspacePath = getWorkspace();
+  if (!workspacePath) {
     throw new Error(
       'Workspace path could not be determined; pass a workspace or run with WORKSPACE'
     );
   }
-  const workspacePath = resolve(WORKSPACE);
 
   const auth = new DippedSmartCardAuth({
     card:

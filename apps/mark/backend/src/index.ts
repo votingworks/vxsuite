@@ -7,6 +7,7 @@ import {
 } from '@votingworks/logging';
 import {
   CardReaderErrorTracker,
+  getNodeEnv,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -18,7 +19,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import * as server from './server.js';
-import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals.js';
+import { getMarkWorkspace, PORT } from './globals.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { startElectricalTestingServer } from './electrical_testing/server.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
@@ -40,7 +41,7 @@ loadEnvVarsFromDotenvFiles();
 const baseLogger = new BaseLogger(LogSource.VxMarkBackend);
 
 function resolveWorkspace(): Workspace {
-  const workspacePath = MARK_WORKSPACE;
+  const workspacePath = getMarkWorkspace();
   if (!workspacePath) {
     baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
@@ -81,7 +82,7 @@ async function main(): Promise<number> {
       defaultVolumeOverride: 40,
     });
     const audioPlayer = new AudioPlayer(
-      NODE_ENV,
+      getNodeEnv(),
       logger,
       audioInfo.builtin.name
     );

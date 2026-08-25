@@ -1,7 +1,7 @@
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { execFile } from '../exec';
-import type { NODE_ENV } from '../scan_globals';
+import { type NODE_ENV } from '../globals';
 
 const PULSE_AUDIO_SINK_ID_BUILTIN_SOUND_CARD = '0';
 
@@ -18,10 +18,7 @@ export enum AudioPort {
  * Sets the active audio output port.
  * NOTE: This is only guaranteed to work on production hardware.
  */
-async function impl(
-  nodeEnv: typeof NODE_ENV,
-  portName: AudioPort
-): Promise<void> {
+async function impl(nodeEnv: NODE_ENV, portName: AudioPort): Promise<void> {
   if (nodeEnv !== 'production') {
     return;
   }
@@ -49,7 +46,7 @@ async function impl(
  * NOTE: This is only guaranteed to work on production hardware.
  */
 export async function setBuiltinAudioPort(
-  nodeEnv: typeof NODE_ENV,
+  nodeEnv: NODE_ENV,
   portName: AudioPort,
   logger: Logger,
   opts: {

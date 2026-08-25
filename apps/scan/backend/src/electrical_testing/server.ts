@@ -1,8 +1,8 @@
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { startCpuMetricsLogging } from '@votingworks/backend';
-import { NODE_ENV, PORT } from '../globals.js';
+import { getNodeEnv, startCpuMetricsLogging } from '@votingworks/backend';
+import { PORT } from '../globals.js';
 import { buildApp } from './app.js';
 import { runPrintAndScanTask } from './tasks/print_and_scan_task.js';
 import { ServerContext } from './context.js';
@@ -93,8 +93,9 @@ export async function startElectricalTestingServer(
 }
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
-  const audioCard = await AudioCard.default(NODE_ENV, logger);
-  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioCard);
+  const nodeEnv = getNodeEnv();
+  const audioCard = await AudioCard.default(nodeEnv, logger);
+  const audioPlayer = new AudioPlayer(nodeEnv, logger, audioCard);
 
   // Enables the ability to toggle back and forth between headphone and speaker output
   await audioPlayer.setIsScreenReaderEnabled(true);

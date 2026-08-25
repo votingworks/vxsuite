@@ -12,12 +12,12 @@ import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
 import { getDiskSpaceSummaries } from './disk_space_summaries';
-import { NODE_ENV } from '../scan_globals';
 import {
   getUsbPortStatus,
   toggleUsbPorts,
   UsbPortAction,
 } from './usb_port_status';
+import { getNodeEnv } from '../globals';
 
 function buildApi({
   usbDrive,
@@ -49,11 +49,11 @@ function buildApi({
     powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo: async () => getBatteryInfo({ logger }),
-    getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: NODE_ENV }),
+    getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: getNodeEnv() }),
     getUsbPortStatus: async () =>
-      getUsbPortStatus({ logger, nodeEnv: NODE_ENV }),
+      getUsbPortStatus({ logger, nodeEnv: getNodeEnv() }),
     toggleUsbPorts: async (input: { action: UsbPortAction }) =>
-      toggleUsbPorts({ action: input.action, logger, nodeEnv: NODE_ENV }),
+      toggleUsbPorts({ action: input.action, logger, nodeEnv: getNodeEnv() }),
     getDiskSpaceSummary: async () => {
       const [{ total, used, available }] = await getDiskSpaceSummaries([
         workspacePath,

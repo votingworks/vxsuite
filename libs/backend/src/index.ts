@@ -15,7 +15,7 @@ export * from './initialize_system_audio';
 export * from './is_device_attached';
 export * from './pdf_to_text';
 export * from './system_call';
-export * from './scan_globals';
+export * from './globals';
 export * from './split';
 export * from './task_controller';
 export * from './ui_strings';

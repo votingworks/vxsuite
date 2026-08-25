@@ -5,7 +5,7 @@ import {
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
 import * as server from './server.js';
-import { WORKSPACE } from './globals.js';
+import { getPrintWorkspace } from './globals.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 
 export type { Api } from './app.js';
@@ -15,7 +15,7 @@ loadEnvVarsFromDotenvFiles();
 const baseLogger = new BaseLogger(LogSource.VxPrintBackend);
 
 function resolveWorkspace(): Workspace {
-  const workspacePath = WORKSPACE;
+  const workspacePath = getPrintWorkspace();
   if (!workspacePath) {
     baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:

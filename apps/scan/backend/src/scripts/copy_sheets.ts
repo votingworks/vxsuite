@@ -11,9 +11,8 @@ import {
 import { safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { SCAN_WORKSPACE } from '../globals.js';
 import { Store } from '../store.js';
-import { createWorkspace } from '../util/workspace.js';
+import { createWorkspace, getScanWorkspace } from '../util/workspace.js';
 
 const usageMessage = `Usage: copy-sheets <target-sheet-count>
 
@@ -76,7 +75,7 @@ function copySheet(store: Store, sheet: AcceptedSheet): string {
 
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
   const { store } = createWorkspace(
-    assertDefined(SCAN_WORKSPACE),
+    assertDefined(getScanWorkspace()),
     new BaseLogger(LogSource.VxDevelopmentScript)
   );
 

@@ -5,7 +5,7 @@ import yargs from 'yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { NODE_ENV } from '@votingworks/backend';
+import { getNodeEnv } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
 import { DisplayProgress, ProgressDisplay } from './progress_display.js';
@@ -176,11 +176,12 @@ async function create(
   // straight from the environment and throws when it isn't set, so normalize
   // whatever we resolved into the environment instead of making the caller
   // export it.
+  const nodeEnv = getNodeEnv();
   assert(
-    NODE_ENV !== 'production',
-    `the backups CLI is a development tool, but NODE_ENV is ${NODE_ENV}`
+    nodeEnv !== 'production',
+    `the backups CLI is a development tool, but NODE_ENV is ${nodeEnv}`
   );
-  (process.env as { NODE_ENV?: string }).NODE_ENV = NODE_ENV;
+  (process.env as { NODE_ENV?: string }).NODE_ENV = nodeEnv;
   (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
 
   const logger = new BaseLogger(LogSource.VxAdminService);

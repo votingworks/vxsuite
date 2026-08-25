@@ -5,6 +5,7 @@ import {
   AudioCardProfile,
   getAudioCardName,
   GetAudioCardNameParams,
+  type NODE_ENV,
   setAudioCardProfile,
   SetAudioCardProfileParams,
   setAudioVolume,
@@ -16,7 +17,6 @@ import {
   DEFAULT_SPEAKER_VOLUME,
   MAX_CARD_DETECTION_RETRIES,
 } from './card.js';
-import { NODE_ENV } from '../globals.js';
 
 vi.mock('@votingworks/backend');
 const mockGetCardName = vi.mocked(getAudioCardName);
@@ -32,7 +32,7 @@ test('default()', async () => {
   let currentProfile: AudioCardProfile | undefined;
   mockSetProfile.mockImplementation((p) => {
     expect(p.cardName).toEqual(cardName);
-    expect(p.nodeEnv).toEqual<typeof NODE_ENV>('production');
+    expect(p.nodeEnv).toEqual<NODE_ENV>('production');
     expect(p.logger).toEqual(logger);
     currentProfile = p.profile;
 
@@ -44,7 +44,7 @@ test('default()', async () => {
   mockSetVolume.mockImplementation((p) => {
     expect(currentProfile).not.toBeUndefined();
     expect(p.sinkName).toEqual(AUDIO_DEVICE_DEFAULT_SINK);
-    expect(p.nodeEnv).toEqual<typeof NODE_ENV>('production');
+    expect(p.nodeEnv).toEqual<NODE_ENV>('production');
     expect(p.logger).toEqual(logger);
 
     if (currentProfile === AudioCardProfile.HDMI) {
@@ -121,7 +121,7 @@ test('useSpeaker()', async () => {
 });
 
 function expectOutputSwitch(
-  nodeEnv: typeof NODE_ENV,
+  nodeEnv: NODE_ENV,
   logger: Logger,
   profile: AudioCardProfile
 ) {

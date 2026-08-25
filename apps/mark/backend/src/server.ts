@@ -3,7 +3,7 @@ import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
-import { startCpuMetricsLogging } from '@votingworks/backend';
+import { getNodeEnv, startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
@@ -19,7 +19,6 @@ import {
   getMockPatInputConnected,
   setMockPatInputConnected,
 } from './util/mock_pat_input.js';
-import { NODE_ENV } from './globals.js';
 import { Player as AudioPlayer } from './audio/player.js';
 import {
   getMockAccessibleControllerConnected,
@@ -63,7 +62,11 @@ export async function start({
     : new BarcodeClient(baseLogger);
 
   const audioInfo = await initializeAudio(logger);
-  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+  const audioPlayer = new AudioPlayer(
+    getNodeEnv(),
+    logger,
+    audioInfo.builtin.name
+  );
 
   const context: Context = {
     audioPlayer,
@@ -113,7 +116,7 @@ export async function start({
         disposition: 'success',
       });
 
-      if (NODE_ENV === 'production') {
+      if (getNodeEnv() === 'production') {
         // Play startup chime after a slight delay to allow kiosk-browser to
         // spin up first:
         setTimeout(() => void audioPlayer?.play('chime'), 2 * 1000);

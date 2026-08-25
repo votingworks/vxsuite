@@ -19,7 +19,7 @@ import {
   DEFAULT_DEV_DOCK_DIR,
   useDevDockRouter,
 } from '@votingworks/dev-dock-backend';
-import { PORT, SCAN_WORKSPACE } from './globals.js';
+import { getScanWorkspace, PORT } from './globals.js';
 import { Importer } from './importer.js';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
 import { MockBatchScanner } from './mock_batch_scanner.js';
@@ -53,7 +53,7 @@ export function start({
   let resolvedWorkspace = workspace;
   /* istanbul ignore next */
   if (!resolvedWorkspace) {
-    const workspacePath = SCAN_WORKSPACE;
+    const workspacePath = getScanWorkspace();
     if (!workspacePath) {
       baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
         message:
