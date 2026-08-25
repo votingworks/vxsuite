@@ -21,7 +21,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
-import { getEntries, openZip, readEntry } from '@votingworks/utils';
+import { getEntries, getEntryStream, openZip } from '@votingworks/utils';
 import {
   prepareCastVoteRecord,
   PreparedCastVoteRecord,
@@ -36,6 +36,21 @@ import { Workspace } from './util/workspace.js';
 const debug = rootDebug.extend('network-cvr-transfer');
 
 const TRANSFER_MANIFEST_FILE_NAME = 'manifest.json';
+
+/**
+ * A cast vote record's file set is a report, two images, and at most two
+ * layout files; anything bigger is malformed.
+ */
+const MAX_UPLOAD_ZIP_ENTRIES = 8;
+
+/**
+ * Uploads are capped well above the ~1MB a full-image cast vote record
+ * occupies. Entries are decompressed incrementally and abandoned once they
+ * pass the cap, so a crafted highly-compressed upload can't balloon in memory.
+ */
+const MAX_UPLOAD_ENTRY_BYTES = 15 * 1024 * 1024;
+
+type ZipEntry = ReturnType<typeof getEntries>[number];
 
 const CvrTransferManifestSchema: z.ZodType<CvrTransferManifest> = z.object({
   machineId: z.string(),
@@ -209,6 +224,33 @@ export async function startCvrTransfer(
 }
 
 /**
+ * Decompresses a zip entry, giving up as soon as its output passes `maxBytes`
+ * so the size declared in the zip header never has to be trusted. jszip also
+ * rejects an entry whose output doesn't match its declared size.
+ */
+function readEntryUpTo(
+  entry: ZipEntry,
+  maxBytes: number
+): Promise<Result<Buffer, 'zip entry too large' | 'invalid zip'>> {
+  return new Promise((resolve) => {
+    const stream = getEntryStream(entry);
+    const chunks: Buffer[] = [];
+    let byteLength = 0;
+    stream.on('data', (chunk: Buffer) => {
+      byteLength += chunk.length;
+      if (byteLength > maxBytes) {
+        stream.pause();
+        resolve(err('zip entry too large'));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    stream.on('end', () => resolve(ok(Buffer.concat(chunks))));
+    stream.on('error', () => resolve(err('invalid zip')));
+  });
+}
+
+/**
  * Receives one cast vote record's zipped file set, validates it fully (the
  * same parsing, election checks, and image hash verification as a USB
  * import), and stages it — invisible to every other consumer — for the
@@ -251,19 +293,25 @@ export async function receiveCvrTransferUpload(
   const { adminAdjudicationReasons, markThresholds } =
     store.getSystemSettings(electionId);
 
-  let entries: Awaited<ReturnType<typeof getEntries>>;
+  let entries: ZipEntry[];
   try {
     entries = getEntries(await openZip(zipData)).filter((entry) => !entry.dir);
   } catch {
     return err('invalid zip');
   }
+  if (entries.length > MAX_UPLOAD_ZIP_ENTRIES) {
+    return err('too many zip entries');
+  }
   if (entries.some((entry) => !isSafeId(entry.name))) {
     return err('invalid zip entry name');
   }
-
   const files: Record<string, Buffer> = {};
   for (const entry of entries) {
-    files[entry.name] = await readEntry(entry);
+    const entryResult = await readEntryUpTo(entry, MAX_UPLOAD_ENTRY_BYTES);
+    if (entryResult.isErr()) {
+      return entryResult;
+    }
+    files[entry.name] = entryResult.ok();
   }
 
   const readResult = await readCastVoteRecordFromSource(

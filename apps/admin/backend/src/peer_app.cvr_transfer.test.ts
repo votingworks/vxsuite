@@ -451,6 +451,56 @@ test('upload endpoint rejects invalid requests', async () => {
   );
   expect(wrongType.status).toEqual(400);
 
+  // Too many zip entries
+  const bloatedResponse = await fetch(
+    baseUrl + getCvrTransferUploadPath(SCANNER_ID, batch.batchId, cvr.id),
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/zip' },
+      body: new Uint8Array(
+        await zipFile(
+          Object.fromEntries(
+            Array.from({ length: 10 }, (_, i) => [`file-${i}.json`, '{}'])
+          )
+        )
+      ),
+    }
+  );
+  expect(bloatedResponse.status).toEqual(400);
+
+  // Zip entry that decompresses far larger than any real cast vote record
+  const bombResponse = await fetch(
+    baseUrl + getCvrTransferUploadPath(SCANNER_ID, batch.batchId, cvr.id),
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/zip' },
+      body: new Uint8Array(
+        await zipFile({ 'bomb.json': Buffer.alloc(16 * 1024 * 1024) })
+      ),
+    }
+  );
+  expect(bombResponse.status).toEqual(400);
+  expect(await bombResponse.json()).toEqual({ error: 'zip entry too large' });
+
+  // A zip whose central directory understates an entry's size; jszip catches
+  // the mismatch once the entry is fully decompressed.
+  const lyingZip = await zipFile({ 'lying.json': Buffer.alloc(4096) });
+  const centralDirectoryOffset = lyingZip.indexOf(
+    Buffer.from([0x50, 0x4b, 0x01, 0x02])
+  );
+  // Uncompressed size is 4 bytes at offset 24 of the central directory entry
+  lyingZip.writeUInt32LE(1024, centralDirectoryOffset + 24);
+  const lyingResponse = await fetch(
+    baseUrl + getCvrTransferUploadPath(SCANNER_ID, batch.batchId, cvr.id),
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/zip' },
+      body: new Uint8Array(lyingZip),
+    }
+  );
+  expect(lyingResponse.status).toEqual(400);
+  expect(await lyingResponse.json()).toEqual({ error: 'invalid zip' });
+
   // Zip entry with an unsafe (path-traversing) name. Note jszip sanitizes
   // leading `../` on load, so use a nested path to exercise the guard.
   const evilResponse = await fetch(
