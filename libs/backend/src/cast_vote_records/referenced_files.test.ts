@@ -12,6 +12,7 @@ import {
   ReadCastVoteRecordError,
 } from '@votingworks/types';
 
+import { directoryFileSource } from './file_source';
 import { referencedImageFile, referencedLayoutFile } from './referenced_files';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
@@ -51,12 +52,14 @@ const expectedInvalidLayoutFileHash = createHash('sha256')
   .digest('hex');
 
 let tempDirectoryPath: string;
+let source: ReturnType<typeof directoryFileSource>;
 let imagePath: string;
 let layoutFilePath: string;
 let invalidLayoutFilePath: string;
 
 beforeEach(() => {
   tempDirectoryPath = makeTemporaryDirectory();
+  source = directoryFileSource(tempDirectoryPath);
   imagePath = path.join(tempDirectoryPath, 'file.jpg');
   fs.writeFileSync(imagePath, imageContents);
   layoutFilePath = path.join(tempDirectoryPath, 'file.layout.json');
@@ -72,7 +75,11 @@ afterEach(() => {
 test.each<{
   name: string;
   setupFn: () => void;
-  inputGenerator: () => { expectedFileHash: string; filePath: string };
+  inputGenerator: () => {
+    expectedFileHash: string;
+    source: ReturnType<typeof directoryFileSource>;
+    fileName: string;
+  };
   expectedOutput: Result<Buffer, ReadCastVoteRecordError>;
 }>([
   {
@@ -81,7 +88,8 @@ test.each<{
       vi.mocked(fsPromises.readFile).mockResolvedValue(imageContents),
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
-      filePath: imagePath,
+      source,
+      fileName: 'file.jpg',
     }),
     expectedOutput: ok(imageContents),
   },
@@ -94,7 +102,8 @@ test.each<{
     },
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
-      filePath: 'non-existent-file-path',
+      source,
+      fileName: 'non-existent-file-path',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -108,7 +117,8 @@ test.each<{
     },
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
-      filePath: imagePath,
+      source,
+      fileName: 'file.jpg',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -121,7 +131,8 @@ test.each<{
       vi.mocked(fsPromises.readFile).mockResolvedValue(imageContents),
     inputGenerator: () => ({
       expectedFileHash: 'some-other-hash',
-      filePath: imagePath,
+      source,
+      fileName: 'file.jpg',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -140,7 +151,11 @@ test.each<{
 test.each<{
   name: string;
   setupFn: () => void;
-  inputGenerator: () => { expectedFileHash: string; filePath: string };
+  inputGenerator: () => {
+    expectedFileHash: string;
+    source: ReturnType<typeof directoryFileSource>;
+    fileName: string;
+  };
   expectedOutput: Result<BallotPageLayout, ReadCastVoteRecordError>;
 }>([
   {
@@ -149,7 +164,8 @@ test.each<{
       vi.mocked(fsPromises.readFile).mockResolvedValue(layoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
-      filePath: layoutFilePath,
+      source,
+      fileName: 'file.layout.json',
     }),
     expectedOutput: ok(layout),
   },
@@ -162,7 +178,8 @@ test.each<{
     },
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
-      filePath: 'non-existent-file-path',
+      source,
+      fileName: 'non-existent-file-path',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -175,7 +192,8 @@ test.each<{
       vi.mocked(fsPromises.readFile).mockRejectedValue(new Error('Whoa!')),
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
-      filePath: layoutFilePath,
+      source,
+      fileName: 'file.layout.json',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -188,7 +206,8 @@ test.each<{
       vi.mocked(fsPromises.readFile).mockResolvedValue(layoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: 'some-other-hash',
-      filePath: layoutFilePath,
+      source,
+      fileName: 'file.layout.json',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',
@@ -203,7 +222,8 @@ test.each<{
         .mockResolvedValue(invalidLayoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: expectedInvalidLayoutFileHash,
-      filePath: invalidLayoutFilePath,
+      source,
+      fileName: 'invalid.layout.json',
     }),
     expectedOutput: err({
       type: 'invalid-cast-vote-record',

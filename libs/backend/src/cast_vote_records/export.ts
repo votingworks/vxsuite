@@ -121,7 +121,7 @@ export type ScannerStore = CentralScannerStore | PrecinctScannerStore;
  * State that can be retrieved via the ScannerStore interface and that is unchanged by exporting
  * cast vote records
  */
-interface ScannerStateUnchangedByExport {
+export interface ScannerStateUnchangedByExport {
   batches: BatchInfo[];
   electionDefinition: ElectionDefinition;
   systemSettings: SystemSettings;
@@ -284,10 +284,9 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
 }
 
 function buildCastVoteRecordReportMetadata(
-  exportContext: ExportContext,
+  scannerState: ScannerStateUnchangedByExport,
   options: { hideTime?: boolean } = {}
 ): CVR.CastVoteRecordReport {
-  const { scannerState } = exportContext;
   const { batches, electionDefinition, inTestMode } = scannerState;
   const { election, ballotHash: electionId } = electionDefinition;
   const scannerId = getMachineId();
@@ -307,7 +306,7 @@ function buildCastVoteRecordReportMetadata(
 }
 
 async function buildCastVoteRecord(
-  exportContext: ExportContext,
+  scannerState: ScannerStateUnchangedByExport,
   sheet: AcceptedSheet,
   canonicalizedSheet: CanonicalizedSheet,
   referencedFiles?: {
@@ -315,7 +314,6 @@ async function buildCastVoteRecord(
     layoutFiles?: SheetOf<HashableFile>;
   }
 ): Promise<CVR.CVR> {
-  const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
   const { ballotHash: electionId } = electionDefinition;
   const scannerId = getMachineId();
@@ -369,27 +367,28 @@ async function buildCastVoteRecord(
 }
 
 /**
- * Exports the following for a single cast vote record:
+ * Builds the file set for a single cast vote record:
  * - The cast vote record report (JSON)
  * - The front image (PNG)
  * - The back image (PNG)
  * - If an HMPB, the front interpretation layout (JSON)
  * - If an HMPB, the back interpretation layout (JSON)
  *
- * Returns the cast vote record ID and a hash of the above contents.
+ * Used by both the USB export path and the network sync path.
  */
-async function exportCastVoteRecordFilesToUsbDrive(
-  exportContext: ExportContext,
-  sheet: AcceptedSheet,
-  exportDirectoryPathRelativeToUsbMountPoint: string
+export async function buildCastVoteRecordFiles(
+  scannerState: ScannerStateUnchangedByExport,
+  sheet: AcceptedSheet
 ): Promise<
   Result<
-    { castVoteRecordId: string; castVoteRecordHash: string },
+    {
+      castVoteRecordId: string;
+      castVoteRecordReportFile: ReadableFile;
+      files: ReadableFile[];
+    },
     ExportCastVoteRecordsToUsbDriveError
   >
 > {
-  const { exporter } = exportContext;
-
   const canonicalizeSheetResult = canonicalizeSheet(sheet.interpretation, [
     sheet.frontImagePath,
     sheet.backImagePath,
@@ -399,14 +398,14 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
-  const castVoteRecordFilesToExport: ReadableFile[] = [];
+  const files: ReadableFile[] = [];
 
   const [frontImagePath, backImagePath] = canonicalizedSheet.filenames;
   const imageFiles: SheetOf<ReadableFile> = [
     readableFileFromDisk(frontImagePath),
     readableFileFromDisk(backImagePath),
   ];
-  castVoteRecordFilesToExport.push(...imageFiles);
+  files.push(...imageFiles);
 
   let layoutFiles: SheetOf<ReadableFile> | undefined;
   if (canonicalizedSheet.type === 'hmpb') {
@@ -422,20 +421,20 @@ async function exportCastVoteRecordFilesToUsbDrive(
         JSON.stringify(backInterpretation.layout)
       ),
     ];
-    castVoteRecordFilesToExport.push(...layoutFiles);
+    files.push(...layoutFiles);
   }
 
-  const castVoteRecordReportMetadata = exportContext.scannerState.systemSettings
+  const castVoteRecordReportMetadata = scannerState.systemSettings
     .castVoteRecordsIncludeRedundantMetadata
     ? buildCastVoteRecordReportMetadata(
-        exportContext,
+        scannerState,
         // Hide the time in the metadata for individual cast vote records so that we don't reveal the
         // order in which ballots were cast
         { hideTime: true }
       )
     : undefined;
   const castVoteRecord = await buildCastVoteRecord(
-    exportContext,
+    scannerState,
     sheet,
     canonicalizedSheet,
     { imageFiles, layoutFiles }
@@ -452,9 +451,39 @@ async function exportCastVoteRecordFilesToUsbDrive(
     CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
     JSON.stringify(castVoteRecordReport)
   );
-  castVoteRecordFilesToExport.push(castVoteRecordReportFile);
+  files.push(castVoteRecordReportFile);
 
-  for (const file of castVoteRecordFilesToExport) {
+  return ok({ castVoteRecordId, castVoteRecordReportFile, files });
+}
+
+/**
+ * Exports the file set for a single cast vote record (see
+ * {@link buildCastVoteRecordFiles}) to a USB drive. Returns the cast vote
+ * record ID and a hash of the exported contents.
+ */
+async function exportCastVoteRecordFilesToUsbDrive(
+  exportContext: ExportContext,
+  sheet: AcceptedSheet,
+  exportDirectoryPathRelativeToUsbMountPoint: string
+): Promise<
+  Result<
+    { castVoteRecordId: string; castVoteRecordHash: string },
+    ExportCastVoteRecordsToUsbDriveError
+  >
+> {
+  const { exporter } = exportContext;
+
+  const buildResult = await buildCastVoteRecordFiles(
+    exportContext.scannerState,
+    sheet
+  );
+  if (buildResult.isErr()) {
+    return buildResult;
+  }
+  const { castVoteRecordId, castVoteRecordReportFile, files } =
+    buildResult.ok();
+
+  for (const file of files) {
     const exportResult = await exporter.exportDataToUsbDrive(
       exportDirectoryPathRelativeToUsbMountPoint,
       path.join(castVoteRecordId, file.fileName),
@@ -537,8 +566,9 @@ async function exportMetadataFileToUsbDrive(
 
   const metadata: CastVoteRecordExportMetadata = {
     arePollsClosed,
-    castVoteRecordReportMetadata:
-      buildCastVoteRecordReportMetadata(exportContext),
+    castVoteRecordReportMetadata: buildCastVoteRecordReportMetadata(
+      exportContext.scannerState
+    ),
     castVoteRecordRootHash,
     batchManifest: buildBatchManifest({
       batches: exportContext.scannerState.batches,
