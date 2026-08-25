@@ -46,7 +46,10 @@ import {
 } from './referenced_files';
 import { getImageHash, getLayoutHash } from './build_cast_vote_record';
 
-interface CastVoteRecordAndReferencedFiles {
+/**
+ * A parsed cast vote record and references to its image/layout files
+ */
+export interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;
   castVoteRecordBallotSheetId?: number;
   castVoteRecordCurrentSnapshot: CVR.CVRSnapshot;
@@ -90,25 +93,24 @@ export async function readCastVoteRecordExportMetadata(
   return parseResult;
 }
 
-async function* castVoteRecordGenerator(
-  exportDirectoryPath: string,
+/**
+ * Reads and parses a single cast vote record from its export directory (one
+ * directory per cast vote record, containing the report JSON, ballot images,
+ * and, for HMPBs, layout files). Performs the same basic validation as
+ * {@link readCastVoteRecordExport} does per record. Referenced image and
+ * layout files are not read; they're returned as hash-checked references.
+ */
+export async function readCastVoteRecordFromDirectory(
+  castVoteRecordDirectoryPath: string,
   batchIds: Set<string>
-): AsyncGenerator<
-  Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>
-> {
+): Promise<Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>> {
   function wrapError(
     error: Omit<ReadCastVoteRecordError, 'type'>
   ): Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError> {
     return err({ ...error, type: 'invalid-cast-vote-record' });
   }
 
-  const castVoteRecordIds =
-    await getExportedCastVoteRecordIds(exportDirectoryPath);
-  for (const castVoteRecordId of castVoteRecordIds) {
-    const castVoteRecordDirectoryPath = path.join(
-      exportDirectoryPath,
-      castVoteRecordId
-    );
+  {
     const castVoteRecordReportContents = await fs.readFile(
       path.join(
         castVoteRecordDirectoryPath,
@@ -121,19 +123,16 @@ async function* castVoteRecordGenerator(
       CastVoteRecordReportWithoutMetadataSchema
     );
     if (parseResult.isErr()) {
-      yield wrapError({ subType: 'parse-error' });
-      return;
+      return wrapError({ subType: 'parse-error' });
     }
     const castVoteRecordReport = parseResult.ok();
     if (!castVoteRecordReport.CVR || castVoteRecordReport.CVR.length !== 1) {
-      yield wrapError({ subType: 'parse-error' });
-      return;
+      return wrapError({ subType: 'parse-error' });
     }
     const castVoteRecord = assertDefined(castVoteRecordReport.CVR[0]);
 
     if (!batchIds.has(castVoteRecord.BatchId)) {
-      yield wrapError({ subType: 'batch-id-not-found' });
-      return;
+      return wrapError({ subType: 'batch-id-not-found' });
     }
 
     // Only relevant for HMPBs and multi-page BMD ballots
@@ -143,16 +142,14 @@ async function* castVoteRecordGenerator(
         castVoteRecord.BallotSheetId
       );
       if (parseBallotSheetIdResult.isErr()) {
-        yield wrapError({ subType: 'invalid-ballot-sheet-id' });
-        return;
+        return wrapError({ subType: 'invalid-ballot-sheet-id' });
       }
       castVoteRecordBallotSheetId = parseBallotSheetIdResult.ok();
     }
 
     const castVoteRecordCurrentSnapshot = getCurrentSnapshot(castVoteRecord);
     if (!castVoteRecordCurrentSnapshot) {
-      yield wrapError({ subType: 'no-current-snapshot' });
-      return;
+      return wrapError({ subType: 'no-current-snapshot' });
     }
 
     // HMPB has an "interpreted" current snapshot, while BMD (including multi-page) has an "original"
@@ -166,23 +163,20 @@ async function* castVoteRecordGenerator(
     if (isHandMarkedPaperBallot) {
       castVoteRecordOriginalSnapshot = getOriginalSnapshot(castVoteRecord);
       if (!castVoteRecordOriginalSnapshot) {
-        yield wrapError({ subType: 'no-original-snapshot' });
-        return;
+        return wrapError({ subType: 'no-original-snapshot' });
       }
     }
 
     const castVoteRecordWriteIns =
       getWriteInsFromCastVoteRecord(castVoteRecord);
     if (!castVoteRecordWriteIns.every(isCastVoteRecordWriteInValid)) {
-      yield wrapError({ subType: 'invalid-write-in-field' });
-      return;
+      return wrapError({ subType: 'invalid-write-in-field' });
     }
 
     let referencedFiles: ReferencedFiles | undefined;
     if (castVoteRecord.BallotImage) {
       if (castVoteRecord.BallotImage.length !== 2) {
-        yield wrapError({ subType: 'invalid-ballot-image-field' });
-        return;
+        return wrapError({ subType: 'invalid-ballot-image-field' });
       }
       assert(castVoteRecord.BallotImage[0]);
       assert(castVoteRecord.BallotImage[1]);
@@ -194,8 +188,7 @@ async function* castVoteRecordGenerator(
         !castVoteRecord.BallotImage[0].Location.startsWith('file:') ||
         !castVoteRecord.BallotImage[1].Location.startsWith('file:')
       ) {
-        yield wrapError({ subType: 'invalid-ballot-image-field' });
-        return;
+        return wrapError({ subType: 'invalid-ballot-image-field' });
       }
       const imageHashes: SheetOf<string> = [
         getImageHash(castVoteRecord.BallotImage[0]),
@@ -222,8 +215,7 @@ async function* castVoteRecordGenerator(
       let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
       if (isHandMarkedPaperBallot) {
         if (!layoutFileHash1 || !layoutFileHash2) {
-          yield wrapError({ subType: 'invalid-ballot-image-field' });
-          return;
+          return wrapError({ subType: 'invalid-ballot-image-field' });
         }
         const layoutFileHashes: SheetOf<string> = [
           layoutFileHash1,
@@ -247,7 +239,7 @@ async function* castVoteRecordGenerator(
       referencedFiles = { imageFiles, layoutFiles };
     }
 
-    yield ok({
+    return ok({
       castVoteRecord,
       castVoteRecordBallotSheetId,
       castVoteRecordCurrentSnapshot,
@@ -255,6 +247,26 @@ async function* castVoteRecordGenerator(
       castVoteRecordWriteIns,
       referencedFiles,
     });
+  }
+}
+
+async function* castVoteRecordGenerator(
+  exportDirectoryPath: string,
+  batchIds: Set<string>
+): AsyncGenerator<
+  Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>
+> {
+  const castVoteRecordIds =
+    await getExportedCastVoteRecordIds(exportDirectoryPath);
+  for (const castVoteRecordId of castVoteRecordIds) {
+    const result = await readCastVoteRecordFromDirectory(
+      path.join(exportDirectoryPath, castVoteRecordId),
+      batchIds
+    );
+    yield result;
+    if (result.isErr()) {
+      return;
+    }
   }
 }
 
