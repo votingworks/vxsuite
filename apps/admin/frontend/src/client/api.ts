@@ -2,14 +2,15 @@ import React from 'react';
 import { deepEqual } from '@votingworks/basics';
 import type { ClientApi } from '@votingworks/admin-backend';
 import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
   NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
+  usePollingQuery,
 } from '@votingworks/ui';
 import {
   QueryClient,
   QueryKey,
-  UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -18,10 +19,6 @@ import * as grout from '@votingworks/grout';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<ClientApi>;
-
-type QueryOutput<Method extends keyof ApiClient> = Awaited<
-  ReturnType<ApiClient[Method]>
->;
 
 /* istanbul ignore next - creates real API client */
 export function createApiClient(): ApiClient {
@@ -63,22 +60,12 @@ export const getNetworkConnectionStatus = {
   queryKey(): QueryKey {
     return ['getNetworkConnectionStatus'];
   },
-  /**
-   * `ClientAppRoot` (which is always mounted) is the only component that
-   * should pass a `refetchInterval`. react-query runs a separate refetch
-   * timer for every observer that sets one, so a second polling component
-   * would multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(
-    options?: UseQueryOptions<QueryOutput<'getNetworkConnectionStatus'>>
-  ) {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getNetworkConnectionStatus(),
-      options
+      DEFAULT_QUERY_REFETCH_INTERVAL
     );
   },
 } as const;
@@ -87,12 +74,12 @@ export const getAdjudicationSessionStatus = {
   queryKey(): QueryKey {
     return ['getAdjudicationSessionStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getAdjudicationSessionStatus(),
-      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      DEFAULT_QUERY_REFETCH_INTERVAL
     );
   },
 } as const;
@@ -101,20 +88,14 @@ export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
   },
-  /**
-   * `SessionTimeLimitTracker` (which is always mounted) is the only component
-   * that should pass a `refetchInterval`. react-query runs a separate refetch
-   * timer for every observer that sets one, so a second polling component
-   * would multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(options: UseQueryOptions<QueryOutput<'getSystemSettings'>> = {}) {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSystemSettings(), {
-      staleTime: 0,
-      ...options,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getSystemSettings(),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { staleTime: 0 }
+    );
   },
 } as const;
 
@@ -131,28 +112,24 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
   },
-  /**
-   * `ClientAppRoot` (which is always mounted) is the only component that
-   * should pass a `refetchInterval`. react-query runs a separate refetch
-   * timer for every observer that sets one, so a second polling component
-   * would multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(options: UseQueryOptions<QueryOutput<'getAuthStatus'>> = {}) {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      AUTH_STATUS_POLLING_INTERVAL_MS,
+      {
+        structuralSharing(oldData, newData) {
+          if (!oldData) {
+            return newData;
+          }
 
-        // Prevent infinite re-renders of the app tree:
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-      ...options,
-    });
+          // Prevent infinite re-renders of the app tree:
+          const isUnchanged = deepEqual(oldData, newData);
+          return isUnchanged ? oldData : newData;
+        },
+      }
+    );
   },
 } as const;
 
@@ -199,12 +176,12 @@ export const getCurrentElectionMetadata = {
   queryKey(): QueryKey {
     return ['getCurrentElectionMetadata'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getCurrentElectionMetadata(),
-      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      DEFAULT_QUERY_REFETCH_INTERVAL
     );
   },
 } as const;
@@ -215,18 +192,22 @@ export const getUsbDriveStatus = {
   queryKey(): QueryKey {
     return ['getUsbDriveStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getUsbDriveStatus(),
+      USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      {
+        structuralSharing(oldData, newData) {
+          if (!oldData) {
+            return newData;
+          }
+          const isUnchanged = deepEqual(oldData, newData);
+          return isUnchanged ? oldData : newData;
+        },
+      }
+    );
   },
 } as const;
 
@@ -295,12 +276,13 @@ export const getWriteInCandidates = {
   queryKey(contestIds: string[]): QueryKey {
     return ['getWriteInCandidates', contestIds];
   },
-  useQuery(contestIds: string[]) {
+  usePollingQuery(contestIds: string[]) {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(contestIds),
       () => apiClient.getWriteInCandidates({ contestIds }),
-      { staleTime: 0, refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { staleTime: 0 }
     );
   },
 } as const;

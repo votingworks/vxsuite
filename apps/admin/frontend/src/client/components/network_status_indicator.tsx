@@ -31,7 +31,7 @@ function indicatorStatus(
  * status buckets as VxCentralScan's indicator.
  */
 export function ClientNetworkStatusIndicator(): JSX.Element | null {
-  const networkStatusQuery = getNetworkConnectionStatus.useQuery();
+  const networkStatusQuery = getNetworkConnectionStatus.usePollingQuery();
   if (!networkStatusQuery.isSuccess) return null;
 
   return (

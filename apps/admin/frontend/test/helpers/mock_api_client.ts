@@ -67,10 +67,7 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  | 'getBatteryInfo'
-  | 'getDiskSpaceSummary'
-  | 'isMultiStationAdjudicationEnabled'
-  | 'getNetworkStatus'
+  'getBatteryInfo' | 'getDiskSpaceSummary' | 'isMultiStationAdjudicationEnabled'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -79,9 +76,6 @@ type MockApiClient = Omit<
   // Used by NavigationScreen, which is rendered by nearly every screen, so a
   // standard vitest mock avoids forcing every test to set an expectation.
   isMultiStationAdjudicationEnabled: Mock;
-  // Polled continuously by AppRoot, so a standard vitest mock avoids forcing
-  // every test to set an expectation.
-  getNetworkStatus: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -96,14 +90,6 @@ export function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
     () => Promise.resolve(false)
-  );
-  (mockApiClient.getNetworkStatus as unknown as Mock) = vi.fn(() =>
-    Promise.resolve({
-      isOnline: false,
-      connectedClients: [],
-      connectedScanners: [],
-      multipleHostsDetected: false,
-    })
   );
   // The USB drive watcher long-polls this continuously. Default it to a
   // never-resolving promise; `createApiMock` replaces it with a controllable
@@ -854,7 +840,7 @@ export function createApiMock(
         multipleHostsDetected?: boolean;
       } = {}
     ): void {
-      apiClient.getNetworkStatus.mockResolvedValue({
+      apiClient.getNetworkStatus.expectRepeatedCallsWith().resolves({
         isOnline: overrides.isOnline ?? true,
         connectedClients: overrides.connectedClients ?? [],
         connectedScanners: overrides.connectedScanners ?? [],

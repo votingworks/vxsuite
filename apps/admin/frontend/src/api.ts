@@ -1,11 +1,14 @@
 import React from 'react';
 import { deepEqual, fail } from '@votingworks/basics';
 import type { Api } from '@votingworks/admin-backend';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
+import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+  usePollingQuery,
+} from '@votingworks/ui';
 import {
   QueryClient,
   QueryKey,
-  UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -17,13 +20,9 @@ import type {
 } from '@votingworks/usb-drive';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals.js';
 
-export const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
 export type ApiClient = grout.Client<Api>;
-
-type QueryOutput<Method extends keyof ApiClient> = Awaited<
-  ReturnType<ApiClient[Method]>
->;
 
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
@@ -80,11 +79,13 @@ export const getScannerImportCounts = {
   queryKey(): QueryKey {
     return ['getScannerImportCounts'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getScannerImportCounts(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getScannerImportCounts(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
   },
 } as const;
 
@@ -92,20 +93,13 @@ export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
   },
-  /**
-   * `AppRoot` (which is always mounted) is the only component that should
-   * pass a `refetchInterval`. react-query runs a separate refetch timer for
-   * every observer that sets one, so a second polling component would
-   * multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(options?: UseQueryOptions<QueryOutput<'getNetworkStatus'>>) {
+  usePollingQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getNetworkStatus(),
-      options
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { enabled }
     );
   },
 } as const;
@@ -114,12 +108,12 @@ export const getIsClientAdjudicationEnabled = {
   queryKey(): QueryKey {
     return ['getIsClientAdjudicationEnabled'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getIsClientAdjudicationEnabled(),
-      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      DEFAULT_QUERY_REFETCH_INTERVAL
     );
   },
 } as const;
@@ -145,28 +139,24 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return [this.queryKeyPrefix];
   },
-  /**
-   * `AppRoot` (which is always mounted) is the only component that should
-   * pass a `refetchInterval`. react-query runs a separate refetch timer for
-   * every observer that sets one, so a second polling component would
-   * multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(options: UseQueryOptions<QueryOutput<'getAuthStatus'>> = {}) {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      AUTH_STATUS_POLLING_INTERVAL_MS,
+      {
+        structuralSharing(oldData, newData) {
+          if (!oldData) {
+            return newData;
+          }
 
-        // Prevent infinite re-renders of the app tree:
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-      ...options,
-    });
+          // Prevent infinite re-renders of the app tree:
+          const isUnchanged = deepEqual(oldData, newData);
+          return isUnchanged ? oldData : newData;
+        },
+      }
+    );
   },
 } as const;
 
@@ -216,20 +206,12 @@ export const getPrinterStatus = {
   queryKey(): QueryKey {
     return ['getPrinterStatus'];
   },
-  /**
-   * `PrinterAlertWrapper` (which is always mounted) is the only component
-   * that should pass a `refetchInterval`. react-query runs a separate refetch
-   * timer for every observer that sets one, so a second polling component
-   * would multiply the request rate to the backend. Everything else should
-   * subscribe with `useQuery()` and receive updates through the shared query
-   * cache.
-   */
-  useQuery(options?: UseQueryOptions<QueryOutput<'getPrinterStatus'>>) {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getPrinterStatus(),
-      options
+      PRINTER_STATUS_POLLING_INTERVAL_MS
     );
   },
 } as const;
@@ -352,15 +334,13 @@ export const getBallotAdjudicationQueueMetadata = {
   queryKey(): QueryKey {
     return ['getBallotAdjudicationQueueMetadata'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getBallotAdjudicationQueueMetadata(),
-      {
-        staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      }
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { staleTime: 0 }
     );
   },
 } as const;
@@ -369,15 +349,15 @@ export const getNextCvrIdForBallotAdjudication = {
   queryKey(): QueryKey {
     return ['getNextCvrIdForBallotAdjudication'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getNextCvrIdForBallotAdjudication(),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         cacheTime: 0,
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },
@@ -418,17 +398,17 @@ export const getWriteInCandidates = {
   queryKey(input?: GetWriteInCandidatesInput): QueryKey {
     return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
   },
-  useQuery(
+  usePollingQuery(
     input?: GetWriteInCandidatesInput,
     options: { enabled: boolean } = { enabled: true }
   ) {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(input),
       () => apiClient.getWriteInCandidates(input),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
         ...options,
       }
     );

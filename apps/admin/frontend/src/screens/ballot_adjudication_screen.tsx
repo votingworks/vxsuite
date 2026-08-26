@@ -169,7 +169,7 @@ function contestListItems(
 
 export function BallotAdjudicationScreenWrapper(): JSX.Element {
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
-  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery();
+  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.usePollingQuery();
 
   if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
@@ -402,7 +402,7 @@ function HostBallotAdjudicationScreenDataLoader({
   onExit: () => void;
 }): JSX.Element {
   const ballotImagesQuery = getBallotImages.useQuery({ cvrId });
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery(
+  const writeInCandidatesQuery = getWriteInCandidates.usePollingQuery(
     ballotData
       ? { contestIds: ballotData.contests.map((c) => c.contestId) }
       : undefined,

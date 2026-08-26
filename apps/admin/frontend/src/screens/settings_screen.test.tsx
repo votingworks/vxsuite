@@ -126,12 +126,14 @@ describe('multi-station mode', () => {
 
   test('hides switch to client mode when election configured', async () => {
     apiMock.expectGetUsbPortStatus();
-    apiMock.apiClient.getNetworkStatus.mockResolvedValue({
-      isOnline: true,
-      connectedClients: [],
-      connectedScanners: [],
-      multipleHostsDetected: false,
-    });
+    apiMock.apiClient.getNetworkStatus
+      .expectOptionalRepeatedCallsWith()
+      .resolves({
+        isOnline: true,
+        connectedClients: [],
+        connectedScanners: [],
+        multipleHostsDetected: false,
+      });
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
     await vi.waitFor(() => {
       expect(

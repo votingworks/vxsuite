@@ -1,4 +1,3 @@
-import React from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
@@ -8,15 +7,6 @@ import { mockStatus } from '../../test/fixtures.js';
 import { screen } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { TestScanButton } from './test_scan_button.js';
-import { getStatus, STATUS_POLLING_INTERVAL_MS } from '../api.js';
-
-// In the app, AppRoot is the single status poller and TestScanButton just
-// subscribes to the shared query. Since these tests render the button on its
-// own, this stands in for AppRoot's polling.
-function StatusPoller() {
-  getStatus.useQuery({ refetchInterval: STATUS_POLLING_INTERVAL_MS });
-  return null;
-}
 
 let apiMock: ApiMock;
 
@@ -31,13 +21,7 @@ afterEach(() => {
 
 test('disabled behavior', async () => {
   apiMock.setStatus(mockStatus({ isScannerAttached: true }));
-  renderInAppContext(
-    <React.Fragment>
-      <StatusPoller />
-      <TestScanButton />
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   expect(button).toBeEnabled();
 
@@ -63,13 +47,7 @@ test('disabled behavior', async () => {
 
 test('happy path', async () => {
   apiMock.setStatus(mockStatus({ isScannerAttached: true }));
-  renderInAppContext(
-    <React.Fragment>
-      <StatusPoller />
-      <TestScanButton />
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');
@@ -85,13 +63,7 @@ test('happy path', async () => {
 
 test('fail because no paper', async () => {
   apiMock.setStatus(mockStatus({ isScannerAttached: true }));
-  renderInAppContext(
-    <React.Fragment>
-      <StatusPoller />
-      <TestScanButton />
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');
@@ -102,13 +74,7 @@ test('fail because no paper', async () => {
 
 test('fail because no bad image', async () => {
   apiMock.setStatus(mockStatus({ isScannerAttached: true }));
-  renderInAppContext(
-    <React.Fragment>
-      <StatusPoller />
-      <TestScanButton />
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');

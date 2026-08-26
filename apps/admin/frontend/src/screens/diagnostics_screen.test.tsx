@@ -1,4 +1,3 @@
-import React from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
@@ -9,21 +8,6 @@ import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
 import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_test_page_button.js';
-import {
-  getPrinterStatus,
-  PRINTER_STATUS_POLLING_INTERVAL_MS,
-} from '../api.js';
-
-// In the app, PrinterAlertWrapper is the single printer status poller and
-// DiagnosticsScreen just subscribes to the shared query. Since these tests
-// render the screen on its own, this stands in for PrinterAlertWrapper's
-// polling.
-function PrinterStatusPoller() {
-  getPrinterStatus.useQuery({
-    refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-  });
-  return null;
-}
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -99,15 +83,9 @@ const mockPrinterConfig: PrinterConfig = {
 test('displays printer state and allows diagnostic', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetMostRecentPrinterDiagnostic();
-  renderInAppContext(
-    <React.Fragment>
-      <PrinterStatusPoller />
-      <DiagnosticsScreen />
-    </React.Fragment>,
-    {
-      apiMock,
-    }
-  );
+  renderInAppContext(<DiagnosticsScreen />, {
+    apiMock,
+  });
 
   await expectTextWithIcon('No compatible printer detected', 'circle-info');
 

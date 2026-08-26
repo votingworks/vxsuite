@@ -8,7 +8,7 @@ import { getSystemSettings, getAuthStatus, useApiClient } from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
 
 export function SmartCardsScreen(): JSX.Element | null {
-  const authQuery = getAuthStatus.useQuery();
+  const authQuery = getAuthStatus.usePollingQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
   const apiClient = useApiClient();
   const { electionDefinition } = useContext(AppContext);

@@ -1,11 +1,15 @@
 import { PrintTestPageButton as SharedPrintTestPageButton } from '@votingworks/ui';
-import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api.js';
+import {
+  addDiagnosticRecord,
+  getPrinterStatus,
+  printTestPage,
+} from '../api.js';
 
 export { TEST_PAGE_PRINT_DELAY_SECONDS } from '@votingworks/ui';
 
 export function PrintTestPageButton(): JSX.Element {
   const isPrinterConnected =
-    getPrinterStatus.useQuery().data?.connected ?? false;
+    getPrinterStatus.usePollingQuery().data?.connected ?? false;
   const printTestPageMutation = printTestPage.useMutation();
   const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation();
 

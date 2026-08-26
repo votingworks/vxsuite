@@ -58,7 +58,7 @@ export function PrintButton({
   children,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
-  const printerStatusQuery = getPrinterStatus.useQuery();
+  const printerStatusQuery = getPrinterStatus.usePollingQuery();
 
   const [isShowingConnectPrinterModal, setIsShowingConnectPrinterModal] =
     useState(false);

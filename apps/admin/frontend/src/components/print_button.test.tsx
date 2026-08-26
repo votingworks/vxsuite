@@ -1,28 +1,13 @@
-import React from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, within, act } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import { PrintButton } from './print_button.js';
-import {
-  getPrinterStatus,
-  PRINTER_STATUS_POLLING_INTERVAL_MS,
-} from '../api.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,
 });
-
-// In the app, PrinterAlertWrapper is the single printer status poller and
-// PrintButton just subscribes to the shared query. Since these tests render
-// the button on its own, this stands in for PrinterAlertWrapper's polling.
-function PrinterStatusPoller() {
-  getPrinterStatus.useQuery({
-    refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-  });
-  return null;
-}
 
 let apiMock: ApiMock;
 
@@ -39,13 +24,9 @@ test('happy path flow', async () => {
   apiMock.setPrinterStatus({
     connected: true,
   });
-  renderInAppContext(
-    <React.Fragment>
-      <PrinterStatusPoller />
-      <PrintButton print={mockPrint}>Print</PrintButton>
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
+    apiMock,
+  });
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
 
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -65,13 +46,9 @@ test('prompts user to attach printer if not connected', async () => {
   apiMock.setPrinterStatus({
     connected: false,
   });
-  renderInAppContext(
-    <React.Fragment>
-      <PrinterStatusPoller />
-      <PrintButton print={mockPrint}>Print</PrintButton>
-    </React.Fragment>,
-    { apiMock }
-  );
+  renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
+    apiMock,
+  });
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
 
   // try printing and give up (press "Close")
@@ -104,12 +81,9 @@ test('has option to not show the default progress modal', async () => {
     connected: true,
   });
   renderInAppContext(
-    <React.Fragment>
-      <PrinterStatusPoller />
-      <PrintButton print={mockPrint} useDefaultProgressModal={false}>
-        Print
-      </PrintButton>
-    </React.Fragment>,
+    <PrintButton print={mockPrint} useDefaultProgressModal={false}>
+      Print
+    </PrintButton>,
     { apiMock }
   );
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());

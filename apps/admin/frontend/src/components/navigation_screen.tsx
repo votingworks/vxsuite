@@ -42,7 +42,7 @@ import { ClientNetworkStatusIndicator } from '../client/components/network_statu
 import { NavItem, Sidebar } from './sidebar.js';
 
 function NetworkStatusIndicator(): JSX.Element | null {
-  const networkStatusQuery = getNetworkStatus.useQuery();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
   if (!networkStatusQuery.isSuccess) return null;
 
   const { isOnline, multipleHostsDetected } = networkStatusQuery.data;
