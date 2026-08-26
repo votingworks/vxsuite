@@ -2,8 +2,8 @@ declare namespace NodeJS {
   /** process.env typings */
   export interface ProcessEnv {
     readonly AUTH_ENABLED?: string;
-    readonly AUTH0_CLIENT_ID?: string;
     readonly AUTH0_CLIENT_DOMAIN?: string;
+    readonly AUTH0_CLIENT_ID?: string;
     readonly AUTH0_ISSUER_BASE_URL?: string;
     readonly AUTH0_SECRET?: string;
     readonly AWS_S3_BUCKET_NAME?: string;
@@ -14,13 +14,18 @@ declare namespace NodeJS {
     readonly CIRCLECI_BASE_URL?: string;
     readonly CIRCLECI_BRANCH?: string;
     readonly CIRCLECI_PROJECT_SLUG?: string;
+    readonly CIRCLECI_QA_ORG_IDS?: string;
     readonly CIRCLECI_WEBHOOK_SECRET?: string;
+    readonly DATABASE_URL?: string;
     readonly DEPLOY_ENV: 'development' | 'staging' | 'production';
+    readonly FRONTEND_PORT?: string;
+    readonly HEROKU_APP_NAME?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
+    readonly ORG_ID_SLI?: string;
     readonly ORG_ID_VOTINGWORKS?: string;
     readonly PORT?: string;
-    readonly FRONTEND_PORT?: string;
     readonly SENTRY_DSN?: string;
+    readonly SLACK_WEBHOOK_URL?: string;
     readonly WORKSPACE?: string;
   }
 }

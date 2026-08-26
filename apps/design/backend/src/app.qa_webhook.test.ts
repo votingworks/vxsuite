@@ -8,9 +8,21 @@ import {
   users,
   nonVxUser,
   nonVxJurisdiction,
+  nonVxOrganization,
 } from '../test/mocks.js';
 
 const { setupApp, cleanup } = testSetupHelpers();
+
+/**
+ * A fully configured automated QA environment. Partial configurations are
+ * rejected, so tests set all of these together.
+ */
+const qaEnv = {
+  CIRCLECI_API_TOKEN: 'test-token',
+  CIRCLECI_PROJECT_SLUG: 'gh/test/repo',
+  CIRCLECI_WEBHOOK_SECRET: 'test-secret',
+  CIRCLECI_QA_ORG_IDS: nonVxOrganization.id,
+} as const;
 
 afterAll(async () => {
   await cleanup();
@@ -78,9 +90,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     const nonExistentQaRunId = uuid();
@@ -101,9 +111,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -133,9 +141,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -179,9 +185,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -249,9 +253,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -293,9 +295,7 @@ describe('Export QA Webhook', () => {
       organizations,
       jurisdictions,
       users,
-      env: {
-        CIRCLECI_WEBHOOK_SECRET: 'test-secret',
-      },
+      env: qaEnv,
     });
 
     auth0.setLoggedInUser(nonVxUser);
@@ -332,5 +332,62 @@ describe('Export QA Webhook', () => {
 
     spy.mockRestore();
     consoleErrorSpy.mockRestore();
+  });
+
+  test('QA runs are returned for organizations in the allowlist', async () => {
+    const { workspace, apiClient, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+      env: {
+        ...qaEnv,
+        CIRCLECI_QA_ORG_IDS: `some-other-org, ${nonVxOrganization.id}`,
+      },
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = await createElectionForTest(apiClient);
+    expect(
+      await apiClient.getLatestExportQaRun({ electionId })
+    ).toBeUndefined();
+
+    const qaRunId = uuid();
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+    });
+
+    expect(await apiClient.getLatestExportQaRun({ electionId })).toMatchObject({
+      id: qaRunId,
+      electionId,
+    });
+  });
+
+  test('QA runs are hidden for organizations outside the allowlist', async () => {
+    const { workspace, apiClient, auth0 } = await setupApp({
+      organizations,
+      jurisdictions,
+      users,
+      env: {
+        ...qaEnv,
+        CIRCLECI_QA_ORG_IDS: 'some-other-org',
+      },
+    });
+
+    auth0.setLoggedInUser(nonVxUser);
+
+    const electionId = await createElectionForTest(apiClient);
+    const qaRunId = uuid();
+    await workspace.store.createExportQaRun({
+      id: qaRunId,
+      electionId,
+      exportPackageUrl: 'https://example.com/package.zip',
+    });
+
+    expect(
+      await apiClient.getLatestExportQaRun({ electionId })
+    ).toBeUndefined();
   });
 });

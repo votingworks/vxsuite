@@ -1,11 +1,5 @@
 import { SoftwareVersion } from '@votingworks/types';
-import {
-  circleCiApiToken,
-  circleCiBaseUrl,
-  circleCiBranch,
-  circleCiProjectSlug,
-  isCircleCiEnabled,
-} from './globals.js';
+import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('circleci');
@@ -64,43 +58,17 @@ export interface TriggerPipelineResponse {
  * Client for interacting with the CircleCI API to trigger QA builds.
  */
 export class CircleCiClient {
-  private readonly apiToken: string;
-  private readonly projectSlug: string;
-
-  constructor(apiToken?: string, projectSlug?: string) {
-    this.apiToken = apiToken ?? circleCiApiToken() ?? '';
-    this.projectSlug = projectSlug ?? circleCiProjectSlug() ?? '';
-
-    if (!this.apiToken || !this.projectSlug) {
-      debug(
-        'CircleCI client initialized but not configured: hasToken=%s, hasProjectSlug=%s',
-        !!this.apiToken,
-        !!this.projectSlug
-      );
-    }
-  }
-
-  /**
-   * Check if the CircleCI client is properly configured.
-   */
-  isConfigured(): boolean {
-    return !!this.apiToken && !!this.projectSlug;
-  }
+  constructor(private readonly config: QaConfig) {}
 
   /**
    * Trigger a CircleCI pipeline for QA.
    *
-   * @throws Error if CircleCI is not configured or the API request fails
+   * @throws Error if the API request fails
    */
   async triggerPipeline(
     params: TriggerPipelineParams
   ): Promise<TriggerPipelineResponse> {
-    if (!this.isConfigured()) {
-      throw new Error(
-        'CircleCI client is not configured. Set CIRCLECI_API_TOKEN and CIRCLECI_PROJECT_SLUG environment variables.'
-      );
-    }
-
+    const { apiBaseUrl, apiToken, branch, projectSlug } = this.config;
     const {
       exportPackageUrl,
       webhookUrl,
@@ -109,13 +77,11 @@ export class CircleCiClient {
       vxsuiteVersion,
     } = params;
 
-    const url = `${circleCiBaseUrl()}/api/v2/project/${
-      this.projectSlug
-    }/pipeline`;
+    const url = `${apiBaseUrl}/api/v2/project/${projectSlug}/pipeline`;
 
     debug(
       'Triggering CircleCI pipeline for QA: projectSlug=%s, qaRunId=%s, electionId=%s, url=%s',
-      this.projectSlug,
+      projectSlug,
       qaRunId,
       electionId,
       url
@@ -123,7 +89,7 @@ export class CircleCiClient {
 
     try {
       const body = JSON.stringify({
-        ...(circleCiBranch() ? { branch: circleCiBranch() } : {}),
+        ...(branch ? { branch } : {}),
         parameters: {
           export_package_url: exportPackageUrl,
           webhook_url: webhookUrl,
@@ -135,7 +101,7 @@ export class CircleCiClient {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Circle-Token': this.apiToken,
+          'Circle-Token': apiToken,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
@@ -187,20 +153,11 @@ export class CircleCiClient {
       throw error;
     }
   }
-}
 
-/**
- * Create a CircleCI client instance.
- */
-/* istanbul ignore next */
-export function createCircleCiClient(): CircleCiClient {
-  return new CircleCiClient();
-}
-
-/**
- * Check if CircleCI integration is enabled and configured.
- */
-/* istanbul ignore next */
-export function shouldTriggerCircleCi(): boolean {
-  return isCircleCiEnabled();
+  /**
+   * The CircleCI page for a triggered pipeline, for linking users to the run.
+   */
+  pipelineUrl(pipelineNumber: number): string {
+    return `https://app.circleci.com/pipelines/${this.config.projectSlug}/${pipelineNumber}`;
+  }
 }

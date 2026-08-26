@@ -1,6 +1,7 @@
 import { buildApp } from './app.js';
 import { AppContext } from './context.js';
 import { PORT } from './globals.js';
+import { QaConfig } from './qa_config.js';
 
 /**
  * Starts the server.
@@ -12,5 +13,7 @@ export function start(context: AppContext): void {
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`VxDesign backend running at http://localhost:${PORT}/`);
+    // eslint-disable-next-line no-console
+    console.log(QaConfig.fromEnv()?.summary() ?? 'Automated QA: disabled');
   });
 }
