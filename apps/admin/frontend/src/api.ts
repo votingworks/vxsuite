@@ -807,6 +807,32 @@ export const deleteCvrFile = {
   },
 } as const;
 
+export const getCastVoteRecordsDataVersion = {
+  queryKey(): QueryKey {
+    return ['getCastVoteRecordsDataVersion'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getCastVoteRecordsDataVersion(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+/**
+ * Invalidates everything derived from cast vote records. Exposed for the
+ * refresher that reacts to server-side (network) imports, which have no
+ * frontend mutation to hang invalidation on.
+ */
+export async function invalidateCastVoteRecordDerivedQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await invalidateCastVoteRecordQueries(queryClient);
+  await invalidateWriteInQueries(queryClient);
+}
+
 export const addCastVoteRecordFile = {
   useMutation() {
     const apiClient = useApiClient();

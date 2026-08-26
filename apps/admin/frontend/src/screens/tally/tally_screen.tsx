@@ -17,6 +17,7 @@ import { AppContext } from '../../contexts/app_context.js';
 import { NavScreenLite } from '../../components/navigation_screen.js';
 import { ManualTalliesTab } from './manual_tallies_tab.js';
 import { routerPaths } from '../../router_paths.js';
+import { CvrDataRefresher } from '../../components/cvr_data_refresher.js';
 import { ConfirmRemoveAllResultsModal } from './confirm_remove_all_results_modal.js';
 import { BORDER_LIGHT, GAP } from './styles.js';
 import { CvrsScreen } from './cvrs_screen.js';
@@ -88,6 +89,7 @@ export function TallyScreen(): JSX.Element | null {
 
   return (
     <NavScreenLite>
+      <CvrDataRefresher />
       <Container>
         <TabBar tabs={tabs} />
 
