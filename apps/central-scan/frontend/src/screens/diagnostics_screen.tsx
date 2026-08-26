@@ -29,7 +29,7 @@ const PageLayout = styled.div`
 `;
 
 export function DiagnosticsScreen(): JSX.Element {
-  const statusQuery = getStatus.useQuery();
+  const statusQuery = getStatus.usePollingQuery();
   const electionRecordQuery = getElectionRecord.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getDiskSpaceSummary.useQuery();
@@ -38,10 +38,10 @@ export function DiagnosticsScreen(): JSX.Element {
   const upsDiagnosticRecordQuery = getMostRecentUpsDiagnostic.useQuery();
   const logUpsDiagnosticOutcomeMutation =
     logMostRecentUpsDiagnosticOutcome.useMutation();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.usePollingQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
-  const networkStatusQuery = getNetworkStatus.useQuery();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
 
   if (
     !statusQuery.isSuccess ||

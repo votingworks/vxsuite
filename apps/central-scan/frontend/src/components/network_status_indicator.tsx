@@ -30,7 +30,7 @@ function indicatorStatus(
 }
 
 export function NetworkStatusIndicator(): JSX.Element | null {
-  const networkStatusQuery = getNetworkStatus.useQuery();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
   if (!networkStatusQuery.isSuccess || !networkStatusQuery.data.isEnabled) {
     return null;
   }

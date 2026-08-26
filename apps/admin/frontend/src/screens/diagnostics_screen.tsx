@@ -29,7 +29,7 @@ const PageLayout = styled.div`
 export function DiagnosticsScreen(): JSX.Element {
   const { electionDefinition, electionPackageHash } = useContext(AppContext);
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-  const printerStatusQuery = getPrinterStatus.useQuery();
+  const printerStatusQuery = getPrinterStatus.usePollingQuery();
   const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const diagnosticRecordQuery = getMostRecentPrinterDiagnostic.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();

@@ -4,6 +4,7 @@ import type { Api } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  usePollingQuery,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -78,11 +79,13 @@ export const getScannerImportCounts = {
   queryKey(): QueryKey {
     return ['getScannerImportCounts'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getScannerImportCounts(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getScannerImportCounts(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
   },
 } as const;
 
@@ -90,12 +93,14 @@ export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
   },
-  useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
+  usePollingQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      enabled,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getNetworkStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { enabled }
+    );
   },
 } as const;
 
@@ -103,12 +108,12 @@ export const getIsClientAdjudicationEnabled = {
   queryKey(): QueryKey {
     return ['getIsClientAdjudicationEnabled'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getIsClientAdjudicationEnabled(),
-      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
+      DEFAULT_QUERY_REFETCH_INTERVAL
     );
   },
 } as const;
@@ -134,20 +139,24 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return [this.queryKeyPrefix];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      AUTH_STATUS_POLLING_INTERVAL_MS,
+      {
+        structuralSharing(oldData, newData) {
+          if (!oldData) {
+            return newData;
+          }
 
-        // Prevent infinite re-renders of the app tree:
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+          // Prevent infinite re-renders of the app tree:
+          const isUnchanged = deepEqual(oldData, newData);
+          return isUnchanged ? oldData : newData;
+        },
+      }
+    );
   },
 } as const;
 
@@ -197,11 +206,13 @@ export const getPrinterStatus = {
   queryKey(): QueryKey {
     return ['getPrinterStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
-      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getPrinterStatus(),
+      PRINTER_STATUS_POLLING_INTERVAL_MS
+    );
   },
 } as const;
 
@@ -323,15 +334,13 @@ export const getBallotAdjudicationQueueMetadata = {
   queryKey(): QueryKey {
     return ['getBallotAdjudicationQueueMetadata'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getBallotAdjudicationQueueMetadata(),
-      {
-        staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      }
+      DEFAULT_QUERY_REFETCH_INTERVAL,
+      { staleTime: 0 }
     );
   },
 } as const;
@@ -340,15 +349,15 @@ export const getNextCvrIdForBallotAdjudication = {
   queryKey(): QueryKey {
     return ['getNextCvrIdForBallotAdjudication'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(),
       () => apiClient.getNextCvrIdForBallotAdjudication(),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         cacheTime: 0,
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },
@@ -389,17 +398,17 @@ export const getWriteInCandidates = {
   queryKey(input?: GetWriteInCandidatesInput): QueryKey {
     return input ? ['getWriteInCandidates', input] : ['getWriteInCandidates'];
   },
-  useQuery(
+  usePollingQuery(
     input?: GetWriteInCandidatesInput,
     options: { enabled: boolean } = { enabled: true }
   ) {
     const apiClient = useApiClient();
-    return useQuery(
+    return usePollingQuery(
       this.queryKey(input),
       () => apiClient.getWriteInCandidates(input),
+      DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         staleTime: 0,
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
         ...options,
       }
     );

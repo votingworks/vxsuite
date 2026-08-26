@@ -1021,7 +1021,7 @@ function ContestFormWrapper({
 export function ManualTalliesFormScreen(): JSX.Element | null {
   const { precinctId, ballotStyleGroupId, votingMethod } =
     useParams<ManualTallyFormParams>();
-  const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
+  const getWriteInCandidatesQuery = getWriteInCandidates.usePollingQuery();
   const getManualResultsQuery = getManualResults.useQuery({
     precinctId,
     ballotStyleGroupId,

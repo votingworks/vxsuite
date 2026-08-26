@@ -16,7 +16,7 @@ interface Props {
 export function UnconfiguredElectionScreenWrapper({
   isElectionManagerAuth,
 }: Props): JSX.Element {
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.usePollingQuery();
   // USB drive status is guaranteed to exist because app root will not render
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);

@@ -48,6 +48,7 @@ export * from './hooks/use_language_controls';
 export * from './hooks/use_lock';
 export * from './hooks/use_now';
 export * from './hooks/use_pin_entry';
+export * from './hooks/use_polling_query';
 export * from './hooks/use_screen_info';
 export * from './icons';
 export * from './insert_ballot_image';
