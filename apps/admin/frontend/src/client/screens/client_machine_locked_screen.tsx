@@ -23,7 +23,7 @@ const LockedImage = styled.img`
 function LockScreenFooter(): JSX.Element | null {
   const { electionDefinition, electionPackageHash, machineConfig } =
     useContext(AppContext);
-  const networkStatusQuery = getNetworkConnectionStatus.useQuery();
+  const networkStatusQuery = getNetworkConnectionStatus.usePollingQuery();
   if (!networkStatusQuery.isSuccess) return null;
 
   const status = networkStatusQuery.data;

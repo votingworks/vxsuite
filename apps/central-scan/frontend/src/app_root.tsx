@@ -48,10 +48,10 @@ export interface AppRootProps {
 export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const apiClient = useApiClient();
   const machineConfigQuery = getMachineConfig.useQuery();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const authStatusQuery = getAuthStatus.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.usePollingQuery();
+  const authStatusQuery = getAuthStatus.usePollingQuery();
   const checkPinMutation = checkPin.useMutation();
-  const statusQuery = getStatus.useQuery();
+  const statusQuery = getStatus.usePollingQuery();
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
 

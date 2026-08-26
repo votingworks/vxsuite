@@ -93,8 +93,8 @@ function ScannerStatus({ scanner }: { scanner: MachineRecord }): JSX.Element {
 export function ScannersTab(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
-  const networkStatusQuery = getNetworkStatus.useQuery();
-  const importCountsQuery = getScannerImportCounts.useQuery();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
+  const importCountsQuery = getScannerImportCounts.usePollingQuery();
 
   if (!networkStatusQuery.isSuccess || !importCountsQuery.isSuccess) {
     return <Loading isFullscreen />;

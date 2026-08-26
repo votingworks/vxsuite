@@ -8,9 +8,9 @@ import {
 } from '../api.js';
 
 export function SessionTimeLimitTracker(): JSX.Element {
-  const authStatusQuery = getAuthStatus.useQuery();
+  const authStatusQuery = getAuthStatus.usePollingQuery();
   const logOutMutation = logOut.useMutation();
-  const systemSettingsQuery = getSystemSettings.useQuery();
+  const systemSettingsQuery = getSystemSettings.usePollingQuery();
   const updateSessionExpiryMutation = updateSessionExpiry.useMutation();
 
   return (

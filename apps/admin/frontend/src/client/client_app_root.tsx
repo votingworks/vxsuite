@@ -32,11 +32,11 @@ import { ClientAdjudicationScreen } from './screens/client_adjudication_screen.j
 import { ClientBallotAdjudicationScreen } from './screens/client_ballot_adjudication_screen.js';
 
 export function ClientAppRoot(): JSX.Element | null {
-  const authStatusQuery = getAuthStatus.useQuery();
+  const authStatusQuery = getAuthStatus.usePollingQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const checkPinMutation = checkPin.useMutation();
-  const electionMetadataQuery = getCurrentElectionMetadata.useQuery();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const electionMetadataQuery = getCurrentElectionMetadata.usePollingQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.usePollingQuery();
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const history = useHistory();

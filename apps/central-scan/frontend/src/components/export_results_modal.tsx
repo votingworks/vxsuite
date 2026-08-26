@@ -36,7 +36,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element | null {
 
   const { auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.usePollingQuery();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();

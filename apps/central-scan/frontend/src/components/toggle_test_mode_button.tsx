@@ -7,7 +7,7 @@ import { getStatus, getTestMode, setTestMode } from '../api.js';
  * Presents a button to toggle between test & live modes with a confirmation.
  */
 export function ToggleTestModeButton(): JSX.Element | null {
-  const statusQuery = getStatus.useQuery();
+  const statusQuery = getStatus.usePollingQuery();
 
   const testModeQuery = getTestMode.useQuery();
   const isTestMode = testModeQuery.data ?? false;

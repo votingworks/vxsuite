@@ -125,7 +125,7 @@ function TestScanModal({
 }
 
 export function TestScanButton(): JSX.Element {
-  const statusQuery = getStatus.useQuery();
+  const statusQuery = getStatus.usePollingQuery();
   const isScannerAttached = statusQuery.data?.isScannerAttached ?? false;
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   return (
