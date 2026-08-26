@@ -32,6 +32,7 @@ import noImportSubfolders from './no_import_workspace_subfolders';
 import noExpectToBe from './no_expect_to_be';
 import noManualSleep from './no_manual_sleep';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
+import noRefetchInterval from './no_refetch_interval';
 
 const rules: Record<string, Rule.RuleModule> = {
   'gts-array-type-style': gtsArrayTypeStyle,
@@ -68,6 +69,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-expect-to-be': noExpectToBe,
   'no-manual-sleep': noManualSleep,
   'no-react-hook-mutation-dependency': noReactHookMutationDependency,
+  'no-refetch-interval': noRefetchInterval,
 } as unknown as Record<string, Rule.RuleModule>;
 
 export default rules;
