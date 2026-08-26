@@ -421,7 +421,7 @@ export type RustContestVote =
   | { type: 'straightParty'; value: string[] };
 
 /**
- * Rust-decoded CastVoteRecord (VB\x01 prelude).
+ * Rust-decoded CastVoteRecord (VS\x01 prelude).
  */
 export interface RustCastVoteRecord {
   ballotHash: number[];
@@ -440,3 +440,22 @@ export interface RustCastVoteRecord {
  * Result of decoding raw BMD ballot bytes via the Rust decoder.
  */
 export type BridgeDecodeBmdResult = RustCastVoteRecord;
+
+/**
+ * Rust-decoded bubble ballot page metadata (VB\x01 prelude). The ballot hash
+ * is the partial hash as a hex string, not the full election ballot hash.
+ */
+export interface RustBubbleBallotMetadata {
+  ballotHash: string;
+  precinctId: string;
+  ballotStyleId: string;
+  pageNumber: number;
+  isTestMode: boolean;
+  ballotType: string;
+  ballotAuditId?: string;
+}
+
+/**
+ * Result of decoding raw bubble ballot metadata bytes via the Rust decoder.
+ */
+export type BridgeDecodeBubbleBallotMetadataResult = RustBubbleBallotMetadata;
