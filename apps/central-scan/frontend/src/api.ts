@@ -2,14 +2,13 @@ import React from 'react';
 import { deepEqual } from '@votingworks/basics';
 import type { Api } from '@votingworks/central-scan-backend';
 import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
-  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
 } from '@votingworks/ui';
 import {
   QueryClient,
   QueryKey,
+  UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -17,6 +16,10 @@ import {
 import * as grout from '@votingworks/grout';
 
 export type ApiClient = grout.Client<Api>;
+
+type QueryOutput<Method extends keyof ApiClient> = Awaited<
+  ReturnType<ApiClient[Method]>
+>;
 
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
@@ -44,10 +47,17 @@ export const getUsbDriveStatus = {
   queryKey(): QueryKey {
     return ['getUsbDriveStatus'];
   },
-  useQuery() {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options: UseQueryOptions<QueryOutput<'getUsbDriveStatus'>> = {}) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
       structuralSharing(oldData, newData) {
         if (!oldData) {
           return newData;
@@ -57,6 +67,7 @@ export const getUsbDriveStatus = {
         const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
+      ...options,
     });
   },
 } as const;
@@ -79,11 +90,17 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
   },
-  useQuery() {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options?: UseQueryOptions<QueryOutput<'getAuthStatus'>>) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-    });
+    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), options);
   },
 } as const;
 
@@ -129,18 +146,35 @@ export const getMachineConfig = {
 
 export const NETWORK_STATUS_POLLING_INTERVAL_MS = 1000;
 
+/**
+ * Poll only while networking is enabled. When disabled, the status can't
+ * change without a restart, so a single fetch suffices.
+ */
+export function networkStatusRefetchInterval(
+  data?: QueryOutput<'getNetworkStatus'>
+): number | false {
+  return data?.isEnabled ? NETWORK_STATUS_POLLING_INTERVAL_MS : false;
+}
+
 export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
   },
-  useQuery() {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options?: UseQueryOptions<QueryOutput<'getNetworkStatus'>>) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
-      // Poll only while networking is enabled. When disabled, the status
-      // can't change without a restart, so a single fetch suffices.
-      refetchInterval: (data) =>
-        data?.isEnabled ? NETWORK_STATUS_POLLING_INTERVAL_MS : false,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getNetworkStatus(),
+      options
+    );
   },
 } as const;
 
@@ -154,15 +188,23 @@ export const getElectionRecord = {
   },
 } as const;
 
+export const STATUS_POLLING_INTERVAL_MS = 100;
+
 export const getStatus = {
   queryKey(): QueryKey {
     return ['getStatus'];
   },
-  useQuery() {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options?: UseQueryOptions<QueryOutput<'getStatus'>>) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getStatus(), {
-      refetchInterval: 100,
-    });
+    return useQuery(this.queryKey(), () => apiClient.getStatus(), options);
   },
 } as const;
 

@@ -1,13 +1,11 @@
 import React from 'react';
 import { deepEqual, fail } from '@votingworks/basics';
 import type { Api } from '@votingworks/admin-backend';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
-} from '@votingworks/ui';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 import {
   QueryClient,
   QueryKey,
+  UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -19,9 +17,13 @@ import type {
 } from '@votingworks/usb-drive';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals.js';
 
-const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+export const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
 export type ApiClient = grout.Client<Api>;
+
+type QueryOutput<Method extends keyof ApiClient> = Awaited<
+  ReturnType<ApiClient[Method]>
+>;
 
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
@@ -90,12 +92,21 @@ export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
   },
-  useQuery({ enabled }: { enabled: boolean } = { enabled: true }) {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options?: UseQueryOptions<QueryOutput<'getNetworkStatus'>>) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      enabled,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getNetworkStatus(),
+      options
+    );
   },
 } as const;
 
@@ -134,10 +145,17 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return [this.queryKeyPrefix];
   },
-  useQuery() {
+  /**
+   * `AppRoot` (which is always mounted) is the only component that should
+   * pass a `refetchInterval`. react-query runs a separate refetch timer for
+   * every observer that sets one, so a second polling component would
+   * multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options: UseQueryOptions<QueryOutput<'getAuthStatus'>> = {}) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
       structuralSharing(oldData, newData) {
         if (!oldData) {
           return newData;
@@ -147,6 +165,7 @@ export const getAuthStatus = {
         const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
+      ...options,
     });
   },
 } as const;
@@ -197,11 +216,21 @@ export const getPrinterStatus = {
   queryKey(): QueryKey {
     return ['getPrinterStatus'];
   },
-  useQuery() {
+  /**
+   * `PrinterAlertWrapper` (which is always mounted) is the only component
+   * that should pass a `refetchInterval`. react-query runs a separate refetch
+   * timer for every observer that sets one, so a second polling component
+   * would multiply the request rate to the backend. Everything else should
+   * subscribe with `useQuery()` and receive updates through the shared query
+   * cache.
+   */
+  useQuery(options?: UseQueryOptions<QueryOutput<'getPrinterStatus'>>) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
-      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getPrinterStatus(),
+      options
+    );
   },
 } as const;
 

@@ -6,6 +6,7 @@ import {
   isVendorAuth,
 } from '@votingworks/utils';
 import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
   Main,
   UnlockMachineScreen,
   InvalidCardScreen,
@@ -13,6 +14,7 @@ import {
   Screen,
   SetupCardReaderPage,
   H1,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   VendorScreen,
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
@@ -25,15 +27,18 @@ import { SettingsScreen } from './screens/settings_screen.js';
 
 import { MachineLockedScreen } from './screens/machine_locked_screen.js';
 import {
+  STATUS_POLLING_INTERVAL_MS,
   checkPin,
   getAuthStatus,
   getElectionRecord,
   getMachineConfig,
+  getNetworkStatus,
   getPollingPlaceId,
   getStatus,
   getTestMode,
   getUsbDriveStatus,
   logOut,
+  networkStatusRefetchInterval,
   unconfigure,
   useApiClient,
 } from './api.js';
@@ -48,10 +53,24 @@ export interface AppRootProps {
 export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const apiClient = useApiClient();
   const machineConfigQuery = getMachineConfig.useQuery();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const authStatusQuery = getAuthStatus.useQuery();
+  // AppRoot is the single poller for these queries. Other components
+  // subscribe with `useQuery()` and no `refetchInterval`, receiving updates
+  // through the shared query cache; react-query runs a separate refetch timer
+  // for every observer that sets one, so a second poller would multiply the
+  // request rate to the backend.
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery({
+    refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  });
+  const authStatusQuery = getAuthStatus.useQuery({
+    refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
+  getNetworkStatus.useQuery({
+    refetchInterval: networkStatusRefetchInterval,
+  });
   const checkPinMutation = checkPin.useMutation();
-  const statusQuery = getStatus.useQuery();
+  const statusQuery = getStatus.useQuery({
+    refetchInterval: STATUS_POLLING_INTERVAL_MS,
+  });
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
 

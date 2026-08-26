@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
   InvalidCardScreen,
   RemoveCardScreen,
   SetupCardReaderPage,
@@ -19,10 +20,12 @@ import {
   getAuthStatus,
   getCurrentElectionMetadata,
   getMachineConfig,
+  getNetworkConnectionStatus,
   getUsbDriveStatus,
   logOut,
   useApiClient,
 } from './api.js';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 import { AppContext, AppContextInterface } from '../contexts/app_context.js';
 import { routerPaths } from '../router_paths.js';
 import { ClientMachineLockedScreen } from './screens/client_machine_locked_screen.js';
@@ -32,7 +35,17 @@ import { ClientAdjudicationScreen } from './screens/client_adjudication_screen.j
 import { ClientBallotAdjudicationScreen } from './screens/client_ballot_adjudication_screen.js';
 
 export function ClientAppRoot(): JSX.Element | null {
-  const authStatusQuery = getAuthStatus.useQuery();
+  // ClientAppRoot is the single poller for these queries. Other components
+  // subscribe with `useQuery()` and no `refetchInterval`, receiving updates
+  // through the shared query cache; react-query runs a separate refetch timer
+  // for every observer that sets one, so a second poller would multiply the
+  // request rate to the backend.
+  const authStatusQuery = getAuthStatus.useQuery({
+    refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
+  getNetworkConnectionStatus.useQuery({
+    refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+  });
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const electionMetadataQuery = getCurrentElectionMetadata.useQuery();

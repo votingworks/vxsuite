@@ -1,3 +1,4 @@
+import React from 'react';
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -5,6 +6,17 @@ import { screen } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { createApiMock, ApiMock } from '../../test/api.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
+import { getNetworkStatus, networkStatusRefetchInterval } from '../api.js';
+
+// In the app, AppRoot is the single network status poller and
+// DiagnosticsScreen just subscribes to the shared query. Since these tests
+// render the screen on its own, this stands in for AppRoot's polling.
+function NetworkStatusPoller() {
+  getNetworkStatus.useQuery({
+    refetchInterval: networkStatusRefetchInterval,
+  });
+  return null;
+}
 
 let apiMock: ApiMock;
 
@@ -58,9 +70,15 @@ test('shows the network status when networking is enabled', async () => {
     connection: { status: 'offline' },
   });
 
-  renderInAppContext(<DiagnosticsScreen />, {
-    apiMock,
-  });
+  renderInAppContext(
+    <React.Fragment>
+      <NetworkStatusPoller />
+      <DiagnosticsScreen />
+    </React.Fragment>,
+    {
+      apiMock,
+    }
+  );
 
   await screen.findByText('Network');
   screen.getByText('Offline');

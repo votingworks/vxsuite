@@ -1,3 +1,4 @@
+import React from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
@@ -6,6 +7,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import {
   ApiMock,
   MOCK_PRINTER_CONFIG,
@@ -14,10 +16,21 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { PrinterAlertWrapper } from './printer_alert_wrapper.js';
 import { screen } from '../../test/react_testing_library.js';
+import { getAuthStatus } from '../api.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,
 });
+
+// In the app, AppRoot is the single auth status poller and
+// PrinterAlertWrapper just subscribes to the shared query. Since these tests
+// render the wrapper on its own, this stands in for AppRoot's polling.
+function AuthStatusPoller() {
+  getAuthStatus.useQuery({
+    refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
+  return null;
+}
 
 let apiMock: ApiMock;
 
@@ -129,7 +142,13 @@ test('shows alert only when printer is stopped', async () => {
 test('alert does not show for system administrators or when logged out', async () => {
   setElectionManagerAuth();
   apiMock.setPrinterStatus(ALERT_STATUS);
-  renderInAppContext(<PrinterAlertWrapper />, { apiMock });
+  renderInAppContext(
+    <React.Fragment>
+      <AuthStatusPoller />
+      <PrinterAlertWrapper />
+    </React.Fragment>,
+    { apiMock }
+  );
   await screen.findByText('Printer Alert');
 
   // doesn't show for system administrators

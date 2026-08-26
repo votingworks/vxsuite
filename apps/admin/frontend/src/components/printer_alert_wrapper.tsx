@@ -1,9 +1,18 @@
 import { PrinterAlert } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { getAuthStatus, getPrinterStatus } from '../api.js';
+import {
+  getAuthStatus,
+  getPrinterStatus,
+  PRINTER_STATUS_POLLING_INTERVAL_MS,
+} from '../api.js';
 
 export function PrinterAlertWrapper(): JSX.Element | null {
-  const printerStatusQuery = getPrinterStatus.useQuery();
+  // PrinterAlertWrapper is always mounted and is the single printer status
+  // poller; other components subscribe without a `refetchInterval` and
+  // receive updates through the shared query cache.
+  const printerStatusQuery = getPrinterStatus.useQuery({
+    refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+  });
   const authStatusQuery = getAuthStatus.useQuery();
 
   const printerStatus = printerStatusQuery.data;

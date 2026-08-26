@@ -1,3 +1,4 @@
+import React from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   mockElectionManagerUser,
@@ -5,6 +6,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { constructElectionKey, DippedSmartCardAuth } from '@votingworks/types';
+import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { deferred, ok } from '@votingworks/basics';
@@ -15,6 +17,17 @@ import {
   RenderInAppContextParams,
 } from '../../test/render_in_app_context.js';
 import { SmartCardsScreen } from './smart_cards_screen.js';
+import { getAuthStatus } from '../api.js';
+
+// In the app, AppRoot is the single auth status poller and SmartCardsScreen
+// just subscribes to the shared query. Since these tests render the screen on
+// its own, this stands in for AppRoot's polling.
+function AuthStatusPoller() {
+  getAuthStatus.useQuery({
+    refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
+  return null;
+}
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
@@ -24,10 +37,16 @@ const electionKey = constructElectionKey(election);
 let apiMock: ApiMock;
 
 function renderScreen(params: RenderInAppContextParams = {}) {
-  return renderInAppContext(<SmartCardsScreen />, {
-    electionDefinition,
-    ...params,
-  });
+  return renderInAppContext(
+    <React.Fragment>
+      <AuthStatusPoller />
+      <SmartCardsScreen />
+    </React.Fragment>,
+    {
+      electionDefinition,
+      ...params,
+    }
+  );
 }
 
 const baseAuth = {
