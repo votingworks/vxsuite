@@ -10,7 +10,7 @@
 use napi::{Error, Result};
 use napi_derive::napi;
 use nix::errno::Errno;
-use nix::fcntl::{flock, posix_fadvise, renameat2, FlockArg, PosixFadviseAdvice, RenameFlags};
+use nix::fcntl::{FlockArg, PosixFadviseAdvice, RenameFlags, flock, posix_fadvise, renameat2};
 use nix::unistd::syncfs as nix_syncfs;
 
 fn errno_error(errno: Errno) -> Error {

@@ -8,8 +8,8 @@
 
 use clap::Parser;
 use commands::{
-    ButtonSignal, CommandError, NotificationStatusResponse, SipAndPuffDeviceStatus,
-    SipAndPuffSignalStatus, VersionResponse, RESPONSE_BYTE_LENGTH,
+    ButtonSignal, CommandError, NotificationStatusResponse, RESPONSE_BYTE_LENGTH,
+    SipAndPuffDeviceStatus, SipAndPuffSignalStatus, VersionResponse,
 };
 use daemon_utils::{run_no_op_event_loop, write_pid_file};
 use std::{
@@ -18,16 +18,16 @@ use std::{
     path::{Path, PathBuf},
     process::exit,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     thread::sleep,
     time::{Duration, Instant},
 };
 use uinput::event::keyboard;
 use usb_device::UsbDevice;
-use virtual_keyboard::{create_keyboard, VirtualKeyboard};
-use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
+use virtual_keyboard::{VirtualKeyboard, create_keyboard};
+use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
 mod commands;
 mod usb_device;

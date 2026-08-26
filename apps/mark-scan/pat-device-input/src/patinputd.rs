@@ -13,18 +13,18 @@ use pat_input_reader::PatInputReader;
 use std::{
     process::exit,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     thread,
     time::Duration,
 };
 use uinput::{
-    event::{keyboard, Keyboard},
     Device,
+    event::{Keyboard, keyboard},
 };
 
-use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
+use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
 use crate::pin::GpioPin;
 
@@ -106,9 +106,9 @@ fn main() {
             let mut signal_b = reader.is_signal_b_active();
 
             log!(
-        EventId::ConnectToPatInputInit,
-        "Connected to PAT with initial values [is_connected={is_connected}], [signal_a={signal_a}], [signal_b={signal_b}]"
-    );
+                EventId::ConnectToPatInputInit,
+                "Connected to PAT with initial values [is_connected={is_connected}], [signal_a={signal_a}], [signal_b={signal_b}]"
+            );
 
             loop {
                 if !running.load(Ordering::SeqCst) {
@@ -120,23 +120,25 @@ fn main() {
                 let new_signal_a = reader.is_signal_a_active();
                 let new_signal_b = reader.is_signal_b_active();
 
-                if new_signal_a && !signal_a {
-                    if let Err(err) = send_key(&mut device, keyboard::Key::_1) {
-                        log!(
-                            event_id: EventId::PatDeviceError,
-                            message:  format!("Error sending 1 keypress event: {err}"),
-                            disposition: Disposition::Failure
-                        );
-                    }
+                if new_signal_a
+                    && !signal_a
+                    && let Err(err) = send_key(&mut device, keyboard::Key::_1)
+                {
+                    log!(
+                        event_id: EventId::PatDeviceError,
+                        message: format!("Error sending 1 keypress event: {err}"),
+                        disposition: Disposition::Failure
+                    );
                 }
-                if new_signal_b && !signal_b {
-                    if let Err(err) = send_key(&mut device, keyboard::Key::_2) {
-                        log!(
-                            event_id: EventId::PatDeviceError,
-                            message: format!("Error sending 2 keypress event: {err}"),
-                            disposition: Disposition::Failure
-                        );
-                    }
+                if new_signal_b
+                    && !signal_b
+                    && let Err(err) = send_key(&mut device, keyboard::Key::_2)
+                {
+                    log!(
+                        event_id: EventId::PatDeviceError,
+                        message: format!("Error sending 2 keypress event: {err}"),
+                        disposition: Disposition::Failure
+                    );
                 }
 
                 signal_a = new_signal_a;

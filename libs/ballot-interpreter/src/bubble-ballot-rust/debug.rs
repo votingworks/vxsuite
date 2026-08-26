@@ -8,7 +8,7 @@ use crate::draw_utils::{
     draw_text_mut, text_size,
 };
 use ab_glyph::{FontRef, PxScale};
-use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
+use image::{DynamicImage, GrayImage, Rgb, RgbImage, imageops::rotate180};
 use log::debug;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{
@@ -17,7 +17,7 @@ use types_rs::geometry::{
 
 use crate::ballot_card::{BallotImage, Geometry};
 
-use crate::image_utils::{dark_rainbow, rainbow, VerticalStreak};
+use crate::image_utils::{VerticalStreak, dark_rainbow, rainbow};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::{BubbleRegion, UnitIntervalScore};
 use crate::timing_marks::scoring::CandidateTimingMark;
@@ -128,7 +128,8 @@ pub fn draw_vertical_streaks_debug_image_mut(
         draw_cross_mut(canvas, color, x_start, y);
         draw_text_with_background_mut(
             canvas,
-            &format!("x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
+            &format!(
+                "x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
                 percent_black_pixels = vertical_streak.scores,
                 longest_white_gap_length = vertical_streak.longest_white_gaps
             ),
@@ -538,7 +539,8 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
         draw_cross_mut(canvas, color, x_start, y);
         draw_text_with_background_mut(
             canvas,
-            &format!("x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
+            &format!(
+                "x={x_start}..={x_end}, Black: {percent_black_pixels:?}, Gap: {longest_white_gap_length:?}",
                 percent_black_pixels = vertical_streak.scores,
                 longest_white_gap_length = vertical_streak.longest_white_gaps
             ),

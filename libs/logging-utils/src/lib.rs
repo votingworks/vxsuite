@@ -3,9 +3,9 @@
 use std::path::{Path, PathBuf};
 
 use napi::{
+    Task,
     bindgen_prelude::*,
     threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
-    Task,
 };
 use napi_derive::napi;
 use vx_logging::{Disposition, EventId, Source};

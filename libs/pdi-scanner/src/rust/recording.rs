@@ -23,8 +23,8 @@ use std::{
     time::Instant,
 };
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
-use flate2::{bufread::GzDecoder, write::GzEncoder, Compression};
+use base64::{Engine as _, engine::general_purpose::STANDARD};
+use flate2::{Compression, bufread::GzDecoder, write::GzEncoder};
 use nusb::transfer::TransferError;
 
 use crate::{Error, UsbError};

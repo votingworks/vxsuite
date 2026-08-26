@@ -5,10 +5,10 @@ use bitstream_io::{FromBitStreamWith, ToBitStreamWith};
 use crate::{
     ballot_card::BallotType,
     bmd::{
+        BMD_PRELUDE, PartialBallotHash,
         encoding::{self, BallotAuditId, BallotHeader},
         error::Error,
         votes::ContestVote,
-        PartialBallotHash, BMD_PRELUDE,
     },
     codable,
     election::{BallotStyleId, ContestId, Election, PrecinctId},

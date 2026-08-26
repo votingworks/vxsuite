@@ -9,10 +9,10 @@ use types_rs::{
 
 use crate::{
     ballot_card::{BallotImage, Geometry},
-    image_utils::{rainbow, Inset},
+    image_utils::{Inset, rainbow},
     timing_marks::{
-        rect_could_be_timing_mark, shape_finding::shape_list_builder::ShapeListBuilder,
-        util::median_filter, CandidateTimingMark, DefaultForGeometry,
+        CandidateTimingMark, DefaultForGeometry, rect_could_be_timing_mark,
+        shape_finding::shape_list_builder::ShapeListBuilder, util::median_filter,
     },
 };
 

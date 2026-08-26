@@ -3,8 +3,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use serialport::{available_ports, SerialPort, SerialPortType};
-use vx_logging::{log, Disposition, EventId, EventType};
+use serialport::{SerialPort, SerialPortType, available_ports};
+use vx_logging::{Disposition, EventId, EventType, log};
 
 use crate::commands::EchoCommand;
 

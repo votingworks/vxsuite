@@ -8,7 +8,7 @@ use crate::{
     election::{BallotStyle, BallotStyleId, Contest, ContestId, Election, PrecinctId},
 };
 
-use super::{error::Error, votes::ContestVote, PartialBallotHash};
+use super::{PartialBallotHash, error::Error, votes::ContestVote};
 
 /// Fields decoded from the common header portion of a BMD ballot's bitstream
 /// (ballot hash, precinct index, ballot style index).
@@ -93,10 +93,10 @@ pub fn write_roll_call_and_votes<W: bitstream_io::BitWrite + ?Sized>(
     }
 
     for contest in contests {
-        if let Some(contest_vote) = votes.get(contest.id()) {
-            if contest_vote.has_votes() {
-                w.build_with(contest_vote, contest)?;
-            }
+        if let Some(contest_vote) = votes.get(contest.id())
+            && contest_vote.has_votes()
+        {
+            w.build_with(contest_vote, contest)?;
         }
     }
 

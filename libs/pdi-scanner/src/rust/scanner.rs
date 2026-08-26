@@ -10,7 +10,7 @@ use nusb::transfer::{Completion, RequestBuffer, TransferError};
 
 #[cfg(feature = "recording")]
 use crate::recording;
-use crate::{protocol::parsers, Error, Result, UsbError};
+use crate::{Error, Result, UsbError, protocol::parsers};
 
 use super::protocol::packets::{self, Incoming, IncomingType};
 
@@ -136,10 +136,10 @@ impl Scanner {
         if let Some(stop_tx) = self.stop_tx.take() {
             let _ = stop_tx.send(());
         }
-        if let Some(handle) = self.task_handle.take() {
-            if let Err(err) = handle.await {
-                tracing::error!("Scanner background task failed: {err:?}");
-            }
+        if let Some(handle) = self.task_handle.take()
+            && let Err(err) = handle.await
+        {
+            tracing::error!("Scanner background task failed: {err:?}");
         }
         tracing::debug!("Scanner disconnected");
     }
@@ -453,8 +453,8 @@ mod tests {
     };
 
     use super::{
-        acquire_scanner_lock, claim_error, poll_scanner, BulkInQueue, Scanner, UsbInterface,
-        ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY, ENDPOINT_OUT,
+        BulkInQueue, ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY, ENDPOINT_OUT, Scanner,
+        UsbInterface, acquire_scanner_lock, claim_error, poll_scanner,
     };
 
     const TEST_TIMEOUT: Duration = Duration::from_millis(100);

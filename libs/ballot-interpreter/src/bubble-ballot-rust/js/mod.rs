@@ -11,14 +11,14 @@ use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
-use types_rs::bubble_ballot::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
+use types_rs::bubble_ballot::{PARTIAL_BALLOT_HASH_BYTE_LENGTH, PartialBallotHash};
 use types_rs::coding;
 use types_rs::election::Election;
 
-use crate::ballot_card::{ballot_scan_bubble_image, BallotPage, PaperInfo};
+use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
 use crate::interpret::{
-    self, ballot_card, InterpretedBallotCard, MetadataSource, Options, VerticalStreakDetection,
-    WriteInScoring,
+    self, InterpretedBallotCard, MetadataSource, Options, VerticalStreakDetection, WriteInScoring,
+    ballot_card,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};

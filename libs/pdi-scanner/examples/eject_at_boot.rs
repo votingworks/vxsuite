@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use std::{str::FromStr, time::Duration};
-use tokio::time::{sleep, timeout, Instant};
+use tokio::time::{Instant, sleep, timeout};
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{

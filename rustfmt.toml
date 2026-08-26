@@ -1,5 +1,6 @@
-# Only sets the parser edition, needed when rustfmt is invoked directly on a
-# file (as the lint-staged pre-commit hook does) rather than via `cargo fmt`,
-# which reads the edition from Cargo.toml. Without it, rustfmt parses as
-# edition 2015 and errors on `async fn`. Formatting style is rustfmt defaults.
-edition = "2021"
+# Needed when rustfmt is invoked directly on a file (as the lint-staged
+# pre-commit hook does) rather than via `cargo fmt`, which reads the edition
+# from Cargo.toml. Without it, rustfmt parses as edition 2015 and errors on
+# `async fn`. Keep in sync with the `edition` in every Cargo.toml: it selects
+# both the parser edition and, by default, the matching style edition.
+edition = "2024"

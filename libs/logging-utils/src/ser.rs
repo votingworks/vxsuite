@@ -1,8 +1,8 @@
 use std::cell::Cell;
 
 use serde::{
-    ser::{SerializeSeq, Serializer},
     Serialize,
+    ser::{SerializeSeq, Serializer},
 };
 
 /// Makes a `Serializable` out of an iterable of `Serializable` values.

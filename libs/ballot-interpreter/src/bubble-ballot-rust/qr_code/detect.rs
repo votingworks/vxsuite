@@ -1,6 +1,6 @@
 use std::cell::OnceCell;
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
+use base64::{Engine as _, engine::general_purpose::STANDARD};
 use image::GrayImage;
 use serde::Serialize;
 use types_rs::{

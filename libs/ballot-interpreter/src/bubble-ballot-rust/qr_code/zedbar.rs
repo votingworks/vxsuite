@@ -1,6 +1,6 @@
 use image::{EncodableLayout, GrayImage};
 use types_rs::geometry::{PixelUnit, Point, Rect};
-use zedbar::{config, DecoderConfig, Image, Scanner, SymbolType};
+use zedbar::{DecoderConfig, Image, Scanner, SymbolType, config};
 
 use super::detect::{Detected, DetectionArea, Detector, Error, Result};
 
@@ -26,7 +26,7 @@ pub fn detect_in_areas(detection_areas: &[DetectionArea<'_>]) -> Result {
                 return Err(Error::DetectFailed {
                     detection_areas: detection_area_rects,
                     message: e.to_string(),
-                })
+                });
             }
         }
     }

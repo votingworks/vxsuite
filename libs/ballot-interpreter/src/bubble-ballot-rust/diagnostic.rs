@@ -5,9 +5,9 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use types_rs::geometry::Rect;
 
 use crate::{
-    ballot_card::{ballot_scan_bubble_image, BallotImage},
+    ballot_card::{BallotImage, ballot_scan_bubble_image},
     debug::draw_diagnostic_cells,
-    image_utils::{count_pixels, threshold, BLACK},
+    image_utils::{BLACK, count_pixels, threshold},
 };
 
 const FAIL_SCORE: f32 = 0.05;

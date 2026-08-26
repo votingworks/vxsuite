@@ -403,7 +403,7 @@ mod tests {
         builder.add_slice(0, 0..=10);
         builder.add_slice(7, 0..=10);
         builder.combine_adjacent_shapes(5, 2); // max_x_gap = 5
-                                               // Should not be combined because gap (6) > max_x_gap (5)
+        // Should not be combined because gap (6) > max_x_gap (5)
         assert_eq!(
             builder.into_shapes(),
             vec![
@@ -426,7 +426,7 @@ mod tests {
         builder.add_slice(0, 0..=10);
         builder.add_slice(2, 15..=25); // y offset is 5 pixels
         builder.combine_adjacent_shapes(5, 2); // max_y_offset = 2
-                                               // Should not be combined because y offset (5) > max_y_offset (2)
+        // Should not be combined because y offset (5) > max_y_offset (2)
         assert_eq!(
             builder.into_shapes(),
             vec![

@@ -13,18 +13,18 @@ use std::{
     path::PathBuf,
     process::exit,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     thread::sleep,
     time::Duration,
 };
 use uinput::event::keyboard;
-use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
+use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
 use crate::{
     commands::handle_command,
-    device::{create_keyboard, VirtualKeyboard},
+    device::{VirtualKeyboard, create_keyboard},
     port::Port,
 };
 

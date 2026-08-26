@@ -1,6 +1,6 @@
 use std::{io, time::Duration};
 
-use color_eyre::eyre::{bail, eyre, ErrReport, Result};
+use color_eyre::eyre::{ErrReport, Result, bail, eyre};
 use rusb::{Context, DeviceHandle, UsbContext};
 
 const INTERFACE_NUMBER: u8 = 0x00;

@@ -5,11 +5,11 @@ use std::collections::HashMap;
 use proptest::prelude::Strategy;
 use proptest::proptest;
 use types_rs::ballot_card::BallotType;
+use types_rs::bmd::PartialBallotHash;
 use types_rs::bmd::cvr::{CastVoteRecord, PageNumber};
 use types_rs::bmd::encoding::BallotAuditId;
 use types_rs::bmd::votes::{CandidateVote, ContestVote};
 use types_rs::bmd::write_in_name::WriteInName;
-use types_rs::bmd::PartialBallotHash;
 use types_rs::coding;
 use types_rs::election::{Candidate, Contest, ContestId, DistrictId, Election, OptionId};
 

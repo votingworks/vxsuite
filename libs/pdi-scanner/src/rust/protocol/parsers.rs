@@ -1,22 +1,22 @@
 use std::{str::from_utf8, time::Duration};
 
 use super::{
-    packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
+    Outgoing, Settings, Status, Version,
+    packets::{Incoming, PACKET_DATA_END, PACKET_DATA_START, Packet, crc},
     types::{
         BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
         Register, RegisterIndex, Resolution, Side,
     },
-    Outgoing, Settings, Status, Version,
 };
 use nom::{
+    IResult,
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while_m_n},
     character::is_digit,
     combinator::{map, map_res, value},
     multi::many1,
-    number::complete::{le_u16, le_u8},
-    sequence::{delimited, tuple, Tuple},
-    IResult,
+    number::complete::{le_u8, le_u16},
+    sequence::{Tuple, delimited, tuple},
 };
 
 /// Creates a simple request parser with no payload.
@@ -645,10 +645,10 @@ fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>
 /// Returns an error if the input does not start with a decimal digit.
 pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map_res(take(1usize), |bytes: &[u8]| {
-        if let [byte, ..] = bytes {
-            if is_digit(*byte) {
-                return Ok(*byte - b'0');
-            }
+        if let [byte, ..] = bytes
+            && is_digit(*byte)
+        {
+            return Ok(*byte - b'0');
         }
 
         Err(nom::Err::Failure(nom::error::Error::new(
@@ -706,10 +706,10 @@ pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
 /// number is an invalid percentage.
 pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], ClampedPercentage> {
     map_res(decimal_number, |number| {
-        if let Ok(number) = u8::try_from(number) {
-            if let Some(percentage) = ClampedPercentage::new(number) {
-                return Ok(percentage);
-            }
+        if let Ok(number) = u8::try_from(number)
+            && let Some(percentage) = ClampedPercentage::new(number)
+        {
+            return Ok(percentage);
         }
 
         Err(nom::Err::Failure(nom::error::Error::new(
@@ -874,14 +874,13 @@ pub fn get_current_firmware_build_version_string_response(input: &[u8]) -> IResu
         tag(b":"),
         take(2usize),
     ))(input)
+        && let Some(body) = extract_packet_body(input)
     {
-        if let Some(body) = extract_packet_body(input) {
-            return from_utf8(&input[b"X".len()..])
-                .map(|string| (&[] as &[u8], string))
-                .map_err(|_| {
-                    nom::Err::Failure(nom::error::Error::new(body, nom::error::ErrorKind::Verify))
-                });
-        }
+        return from_utf8(&input[b"X".len()..])
+            .map(|string| (&[] as &[u8], string))
+            .map_err(|_| {
+                nom::Err::Failure(nom::error::Error::new(body, nom::error::ErrorKind::Verify))
+            });
     }
 
     Err(nom::Err::Error(nom::error::Error::new(

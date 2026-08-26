@@ -14,16 +14,16 @@ use tokio::{
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{
+    Error, UsbError,
     client::{Client, DoubleFeedDetectionCalibrationConfig, ImageCalibrationTables},
     protocol::{
-        image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
+        image::{DEFAULT_IMAGE_WIDTH, RawImageData, Sheet},
         packets::{Incoming, IncomingType},
         types::{
             BootEjectMotion, ClampedPercentage, DoubleFeedDetectionCalibrationType,
             DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode, Status,
         },
     },
-    Error, UsbError,
 };
 
 #[cfg(feature = "recording")]
@@ -361,10 +361,10 @@ impl Drop for Output {
         // Close the queue so the writer thread drains what remains and exits,
         // then wait for it: nothing already queued is lost on shutdown.
         drop(self.frames_tx.take());
-        if let Some(writer_thread) = self.writer_thread.take() {
-            if writer_thread.join().is_err() {
-                tracing::error!("stdout writer thread panicked");
-            }
+        if let Some(writer_thread) = self.writer_thread.take()
+            && writer_thread.join().is_err()
+        {
+            tracing::error!("stdout writer thread panicked");
         }
     }
 }
@@ -609,11 +609,10 @@ async fn handle_commands_and_events<
                         // PickOnCommandMode::FeederMustBeReenabledBetweenScans
                         // is supposed to do this, but it only works when the
                         // paper reaches the rear sensors.
-                        if let Some(c) = client.as_mut() {
-                            if let Err(e) = c.set_feeder_mode(FeederMode::Disabled).await {
+                        if let Some(c) = client.as_mut()
+                            && let Err(e) = c.set_feeder_mode(FeederMode::Disabled).await {
                                 tracing::warn!("failed to disable feeder after scan: {e:?}");
                             }
-                        }
 
                         match raw_image_data.try_decode_scan(
                             DEFAULT_IMAGE_WIDTH,
@@ -707,14 +706,14 @@ mod tests {
         recording::{self, Endpoint, Entry, FramePayload, Record},
         scanner::Scanner,
     };
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use tokio::{
         io::{AsyncWriteExt, BufReader},
         sync::mpsc,
         time::timeout,
     };
 
-    use super::{handle_commands_and_events, FRAME_HEADER_LENGTH, FRAME_TYPE_LENGTH};
+    use super::{FRAME_HEADER_LENGTH, FRAME_TYPE_LENGTH, handle_commands_and_events};
 
     const TEST_TIMEOUT: Duration = Duration::from_secs(3);
 
@@ -1664,13 +1663,12 @@ mod tests {
             );
             if let (Ok(Value::Object(mut expected_json)), Ok(Value::Object(mut actual_json))) =
                 parsed
+                && expected_json.contains_key("code")
             {
-                if expected_json.contains_key("code") {
-                    expected_json.remove("message");
-                    actual_json.remove("message");
-                    if expected_json == actual_json {
-                        return;
-                    }
+                expected_json.remove("message");
+                actual_json.remove("message");
+                if expected_json == actual_json {
+                    return;
                 }
             }
             panic!(

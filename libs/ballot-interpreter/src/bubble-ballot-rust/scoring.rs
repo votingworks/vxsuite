@@ -12,7 +12,7 @@ use types_rs::geometry::{PixelPosition, PixelUnit, Point, Quadrilateral, Rect, S
 
 use crate::ballot_card::BallotImage;
 use crate::debug;
-use crate::image_utils::{count_pixels_in_shape, VerticalStreak};
+use crate::image_utils::{VerticalStreak, count_pixels_in_shape};
 use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
 
@@ -190,8 +190,8 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
 
     // Check for vertical streaks after collecting
     for (_, scored_bubble_mark) in &scored_bubbles {
-        if let Some(scored_bubble_mark) = scored_bubble_mark {
-            if detected_vertical_streaks.iter().any(|streak| {
+        if let Some(scored_bubble_mark) = scored_bubble_mark
+            && detected_vertical_streaks.iter().any(|streak| {
                 Rect::new(
                     *streak.x_range.start(),
                     0,
@@ -200,15 +200,15 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
                 )
                 .intersect(&scored_bubble_mark.matched_bounds)
                 .is_some()
-            }) {
-                return Err(Error::VerticalStreaksDetected {
-                    label: label.to_owned(),
-                    x_coordinates: detected_vertical_streaks
-                        .iter()
-                        .flat_map(|streak| streak.x_range.clone())
-                        .collect(),
-                });
-            }
+            })
+        {
+            return Err(Error::VerticalStreaksDetected {
+                label: label.to_owned(),
+                x_coordinates: detected_vertical_streaks
+                    .iter()
+                    .flat_map(|streak| streak.x_range.clone())
+                    .collect(),
+            });
         }
     }
 

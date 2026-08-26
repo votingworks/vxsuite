@@ -2,7 +2,7 @@
 //! previously used. All functions operate directly on `RgbImage` with our own
 //! `Rect` type so no external drawing crate is required.
 
-use ab_glyph::{point, Font, GlyphId, OutlinedGlyph, PxScale, Rect as GlyphRect, ScaleFont};
+use ab_glyph::{Font, GlyphId, OutlinedGlyph, PxScale, Rect as GlyphRect, ScaleFont, point};
 use image::{Rgb, RgbImage};
 use types_rs::geometry::Rect;
 

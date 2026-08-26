@@ -1,6 +1,6 @@
 use std::io::Error;
 use tokio::io::AsyncWriteExt;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tokio_serial::SerialStream;
 
 /// `FuzzyScan` Serial Command packet delimiter (prefix and suffix)

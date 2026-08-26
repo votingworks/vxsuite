@@ -549,74 +549,62 @@ impl Segment {
 
         if let (Some(left_intersection), Some(right_intersection)) =
             (left_intersection, right_intersection)
+            && left_intersection.y >= rect.top() as f32
+            && left_intersection.y <= rect.bottom() as f32
+            && right_intersection.y >= rect.top() as f32
+            && right_intersection.y <= rect.bottom() as f32
         {
-            if left_intersection.y >= rect.top() as f32
-                && left_intersection.y <= rect.bottom() as f32
-                && right_intersection.y >= rect.top() as f32
-                && right_intersection.y <= rect.bottom() as f32
-            {
-                return Some(Self::new(left_intersection, right_intersection));
-            }
+            return Some(Self::new(left_intersection, right_intersection));
         }
 
         if let (Some(top_intersection), Some(bottom_intersection)) =
             (top_intersection, bottom_intersection)
+            && top_intersection.x >= rect.left() as f32
+            && top_intersection.x <= rect.right() as f32
+            && bottom_intersection.x >= rect.left() as f32
+            && bottom_intersection.x <= rect.right() as f32
         {
-            if top_intersection.x >= rect.left() as f32
-                && top_intersection.x <= rect.right() as f32
-                && bottom_intersection.x >= rect.left() as f32
-                && bottom_intersection.x <= rect.right() as f32
-            {
-                return Some(Self::new(top_intersection, bottom_intersection));
-            }
+            return Some(Self::new(top_intersection, bottom_intersection));
         }
 
         if let (Some(left_intersection), Some(top_intersection)) =
             (left_intersection, top_intersection)
+            && left_intersection.y >= rect.top() as f32
+            && left_intersection.y <= rect.bottom() as f32
+            && top_intersection.x >= rect.left() as f32
+            && top_intersection.x <= rect.right() as f32
         {
-            if left_intersection.y >= rect.top() as f32
-                && left_intersection.y <= rect.bottom() as f32
-                && top_intersection.x >= rect.left() as f32
-                && top_intersection.x <= rect.right() as f32
-            {
-                return Some(Self::new(left_intersection, top_intersection));
-            }
+            return Some(Self::new(left_intersection, top_intersection));
         }
 
         if let (Some(left_intersection), Some(bottom_intersection)) =
             (left_intersection, bottom_intersection)
+            && left_intersection.y >= rect.top() as f32
+            && left_intersection.y <= rect.bottom() as f32
+            && bottom_intersection.x >= rect.left() as f32
+            && bottom_intersection.x <= rect.right() as f32
         {
-            if left_intersection.y >= rect.top() as f32
-                && left_intersection.y <= rect.bottom() as f32
-                && bottom_intersection.x >= rect.left() as f32
-                && bottom_intersection.x <= rect.right() as f32
-            {
-                return Some(Self::new(left_intersection, bottom_intersection));
-            }
+            return Some(Self::new(left_intersection, bottom_intersection));
         }
 
         if let (Some(right_intersection), Some(top_intersection)) =
             (right_intersection, top_intersection)
+            && right_intersection.y >= rect.top() as f32
+            && right_intersection.y <= rect.bottom() as f32
+            && top_intersection.x >= rect.left() as f32
+            && top_intersection.x <= rect.right() as f32
         {
-            if right_intersection.y >= rect.top() as f32
-                && right_intersection.y <= rect.bottom() as f32
-                && top_intersection.x >= rect.left() as f32
-                && top_intersection.x <= rect.right() as f32
-            {
-                return Some(Self::new(right_intersection, top_intersection));
-            }
+            return Some(Self::new(right_intersection, top_intersection));
         }
 
         if let (Some(right_intersection), Some(bottom_intersection)) =
             (right_intersection, bottom_intersection)
+            && right_intersection.y >= rect.top() as f32
+            && right_intersection.y <= rect.bottom() as f32
+            && bottom_intersection.x >= rect.left() as f32
+            && bottom_intersection.x <= rect.right() as f32
         {
-            if right_intersection.y >= rect.top() as f32
-                && right_intersection.y <= rect.bottom() as f32
-                && bottom_intersection.x >= rect.left() as f32
-                && bottom_intersection.x <= rect.right() as f32
-            {
-                return Some(Self::new(right_intersection, bottom_intersection));
-            }
+            return Some(Self::new(right_intersection, bottom_intersection));
         }
 
         None
