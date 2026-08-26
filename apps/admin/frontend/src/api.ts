@@ -659,7 +659,12 @@ export const getDiskSpaceSummary = {
 
 // Grouped Invalidations
 
-function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
+function invalidateCastVoteRecordQueries(
+  queryClient: QueryClient,
+  {
+    adjudicationQueueRefetchType = 'active',
+  }: { adjudicationQueueRefetchType?: 'active' | 'none' } = {}
+) {
   return Promise.all([
     // cast vote record endpoints
     queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
@@ -677,7 +682,9 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.resetQueries(getLiveResultsReportingUrl.queryKey()),
 
     // ballot adjudication queues
-    queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey()),
+    queryClient.invalidateQueries(getBallotAdjudicationQueue.queryKey(), {
+      refetchType: adjudicationQueueRefetchType,
+    }),
     queryClient.invalidateQueries(
       getBallotAdjudicationQueueMetadata.queryKey()
     ),
@@ -801,6 +808,34 @@ export const deleteCvrFile = {
     });
   },
 } as const;
+
+export const getCastVoteRecordsDataVersion = {
+  queryKey(): QueryKey {
+    return ['getCastVoteRecordsDataVersion'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getCastVoteRecordsDataVersion(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+/**
+ * Invalidates everything derived from cast vote records. Exposed for the
+ * refresher that reacts to server-side (network) imports, which have no
+ * frontend mutation to hang invalidation on.
+ */
+export async function invalidateCastVoteRecordDerivedQueries(
+  queryClient: QueryClient
+): Promise<void> {
+  await invalidateCastVoteRecordQueries(queryClient, {
+    adjudicationQueueRefetchType: 'none',
+  });
+  await invalidateWriteInQueries(queryClient);
+}
 
 export const addCastVoteRecordFile = {
   useMutation() {

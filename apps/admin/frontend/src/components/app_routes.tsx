@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import {
   SetupCardReaderPage,
@@ -42,6 +42,7 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { BackupsScreen } from '../screens/backups_screen.js';
+import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -136,74 +137,77 @@ export function AppRoutes(): JSX.Element | null {
   // Election manager UI
   assert(isElectionManagerAuth(auth));
   return (
-    <Switch>
-      <Route exact path={routerPaths.election}>
-        <ElectionScreen />
-      </Route>
-      <Route exact path={routerPaths.ballotAdjudication}>
-        <BallotAdjudicationScreen />
-      </Route>
-      <Route exact path={routerPaths.adjudicationCandidates}>
-        <WriteInCandidatesScreen />
-      </Route>
-      <Route path={routerPaths.adjudication}>
-        <AdjudicationStartScreen />
-      </Route>
-      <Route
-        path={routerPaths.tallyManualForm({
-          precinctId: ':precinctId',
-          ballotStyleGroupId: ':ballotStyleGroupId',
-          votingMethod: ':votingMethod' as ManualResultsVotingMethod,
-        })}
-      >
-        <ManualTalliesFormScreen />
-      </Route>
-      <Route path={routerPaths.tally}>
-        <TallyScreen />
-      </Route>
-      <Route exact path={routerPaths.reports}>
-        <ReportsScreen />
-      </Route>
-      <Route exact path={routerPaths.tallyReportBuilder}>
-        <TallyReportBuilder />
-      </Route>
-      <Route exact path={routerPaths.tallyFullReport}>
-        <FullElectionTallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.tallySinglePrecinctReport}>
-        <SinglePrecinctTallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.tallyAllPrecinctsReport}>
-        <AllPrecinctsTallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.ballotCountReportBuilder}>
-        <BallotCountReportBuilder />
-      </Route>
-      <Route exact path={routerPaths.ballotCountReportPrecinct}>
-        <PrecinctBallotCountReport />
-      </Route>
-      <Route exact path={routerPaths.ballotCountReportVotingMethod}>
-        <VotingMethodBallotCountReport />
-      </Route>
-      <Route exact path={[routerPaths.tallyWriteInReport]}>
-        <TallyWriteInReportScreen />
-      </Route>
-      <Route exact path={routerPaths.writeInImageReport}>
-        <WriteInImageReportScreen />
-      </Route>
-      <Route exact path={routerPaths.voterTurnoutReport}>
-        <VoterTurnoutReportScreen />
-      </Route>
-      <Route exact path={routerPaths.sendTallyReports}>
-        <SendTallyReportsScreen />
-      </Route>
-      <Route exact path={routerPaths.settings}>
-        <SettingsScreen />
-      </Route>
-      <Route exact path={routerPaths.hardwareDiagnostics}>
-        <DiagnosticsScreen />
-      </Route>
-      <Redirect to={routerPaths.election} />
-    </Switch>
+    <React.Fragment>
+      <CvrDataRefresher />
+      <Switch>
+        <Route exact path={routerPaths.election}>
+          <ElectionScreen />
+        </Route>
+        <Route exact path={routerPaths.ballotAdjudication}>
+          <BallotAdjudicationScreen />
+        </Route>
+        <Route exact path={routerPaths.adjudicationCandidates}>
+          <WriteInCandidatesScreen />
+        </Route>
+        <Route path={routerPaths.adjudication}>
+          <AdjudicationStartScreen />
+        </Route>
+        <Route
+          path={routerPaths.tallyManualForm({
+            precinctId: ':precinctId',
+            ballotStyleGroupId: ':ballotStyleGroupId',
+            votingMethod: ':votingMethod' as ManualResultsVotingMethod,
+          })}
+        >
+          <ManualTalliesFormScreen />
+        </Route>
+        <Route path={routerPaths.tally}>
+          <TallyScreen />
+        </Route>
+        <Route exact path={routerPaths.reports}>
+          <ReportsScreen />
+        </Route>
+        <Route exact path={routerPaths.tallyReportBuilder}>
+          <TallyReportBuilder />
+        </Route>
+        <Route exact path={routerPaths.tallyFullReport}>
+          <FullElectionTallyReportScreen />
+        </Route>
+        <Route exact path={routerPaths.tallySinglePrecinctReport}>
+          <SinglePrecinctTallyReportScreen />
+        </Route>
+        <Route exact path={routerPaths.tallyAllPrecinctsReport}>
+          <AllPrecinctsTallyReportScreen />
+        </Route>
+        <Route exact path={routerPaths.ballotCountReportBuilder}>
+          <BallotCountReportBuilder />
+        </Route>
+        <Route exact path={routerPaths.ballotCountReportPrecinct}>
+          <PrecinctBallotCountReport />
+        </Route>
+        <Route exact path={routerPaths.ballotCountReportVotingMethod}>
+          <VotingMethodBallotCountReport />
+        </Route>
+        <Route exact path={[routerPaths.tallyWriteInReport]}>
+          <TallyWriteInReportScreen />
+        </Route>
+        <Route exact path={routerPaths.writeInImageReport}>
+          <WriteInImageReportScreen />
+        </Route>
+        <Route exact path={routerPaths.voterTurnoutReport}>
+          <VoterTurnoutReportScreen />
+        </Route>
+        <Route exact path={routerPaths.sendTallyReports}>
+          <SendTallyReportsScreen />
+        </Route>
+        <Route exact path={routerPaths.settings}>
+          <SettingsScreen />
+        </Route>
+        <Route exact path={routerPaths.hardwareDiagnostics}>
+          <DiagnosticsScreen />
+        </Route>
+        <Redirect to={routerPaths.election} />
+      </Switch>
+    </React.Fragment>
   );
 }

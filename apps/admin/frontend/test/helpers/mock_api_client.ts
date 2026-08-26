@@ -67,7 +67,10 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  'getBatteryInfo' | 'getDiskSpaceSummary' | 'isMultiStationAdjudicationEnabled'
+  | 'getBatteryInfo'
+  | 'getDiskSpaceSummary'
+  | 'isMultiStationAdjudicationEnabled'
+  | 'getCastVoteRecordsDataVersion'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -76,6 +79,9 @@ type MockApiClient = Omit<
   // Used by NavigationScreen, which is rendered by nearly every screen, so a
   // standard vitest mock avoids forcing every test to set an expectation.
   isMultiStationAdjudicationEnabled: Mock;
+  // Polled continuously by the tally screen's CvrDataRefresher, so a
+  // standard vitest mock avoids forcing every test to set an expectation.
+  getCastVoteRecordsDataVersion: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -90,6 +96,9 @@ export function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
     () => Promise.resolve(false)
+  );
+  (mockApiClient.getCastVoteRecordsDataVersion as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(0)
   );
   // The USB drive watcher long-polls this continuously. Default it to a
   // never-resolving promise; `createApiMock` replaces it with a controllable
@@ -846,6 +855,10 @@ export function createApiMock(
         connectedScanners: overrides.connectedScanners ?? [],
         multipleHostsDetected: overrides.multipleHostsDetected ?? false,
       });
+    },
+
+    setCastVoteRecordsDataVersion(version: number): void {
+      apiClient.getCastVoteRecordsDataVersion.mockResolvedValue(version);
     },
 
     expectGetScannerImportCounts(

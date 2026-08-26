@@ -5,11 +5,17 @@ import {
 } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
+import { assertDefined } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, waitFor } from '../../../test/react_testing_library.js';
 import { TallyScreen } from './tally_screen.js';
+import { AppRoutes } from '../../components/app_routes.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
+import { mockCastVoteRecordFileRecord } from '../../../test/api_mock_data.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -30,6 +36,37 @@ afterEach(() => {
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const nLocations = electionDefinition.election.pollingPlaces.length;
+
+test('refreshes CVR data when the server-side data version changes', async () => {
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetCastVoteRecordFiles([]);
+  // The refresher is mounted by the election manager routes, not the screen
+  renderInAppContext(<AppRoutes />, {
+    electionDefinition,
+    apiMock,
+    route: '/tally',
+  });
+  await waitFor(() => apiMock.assertComplete());
+  const locationsCardText = ['Locations', `0 / ${nLocations}`].join('');
+  screen.getByText(hasTextAcrossElements(locationsCardText));
+
+  // A networked scanner's import lands: the data version moves and the
+  // CVR-derived queries refetch without any user action.
+  apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetCastVoteRecordFiles([
+    {
+      ...mockCastVoteRecordFileRecord,
+      pollingPlaceIds: [
+        assertDefined(electionDefinition.election.pollingPlaces[0]).id,
+      ],
+    },
+  ]);
+  apiMock.setCastVoteRecordsDataVersion(1);
+  await vi.advanceTimersByTimeAsync(1000);
+
+  const updatedCardText = ['Locations', `1 / ${nLocations}`].join('');
+  await waitFor(() => screen.getByText(hasTextAcrossElements(updatedCardText)));
+});
 
 test('has tabs for CVRs and Manual Tallies', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
