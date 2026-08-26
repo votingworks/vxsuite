@@ -18,7 +18,10 @@ import type {
   UsbDriveStatus,
   UsbPartitionMountpoint,
 } from '@votingworks/usb-drive';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals.js';
+import {
+  DEFAULT_QUERY_REFETCH_INTERVAL,
+  SCANNER_IMPORT_COUNTS_REFETCH_INTERVAL,
+} from './utils/globals.js';
 
 export const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -81,10 +84,12 @@ export const getScannerImportCounts = {
   },
   usePollingQuery() {
     const apiClient = useApiClient();
+    // Counting imported CVRs scans every cast vote record row, so this polls
+    // far less often than the default interval.
     return usePollingQuery(
       this.queryKey(),
       () => apiClient.getScannerImportCounts(),
-      DEFAULT_QUERY_REFETCH_INTERVAL
+      SCANNER_IMPORT_COUNTS_REFETCH_INTERVAL
     );
   },
 } as const;
