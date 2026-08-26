@@ -151,7 +151,7 @@ test('reclaims a killed run’s staging area before measuring free space', async
 
   // What a run killed mid-copy leaves: a staging area holding a real copy of
   // the database, at the one path a staging area ever occupies.
-  const stagingAreaPath = BackupStagingArea.pathIn(workspace.path);
+  const stagingAreaPath = workspace.layout.backupStagingPath;
   mkdirSync(join(stagingAreaPath, 'copy-root'), { recursive: true });
   writeFileSync(join(stagingAreaPath, 'copy-root', 'data.db'), 'stale');
 
@@ -197,7 +197,7 @@ test('reclaims a killed run’s staging area before measuring free space', async
 test('refuses when a backup of the workspace is already running', async () => {
   const workspace = await makeConfiguredWorkspace();
   const held = (
-    await BackupStagingArea.inWorkspace(workspace.path)
+    await BackupStagingArea.inWorkspace(workspace.layout)
   ).unsafeUnwrap();
 
   const result = await prepare({

@@ -48,6 +48,7 @@ import {
   FileBackedMachineModeController,
   MachineModeController,
 } from './machine_mode.js';
+import { WorkspaceLayout } from './util/workspace_layout.js';
 
 const debug = rootDebug.extend('server');
 
@@ -108,7 +109,9 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
   const machineMode =
     options.machineMode ??
-    FileBackedMachineModeController.forWorkspace(workspacePath);
+    new FileBackedMachineModeController(
+      new WorkspaceLayout(workspacePath).machineModePath
+    );
 
   let app;
 

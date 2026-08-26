@@ -11,6 +11,7 @@ import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { Stats } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { openWorkspace } from '../../util/workspace.js';
+import { WorkspaceLayout } from '../../util/workspace_layout.js';
 import { Store } from '../../store.js';
 import { PrepareBackupOptions } from './types.js';
 import { BackupStagingArea } from '../staging_area.js';
@@ -112,7 +113,8 @@ export async function prepare(
   // so the free space measured below doesn't count a dead run's snapshot
   // against this one, and it holds the lock that makes reclaiming safe.
   const stagingAreaResult = await BackupStagingArea.inWorkspace(
-    options.workspace
+    // TODO: replace with `options.workspace.layout` once #9222 lands
+    new WorkspaceLayout(options.workspace)
   );
   if (stagingAreaResult.isErr()) {
     return err({

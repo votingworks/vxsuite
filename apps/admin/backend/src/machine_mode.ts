@@ -1,5 +1,4 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import type { MachineMode } from './types.js';
 
@@ -35,11 +34,5 @@ export class FileBackedMachineModeController {
 
   set(mode: MachineMode): void {
     writeFileSync(this.filePath, mode === 'client' ? mode : 'host', 'utf-8');
-  }
-
-  static forWorkspace(workspacePath: string): FileBackedMachineModeController {
-    return new FileBackedMachineModeController(
-      join(workspacePath, 'machine_mode')
-    );
   }
 }

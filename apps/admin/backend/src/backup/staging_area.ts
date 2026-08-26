@@ -7,9 +7,8 @@ import {
   isLockHeldElsewhereError,
   tryLockFileExclusive,
 } from '@votingworks/fs';
+import { WorkspaceLayout } from '../util/workspace_layout.js';
 
-const DIRECTORY_NAME = 'backup-staging';
-const LOCKFILE_NAME = 'backup-staging.lock';
 const COPY_ROOT = 'copy-root';
 
 /**
@@ -43,27 +42,10 @@ export class BackupStagingArea {
   private readonly readyFiles = new Map<string, { size: number }>();
 
   private constructor(
-    private readonly workspacePath: string,
+    private readonly layout: WorkspaceLayout,
     private readonly stagingAreaPath: string,
     private readonly lock: FileLock
   ) {}
-
-  /**
-   * Path a workspace's staging area always occupies. Fixed rather than unique
-   * so that whatever an interrupted run left behind is found and reclaimed by
-   * the next one, instead of accumulating.
-   */
-  static pathIn(workspacePath: string): string {
-    return join(workspacePath, DIRECTORY_NAME);
-  }
-
-  /**
-   * Path of the lock held for as long as a workspace has a staging area. Kept
-   * outside the staging area itself, which is deleted and recreated.
-   */
-  static lockPathIn(workspacePath: string): string {
-    return join(workspacePath, LOCKFILE_NAME);
-  }
 
   /**
    * Creates the workspace's staging area for the links to go, reclaiming any a
@@ -76,11 +58,9 @@ export class BackupStagingArea {
    * race, and one that predates this.
    */
   static async inWorkspace(
-    workspacePath: string
+    layout: WorkspaceLayout
   ): Promise<Result<BackupStagingArea, StagingAreaBusyError>> {
-    const lockResult = await tryLockFileExclusive(
-      BackupStagingArea.lockPathIn(workspacePath)
-    );
+    const lockResult = await tryLockFileExclusive(layout.backupStagingLockPath);
 
     if (lockResult.isErr() && isLockHeldElsewhereError(lockResult.err())) {
       return err({
@@ -91,7 +71,7 @@ export class BackupStagingArea {
 
     // Any other failure to lock is not something a caller can act on.
     const lock = lockResult.unsafeUnwrap();
-    const stagingAreaPath = BackupStagingArea.pathIn(workspacePath);
+    const stagingAreaPath = layout.backupStagingPath;
 
     try {
       // A staging area only outlives the run that made it when that run was
@@ -106,7 +86,7 @@ export class BackupStagingArea {
       throw error;
     }
 
-    return ok(new BackupStagingArea(workspacePath, stagingAreaPath, lock));
+    return ok(new BackupStagingArea(layout, stagingAreaPath, lock));
   }
 
   /**
@@ -117,9 +97,11 @@ export class BackupStagingArea {
    * Call {@link markStagingPathReady} once you've finished writing the file.
    */
   async prepareStagingPath(workspaceFilePath: string): Promise<string> {
-    const relativePath = relative(this.workspacePath, workspaceFilePath);
-    assert(!relativePath.startsWith('../'));
-    const destPath = join(this.stagingAreaPath, COPY_ROOT, relativePath);
+    const destPath = join(
+      this.stagingAreaPath,
+      COPY_ROOT,
+      this.layout.relativeToContent(workspaceFilePath)
+    );
 
     assert(
       !this.readyFiles.has(destPath),
