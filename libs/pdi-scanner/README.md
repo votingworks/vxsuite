@@ -9,8 +9,12 @@ stdin/stdout.
 To run a TypeScript demo script:
 
 ```sh
+pnpm build:self
 ./src/ts/demo
 ```
+
+The demo script runs the compiled output, so rebuild it after changing anything
+under `src/ts/`.
 
 ## Development
 

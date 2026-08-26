@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
-// Runs the compiled output rather than transpiling `src` on the fly: the
-// esbuild-runner hook this used to go through is a CommonJS `require` hook and
-// cannot load this package's ESM sources. The `generate-vxprint-test-print`
-// package script builds first; run `pnpm build:self` if invoking this directly.
+// Runs the compiled output; run `pnpm build:self` first.
 import { main } from '../build/generate_vxprint_test_print.js';
 
 main()

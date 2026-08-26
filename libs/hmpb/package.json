@@ -67,7 +67,6 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "jest-image-snapshot": "^6.4.0",

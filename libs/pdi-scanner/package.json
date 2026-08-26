@@ -45,7 +45,6 @@
     "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "vitest": "^4.1.6"
   },

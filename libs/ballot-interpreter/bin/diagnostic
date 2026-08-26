@@ -2,9 +2,7 @@
 
 // @ts-check
 
-// Runs the compiled output rather than transpiling `src` on the fly: the
-// esbuild-runner hook this used to go through is a CommonJS `require` hook and
-// cannot load this package's ESM sources. Run `pnpm build:self` first.
+// Runs the compiled output; run `pnpm build:self` first.
 import { main } from '../build/bubble-ballot-ts/diagnostic_cli.js';
 
 main(process.argv.slice(2)).catch((err) => {
