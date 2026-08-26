@@ -5,8 +5,8 @@ use crate::{
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
-        corner_finding::BallotGridCorners, mark_finding::BallotGridCandidateMarks,
-        util::mark_distances_to_point, Border, CandidateTimingMark, DefaultForGeometry,
+        Border, CandidateTimingMark, DefaultForGeometry, corner_finding::BallotGridCorners,
+        mark_finding::BallotGridCandidateMarks, util::mark_distances_to_point,
     },
 };
 use image::RgbImage;
@@ -145,11 +145,11 @@ impl GridBorder {
                     .min_by(|(a, _), (b, _)| a.total_cmp(b))
             else {
                 return Err(Error::MissingTimingMarks {
-                        reason: format!(
-                            "Unable to find mark along {border:?} border at index {index}; no marks close enough?",
-                            index = marks.len()
-                        ),
-                    });
+                    reason: format!(
+                        "Unable to find mark along {border:?} border at index {index}; no marks close enough?",
+                        index = marks.len()
+                    ),
+                });
             };
 
             marks.push(*closest_mark_to_expected_center);

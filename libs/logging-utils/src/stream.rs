@@ -2,7 +2,7 @@
 
 use std::io::{self, BufRead, BufReader, BufWriter, Read, Write};
 
-use flate2::{read::GzDecoder, write::GzEncoder, Compression};
+use flate2::{Compression, read::GzDecoder, write::GzEncoder};
 
 /// Reads data as either an uncompressed or gzip-compressed stream.
 pub enum Reader<R: Read> {

@@ -8,8 +8,8 @@ use std::{
 use ballot_interpreter::{
     debug::ImageDebugWriter,
     interpret::{
-        ScanInterpreter, VerticalStreakDetection, WriteInScoring,
-        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter,
+        VerticalStreakDetection, WriteInScoring,
     },
     qr_code,
     scoring::UnitIntervalScore,

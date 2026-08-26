@@ -4,21 +4,21 @@ use crate::{
     image_utils::{crop_to_image, otsu_level, threshold},
     qr_code::SearchStrategy,
 };
-use image::{imageops::rotate180_in_place, GrayImage};
+use image::{GrayImage, imageops::rotate180_in_place};
 use itertools::Itertools;
 use serde::Serialize;
 
 use crate::{
     debug::ImageDebugWriter,
     image_utils::{
-        bleed, detect_vertical_streaks, find_scanned_document_inset, Inset, VerticalStreak, BLACK,
+        BLACK, Inset, VerticalStreak, bleed, detect_vertical_streaks, find_scanned_document_inset,
     },
     interpret::{BallotPageAndGeometry, Error, Result},
-    layout::{build_interpreted_page_layout, InterpretedContestLayout},
+    layout::{InterpretedContestLayout, build_interpreted_page_layout},
     qr_code,
     scoring::{
-        score_bubble_marks_from_grid_layout, score_write_in_areas, ScoredBubbleMarks,
-        ScoredPositionAreas, UnitIntervalScore,
+        ScoredBubbleMarks, ScoredPositionAreas, UnitIntervalScore,
+        score_bubble_marks_from_grid_layout, score_write_in_areas,
     },
     timing_marks,
 };
@@ -481,13 +481,13 @@ impl BallotCard {
         self.as_pair()
             .zip(timing_marks)
             .map(|(ballot_page, timing_marks)| {
-                if let Some(scale) = timing_marks.compute_scale() {
-                    if scale < minimum_scale {
-                        return Err(Error::InvalidScale {
-                            label: ballot_page.label().to_owned(),
-                            scale,
-                        });
-                    }
+                if let Some(scale) = timing_marks.compute_scale()
+                    && scale < minimum_scale
+                {
+                    return Err(Error::InvalidScale {
+                        label: ballot_page.label().to_owned(),
+                        scale,
+                    });
                 }
 
                 Ok(())

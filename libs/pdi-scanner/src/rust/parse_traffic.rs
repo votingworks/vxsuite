@@ -6,7 +6,7 @@ use pdi_scanner::{
     client::ImageCalibrationTables,
     protocol::{
         self,
-        image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
+        image::{DEFAULT_IMAGE_WIDTH, RawImageData, Sheet},
         packets::{Incoming, Packet},
         types::{ScanSideMode, Side},
     },

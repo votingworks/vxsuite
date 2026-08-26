@@ -855,10 +855,11 @@ impl Outgoing {
                 Command::new(b">")
                     .with_data(format!("{:03x}{:08x}", register_index.get(), value).as_bytes()),
                 |input| -> nom::IResult<&[u8], Register> {
-                    if let Ok((&[], register)) = parsers::write_data_to_register_request(input) {
-                        if register.index() == *register_index && register.value() == *value {
-                            return Ok((&[], register));
-                        }
+                    if let Ok((&[], register)) = parsers::write_data_to_register_request(input)
+                        && register.index() == *register_index
+                        && register.value() == *value
+                    {
+                        return Ok((&[], register));
                     }
 
                     Err(nom::Err::Failure(nom::error::Error::new(

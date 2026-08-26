@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use vx_logging::{log, Disposition, EventId};
+use vx_logging::{Disposition, EventId, log};
 
 const EXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/export";
 const UNEXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/unexport";

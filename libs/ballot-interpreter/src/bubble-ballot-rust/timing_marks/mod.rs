@@ -87,7 +87,12 @@ pub fn find_timing_mark_grid(
         borders.debug_draw(canvas);
     });
 
-    let [top_left_mark, top_right_mark, bottom_left_mark, bottom_right_mark] = [
+    let [
+        top_left_mark,
+        top_right_mark,
+        bottom_left_mark,
+        bottom_right_mark,
+    ] = [
         corners.top_left(),
         corners.top_right(),
         corners.bottom_left(),
@@ -95,7 +100,12 @@ pub fn find_timing_mark_grid(
     ]
     .map_cornerwise(|corner| corner.best_corner_grouping().corner_mark());
 
-    let [top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner] = [
+    let [
+        top_left_corner,
+        top_right_corner,
+        bottom_left_corner,
+        bottom_right_corner,
+    ] = [
         top_left_mark,
         top_right_mark,
         bottom_left_mark,

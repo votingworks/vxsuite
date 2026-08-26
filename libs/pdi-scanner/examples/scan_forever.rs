@@ -9,7 +9,7 @@ use tracing_subscriber::prelude::*;
 use pdi_scanner::{
     client::Client,
     protocol::{
-        image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
+        image::{DEFAULT_IMAGE_WIDTH, RawImageData, Sheet},
         packets::{ImageData, Incoming},
         types::{
             ClampedPercentage, DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode,
@@ -121,11 +121,9 @@ async fn main() -> color_eyre::Result<()> {
 
                                 if let Ok(status) =
                                     timeout(Duration::from_secs(1), client.get_scanner_status()).await?
-                                {
-                                    if status.rear_sensors_covered() {
+                                    && status.rear_sensors_covered() {
                                         client.eject_document(EjectMotion::ToFront).await?;
                                     }
-                                }
                             }
                             Ok(_) => unreachable!(
                                 "try_decode_scan called with {:?} returned non-duplex sheet",

@@ -4,9 +4,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    derive_display,
+    SOURCE, derive_display,
     log_event_enums::{EventId, EventType, Source},
-    SOURCE,
 };
 
 #[derive(Serialize, Deserialize)]

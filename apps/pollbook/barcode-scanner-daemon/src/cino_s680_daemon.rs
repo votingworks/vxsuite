@@ -10,9 +10,9 @@ use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
-use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
+use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
 use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
 

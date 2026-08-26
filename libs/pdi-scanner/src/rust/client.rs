@@ -6,12 +6,12 @@ use tokio::{
 };
 
 use crate::{
+    Error, Result,
     protocol::types::{
         AutoRunOutAtEndOfScanBehavior, BootEjectMotion, Direction, DoubleFeedDetectionMode,
         EjectPauseMode, FeederMode, PickOnCommandMode, RegisterIndex, Side,
     },
     scanner::Scanner,
-    Error, Result,
 };
 
 use super::protocol::{

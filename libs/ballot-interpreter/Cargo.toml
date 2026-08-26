@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
 license = "GPL-3.0-only"
@@ -17,7 +17,7 @@ unwrap_used = "deny"
 [package]
 name = "ballot-interpreter"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

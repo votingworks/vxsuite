@@ -153,7 +153,7 @@ pub enum MetadataMismatch {
 pub mod ballot_hash_serde {
     use serde::{Deserialize, Deserializer, Serializer};
 
-    use super::{PartialBallotHash, PARTIAL_BALLOT_HASH_BYTE_LENGTH};
+    use super::{PARTIAL_BALLOT_HASH_BYTE_LENGTH, PartialBallotHash};
 
     /// Serialize a `PartialBallotHash` as a hexadecimal string.
     ///

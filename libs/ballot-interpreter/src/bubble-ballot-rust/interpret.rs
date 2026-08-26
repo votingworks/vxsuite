@@ -14,15 +14,15 @@ use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size, SubGridUnit};
 use types_rs::pair::Pair;
 
-use crate::ballot_card::ballot_scan_bubble_image;
 use crate::ballot_card::BallotCard;
 use crate::ballot_card::BallotPage;
 use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
+use crate::ballot_card::ballot_scan_bubble_image;
 use crate::debug::draw_timing_mark_debug_image_mut;
-use crate::image_utils::binarize_and_encode_png;
 use crate::image_utils::Inset;
+use crate::image_utils::binarize_and_encode_png;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
@@ -571,7 +571,7 @@ pub fn ballot_card(
 mod test {
     use std::path::{Path, PathBuf};
 
-    use image::{imageops::FilterType, DynamicImage, GenericImage, Luma, Rgb};
+    use image::{DynamicImage, GenericImage, Luma, Rgb, imageops::FilterType};
     use itertools::Itertools;
     use sha2::{Digest, Sha256};
     use types_rs::{
@@ -583,7 +583,7 @@ mod test {
 
     use crate::{
         ballot_card::ballot_scan_bubble_image,
-        debug::{monospace_font, ImageDebugWriter},
+        debug::{ImageDebugWriter, monospace_font},
         draw_utils::draw_text_mut,
         qr_code,
         scoring::{self, UnitIntervalScore},
@@ -1087,10 +1087,10 @@ mod test {
             .marks
             .iter()
             .filter_map(|(grid_position, scored_bubble)| {
-                if let Some(scored_bubble) = scored_bubble {
-                    if scored_bubble.fill_score > UnitIntervalScore(0.1) {
-                        return Some(grid_position);
-                    }
+                if let Some(scored_bubble) = scored_bubble
+                    && scored_bubble.fill_score > UnitIntervalScore(0.1)
+                {
+                    return Some(grid_position);
                 }
                 None
             })
@@ -1566,7 +1566,10 @@ mod test {
             panic!("Unexpected error variant: {error:?}");
         };
 
-        assert!((detected_scale.0 - artificial_scale).abs() < 0.01, "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}");
+        assert!(
+            (detected_scale.0 - artificial_scale).abs() < 0.01,
+            "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}"
+        );
     }
 
     /// Tests that when timing marks cannot be found and streaks are detected

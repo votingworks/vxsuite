@@ -115,13 +115,15 @@ fn process_path<W: Write>(
             Some(detected_scale) => {
                 if detected_scale < minimum_detected_scale {
                     bail!(
-                    "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
-                    detected_scale = detected_scale.0
-                );
+                        "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
+                        detected_scale = detected_scale.0
+                    );
                 }
             }
             None => {
-                bail!("Unable to detect scale of the printed ballot; cannot compare against minimum ({minimum_detected_scale})");
+                bail!(
+                    "Unable to detect scale of the printed ballot; cannot compare against minimum ({minimum_detected_scale})"
+                );
             }
         }
     }

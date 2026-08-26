@@ -1,5 +1,5 @@
 use std::io;
-use vx_logging::{log, EventId};
+use vx_logging::{EventId, log};
 
 use crate::pin::Pin;
 

@@ -10,9 +10,9 @@ use crate::{
     interpret::Error,
     scoring::UnitIntervalScore,
     timing_marks::{
-        mark_finding::BallotGridCandidateMarks,
-        util::{mark_distances_to_point, CornerWise, EdgeWise},
         CandidateTimingMark, Corner, DefaultForGeometry,
+        mark_finding::BallotGridCandidateMarks,
+        util::{CornerWise, EdgeWise, mark_distances_to_point},
     },
 };
 
@@ -125,7 +125,12 @@ impl BallotGridCorners {
                 Point::new(0.0, -vertical_timing_mark_center_to_center_distance),
             );
 
-        let [top_left_result, top_right_result, bottom_left_result, bottom_right_result] = [
+        let [
+            top_left_result,
+            top_right_result,
+            bottom_left_result,
+            bottom_right_result,
+        ] = [
             (top_left_corner_candidates.clone(), Corner::TopLeft),
             (top_right_corner_candidates.clone(), Corner::TopRight),
             (bottom_left_corner_candidates.clone(), Corner::BottomLeft),

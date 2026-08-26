@@ -3,10 +3,10 @@
 use std::{fmt::Display, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    ScanInterpreter, VerticalStreakDetection, WriteInScoring, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
-    DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter,
+    VerticalStreakDetection, WriteInScoring,
 };
-use divan::{black_box, Bencher};
+use divan::{Bencher, black_box};
 use image::GrayImage;
 use sha2::{Digest, Sha256};
 use types_rs::{bubble_ballot::PartialBallotHash, election::Election};

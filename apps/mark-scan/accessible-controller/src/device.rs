@@ -1,8 +1,8 @@
 use std::{thread, time::Duration};
 
 use uinput::{
-    event::{keyboard, Keyboard},
     Device,
+    event::{Keyboard, keyboard},
 };
 
 const UINPUT_PATH: &str = "/dev/uinput";
@@ -56,7 +56,7 @@ impl VirtualKeyboard for Device {
     }
 }
 
-pub fn create_keyboard(name: &str) -> color_eyre::Result<impl VirtualKeyboard> {
+pub fn create_keyboard(name: &str) -> color_eyre::Result<impl VirtualKeyboard + use<>> {
     let keyboard = uinput::open(UINPUT_PATH)?
         .name(name)?
         .event(Keyboard::All)?

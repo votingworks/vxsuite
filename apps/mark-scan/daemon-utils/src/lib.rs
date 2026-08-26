@@ -4,13 +4,13 @@ use std::{
     path::Path,
     process,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     thread::sleep,
     time::{Duration, Instant},
 };
-use vx_logging::{log, EventId, EventType};
+use vx_logging::{EventId, EventType, log};
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 const NOOP_LOOP_INTERVAL: Duration = Duration::from_secs(1);

@@ -103,7 +103,7 @@ impl ToBitStreamWith<'_> for ContestVote {
                         "Contest '{}' and its associated votes are not the same contest type",
                         contest.id()
                     ),
-                })
+                });
             }
         }
 

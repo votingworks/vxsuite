@@ -8,7 +8,7 @@ use crate::{
     debug::monospace_font,
     draw_utils::{draw_filled_rect_mut, draw_text_mut, text_size},
     image_utils::rainbow,
-    timing_marks::{shape_finding::BallotGridBorderShapes, CandidateTimingMark},
+    timing_marks::{CandidateTimingMark, shape_finding::BallotGridBorderShapes},
 };
 
 /// Represents the candidate timing marks found on a ballot grid.
