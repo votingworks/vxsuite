@@ -134,7 +134,7 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features.js';
-import { isQaEnabledForOrganization, qaConfig } from './qa_config.js';
+import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
@@ -208,7 +208,11 @@ async function isQaEnabledForElection(
   electionId: ElectionId
 ): Promise<boolean> {
   const jurisdiction = await store.getElectionJurisdiction(electionId);
-  return isQaEnabledForOrganization(jurisdiction.organization.id);
+  return (
+    QaConfig.fromEnv()?.isQaEnabledForOrganization(
+      jurisdiction.organization.id
+    ) ?? false
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -1580,7 +1584,7 @@ export function buildApp(context: AppContext): Application {
   app.post('/api/export-qa-webhook/:qaRunId', async (req, res, next) => {
     try {
       const { qaRunId } = req.params;
-      const webhookSecret = qaConfig()?.webhookSecret;
+      const webhookSecret = QaConfig.fromEnv()?.webhookSecret;
 
       // Validate webhook secret
       const providedSecret = req.headers['x-webhook-secret'];

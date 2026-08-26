@@ -51,7 +51,7 @@ import {
 import { CircleCiClient } from '../circleci_client.js';
 import { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';
-import { qaConfig } from '../qa_config.js';
+import { QaConfig } from '../qa_config.js';
 import { Store } from '../store.js';
 import { rootDebug } from '../debug.js';
 
@@ -116,8 +116,8 @@ async function triggerCircleCiQaBuild(params: {
     vxsuiteVersion,
   } = params;
 
-  const config = qaConfig();
-  if (!config?.organizationIds.includes(organizationId)) {
+  const config = QaConfig.fromEnv();
+  if (!config?.isQaEnabledForOrganization(organizationId)) {
     debug(
       'Automated QA is either not configured or not enabled for this organization: organizationId=%s',
       organizationId

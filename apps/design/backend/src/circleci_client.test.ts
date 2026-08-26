@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import { CircleCiClient } from './circleci_client.js';
-import { QaConfig } from './qa_config.js';
+import { QaConfig, QaConfigParams } from './qa_config.js';
 
-const config: QaConfig = {
+const configParams: QaConfigParams = {
   apiBaseUrl: 'https://circleci.com',
   apiToken: 'test-token',
   organizationIds: ['org-1'],
   projectSlug: 'gh/org/repo',
   webhookSecret: 'test-secret',
 };
+const config = new QaConfig(configParams);
 
 describe('CircleCiClient', () => {
   let mockFetch: Mock<typeof fetch>;
@@ -119,11 +120,13 @@ describe('CircleCiClient', () => {
     };
     mockFetch.mockResolvedValueOnce(fakeResponse as Response);
 
-    const client = new CircleCiClient({
-      ...config,
-      apiBaseUrl: 'http://localhost:9000',
-      branch: 'some-branch',
-    });
+    const client = new CircleCiClient(
+      new QaConfig({
+        ...configParams,
+        apiBaseUrl: 'http://localhost:9000',
+        branch: 'some-branch',
+      })
+    );
     await client.triggerPipeline({
       exportPackageUrl: 'https://example.com/package.zip',
       webhookUrl: 'https://example.com/webhook',
