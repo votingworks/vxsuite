@@ -79,3 +79,7 @@ window.matchMedia = vi.fn().mockImplementation(() => ({ matches: false }));
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+afterAll(() => {
+  vi.useRealTimers();
+});
