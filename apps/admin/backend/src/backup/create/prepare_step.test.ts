@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
-import { createHash } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -9,15 +8,16 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { Buffer } from 'node:buffer';
-import {
-  electionFamousNames2021Fixtures,
-  makeTemporaryDirectory,
-} from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { createWorkspace, Workspace } from '../../util/workspace.js';
+import {
+  addCvrWithBallotImage,
+  GENEROUS_AVAILABLE_KB,
+  makeConfiguredWorkspace,
+  mockDiskSpace,
+} from '../../../test/backup.js';
+import { createWorkspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { BackupStagingArea } from '../staging_area.js';
 import { prepare } from './prepare_step.js';
@@ -33,117 +33,13 @@ vi.mock(
   }
 );
 
-const GENEROUS_AVAILABLE_KB = 1_000_000_000; // 1 TB, i.e. "don't worry about space"
-
 beforeEach(() => {
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: GENEROUS_AVAILABLE_KB,
-        used: 0,
-        available: GENEROUS_AVAILABLE_KB,
-      }))
-    )
-  );
+  mockDiskSpace();
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
-
-async function makeConfiguredWorkspace(): Promise<Workspace> {
-  const logger = new BaseLogger(LogSource.VxAdminService);
-  const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
-  const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackage.asFilePath(),
-    electionPackageHash: createHash('sha256')
-      .update(electionPackage.asBuffer())
-      .digest('hex'),
-  });
-  workspace.store.setCurrentElectionId(electionId);
-  return workspace;
-}
-
-/**
- * Adds a single CVR with a ballot image directly via low-level store calls,
- * bypassing the CVR export/import pipeline entirely.
- */
-function addCvrWithBallotImage(
-  workspace: Workspace,
-  { ballotId = 'ballot-1' }: { ballotId?: string } = {}
-): { imagePath: string } {
-  const { store } = workspace;
-  const electionId = store.getCurrentElectionId();
-  if (!electionId) throw new Error('workspace has no current election');
-  const electionRecord = store.getElection(electionId);
-  if (!electionRecord) throw new Error('current election not found');
-  const { election } = electionRecord.electionDefinition;
-
-  store.addScannerBatch({
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    label: 'Batch 1',
-    electionId,
-    startedAt: new Date().toISOString(),
-  });
-  store.addCastVoteRecordFileRecord({
-    id: 'cvr-file-1',
-    electionId,
-    isTestMode: false,
-    filename: 'cvrs.jsonl',
-    exportedTimestamp: new Date().toISOString(),
-    sha256Hash: 'hash',
-    scannerIds: new Set(['scanner-1']),
-    pollingPlaceIds: new Set(),
-    batchIds: ['batch-1'],
-  });
-  const result = store.addCastVoteRecordFileEntry({
-    electionId,
-    cvrFileId: 'cvr-file-1',
-    ballotId,
-    cvr: {
-      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
-      batchId: 'batch-1',
-      card: { type: 'bmd' },
-      precinctId: election.precincts[0]!.id,
-      votes: {},
-      votingMethod: 'precinct',
-    },
-    adjudicationFlags: {
-      isBlank: false,
-      hasOvervote: false,
-      hasUndervote: false,
-      hasWriteIn: true,
-      hasMarginalMark: false,
-      hasCrossoverVote: false,
-    },
-  });
-  if (result.isErr()) {
-    throw new Error(`failed to add cvr: ${JSON.stringify(result.err())}`);
-  }
-  const { cvrId: insertedCvrId } = result.ok();
-
-  store.addBallotImage({
-    cvrId: insertedCvrId,
-    electionDefinitionId: election.id,
-    imageData: Buffer.from('fake-front-image-data'),
-    side: 'front',
-  });
-
-  return {
-    imagePath: join(
-      workspace.store.getBallotImagesPath(),
-      election.id,
-      `${insertedCvrId}-front`
-    ),
-  };
-}
 
 test('reclaims a killed run’s staging area before measuring free space', async () => {
   const workspace = await makeConfiguredWorkspace();
@@ -380,16 +276,8 @@ test('fails fast when the target disk space check fails for another reason', asy
 
 test('fails with insufficient-workspace-storage when the workspace volume is too full', async () => {
   const workspace = await makeConfiguredWorkspace();
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: 100,
-        used: 99,
-        available: path === workspace.path ? 1 : GENEROUS_AVAILABLE_KB,
-      }))
-    )
+  mockDiskSpace((path) =>
+    path === workspace.path ? 1 : GENEROUS_AVAILABLE_KB
   );
 
   const result = await prepare({
@@ -407,17 +295,7 @@ test('fails with insufficient-target-storage when the target volume is too full'
   const workspace = await makeConfiguredWorkspace();
   addCvrWithBallotImage(workspace);
   const target = makeTemporaryDirectory();
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: 100,
-        used: 99,
-        available: path === target ? 1 : GENEROUS_AVAILABLE_KB,
-      }))
-    )
-  );
+  mockDiskSpace((path) => (path === target ? 1 : GENEROUS_AVAILABLE_KB));
 
   // Installed after the workspace exists so the last store built is the
   // snapshot's.
@@ -439,7 +317,7 @@ test('fails with insufficient-target-storage when the target volume is too full'
 
 test('stages a database snapshot, election package, and ballot images', async () => {
   const workspace = await makeConfiguredWorkspace();
-  const { imagePath } = addCvrWithBallotImage(workspace);
+  const { imagePath, imageData } = addCvrWithBallotImage(workspace);
   const progressEvents: Array<{ type: string }> = [];
 
   const result = await prepare({
@@ -465,7 +343,7 @@ test('stages a database snapshot, election package, and ballot images', async ()
 
   await stagingArea.cleanup();
   // the original file must be untouched by staging
-  expect(readFileSync(imagePath)).toEqual(Buffer.from('fake-front-image-data'));
+  expect(readFileSync(imagePath)).toEqual(imageData);
 });
 
 test('fails loudly when a referenced ballot image is missing from disk', async () => {

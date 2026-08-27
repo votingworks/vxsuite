@@ -1,23 +1,20 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { dirname, join } from 'node:path';
-import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
-import { Buffer } from 'node:buffer';
-import {
-  electionFamousNames2021Fixtures,
-  makeTemporaryDirectory,
-} from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { mockBaseLogger } from '@votingworks/logging';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
   authenticateArtifactUsingSignatureFile,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from '@votingworks/auth';
-import { createWorkspace, Workspace } from '../../util/workspace.js';
+import {
+  addCvrWithBallotImage,
+  makeConfiguredWorkspace,
+  mockDiskSpace,
+} from '../../../test/backup.js';
 import { Store } from '../../store.js';
 import { createBackup } from './index.js';
 import { BackupRoot } from '../backup_root.js';
@@ -69,109 +66,17 @@ vi.mock(
   }
 );
 
-const GENEROUS_AVAILABLE_KB = 1_000_000_000; // 1 TB, i.e. "don't worry about space"
-
 beforeEach(() => {
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: GENEROUS_AVAILABLE_KB,
-        used: 0,
-        available: GENEROUS_AVAILABLE_KB,
-      }))
-    )
-  );
+  mockDiskSpace();
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function makeConfiguredWorkspace(): Promise<Workspace> {
-  const logger = new BaseLogger(LogSource.VxAdminService);
-  const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
-  const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackage.asFilePath(),
-    electionPackageHash: createHash('sha256')
-      .update(electionPackage.asBuffer())
-      .digest('hex'),
-  });
-  workspace.store.setCurrentElectionId(electionId);
-  return workspace;
-}
-
-function addCvrWithBallotImage(
-  workspace: Workspace,
-  { ballotId }: { ballotId: string }
-): void {
-  const { store } = workspace;
-  const electionId = store.getCurrentElectionId();
-  if (!electionId) throw new Error('workspace has no current election');
-  const electionRecord = store.getElection(electionId);
-  if (!electionRecord) throw new Error('current election not found');
-  const { election } = electionRecord.electionDefinition;
-
-  const result = store.addCastVoteRecordFileEntry({
-    electionId,
-    cvrFileId: 'cvr-file-1',
-    ballotId,
-    cvr: {
-      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
-      batchId: 'batch-1',
-      card: { type: 'bmd' },
-      precinctId: election.precincts[0]!.id,
-      votes: {},
-      votingMethod: 'precinct',
-    },
-    adjudicationFlags: {
-      isBlank: false,
-      hasOvervote: false,
-      hasUndervote: false,
-      hasWriteIn: true,
-      hasMarginalMark: false,
-      hasCrossoverVote: false,
-    },
-  });
-  if (result.isErr()) {
-    throw new Error(`failed to add cvr: ${JSON.stringify(result.err())}`);
-  }
-  const { cvrId } = result.ok();
-
-  store.addBallotImage({
-    cvrId,
-    electionDefinitionId: election.id,
-    imageData: Buffer.from(`fake-image-data-for-${ballotId}`),
-    side: 'front',
-  });
-}
-
 test('a second backup atomically replaces the first, leaving no leftovers', async () => {
   const workspace = await makeConfiguredWorkspace();
   const electionId = workspace.store.getCurrentElectionId()!;
-  workspace.store.addScannerBatch({
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    label: 'Batch 1',
-    electionId,
-    startedAt: new Date().toISOString(),
-  });
-  workspace.store.addCastVoteRecordFileRecord({
-    id: 'cvr-file-1',
-    electionId,
-    isTestMode: false,
-    filename: 'cvrs.jsonl',
-    exportedTimestamp: new Date().toISOString(),
-    sha256Hash: 'hash',
-    scannerIds: new Set(['scanner-1']),
-    pollingPlaceIds: new Set(),
-    batchIds: ['batch-1'],
-  });
   addCvrWithBallotImage(workspace, { ballotId: 'ballot-1' });
 
   const target = makeTemporaryDirectory();
