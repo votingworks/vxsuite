@@ -370,6 +370,26 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** User updated a qualified write-in candidate.
 **Machines:** vx-admin
+### backup-create-init
+**Type:** [user-action](#user-action)
+**Description:** Creating a backup of the machine data is initiated.
+**Machines:** vx-admin
+### backup-create-complete
+**Type:** [user-action](#user-action)
+**Description:** Creating a backup completed, success or failure is indicated by the disposition.
+**Machines:** vx-admin
+### backup-restore-init
+**Type:** [user-action](#user-action)
+**Description:** Restoring the machine data from a backup is initiated.
+**Machines:** vx-admin
+### backup-restore-complete
+**Type:** [user-action](#user-action)
+**Description:** Restoring from a backup completed, success or failure is indicated by the disposition.
+**Machines:** vx-admin
+### backup-restore-machine-mismatch
+**Type:** [user-action](#user-action)
+**Description:** User is restoring a backup whose machine ID differs from the current machine's ID.
+**Machines:** vx-admin
 ### clear-ballot-data-init
 **Type:** [user-action](#user-action)
 **Description:** User has initiated clearing ballot data in the current application.

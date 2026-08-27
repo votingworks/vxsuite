@@ -293,6 +293,16 @@ pub enum EventId {
     WriteInAdjudicated,
     #[serde(rename = "qualified-write-in-candidate-updated")]
     QualifiedWriteInCandidateUpdated,
+    #[serde(rename = "backup-create-init")]
+    BackupCreateInit,
+    #[serde(rename = "backup-create-complete")]
+    BackupCreateComplete,
+    #[serde(rename = "backup-restore-init")]
+    BackupRestoreInit,
+    #[serde(rename = "backup-restore-complete")]
+    BackupRestoreComplete,
+    #[serde(rename = "backup-restore-machine-mismatch")]
+    BackupRestoreMachineMismatch,
     #[serde(rename = "clear-ballot-data-init")]
     ClearingBallotData,
     #[serde(rename = "clear-ballot-data-complete")]
