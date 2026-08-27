@@ -1758,6 +1758,7 @@ export class Store implements BaseStore {
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
+        source,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
       left join cvr_file_entries on cvr_file_entries.cvr_file_id = cvr_files.id
@@ -1775,6 +1776,7 @@ export class Store implements BaseStore {
       precinctIds: string;
       scannerIds: string;
       sha256Hash: string | null;
+      source: 'usb' | 'network';
       createdAt: string;
     }>;
     debug('queried database for cvr file list');
@@ -1785,6 +1787,7 @@ export class Store implements BaseStore {
           id: result.id,
           electionId,
           sha256Hash: result.sha256Hash,
+          source: result.source,
           filename: result.filename,
           exportTimestamp: convertSqliteTimestampToIso8601(
             result.exportTimestamp

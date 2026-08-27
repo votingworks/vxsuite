@@ -154,6 +154,8 @@ export interface CastVoteRecordFileRecord {
   readonly scannerIds: string[];
   /** Null for imports received over the network. */
   readonly sha256Hash: string | null;
+  /** How the import arrived: loaded from a USB drive or sent by a scanner. */
+  readonly source: 'usb' | 'network';
   readonly createdAt: Iso8601Timestamp;
 }
 
@@ -171,6 +173,7 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     precinctIds: z.array(z.string()),
     scannerIds: z.array(z.string()),
     sha256Hash: z.string().nonempty().nullable(),
+    source: z.union([z.literal('usb'), z.literal('network')]),
     createdAt: Iso8601TimestampSchema,
   });
 

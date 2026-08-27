@@ -1,3 +1,4 @@
+import React from 'react';
 import styled, { css } from 'styled-components';
 
 import {
@@ -23,7 +24,12 @@ export interface LocationCvrsPanelProps {
 
 export type LocationCvrImport = Pick<
   CastVoteRecordFileRecord,
-  'id' | 'exportTimestamp' | 'numCvrsImported' | 'scannerIds'
+  | 'id'
+  | 'exportTimestamp'
+  | 'filename'
+  | 'numCvrsImported'
+  | 'scannerIds'
+  | 'source'
 >;
 
 const CalloutContent = styled(Caption)`
@@ -144,9 +150,21 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
           {imports.map((i) => (
             <Import key={i.id}>
               <Caption weight="semiBold">
-                {formatExportDate(i)}
+                {i.source === 'network' ? i.filename : formatExportDate(i)}
                 <br />
-                <Caption weight="regular">{scannerDetails(i)}</Caption>
+                <Caption weight="regular">
+                  {scannerDetails(i)}
+                  {' • '}
+                  {i.source === 'network' ? (
+                    <React.Fragment>
+                      <Icons.Network /> Network
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Icons.UsbDrive /> USB
+                    </React.Fragment>
+                  )}
+                </Caption>
               </Caption>
 
               <Font weight="bold">{format.count(i.numCvrsImported)}</Font>
