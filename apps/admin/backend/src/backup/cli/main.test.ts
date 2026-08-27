@@ -48,7 +48,12 @@ async function run(args: string[]): Promise<RunResult> {
     stdout: mockWritable(),
     stderr: mockWritable(),
   };
-  const code = await main(['node', 'backups', ...args], streams);
+  // A real logger would write JSON log lines to the test runner's stdout,
+  // interleaved with the command's own output.
+  const code = await main(['node', 'backups', ...args], {
+    ...streams,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
   return {
     code,
     stdout: streams.stdout.toString(),
@@ -122,6 +127,17 @@ test('prints help without error', async () => {
   const { code, stderr } = await run(['--help']);
   expect(code).toEqual(0);
   expect(stderr).toContain('Usage: backups <command> [options]');
+});
+
+test('a logger is optional, since the real entry point does not have one', async () => {
+  const stderr = mockWritable();
+  const code = await main(['node', 'backups', '--help'], {
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr,
+  });
+  expect(code).toEqual(0);
+  expect(stderr.toString()).toContain('Usage: backups <command> [options]');
 });
 
 test('create requires a target', async () => {

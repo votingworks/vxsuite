@@ -27,6 +27,16 @@ export interface Streams {
   stderr: NodeJS.WritableStream;
 }
 
+/**
+ * Everything the CLI needs from its caller: the IO streams, and optionally
+ * where to send log messages. Without a logger, log messages go to a real
+ * {@link BaseLogger}, i.e. to stdout as JSON lines — tests pass a mock so log
+ * output doesn't interleave with the command's own.
+ */
+export interface MainContext extends Streams {
+  logger?: BaseLogger;
+}
+
 interface BackupArguments {
   _: Array<string | number>;
   workspace?: string;
@@ -40,8 +50,9 @@ interface BackupArguments {
  */
 export async function main(
   argv: readonly string[],
-  { stdin, stdout, stderr }: Streams
+  { stdin, stdout, stderr, logger: providedLogger }: MainContext
 ): Promise<number> {
+  const logger = providedLogger ?? new BaseLogger(LogSource.VxAdminService);
   const parser = yargs()
     .scriptName('backups')
     .usage('Usage: $0 <command> [options]')
@@ -117,9 +128,21 @@ export async function main(
     return parseError ? 1 : 0;
   }
 
+  // Every command authenticates backups through `libs/auth`, which reads
+  // `NODE_ENV` and `VX_MACHINE_TYPE` straight from the environment and throws
+  // when they aren't set, so normalize whatever we resolved into the
+  // environment instead of making the caller export them.
+  const nodeEnv = getNodeEnv();
+  assert(
+    nodeEnv !== 'production',
+    `the backups CLI is a development tool, but NODE_ENV is ${nodeEnv}`
+  );
+  (process.env as { NODE_ENV?: string }).NODE_ENV = nodeEnv;
+  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
+
   switch (args._[0]) {
     case 'create':
-      return await create(args, { stdin, stdout, stderr });
+      return await create(args, { stdin, stdout, stderr, logger });
     case 'validate':
       return await validate(args, { stdin, stdout, stderr });
     case 'list':
@@ -190,24 +213,10 @@ function openWorkspaceIfPresent(
  */
 async function create(
   args: BackupArguments,
-  { stdout, stderr }: Streams
+  { stdout, stderr, logger }: Streams & { logger: BaseLogger }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.target === 'string');
-
-  // The `backups` CLI is a development tool. `libs/auth` reads `NODE_ENV`
-  // straight from the environment and throws when it isn't set, so normalize
-  // whatever we resolved into the environment instead of making the caller
-  // export it.
-  const nodeEnv = getNodeEnv();
-  assert(
-    nodeEnv !== 'production',
-    `the backups CLI is a development tool, but NODE_ENV is ${nodeEnv}`
-  );
-  (process.env as { NODE_ENV?: string }).NODE_ENV = nodeEnv;
-  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
-
-  const logger = new BaseLogger(LogSource.VxAdminService);
 
   // Progress goes to stderr so that stdout carries only the command's own
   // output, and so redirecting one doesn't garble the other.
