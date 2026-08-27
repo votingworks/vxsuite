@@ -37,7 +37,7 @@ export async function createPrecinctTestDeck({
   rendererPool: RendererPool;
   electionDefinition: ElectionDefinition;
   ballotSpecs: TestDeckBallotSpec[];
-  ballots: Array<{ props: BaseBallotProps; contents: string }>;
+  ballots: Array<{ props: BaseBallotProps; layoutPath: string }>;
   emitProgress?: (ballotsRendered: number) => void;
 }): Promise<Uint8Array | undefined> {
   if (ballotSpecs.length === 0) {
@@ -45,13 +45,13 @@ export async function createPrecinctTestDeck({
   }
   const markedBallots = await rendererPool.runTasks(
     ballotSpecs.map((ballotSpec) => async (renderer) => {
-      const { props, contents } = find(
+      const { props, layoutPath } = find(
         ballots,
         (ballot) =>
           ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
           ballot.props.precinctId === ballotSpec.precinctId
       );
-      const document = await renderer.loadDocumentFromContent(contents);
+      const document = await renderer.documentFromPath(layoutPath);
       const markedBallot = await markBallotDocument(document, ballotSpec.votes);
       const ballotPdf = await renderBallotPdfWithMetadataQrCode(
         props,

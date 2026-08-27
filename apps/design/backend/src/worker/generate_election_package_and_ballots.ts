@@ -22,6 +22,8 @@ import {
   renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
   ElectionSerializationOptions,
+  ScratchDir,
+  RendererPool,
 } from '@votingworks/hmpb';
 import {
   generateAudioIdsAndClips,
@@ -228,6 +230,21 @@ function generateEncodedBallots(
 
 export async function generateElectionPackageAndBallots(
   ctx: WorkerContext,
+  payload: GenerateElectionPackageAndBallotsPayload,
+  emitProgress: EmitProgressFunction,
+  scratchDir: ScratchDir
+): Promise<void> {
+  const rendererPool = await createPlaywrightRendererPool();
+  try {
+    await generate(ctx, payload, rendererPool, emitProgress, scratchDir);
+  } finally {
+    // eslint-disable-next-line no-console
+    rendererPool.close().catch(console.error);
+  }
+}
+
+async function generate(
+  ctx: WorkerContext,
   {
     electionId,
     electionSerializationFormat,
@@ -236,7 +253,9 @@ export async function generateElectionPackageAndBallots(
     shouldExportTestBallots,
     numAuditIdBallots,
   }: GenerateElectionPackageAndBallotsPayload,
-  emitProgress: EmitProgressFunction
+  rendererPool: RendererPool,
+  emitProgress: EmitProgressFunction,
+  scratchDir: ScratchDir
 ): Promise<void> {
   const { speechSynthesizer, translator } = ctx;
   const { store } = ctx.workspace;
@@ -330,19 +349,21 @@ export async function generateElectionPackageAndBallots(
     }));
   }
 
-  const rendererPool = await createPlaywrightRendererPool();
   const serializationOptions: ElectionSerializationOptions = {
     format: electionSerializationFormat,
     version: jurisdiction.softwareVersion,
   };
+
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
       serializationOptions,
+      scratchDir,
       emitProgress
     );
+
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,
     electionDefinition.electionData
@@ -451,9 +472,6 @@ export async function generateElectionPackageAndBallots(
   if (shouldExportTestBallots) {
     testBallotsZip.file(calibrationSheetFilename, calibrationSheetPdf);
   }
-
-  // eslint-disable-next-line no-console
-  rendererPool.close().catch(console.error);
 
   const ballotHash = formatBallotHash(electionDefinition.ballotHash);
   const [

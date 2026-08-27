@@ -102,6 +102,7 @@ import {
   layOutBallotsAndCreateElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
   generateBallotStyles,
+  ScratchDir,
 } from '@votingworks/hmpb';
 import path, { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
@@ -255,6 +256,8 @@ vi.mock(import('@votingworks/test-decks'), async (importActual) => {
     createSummaryBallotTestDeck: vi.fn(original.createSummaryBallotTestDeck),
   };
 });
+
+const ANY_SCRATCH_DIR: ScratchDir = { path: expect.any(String) };
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -3546,7 +3549,7 @@ test('Election package management', async () => {
     { interval: 500, retries: 3 }
   );
   const emitProgress = vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition)
-    .mock.lastCall![4]!;
+    .mock.lastCall![5]!;
   emitProgress('Test progress message', 2, 10);
 
   await backendWaitFor(
@@ -4139,6 +4142,7 @@ test('Election package and ballots export', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
 });
@@ -4330,6 +4334,7 @@ test('export omits optional ballots if not enabled', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
 });
@@ -4477,6 +4482,7 @@ test('Export test decks', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
 
@@ -4993,6 +4999,7 @@ test('export ballots with audit IDs', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
 });
@@ -5157,6 +5164,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
   expect(

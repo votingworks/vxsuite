@@ -1,4 +1,5 @@
 import React from 'react';
+import * as fs from 'node:fs/promises';
 import ReactDomServer from 'react-dom/server';
 import { chromium } from 'playwright';
 import { assert } from '@votingworks/basics';
@@ -42,11 +43,14 @@ function createRendererFromPage(
       return createScratchpad(document);
     },
 
-    async loadDocumentFromContent(
-      htmlContent: string
-    ): Promise<RenderDocument> {
+    async documentFromContent(htmlContent: string): Promise<RenderDocument> {
       await pageHandle.page().setContent(htmlContent);
       return createDocument(pageHandle);
+    },
+
+    async documentFromPath(htmlPath: string): Promise<RenderDocument> {
+      const content = await fs.readFile(htmlPath, 'utf8');
+      return await this.documentFromContent(content);
     },
   };
 }
@@ -86,13 +90,16 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
       return createRendererFromPage(pageHandle).createScratchpad(styles);
     },
 
-    async loadDocumentFromContent(
-      htmlContent: string
-    ): Promise<RenderDocument> {
+    async documentFromContent(htmlContent: string): Promise<RenderDocument> {
       const pageHandle = makePageHandle(await context.newPage());
-      return createRendererFromPage(pageHandle).loadDocumentFromContent(
+      return createRendererFromPage(pageHandle).documentFromContent(
         htmlContent
       );
+    },
+
+    async documentFromPath(htmlPath: string): Promise<RenderDocument> {
+      const pageHandle = makePageHandle(await context.newPage());
+      return createRendererFromPage(pageHandle).documentFromPath(htmlPath);
     },
 
     async close(): Promise<void> {
@@ -171,31 +178,32 @@ export async function createPlaywrightRendererPool(
     assert(!isRunningTasks, 'Cannot run multiple sets of tasks concurrently');
     isRunningTasks = true;
 
-    emitProgress?.(0, tasks.length);
-    let numTasksCompleted = 0;
+    try {
+      emitProgress?.(0, tasks.length);
+      let numTasksCompleted = 0;
 
-    const results = await runTasksConcurrently({
-      tasks: tasks.map((task) => async () => {
-        const page = pages.pop() ?? (await context.newPage());
-        const pageHandle = makePageHandle(page);
+      return await runTasksConcurrently({
+        tasks: tasks.map((task) => async () => {
+          const page = pages.pop() ?? (await context.newPage());
+          const pageHandle = makePageHandle(page);
 
-        const renderer = createRendererFromPage(pageHandle);
-        const result = await task(renderer);
+          const renderer = createRendererFromPage(pageHandle);
+          const result = await task(renderer);
 
-        assert(!page.isClosed(), 'Page should not be closed during task');
-        pageHandle.void();
-        pages.push(page);
+          assert(!page.isClosed(), 'Page should not be closed during task');
+          pageHandle.void();
+          pages.push(page);
 
-        numTasksCompleted += 1;
-        emitProgress?.(numTasksCompleted, tasks.length);
+          numTasksCompleted += 1;
+          emitProgress?.(numTasksCompleted, tasks.length);
 
-        return result;
-      }),
-      concurrencyLimit: size,
-    });
-
-    isRunningTasks = false;
-    return results;
+          return result;
+        }),
+        concurrencyLimit: size,
+      });
+    } finally {
+      isRunningTasks = false;
+    }
   }
 
   return {

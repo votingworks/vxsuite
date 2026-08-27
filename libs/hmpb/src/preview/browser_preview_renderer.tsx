@@ -68,10 +68,13 @@ export function createBrowserPreviewRenderer(): Renderer {
       renderDocument = createBrowserPreviewDocument(styles);
       return Promise.resolve(createScratchpad(renderDocument));
     },
-    loadDocumentFromContent(htmlContent) {
+    documentFromContent(htmlContent) {
       renderDocument = createBrowserPreviewDocument();
       document.documentElement.innerHTML = htmlContent;
       return Promise.resolve(renderDocument);
+    },
+    documentFromPath() {
+      throw new Error('not applicable');
     },
   };
 }

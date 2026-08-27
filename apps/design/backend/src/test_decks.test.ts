@@ -3,6 +3,7 @@ import { readElection } from '@votingworks/fs';
 import {
   ElectionSerializationOptions,
   RendererPool,
+  ScratchDir,
   allBaseBallotProps,
   ballotTemplates,
   createPlaywrightRendererPool,
@@ -25,6 +26,7 @@ import {
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
@@ -69,15 +71,16 @@ describe('createPrecinctTestDeck', () => {
         precinctId
       ).length === 1
     );
-    const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
+    const { layoutPaths } = await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       fixtures.allBallotProps,
-      serializationOptions
+      serializationOptions,
+      makeScratchDir()
     );
     const ballots = iter(fixtures.allBallotProps)
-      .zip(ballotContents)
-      .map(([props, contents]) => ({ props, contents }))
+      .zip(layoutPaths)
+      .map(([props, layoutPath]) => ({ props, layoutPath }))
       .toArray();
 
     const ballotSpecs = generateTestDeckBallots({
@@ -127,11 +130,12 @@ describe('createPrecinctTestDeck', () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       ballotProps,
-      serializationOptions
+      serializationOptions,
+      makeScratchDir()
     );
     const ballots = iter(ballotProps)
-      .zip(layouts.ballotContents)
-      .map(([props, contents]) => ({ props, contents }))
+      .zip(layouts.layoutPaths)
+      .map(([props, layoutPath]) => ({ props, layoutPath }))
       .toArray();
 
     const ballotSpecs = generateTestDeckBallots({
@@ -270,3 +274,7 @@ describe('createTestDeckTallyReports', () => {
     ).toEqual(false);
   });
 });
+
+function makeScratchDir(): ScratchDir {
+  return { path: makeTemporaryDirectory() };
+}

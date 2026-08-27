@@ -7,7 +7,7 @@ test('RendererPool errors if a task closes its page', async () => {
   const rendererPool = await createPlaywrightRendererPool();
   await expect(
     rendererPool.runTask(async (renderer) => {
-      const document = await renderer.loadDocumentFromContent('<div/>');
+      const document = await renderer.documentFromContent('<div/>');
       await document.close();
     })
   ).rejects.toThrow('Page should not be closed during task');
@@ -17,7 +17,7 @@ test('RendererPool errors if a task closes its page', async () => {
 test("RendererPool page can't be used after task completes", async () => {
   const rendererPool = await createPlaywrightRendererPool();
   const document = await rendererPool.runTask(async (renderer) =>
-    renderer.loadDocumentFromContent('<div/>')
+    renderer.documentFromContent('<div/>')
   );
   await expect(document.getContent()).rejects.toThrow(
     'Page is no longer available'
@@ -53,7 +53,7 @@ test('RendererPool runs tasks and returns results in order, reusing pages up to 
   expect(
     await rendererPool.runTasks(
       range(0, numTasks).map((i) => async (renderer) => {
-        const document = await renderer.loadDocumentFromContent(String(i));
+        const document = await renderer.documentFromContent(String(i));
         return document.getContent();
       })
     )
@@ -71,7 +71,7 @@ test('RendererPool emits progress', async () => {
   const numTasks = 10;
   await rendererPool.runTasks(
     range(0, numTasks).map((i) => async (renderer) => {
-      const document = await renderer.loadDocumentFromContent(String(i));
+      const document = await renderer.documentFromContent(String(i));
       return document.getContent();
     }),
     emitProgress
