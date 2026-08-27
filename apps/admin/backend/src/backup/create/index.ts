@@ -1,4 +1,4 @@
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { mkdir, rm } from 'node:fs/promises';
 import {
   assertDefined,
@@ -57,8 +57,14 @@ export interface CreatedBackup {
  * database, ballot images, and election packages.
  */
 export async function createBackup(
-  options: PrepareBackupOptions
+  rawOptions: PrepareBackupOptions
 ): Promise<Result<CreatedBackup, CreateBackupError>> {
+  // The staging area requires absolute paths, so resolve what the caller gave
+  // us up front and use the same absolute path everywhere.
+  const options: PrepareBackupOptions = {
+    ...rawOptions,
+    target: resolve(rawOptions.target),
+  };
   const { logger } = options;
   logger.log(LogEventId.BackupCreateInit, 'system', {
     message: `Creating a backup at ${options.target}...`,

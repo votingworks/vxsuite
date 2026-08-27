@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -191,6 +191,30 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   // What `create` wrote is what `list` finds: the two agreed on the layout.
   const listed = (await new BackupRoot(target).listBackups()).unsafeUnwrap();
   expect(listed.map((b) => b.path)).toEqual([backupPath]);
+});
+
+test('resolves a relative target path', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  const result = await createBackup({
+    workspace,
+    target: relative(process.cwd(), target),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  // The backup landed in the target, reported at its absolute path.
+  const electionRecord = workspace.store.getElection(
+    workspace.store.getCurrentElectionId()!
+  )!;
+  expect(result.unsafeUnwrap().path).toEqual(
+    new BackupRoot(target).pathFor(
+      generateElectionBasedSubfolderName(
+        electionRecord.electionDefinition.election,
+        electionRecord.electionDefinition.ballotHash
+      )
+    )
+  );
 });
 
 function outOfSpaceError(): NodeJS.ErrnoException {
