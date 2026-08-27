@@ -191,15 +191,14 @@ misinterpreting votes. Key aspects of error handling include:
 
 ### Decode Metadata
 
-The metadata can be encoded either using a QR code in the bottom-left corner or
-by using the presence/absence of timing marks in the bottom row. The metadata
+The metadata is encoded using a QR code in the bottom-left corner. The metadata
 includes the ballot style, precinct, and other information that may be useful
-for interpreting the ballot. When using timing mark based encoding, we use the
-same encoding as the AccuVote system. There is an additional check to ensure
-that we found the timing marks correctly where we check that the areas we
-believe the timing marks to be are sufficiently dark. This mitigates potential
-issues with the timing mark detection algorithm due to smudges, stray marks,
-etc.
+for interpreting the ballot.
+
+The QR code payload is base64-encoded, optionally prefixed with
+`https://ballot.page/vx/` so that scanning the QR code with a phone opens an
+informational page. The interpreter strips that prefix and accepts either
+standard base64 or URL-safe base64.
 
 ### Score Bubble Marks
 

@@ -1,6 +1,9 @@
 use std::cell::OnceCell;
 
-use base64::{Engine as _, engine::general_purpose::STANDARD};
+use base64::{
+    Engine as _,
+    engine::general_purpose::{GeneralPurpose, STANDARD, URL_SAFE_NO_PAD},
+};
 use image::GrayImage;
 use serde::Serialize;
 use types_rs::{
@@ -298,8 +301,13 @@ impl Error {
 
 pub type Result = std::result::Result<Detected, Error>;
 
-/// Unwraps a base64-wrapped QR code payload to raw ballot bytes.
-///
+/// The QR code payload is optionally prefixed so that scanning the QR code
+/// with a phone opens an informational page.
+const BALLOT_URL_PREFIX: &[u8] = b"https://ballot.page/vx/";
+
+/// Accept standard base64 or URL-safe base64.
+const PAYLOAD_ENGINES: [GeneralPurpose; 2] = [STANDARD, URL_SAFE_NO_PAD];
+
 /// The decode is kept only if it produced something with a ballot prelude. A
 /// successful decode on its own proves nothing: the base64 alphabet is a
 /// superset of the alphabets a QR payload can be drawn from, so a payload that
@@ -307,10 +315,12 @@ pub type Result = std::result::Result<Detected, Error>;
 /// recognize is passed through unchanged so that the prelude check downstream
 /// reports the error.
 fn unwrap_qr_payload(detected: &Detected) -> Detected {
-    let bytes = match STANDARD.decode(detected.bytes()) {
-        Ok(decoded) if is_vx_payload(&decoded) => decoded,
-        _ => detected.bytes().to_vec(),
-    };
+    let payload = detected.bytes();
+    let stripped = payload.strip_prefix(BALLOT_URL_PREFIX).unwrap_or(payload);
+    let bytes = PAYLOAD_ENGINES
+        .iter()
+        .find_map(|engine| engine.decode(stripped).ok().filter(|d| is_vx_payload(d)))
+        .unwrap_or_else(|| payload.to_vec());
 
     Detected::new(
         detected.detector(),
@@ -485,6 +495,23 @@ mod test {
             assert!(
                 is_vx_payload(unwrapped.bytes()) || unwrapped.bytes() == payload.as_bytes()
             );
+        }
+    }
+
+    /// Test every form that the payload may take
+    #[test]
+    fn test_unwrap_accepted_base64_forms() {
+        let raw = [0x56, 0x42, 0x01, 0xfb, 0xff];
+        assert_eq!(STANDARD.encode(raw), "VkIB+/8=");
+
+        for encoded in [STANDARD.encode(raw), URL_SAFE_NO_PAD.encode(raw)] {
+            for payload in [encoded.clone(), format!("https://ballot.page/vx/{encoded}")] {
+                let expected: &[u8] = &raw;
+                assert_eq!(
+                    unwrap_qr_payload(&detected(payload.as_bytes())).bytes(),
+                    expected,
+                );
+            }
         }
     }
 
