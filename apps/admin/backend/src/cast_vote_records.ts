@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
+  CastVoteRecordAndReferencedFiles,
   isTestReport,
   readCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
@@ -16,12 +17,15 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectory } from '@votingworks/fs';
 import {
+  AdjudicationReason,
+  BallotId,
   CVR,
   ElectionDefinition,
   getBallotStyle,
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  MarkThresholds,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -203,6 +207,122 @@ export async function listCastVoteRecordExportsInDirectory(
 }
 
 /**
+ * A cast vote record that has been parsed and validated and is ready to be
+ * inserted into the store.
+ */
+export interface PreparedCastVoteRecord {
+  ballotId: BallotId;
+  cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
+  adjudicationFlags: ReturnType<typeof getCastVoteRecordAdjudicationFlags>;
+  needsAdjudication: boolean;
+  writeIns: CastVoteRecordAndReferencedFiles['castVoteRecordWriteIns'];
+  isHmpb: boolean;
+  referencedFiles: CastVoteRecordAndReferencedFiles['referencedFiles'];
+}
+
+/**
+ * Validates a parsed cast vote record against the election definition and
+ * computes everything needed to insert it. Pure — performs no store writes —
+ * so callers can do any async work (e.g. reading ballot images) before
+ * inserting inside a synchronous transaction.
+ */
+export function prepareCastVoteRecord(
+  parsed: CastVoteRecordAndReferencedFiles,
+  electionDefinition: ElectionDefinition,
+  systemSettings: {
+    adminAdjudicationReasons: AdjudicationReason[];
+    markThresholds: MarkThresholds;
+  }
+): Result<
+  PreparedCastVoteRecord,
+  CastVoteRecordElectionDefinitionValidationError
+> {
+  const {
+    castVoteRecord,
+    castVoteRecordBallotSheetId,
+    castVoteRecordCurrentSnapshot,
+    castVoteRecordOriginalSnapshot,
+    castVoteRecordWriteIns,
+    referencedFiles,
+  } = parsed;
+
+  const validationResult = validateCastVoteRecordAgainstElectionDefinition(
+    castVoteRecord,
+    electionDefinition
+  );
+  if (validationResult.isErr()) {
+    return validationResult;
+  }
+
+  const votes = convertCastVoteRecordVotesToTabulationVotes(
+    castVoteRecordCurrentSnapshot
+  );
+  // HMPB ballots have an original snapshot (for mark adjudication), while BMD ballots
+  // (including multi-page BMD) do not. Multi-page BMD also has BallotSheetId, so we
+  // can't use that alone to identify HMPB.
+  const isHmpb = castVoteRecordOriginalSnapshot !== undefined;
+  let markScores: Tabulation.MarkScores | undefined;
+  if (isHmpb) {
+    markScores = convertCastVoteRecordMarkMetricsToMarkScores(
+      castVoteRecordOriginalSnapshot
+    );
+  }
+
+  // Determine the card type:
+  // - HMPB: has original snapshot and sheet number
+  // - Multi-page BMD: has sheet number but no original snapshot
+  // - Single-page BMD: no sheet number
+  let card: Tabulation.Card;
+  if (isHmpb) {
+    assert(castVoteRecordBallotSheetId !== undefined);
+    card = { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId };
+  } else if (castVoteRecordBallotSheetId !== undefined) {
+    // Multi-page BMD ballot
+    card = { type: 'bmd', sheetNumber: castVoteRecordBallotSheetId };
+  } else {
+    // Single-page BMD ballot
+    card = { type: 'bmd' };
+  }
+
+  // Currently, we only support filtering on initial adjudication status,
+  // rather than post-adjudication status. As a result, we can just calculate
+  // now, during import.
+  const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+    electionDefinition,
+    votes,
+    castVoteRecordWriteIns.length,
+    isHmpb ? markScores : undefined,
+    systemSettings.markThresholds
+  );
+  const votingMethod = assertDefined(
+    getCastVoteRecordBallotType(castVoteRecord)
+  );
+  return ok({
+    ballotId: castVoteRecord.UniqueId,
+    cvr: {
+      ballotStyleGroupId: getGroupIdFromBallotStyleId({
+        ballotStyleId: castVoteRecord.BallotStyleId,
+        election: electionDefinition.election,
+      }),
+      batchId: castVoteRecord.BatchId,
+      card,
+      precinctId: castVoteRecord.BallotStyleUnitId,
+      markScores,
+      votes,
+      votingMethod,
+    },
+    adjudicationFlags,
+    needsAdjudication: doesCvrNeedAdjudication(
+      adjudicationFlags,
+      systemSettings.adminAdjudicationReasons
+    ),
+    writeIns: castVoteRecordWriteIns,
+    isHmpb,
+    referencedFiles,
+  });
+}
+
+/**
  * Imports cast vote records given a cast vote record export directory path
  */
 export async function importCastVoteRecords(
@@ -315,80 +435,27 @@ export async function importCastVoteRecords(
           index: castVoteRecordIndex,
         });
       }
+      const parsed = castVoteRecordResult.ok();
+      const prepareResult = prepareCastVoteRecord(parsed, electionDefinition, {
+        adminAdjudicationReasons,
+        markThresholds,
+      });
+      if (prepareResult.isErr()) {
+        return err({ ...prepareResult.err(), index: castVoteRecordIndex });
+      }
+      const prepared = prepareResult.ok();
       const {
-        castVoteRecord,
-        castVoteRecordBallotSheetId,
-        castVoteRecordCurrentSnapshot,
-        castVoteRecordOriginalSnapshot,
-        castVoteRecordWriteIns,
+        adjudicationFlags,
+        isHmpb,
+        needsAdjudication,
         referencedFiles,
-      } = castVoteRecordResult.ok();
+        writeIns: castVoteRecordWriteIns,
+      } = prepared;
+      const { markScores } = prepared.cvr;
 
-      const validationResult = validateCastVoteRecordAgainstElectionDefinition(
-        castVoteRecord,
-        electionDefinition
-      );
-      if (validationResult.isErr()) {
-        return err({ ...validationResult.err(), index: castVoteRecordIndex });
-      }
-
-      const votes = convertCastVoteRecordVotesToTabulationVotes(
-        castVoteRecordCurrentSnapshot
-      );
-      // HMPB ballots have an original snapshot (for mark adjudication), while BMD ballots
-      // (including multi-page BMD) do not. Multi-page BMD also has BallotSheetId, so we
-      // can't use that alone to identify HMPB.
-      const isHmpb = castVoteRecordOriginalSnapshot !== undefined;
-      let markScores: Tabulation.MarkScores | undefined;
-      if (isHmpb) {
-        markScores = convertCastVoteRecordMarkMetricsToMarkScores(
-          castVoteRecordOriginalSnapshot
-        );
-      }
-
-      // Determine the card type:
-      // - HMPB: has original snapshot and sheet number
-      // - Multi-page BMD: has sheet number but no original snapshot
-      // - Single-page BMD: no sheet number
-      let card: Tabulation.Card;
-      if (isHmpb) {
-        assert(castVoteRecordBallotSheetId !== undefined);
-        card = { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId };
-      } else if (castVoteRecordBallotSheetId !== undefined) {
-        // Multi-page BMD ballot
-        card = { type: 'bmd', sheetNumber: castVoteRecordBallotSheetId };
-      } else {
-        // Single-page BMD ballot
-        card = { type: 'bmd' };
-      }
-
-      // Currently, we only support filtering on initial adjudication status,
-      // rather than post-adjudication status. As a result, we can just calculate
-      // now, during import.
-      const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
-        electionDefinition,
-        votes,
-        castVoteRecordWriteIns.length,
-        isHmpb ? markScores : undefined,
-        markThresholds
-      );
-      const votingMethod = assertDefined(
-        getCastVoteRecordBallotType(castVoteRecord)
-      );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
-        ballotId: castVoteRecord.UniqueId,
-        cvr: {
-          ballotStyleGroupId: getGroupIdFromBallotStyleId({
-            ballotStyleId: castVoteRecord.BallotStyleId,
-            election: electionDefinition.election,
-          }),
-          batchId: castVoteRecord.BatchId,
-          card,
-          precinctId: castVoteRecord.BallotStyleUnitId,
-          markScores,
-          votes,
-          votingMethod,
-        },
+        ballotId: prepared.ballotId,
+        cvr: prepared.cvr,
         cvrFileId: importId,
         electionId,
         adjudicationFlags,
@@ -403,11 +470,6 @@ export async function importCastVoteRecords(
         addCastVoteRecordResult.ok();
 
       if (isCastVoteRecordNew) {
-        const needsAdjudication = doesCvrNeedAdjudication(
-          adjudicationFlags,
-          adminAdjudicationReasons
-        );
-
         if (needsAdjudication) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
@@ -473,7 +535,7 @@ export async function importCastVoteRecords(
       } else {
         alreadyPresent += 1;
       }
-      precinctIds.add(castVoteRecord.BallotStyleUnitId);
+      precinctIds.add(prepared.cvr.precinctId);
 
       castVoteRecordIndex += 1;
     }
