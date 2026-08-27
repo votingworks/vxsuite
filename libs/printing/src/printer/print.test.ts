@@ -1,9 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { exec } from '../utils/exec';
-import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
-import { print } from './print';
-import { PrintSides } from './types';
+import { exec } from '../utils/exec.js';
+import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
+import { print } from './print.js';
+import { PrintSides } from './types.js';
 
 vi.mock('../utils/exec');
 

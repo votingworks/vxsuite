@@ -1,4 +1,8 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({ type: 'transform' });
-require('./generate_m404_ppd.ts').main();
+// Runs the compiled output rather than transpiling `src` on the fly: the
+// esbuild-runner hook this used to go through is a CommonJS `require` hook and
+// cannot load this package's ESM sources. Run `pnpm build:self` first.
+import { main } from '../build/scripts/generate_m404_ppd.js';
+
+main();

@@ -4,8 +4,14 @@
   "private": true,
   "description": "Backend rendering, printing, and printer management",
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
-  "types": "build/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",

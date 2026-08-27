@@ -9,6 +9,10 @@ export default defineConfig({
         lines: 100,
         branches: -1,
       },
+      // Dev-only CLI entry points, compiled so the `scripts/` launchers can
+      // import them rather than transpiling sources at run time. They lived
+      // outside `src/` before, so they were never counted.
+      exclude: ['src/scripts/**'],
     },
     alias: [
       {
