@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './copy_file';
 export * from './file_exceeds_max_size_error';
 export * from './read_chunk_error';
 export * from './read_chunks';
