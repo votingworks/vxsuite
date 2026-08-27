@@ -8,16 +8,16 @@ import { getBallotCount } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import React from 'react';
 import { styled } from '../styled.js';
-import { PrintedReport, printedReportThemeFn, reportColors } from './layout';
-import { LogoMark } from '../logo_mark';
-import { prefixedTitle } from './utils';
+import { PrintedReport, printedReportThemeFn, reportColors } from './layout.js';
+import { LogoMark } from '../logo_mark.js';
+import { prefixedTitle } from './utils.js';
 import {
   ReportElectionInfo,
   ReportHeader,
   ReportTitle,
   TestModeReportBanner,
-} from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 
 const EM_DASH = '—';
 

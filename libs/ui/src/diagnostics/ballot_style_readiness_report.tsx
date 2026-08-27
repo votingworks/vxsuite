@@ -3,8 +3,8 @@ import { assertDefined } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { styled } from '../styled.js';
-import { Font, H2, H3 } from '../typography';
-import { SuccessIcon } from './icons';
+import { Font, H2, H3 } from '../typography.js';
+import { SuccessIcon } from './icons.js';
 
 export interface BallotStyleReadinessReportProps {
   electionDefinition: ElectionDefinition;

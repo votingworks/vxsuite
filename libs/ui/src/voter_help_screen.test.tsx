@@ -1,13 +1,13 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from './user_event.js';
 
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 import {
   VoterHelpScreen,
   VoterHelpScreenH2,
   VoterHelpScreenH3,
   VoterHelpScreenP,
-} from './voter_help_screen';
+} from './voter_help_screen.js';
 
 test('VoterHelpScreen', () => {
   const onClose = vi.fn();

@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 
 import { useState } from 'react';
-import { SearchSelect, SearchSelectSingleProps } from './search_select';
+import { SearchSelect, SearchSelectSingleProps } from './search_select.js';
 
 const initialProps: SearchSelectSingleProps = {
   onChange: () => undefined,

@@ -2,7 +2,7 @@ import { ThemeProvider } from 'styled-components';
 import { ColorMode, SizeMode } from '@votingworks/types';
 import { styled } from '../styled.js';
 
-import { makeTheme } from '../themes/make_theme';
+import { makeTheme } from '../themes/make_theme.js';
 
 /** Props for {@link ThemePreview}. */
 export interface ThemePreviewProps {

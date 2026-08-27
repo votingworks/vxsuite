@@ -1,7 +1,7 @@
 import { describe, test } from 'vitest';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 
-import { RemoveCardScreen } from './remove_card_screen';
+import { RemoveCardScreen } from './remove_card_screen.js';
 
 describe('RemoveCardPage', () => {
   test('says "Remove card"', () => {

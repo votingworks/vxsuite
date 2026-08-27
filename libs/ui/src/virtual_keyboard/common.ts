@@ -1,5 +1,5 @@
 import { DefaultTheme } from 'styled-components';
-import { IconName } from '../icons';
+import { IconName } from '../icons.js';
 
 export enum ActionKey {
   DELETE = 'delete',

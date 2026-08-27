@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from './styled.js';
-import { H1 } from './typography';
-import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
+import { H1 } from './typography.js';
+import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
 
 const Container = styled.div<{ screenInfo: ScreenInfo }>`
   padding: 1.5rem;

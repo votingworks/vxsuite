@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { Card } from './card';
-import { makeTheme } from './themes/make_theme';
-import { P } from './typography';
+import { Card } from './card.js';
+import { makeTheme } from './themes/make_theme.js';
+import { P } from './typography.js';
 
 test('renders without footer', () => {
   render(

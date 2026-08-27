@@ -3,9 +3,9 @@ import type { BatteryInfo } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
 import { styled } from './styled.js';
-import { Button } from './button';
-import { getBatteryIcon } from './battery_display';
-import { IconName, Icons } from './icons';
+import { Button } from './button.js';
+import { getBatteryIcon } from './battery_display.js';
+import { IconName, Icons } from './icons.js';
 
 export const Toolbar = styled.div`
   display: flex;

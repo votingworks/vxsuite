@@ -3,11 +3,11 @@ import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
   IPP_PRINTER_STATE_REASON_MESSAGES,
   parseHighestPriorityIppPrinterStateReason,
-} from './diagnostics';
-import { Modal } from './modal';
-import { Icons } from './icons';
-import { P } from './typography';
-import { Button } from './button';
+} from './diagnostics/index.js';
+import { Modal } from './modal.js';
+import { Icons } from './icons.js';
+import { P } from './typography.js';
+import { Button } from './button.js';
 
 export function PrinterAlert({
   printerStatus,

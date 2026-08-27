@@ -2,8 +2,8 @@ import React from 'react';
 import { isTouchscreen } from '@votingworks/types';
 import { styled } from './styled.js';
 
-import { Button, ButtonProps } from './button';
-import { useCurrentTheme } from './hooks/use_current_theme';
+import { Button, ButtonProps } from './button.js';
+import { useCurrentTheme } from './hooks/use_current_theme.js';
 
 /** Option value type for the RadioGroup component. */
 type RadioGroupValue = string | number;

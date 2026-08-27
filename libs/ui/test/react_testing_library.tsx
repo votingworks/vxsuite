@@ -5,7 +5,7 @@ import {
   VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
-} from '../src/themes/render_with_themes';
+} from '../src/themes/render_with_themes.js';
 
 // Re-export all of @testing-library/react for convenience and override
 // with customized VX utils and types, as recommended at

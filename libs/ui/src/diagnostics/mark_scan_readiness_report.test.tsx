@@ -3,10 +3,10 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { getFeatureFlagMock } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
-import { MarkScanReadinessReport } from './mark_scan_readiness_report';
-import { render, screen } from '../../test/react_testing_library';
-import { expectConnectionStatus, expectDiagnosticResult } from './test_utils';
-import { DiagnosticSectionTitle } from './types';
+import { MarkScanReadinessReport } from './mark_scan_readiness_report.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { expectConnectionStatus, expectDiagnosticResult } from './test_utils.js';
+import { DiagnosticSectionTitle } from './types.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

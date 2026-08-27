@@ -3,13 +3,13 @@ import { assert } from '@votingworks/basics';
 import React, { act } from 'react';
 import { createMemoryHistory } from 'history';
 import { Route, Router } from 'react-router-dom';
-import { ReadOnLoad } from './read_on_load';
-import { render, screen } from '../../test/react_testing_library';
-import { UiStringsAudioContextProvider } from './audio_context';
+import { ReadOnLoad } from './read_on_load.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { UiStringsAudioContextProvider } from './audio_context.js';
 import {
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from '../hooks/ui_strings_api';
+} from '../hooks/ui_strings_api.js';
 
 const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
   getAudioClips: vi.fn(),

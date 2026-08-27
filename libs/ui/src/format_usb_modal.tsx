@@ -2,10 +2,10 @@ import React, { useCallback, useState } from 'react';
 import { Result, throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { UseMutationResult } from '@tanstack/react-query';
-import { Button } from './button';
-import { Modal } from './modal';
-import { Font, P } from './typography';
-import { Icons } from './icons';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { Font, P } from './typography.js';
+import { Icons } from './icons.js';
 
 type FlowState =
   | { stage: 'confirm' }

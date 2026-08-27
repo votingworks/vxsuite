@@ -6,13 +6,13 @@ import {
   QueryClientProvider,
   useMutation,
 } from '@tanstack/react-query';
-import userEvent from '@testing-library/user-event';
 import { act } from '@testing-library/react';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { render, screen } from '../test/react_testing_library';
-import { FormatUsbButton, FormatUsbButtonProps } from './format_usb_modal';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query';
+import { userEvent } from './user_event.js';
+import { render, screen } from '../test/react_testing_library.js';
+import { FormatUsbButton, FormatUsbButtonProps } from './format_usb_modal.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
 
 const mockMutate = vi
   .fn<() => Promise<Result<void, Error>>>()

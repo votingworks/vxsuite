@@ -2,9 +2,9 @@ import React from 'react';
 import { Trans } from 'react-i18next';
 
 import sanitizeHtml from 'sanitize-html';
-import { ReactUiString } from './types';
-import { useLanguageContext } from './language_context';
-import { WithAudio } from './with_audio';
+import { ReactUiString } from './types.js';
+import { useLanguageContext } from './language_context.js';
+import { WithAudio } from './with_audio.js';
 
 export interface UiStringProps {
   as?: string | React.ComponentType<never>;

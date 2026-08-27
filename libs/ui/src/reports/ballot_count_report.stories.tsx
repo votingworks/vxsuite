@@ -16,8 +16,8 @@ import { styled } from '../styled.js';
 import {
   BallotCountReport,
   BallotCountReportProps,
-} from './ballot_count_report';
-import { LabeledScannerBatch } from './utils';
+} from './ballot_count_report.js';
+import { LabeledScannerBatch } from './utils.js';
 
 const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
   electionTwoPartyPrimaryData

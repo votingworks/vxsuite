@@ -5,9 +5,9 @@ import {
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { styled } from '../styled.js';
-import { BatchSummaryTable } from './batch_summary_table';
-import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-import { printedReportThemeFn, PrintedReport } from './layout';
+import { BatchSummaryTable } from './batch_summary_table.js';
+import { PrecinctScannerReportHeader } from './precinct_scanner_report_header.js';
+import { printedReportThemeFn, PrintedReport } from './layout.js';
 
 const Contents = styled.div`
   padding-top: 2em;

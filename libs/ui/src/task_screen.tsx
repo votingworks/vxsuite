@@ -1,6 +1,6 @@
 import { styled } from './styled.js';
-import { Screen } from './screen';
-import { Main } from './main';
+import { Screen } from './screen.js';
+import { Main } from './main.js';
 
 interface TaskScreenProps {
   children: React.ReactNode;

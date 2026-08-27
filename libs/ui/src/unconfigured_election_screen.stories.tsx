@@ -5,8 +5,8 @@ import type { Meta } from '@storybook/react-vite' with {
 import {
   UnconfiguredElectionScreen,
   UnconfiguredElectionScreenProps,
-} from './unconfigured_election_screen';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+} from './unconfigured_election_screen.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
 const initialProps: UnconfiguredElectionScreenProps = {
   isElectionManagerAuth: true,

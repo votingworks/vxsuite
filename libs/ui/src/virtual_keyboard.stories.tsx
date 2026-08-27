@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { VirtualKeyboard, VirtualKeyboardProps } from '.';
+import { VirtualKeyboard, VirtualKeyboardProps } from './index.js';
 
 const initialArgs: Partial<VirtualKeyboardProps> = {
   keyDisabled: () => false,

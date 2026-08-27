@@ -4,11 +4,11 @@ import React from 'react';
 import { css } from 'styled-components';
 import { styled } from '../styled.js';
 
-import { Button } from '../button';
-import { Card } from '../card';
-import { Modal, ModalWidth } from '../modal';
-import { P, Font } from '../typography';
-import { getAudioGainRatio, AudioVolume } from './audio_volume';
+import { Button } from '../button.js';
+import { Card } from '../card.js';
+import { Modal, ModalWidth } from '../modal.js';
+import { P, Font } from '../typography.js';
+import { getAudioGainRatio, AudioVolume } from './audio_volume.js';
 
 export interface HeadphoneCalibrationButtonProps {
   audioUrl: string;

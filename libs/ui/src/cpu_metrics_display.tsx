@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { format } from '@votingworks/utils';
 import type { CpuMetrics } from '@votingworks/backend';
 import { styled } from './styled.js';
-import { Sparkline } from './sparkline';
+import { Sparkline } from './sparkline.js';
 
 // Landscape mode - horizontal top bar (single row)
 const TopBar = styled.div<{ portrait?: boolean }>`

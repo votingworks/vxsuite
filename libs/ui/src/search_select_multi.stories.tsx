@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 
 import { useState } from 'react';
-import { SearchSelect, SearchSelectMultiProps } from './search_select';
+import { SearchSelect, SearchSelectMultiProps } from './search_select.js';
 
 const initialProps: SearchSelectMultiProps = {
   onChange: () => undefined,

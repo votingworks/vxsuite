@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { PinLength } from './pin_length';
+import { PinLength } from './pin_length.js';
 
 test('exactly', () => {
   const p = PinLength.exactly(4);
