@@ -6,7 +6,7 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { exchangePaths, syncFilesystem, SyscallError } from '@votingworks/fs';
 import { swap } from './swap_step.js';
-import { ProgressEvent } from './types.js';
+import { ProgressEvent } from '../progress.js';
 
 vi.mock(
   import('@votingworks/fs'),

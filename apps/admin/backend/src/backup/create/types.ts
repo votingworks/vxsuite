@@ -1,44 +1,9 @@
-import { BaseLogger } from '@votingworks/logging';
 import { Id } from '@votingworks/types';
 import { BackupStagingArea } from '../staging_area.js';
 import { Store } from '../../store.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { Workspace } from '../../util/workspace.js';
-
-/**
- * Basic options for all steps.
- */
-export interface ProgressTracking {
-  /**
-   * When given this callback will be called repeatedly as the backup
-   * progresses.
-   */
-  onProgressEvent?: (event: ProgressEvent) => void;
-
-  /**
-   * Where to send log messages during the backup.
-   */
-  logger: BaseLogger;
-}
-
-/**
- * All expected events that may occur during a backup operation.
- */
-export type ProgressEvent =
-  | { type: 'preparing' }
-  | { type: 'db_snapshot'; progress: number }
-  | { type: 'staging_files'; progress: number }
-  | {
-      type: 'copy_files';
-      current?: string;
-      copiedCount: number;
-      totalCount: number;
-      copiedBytes: number;
-      totalBytes: number;
-    }
-  | { type: 'writing_manifest' }
-  | { type: 'flushing_backup' }
-  | { type: 'swapping_backup' };
+import { ProgressTracking } from '../progress.js';
 
 /**
  * Options for preparing a backup to copy from the given workspace to a target.

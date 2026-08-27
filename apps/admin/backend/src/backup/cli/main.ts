@@ -14,7 +14,7 @@ import { StyledPrinter } from './styled_printer.js';
 import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
 import { Backup } from '../backup.js';
-import { ProgressEvent } from '../create/types.js';
+import { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
 import { openWorkspace, Workspace } from '../../util/workspace.js';
 

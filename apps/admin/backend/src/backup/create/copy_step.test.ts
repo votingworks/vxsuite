@@ -18,7 +18,7 @@ import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 import { prepare } from './prepare_step.js';
 import { copy } from './copy_step.js';
-import { ProgressEvent } from './types.js';
+import { ProgressEvent } from '../progress.js';
 
 vi.mock(
   import('@votingworks/backend'),
