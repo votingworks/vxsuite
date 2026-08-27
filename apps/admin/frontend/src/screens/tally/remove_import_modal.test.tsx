@@ -78,6 +78,7 @@ function mockCvrImport(partial: Partial<CvrImport>): CvrImport {
     filename: 'import1.json',
     id: fileId,
     numCvrsImported: 1,
+    source: 'usb',
     pollingPlaceIds: ['place1'],
     precinctIds: ['precinct1'],
     scannerIds: ['SCAN-001'],
