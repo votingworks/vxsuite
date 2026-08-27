@@ -1,3 +1,5 @@
+import * as tmp from 'tmp';
+
 import {
   ballotTemplates,
   createPlaywrightRendererPool,
@@ -28,6 +30,8 @@ import { assertDefined } from '@votingworks/basics';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+
+tmp.setGracefulCleanup();
 
 /** Specifies how to render a single marked ballot. */
 export interface MarkedBallotSpec {
@@ -103,7 +107,8 @@ export function withOvervote(
   const currentIds = new Set(current.map((c) => c.id));
   const extra = contest.candidates.find((c) => !currentIds.has(c.id));
   /* istanbul ignore next */
-  if (!extra) throw new Error(`No extra candidate to overvote in ${contest.id}`);
+  if (!extra)
+    throw new Error(`No extra candidate to overvote in ${contest.id}`);
   return { ...votes, [contest.id]: [...current, extra] };
 }
 
@@ -162,18 +167,20 @@ export async function renderMarkedBallots(
       ballotMode: first.ballotMode ?? 'official',
     };
 
-    const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
+    const { layoutPaths } = await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [sharedBallotProps],
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      { path: tmp.dirSync({ unsafeCleanup: true }).name }
     );
-    const sharedBallotContent = assertDefined(ballotContents[0]);
+    const layoutPath = assertDefined(layoutPaths[0]);
+    const sharedBallotContent = readFileSync(layoutPath, 'utf8');
 
     // Mark and render each ballot variant in a single runTasks batch.
     const pdfBytesList = await rendererPool.runTasks(
       specs.map((spec) => async (renderer) => {
-        const doc = await renderer.loadDocumentFromContent(sharedBallotContent);
+        const doc = await renderer.documentFromContent(sharedBallotContent);
         await markBallotDocument(
           doc,
           spec.votes,

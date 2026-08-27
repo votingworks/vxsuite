@@ -22,13 +22,19 @@ import {
   createPlaywrightRendererPool,
   renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { decryptAes256 } from '@votingworks/auth';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
-import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers.js';
+import {
+  configureApp,
+  pdfToImageSheet,
+} from '../test/helpers/shared_helpers.js';
 import { BALLOT_AUDIT_ID_FILE_NAME } from './app.js';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -408,7 +414,8 @@ test('audit ballot IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      { path: makeTemporaryDirectory() }
     );
   const ballotPdf = ballotPdfs[0];
   await rendererPool.close();
