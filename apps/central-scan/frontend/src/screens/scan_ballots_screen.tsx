@@ -20,7 +20,7 @@ import { DeleteBatchModal } from '../components/delete_batch_modal.js';
 import { NavigationScreen } from '../navigation_screen.js';
 import { ExportResultsModal } from '../components/export_results_modal.js';
 import { ScanButton } from '../components/scan_button.js';
-import { clearBallotData } from '../api.js';
+import { clearBallotData, getNetworkStatus } from '../api.js';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -35,6 +35,12 @@ function shortDateTime(iso8601Timestamp: string) {
     d.getDate()
   )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
 }
+
+// Reserves enough width for a full timestamp so the column doesn't resize
+// when a batch flips from "Not sent" to its sent time.
+const SentAtCell = styled(TD)`
+  min-width: 12rem;
+`;
 
 const Content = styled.div`
   display: flex;
@@ -92,6 +98,8 @@ export function ScanBallotsScreen({
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
+  const isNetworkingEnabled = networkStatusQuery.data?.isEnabled ?? false;
   const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
     'confirmation' | 'deleting'
   >();
@@ -173,6 +181,7 @@ export function ScanBallotsScreen({
                     <th>Sheet Count</th>
                     <th>Started At</th>
                     <th>Finished At</th>
+                    {isNetworkingEnabled && <th>Sent At</th>}
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
@@ -191,6 +200,15 @@ export function ScanBallotsScreen({
                           shortDateTime(batch.endedAt)
                         ) : null}
                       </TD>
+                      {isNetworkingEnabled && (
+                        <SentAtCell nowrap>
+                          {batch.sentToAdminAt ? (
+                            shortDateTime(batch.sentToAdminAt)
+                          ) : (
+                            <Font weight="light">Not sent</Font>
+                          )}
+                        </SentAtCell>
+                      )}
                       <TD narrow>
                         <Button
                           icon="Delete"

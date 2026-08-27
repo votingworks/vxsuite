@@ -1458,6 +1458,11 @@ export interface BatchInfo {
   count: number;
   ballotCastingMode?: BallotCastingMode;
   pollingPlaceId: string;
+  /**
+   * When this batch's cast vote records were sent to a VxAdmin host over the
+   * network. Only used on VxCentralScan.
+   */
+  sentToAdminAt?: Iso8601Timestamp;
 }
 
 export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);
