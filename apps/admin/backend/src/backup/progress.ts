@@ -17,7 +17,10 @@ export interface ProgressTracking {
 }
 
 /**
- * All expected events that may occur during a backup operation.
+ * All expected events that may occur while creating or restoring a backup. The
+ * two operations share the vocabulary where the work is the same (`preparing`,
+ * `copy_files`), so a progress display can serve both; the remaining phases
+ * each belong to one side.
  */
 export type ProgressEvent =
   | { type: 'preparing' }
@@ -33,4 +36,6 @@ export type ProgressEvent =
     }
   | { type: 'writing_manifest' }
   | { type: 'flushing_backup' }
-  | { type: 'swapping_backup' };
+  | { type: 'swapping_backup' }
+  | { type: 'verifying' }
+  | { type: 'flushing_workspace' };

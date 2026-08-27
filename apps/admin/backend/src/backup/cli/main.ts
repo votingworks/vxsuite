@@ -165,6 +165,8 @@ const PROGRESS_LABELS: Record<ProgressEvent['type'], string> = {
   writing_manifest: 'Writing manifest',
   flushing_backup: 'Flushing to device',
   swapping_backup: 'Swapping into place',
+  verifying: 'Verifying restored files',
+  flushing_workspace: 'Flushing to disk',
 };
 
 function displayProgress(event: ProgressEvent): DisplayProgress {
