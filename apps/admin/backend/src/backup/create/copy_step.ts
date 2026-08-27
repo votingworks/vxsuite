@@ -1,14 +1,14 @@
-import { Buffer } from 'node:buffer';
 import { mkdir } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { createHash } from 'node:crypto';
-import { pipeline } from 'node:stream/promises';
-import { Transform } from 'node:stream';
 import { DateTime } from 'luxon';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, ok, Result } from '@votingworks/basics';
+import { copyFile, CopyFileError } from '@votingworks/fs';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import { BackupManifest, BackupManifestEntry } from '../backup_manifest.js';
+import {
+  BACKUP_WORKSPACE_DIR,
+  BackupManifest,
+  BackupManifestEntry,
+} from '../backup_manifest.js';
 import { CopyBackupOptions } from './types.js';
 import { getMachineConfig } from '../../machine_config.js';
 
@@ -25,7 +25,7 @@ const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
  */
 export async function copy(
   options: CopyBackupOptions
-): Promise<BackupManifest> {
+): Promise<Result<BackupManifest, CopyFileError>> {
   const { electionId, source, store } = options;
   const progressEventIntervalBytes =
     options.progressEventIntervalBytes ?? DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES;
@@ -42,7 +42,7 @@ export async function copy(
     totalBytes,
   });
   const backupPath = options.backup;
-  const backupWorkspacePath = join(backupPath, 'workspace');
+  const backupWorkspacePath = join(backupPath, BACKUP_WORKSPACE_DIR);
 
   // `prepare` resolved this election ID against the same snapshot, so its
   // metadata is necessarily there.
@@ -59,39 +59,35 @@ export async function copy(
     });
     const targetFilePath = join(backupWorkspacePath, file.relativePath);
     await mkdir(dirname(targetFilePath), { recursive: true });
-    const reader = createReadStream(file.path);
-    const writer = createWriteStream(targetFilePath);
-    const hash = createHash('sha256');
     const baseCopiedCount = copiedCount;
     const baseCopiedBytes = copiedBytes;
-    let size = 0;
     let reportedSize = 0;
 
-    await pipeline(
-      reader,
-      new Transform({
-        transform(chunk: Buffer, _encoding, callback) {
-          hash.write(chunk);
-          size += chunk.byteLength;
+    const copyFileResult = await copyFile({
+      source: file.path,
+      destination: targetFilePath,
+      maxSize: file.size,
+      digest: 'sha256',
+      onProgress(fileCopiedBytes) {
+        if (fileCopiedBytes - reportedSize >= progressEventIntervalBytes) {
+          reportedSize = fileCopiedBytes;
+          options.onProgressEvent?.({
+            type: 'copy_files',
+            current: file.relativePath,
+            copiedCount: baseCopiedCount,
+            totalCount,
+            copiedBytes: baseCopiedBytes + fileCopiedBytes,
+            totalBytes,
+          });
+        }
+      },
+    });
 
-          if (size - reportedSize >= progressEventIntervalBytes) {
-            reportedSize = size;
-            options.onProgressEvent?.({
-              type: 'copy_files',
-              current: file.relativePath,
-              copiedCount: baseCopiedCount,
-              totalCount,
-              copiedBytes: baseCopiedBytes + size,
-              totalBytes,
-            });
-          }
+    if (copyFileResult.isErr()) {
+      return copyFileResult;
+    }
 
-          callback(null, chunk);
-        },
-      }),
-      writer
-    );
-
+    const { size, sha256: hash } = copyFileResult.ok();
     copiedCount += 1;
     copiedBytes += file.size;
 
@@ -103,7 +99,7 @@ export async function copy(
     backupManifestEntries.push({
       path: relative(backupPath, targetFilePath),
       size,
-      hash: hash.digest('hex'),
+      hash,
     });
   }
 
@@ -126,11 +122,13 @@ export async function copy(
   const softwareVersion = LATEST_SOFTWARE_VERSION;
   const machineConfig = getMachineConfig();
 
-  return new BackupManifest(
-    softwareVersion,
-    machineConfig.machineId,
-    DateTime.now().toISO(),
-    electionMetadata,
-    backupManifestEntries
+  return ok(
+    new BackupManifest(
+      softwareVersion,
+      machineConfig.machineId,
+      DateTime.now().toISO(),
+      electionMetadata,
+      backupManifestEntries
+    )
   );
 }

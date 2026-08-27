@@ -121,7 +121,7 @@ async function tryCreateBackup(
       // Clear the leftovers of any interrupted run before writing.
       await rm(inProgressBackupPath, { recursive: true, force: true });
 
-      manifest = await copy({
+      const copyResult = await copy({
         electionId,
         source,
         store: snapshotStore,
@@ -129,6 +129,26 @@ async function tryCreateBackup(
         logger: options.logger,
         onProgressEvent: options.onProgressEvent,
       });
+      if (copyResult.isErr()) {
+        const error = copyResult.err();
+
+        // Same cleanup as a thrown write error below: discard what we managed
+        // to write, best effort.
+        try {
+          await rm(inProgressBackupPath, { recursive: true, force: true });
+        } catch {
+          // ignored
+        }
+
+        return err({
+          type: 'backup-write-failed',
+          message:
+            error.type === 'FileExceedsMaxSize'
+              ? `A staged file grew past its measured size (max ${error.maxSize} bytes)`
+              : extractErrorMessage(error.error),
+        });
+      }
+      manifest = copyResult.ok();
     } finally {
       // Close the snapshot's connection before deleting the file it holds
       // open, or the space it occupies won't be reclaimed until we exit.

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, LATEST_SOFTWARE_VERSION } from '@votingworks/types';
@@ -51,14 +52,16 @@ test('copies staged files to the backup directory and builds a manifest', async 
   const electionMetadata = assertDefined(
     snapshotStore.getElectionMetadata(electionId)
   );
-  const manifest = await copy({
-    electionId,
-    source,
-    store: snapshotStore,
-    backup: backupPath,
-    logger: mockBaseLogger({ fn: vi.fn }),
-    onProgressEvent: (event) => progressEvents.push(event),
-  });
+  const manifest = (
+    await copy({
+      electionId,
+      source,
+      store: snapshotStore,
+      backup: backupPath,
+      logger: mockBaseLogger({ fn: vi.fn }),
+      onProgressEvent: (event) => progressEvents.push(event),
+    })
+  ).unsafeUnwrap();
 
   // Every staged file landed at `<backup>/<relativePath>` with the exact
   // bytes it had in the staging area, and the manifest describes it
@@ -135,15 +138,17 @@ async function copyWithProgress(
   } = prepareResult.unsafeUnwrap();
   const events: ProgressEvent[] = [];
 
-  await copy({
-    electionId,
-    source,
-    store,
-    backup: join(makeTemporaryDirectory(), 'backup'),
-    logger: mockBaseLogger({ fn: vi.fn }),
-    progressEventIntervalBytes,
-    onProgressEvent: (event) => events.push(event),
-  });
+  (
+    await copy({
+      electionId,
+      source,
+      store,
+      backup: join(makeTemporaryDirectory(), 'backup'),
+      logger: mockBaseLogger({ fn: vi.fn }),
+      progressEventIntervalBytes,
+      onProgressEvent: (event) => events.push(event),
+    })
+  ).unsafeUnwrap();
 
   const { fileCount } = source;
   await source.cleanup();
@@ -206,4 +211,32 @@ test('throttles progress to the given interval', async () => {
   // An interval no file can cross leaves only the events that bracket the copy
   // and the one announcing each file.
   expect(events).toHaveLength(fileCount + 2);
+});
+
+test('reports a staged file that cannot be read', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+
+  const prepareResult = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
+
+  // The staging area holds links to the workspace's own files, which a failing
+  // disk can stop producing between being staged and being copied.
+  rmSync(assertDefined(source.listStagedFiles()[0]).path);
+
+  const result = await copy({
+    electionId,
+    source,
+    store: snapshotStore,
+    backup: join(makeTemporaryDirectory(), 'backup'),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toMatchObject({ type: 'OpenFileError' });
+
+  await source.cleanup();
 });

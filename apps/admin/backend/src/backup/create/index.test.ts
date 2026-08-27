@@ -249,6 +249,48 @@ test('reports an error when copying the backup fails', async () => {
   );
 });
 
+test('reports a backup file that could not be copied, leaving no partial backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(
+    err({ type: 'WriteFileError', error: outOfSpaceError() })
+  );
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'no space left on device',
+  });
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+});
+
+test('reports a staged file that outgrew the size it was measured at', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(
+    err({ type: 'FileExceedsMaxSize', maxSize: 1024 })
+  );
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  // A staged file is copied under the size staging measured for it, so this
+  // means the workspace changed underneath the backup rather than that some
+  // limit of ours was too small.
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: expect.stringContaining('grew past its measured size'),
+  });
+});
+
 test('reports an error when writing the manifest fails, leaving no partial backup', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
