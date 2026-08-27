@@ -53,7 +53,13 @@ import {
   isCombinedBallotPrimary,
   PartyId,
 } from '@votingworks/types';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
@@ -1057,16 +1063,21 @@ export class Store implements BaseStore {
     scannerIds,
     pollingPlaceIds,
     batchIds,
+    networkImport,
   }: {
     id: Id;
     electionId: Id;
     isTestMode: boolean;
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
-    sha256Hash: string;
+    sha256Hash?: string;
     scannerIds: Set<string>;
     pollingPlaceIds: Set<string>;
     batchIds: string[];
+    networkImport?: {
+      scannerId: string;
+      batchId: string;
+    };
   }): void {
     this.client.run(
       `
@@ -1080,9 +1091,12 @@ export class Store implements BaseStore {
           scanner_ids,
           polling_place_ids,
           batch_ids,
-          sha256_hash
+          sha256_hash,
+          source,
+          network_scanner_id,
+          network_batch_id
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1094,8 +1108,170 @@ export class Store implements BaseStore {
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
       JSON.stringify(batchIds),
-      sha256Hash
+      sha256Hash ?? null,
+      networkImport ? 'network' : 'usb',
+      networkImport?.scannerId ?? null,
+      networkImport?.batchId ?? null
     );
+  }
+
+  /**
+   * Stages (or replaces) one network-transferred cast vote record. Staged
+   * records are invisible to every other consumer until the transfer is
+   * finalized.
+   */
+  upsertStagedCvr({
+    electionId,
+    scannerId,
+    batchId,
+    ballotId,
+    cvrData,
+  }: {
+    electionId: Id;
+    scannerId: string;
+    batchId: string;
+    ballotId: string;
+    cvrData: string;
+  }): void {
+    this.client.run(
+      `
+        insert into cvrs_staging (
+          election_id, scanner_id, batch_id, ballot_id, cvr_data
+        ) values (?, ?, ?, ?, ?)
+        on conflict (election_id, scanner_id, batch_id, ballot_id)
+        do update set cvr_data = excluded.cvr_data
+      `,
+      electionId,
+      scannerId,
+      batchId,
+      ballotId,
+      cvrData
+    );
+  }
+
+  /**
+   * Counts the staged cast vote records for one network transfer.
+   */
+  getStagedCvrCount(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): number {
+    const row = this.client.one(
+      `
+        select count(*) as count from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as { count: number };
+    return row.count;
+  }
+
+  /**
+   * Returns the staged cast vote records for one network transfer.
+   */
+  getStagedCvrs(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): Array<{ ballotId: string; cvrData: string }> {
+    return this.client.all(
+      `
+        select ballot_id as ballotId, cvr_data as cvrData
+        from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+        order by ballot_id
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as Array<{ ballotId: string; cvrData: string }>;
+  }
+
+  /**
+   * Deletes one network transfer's staged cast vote records.
+   */
+  deleteStagedCvrs(electionId: Id, scannerId: string, batchId: string): void {
+    this.client.run(
+      `
+        delete from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    );
+  }
+
+  /**
+   * Like {@link addBallotImage}, but moves an already-written (and already
+   * hash-verified) image file into place instead of writing a buffer —
+   * cheap enough to run inside the finalize transaction.
+   */
+  addBallotImageFromFile({
+    cvrId,
+    electionDefinitionId,
+    imageFilePath,
+    pageLayout,
+    side,
+  }: {
+    cvrId: Id;
+    electionDefinitionId: string;
+    imageFilePath: string;
+    pageLayout?: BallotPageLayout;
+    side: Side;
+  }): void {
+    const ballotImagePath = this.getBallotImageFilePath(
+      electionDefinitionId,
+      cvrId,
+      side
+    );
+    mkdirSync(dirname(ballotImagePath), { recursive: true });
+    renameSync(imageFilePath, ballotImagePath);
+    this.client.run(
+      `
+      insert into ballot_images (
+        cvr_id,
+        side,
+        layout
+      ) values (
+        ?, ?, ?
+      )
+    `,
+      cvrId,
+      side,
+      pageLayout ? JSON.stringify(pageLayout) : null
+    );
+  }
+
+  /**
+   * Looks up the import record for a network CVR transfer from the given
+   * scanner and batch, if one exists. Because a transfer's import is a
+   * single atomic transaction, an existing record is always a completed
+   * import.
+   */
+  getNetworkCvrImportId(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): Optional<Id> {
+    const row = this.client.one(
+      `
+        select id
+        from cvr_files
+        where
+          election_id = ?
+          and source = 'network'
+          and network_scanner_id = ?
+          and network_batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as { id: Id } | undefined;
+    return row?.id;
   }
 
   updateCastVoteRecordFileRecord({
