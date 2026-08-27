@@ -6,7 +6,7 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     coverage: {
       // Dev-only CLI
-      exclude: ['src/printer/cli.ts'],
+      exclude: ['src/printer/cli.ts', 'src/scripts/**'],
     },
     alias: [
       {

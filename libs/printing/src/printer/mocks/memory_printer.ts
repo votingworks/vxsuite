@@ -2,8 +2,8 @@ import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
-import { MockPrintJob, PrintProps, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import { MockPrintJob, PrintProps, Printer } from '../types.js';
+import { getMockConnectedPrinterStatus } from './fixtures.js';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.

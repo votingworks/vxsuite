@@ -8,8 +8,8 @@ import {
   PrinterRichStatus,
   safeParseInt,
 } from '@votingworks/types';
-import { exec } from '../utils/exec';
-import { rootDebug } from '../utils/debug';
+import { exec } from '../utils/exec.js';
+import { rootDebug } from '../utils/debug.js';
 
 const debug = rootDebug.extend('status');
 

@@ -3,7 +3,7 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { cleanupCachedBrowser } from '@votingworks/printing';
+import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import { cleanupTestSuiteTmpFiles } from './cleanup.js';
 
 afterAll(async () => {

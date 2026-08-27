@@ -8,7 +8,7 @@ import {
   HP_4001_PRINTER_CONFIG,
   M404_INPUT_SLOT,
   HP_M404_PRINTER_CONFIG,
-} from './supported';
+} from './supported.js';
 
 // test also confirms that the configs.json file is valid
 test('referenced PPD files exist and are valid', async () => {

@@ -6,7 +6,7 @@ import {
   buildToMatchPdfSnapshot,
   ToMatchPdfSnapshotOptions,
 } from '@votingworks/image-utils';
-import { cleanupCachedBrowser } from '@votingworks/printing';
+import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import { makeIdFactory } from './id_helpers.js';
