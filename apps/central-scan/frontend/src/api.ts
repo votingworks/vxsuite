@@ -162,7 +162,7 @@ export const getElectionRecord = {
   },
 } as const;
 
-const STATUS_POLLING_INTERVAL_MS = 100;
+export const STATUS_POLLING_INTERVAL_MS = 100;
 
 export const getStatus = {
   queryKey(): QueryKey {
