@@ -8,9 +8,11 @@ import {
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Id } from '@votingworks/types';
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { createBackup } from '../src/backup/create/index.js';
+import { Backup } from '../src/backup/backup.js';
 
 /**
  * A volume with so much free space that a test using it never has to think
@@ -153,4 +155,22 @@ export function addCvrWithBallotImage(
     imagePath: join(store.getBallotImagesPath(), election.id, `${cvrId}-front`),
     imageData,
   };
+}
+
+/**
+ * Creates a real, signed backup of a workspace with one CVR and ballot image.
+ * Requires the calling test to have mocked disk space, as {@link mockDiskSpace}
+ * does.
+ */
+export async function makeBackup(): Promise<Backup> {
+  using source = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(source, { ballotId: 'ballot-1' });
+  const created = (
+    await createBackup({
+      workspace: source,
+      target: makeTemporaryDirectory(),
+      logger: mockBaseLogger({ fn: vi.fn }),
+    })
+  ).unsafeUnwrap();
+  return new Backup(created.path);
 }

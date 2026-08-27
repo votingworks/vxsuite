@@ -294,7 +294,10 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
   }
 }
 
-function constructSignatureFilePath(artifact: ArtifactToImport): string {
+/**
+ * Determines the file name for the given importable artifact.
+ */
+export function constructSignatureFilePath(artifact: ArtifactToImport): string {
   switch (artifact.type) {
     case 'cast_vote_records': {
       return `${artifact.directoryPath}${SIGNATURE_FILE_EXTENSION}`;

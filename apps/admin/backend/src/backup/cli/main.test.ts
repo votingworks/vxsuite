@@ -22,6 +22,7 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { createHash } from 'node:crypto';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { readFile, stat } from 'node:fs/promises';
 import {
   BackupManifest,
@@ -81,28 +82,46 @@ async function makeWorkspace(logger: BaseLogger): Promise<Workspace> {
 
 const MANIFEST_CREATED_AT = '2026-08-18T12:00:00.000Z';
 
-function writeManifest(backupPath: string): void {
-  writeFileSync(
-    join(backupPath, 'manifest.json'),
-    JSON.stringify(
-      new BackupManifest(
-        '4.0.0',
-        'VX-00-001',
-        MANIFEST_CREATED_AT,
-        {
-          id: 'election-1',
-          title: 'General Election',
-          date: new DateWithoutTime('2026-11-03'),
-        },
-        [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
-      )
+async function writeManifest(backupPath: string): Promise<void> {
+  const manifestFileContents = JSON.stringify(
+    new BackupManifest(
+      '4.0.0',
+      'VX-00-001',
+      MANIFEST_CREATED_AT,
+      {
+        id: 'election-1',
+        title: 'General Election',
+        date: new DateWithoutTime('2026-11-03'),
+      },
+      [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
     )
+  );
+  await writeSignedManifest(backupPath, manifestFileContents);
+}
+
+/**
+ * Writes a manifest and, alongside it, the signature that authenticates it,
+ * since reading a manifest means authenticating it first.
+ */
+async function writeSignedManifest(
+  backupPath: string,
+  manifestFileContents: string
+): Promise<void> {
+  writeFileSync(join(backupPath, 'manifest.json'), manifestFileContents);
+  const signatureFile = await prepareSignatureFile({
+    type: 'vxadmin_backup',
+    context: 'export',
+    manifestFileContents,
+  });
+  writeFileSync(
+    join(backupPath, signatureFile.fileName),
+    signatureFile.fileContents
   );
 }
 
-function makeBackup(): string {
+async function makeBackup(): Promise<string> {
   const backup = makeTemporaryDirectory();
-  writeManifest(backup);
+  await writeManifest(backup);
   mkdirSync(join(backup, 'workspace'));
   return backup;
 }
@@ -279,7 +298,7 @@ test('create fails fast when the workspace cannot be opened for another reason',
 });
 
 test('validate lists the backup files', async () => {
-  const { code, stdout, stderr } = await run(['validate', makeBackup()]);
+  const { code, stdout, stderr } = await run(['validate', await makeBackup()]);
   expect(code).toEqual(0);
   expect(stderr).toContain('NOT IMPLEMENTED YET.');
   expect(stdout).toContain('Here are the backup files to be validated:');
@@ -301,8 +320,8 @@ test('list prints the backups on a backup drive', async () => {
   const backupsPath = join(target, 'vxadmin-backups');
   mkdirSync(join(backupsPath, 'backup-1'), { recursive: true });
   mkdirSync(join(backupsPath, 'backup-2'), { recursive: true });
-  writeManifest(join(backupsPath, 'backup-1'));
-  writeManifest(join(backupsPath, 'backup-2'));
+  await writeManifest(join(backupsPath, 'backup-1'));
+  await writeManifest(join(backupsPath, 'backup-2'));
 
   const { code, stdout, stderr } = await run(['list', target]);
   expect(code).toEqual(0);
@@ -325,7 +344,14 @@ test('list reports backups with unreadable manifests on stderr', async () => {
   const backupsPath = join(target, 'vxadmin-backups');
   mkdirSync(join(backupsPath, 'backup-1'), { recursive: true });
   mkdirSync(join(backupsPath, 'no-manifest'), { recursive: true });
-  writeManifest(join(backupsPath, 'backup-1'));
+  mkdirSync(join(backupsPath, 'damaged-manifest'), { recursive: true });
+  await writeManifest(join(backupsPath, 'backup-1'));
+  // Signed, so this is a backup of ours whose manifest did not survive the
+  // trip, as opposed to one we cannot authenticate at all.
+  await writeSignedManifest(
+    join(backupsPath, 'damaged-manifest'),
+    'not a manifest'
+  );
 
   const { code, stdout, stderr } = await run(['list', target]);
   expect(code).toEqual(0);
@@ -335,6 +361,13 @@ test('list reports backups with unreadable manifests on stderr', async () => {
     `[Unreadable Manifest] ${join(
       backupsPath,
       'no-manifest',
+      'manifest.json'
+    )} is invalid:`
+  );
+  expect(stderr).toContain(
+    `[Unreadable Manifest] ${join(
+      backupsPath,
+      'damaged-manifest',
       'manifest.json'
     )} is invalid:`
   );
@@ -361,7 +394,7 @@ test('restore prints the backup manifest', async () => {
     '--workspace',
     makeTemporaryDirectory(),
     '--backup',
-    makeBackup(),
+    await makeBackup(),
   ]);
   expect(code).toEqual(0);
   expect(stderr).toContain('NOT IMPLEMENTED YET.');
