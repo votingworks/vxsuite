@@ -185,8 +185,35 @@ create table cvr_files (
   scanner_ids text not null,
   polling_place_ids text not null,
   batch_ids text not null,
-  sha256_hash text not null,
+  -- Null for imports received over the network, which have no export
+  -- signature to hash.
+  sha256_hash text,
+  source text not null default 'usb'
+    check (source = 'usb' or source = 'network'),
+  network_scanner_id text,
+  network_batch_id text,
   created_at text not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade
+) strict;
+
+create unique index idx_cvr_files_network_transfer
+  on cvr_files(election_id, network_scanner_id, network_batch_id)
+  where source = 'network';
+
+-- Cast vote records that have been validated but not yet imported: held
+-- here — invisible to every other consumer — until finalized, when they
+-- move into the real tables in one atomic transaction. Used by network
+-- transfers today; intended to back a chunked USB import as well.
+create table cvrs_staging (
+  election_id text not null,
+  scanner_id text not null,
+  batch_id text not null,
+  ballot_id text not null,
+  -- The validated, ready-to-insert record (votes, adjudication flags,
+  -- write-ins, image metadata) as JSON.
+  cvr_data text not null,
+  primary key (election_id, scanner_id, batch_id, ballot_id),
   foreign key (election_id) references elections(id)
     on delete cascade
 ) strict;

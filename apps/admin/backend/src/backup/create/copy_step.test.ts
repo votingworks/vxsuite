@@ -95,10 +95,10 @@ function addCvrWithBallotImage(
     isTestMode: false,
     filename: 'cvrs.jsonl',
     exportedTimestamp: new Date().toISOString(),
-    sha256Hash: 'hash',
     scannerIds: new Set(['scanner-1']),
     pollingPlaceIds: new Set(),
     batchIds: ['batch-1'],
+    source: { type: 'usb', sha256Hash: 'hash' },
   });
   const result = store.addCastVoteRecordFileEntry({
     electionId,

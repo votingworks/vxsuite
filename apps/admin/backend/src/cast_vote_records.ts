@@ -424,7 +424,7 @@ export async function importCastVoteRecords(
       pollingPlaceIds,
       scannerIds,
       batchIds,
-      sha256Hash: exportHash,
+      source: { type: 'usb', sha256Hash: exportHash },
     });
 
     // Create a mark score distribution map with 0.1 increment buckets for logging
