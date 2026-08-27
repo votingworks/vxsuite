@@ -158,13 +158,16 @@ export async function main(
               env: extraEnv,
             }),
 
-            // Run the service with hot reloading.
+            // Run the service with hot reloading. Backends resolve their dev
+            // workspace relative to the built code (`build/dev-workspace`), and
+            // nodemon always watches `.json` files, so ignore the workspace or
+            // any JSON the running service writes there restarts it.
             npmBinCommand({
               name: `${name}:run`,
               command:
                 'while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; ' +
-                'nodemon --watch build --delay 1 --exitcrash --exec ' +
-                'NODE_ENV=development pnpm start',
+                "nodemon --watch build --ignore 'build/dev-workspace/**' " +
+                '--delay 1 --exitcrash --exec NODE_ENV=development pnpm start',
               prefixColor: 'cyan',
               cwd: serviceRoot,
               env: extraEnv,
