@@ -201,7 +201,7 @@ test('restore copies the database, ballot images, and election packages', async 
 
   const created = (
     await createBackup({
-      workspace: source.path,
+      workspace: source,
       target: makeTemporaryDirectory(),
       logger,
     })
@@ -290,7 +290,7 @@ test('restore recreates workspace directories the backup has no files in', async
   using source = await makeConfiguredWorkspace();
   const created = (
     await createBackup({
-      workspace: source.path,
+      workspace: source,
       target: makeTemporaryDirectory(),
       logger,
     })

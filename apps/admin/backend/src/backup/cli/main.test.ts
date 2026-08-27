@@ -388,21 +388,65 @@ test('list fails when the target does not exist', async () => {
   );
 });
 
-test('restore prints the backup manifest', async () => {
+test('restore copies a backup into the workspace', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+  expect(
+    (await run(['create', '--workspace', source.path, '--target', target])).code
+  ).toEqual(0);
+  const backup = join(
+    target,
+    'vxadmin-backups',
+    'franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+
+  const workspace = makeTemporaryDirectory();
   const { code, stdout, stderr } = await run([
+    'restore',
+    '--workspace',
+    workspace,
+    '--backup',
+    backup,
+  ]);
+  expect(code).toEqual(0);
+
+  // Progress is reported on stderr, one line per step since the mock stream is
+  // not a terminal, and never mixed into stdout.
+  expect(stderr).toContain('Copying files');
+  expect(stderr).toContain('Verifying restored files');
+  expect(stderr).toContain('Flushing to disk');
+  // \u001b is ESC: nothing tries to move a cursor that isn't there.
+  expect(stderr).not.toContain('\u001b');
+
+  expect(stdout).toContain(`Restored ${backup} to ${workspace}.`);
+
+  const client = Client.fileClient(
+    join(workspace, 'data.db'),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const { count } = client.one('select count(*) as count from elections') as {
+    count: number;
+  };
+  expect(count).toEqual(1);
+});
+
+test('restore fails when the manifest cannot be read', async () => {
+  const backup = makeTemporaryDirectory();
+  await writeSignedManifest(backup, 'not a manifest');
+
+  const { code, stderr } = await run([
     'restore',
     '--workspace',
     makeTemporaryDirectory(),
     '--backup',
-    await makeBackup(),
+    backup,
   ]);
-  expect(code).toEqual(0);
-  expect(stderr).toContain('NOT IMPLEMENTED YET.');
-  expect(stdout).toContain('BackupManifest');
-  expect(stdout).toContain('VX-00-001');
+  expect(code).toEqual(1);
+  expect(stderr).toContain('Error: ');
 });
 
-test('restore fails when the manifest cannot be read', async () => {
+test('restore fails when the backup cannot be opened', async () => {
   const backup = makeTemporaryDirectory();
   const { code, stderr } = await run([
     'restore',
@@ -412,7 +456,21 @@ test('restore fails when the manifest cannot be read', async () => {
     backup,
   ]);
   expect(code).toEqual(1);
-  expect(stderr).toContain(
-    `Error: unable to read manifest at ${join(backup, 'manifest.json')}`
-  );
+  expect(stderr).toContain(`Error: `);
+  expect(stderr).toContain(join(backup, 'manifest.json'));
+});
+
+test('restore refuses a configured workspace', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const workspace = await makeWorkspace(logger);
+
+  const { code, stderr } = await run([
+    'restore',
+    '--workspace',
+    workspace.path,
+    '--backup',
+    await makeBackup(),
+  ]);
+  expect(code).toEqual(1);
+  expect(stderr).toContain('Error: Expected workspace to be unconfigured');
 });

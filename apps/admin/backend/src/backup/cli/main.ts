@@ -9,12 +9,10 @@ import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
 import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
-import { inspect } from 'node:util';
 import { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
 import { openWorkspace, Workspace } from '../../util/workspace.js';
-import { Backup } from '../backup.js';
-import { BackupManifestFile } from '../backup_manifest_file.js';
+import { restoreBackup } from '../restore/index.js';
 
 /**
  * IO streams given to the CLI.
@@ -146,7 +144,7 @@ export async function main(
     case 'list':
       return await list(args, { stdin, stdout, stderr });
     case 'restore':
-      return await restore(args, { stdin, stdout, stderr });
+      return await restore(args, { stdin, stdout, stderr, logger });
     /* istanbul ignore next: `strict` rejects unknown commands */
     default:
       throw new Error(`Unknown command: ${args._[0]}`);
@@ -340,32 +338,36 @@ async function list(
  */
 async function restore(
   args: BackupArguments,
-  { stdout, stderr }: Streams
+  { stdout, stderr, logger }: Streams & { logger: BaseLogger }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.backup === 'string');
 
-  stderr.write('NOT IMPLEMENTED YET.\n');
+  // Progress goes to stderr so that stdout carries only the command's own
+  // output, and so redirecting one doesn't garble the other.
+  const display = new ProgressDisplay(
+    stderr,
+    Boolean((stderr as NodeJS.WriteStream).isTTY)
+  );
 
-  const backup = new Backup(args.backup);
-  const readManifestResult = await new BackupManifestFile(
-    backup.manifestPath
-  ).readManifest();
+  const restoreBackupResult = await restoreBackup({
+    backup: args.backup,
+    workspace: args.workspace,
+    logger,
+    onProgressEvent: (event) => display.update(displayProgress(event)),
+  });
 
-  if (readManifestResult.isErr()) {
-    stderr.write(
-      `Error: unable to read manifest at ${backup.manifestPath}: ${
-        readManifestResult.err().message
-      }`
-    );
+  if (restoreBackupResult.isErr()) {
+    // Leave the bar where it stopped: it says which step failed.
+    display.finish();
+    stderr.write(`Error: ${restoreBackupResult.err().message}\n`);
     return 1;
   }
 
-  const manifest = readManifestResult.ok();
-  stdout.write(inspect(manifest));
-  stdout.write('\n');
+  display.clear();
+  stdout.write(`Restored ${args.backup} to ${args.workspace}.\n`);
 
-  return await Promise.resolve(0);
+  return 0;
 }
 
 async function enumerateSourceFiles(
