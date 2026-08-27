@@ -2,18 +2,15 @@
 
 // @ts-check
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+// Runs the compiled output; run `pnpm build:self` first.
+import { main } from '../build/bubble-ballot-ts/cli.js';
 
-require('../src/bubble-ballot-ts/cli')
-  .main(process.argv.slice(2))
-  .then(
-    (code) => {
-      process.exitCode = code;
-    },
-    (err) => {
-      console.error(err);
-      process.exit(1);
-    }
-  );
+main(process.argv.slice(2)).then(
+  (code) => {
+    process.exitCode = code;
+  },
+  (err) => {
+    console.error(err);
+    process.exit(1);
+  }
+);

@@ -1,5 +1,5 @@
 import { ImageData } from 'canvas';
-import { napi } from './napi';
+import { napi } from './napi.js';
 
 /**
  * Runs a diagnostic on a blank paper image to determine if it is a valid

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('../src/generate_vxprint_test_print')
-  .main()
+// Runs the compiled output; run `pnpm build:self` first.
+import { main } from '../build/generate_vxprint_test_print.js';
+
+main()
   .then((exitCode) => {
     process.exitCode = exitCode;
   })

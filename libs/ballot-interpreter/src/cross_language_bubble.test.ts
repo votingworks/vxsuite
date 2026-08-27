@@ -10,7 +10,7 @@ import {
   arbitraryBallotId,
   arbitraryElectionDefinition,
 } from '@votingworks/test-utils';
-import { napi } from './bubble-ballot-ts/napi';
+import { napi } from './bubble-ballot-ts/napi.js';
 
 const FC_PARAMS: fc.Parameters<unknown> = { numRuns: 100 };
 

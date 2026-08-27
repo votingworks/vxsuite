@@ -11,8 +11,8 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { interpretSheet } from './interpret.js';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
   const { electionDefinition } = vxFamousNamesFixtures;

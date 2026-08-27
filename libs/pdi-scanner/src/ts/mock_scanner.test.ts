@@ -7,7 +7,7 @@ import {
   createMockPdiScanner,
   MockScanner,
   mockScannerStatus,
-} from './mock_scanner';
+} from './mock_scanner.js';
 
 const mockSheetImageDatas = asSheet([
   createImageData(Uint8ClampedArray.from([0, 1, 0, 1]), 2, 2),

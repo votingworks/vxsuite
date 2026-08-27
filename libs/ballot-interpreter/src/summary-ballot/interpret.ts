@@ -13,11 +13,11 @@ import {
   decodeSummaryBallotPage,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
-import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
-import { DetectedQrCode } from './types';
-import { rotateImageData180 } from './utils/rotate';
-import { findScannedDocumentInset } from './image_utils';
-import { otsu } from './otsu';
+import { DetectQrCodeError, detectInBallot } from './utils/qrcode.js';
+import { DetectedQrCode } from './types.js';
+import { rotateImageData180 } from './utils/rotate.js';
+import { findScannedDocumentInset } from './image_utils.js';
+import { otsu } from './otsu.js';
 
 /**
  * Interpretation result for a page of a BMD ballot.

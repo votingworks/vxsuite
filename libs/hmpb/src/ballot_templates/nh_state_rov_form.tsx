@@ -18,22 +18,22 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
-import styled from 'styled-components';
 import { CandidatePartyList, SignatureLine, SignatureX } from '@votingworks/ui';
-import { RenderDocument, Renderer } from '../renderer';
-import { BaseStyles } from '../base_styles';
+import { styled } from '../styled.js';
+import { RenderDocument, Renderer } from '../renderer.js';
+import { BaseStyles } from '../base_styles.js';
 import {
   Colors,
   Page,
   PAGE_CLASS,
   pageMarginsInches,
-} from '../ballot_components';
+} from '../ballot_components.js';
 import {
   ColorTint,
   colorTintForParty,
   ColorTints,
-} from './nh_state_primary_ballot_template';
-import { voteForText } from './nh_state_ballot_components';
+} from './nh_state_primary_ballot_template.js';
+import { voteForText } from './nh_state_ballot_components.js';
 
 const CONTEST_BOX_CLASS = 'rov-contest';
 

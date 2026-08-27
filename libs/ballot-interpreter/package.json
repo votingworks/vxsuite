@@ -4,8 +4,14 @@
   "private": true,
   "description": "Interpreter for scanned ballot images",
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
-  "types": "build/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build",
     "index.js",
@@ -16,7 +22,7 @@
   "scripts": {
     "benchmark": "cd benchmarks && vitest",
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:rust-addon": "napi build --platform --release",
+    "build:rust-addon": "napi build --platform --release --esm",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
@@ -60,7 +66,6 @@
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "fs-extra": "11.1.1",

@@ -12,9 +12,9 @@ import {
   ElectionDefinition,
   asSheet,
 } from '@votingworks/types';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { tmpDir } from '../test/helpers/tmp';
-import { interpretSheetAndSaveImages } from './interpret';
+import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import { tmpDir } from '../test/helpers/tmp.js';
+import { interpretSheetAndSaveImages } from './interpret.js';
 
 test('interprets ballot images and saves images for storage', async () => {
   const electionDefinition =

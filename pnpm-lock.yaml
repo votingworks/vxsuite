@@ -3360,9 +3360,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4266,9 +4263,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4775,9 +4769,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx

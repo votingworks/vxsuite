@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { safeParseInt } from '@votingworks/types';
-import { normalizePdf } from './normalize_pdf';
+import { normalizePdf } from './normalize_pdf.js';
 
 function toBuffer(str: string): Buffer {
   return Buffer.from(str, 'latin1');
@@ -283,7 +283,7 @@ describe('normalizePdf', () => {
 
   test('does not modify PDF content streams', () => {
     const fixturePath = path.join(
-      __dirname,
+      import.meta.dirname,
       '../fixtures/calibration-sheet/calibration-sheet-letter.pdf'
     );
     const pdf = fs.readFileSync(fixturePath);

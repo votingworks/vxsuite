@@ -14,7 +14,7 @@ import {
   PDFRef,
 } from 'pdf-lib';
 import { assert } from '@votingworks/basics';
-import { normalizePdf } from './normalize_pdf';
+import { normalizePdf } from './normalize_pdf.js';
 
 /**
  * Converts a PDF to grayscale via Ghostscript, without normalizing the output.

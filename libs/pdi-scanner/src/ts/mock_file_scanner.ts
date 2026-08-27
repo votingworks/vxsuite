@@ -18,10 +18,10 @@ import {
   MockScanner,
   MockSheetStatus,
   createMockPdiScanner,
-} from './mock_scanner';
+} from './mock_scanner.js';
 
 // Build output is flat at libs/pdi-scanner/build/; 3 levels up is the repo root.
-const REPO_ROOT = join(__dirname, '../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const MOCK_STATE_DIR = join(
   REPO_ROOT,
   '.mock-state',

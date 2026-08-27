@@ -37,6 +37,10 @@ These ballots can be regenerated after code changes using the following command:
 pnpm generate-fixtures
 ```
 
+The `bin/` scripts run the compiled output, so build this package first
+(`pnpm build:self`) before invoking them directly. The `pnpm generate-*` scripts
+do this automatically.
+
 ## Benchmarks
 
 Benchmark ballot PDF generation with:

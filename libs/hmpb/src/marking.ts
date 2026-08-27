@@ -29,12 +29,12 @@ import {
   pageMarginsInches,
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
-} from './ballot_components';
-import { InchDimensions, PrintCalibration } from './types';
-import { voteMatchesGridPosition } from './vote_matching';
-import { drawWriteInText } from './write_in_text';
+} from './ballot_components.js';
+import { InchDimensions, PrintCalibration } from './types.js';
+import { voteMatchesGridPosition } from './vote_matching.js';
+import { drawWriteInText } from './write_in_text.js';
 
-const robotoBoldTtf = fs.readFileSync(`${__dirname}/fonts/Roboto-Bold.ttf`);
+const robotoBoldTtf = fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`);
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 

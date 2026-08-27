@@ -1,6 +1,6 @@
 import React from 'react';
 import { Buffer } from 'node:buffer';
-import styled, { css } from 'styled-components';
+import { css } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import {
   Election,
@@ -11,14 +11,15 @@ import {
   Party,
 } from '@votingworks/types';
 import { electionStrings } from '@votingworks/ui';
-import { hmpbStrings } from '../hmpb_strings';
+import { styled } from '../styled.js';
+import { hmpbStrings } from '../hmpb_strings.js';
 import {
   BallotHashSlot,
   BubbleShape,
   pageMarginsInches,
   QrCodeSlot,
   TIMING_MARK_DIMENSIONS,
-} from '../ballot_components';
+} from '../ballot_components.js';
 
 // Federal Office Only (FOO) and UOCAVA absentee ballot variants
 // FOO: only federal-level offices

@@ -23,12 +23,12 @@ import {
 } from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
 import { throwIllegalValue } from '@votingworks/basics';
-import { napi } from './bubble-ballot-ts/napi';
+import { napi } from './bubble-ballot-ts/napi.js';
 import type {
   BridgeDecodeBmdResult,
   RustCandidateVote,
   RustContestVote,
-} from './bubble-ballot-ts/types';
+} from './bubble-ballot-ts/types.js';
 
 /**
  * Generates votes for a set of contests. For candidate contests, selects up

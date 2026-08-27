@@ -7,9 +7,9 @@ import {
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 } from '@votingworks/types';
-import type { BridgeInterpretOptions } from '../../index';
-import { napi } from './napi';
-import { BridgeInterpretResult, HmpbInterpretResult } from './types';
+import type { BridgeInterpretOptions } from '../../index.js';
+import { napi } from './napi.js';
+import { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
 
 /**
  * Options for interpreting a ballot at the bridge layer.

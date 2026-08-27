@@ -1,7 +1,7 @@
 import { test, expect, vi } from 'vitest';
 import { range } from '@votingworks/basics';
 import { chromium } from 'playwright';
-import { createPlaywrightRendererPool } from './playwright_renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer.js';
 
 test('RendererPool errors if a task closes its page', async () => {
   const rendererPool = await createPlaywrightRendererPool();
