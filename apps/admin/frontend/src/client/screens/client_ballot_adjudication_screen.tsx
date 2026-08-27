@@ -46,7 +46,8 @@ type FlowState =
 
 export function ClientBallotAdjudicationScreen(): JSX.Element {
   const history = useHistory();
-  const adjudicationStatusQuery = getAdjudicationSessionStatus.useQuery();
+  const adjudicationStatusQuery =
+    getAdjudicationSessionStatus.usePollingQuery();
   const { mutateAsync: claimAndLoadAsync } = claimAndLoadBallot.useMutation();
   const { mutateAsync: releaseBallotAsync } = releaseBallot.useMutation();
 
@@ -181,10 +182,10 @@ function ClientBallotAdjudicationDataLoader({
 }): JSX.Element {
   const history = useHistory();
   const ballotImagesQuery = getBallotImages.useQuery(cvrId);
-  const writeInCandidatesQuery = getWriteInCandidates.useQuery(
+  const writeInCandidatesQuery = getWriteInCandidates.usePollingQuery(
     ballotData.contests.map((c) => c.contestId)
   );
-  const systemSettingsQuery = getSystemSettings.useQuery();
+  const systemSettingsQuery = getSystemSettings.usePollingQuery();
   const { mutateAsync: adjudicateCvrAsync } = adjudicateCvr.useMutation();
   const [mutationError, setMutationError] = useState<AdjudicationError>();
 

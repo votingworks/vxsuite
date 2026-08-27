@@ -227,7 +227,8 @@ function BallotAdjudicationCard({
   showHeader: boolean;
 }): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
-  const queueMetadataQuery = getBallotAdjudicationQueueMetadata.useQuery();
+  const queueMetadataQuery =
+    getBallotAdjudicationQueueMetadata.usePollingQuery();
   const cvrFilesQuery = getCastVoteRecordFiles.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
   const candidatesQuery = getQualifiedWriteInCandidates.useQuery();
@@ -393,8 +394,9 @@ function MultiStationClientsTable({
 }
 
 function MultiStationCard(): JSX.Element {
-  const networkStatusQuery = getNetworkStatus.useQuery();
-  const adjudicationEnabledQuery = getIsClientAdjudicationEnabled.useQuery();
+  const networkStatusQuery = getNetworkStatus.usePollingQuery();
+  const adjudicationEnabledQuery =
+    getIsClientAdjudicationEnabled.usePollingQuery();
   const setAdjudicationEnabledMutation =
     setIsClientAdjudicationEnabled.useMutation();
 

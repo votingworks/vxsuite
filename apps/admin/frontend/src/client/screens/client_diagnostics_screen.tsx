@@ -12,7 +12,7 @@ import { AppContext } from '../../contexts/app_context.js';
 import { getNetworkConnectionStatus } from '../api.js';
 
 function NetworkSection(): JSX.Element {
-  const networkStatusQuery = getNetworkConnectionStatus.useQuery();
+  const networkStatusQuery = getNetworkConnectionStatus.usePollingQuery();
 
   return (
     <section>

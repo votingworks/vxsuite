@@ -6,6 +6,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
+  usePollingQuery,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -44,20 +45,24 @@ export const getUsbDriveStatus = {
   queryKey(): QueryKey {
     return ['getUsbDriveStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getUsbDriveStatus(),
+      USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      {
+        structuralSharing(oldData, newData) {
+          if (!oldData) {
+            return newData;
+          }
 
-        // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+          // Prevent unnecessary re-renders of dependent components
+          const isUnchanged = deepEqual(oldData, newData);
+          return isUnchanged ? oldData : newData;
+        },
+      }
+    );
   },
 } as const;
 
@@ -79,11 +84,13 @@ export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      AUTH_STATUS_POLLING_INTERVAL_MS
+    );
   },
 } as const;
 
@@ -133,14 +140,15 @@ export const getNetworkStatus = {
   queryKey(): QueryKey {
     return ['getNetworkStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNetworkStatus(), {
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getNetworkStatus(),
       // Poll only while networking is enabled. When disabled, the status
       // can't change without a restart, so a single fetch suffices.
-      refetchInterval: (data) =>
-        data?.isEnabled ? NETWORK_STATUS_POLLING_INTERVAL_MS : false,
-    });
+      (data) => (data?.isEnabled ? NETWORK_STATUS_POLLING_INTERVAL_MS : false)
+    );
   },
 } as const;
 
@@ -154,15 +162,19 @@ export const getElectionRecord = {
   },
 } as const;
 
+export const STATUS_POLLING_INTERVAL_MS = 100;
+
 export const getStatus = {
   queryKey(): QueryKey {
     return ['getStatus'];
   },
-  useQuery() {
+  usePollingQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getStatus(), {
-      refetchInterval: 100,
-    });
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getStatus(),
+      STATUS_POLLING_INTERVAL_MS
+    );
   },
 } as const;
 

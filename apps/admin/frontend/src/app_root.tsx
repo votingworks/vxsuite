@@ -9,7 +9,7 @@ import {
 import { useWatchUsbDriveStatus } from './hooks/use_watch_usb_drive_status.js';
 
 export function AppRoot(): JSX.Element | null {
-  const authStatusQuery = getAuthStatus.useQuery();
+  const authStatusQuery = getAuthStatus.usePollingQuery();
   const usbDriveStatusQuery = useWatchUsbDriveStatus();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();

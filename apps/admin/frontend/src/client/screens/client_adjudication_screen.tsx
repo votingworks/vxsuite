@@ -6,7 +6,8 @@ import { routerPaths } from '../../router_paths.js';
 
 export function ClientAdjudicationScreen(): JSX.Element {
   const history = useHistory();
-  const adjudicationStatusQuery = getAdjudicationSessionStatus.useQuery();
+  const adjudicationStatusQuery =
+    getAdjudicationSessionStatus.usePollingQuery();
 
   const isAdjudicationEnabled =
     adjudicationStatusQuery.isSuccess &&
