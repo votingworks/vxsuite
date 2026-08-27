@@ -367,6 +367,7 @@ function mockCvrFile(
     numCvrsImported: 1,
     precinctIds: [precinct1.id],
     sha256Hash: 'hash',
+    source: 'usb',
     ...file,
   };
 }
