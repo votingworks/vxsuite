@@ -44,6 +44,37 @@ test('null state', () => {
   screen.getByText('No ballots have been scanned');
 });
 
+test('shows a sent-to-VxAdmin column when networking is enabled', async () => {
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+  });
+  const status: ScanStatus = mockStatus({
+    batches: [
+      mockBatch({
+        id: 'sent',
+        label: 'Batch 1',
+        sentToAdminAt: new Date(2026, 7, 25, 10, 0).toISOString(),
+      }),
+      mockBatch({ id: 'unsent', label: 'Batch 2' }),
+    ],
+  });
+  renderScreen({ status });
+  await screen.findByText('Sent At');
+  const rows = screen.getAllByRole('row').slice(1);
+  expect(rows[0]).toHaveTextContent('Batch 1');
+  expect(rows[0]).not.toHaveTextContent('Not sent');
+  expect(rows[1]).toHaveTextContent('Not sent');
+});
+
+test('hides the sent-to-VxAdmin column when networking is disabled', () => {
+  const status: ScanStatus = mockStatus({
+    batches: [mockBatch({ id: 'a' })],
+  });
+  renderScreen({ status });
+  expect(screen.queryByText('Sent At')).not.toBeInTheDocument();
+});
+
 test('shows scanned ballot count', () => {
   const status: ScanStatus = mockStatus({
     batches: [
