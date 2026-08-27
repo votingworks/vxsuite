@@ -223,9 +223,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -788,9 +785,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1006,9 +1000,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1099,9 +1090,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
@@ -1368,9 +1356,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1740,9 +1725,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2199,9 +2181,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -2462,9 +2441,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2516,9 +2492,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -4911,9 +4884,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5142,9 +5112,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5499,9 +5466,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-storybook:
         specifier: 10.5.10
         version: 10.5.10(eslint@9.39.5)(typescript@7.0.2)
