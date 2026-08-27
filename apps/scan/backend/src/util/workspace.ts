@@ -127,7 +127,7 @@ export function getScanWorkspace(): Optional<string> {
   return (
     process.env.SCAN_WORKSPACE ??
     (getNodeEnv() === 'development'
-      ? join(import.meta.dirname, '../dev-workspace')
+      ? join(import.meta.dirname, '../../dev-workspace')
       : undefined)
   );
 }

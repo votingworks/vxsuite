@@ -136,7 +136,7 @@ export function resolveWorkspacePath(logger: BaseLogger): string {
   const workspacePath =
     process.env.ADMIN_WORKSPACE ??
     (getNodeEnv() === 'development'
-      ? join(import.meta.dirname, '../dev-workspace')
+      ? join(import.meta.dirname, '../../dev-workspace')
       : undefined);
   if (!workspacePath) {
     logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
