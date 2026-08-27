@@ -13,6 +13,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneral,
   readElectionStraightParty,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   BaseBallotProps,
@@ -37,6 +38,7 @@ import {
   ElectionSerializationOptions,
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
+  ScratchDir,
 } from './render_ballot.js';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';
 import * as timingMarkPaperTemplate from './timing_mark_paper/template.js';
@@ -137,8 +139,10 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
 
     async generate(
       rendererPool: RendererPool,
-      { generatePageImages = false } = {}
+      opts: { generatePageImages?: boolean; scratchDir?: ScratchDir } = {}
     ) {
+      const { generatePageImages = false, scratchDir } = opts;
+
       // eslint-disable-next-line @typescript-eslint/no-shadow
       const allBallotProps = [
         ...allBallotPropsTest,
@@ -148,11 +152,13 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
       debug(`Generating: ${blankBallotPath}`);
       debug(`Generating: ${blankOfficialBallotPath}`);
       debug(`Generating: ${sampleBallotPath}`);
+
       const layouts = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
-        serializationOptions
+        serializationOptions,
+        resolveScratchDir(scratchDir)
       );
 
       assert(
@@ -160,19 +166,19 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
       );
 
-      const contentsWithProps = iter(layouts.ballotContents)
+      const layoutsWithProps = iter(layouts.layoutPaths)
         .zip(allBallotProps)
         .toArray();
-      const [blankBallotContents] = find(
-        contentsWithProps,
+      const [testLayoutPath] = find(
+        layoutsWithProps,
         ([, props]) => props.ballotMode === 'test'
       );
-      const [blankOfficialBallotContents] = find(
-        contentsWithProps,
+      const [officialLayoutPath] = find(
+        layoutsWithProps,
         ([, props]) => props.ballotMode === 'official'
       );
-      const [blankSampleBallotContents] = find(
-        contentsWithProps,
+      const [sampleLayoutPath] = find(
+        layoutsWithProps,
         ([, props]) => props.ballotMode === 'sample'
       );
 
@@ -184,8 +190,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         sampleBallotPdf,
       } = await rendererPool.runTask(async (renderer) => {
         // Generate test mode ballots
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
+        const ballotDocument = await renderer.documentFromPath(testLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsTest[0],
@@ -200,9 +205,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         const markedBallotPdf = await ballotDocument.renderToPdf();
 
         // Generate official mode ballots
-        const officialBallotDocument = await renderer.loadDocumentFromContent(
-          blankOfficialBallotContents
-        );
+        const officialBallotDocument =
+          await renderer.documentFromPath(officialLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const blankOfficialBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsOfficial[0],
@@ -218,9 +222,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
           await officialBallotDocument.renderToPdf();
 
         // Generate sample mode ballots
-        const sampleBallotDocument = await renderer.loadDocumentFromContent(
-          blankSampleBallotContents
-        );
+        const sampleBallotDocument =
+          await renderer.documentFromPath(sampleLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const sampleBallotPdf = await renderBallotPdfWithMetadataQrCode(
           allBallotPropsSample[0],
@@ -369,21 +372,23 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
 
     async generate(
       rendererPool: RendererPool,
-      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>
+      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>,
+      scratchDir?: ScratchDir
     ) {
       async function generateElectionFixtures(
         spec: ReturnType<typeof makeElectionFixtureSpec>
       ) {
         debug(`Generating: ${spec.blankBallotPath}`);
-        const { electionDefinition, ballotContents } =
+        const { electionDefinition, layoutPaths } =
           await layOutBallotsAndCreateElectionDefinition(
             rendererPool,
             vxDefaultBallotTemplate,
             spec.allBallotProps,
-            serializationOptions
+            serializationOptions,
+            resolveScratchDir(scratchDir)
           );
-        const [blankBallotContents, ballotProps] = assertDefined(
-          iter(ballotContents)
+        const [layoutPath, ballotProps] = assertDefined(
+          iter(layoutPaths)
             .zip(spec.allBallotProps)
             .find(
               ([, props]) =>
@@ -394,8 +399,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
 
         const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
           async (renderer) => {
-            const ballotDocument =
-              await renderer.loadDocumentFromContent(blankBallotContents);
+            const ballotDocument = await renderer.documentFromPath(layoutPath);
             // eslint-disable-next-line @typescript-eslint/no-shadow
             const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
@@ -501,12 +505,17 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
     mammalParty,
     fishParty,
 
-    async generate(rendererPool: RendererPool, { markedOnly = false } = {}) {
+    async generate(
+      rendererPool: RendererPool,
+      opts: { markedOnly?: boolean; scratchDir?: ScratchDir } = {}
+    ) {
+      const { markedOnly = false, scratchDir } = opts;
       const layouts = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
-        serializationOptions
+        serializationOptions,
+        resolveScratchDir(scratchDir)
       );
       assert(
         layouts.electionDefinition.ballotHash === electionDefinition.ballotHash,
@@ -517,8 +526,8 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
         spec: ReturnType<typeof makePartyFixtureSpec>
       ) {
         debug(`Generating: ${spec.blankBallotPath}`);
-        const [blankBallotContents, ballotProps] = assertDefined(
-          iter(layouts.ballotContents)
+        const [layoutPath, ballotProps] = assertDefined(
+          iter(layouts.layoutPaths)
             .zip(allBallotProps)
             .find(
               ([, props]) =>
@@ -529,8 +538,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
 
         const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
           async (renderer) => {
-            const ballotDocument =
-              await renderer.loadDocumentFromContent(blankBallotContents);
+            const ballotDocument = await renderer.documentFromPath(layoutPath);
             // eslint-disable-next-line @typescript-eslint/no-shadow
             const blankBallotPdf = markedOnly
               ? Buffer.from('')
@@ -556,9 +564,9 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
         );
 
         debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
-        const [otherPrecinctBlankBallot, otherPrecinctBallotProps] =
+        const [otherPrecinctLayoutPath, otherPrecinctBallotProps] =
           assertDefined(
-            iter(layouts.ballotContents)
+            iter(layouts.layoutPaths)
               .zip(allBallotProps)
               .find(
                 ([, props]) =>
@@ -570,9 +578,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
           ? Buffer.from('')
           : await rendererPool.runTask(async (renderer) => {
               const otherPrecinctBallotDocument =
-                await renderer.loadDocumentFromContent(
-                  otherPrecinctBlankBallot
-                );
+                await renderer.documentFromPath(otherPrecinctLayoutPath);
               return await renderBallotPdfWithMetadataQrCode(
                 otherPrecinctBallotProps,
                 otherPrecinctBallotDocument,
@@ -727,21 +733,23 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
 
     async generate(
       rendererPool: RendererPool,
-      specs: Array<ReturnType<typeof makeFixtureSpec>>
+      specs: Array<ReturnType<typeof makeFixtureSpec>>,
+      scratchDir?: ScratchDir
     ) {
       async function generateFixtures(
         spec: ReturnType<typeof makeFixtureSpec>
       ) {
         debug(`Generating: ${spec.blankBallotPath}`);
-        const { electionDefinition, ballotContents } =
+        const { electionDefinition, layoutPaths } =
           await layOutBallotsAndCreateElectionDefinition(
             rendererPool,
             nhBallotTemplate,
             spec.allBallotProps,
-            serializationOptions
+            serializationOptions,
+            resolveScratchDir(scratchDir)
           );
-        const [blankBallotContents, ballotProps] = assertDefined(
-          iter(ballotContents)
+        const [layoutPath, ballotProps] = assertDefined(
+          iter(layoutPaths)
             .zip(spec.allBallotProps)
             .find(
               ([, props]) =>
@@ -752,8 +760,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
 
         const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
           async (renderer) => {
-            const ballotDocument =
-              await renderer.loadDocumentFromContent(blankBallotContents);
+            const ballotDocument = await renderer.documentFromPath(layoutPath);
             // eslint-disable-next-line @typescript-eslint/no-shadow
             const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
@@ -962,12 +969,13 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     votes,
     unmarkedWriteIns,
 
-    async generate(rendererPool: RendererPool) {
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
       const layout = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
-        serializationOptions
+        serializationOptions,
+        resolveScratchDir(scratchDir)
       );
 
       async function renderBallotPdf(
@@ -977,13 +985,13 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
           markedPath?: string;
         }
       ) {
-        const [contents, chosenProps] = assertDefined(
-          iter(layout.ballotContents)
+        const [layoutPath, chosenProps] = assertDefined(
+          iter(layout.layoutPaths)
             .zip(combinedBallotProps)
             .find(([, props]) => match(props))
         );
         return rendererPool.runTask(async (renderer) => {
-          const doc = await renderer.loadDocumentFromContent(contents);
+          const doc = await renderer.documentFromPath(layoutPath);
           debug(`Generating: ${paths.blankPath}`);
           const blankPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
@@ -1215,12 +1223,13 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     demFederalOfficeOnlyBlankBallotPath,
     demUocavaBlankBallotPath,
 
-    async generate(rendererPool: RendererPool) {
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
       const layout = await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
-        serializationOptions
+        serializationOptions,
+        resolveScratchDir(scratchDir)
       );
 
       async function renderBallotPdf(spec: {
@@ -1232,13 +1241,13 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
           typeof createTestVotes
         >['unmarkedWriteIns'];
       }) {
-        const [contents, chosenProps] = assertDefined(
-          iter(layout.ballotContents)
+        const [layoutPath, chosenProps] = assertDefined(
+          iter(layout.layoutPaths)
             .zip(combinedBallotProps)
             .find(([, props]) => spec.match(props))
         );
         return rendererPool.runTask(async (renderer) => {
-          const doc = await renderer.loadDocumentFromContent(contents);
+          const doc = await renderer.documentFromPath(layoutPath);
           debug(`Generating: ${spec.blankPath}`);
           const blankPdf = await renderBallotPdfWithMetadataQrCode(
             chosenProps,
@@ -1358,21 +1367,21 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
     ...blankBallotProps,
     votes,
 
-    async generate(rendererPool: RendererPool) {
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
       debug(`Generating: ${blankBallotPath}`);
-      const { ballotContents, electionDefinition } =
+      const { layoutPaths, electionDefinition } =
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           msBallotTemplate,
           allBallotProps,
-          serializationOptions
+          serializationOptions,
+          resolveScratchDir(scratchDir)
         );
 
-      const blankBallotContents = ballotContents[0];
+      const layoutPath = layoutPaths[0];
       const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
         async (renderer) => {
-          const ballotDocument =
-            await renderer.loadDocumentFromContent(blankBallotContents);
+          const ballotDocument = await renderer.documentFromPath(layoutPath);
           // eslint-disable-next-line @typescript-eslint/no-shadow
           const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
             allBallotProps[0],
@@ -1466,20 +1475,21 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
     mammalParty,
     fishParty,
 
-    async generate(rendererPool: RendererPool) {
-      const { ballotContents, electionDefinition } =
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
+      const { layoutPaths, electionDefinition } =
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           miBallotTemplate,
           allBallotProps,
-          serializationOptions
+          serializationOptions,
+          resolveScratchDir(scratchDir)
         );
 
       async function generatePartyFixtures(
         spec: ReturnType<typeof makePartyFixtureSpec>
       ) {
-        const [blankBallotContents, ballotProps] = assertDefined(
-          iter(ballotContents)
+        const [layoutPath, ballotProps] = assertDefined(
+          iter(layoutPaths)
             .zip(allBallotProps)
             .find(
               ([, props]) =>
@@ -1489,8 +1499,7 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
         );
 
         return rendererPool.runTask(async (renderer) => {
-          const ballotDocument =
-            await renderer.loadDocumentFromContent(blankBallotContents);
+          const ballotDocument = await renderer.documentFromPath(layoutPath);
 
           debug(`Generating: ${spec.blankBallotPath}`);
           const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
@@ -1566,17 +1575,18 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
     precinctId,
     votes,
 
-    async generate(rendererPool: RendererPool) {
-      const { ballotContents, electionDefinition } =
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
+      const { layoutPaths, electionDefinition } =
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           miBallotTemplate,
           allBallotProps,
-          serializationOptions
+          serializationOptions,
+          resolveScratchDir(scratchDir)
         );
 
-      const [blankBallotContents, ballotProps] = assertDefined(
-        iter(ballotContents)
+      const [layoutPath, ballotProps] = assertDefined(
+        iter(layoutPaths)
           .zip(allBallotProps)
           .find(
             ([, props]) =>
@@ -1586,8 +1596,7 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
       );
 
       return rendererPool.runTask(async (renderer) => {
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
+        const ballotDocument = await renderer.documentFromPath(layoutPath);
 
         debug(`Generating: ${blankBallotPath}`);
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
@@ -1681,17 +1690,18 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
     precinctId,
     votes,
 
-    async generate(rendererPool: RendererPool) {
-      const { ballotContents, electionDefinition } =
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
+      const { layoutPaths, electionDefinition } =
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           miBallotTemplate,
           allBallotProps,
-          serializationOptions
+          serializationOptions,
+          resolveScratchDir(scratchDir)
         );
 
-      const [blankBallotContents, ballotProps] = assertDefined(
-        iter(ballotContents)
+      const [layoutPath, ballotProps] = assertDefined(
+        iter(layoutPaths)
           .zip(allBallotProps)
           .find(
             ([, props]) =>
@@ -1701,8 +1711,7 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
       );
 
       return rendererPool.runTask(async (renderer) => {
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
+        const ballotDocument = await renderer.documentFromPath(layoutPath);
 
         debug(`Generating: ${blankBallotPath}`);
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
@@ -1808,3 +1817,9 @@ export const calibrationSheetFixtures = lazyFixtures(() => {
     },
   };
 });
+
+function resolveScratchDir(optDir?: ScratchDir): ScratchDir {
+  // Default to test-compatible temp directory, since the majority of consumers
+  // are tests.
+  return optDir ?? { path: makeTemporaryDirectory() };
+}

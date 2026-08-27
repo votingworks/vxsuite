@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   makeMockGoogleCloudTranslationClient,
@@ -102,7 +103,8 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
           rendererPool,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),
-          { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+          { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+          { path: makeTemporaryDirectory() }
         );
       expect(electionDefinition.ballotHash).toEqual(
         electionPackage.electionDefinition.ballotHash

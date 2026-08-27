@@ -1,3 +1,4 @@
+import * as tmp from 'tmp';
 import {
   getAllStringsForElectionPackage,
   ParsedElectionPackage,
@@ -29,6 +30,8 @@ import { GoogleCloudTranslatorWithElectionCache } from './translator_with_electi
 // In order for the zip files generated to hash to the same value when the contents
 // are the same we need to make sure the date on the files is always kept static.
 const FIXTURES_FILE_DATE = new Date('2024-12-01T00:00:00Z');
+
+tmp.setGracefulCleanup();
 
 /**
  * Generates an election with mock content based on the given parameters.
@@ -80,7 +83,8 @@ export async function generateElectionPackage(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      { path: tmp.dirSync({ unsafeCleanup: true }).name }
     );
   await rendererPool.close();
 
