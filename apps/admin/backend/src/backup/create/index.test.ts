@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -92,6 +92,22 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
     logger,
   });
   const firstCreated = firstResult.unsafeUnwrap();
+
+  // A backup copies off the machine's entire data state, so both the attempt
+  // and its outcome belong in the audit log.
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateInit,
+    'system',
+    expect.objectContaining({ message: expect.stringContaining(target) })
+  );
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({
+      disposition: 'success',
+      message: expect.stringContaining(firstCreated.path),
+    })
+  );
 
   // The staging area holding the snapshot is deleted once the copy is done, so
   // its connection has to be closed or the space it holds is never reclaimed.
@@ -188,16 +204,25 @@ test('reports an error when copying the backup fails', async () => {
   const target = makeTemporaryDirectory();
   vi.mocked(copy).mockRejectedValueOnce(outOfSpaceError());
 
+  const logger = mockBaseLogger({ fn: vi.fn });
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger,
   });
 
   expect(result.err()).toEqual({
     type: 'backup-write-failed',
     message: 'no space left on device',
   });
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      errorType: 'backup-write-failed',
+    })
+  );
 });
 
 test('reports an error when writing the manifest fails, leaving no partial backup', async () => {
