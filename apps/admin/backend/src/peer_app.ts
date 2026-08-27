@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import {
@@ -18,7 +19,10 @@ import {
 } from '@votingworks/types';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import type {
+  CvrTransferManifest,
+  FinishCvrTransferError,
   RegisterScannerError,
+  StartCvrTransferError,
   VxAdminHostApi,
 } from '@votingworks/networking';
 import { getMachineConfig } from './machine_config.js';
@@ -39,6 +43,12 @@ import {
   getBallotImageBuffer,
   getBallotImageMetadata,
 } from './util/adjudication.js';
+import {
+  finishCvrTransfer,
+  NetworkCvrImportQueue,
+  receiveCvrTransferUpload,
+  startCvrTransfer,
+} from './network_cvr_transfer.js';
 
 const debug = rootDebug.extend('peer-app');
 
@@ -53,6 +63,7 @@ export interface PeerAppContext {
 
 function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
   const { store } = workspace;
+  const importQueue = new NetworkCvrImportQueue();
 
   // Client adjudication operations are only served while the host has client
   // adjudication enabled and is the sole host on the network. Enforced
@@ -231,6 +242,19 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       });
     },
 
+    startCvrTransfer(
+      input: CvrTransferManifest & { codeVersion: string; ballotHash: string }
+    ): Promise<Result<{ alreadyComplete: boolean }, StartCvrTransferError>> {
+      return startCvrTransfer({ workspace, logger }, input);
+    },
+
+    finishCvrTransfer(input: {
+      machineId: string;
+      batchId: string;
+    }): Promise<Result<{ cvrCount: number }, FinishCvrTransferError>> {
+      return finishCvrTransfer({ workspace, logger, importQueue }, input);
+    },
+
     getElectionPackageHash(): Optional<string> {
       const currentElectionId = store.getCurrentElectionId();
       if (!currentElectionId) return undefined;
@@ -376,6 +400,36 @@ const VALID_SIDES: ReadonlySet<string> = new Set<Side>(['front', 'back']);
 export function buildPeerApp(context: PeerAppContext): Application {
   const app: Application = express();
   const { store } = context.workspace;
+
+  // Per-CVR upload endpoint for network CVR transfers. Raw (non-grout)
+  // because the body is a zip of the cast vote record's file set.
+  app.post(
+    '/api/cvr-transfer/:scannerId/:batchId/:cvrId',
+    express.raw({ type: 'application/zip', limit: '20mb' }),
+    async (req, res) => {
+      const { scannerId, batchId, cvrId } = req.params;
+      if (!Buffer.isBuffer(req.body)) {
+        res
+          .status(400)
+          .json({ error: 'expected an application/zip request body' });
+        return;
+      }
+      const result = await receiveCvrTransferUpload(
+        { workspace: context.workspace },
+        {
+          scannerId,
+          batchId,
+          castVoteRecordId: cvrId,
+          zipData: req.body,
+        }
+      );
+      if (result.isErr()) {
+        res.status(400).json({ error: result.err() });
+        return;
+      }
+      res.json({ success: true });
+    }
+  );
 
   // Binary ballot image endpoint — serves raw image bytes
   app.get('/api/ballot-image/:cvrId/:side', async (req, res) => {

@@ -14,8 +14,12 @@ export {
   machineIdFromVxAdminServiceName,
 } from './vx_admin_service.js';
 export type { VxAdminHostMachine } from './vx_admin_service.js';
+export { getCvrTransferUploadPath } from './vx_admin_host_api.js';
 export type {
+  CvrTransferManifest,
+  FinishCvrTransferError,
   RegisterScannerError,
+  StartCvrTransferError,
   VxAdminHostApi,
   VxAdminHostMachineConfig,
 } from './vx_admin_host_api.js';
