@@ -41,28 +41,42 @@ test('shares a single polling timer across all instances of a query', async () =
     return null;
   }
 
-  const { unmount } = render(
+  // Mount the subscribers at staggered times — the worst case for passing
+  // `refetchInterval` to `useQuery` directly, where each observer runs its
+  // own timer: out-of-phase timers never overlap in flight, so nothing
+  // coalesces and each subscriber would add a full extra request per
+  // interval. (Simultaneously mounted subscribers would mask that bug, since
+  // aligned timers fire together and the overlapping fetches deduplicate.)
+  const { rerender, unmount } = render(<Subscriber key="a" />, {
+    wrapper: createWrapper(queryClient),
+  });
+  await waitFor(() => expect(queryFn).toHaveBeenCalledTimes(1));
+  await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS / 4));
+  rerender(
     <React.Fragment>
-      <Subscriber />
-      <Subscriber />
-      <Subscriber />
-    </React.Fragment>,
-    { wrapper: createWrapper(queryClient) }
+      <Subscriber key="a" />
+      <Subscriber key="b" />
+    </React.Fragment>
+  );
+  await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS / 4));
+  rerender(
+    <React.Fragment>
+      <Subscriber key="a" />
+      <Subscriber key="b" />
+      <Subscriber key="c" />
+    </React.Fragment>
   );
 
-  // The initial fetch on mount is shared by all instances
-  await waitFor(() => expect(queryFn).toHaveBeenCalledTimes(1));
-
   // Each tick issues one request total, not one per instance
-  await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS));
-  expect(queryFn).toHaveBeenCalledTimes(2);
-  await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS));
-  expect(queryFn).toHaveBeenCalledTimes(3);
+  const callsBefore = queryFn.mock.calls.length;
+  await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS * 3));
+  expect(queryFn.mock.calls.length - callsBefore).toEqual(3);
 
   // Polling stops once every instance has unmounted
+  const callsBeforeUnmount = queryFn.mock.calls.length;
   unmount();
   await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS * 10));
-  expect(queryFn).toHaveBeenCalledTimes(3);
+  expect(queryFn.mock.calls.length).toEqual(callsBeforeUnmount);
 });
 
 test('keeps polling while at least one instance remains mounted', async () => {
@@ -83,7 +97,9 @@ test('keeps polling while at least one instance remains mounted', async () => {
   );
   await waitFor(() => expect(queryFn).toHaveBeenCalledTimes(1));
 
-  rerender(<Subscriber key="a" />);
+  // Unmounting the instance that carries the interval (the earliest-mounted
+  // one) promotes the remaining instance, so polling continues
+  rerender(<Subscriber key="b" />);
   await act(() => vi.advanceTimersByTimeAsync(INTERVAL_MS));
   expect(queryFn).toHaveBeenCalledTimes(2);
 
