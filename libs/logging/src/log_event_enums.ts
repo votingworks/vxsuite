@@ -366,7 +366,11 @@ const PrinterStatusChanged: LogDetails = {
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Application saw a change in the status of the currently connected printer.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  restrictInDocumentationToApps: [
+    AppName.VxAdmin,
+    AppName.VxMark,
+    AppName.VxScan,
+  ],
 };
 
 const PrinterPrintRequest: LogDetails = {

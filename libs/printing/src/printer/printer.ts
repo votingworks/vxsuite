@@ -1,11 +1,13 @@
 import { isDeviceAttached, type Device } from '@votingworks/backend';
-import { assertDefined } from '@votingworks/basics';
+import { Result, assertDefined } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { PrinterRichStatus } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { rootDebug } from '../utils/debug';
+import { ExecError } from '../utils/exec';
 import { getConnectedDeviceUris } from './device_uri';
 import { configurePrinter } from './configure';
 import { Printer } from './types';
@@ -19,6 +21,42 @@ const debug = rootDebug.extend('manager');
 interface PrinterDevice {
   uri?: string;
   lastPrint: number;
+  /**
+   * Whether the last IPP query for rich status succeeded. Undefined until the
+   * first query for the currently configured printer.
+   */
+  richStatusAvailable?: boolean;
+}
+
+/**
+ * Logs that rich status via IPP became available or unavailable for the
+ * configured printer. Status is polled continuously, so callers only log
+ * transitions. The error detail matters: "connection refused" means nothing is
+ * serving IPP for the printer (e.g. the IPP-over-USB daemon is missing or
+ * gave up on the device), while a timeout means it is present but stuck.
+ */
+function logRichStatusAvailability(
+  logger: BaseLogger,
+  richStatusResult: Result<PrinterRichStatus, ExecError>
+): void {
+  if (richStatusResult.isOk()) {
+    logger.log(LogEventId.PrinterStatusChanged, 'system', {
+      message: 'Rich printer status is available via IPP.',
+      disposition: 'success',
+      ippUri: CUPS_DEFAULT_IPP_URI,
+    });
+    return;
+  }
+
+  const { code, stderr } = richStatusResult.err();
+  logger.log(LogEventId.PrinterStatusChanged, 'system', {
+    message: `Rich printer status is unavailable via IPP; ipptool failed: ${
+      stderr.trim() || `exit code ${code}`
+    }`,
+    disposition: 'failure',
+    ippUri: CUPS_DEFAULT_IPP_URI,
+    exitCode: code,
+  });
 }
 
 export function detectPrinter(logger: BaseLogger): Printer {
@@ -64,6 +102,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
             uri: printerDevice.uri,
           });
           printerDevice.uri = undefined;
+          printerDevice.richStatusAvailable = undefined;
         }
       }
 
@@ -92,12 +131,19 @@ export function detectPrinter(logger: BaseLogger): Printer {
       }
 
       const config = assertDefined(getPrinterConfig(printerDevice.uri));
+      if (!config.supportsIpp) {
+        return { connected: true, config };
+      }
+
+      const richStatusResult = await getPrinterRichStatus(CUPS_DEFAULT_IPP_URI);
+      if (printerDevice.richStatusAvailable !== richStatusResult.isOk()) {
+        printerDevice.richStatusAvailable = richStatusResult.isOk();
+        logRichStatusAvailability(logger, richStatusResult);
+      }
       return {
         connected: true,
         config,
-        richStatus: config.supportsIpp
-          ? await getPrinterRichStatus(CUPS_DEFAULT_IPP_URI)
-          : undefined,
+        richStatus: richStatusResult.ok(),
       };
     },
 

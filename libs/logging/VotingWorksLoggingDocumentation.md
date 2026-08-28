@@ -81,7 +81,7 @@ IDs are logged with each log to identify the log being written.
 ### printer-status-changed
 **Type:** [application-status](#application-status)
 **Description:** Application saw a change in the status of the currently connected printer.
-**Machines:** vx-scan
+**Machines:** vx-admin, vx-mark, vx-scan
 ### printer-print-request
 **Type:** [user-action](#user-action)
 **Description:** A print request was triggered.

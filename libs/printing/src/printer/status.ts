@@ -1,5 +1,5 @@
 import tmp from 'tmp-promise';
-import { Optional, assert } from '@votingworks/basics';
+import { Result, assert, err, ok } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
 import {
   IppMarkerInfo,
@@ -8,7 +8,7 @@ import {
   PrinterRichStatus,
   safeParseInt,
 } from '@votingworks/types';
-import { exec } from '../utils/exec';
+import { ExecError, exec } from '../utils/exec';
 import { rootDebug } from '../utils/debug';
 
 const debug = rootDebug.extend('status');
@@ -123,7 +123,7 @@ export const CUPS_DEFAULT_IPP_URI = 'ipp://localhost:60000/ipp/print';
  */
 async function getPrinterIppAttributes(
   printerIppUri: string
-): Promise<Optional<IppAttributes>> {
+): Promise<Result<IppAttributes, ExecError>> {
   // ipptool takes a file to specify the query to make, so we write a temporary
   // file with the query text
   const queryFile = await tmp.file();
@@ -134,11 +134,12 @@ async function getPrinterIppAttributes(
   const ipptoolResult = await exec(`ipptool`, ipptoolArgs);
   void queryFile.cleanup(); // void so we don't block status on the cleanup
 
-  // `ipptool` may fail if the printer was just connected and CUPS hasn't yet
-  // set up the IPP server for it. In this case, we just return undefined.
+  // `ipptool` fails if nothing is serving IPP for the printer yet (the
+  // IPP-over-USB daemon can take a few seconds after the printer connects) or
+  // if the printer stops responding. Callers decide how to surface that.
   if (ipptoolResult.isErr()) {
     debug('ipptool failed: %o', ipptoolResult.err().stderr);
-    return undefined;
+    return ipptoolResult;
   }
 
   const { stdout, stderr } = ipptoolResult.ok();
@@ -147,7 +148,7 @@ async function getPrinterIppAttributes(
 
   const attributes = parseIpptoolOutput(stdout);
   debug('parsed ipptool attributes: %O', attributes);
-  return attributes;
+  return ok(attributes);
 }
 
 function wrapWithArray<T>(value: T | T[]): T[] {
@@ -165,11 +166,12 @@ function zip(...arrays: Array<unknown[]>): Array<unknown[]> {
  */
 export async function getPrinterRichStatus(
   printerIppUri = CUPS_DEFAULT_IPP_URI
-): Promise<Optional<PrinterRichStatus>> {
-  const attributes = await getPrinterIppAttributes(printerIppUri);
-  if (!attributes) {
-    return undefined;
+): Promise<Result<PrinterRichStatus, ExecError>> {
+  const attributesResult = await getPrinterIppAttributes(printerIppUri);
+  if (attributesResult.isErr()) {
+    return err(attributesResult.err());
   }
+  const attributes = attributesResult.ok();
 
   const state = attributes['printer-state'] as IppPrinterState;
   let stateReasons = wrapWithArray(
@@ -206,5 +208,5 @@ export async function getPrinterRichStatus(
       }) as unknown as IppMarkerInfo
   );
 
-  return { state, stateReasons, markerInfos };
+  return ok({ state, stateReasons, markerInfos });
 }

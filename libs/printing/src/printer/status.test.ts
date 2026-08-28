@@ -85,7 +85,9 @@ test('uses ipptool to query and parse printer atttributes', async () => {
       stderr: '',
     })
   );
-  expect(await getPrinterRichStatus(CUPS_DEFAULT_IPP_URI)).toEqual({
+  expect(
+    (await getPrinterRichStatus(CUPS_DEFAULT_IPP_URI)).unsafeUnwrap()
+  ).toEqual({
     state: 'idle',
     stateReasons: ['none'],
     markerInfos: [mockMarkerInfo],
@@ -130,7 +132,7 @@ test('parses multiple marker infos', async () => {
       stderr: '',
     })
   );
-  expect(await getPrinterRichStatus()).toEqual({
+  expect((await getPrinterRichStatus()).unsafeUnwrap()).toEqual({
     state: 'idle',
     stateReasons: ['none'],
     markerInfos: [
@@ -158,7 +160,7 @@ test('parses multiple printer-state-reasons', async () => {
       stderr: '',
     })
   );
-  expect(await getPrinterRichStatus()).toEqual({
+  expect((await getPrinterRichStatus()).unsafeUnwrap()).toEqual({
     state: 'stopped',
     stateReasons: [
       'media-empty-error',
@@ -179,24 +181,29 @@ test('creates a special printer-state-reason if HP sleep mode detected', async (
       stderr: '',
     })
   );
-  expect(await getPrinterRichStatus()).toEqual({
+  expect((await getPrinterRichStatus()).unsafeUnwrap()).toEqual({
     state: 'idle',
     stateReasons: ['sleep-mode'],
     markerInfos: [mockMarkerInfo],
   });
 });
 
-test('returns undefined if ipptool fails', async () => {
+test('returns the ipptool error if ipptool fails', async () => {
   execMock.mockResolvedValueOnce(
     err({
       stdout: '',
-      stderr: 'ipptool failed',
+      stderr:
+        'ipptool: Unable to connect to localhost:60000: Connection refused',
       code: 1,
       signal: null,
       cmd: 'ipptool',
     })
   );
-  expect(await getPrinterRichStatus()).toBeUndefined();
+  const result = await getPrinterRichStatus();
+  expect(result.err()).toMatchObject({
+    code: 1,
+    stderr: 'ipptool: Unable to connect to localhost:60000: Connection refused',
+  });
 });
 
 test('throws error if ipptool output cannot be parsed', async () => {

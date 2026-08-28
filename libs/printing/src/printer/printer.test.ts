@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { mockFunction } from '@votingworks/test-utils';
+import { err, ok } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -9,6 +10,7 @@ import {
 import { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer';
+import { ExecError } from '../utils/exec';
 import {
   CITIZEN_E351_PRINTER_CONFIG,
   HP_4201_PRINTER_CONFIG,
@@ -48,6 +50,12 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
 }));
 
 const isDeviceAttachedMock = vi.mocked(isDeviceAttached);
+
+const IDLE_RICH_STATUS: PrinterRichStatus = {
+  state: 'idle',
+  stateReasons: ['none'],
+  markerInfos: [],
+};
 
 const mockGetPrinterRichStatus = mockFunction('mockGetPrinterRichStatus');
 vi.mock(
@@ -215,12 +223,110 @@ describe('rich status', () => {
         config,
       })
       .returns(undefined);
-    mockGetPrinterRichStatus.expectCallWith().returns(richStatus);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(richStatus));
     expect(await printer.status()).toEqual({
       connected: true,
       config,
       richStatus,
     });
+  });
+
+  test('logs only when rich status availability changes', async () => {
+    const logger = mockBaseLogger({ fn: vi.fn });
+    const printer = detectPrinter(logger);
+
+    const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = HP_4001_PRINTER_CONFIG;
+    const richStatus: PrinterRichStatus = {
+      state: 'idle',
+      stateReasons: ['none'],
+      markerInfos: [],
+    };
+    const ipptoolError: ExecError = {
+      stdout: '',
+      stderr:
+        'ipptool: Unable to connect to localhost:60000: Connection refused',
+      code: 1,
+      signal: null,
+      cmd: 'ipptool',
+    };
+
+    // printer connects, nothing serving IPP yet
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(err(ipptoolError));
+    expect(await printer.status()).toEqual({ connected: true, config });
+    expect(logger.log).toHaveBeenCalledTimes(2); // configured + unavailable
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.PrinterStatusChanged,
+      'system',
+      {
+        message:
+          'Rich printer status is unavailable via IPP; ipptool failed: ipptool: Unable to connect to localhost:60000: Connection refused',
+        disposition: 'failure',
+        ippUri: 'ipp://localhost:60000/ipp/print',
+        exitCode: 1,
+      }
+    );
+
+    // still unavailable: no additional log
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockGetPrinterRichStatus.expectCallWith().returns(err(ipptoolError));
+    expect(await printer.status()).toEqual({ connected: true, config });
+    expect(logger.log).toHaveBeenCalledTimes(2);
+
+    // becomes available
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(richStatus));
+    expect(await printer.status()).toEqual({
+      connected: true,
+      config,
+      richStatus,
+    });
+    expect(logger.log).toHaveBeenCalledTimes(3);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.PrinterStatusChanged,
+      'system',
+      {
+        message: 'Rich printer status is available via IPP.',
+        disposition: 'success',
+        ippUri: 'ipp://localhost:60000/ipp/print',
+      }
+    );
+
+    // still available: no additional log
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(richStatus));
+    await printer.status();
+    expect(logger.log).toHaveBeenCalledTimes(3);
+
+    // fails without stderr: falls back to the exit code
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockGetPrinterRichStatus
+      .expectCallWith()
+      .returns(err({ ...ipptoolError, stderr: '', code: 124 }));
+    await printer.status();
+    expect(logger.log).toHaveBeenCalledTimes(4);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.PrinterStatusChanged,
+      'system',
+      expect.objectContaining({
+        message:
+          'Rich printer status is unavailable via IPP; ipptool failed: exit code 124',
+        exitCode: 124,
+      })
+    );
+
+    // disconnect resets the state, so a reconnect logs again
+    mockGetConnectedDeviceUris.expectCallWith().returns([]);
+    isDeviceAttachedMock.mockReturnValue(false);
+    expect(await printer.status()).toEqual({ connected: false });
+    expect(logger.log).toHaveBeenCalledTimes(5); // removed
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(err(ipptoolError));
+    await printer.status();
+    expect(logger.log).toHaveBeenCalledTimes(7); // configured + unavailable
   });
 });
 
@@ -232,7 +338,7 @@ describe('printer-specific print options', () => {
     const config = HP_4201_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
-    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(IDLE_RICH_STATUS));
     await printer.status();
 
     mockPrintData
@@ -251,7 +357,7 @@ describe('printer-specific print options', () => {
     const config = HP_4001_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
-    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(IDLE_RICH_STATUS));
     await printer.status();
 
     mockPrintData
@@ -267,7 +373,7 @@ describe('printer-specific print options', () => {
     const config = HP_M404_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
-    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(IDLE_RICH_STATUS));
     await printer.status();
 
     mockPrintData
@@ -295,7 +401,7 @@ describe('printer-specific print options', () => {
     const config = HP_4201_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter.expectCallWith({ uri, config }).returns(undefined);
-    mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(ok(IDLE_RICH_STATUS));
     await printer.status();
 
     mockPrintData
