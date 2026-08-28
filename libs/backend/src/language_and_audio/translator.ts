@@ -164,25 +164,25 @@ const MAX_BATCH_ITEMS = 1024;
 function* translationBatches(stringsToTranslate: string[]): Iterable<string[]> {
   let batch: string[] = [];
   let nBytes = 0;
-  let nCodePoints = 0;
+  let nCodeUnits = 0;
 
   for (const item of stringsToTranslate) {
     const itemCodeUnits = item.length;
     const itemBytes = Buffer.byteLength(item, 'utf8');
 
     if (
-      nCodePoints + itemCodeUnits > MAX_BATCH_CODE_UNITS ||
+      nCodeUnits + itemCodeUnits > MAX_BATCH_CODE_UNITS ||
       nBytes + itemBytes > MAX_BATCH_BYTES ||
       batch.length === MAX_BATCH_ITEMS
     ) {
       yield batch;
       batch = [];
-      nCodePoints = 0;
+      nCodeUnits = 0;
       nBytes = 0;
     }
 
     batch.push(item);
-    nCodePoints += itemCodeUnits;
+    nCodeUnits += itemCodeUnits;
     nBytes += itemBytes;
   }
 
