@@ -97,7 +97,7 @@ const dateWithoutTimeTagger: Tagger<DateWithoutTime, string> = {
 
 const luxonDateTimeTagger: Tagger<DateTime, string> = {
   tag: 'DateTime',
-  shouldTag: (value): value is DateTime => value instanceof DateTime,
+  shouldTag: DateTime.isDateTime,
   serialize: (value) => {
     assert(value.zoneName === 'UTC', 'Only UTC DateTimes are serializable');
     return value.toISO();
