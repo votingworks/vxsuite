@@ -1,8 +1,9 @@
+import { Buffer } from 'node:buffer';
 import {
   TranslationServiceClient as GoogleCloudTranslationClient,
   protos,
 } from '@google-cloud/translate';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 
 import { NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
@@ -105,21 +106,85 @@ export class GoogleCloudTranslator implements Translator {
     // We strip them out in order and replace them after translating.
     const textArrayWithoutImages = textArray.map(stripImagesFromRichText);
 
-    const [response] = await this.translationClient.translateText({
-      contents: textArrayWithoutImages,
-      mimeType: 'text/plain',
-      parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
-      sourceLanguageCode: LanguageCode.ENGLISH,
-      targetLanguageCode,
-    });
+    const translations = [];
+    for (const contents of translationBatches(textArrayWithoutImages)) {
+      const [response] = await this.translationClient.translateText({
+        contents,
+        mimeType: 'text/plain',
+        parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
+        sourceLanguageCode: LanguageCode.ENGLISH,
+        targetLanguageCode,
+      });
+      translations.push(...(response.translations ?? []));
+    }
 
-    const translatedTextArrayWithImages = iter(response.translations)
+    assert(
+      translations.length === textArray.length,
+      `Expected ${textArray.length} translation(s), got ${translations.length}`
+    );
+
+    return iter(translations)
       .zip(textArray)
       .map(([{ translatedText }, originalText]) =>
         restoreImagesInTranslation(originalText, assertDefined(translatedText))
       )
       .toArray();
-
-    return translatedTextArrayWithImages;
   }
+}
+
+/**
+ * Actual limit is 30,000 unicode code points. `String.length` wouldn't be an
+ * accurate measurement for that, since it counts UTF-16 code units, so this is
+ * a rough estimate for code point count, with some wiggle room built in.
+ *
+ * https://docs.cloud.google.com/translate/quotas#content-limit
+ */
+const MAX_BATCH_CODE_UNITS = 30_000;
+
+/**
+ * Actual limit here is 100 KiB, but leaving some wiggle room for the request
+ * metadata. Shouldn't be possible to hit this limit in practice, given the
+ * code unit limit, but it's here for completeness.
+ *
+ * https://docs.cloud.google.com/translate/quotas#content-limit
+ */
+const MAX_BATCH_BYTES = 96 * 1024;
+
+/**
+ * Limit on the number of items in the `contents` array in translate requests.
+ *
+ * https://docs.cloud.google.com/php/docs/reference/cloud-translate/latest/V3.TranslateTextRequest
+ */
+const MAX_BATCH_ITEMS = 1024;
+
+/**
+ * Splits the given translation request items into batches within the limits of
+ * the Google Cloud Translate API.
+ */
+function* translationBatches(stringsToTranslate: string[]): Iterable<string[]> {
+  let batch: string[] = [];
+  let nBytes = 0;
+  let nCodeUnits = 0;
+
+  for (const item of stringsToTranslate) {
+    const itemCodeUnits = item.length;
+    const itemBytes = Buffer.byteLength(item, 'utf8');
+
+    if (
+      nCodeUnits + itemCodeUnits > MAX_BATCH_CODE_UNITS ||
+      nBytes + itemBytes > MAX_BATCH_BYTES ||
+      batch.length === MAX_BATCH_ITEMS
+    ) {
+      yield batch;
+      batch = [];
+      nCodeUnits = 0;
+      nBytes = 0;
+    }
+
+    batch.push(item);
+    nCodeUnits += itemCodeUnits;
+    nBytes += itemBytes;
+  }
+
+  if (batch.length > 0) yield batch;
 }
