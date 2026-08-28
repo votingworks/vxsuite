@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ci-validate-migrations.sh
 # Usage:
-#   ./ci-validate-migrations.sh vs-origin-main  # validate feature branch migrations vs origin/main
-#   ./ci-validate-migrations.sh on-origin-main  # validate main branch migrations vs HEAD~1
-#   ./ci-validate-migrations.sh                 # auto: detects current branch
+#   ./ci-validate-migrations.sh vs-origin-ca-demo  # validate feature branch migrations vs origin/ca-demo
+#   ./ci-validate-migrations.sh on-origin-ca-demo  # validate ca-demo branch migrations vs HEAD~1
+#   ./ci-validate-migrations.sh                    # auto: detects current branch
 
 set -euo pipefail
 export LC_ALL=C
@@ -13,36 +13,36 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
 
-validate_commits_vs_origin_main() {
-  # Fetch origin/main if needed
-  git rev-parse --verify --quiet origin/main >/dev/null \
-    || git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+validate_commits_vs_origin_ca_demo() {
+  # Fetch origin/ca-demo if needed
+  git rev-parse --verify --quiet origin/ca-demo >/dev/null \
+    || git fetch --no-tags --depth=1 origin ca-demo:refs/remotes/origin/ca-demo
 
-  origin_main_tempfile="$(mktemp)"
+  origin_ca_demo_tempfile="$(mktemp)"
   head_tempfile="$(mktemp)"
-  trap 'rm -f "$origin_main_tempfile" "$head_tempfile"' EXIT # Clean tempfiles on exit
+  trap 'rm -f "$origin_ca_demo_tempfile" "$head_tempfile"' EXIT # Clean tempfiles on exit
 
-  # Compare migrations on origin/main vs HEAD
-  git ls-tree -r --name-only origin/main -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_main_tempfile" || true
-  git ls-tree -r --name-only HEAD        -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
-  missing_migrations="$(comm -23 "$origin_main_tempfile" "$head_tempfile" || true)"
-  added_migrations="$(comm -13 "$origin_main_tempfile" "$head_tempfile" || true)"
+  # Compare migrations on origin/ca-demo vs HEAD
+  git ls-tree -r --name-only origin/ca-demo -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$origin_ca_demo_tempfile" || true
+  git ls-tree -r --name-only HEAD           -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$head_tempfile" || true
+  missing_migrations="$(comm -23 "$origin_ca_demo_tempfile" "$head_tempfile" || true)"
+  added_migrations="$(comm -13 "$origin_ca_demo_tempfile" "$head_tempfile" || true)"
 
-  # Check: migrations from main must not be deleted
+  # Check: migrations from ca-demo must not be deleted
   if [[ -n "$missing_migrations" ]]; then
-    echo "Branch deletes migration(s) from main:"
+    echo "Branch deletes migration(s) from ca-demo:"
     printf "%s\n" "$missing_migrations"
-    echo "Migrations must not be deleted once merged to main."
+    echo "Migrations must not be deleted once merged to ca-demo."
     exit 1
   fi
 
-  # Check: If any added migration has a timestamp earlier than main’s newest
-  latest_migration_on_main="$(tail -n1 "$origin_main_tempfile" || true)"
-  if [[ -n "$added_migrations" && -n "$latest_migration_on_main" ]]; then
+  # Check: If any added migration has a timestamp earlier than ca-demo’s newest
+  latest_migration_on_ca_demo="$(tail -n1 "$origin_ca_demo_tempfile" || true)"
+  if [[ -n "$added_migrations" && -n "$latest_migration_on_ca_demo" ]]; then
     fail=0
     for f in $added_migrations; do
-      if [[ ! "$f" > "$latest_migration_on_main" ]]; then
-        echo "Migration '$f' must have a timestamp prefix after '$latest_migration_on_main'."
+      if [[ ! "$f" > "$latest_migration_on_ca_demo" ]]; then
+        echo "Migration '$f' must have a timestamp prefix after '$latest_migration_on_ca_demo'."
         echo "Regenerate the migration with a current timestamp."
         fail=1
       fi
@@ -54,7 +54,7 @@ validate_commits_vs_origin_main() {
 validate_head_vs_prev_commit() {
   # Ensure we have the previous commit
   git rev-parse --verify --quiet HEAD~1 >/dev/null \
-    || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
+    || git fetch --no-tags --depth=2 origin ca-demo:refs/remotes/origin/ca-demo
 
   # Check: migrations from previous commit must not be deleted or renamed
   # Use directory path (not glob) since deleted/renamed files don't exist on disk
@@ -62,7 +62,7 @@ validate_head_vs_prev_commit() {
   if [[ -n "$deleted_or_renamed" ]]; then
     echo "Commit deletes or renames migration(s):"
     printf "%s\n" "$deleted_or_renamed"
-    echo "Migrations must not be deleted or renamed once merged to main."
+    echo "Migrations must not be deleted or renamed once merged to ca-demo."
     exit 1
   fi
 
@@ -86,18 +86,18 @@ validate_head_vs_prev_commit() {
 }
 
 case "$MODE" in
-  vs-origin-main) validate_commits_vs_origin_main ;;
-  on-origin-main) validate_head_vs_prev_commit ;;
+  vs-origin-ca-demo) validate_commits_vs_origin_ca_demo ;;
+  on-origin-ca-demo) validate_head_vs_prev_commit ;;
   auto)
-    # Auto-detect if current branch is main and choose appropriate validation
+    # Auto-detect if current branch is ca-demo and choose appropriate validation
     current_branch="$(git rev-parse --abbrev-ref HEAD)"
     case "$current_branch" in
-      main) validate_head_vs_prev_commit ;;
-      *)    validate_commits_vs_origin_main ;;
+      ca-demo) validate_head_vs_prev_commit ;;
+      *)       validate_commits_vs_origin_ca_demo ;;
     esac
     ;;
   *)
-    echo "Usage: $0 [vs-origin-main|on-origin-main]" >&2
+    echo "Usage: $0 [vs-origin-ca-demo|on-origin-ca-demo]" >&2
     exit 2
     ;;
 esac

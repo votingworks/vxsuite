@@ -35,11 +35,14 @@ export const GoogleCloudVoices: Record<
   },
   [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
   [LanguageCode.HINDI]: { languageCode: 'hi-IN', name: 'hi-IN-Neural2-B' },
+  [LanguageCode.HMONG]: null, // Not yet supported by Google Cloud TTS.
   [LanguageCode.JAPANESE]: { languageCode: 'ja-JP', name: 'ja-JP-Neural2-D' },
   [LanguageCode.KHMER]: null, // Not yet supported by Google Cloud TTS.
   [LanguageCode.KOREAN]: { languageCode: 'ko-KR', name: 'ko-KR-Wavenet-C' },
+  [LanguageCode.RUSSIAN]: { languageCode: 'ru-RU', name: 'ru-RU-Wavenet-D' },
   [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
   [LanguageCode.TAGALOG]: { languageCode: 'fil-PH', name: 'fil-PH-Neural2-D' },
+  [LanguageCode.URDU]: { languageCode: 'ur-IN', name: 'ur-IN-Wavenet-B' },
   [LanguageCode.VIETNAMESE]: { languageCode: 'vi-VN', name: 'vi-VN-Neural2-D' },
 };
 
