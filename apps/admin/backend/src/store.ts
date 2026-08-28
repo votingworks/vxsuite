@@ -436,10 +436,26 @@ export class Store implements BaseStore {
       where id = ?
       `,
       electionId
-    ) as { id: ElectionId; title: string; date: string } | undefined;
+    ) as
+      | { id: ElectionId | null; title: string | null; date: string | null }
+      | undefined;
 
     if (!row) {
       return undefined;
+    }
+
+    // As in {@link getElectionKey}, a CDF election has none of these fields at
+    // the top level, so fall back to parsing it. CDF need not be fast.
+    if (!(row.id && row.title && row.date)) {
+      const { election } = assertDefined(
+        this.getElection(electionId)
+      ).electionDefinition;
+
+      return {
+        id: election.id,
+        title: election.title,
+        date: election.date,
+      };
     }
 
     return {
@@ -466,11 +482,23 @@ export class Store implements BaseStore {
       `,
       electionId
     ) as
-      | { title: string; jurisdictionName: string; ballotHash: string }
+      | {
+          title: string | null;
+          jurisdictionName: string | null;
+          ballotHash: string;
+        }
       | undefined;
 
     if (!row) {
       return undefined;
+    }
+
+    if (!(row.title && row.jurisdictionName)) {
+      const { election, ballotHash } = assertDefined(
+        this.getElection(electionId)
+      ).electionDefinition;
+
+      return generateElectionBasedSubfolderName(election, ballotHash);
     }
 
     return generateElectionBasedSubfolderName(
