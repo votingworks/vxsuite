@@ -5,6 +5,7 @@ import {
   asElectionDefinition,
   clearTemporaryRootDir,
   electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { getMockFileFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
@@ -614,6 +615,77 @@ test('voting', async ({ page }, testInfo) => {
 
   mockCardRemoval();
   await page.getByText('Voting is complete.').waitFor();
+});
+
+test('primary polls opened reports', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const fixtureSet = electionTwoPartyPrimaryFixtures;
+  const election = fixtureSet.readElection();
+  const usbHandler = getMockUsbDriveHandler();
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  await page.goto('/');
+  await logInAsElectionManager(page, election);
+  usbHandler.insert(
+    await mockElectionPackageFileTree(
+      fixtureSet.electionJson.toElectionPackage()
+    )
+  );
+  await page.getByText('Election Manager Menu').waitFor();
+  await page.getByLabel(/select a polling place/i).click({ force: true });
+  await page.getByText('Precinct 1', { exact: true }).click();
+  await page.locator('.search-select').getByText('Precinct 1').waitFor();
+  await page.getByText('Official Ballot Mode').click();
+  await page.getByText('Test Ballot Mode').waitFor();
+
+  mockCardRemoval();
+  await page.getByText('Insert a poll worker card to open polls.').waitFor();
+
+  // In a primary, the polls opened report has one section per party plus a
+  // nonpartisan section. The first section prints as part of opening the
+  // polls; the rest print one at a time so the poll worker can tear each
+  // report off the roll before the next one prints.
+  logInAsPollWorker(election);
+  await page.getByText('Do you want to open the polls?').waitFor();
+  await page.getByRole('button', { name: 'Open Polls' }).click();
+
+  await page
+    .getByText('Finished printing report 1 of 3.')
+    .waitFor({ timeout: 60000 });
+  await screenshot('polls-opened-report-1-of-3');
+  await capturePrintedReport('polls-opened-report-mammal-party', namer);
+  await screenshotWithButtonHighlight(
+    'Print Next Report',
+    'print-next-report-button'
+  );
+  await page.getByRole('button', { name: 'Print Next Report' }).click();
+
+  await page
+    .getByText('Finished printing report 2 of 3.')
+    .waitFor({ timeout: 60000 });
+  await screenshot('polls-opened-report-2-of-3');
+  await capturePrintedReport('polls-opened-report-fish-party', namer);
+  await screenshotWithButtonHighlight(
+    'Print Previous Report',
+    'print-previous-report-button'
+  );
+  await page.getByRole('button', { name: 'Print Next Report' }).click();
+
+  // The last section leaves the machine on the report printed screen, which
+  // reprints a complete copy rather than continuing to a next report.
+  await page
+    .getByText('Report printed. Remove the poll worker card')
+    .waitFor({ timeout: 60000 });
+  await screenshot('polls-opened-report-3-of-3');
+  await capturePrintedReport('polls-opened-report-nonpartisan', namer);
+  await screenshotWithButtonHighlight(
+    'Reprint Polls Opened Report',
+    'reprint-polls-opened-report-button'
+  );
+
+  mockCardRemoval();
+  await page.getByText('Insert Your Ballot').waitFor();
 });
 
 test('accessibility', async ({ page }, testInfo) => {
