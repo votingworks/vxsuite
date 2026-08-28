@@ -8,11 +8,14 @@ export enum LanguageCode {
   CHINESE_TRADITIONAL = 'zh-Hant',
   ENGLISH = 'en',
   HINDI = 'hi',
+  HMONG = 'hmn',
   JAPANESE = 'ja-JP',
   KHMER = 'km',
   KOREAN = 'ko',
+  RUSSIAN = 'ru',
   SPANISH = 'es-US',
   TAGALOG = 'fil',
+  URDU = 'ur',
   VIETNAMESE = 'vi',
 }
 
@@ -43,11 +46,14 @@ export const NEEDS_TRANSLITERATED_NAMES: Record<LanguageCode, boolean> = {
   [LanguageCode.CHINESE_TRADITIONAL]: true,
   [LanguageCode.ENGLISH]: false,
   [LanguageCode.HINDI]: true,
+  [LanguageCode.HMONG]: false,
   [LanguageCode.JAPANESE]: true,
   [LanguageCode.KHMER]: true,
   [LanguageCode.KOREAN]: true,
+  [LanguageCode.RUSSIAN]: false,
   [LanguageCode.SPANISH]: false,
   [LanguageCode.TAGALOG]: false,
+  [LanguageCode.URDU]: false,
   [LanguageCode.VIETNAMESE]: false,
 };
 
@@ -58,10 +64,13 @@ export const IS_RTL: Record<LanguageCode, boolean> = {
   [LanguageCode.CHINESE_TRADITIONAL]: false,
   [LanguageCode.ENGLISH]: false,
   [LanguageCode.HINDI]: false,
+  [LanguageCode.HMONG]: false,
   [LanguageCode.JAPANESE]: false,
   [LanguageCode.KHMER]: false,
   [LanguageCode.KOREAN]: false,
+  [LanguageCode.RUSSIAN]: false,
   [LanguageCode.SPANISH]: false,
   [LanguageCode.TAGALOG]: false,
+  [LanguageCode.URDU]: true,
   [LanguageCode.VIETNAMESE]: false,
 };
