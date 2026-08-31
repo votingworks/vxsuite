@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { writeFileSync } from 'node:fs';
 import { err, ok, typedAs } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
@@ -8,6 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import fc from 'fast-check';
 import { ReadFileError, readFile } from './read_file';
+import { READ_CHUNK_SIZE } from './read_chunks';
 
 test('file open error', async () => {
   const path = makeTemporaryPath();
@@ -49,7 +51,6 @@ test('file exceeds max size', async () => {
           typedAs<ReadFileError>({
             type: 'FileExceedsMaxSize',
             maxSize,
-            fileSize: maxSize + 1,
           })
         )
       );
@@ -57,15 +58,27 @@ test('file exceeds max size', async () => {
   );
 });
 
-test('no maxSize reads any size', async () => {
-  const content = 'file contents';
+test('a file that grows past the limit while being read is refused', async () => {
+  const path = makeTemporaryFile({ content: '' });
+  const maxSize = 4 * 1024;
+
+  // Written after the file exists but before it is read, standing in for a file
+  // whose reported size and actual contents disagree. Nothing here consults
+  // `stat`, so the limit is enforced on what the read actually produces.
+  writeFileSync(path, 'a'.repeat(maxSize * 4));
+
+  expect(await readFile(path, { maxSize })).toEqual(
+    err(typedAs<ReadFileError>({ type: 'FileExceedsMaxSize', maxSize }))
+  );
+});
+
+test('a file larger than one read chunk is read whole', async () => {
+  const content = 'a'.repeat(READ_CHUNK_SIZE * 2 + 1);
   const path = makeTemporaryFile({ content });
 
-  const buffer = (await readFile(path)).unsafeUnwrap();
-  expect(buffer).toBeInstanceOf(Buffer);
-  expect(buffer.toString('utf-8')).toEqual(content);
-
-  expect(await readFile(path, { encoding: 'utf-8' })).toEqual(ok(content));
+  expect(await readFile(path, { maxSize: content.length })).toEqual(
+    ok(Buffer.from(content))
+  );
 });
 
 test('invalid maxSize', async () => {

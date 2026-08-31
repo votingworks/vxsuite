@@ -19,7 +19,7 @@ import {
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { writeManifest } from './manifest_step.js';
-import { ProgressEvent } from './types.js';
+import { ProgressEvent } from '../progress.js';
 
 function makeManifest(): BackupManifest {
   const { election } = electionFamousNames2021Fixtures.readElectionDefinition();

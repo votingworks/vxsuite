@@ -1,4 +1,4 @@
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { mkdir, rm } from 'node:fs/promises';
 import {
   assertDefined,
@@ -7,6 +7,7 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import { prepare, PrepareError } from './prepare_step.js';
 import { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
@@ -25,9 +26,21 @@ export interface WriteBackupError {
 }
 
 /**
+ * Reported when the caller cancelled the backup.
+ */
+export interface CancelBackupError {
+  type: 'cancelled';
+  message: string;
+}
+
+/**
  * Possible expected errors that can occur when creating a backup.
  */
-export type CreateBackupError = PrepareError | WriteBackupError | SwapError;
+export type CreateBackupError =
+  | PrepareError
+  | WriteBackupError
+  | CancelBackupError
+  | SwapError;
 
 /**
  * Error codes we expect from writing a backup to its target: the drive filling
@@ -56,6 +69,62 @@ export interface CreatedBackup {
  * database, ballot images, and election packages.
  */
 export async function createBackup(
+  rawOptions: PrepareBackupOptions
+): Promise<Result<CreatedBackup, CreateBackupError>> {
+  // The staging area requires absolute paths, so resolve what the caller gave
+  // us up front and use the same absolute path everywhere.
+  const options: PrepareBackupOptions = {
+    ...rawOptions,
+    target: resolve(rawOptions.target),
+  };
+  const { logger } = options;
+  logger.log(LogEventId.BackupCreateInit, 'system', {
+    message: `Creating a backup at ${options.target}...`,
+  });
+
+  const result = await tryCreateBackup(options);
+
+  if (result.isOk()) {
+    logger.log(LogEventId.BackupCreateComplete, 'system', {
+      disposition: 'success',
+      message: `Backup created successfully at ${result.ok().path}.`,
+    });
+  } else {
+    const error = result.err();
+    logger.log(LogEventId.BackupCreateComplete, 'system', {
+      disposition: 'failure',
+      errorType: error.type,
+      message: `Failed to create backup: ${error.message}`,
+    });
+  }
+
+  return result;
+}
+
+/**
+ * Reported when the caller cancelled the backup.
+ */
+const CANCELLED_ERROR: CreateBackupError = {
+  type: 'cancelled',
+  message: 'Backup cancelled',
+};
+
+/**
+ * Throws away a backup that will never be finished. Best effort: whatever
+ * stopped the write may stop the cleanup too, and the next run clears the path
+ * before it writes anything.
+ */
+async function discardInProgressBackup(
+  inProgressBackupPath: string
+): Promise<void> {
+  try {
+    await rm(inProgressBackupPath, { recursive: true, force: true });
+  } catch {
+    // ignored
+  }
+}
+
+async function tryCreateBackup(
   options: PrepareBackupOptions
 ): Promise<Result<CreatedBackup, CreateBackupError>> {
   const prepareResult = await prepare(options);
@@ -87,19 +156,46 @@ export async function createBackup(
       // Clear the leftovers of any interrupted run before writing.
       await rm(inProgressBackupPath, { recursive: true, force: true });
 
-      manifest = await copy({
+      const copyResult = await copy({
         electionId,
         source,
         store: snapshotStore,
         backup: inProgressBackupPath,
         logger: options.logger,
         onProgressEvent: options.onProgressEvent,
+        signal: options.signal,
       });
+      if (copyResult.isErr()) {
+        const error = copyResult.err();
+
+        await discardInProgressBackup(inProgressBackupPath);
+
+        if (error.type === 'Cancelled') {
+          return err(CANCELLED_ERROR);
+        }
+
+        return err({
+          type: 'backup-write-failed',
+          message:
+            error.type === 'FileExceedsMaxSize'
+              ? `A staged file grew past its measured size (max ${error.maxSize} bytes)`
+              : extractErrorMessage(error.error),
+        });
+      }
+      manifest = copyResult.ok();
     } finally {
       // Close the snapshot's connection before deleting the file it holds
       // open, or the space it occupies won't be reclaimed until we exit.
       snapshotStore.close();
       await source.cleanup();
+    }
+
+    // The last point a backup can be abandoned cheaply: past the swap below
+    // there is a new backup in place of the old one, and the operator is
+    // better served by a finished backup than by a half-swapped directory.
+    if (options.signal?.aborted) {
+      await discardInProgressBackup(inProgressBackupPath);
+      return err(CANCELLED_ERROR);
     }
 
     await writeManifest({
@@ -114,15 +210,9 @@ export async function createBackup(
       throw error;
     }
 
-    // The backup at its final path is still intact, so discard what we managed
-    // to write instead of leaving it for a later run to clean up. Best effort:
-    // whatever stopped the write may stop the cleanup too, and the next run
-    // clears the path before it writes anything.
-    try {
-      await rm(inProgressBackupPath, { recursive: true, force: true });
-    } catch {
-      // ignored
-    }
+    // The backup at its final path is still intact, so what this run managed
+    // to write is discarded rather than left for a later run to clean up.
+    await discardInProgressBackup(inProgressBackupPath);
 
     return err({
       type: 'backup-write-failed',

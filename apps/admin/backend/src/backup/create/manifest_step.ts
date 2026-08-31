@@ -17,7 +17,7 @@ export async function writeManifest(
 
   const manifestFileContents = JSON.stringify(manifest, null, 2);
   await writeFile(
-    new Backup(backup).manifestFile.path,
+    new Backup(backup).manifestPath,
     manifestFileContents,
     'utf-8'
   );

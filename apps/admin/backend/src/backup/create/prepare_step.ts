@@ -30,6 +30,10 @@ async function statOrUndefined(path: string): Promise<Stats | undefined> {
  */
 export type PrepareError =
   | {
+      type: 'cancelled';
+      message: string;
+    }
+  | {
       type: 'file-not-found';
       path: string;
       message: string;
@@ -63,6 +67,21 @@ export type PrepareError =
       required: number;
       message: string;
     };
+
+/**
+ * Reported when the caller cancelled the backup.
+ */
+const CANCELLED_ERROR: PrepareError = {
+  type: 'cancelled',
+  message: 'Backup cancelled',
+};
+
+/**
+ * Thrown from the database snapshot's progress callback to abort it, which is
+ * the only way to stop a snapshot partway: `better-sqlite3` closes the backup
+ * and rejects when its progress callback throws.
+ */
+class CancelledError extends Error {}
 
 /**
  * Reported when the database cannot be snapshotted because something else is
@@ -103,10 +122,14 @@ export interface PreparedBackup {
 export async function prepare(
   options: PrepareBackupOptions
 ): Promise<Result<PreparedBackup, PrepareError>> {
-  const { logger, onProgressEvent, target, workspace } = options;
+  const { logger, onProgressEvent, signal, target, workspace } = options;
   const minAvailableStorageBytes =
     options.minAvailableStorageBytes ?? DEFAULT_MIN_AVAILABLE_STORAGE_BYTES;
   onProgressEvent?.({ type: 'preparing' });
+
+  if (signal?.aborted) {
+    return err(CANCELLED_ERROR);
+  }
 
   // Check the target up front: an unmounted backup drive is the likeliest
   // reason for a backup to fail, and snapshotting the database before noticing
@@ -193,8 +216,18 @@ export async function prepare(
       return err(WRITE_IN_PROGRESS_ERROR);
     }
 
+    // So that a backup cancelled before the snapshot starts never copies a
+    // page of it.
+    if (signal?.aborted) {
+      return err(CANCELLED_ERROR);
+    }
+
     await dbClient.backup(dbSnapshotPath, {
       progress(info) {
+        if (signal?.aborted) {
+          throw new CancelledError();
+        }
+
         onProgressEvent?.({
           type: 'db_snapshot',
           progress: (info.totalPages - info.remainingPages) / info.totalPages,
@@ -246,6 +279,13 @@ export async function prepare(
       })
     );
 
+    // Linking is cheap enough that the images already started are left to
+    // finish; this only keeps the expensive target measurement below from
+    // running for a backup nobody is waiting for.
+    if (signal?.aborted) {
+      return err(CANCELLED_ERROR);
+    }
+
     const backupSizeBytes = await iter(stagingArea.listStagedFiles())
       .async()
       .map(({ size }) => size)
@@ -285,6 +325,10 @@ export async function prepare(
       snapshotStore,
     });
   } catch (error) {
+    if (error instanceof CancelledError) {
+      return err(CANCELLED_ERROR);
+    }
+
     if (isNonExistentFileOrDirectoryError(error)) {
       return err({
         type: 'file-not-found',

@@ -12,6 +12,14 @@ import {
 export const BACKUP_MANIFEST_VERSION = 1;
 
 /**
+ * The directory within a backup holding the copied workspace files, and thus
+ * the first segment of every manifest entry's path. Shared by the create side,
+ * which writes files under it, and the restore side, which refuses a manifest
+ * entry outside it.
+ */
+export const BACKUP_WORKSPACE_DIR = 'workspace';
+
+/**
  * Schema for {@link ElectionMetadata}.
  */
 export const ElectionMetadataSchema = z.object({

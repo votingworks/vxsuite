@@ -22,12 +22,13 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { createHash } from 'node:crypto';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { readFile, stat } from 'node:fs/promises';
 import {
   BackupManifest,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
-import { main } from './main.js';
+import { CANCELLED_EXIT_CODE, main } from './main.js';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 
 interface RunResult {
@@ -42,13 +43,22 @@ interface MockStreams {
   stderr: MockWritable;
 }
 
-async function run(args: string[]): Promise<RunResult> {
+async function run(
+  args: string[],
+  { signal }: { signal?: AbortSignal } = {}
+): Promise<RunResult> {
   const streams: MockStreams = {
     stdin: mockReadable(),
     stdout: mockWritable(),
     stderr: mockWritable(),
   };
-  const code = await main(['node', 'backups', ...args], streams);
+  // A real logger would write JSON log lines to the test runner's stdout,
+  // interleaved with the command's own output.
+  const code = await main(['node', 'backups', ...args], {
+    ...streams,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal,
+  });
   return {
     code,
     stdout: streams.stdout.toString(),
@@ -76,28 +86,46 @@ async function makeWorkspace(logger: BaseLogger): Promise<Workspace> {
 
 const MANIFEST_CREATED_AT = '2026-08-18T12:00:00.000Z';
 
-function writeManifest(backupPath: string): void {
-  writeFileSync(
-    join(backupPath, 'manifest.json'),
-    JSON.stringify(
-      new BackupManifest(
-        '4.0.0',
-        'VX-00-001',
-        MANIFEST_CREATED_AT,
-        {
-          id: 'election-1',
-          title: 'General Election',
-          date: new DateWithoutTime('2026-11-03'),
-        },
-        [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
-      )
+async function writeManifest(backupPath: string): Promise<void> {
+  const manifestFileContents = JSON.stringify(
+    new BackupManifest(
+      '4.0.0',
+      'VX-00-001',
+      MANIFEST_CREATED_AT,
+      {
+        id: 'election-1',
+        title: 'General Election',
+        date: new DateWithoutTime('2026-11-03'),
+      },
+      [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
     )
+  );
+  await writeSignedManifest(backupPath, manifestFileContents);
+}
+
+/**
+ * Writes a manifest and, alongside it, the signature that authenticates it,
+ * since reading a manifest means authenticating it first.
+ */
+async function writeSignedManifest(
+  backupPath: string,
+  manifestFileContents: string
+): Promise<void> {
+  writeFileSync(join(backupPath, 'manifest.json'), manifestFileContents);
+  const signatureFile = await prepareSignatureFile({
+    type: 'vxadmin_backup',
+    context: 'export',
+    manifestFileContents,
+  });
+  writeFileSync(
+    join(backupPath, signatureFile.fileName),
+    signatureFile.fileContents
   );
 }
 
-function makeBackup(): string {
+async function makeBackup(): Promise<string> {
   const backup = makeTemporaryDirectory();
-  writeManifest(backup);
+  await writeManifest(backup);
   mkdirSync(join(backup, 'workspace'));
   return backup;
 }
@@ -122,6 +150,17 @@ test('prints help without error', async () => {
   const { code, stderr } = await run(['--help']);
   expect(code).toEqual(0);
   expect(stderr).toContain('Usage: backups <command> [options]');
+});
+
+test('a logger is optional, since the real entry point does not have one', async () => {
+  const stderr = mockWritable();
+  const code = await main(['node', 'backups', '--help'], {
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr,
+  });
+  expect(code).toEqual(0);
+  expect(stderr.toString()).toContain('Usage: backups <command> [options]');
 });
 
 test('create requires a target', async () => {
@@ -263,7 +302,7 @@ test('create fails fast when the workspace cannot be opened for another reason',
 });
 
 test('validate lists the backup files', async () => {
-  const { code, stdout, stderr } = await run(['validate', makeBackup()]);
+  const { code, stdout, stderr } = await run(['validate', await makeBackup()]);
   expect(code).toEqual(0);
   expect(stderr).toContain('NOT IMPLEMENTED YET.');
   expect(stdout).toContain('Here are the backup files to be validated:');
@@ -285,8 +324,8 @@ test('list prints the backups on a backup drive', async () => {
   const backupsPath = join(target, 'vxadmin-backups');
   mkdirSync(join(backupsPath, 'backup-1'), { recursive: true });
   mkdirSync(join(backupsPath, 'backup-2'), { recursive: true });
-  writeManifest(join(backupsPath, 'backup-1'));
-  writeManifest(join(backupsPath, 'backup-2'));
+  await writeManifest(join(backupsPath, 'backup-1'));
+  await writeManifest(join(backupsPath, 'backup-2'));
 
   const { code, stdout, stderr } = await run(['list', target]);
   expect(code).toEqual(0);
@@ -309,7 +348,14 @@ test('list reports backups with unreadable manifests on stderr', async () => {
   const backupsPath = join(target, 'vxadmin-backups');
   mkdirSync(join(backupsPath, 'backup-1'), { recursive: true });
   mkdirSync(join(backupsPath, 'no-manifest'), { recursive: true });
-  writeManifest(join(backupsPath, 'backup-1'));
+  mkdirSync(join(backupsPath, 'damaged-manifest'), { recursive: true });
+  await writeManifest(join(backupsPath, 'backup-1'));
+  // Signed, so this is a backup of ours whose manifest did not survive the
+  // trip, as opposed to one we cannot authenticate at all.
+  await writeSignedManifest(
+    join(backupsPath, 'damaged-manifest'),
+    'not a manifest'
+  );
 
   const { code, stdout, stderr } = await run(['list', target]);
   expect(code).toEqual(0);
@@ -319,6 +365,13 @@ test('list reports backups with unreadable manifests on stderr', async () => {
     `[Unreadable Manifest] ${join(
       backupsPath,
       'no-manifest',
+      'manifest.json'
+    )} is invalid:`
+  );
+  expect(stderr).toContain(
+    `[Unreadable Manifest] ${join(
+      backupsPath,
+      'damaged-manifest',
       'manifest.json'
     )} is invalid:`
   );
@@ -339,21 +392,65 @@ test('list fails when the target does not exist', async () => {
   );
 });
 
-test('restore prints the backup manifest', async () => {
+test('restore copies a backup into the workspace', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+  expect(
+    (await run(['create', '--workspace', source.path, '--target', target])).code
+  ).toEqual(0);
+  const backup = join(
+    target,
+    'vxadmin-backups',
+    'franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+
+  const workspace = makeTemporaryDirectory();
   const { code, stdout, stderr } = await run([
+    'restore',
+    '--workspace',
+    workspace,
+    '--backup',
+    backup,
+  ]);
+  expect(code).toEqual(0);
+
+  // Progress is reported on stderr, one line per step since the mock stream is
+  // not a terminal, and never mixed into stdout.
+  expect(stderr).toContain('Copying files');
+  expect(stderr).toContain('Verifying restored files');
+  expect(stderr).toContain('Flushing to disk');
+  // \u001b is ESC: nothing tries to move a cursor that isn't there.
+  expect(stderr).not.toContain('\u001b');
+
+  expect(stdout).toContain(`Restored ${backup} to ${workspace}.`);
+
+  const client = Client.fileClient(
+    join(workspace, 'data.db'),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  const { count } = client.one('select count(*) as count from elections') as {
+    count: number;
+  };
+  expect(count).toEqual(1);
+});
+
+test('restore fails when the manifest cannot be read', async () => {
+  const backup = makeTemporaryDirectory();
+  await writeSignedManifest(backup, 'not a manifest');
+
+  const { code, stderr } = await run([
     'restore',
     '--workspace',
     makeTemporaryDirectory(),
     '--backup',
-    makeBackup(),
+    backup,
   ]);
-  expect(code).toEqual(0);
-  expect(stderr).toContain('NOT IMPLEMENTED YET.');
-  expect(stdout).toContain('BackupManifest');
-  expect(stdout).toContain('VX-00-001');
+  expect(code).toEqual(1);
+  expect(stderr).toContain('Error: ');
 });
 
-test('restore fails when the manifest cannot be read', async () => {
+test('restore fails when the backup cannot be opened', async () => {
   const backup = makeTemporaryDirectory();
   const { code, stderr } = await run([
     'restore',
@@ -363,7 +460,64 @@ test('restore fails when the manifest cannot be read', async () => {
     backup,
   ]);
   expect(code).toEqual(1);
-  expect(stderr).toContain(
-    `Error: unable to read manifest at ${join(backup, 'manifest.json')}`
+  expect(stderr).toContain(`Error: `);
+  expect(stderr).toContain(join(backup, 'manifest.json'));
+});
+
+test('restore refuses a configured workspace', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const workspace = await makeWorkspace(logger);
+
+  const { code, stderr } = await run([
+    'restore',
+    '--workspace',
+    workspace.path,
+    '--backup',
+    await makeBackup(),
+  ]);
+  expect(code).toEqual(1);
+  expect(stderr).toContain('Error: Expected workspace to be unconfigured');
+});
+
+test('create reports a cancelled backup rather than a failed one', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+
+  const { code, stdout, stderr } = await run(
+    ['create', '--workspace', source.path, '--target', target],
+    { signal: AbortSignal.abort() }
   );
+
+  expect(code).toEqual(CANCELLED_EXIT_CODE);
+  expect(stderr).toContain('Cancelled. No backup was written.');
+  expect(stdout).toEqual('');
+  expect(readdirSync(target)).toEqual([]);
+});
+
+test('restore cancelled before it starts leaves the workspace as it was', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+  expect(
+    (await run(['create', '--workspace', source.path, '--target', target])).code
+  ).toEqual(0);
+  const backup = join(
+    target,
+    'vxadmin-backups',
+    'franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+
+  const workspace = makeTemporaryDirectory();
+  writeFileSync(join(workspace, 'already-here'), 'from before the restore');
+
+  const { code, stdout, stderr } = await run(
+    ['restore', '--workspace', workspace, '--backup', backup],
+    { signal: AbortSignal.abort() }
+  );
+
+  expect(code).toEqual(CANCELLED_EXIT_CODE);
+  expect(stderr).toContain('Cancelled. No backup was restored.');
+  expect(stdout).toEqual('');
+  expect(readdirSync(workspace)).toEqual(['already-here']);
 });

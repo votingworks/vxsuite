@@ -621,6 +621,38 @@ eventType = "user-action"
 documentationMessage = "User updated a qualified write-in candidate."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.BackupCreateInit]
+eventId = "backup-create-init"
+eventType = "user-action"
+documentationMessage = "Creating a backup of the machine data is initiated."
+defaultMessage = "User initiated creating a backup..."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.BackupCreateComplete]
+eventId = "backup-create-complete"
+eventType = "user-action"
+documentationMessage = "Creating a backup completed, success or failure is indicated by the disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.BackupRestoreInit]
+eventId = "backup-restore-init"
+eventType = "user-action"
+documentationMessage = "Restoring the machine data from a backup is initiated."
+defaultMessage = "User initiated restoring from a backup..."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.BackupRestoreComplete]
+eventId = "backup-restore-complete"
+eventType = "user-action"
+documentationMessage = "Restoring from a backup completed, success or failure is indicated by the disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.BackupRestoreMachineMismatch]
+eventId = "backup-restore-machine-mismatch"
+eventType = "user-action"
+documentationMessage = "User is restoring a backup whose machine ID differs from the current machine's ID."
+restrictInDocumentationToApps = ["vx-admin"]
+
 # VxCentralScan-specific user action logs
 [Events.ClearingBallotData]
 eventId = "clear-ballot-data-init"

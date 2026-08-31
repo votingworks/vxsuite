@@ -1,9 +1,28 @@
 #!/usr/bin/env node
 
-import { main } from '../build/backup/cli/main.js';
+import { main, CANCELLED_EXIT_CODE } from '../build/backup/cli/main.js';
+
+// Ctrl-C cancels the running command rather than killing the process: a
+// backup or restore stopped partway leaves debris behind unless it is given
+// the chance to discard what it wrote. A second Ctrl-C gives up on that and
+// exits, so an operation that will not stop can still be escaped.
+const controller = new AbortController();
+process.on('SIGINT', () => {
+  if (controller.signal.aborted) {
+    process.exit(CANCELLED_EXIT_CODE);
+  }
+
+  process.stderr.write('\nCancelling… press Ctrl-C again to exit now.\n');
+  controller.abort();
+});
 
 try {
-  process.exitCode = await main(process.argv, process);
+  process.exitCode = await main(process.argv, {
+    stdin: process.stdin,
+    stdout: process.stdout,
+    stderr: process.stderr,
+    signal: controller.signal,
+  });
 } catch (error) {
   console.error(error);
   process.exitCode = 1;

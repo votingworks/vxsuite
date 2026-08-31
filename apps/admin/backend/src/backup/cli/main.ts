@@ -1,11 +1,7 @@
 import assert from 'node:assert';
 import { relative } from 'node:path';
-import { inspect } from 'node:util';
 import yargs from 'yargs';
-import {
-  extractErrorMessage,
-  isNonExistentFileOrDirectoryError,
-} from '@votingworks/basics';
+import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { getNodeEnv } from '@votingworks/backend';
@@ -13,10 +9,10 @@ import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
 import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
-import { Backup } from '../backup.js';
-import { ProgressEvent } from '../create/types.js';
+import { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
 import { openWorkspace, Workspace } from '../../util/workspace.js';
+import { restoreBackup } from '../restore/index.js';
 
 /**
  * IO streams given to the CLI.
@@ -25,6 +21,24 @@ export interface Streams {
   stdin: NodeJS.ReadableStream;
   stdout: NodeJS.WritableStream;
   stderr: NodeJS.WritableStream;
+}
+
+/**
+ * Everything the CLI needs from its caller: the IO streams, and optionally
+ * where to send log messages. Without a logger, log messages go to a real
+ * {@link BaseLogger}, i.e. to stdout as JSON lines — tests pass a mock so log
+ * output doesn't interleave with the command's own.
+ */
+export interface MainContext extends Streams {
+  logger?: BaseLogger;
+
+  /**
+   * When given, aborting this signal cancels a `create` or `restore` in
+   * progress. The entry point wires it to `SIGINT`, so Ctrl-C stops the
+   * command by discarding what it had written rather than by killing the
+   * process partway through writing it.
+   */
+  signal?: AbortSignal;
 }
 
 interface BackupArguments {
@@ -36,12 +50,19 @@ interface BackupArguments {
 }
 
 /**
+ * Exit code for a command the operator cancelled, following the shell
+ * convention of 128 plus the signal number for `SIGINT`.
+ */
+export const CANCELLED_EXIT_CODE = 130;
+
+/**
  * Entry point for the `backups` CLI.
  */
 export async function main(
   argv: readonly string[],
-  { stdin, stdout, stderr }: Streams
+  { stdin, stdout, stderr, logger: providedLogger, signal }: MainContext
 ): Promise<number> {
+  const logger = providedLogger ?? new BaseLogger(LogSource.VxAdminService);
   const parser = yargs()
     .scriptName('backups')
     .usage('Usage: $0 <command> [options]')
@@ -117,15 +138,27 @@ export async function main(
     return parseError ? 1 : 0;
   }
 
+  // Every command authenticates backups through `libs/auth`, which reads
+  // `NODE_ENV` and `VX_MACHINE_TYPE` straight from the environment and throws
+  // when they aren't set, so normalize whatever we resolved into the
+  // environment instead of making the caller export them.
+  const nodeEnv = getNodeEnv();
+  assert(
+    nodeEnv !== 'production',
+    `the backups CLI is a development tool, but NODE_ENV is ${nodeEnv}`
+  );
+  (process.env as { NODE_ENV?: string }).NODE_ENV = nodeEnv;
+  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
+
   switch (args._[0]) {
     case 'create':
-      return await create(args, { stdin, stdout, stderr });
+      return await create(args, { stdin, stdout, stderr, logger, signal });
     case 'validate':
       return await validate(args, { stdin, stdout, stderr });
     case 'list':
       return await list(args, { stdin, stdout, stderr });
     case 'restore':
-      return await restore(args, { stdin, stdout, stderr });
+      return await restore(args, { stdin, stdout, stderr, logger, signal });
     /* istanbul ignore next: `strict` rejects unknown commands */
     default:
       throw new Error(`Unknown command: ${args._[0]}`);
@@ -144,6 +177,8 @@ const PROGRESS_LABELS: Record<ProgressEvent['type'], string> = {
   writing_manifest: 'Writing manifest',
   flushing_backup: 'Flushing to device',
   swapping_backup: 'Swapping into place',
+  verifying: 'Verifying restored files',
+  flushing_workspace: 'Flushing to disk',
 };
 
 function displayProgress(event: ProgressEvent): DisplayProgress {
@@ -190,24 +225,15 @@ function openWorkspaceIfPresent(
  */
 async function create(
   args: BackupArguments,
-  { stdout, stderr }: Streams
+  {
+    stdout,
+    stderr,
+    logger,
+    signal,
+  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.target === 'string');
-
-  // The `backups` CLI is a development tool. `libs/auth` reads `NODE_ENV`
-  // straight from the environment and throws when it isn't set, so normalize
-  // whatever we resolved into the environment instead of making the caller
-  // export it.
-  const nodeEnv = getNodeEnv();
-  assert(
-    nodeEnv !== 'production',
-    `the backups CLI is a development tool, but NODE_ENV is ${nodeEnv}`
-  );
-  (process.env as { NODE_ENV?: string }).NODE_ENV = nodeEnv;
-  (process.env as { VX_MACHINE_TYPE?: string }).VX_MACHINE_TYPE = 'admin';
-
-  const logger = new BaseLogger(LogSource.VxAdminService);
 
   // Progress goes to stderr so that stdout carries only the command's own
   // output, and so redirecting one doesn't garble the other.
@@ -229,13 +255,21 @@ async function create(
     workspace,
     target: args.target,
     logger,
+    signal,
     onProgressEvent: (event) => display.update(displayProgress(event)),
   });
 
   if (createBackupResult.isErr()) {
-    // Leave the bar where it stopped: it says which step failed.
+    const error = createBackupResult.err();
+    // Leave the bar where it stopped: it says which step was interrupted.
     display.finish();
-    stderr.write(`Error: ${createBackupResult.err().message}\n`);
+
+    if (error.type === 'cancelled') {
+      stderr.write('Cancelled. No backup was written.\n');
+      return CANCELLED_EXIT_CODE;
+    }
+
+    stderr.write(`Error: ${error.message}\n`);
     return 1;
   }
 
@@ -294,11 +328,21 @@ async function list(
   let printedBackup = false;
 
   for (const backup of backups) {
-    const readManifestResult = await backup.manifestFile.readManifest();
+    const openBackupResult = await backup.open();
+    if (openBackupResult.isErr()) {
+      views.unreadableManifest(errorPrinter, {
+        manifestPath: backup.manifestPath,
+        error: openBackupResult.err().message,
+      });
+      continue;
+    }
+
+    await using authenticatedBackup = openBackupResult.ok();
+    const readManifestResult = await authenticatedBackup.readManifest();
     if (readManifestResult.isErr()) {
       views.unreadableManifest(errorPrinter, {
-        manifestPath: backup.manifestFile.path,
-        error: readManifestResult.err(),
+        manifestPath: backup.manifestPath,
+        error: readManifestResult.err().message,
       });
       continue;
     }
@@ -321,30 +365,49 @@ async function list(
  */
 async function restore(
   args: BackupArguments,
-  { stdout, stderr }: Streams
+  {
+    stdout,
+    stderr,
+    logger,
+    signal,
+  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.backup === 'string');
 
-  stderr.write('NOT IMPLEMENTED YET.\n');
+  // Progress goes to stderr so that stdout carries only the command's own
+  // output, and so redirecting one doesn't garble the other.
+  const display = new ProgressDisplay(
+    stderr,
+    Boolean((stderr as NodeJS.WriteStream).isTTY)
+  );
 
-  const backup = new Backup(args.backup);
-  const readManifestResult = await backup.manifestFile.readManifest();
+  const restoreBackupResult = await restoreBackup({
+    backup: args.backup,
+    workspace: args.workspace,
+    logger,
+    signal,
+    onProgressEvent: (event) => display.update(displayProgress(event)),
+  });
 
-  if (readManifestResult.isErr()) {
-    stderr.write(
-      `Error: unable to read manifest at ${
-        backup.manifestFile.path
-      }: ${extractErrorMessage(readManifestResult.err())}`
-    );
+  if (restoreBackupResult.isErr()) {
+    const error = restoreBackupResult.err();
+    // Leave the bar where it stopped: it says which step was interrupted.
+    display.finish();
+
+    if (error.type === 'cancelled') {
+      stderr.write('Cancelled. No backup was restored.\n');
+      return CANCELLED_EXIT_CODE;
+    }
+
+    stderr.write(`Error: ${error.message}\n`);
     return 1;
   }
 
-  const manifest = readManifestResult.ok();
-  stdout.write(inspect(manifest));
-  stdout.write('\n');
+  display.clear();
+  stdout.write(`Restored ${args.backup} to ${args.workspace}.\n`);
 
-  return await Promise.resolve(0);
+  return 0;
 }
 
 async function enumerateSourceFiles(

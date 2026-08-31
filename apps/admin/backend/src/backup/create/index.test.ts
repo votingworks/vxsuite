@@ -1,23 +1,20 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { dirname, join } from 'node:path';
-import { createHash } from 'node:crypto';
+import { dirname, join, relative } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
-import { Buffer } from 'node:buffer';
-import {
-  electionFamousNames2021Fixtures,
-  makeTemporaryDirectory,
-} from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
   authenticateArtifactUsingSignatureFile,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from '@votingworks/auth';
-import { createWorkspace, Workspace } from '../../util/workspace.js';
+import {
+  addCvrWithBallotImage,
+  makeConfiguredWorkspace,
+  mockDiskSpace,
+} from '../../../test/backup.js';
 import { Store } from '../../store.js';
 import { createBackup } from './index.js';
 import { BackupRoot } from '../backup_root.js';
@@ -69,109 +66,17 @@ vi.mock(
   }
 );
 
-const GENEROUS_AVAILABLE_KB = 1_000_000_000; // 1 TB, i.e. "don't worry about space"
-
 beforeEach(() => {
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: GENEROUS_AVAILABLE_KB,
-        used: 0,
-        available: GENEROUS_AVAILABLE_KB,
-      }))
-    )
-  );
+  mockDiskSpace();
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function makeConfiguredWorkspace(): Promise<Workspace> {
-  const logger = new BaseLogger(LogSource.VxAdminService);
-  const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
-  const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackage.asFilePath(),
-    electionPackageHash: createHash('sha256')
-      .update(electionPackage.asBuffer())
-      .digest('hex'),
-  });
-  workspace.store.setCurrentElectionId(electionId);
-  return workspace;
-}
-
-function addCvrWithBallotImage(
-  workspace: Workspace,
-  { ballotId }: { ballotId: string }
-): void {
-  const { store } = workspace;
-  const electionId = store.getCurrentElectionId();
-  if (!electionId) throw new Error('workspace has no current election');
-  const electionRecord = store.getElection(electionId);
-  if (!electionRecord) throw new Error('current election not found');
-  const { election } = electionRecord.electionDefinition;
-
-  const result = store.addCastVoteRecordFileEntry({
-    electionId,
-    cvrFileId: 'cvr-file-1',
-    ballotId,
-    cvr: {
-      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
-      batchId: 'batch-1',
-      card: { type: 'bmd' },
-      precinctId: election.precincts[0]!.id,
-      votes: {},
-      votingMethod: 'precinct',
-    },
-    adjudicationFlags: {
-      isBlank: false,
-      hasOvervote: false,
-      hasUndervote: false,
-      hasWriteIn: true,
-      hasMarginalMark: false,
-      hasCrossoverVote: false,
-    },
-  });
-  if (result.isErr()) {
-    throw new Error(`failed to add cvr: ${JSON.stringify(result.err())}`);
-  }
-  const { cvrId } = result.ok();
-
-  store.addBallotImage({
-    cvrId,
-    electionDefinitionId: election.id,
-    imageData: Buffer.from(`fake-image-data-for-${ballotId}`),
-    side: 'front',
-  });
-}
-
 test('a second backup atomically replaces the first, leaving no leftovers', async () => {
   const workspace = await makeConfiguredWorkspace();
   const electionId = workspace.store.getCurrentElectionId()!;
-  workspace.store.addScannerBatch({
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    label: 'Batch 1',
-    electionId,
-    startedAt: new Date().toISOString(),
-  });
-  workspace.store.addCastVoteRecordFileRecord({
-    id: 'cvr-file-1',
-    electionId,
-    isTestMode: false,
-    filename: 'cvrs.jsonl',
-    exportedTimestamp: new Date().toISOString(),
-    sha256Hash: 'hash',
-    scannerIds: new Set(['scanner-1']),
-    pollingPlaceIds: new Set(),
-    batchIds: ['batch-1'],
-  });
   addCvrWithBallotImage(workspace, { ballotId: 'ballot-1' });
 
   const target = makeTemporaryDirectory();
@@ -187,6 +92,22 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
     logger,
   });
   const firstCreated = firstResult.unsafeUnwrap();
+
+  // A backup copies off the machine's entire data state, so both the attempt
+  // and its outcome belong in the audit log.
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateInit,
+    'system',
+    expect.objectContaining({ message: expect.stringContaining(target) })
+  );
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({
+      disposition: 'success',
+      message: expect.stringContaining(firstCreated.path),
+    })
+  );
 
   // The staging area holding the snapshot is deleted once the copy is done, so
   // its connection has to be closed or the space it holds is never reclaimed.
@@ -272,6 +193,30 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   expect(listed.map((b) => b.path)).toEqual([backupPath]);
 });
 
+test('resolves a relative target path', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  const result = await createBackup({
+    workspace,
+    target: relative(process.cwd(), target),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  // The backup landed in the target, reported at its absolute path.
+  const electionRecord = workspace.store.getElection(
+    workspace.store.getCurrentElectionId()!
+  )!;
+  expect(result.unsafeUnwrap().path).toEqual(
+    new BackupRoot(target).pathFor(
+      generateElectionBasedSubfolderName(
+        electionRecord.electionDefinition.election,
+        electionRecord.electionDefinition.ballotHash
+      )
+    )
+  );
+});
+
 function outOfSpaceError(): NodeJS.ErrnoException {
   const error: NodeJS.ErrnoException = new Error('no space left on device');
   error.code = 'ENOSPC';
@@ -283,6 +228,34 @@ test('reports an error when copying the backup fails', async () => {
   const target = makeTemporaryDirectory();
   vi.mocked(copy).mockRejectedValueOnce(outOfSpaceError());
 
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const result = await createBackup({
+    workspace,
+    target,
+    logger,
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'no space left on device',
+  });
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      errorType: 'backup-write-failed',
+    })
+  );
+});
+
+test('reports a backup file that could not be copied, leaving no partial backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(
+    err({ type: 'WriteFileError', error: outOfSpaceError() })
+  );
+
   const result = await createBackup({
     workspace,
     target,
@@ -292,6 +265,29 @@ test('reports an error when copying the backup fails', async () => {
   expect(result.err()).toEqual({
     type: 'backup-write-failed',
     message: 'no space left on device',
+  });
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+});
+
+test('reports a staged file that outgrew the size it was measured at', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(
+    err({ type: 'FileExceedsMaxSize', maxSize: 1024 })
+  );
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  // A staged file is copied under the size staging measured for it, so this
+  // means the workspace changed underneath the backup rather than that some
+  // limit of ours was too small.
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: expect.stringContaining('grew past its measured size'),
   });
 });
 
@@ -383,4 +379,103 @@ test('reports a failed swap rather than a created backup', async () => {
     type: 'backup-swap-failed',
     message: 'could not swap',
   });
+});
+
+test('a cancelled copy leaves no partial backup behind', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(err({ type: 'Cancelled' }));
+
+  // No signal here: what is under test is how the orchestration handles a
+  // copy that reports it was cancelled, not where the cancel came from.
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const result = await createBackup({
+    workspace,
+    target,
+    logger,
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+  );
+});
+
+test('cancelling after the copy finishes stops before the manifest is written', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const target = makeTemporaryDirectory();
+  const controller = new AbortController();
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      // The event announcing the last file copied: everything is written but
+      // nothing has been signed or swapped into place yet.
+      if (
+        event.type === 'copy_files' &&
+        event.copiedCount === event.totalCount
+      ) {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+  expect(vi.mocked(writeManifest)).not.toHaveBeenCalled();
+
+  // An unsigned pile of copied files is not a backup, so it is discarded
+  // rather than left where `listBackups` would find it.
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+});
+
+test('a backup already in place survives a cancelled attempt to replace it', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const target = makeTemporaryDirectory();
+
+  const firstResult = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const backupPath = firstResult.unsafeUnwrap().path;
+  const backupContentsBefore = readdirSync(backupPath).sort();
+
+  const controller = new AbortController();
+  const secondResult = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      if (event.type === 'db_snapshot') {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(secondResult.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+
+  // Cancelling replaces nothing: the backup the operator already had is the
+  // backup they still have.
+  expect(readdirSync(backupPath).sort()).toEqual(backupContentsBefore);
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([
+    relative(new BackupRoot(target).pathFor('.'), backupPath),
+  ]);
 });

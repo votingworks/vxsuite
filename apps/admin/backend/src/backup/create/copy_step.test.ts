@@ -1,24 +1,20 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { DEV_MACHINE_ID, LATEST_SOFTWARE_VERSION } from '@votingworks/types';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
-  electionFamousNames2021Fixtures,
-  makeTemporaryDirectory,
-} from '@votingworks/fixtures';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  DEV_MACHINE_ID,
-  LATEST_SOFTWARE_VERSION,
-} from '@votingworks/types';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { createWorkspace, Workspace } from '../../util/workspace.js';
+  addCvrWithBallotImage,
+  makeConfiguredWorkspace,
+  mockDiskSpace,
+} from '../../../test/backup.js';
 import { prepare } from './prepare_step.js';
 import { copy } from './copy_step.js';
-import { ProgressEvent } from './types.js';
+import { ProgressEvent } from '../progress.js';
 
 vi.mock(
   import('@votingworks/backend'),
@@ -31,109 +27,13 @@ vi.mock(
   }
 );
 
-const GENEROUS_AVAILABLE_KB = 1_000_000_000; // 1 TB, i.e. "don't worry about space"
-
 beforeEach(() => {
-  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) =>
-    Promise.resolve(
-      paths.map((path) => ({
-        path,
-        mountpoint: '/',
-        total: GENEROUS_AVAILABLE_KB,
-        used: 0,
-        available: GENEROUS_AVAILABLE_KB,
-      }))
-    )
-  );
+  mockDiskSpace();
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
-
-async function makeConfiguredWorkspace(): Promise<Workspace> {
-  const logger = new BaseLogger(LogSource.VxAdminService);
-  const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
-  const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackage.asFilePath(),
-    electionPackageHash: createHash('sha256')
-      .update(electionPackage.asBuffer())
-      .digest('hex'),
-  });
-  workspace.store.setCurrentElectionId(electionId);
-  return workspace;
-}
-
-/**
- * Adds a single CVR with a ballot image directly via low-level store calls,
- * bypassing the CVR export/import pipeline entirely.
- */
-function addCvrWithBallotImage(
-  workspace: Workspace,
-  { ballotId = 'ballot-1' }: { ballotId?: string } = {}
-): void {
-  const { store } = workspace;
-  const electionId = store.getCurrentElectionId();
-  if (!electionId) throw new Error('workspace has no current election');
-  const electionRecord = store.getElection(electionId);
-  if (!electionRecord) throw new Error('current election not found');
-  const { election } = electionRecord.electionDefinition;
-
-  store.addScannerBatch({
-    batchId: 'batch-1',
-    scannerId: 'scanner-1',
-    label: 'Batch 1',
-    electionId,
-    startedAt: new Date().toISOString(),
-  });
-  store.addCastVoteRecordFileRecord({
-    id: 'cvr-file-1',
-    electionId,
-    isTestMode: false,
-    filename: 'cvrs.jsonl',
-    exportedTimestamp: new Date().toISOString(),
-    sha256Hash: 'hash',
-    scannerIds: new Set(['scanner-1']),
-    pollingPlaceIds: new Set(),
-    batchIds: ['batch-1'],
-  });
-  const result = store.addCastVoteRecordFileEntry({
-    electionId,
-    cvrFileId: 'cvr-file-1',
-    ballotId,
-    cvr: {
-      ballotStyleGroupId: election.ballotStyles[0]!.groupId,
-      batchId: 'batch-1',
-      card: { type: 'bmd' },
-      precinctId: election.precincts[0]!.id,
-      votes: {},
-      votingMethod: 'precinct',
-    },
-    adjudicationFlags: {
-      isBlank: false,
-      hasOvervote: false,
-      hasUndervote: false,
-      hasWriteIn: true,
-      hasMarginalMark: false,
-      hasCrossoverVote: false,
-    },
-  });
-  if (result.isErr()) {
-    throw new Error(`failed to add cvr: ${JSON.stringify(result.err())}`);
-  }
-  const { cvrId: insertedCvrId } = result.ok();
-
-  store.addBallotImage({
-    cvrId: insertedCvrId,
-    electionDefinitionId: election.id,
-    imageData: Buffer.from('fake-front-image-data'),
-    side: 'front',
-  });
-}
 
 test('copies staged files to the backup directory and builds a manifest', async () => {
   const workspace = await makeConfiguredWorkspace();
@@ -152,14 +52,16 @@ test('copies staged files to the backup directory and builds a manifest', async 
   const electionMetadata = assertDefined(
     snapshotStore.getElectionMetadata(electionId)
   );
-  const manifest = await copy({
-    electionId,
-    source,
-    store: snapshotStore,
-    backup: backupPath,
-    logger: mockBaseLogger({ fn: vi.fn }),
-    onProgressEvent: (event) => progressEvents.push(event),
-  });
+  const manifest = (
+    await copy({
+      electionId,
+      source,
+      store: snapshotStore,
+      backup: backupPath,
+      logger: mockBaseLogger({ fn: vi.fn }),
+      onProgressEvent: (event) => progressEvents.push(event),
+    })
+  ).unsafeUnwrap();
 
   // Every staged file landed at `<backup>/<relativePath>` with the exact
   // bytes it had in the staging area, and the manifest describes it
@@ -236,15 +138,17 @@ async function copyWithProgress(
   } = prepareResult.unsafeUnwrap();
   const events: ProgressEvent[] = [];
 
-  await copy({
-    electionId,
-    source,
-    store,
-    backup: join(makeTemporaryDirectory(), 'backup'),
-    logger: mockBaseLogger({ fn: vi.fn }),
-    progressEventIntervalBytes,
-    onProgressEvent: (event) => events.push(event),
-  });
+  (
+    await copy({
+      electionId,
+      source,
+      store,
+      backup: join(makeTemporaryDirectory(), 'backup'),
+      logger: mockBaseLogger({ fn: vi.fn }),
+      progressEventIntervalBytes,
+      onProgressEvent: (event) => events.push(event),
+    })
+  ).unsafeUnwrap();
 
   const { fileCount } = source;
   await source.cleanup();
@@ -307,4 +211,66 @@ test('throttles progress to the given interval', async () => {
   // An interval no file can cross leaves only the events that bracket the copy
   // and the one announcing each file.
   expect(events).toHaveLength(fileCount + 2);
+});
+
+test('reports a staged file that cannot be read', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+
+  const prepareResult = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
+
+  // The staging area holds links to the workspace's own files, which a failing
+  // disk can stop producing between being staged and being copied.
+  rmSync(assertDefined(source.listStagedFiles()[0]).path);
+
+  const result = await copy({
+    electionId,
+    source,
+    store: snapshotStore,
+    backup: join(makeTemporaryDirectory(), 'backup'),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toMatchObject({ type: 'OpenFileError' });
+
+  await source.cleanup();
+});
+
+test('stops copying when cancelled between files', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+
+  const prepareResult = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
+  const backup = join(makeTemporaryDirectory(), 'backup');
+  const controller = new AbortController();
+
+  const result = await copy({
+    electionId,
+    source,
+    store: snapshotStore,
+    backup,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      // Abort once the first file has landed, so the copy stops with files
+      // still to go rather than after it would have finished anyway.
+      if (event.type === 'copy_files' && event.copiedCount === 1) {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({ type: 'Cancelled' });
+
+  await source.cleanup();
 });

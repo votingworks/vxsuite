@@ -155,6 +155,11 @@ export enum LogEventId {
   ElectionReportPrinted = 'election-report-printed',
   WriteInAdjudicated = 'write-in-adjudicated',
   QualifiedWriteInCandidateUpdated = 'qualified-write-in-candidate-updated',
+  BackupCreateInit = 'backup-create-init',
+  BackupCreateComplete = 'backup-create-complete',
+  BackupRestoreInit = 'backup-restore-init',
+  BackupRestoreComplete = 'backup-restore-complete',
+  BackupRestoreMachineMismatch = 'backup-restore-machine-mismatch',
   ClearingBallotData = 'clear-ballot-data-init',
   ClearedBallotData = 'clear-ballot-data-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
@@ -871,6 +876,47 @@ const QualifiedWriteInCandidateUpdated: LogDetails = {
   eventId: LogEventId.QualifiedWriteInCandidateUpdated,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User updated a qualified write-in candidate.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupCreateInit: LogDetails = {
+  eventId: LogEventId.BackupCreateInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Creating a backup of the machine data is initiated.',
+  defaultMessage: 'User initiated creating a backup...',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupCreateComplete: LogDetails = {
+  eventId: LogEventId.BackupCreateComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Creating a backup completed, success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupRestoreInit: LogDetails = {
+  eventId: LogEventId.BackupRestoreInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Restoring the machine data from a backup is initiated.',
+  defaultMessage: 'User initiated restoring from a backup...',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupRestoreComplete: LogDetails = {
+  eventId: LogEventId.BackupRestoreComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Restoring from a backup completed, success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupRestoreMachineMismatch: LogDetails = {
+  eventId: LogEventId.BackupRestoreMachineMismatch,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    "User is restoring a backup whose machine ID differs from the current machine's ID.",
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1736,6 +1782,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return WriteInAdjudicated;
     case LogEventId.QualifiedWriteInCandidateUpdated:
       return QualifiedWriteInCandidateUpdated;
+    case LogEventId.BackupCreateInit:
+      return BackupCreateInit;
+    case LogEventId.BackupCreateComplete:
+      return BackupCreateComplete;
+    case LogEventId.BackupRestoreInit:
+      return BackupRestoreInit;
+    case LogEventId.BackupRestoreComplete:
+      return BackupRestoreComplete;
+    case LogEventId.BackupRestoreMachineMismatch:
+      return BackupRestoreMachineMismatch;
     case LogEventId.ClearingBallotData:
       return ClearingBallotData;
     case LogEventId.ClearedBallotData:

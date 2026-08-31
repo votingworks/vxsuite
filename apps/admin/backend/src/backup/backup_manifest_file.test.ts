@@ -1,7 +1,6 @@
-import { writeFileSync } from 'node:fs';
+import { truncateSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { z } from 'zod/v4';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { BackupManifestFile } from './backup_manifest_file.js';
 import { BACKUP_MANIFEST_VERSION } from './backup_manifest.js';
@@ -43,9 +42,10 @@ test('returns an error when the manifest is missing', async () => {
   const manifestFile = new BackupManifestFile(join(dir, 'manifest.json'));
 
   const result = await manifestFile.readManifest();
-  expect(result.unsafeUnwrapErr()).toEqual(
-    expect.objectContaining({ type: 'OpenFileError' })
-  );
+  expect(result.unsafeUnwrapErr()).toMatchObject({
+    type: 'read-failed',
+    message: expect.stringContaining('ENOENT'),
+  });
 });
 
 test('returns an error when the manifest is not valid JSON', async () => {
@@ -54,14 +54,61 @@ test('returns an error when the manifest is not valid JSON', async () => {
   writeFileSync(manifestPath, 'not json');
 
   const result = await new BackupManifestFile(manifestPath).readManifest();
-  expect(result.unsafeUnwrapErr()).toBeInstanceOf(SyntaxError);
+  expect(result.unsafeUnwrapErr()).toMatchObject({ type: 'invalid-manifest' });
 });
 
 test('returns an error when the manifest does not match the schema', async () => {
   const dir = makeTemporaryDirectory();
   const manifestPath = join(dir, 'manifest.json');
-  writeFileSync(manifestPath, JSON.stringify({ version: 'invalid' }));
+  writeFileSync(
+    manifestPath,
+    JSON.stringify({ version: BACKUP_MANIFEST_VERSION, machineId: 42 })
+  );
 
   const result = await new BackupManifestFile(manifestPath).readManifest();
-  expect(result.unsafeUnwrapErr()).toBeInstanceOf(z.ZodError);
+  expect(result.unsafeUnwrapErr()).toMatchObject({ type: 'invalid-manifest' });
+});
+
+test('a manifest from another version is its own answer, not a parse failure', async () => {
+  const dir = makeTemporaryDirectory();
+  const manifestPath = join(dir, 'manifest.json');
+  const futureVersion = BACKUP_MANIFEST_VERSION + 1;
+  writeFileSync(
+    manifestPath,
+    validManifestJson.replace(
+      `"version":${BACKUP_MANIFEST_VERSION}`,
+      `"version":${futureVersion}`
+    )
+  );
+
+  const result = await new BackupManifestFile(manifestPath).readManifest();
+  expect(result.unsafeUnwrapErr()).toEqual({
+    type: 'unsupported-version',
+    version: futureVersion,
+    message: expect.stringContaining(
+      `Expected backup version ${BACKUP_MANIFEST_VERSION}`
+    ),
+  });
+});
+
+test('a missing version field is a malformed manifest, not another version', async () => {
+  const dir = makeTemporaryDirectory();
+  const manifestPath = join(dir, 'manifest.json');
+  writeFileSync(manifestPath, JSON.stringify({ machineId: 'VX-00-001' }));
+
+  const result = await new BackupManifestFile(manifestPath).readManifest();
+  expect(result.unsafeUnwrapErr()).toMatchObject({ type: 'invalid-manifest' });
+});
+
+test('a manifest too large to be one of ours is refused before it is read', async () => {
+  const dir = makeTemporaryDirectory();
+  const manifestPath = join(dir, 'manifest.json');
+  writeFileSync(manifestPath, validManifestJson);
+  truncateSync(manifestPath, 100_000_001);
+
+  const result = await new BackupManifestFile(manifestPath).readManifest();
+  expect(result.unsafeUnwrapErr()).toMatchObject({
+    type: 'read-failed',
+    message: expect.stringContaining('100000000'),
+  });
 });
