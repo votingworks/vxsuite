@@ -31,6 +31,14 @@ export interface Streams {
  */
 export interface MainContext extends Streams {
   logger?: BaseLogger;
+
+  /**
+   * When given, aborting this signal cancels a `create` or `restore` in
+   * progress. The entry point wires it to `SIGINT`, so Ctrl-C stops the
+   * command by discarding what it had written rather than by killing the
+   * process partway through writing it.
+   */
+  signal?: AbortSignal;
 }
 
 interface BackupArguments {
@@ -42,11 +50,17 @@ interface BackupArguments {
 }
 
 /**
+ * Exit code for a command the operator cancelled, following the shell
+ * convention of 128 plus the signal number for `SIGINT`.
+ */
+export const CANCELLED_EXIT_CODE = 130;
+
+/**
  * Entry point for the `backups` CLI.
  */
 export async function main(
   argv: readonly string[],
-  { stdin, stdout, stderr, logger: providedLogger }: MainContext
+  { stdin, stdout, stderr, logger: providedLogger, signal }: MainContext
 ): Promise<number> {
   const logger = providedLogger ?? new BaseLogger(LogSource.VxAdminService);
   const parser = yargs()
@@ -138,13 +152,13 @@ export async function main(
 
   switch (args._[0]) {
     case 'create':
-      return await create(args, { stdin, stdout, stderr, logger });
+      return await create(args, { stdin, stdout, stderr, logger, signal });
     case 'validate':
       return await validate(args, { stdin, stdout, stderr });
     case 'list':
       return await list(args, { stdin, stdout, stderr });
     case 'restore':
-      return await restore(args, { stdin, stdout, stderr, logger });
+      return await restore(args, { stdin, stdout, stderr, logger, signal });
     /* istanbul ignore next: `strict` rejects unknown commands */
     default:
       throw new Error(`Unknown command: ${args._[0]}`);
@@ -211,7 +225,12 @@ function openWorkspaceIfPresent(
  */
 async function create(
   args: BackupArguments,
-  { stdout, stderr, logger }: Streams & { logger: BaseLogger }
+  {
+    stdout,
+    stderr,
+    logger,
+    signal,
+  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.target === 'string');
@@ -236,13 +255,21 @@ async function create(
     workspace,
     target: args.target,
     logger,
+    signal,
     onProgressEvent: (event) => display.update(displayProgress(event)),
   });
 
   if (createBackupResult.isErr()) {
-    // Leave the bar where it stopped: it says which step failed.
+    const error = createBackupResult.err();
+    // Leave the bar where it stopped: it says which step was interrupted.
     display.finish();
-    stderr.write(`Error: ${createBackupResult.err().message}\n`);
+
+    if (error.type === 'cancelled') {
+      stderr.write('Cancelled. No backup was written.\n');
+      return CANCELLED_EXIT_CODE;
+    }
+
+    stderr.write(`Error: ${error.message}\n`);
     return 1;
   }
 
@@ -338,7 +365,12 @@ async function list(
  */
 async function restore(
   args: BackupArguments,
-  { stdout, stderr, logger }: Streams & { logger: BaseLogger }
+  {
+    stdout,
+    stderr,
+    logger,
+    signal,
+  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.backup === 'string');
@@ -354,13 +386,21 @@ async function restore(
     backup: args.backup,
     workspace: args.workspace,
     logger,
+    signal,
     onProgressEvent: (event) => display.update(displayProgress(event)),
   });
 
   if (restoreBackupResult.isErr()) {
-    // Leave the bar where it stopped: it says which step failed.
+    const error = restoreBackupResult.err();
+    // Leave the bar where it stopped: it says which step was interrupted.
     display.finish();
-    stderr.write(`Error: ${restoreBackupResult.err().message}\n`);
+
+    if (error.type === 'cancelled') {
+      stderr.write('Cancelled. No backup was restored.\n');
+      return CANCELLED_EXIT_CODE;
+    }
+
+    stderr.write(`Error: ${error.message}\n`);
     return 1;
   }
 

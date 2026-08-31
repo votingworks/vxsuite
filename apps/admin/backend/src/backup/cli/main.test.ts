@@ -28,7 +28,7 @@ import {
   BackupManifest,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
-import { main } from './main.js';
+import { CANCELLED_EXIT_CODE, main } from './main.js';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 
 interface RunResult {
@@ -43,7 +43,10 @@ interface MockStreams {
   stderr: MockWritable;
 }
 
-async function run(args: string[]): Promise<RunResult> {
+async function run(
+  args: string[],
+  { signal }: { signal?: AbortSignal } = {}
+): Promise<RunResult> {
   const streams: MockStreams = {
     stdin: mockReadable(),
     stdout: mockWritable(),
@@ -54,6 +57,7 @@ async function run(args: string[]): Promise<RunResult> {
   const code = await main(['node', 'backups', ...args], {
     ...streams,
     logger: mockBaseLogger({ fn: vi.fn }),
+    signal,
   });
   return {
     code,
@@ -473,4 +477,47 @@ test('restore refuses a configured workspace', async () => {
   ]);
   expect(code).toEqual(1);
   expect(stderr).toContain('Error: Expected workspace to be unconfigured');
+});
+
+test('create reports a cancelled backup rather than a failed one', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+
+  const { code, stdout, stderr } = await run(
+    ['create', '--workspace', source.path, '--target', target],
+    { signal: AbortSignal.abort() }
+  );
+
+  expect(code).toEqual(CANCELLED_EXIT_CODE);
+  expect(stderr).toContain('Cancelled. No backup was written.');
+  expect(stdout).toEqual('');
+  expect(readdirSync(target)).toEqual([]);
+});
+
+test('restore cancelled before it starts leaves the workspace as it was', async () => {
+  const logger = new BaseLogger(LogSource.VxAdminService);
+  const source = await makeWorkspace(logger);
+  const target = makeTemporaryDirectory();
+  expect(
+    (await run(['create', '--workspace', source.path, '--target', target])).code
+  ).toEqual(0);
+  const backup = join(
+    target,
+    'vxadmin-backups',
+    'franklin-county_lincoln-municipal-general-election_dc2aa66c40'
+  );
+
+  const workspace = makeTemporaryDirectory();
+  writeFileSync(join(workspace, 'already-here'), 'from before the restore');
+
+  const { code, stdout, stderr } = await run(
+    ['restore', '--workspace', workspace, '--backup', backup],
+    { signal: AbortSignal.abort() }
+  );
+
+  expect(code).toEqual(CANCELLED_EXIT_CODE);
+  expect(stderr).toContain('Cancelled. No backup was restored.');
+  expect(stdout).toEqual('');
+  expect(readdirSync(workspace)).toEqual(['already-here']);
 });
