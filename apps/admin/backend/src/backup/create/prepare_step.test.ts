@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   unlinkSync,
@@ -10,7 +11,10 @@ import {
 } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { mkdtemp } from 'node:fs/promises';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { err } from '@votingworks/basics';
+import { exchangePaths } from '@votingworks/fs';
 import {
   addCvrWithBallotImage,
   GENEROUS_AVAILABLE_KB,
@@ -22,6 +26,25 @@ import { Store } from '../../store.js';
 import { BackupStagingArea } from '../staging_area.js';
 import { FileBackedMachineModeController } from '../../machine_mode.js';
 import { prepare } from './prepare_step.js';
+
+vi.mock(
+  import('node:fs/promises'),
+  async (importActual): Promise<typeof import('node:fs/promises')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      mkdtemp: vi.fn(actual.mkdtemp) as unknown as typeof mkdtemp,
+    };
+  }
+);
+
+vi.mock(
+  import('@votingworks/fs'),
+  async (importActual): Promise<typeof import('@votingworks/fs')> => {
+    const actual = await importActual();
+    return { ...actual, exchangePaths: vi.fn(actual.exchangePaths) };
+  }
+);
 
 vi.mock(
   import('@votingworks/backend'),
@@ -487,4 +510,72 @@ test('refuses to back up a workspace belonging to a client machine', async () =>
       'Only a VxAdmin in host mode can be backed up or restored, but this one is in client mode',
   });
   expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses a target whose filesystem cannot swap a backup into place', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  // What FAT32 does: `renameat2(2)` with `RENAME_EXCHANGE` is refused, which
+  // only the *second* backup to a drive would otherwise discover.
+  vi.mocked(exchangePaths).mockReturnValueOnce(
+    err({ code: 'EINVAL', message: 'EINVAL: invalid argument, renameexchange' })
+  );
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'target-cannot-swap',
+    path: target,
+    message: expect.stringContaining('cannot hold backups'),
+  });
+
+  // Refused before the database was snapshotted, which is the point.
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses a target that cannot be written to at all', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  // A read-only drive, or one removed between being checked and being written
+  // to: the directories the check would exchange cannot even be created. The
+  // failure has to be mocked because permissions cannot produce it — CI runs
+  // as root, for whom a directory with no write bit is still writable.
+  vi.mocked(mkdtemp).mockRejectedValueOnce(
+    Object.assign(new Error('EROFS: read-only file system, mkdtemp'), {
+      code: 'EROFS',
+    })
+  );
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toMatchObject({ type: 'target-cannot-swap' });
+});
+
+test('leaves nothing behind after checking that the target can swap', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { source, snapshotStore } = result.unsafeUnwrap();
+
+  // The directories the check exchanged are gone, so a drive that has never
+  // been backed up to still looks that way.
+  expect(readdirSync(target)).toEqual([]);
+
+  snapshotStore.close();
+  await source.cleanup();
 });

@@ -1,5 +1,6 @@
 import { Stats } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import {
   assertDefined,
   err,
@@ -10,6 +11,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { exchangePaths } from '@votingworks/fs';
 import { Id } from '@votingworks/types';
 import { Store } from '../../store.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
@@ -45,6 +47,11 @@ export type PrepareError =
     }
   | {
       type: 'not-directory';
+      path: string;
+      message: string;
+    }
+  | {
+      type: 'target-cannot-swap';
       path: string;
       message: string;
     }
@@ -119,6 +126,64 @@ export interface PreparedBackup {
 }
 
 /**
+ * Prefix for the throwaway directory {@link checkTargetCanSwap} works in. Its
+ * leading dot keeps it out of the way of anything listing the drive, and
+ * `mkdtemp` completes it with enough randomness that two runs never collide.
+ */
+const SWAP_CHECK_PREFIX = '.vx-swap-check-';
+
+/**
+ * Checks that the target can have a finished backup swapped into place, which
+ * is how the last backup is replaced without either one ever being missing.
+ * `renameat2(2)` with `RENAME_EXCHANGE` is not supported on every filesystem —
+ * FAT32 refuses it — and only a target that already holds a backup would
+ * exercise it, so the first backup to a drive would succeed and every one
+ * after it would fail. Two throwaway directories answer the question outright,
+ * rather than a copy of the whole database finding out at the end.
+ */
+async function checkTargetCanSwap(
+  target: string
+): Promise<Result<void, PrepareError>> {
+  // A directory of its own, so that whatever a killed run left behind is never
+  // mistaken for a target that cannot hold backups. `target` has just been
+  // confirmed to be a directory, so the two inside it need no parents created.
+  let checkPath: string | undefined;
+
+  try {
+    checkPath = await mkdtemp(join(target, SWAP_CHECK_PREFIX));
+    const a = join(checkPath, 'a');
+    const b = join(checkPath, 'b');
+    await mkdir(a);
+    await mkdir(b);
+
+    const exchangeResult = exchangePaths(a, b);
+    if (exchangeResult.isErr()) {
+      return err({
+        type: 'target-cannot-swap',
+        path: target,
+        message: `${target} cannot hold backups: ${
+          exchangeResult.err().message
+        }`,
+      });
+    }
+
+    return ok();
+  } catch (error) {
+    // A target that cannot even be written to is one no backup can be swapped
+    // into, so it fails here rather than after the copy.
+    return err({
+      type: 'target-cannot-swap',
+      path: target,
+      message: `${target} cannot hold backups: ${extractErrorMessage(error)}`,
+    });
+  } finally {
+    if (checkPath) {
+      await rm(checkPath, { recursive: true, force: true });
+    }
+  }
+}
+
+/**
  * Prepares the backup creation to take place by ensuring the source workspace
  * and target locations are known and able to fit the data to be copied. Stages
  * the data to be copied, including a database snapshot, returning a reference
@@ -160,6 +225,11 @@ export async function prepare(
       path: target,
       message: `${target} is not a directory`,
     });
+  }
+
+  const swapResult = await checkTargetCanSwap(target);
+  if (swapResult.isErr()) {
+    return swapResult;
   }
 
   // Claim the staging area first. It reclaims what a killed run left behind,
