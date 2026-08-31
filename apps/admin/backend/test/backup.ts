@@ -8,7 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Id } from '@votingworks/types';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, Workspace } from '../src/util/workspace.js';
 import { createBackup } from '../src/backup/create/index.js';
@@ -169,7 +169,7 @@ export async function makeBackup(): Promise<Backup> {
     await createBackup({
       workspace: source,
       target: makeTemporaryDirectory(),
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).unsafeUnwrap();
   return new Backup(created.path);

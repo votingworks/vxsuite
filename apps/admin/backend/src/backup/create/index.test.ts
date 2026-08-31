@@ -4,7 +4,7 @@ import { dirname, join, relative } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { LogEventId, mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, mockLogger } from '@votingworks/logging';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -80,7 +80,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   addCvrWithBallotImage(workspace, { ballotId: 'ballot-1' });
 
   const target = makeTemporaryDirectory();
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
 
   // Installed after the workspace exists so the last store built is the
   // snapshot's.
@@ -97,12 +97,12 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   // and its outcome belong in the audit log.
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupCreateInit,
-    'system',
+    'system_administrator',
     expect.objectContaining({ message: expect.stringContaining(target) })
   );
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupCreateComplete,
-    'system',
+    'system_administrator',
     expect.objectContaining({
       disposition: 'success',
       message: expect.stringContaining(firstCreated.path),
@@ -200,7 +200,7 @@ test('resolves a relative target path', async () => {
   const result = await createBackup({
     workspace,
     target: relative(process.cwd(), target),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // The backup landed in the target, reported at its absolute path.
@@ -228,7 +228,7 @@ test('reports an error when copying the backup fails', async () => {
   const target = makeTemporaryDirectory();
   vi.mocked(copy).mockRejectedValueOnce(outOfSpaceError());
 
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   const result = await createBackup({
     workspace,
     target,
@@ -241,7 +241,7 @@ test('reports an error when copying the backup fails', async () => {
   });
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupCreateComplete,
-    'system',
+    'system_administrator',
     expect.objectContaining({
       disposition: 'failure',
       errorType: 'backup-write-failed',
@@ -259,7 +259,7 @@ test('reports a backup file that could not be copied, leaving no partial backup'
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -279,7 +279,7 @@ test('reports a staged file that outgrew the size it was measured at', async () 
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // A staged file is copied under the size staging measured for it, so this
@@ -299,7 +299,7 @@ test('reports an error when writing the manifest fails, leaving no partial backu
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -319,7 +319,7 @@ test('fails fast when writing the backup fails unexpectedly', async () => {
     createBackup({
       workspace,
       target,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).rejects.toThrow('kaboom');
 });
@@ -347,7 +347,7 @@ test('reports an error when clearing a leftover in-progress backup fails', async
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -372,7 +372,7 @@ test('reports a failed swap rather than a created backup', async () => {
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -388,7 +388,7 @@ test('a cancelled copy leaves no partial backup behind', async () => {
 
   // No signal here: what is under test is how the orchestration handles a
   // copy that reports it was cancelled, not where the cancel came from.
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   const result = await createBackup({
     workspace,
     target,
@@ -402,7 +402,7 @@ test('a cancelled copy leaves no partial backup behind', async () => {
   expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupCreateComplete,
-    'system',
+    'system_administrator',
     expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
   );
 });
@@ -416,7 +416,7 @@ test('cancelling after the copy finishes stops before the manifest is written', 
   const result = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent(event) {
       // The event announcing the last file copied: everything is written but
@@ -449,7 +449,7 @@ test('a backup already in place survives a cancelled attempt to replace it', asy
   const firstResult = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const backupPath = firstResult.unsafeUnwrap().path;
   const backupContentsBefore = readdirSync(backupPath).sort();
@@ -458,7 +458,7 @@ test('a backup already in place survives a cancelled attempt to replace it', asy
   const secondResult = await createBackup({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent(event) {
       if (event.type === 'db_snapshot') {

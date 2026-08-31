@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { err, Result } from '@votingworks/basics';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { Logger, LogEventId } from '@votingworks/logging';
 import { copyBackupFiles } from './copy_step.js';
 import { openBackup, vetManifest } from './open_step.js';
 import {
@@ -47,11 +47,11 @@ export async function restoreBackup(
     backup: resolve(rawOptions.backup),
   };
   const { logger } = options;
-  logger.log(LogEventId.BackupRestoreInit, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackupRestoreInit, {
     message: `Restoring a backup from ${options.backup}…`,
   });
 
-  return logRestoreResult(logger, await tryRestoreBackup(options));
+  return await logRestoreResult(logger, await tryRestoreBackup(options));
 }
 
 /**
@@ -152,18 +152,18 @@ async function tryRestoreBackup(
   }
 }
 
-function logRestoreResult(
-  logger: BaseLogger,
+async function logRestoreResult(
+  logger: Logger,
   result: Result<void, RestoreError>
-): Result<void, RestoreError> {
+): Promise<Result<void, RestoreError>> {
   if (result.isOk()) {
-    logger.log(LogEventId.BackupRestoreComplete, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackupRestoreComplete, {
       disposition: 'success',
       message: 'Backup restored successfully.',
     });
   } else {
     const error = result.err();
-    logger.log(LogEventId.BackupRestoreComplete, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackupRestoreComplete, {
       disposition: 'failure',
       errorType: error.type,
       message: `Failed to restore backup: ${error.message}`,

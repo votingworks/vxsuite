@@ -6,7 +6,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockLogger } from '@votingworks/logging';
 import { ok } from '@votingworks/basics';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -52,7 +52,7 @@ test('writes a manifest alongside a signature that authenticates it', async () =
   await writeManifest({
     manifest,
     backup: backupPath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     onProgressEvent: (event) => progressEvents.push(event),
   });
 
@@ -85,7 +85,7 @@ test('the signature does not authenticate a tampered-with manifest', async () =>
   await writeManifest({
     manifest: makeManifest(),
     backup: backupPath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   const manifestPath = join(backupPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME);

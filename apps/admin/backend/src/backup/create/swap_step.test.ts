@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { err, ok, Result } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockLogger } from '@votingworks/logging';
 import { exchangePaths, syncFilesystem, SyscallError } from '@votingworks/fs';
 import { swap } from './swap_step.js';
 import { ProgressEvent } from '../progress.js';
@@ -40,7 +40,7 @@ test('renames the in-progress backup into place when there is none yet', async (
       inProgressBackup,
       target,
       backup,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       onProgressEvent: (event) => progressEvents.push(event),
     })
   ).toEqual(ok());
@@ -67,7 +67,7 @@ test('exchanges an existing backup for the in-progress one and discards it', asy
       inProgressBackup,
       target,
       backup,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).toEqual(ok());
 
@@ -85,7 +85,7 @@ test('returns an error when the exchange fails', async () => {
     inProgressBackup: join(target, 'election-in-progress'),
     target,
     backup,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(swapResult.err()).toEqual({
@@ -124,7 +124,7 @@ test('flushes the backup to the device before and after swapping it in', async (
       inProgressBackup,
       target,
       backup,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).toEqual(ok());
 
@@ -149,7 +149,7 @@ test('returns an error when the flush before the swap fails', async () => {
     inProgressBackup,
     target,
     backup,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(swapResult.err()).toEqual({
@@ -180,7 +180,7 @@ test('returns an error when the flush after the swap fails', async () => {
     inProgressBackup,
     target,
     backup,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(swapResult.err()).toEqual({

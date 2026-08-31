@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { mkdtemp } from 'node:fs/promises';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { err } from '@votingworks/basics';
@@ -98,7 +98,7 @@ test('reclaims a killed run’s staging area before measuring free space', async
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { source, snapshotStore: store } = result.unsafeUnwrap();
 
@@ -124,7 +124,7 @@ test('refuses while a write transaction is open on the workspace', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -153,7 +153,7 @@ test('refuses when a write begins after the snapshot is cleared to start', async
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -174,7 +174,7 @@ test('refuses when a backup of the workspace is already running', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -192,7 +192,7 @@ test('fails when no election is configured', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -208,7 +208,7 @@ test('fails when the backup target directory does not exist', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -226,7 +226,7 @@ test('fails when the backup target is not a directory', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -262,7 +262,7 @@ test('fails when the backup target goes away while staging', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -293,7 +293,7 @@ test('fails fast when the target disk space check fails for another reason', asy
     prepare({
       workspace,
       target,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).rejects.toThrow('df is broken');
 });
@@ -307,7 +307,7 @@ test('fails with insufficient-workspace-storage when the workspace volume is too
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -328,7 +328,7 @@ test('fails with insufficient-target-storage when the target volume is too full'
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({ type: 'insufficient-target-storage' });
@@ -347,7 +347,7 @@ test('stages a database snapshot, election package, and ballot images', async ()
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     onProgressEvent: (event) => progressEvents.push(event),
   });
 
@@ -381,7 +381,7 @@ test('fails loudly when a referenced ballot image is missing from disk', async (
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -396,7 +396,7 @@ test('cancels before doing any work when the signal is already aborted', async (
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: AbortSignal.abort(),
   });
 
@@ -431,7 +431,7 @@ test('cancels before snapshotting the database', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
   });
 
@@ -449,7 +449,7 @@ test('cancels partway through snapshotting the database', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
       if (event.type === 'db_snapshot') {
@@ -475,7 +475,7 @@ test('cancels after staging files, before measuring the target', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
       if (event.type === 'staging_files') {
@@ -499,7 +499,7 @@ test('refuses to back up a workspace belonging to a client machine', async () =>
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // A client machine keeps whatever database it had before it was switched, so
@@ -525,7 +525,7 @@ test('refuses a target whose filesystem cannot swap a backup into place', async 
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -555,7 +555,7 @@ test('refuses a target that cannot be written to at all', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({ type: 'target-cannot-swap' });
@@ -568,7 +568,7 @@ test('leaves nothing behind after checking that the target can swap', async () =
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { source, snapshotStore } = result.unsafeUnwrap();
 

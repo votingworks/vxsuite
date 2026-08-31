@@ -1,5 +1,5 @@
 import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { Logger, LogEventId } from '@votingworks/logging';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import { getMachineConfig } from '../../machine_config.js';
 import { AuthenticatedBackup } from '../authenticated_backup.js';
@@ -37,7 +37,7 @@ export async function openBackup(
  */
 export async function vetManifest(
   backup: AuthenticatedBackup,
-  logger: BaseLogger
+  logger: Logger
 ): Promise<Result<BackupManifest, RestoreError>> {
   const readManifestResult = await backup.readManifest();
 
@@ -79,7 +79,7 @@ export async function vetManifest(
 
   const { machineId } = getMachineConfig();
   if (manifest.machineId !== machineId) {
-    logger.log(LogEventId.BackupRestoreMachineMismatch, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackupRestoreMachineMismatch, {
       backupManifestMachineId: manifest.machineId,
       machineId,
       message: `Backup was created by ${manifest.machineId} which does not match ${machineId}`,

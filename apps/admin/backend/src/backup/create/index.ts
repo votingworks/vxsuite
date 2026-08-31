@@ -78,20 +78,20 @@ export async function createBackup(
     target: resolve(rawOptions.target),
   };
   const { logger } = options;
-  logger.log(LogEventId.BackupCreateInit, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackupCreateInit, {
     message: `Creating a backup at ${options.target}...`,
   });
 
   const result = await tryCreateBackup(options);
 
   if (result.isOk()) {
-    logger.log(LogEventId.BackupCreateComplete, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackupCreateComplete, {
       disposition: 'success',
       message: `Backup created successfully at ${result.ok().path}.`,
     });
   } else {
     const error = result.err();
-    logger.log(LogEventId.BackupCreateComplete, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackupCreateComplete, {
       disposition: 'failure',
       errorType: error.type,
       message: `Failed to create backup: ${error.message}`,
