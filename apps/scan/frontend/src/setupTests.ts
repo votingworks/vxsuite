@@ -2,7 +2,7 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { afterAll, beforeAll, expect } from 'vitest';
+import { afterAll, beforeAll, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library.js';
@@ -16,3 +16,7 @@ globalThis.TextEncoder = TextEncoder;
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+afterAll(() => {
+  vi.useRealTimers();
+});

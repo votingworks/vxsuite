@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { MIN_TIME_TO_UNCONFIGURE_MACHINE_MS } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen.js';
@@ -21,6 +22,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -64,6 +66,15 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 
   // we are redirected to the dashboard
   expect(history.location.pathname).toEqual('/');
+
+  // Without this, UnconfigureMachineButton's delayed close lands after this
+  // file's jsdom environment is torn down.
+  await vi.waitFor(
+    () => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    },
+    { timeout: MIN_TIME_TO_UNCONFIGURE_MACHINE_MS * 2 }
+  );
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
@@ -97,8 +108,6 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-
-  vi.useRealTimers();
 });
 
 test('shows a polling place picker when the election has polling places', async () => {

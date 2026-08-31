@@ -39,3 +39,7 @@ if (typeof globalThis.PointerEvent === 'undefined') {
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+afterAll(() => {
+  vi.useRealTimers();
+});

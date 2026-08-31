@@ -1,6 +1,6 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
@@ -33,3 +33,7 @@ globalThis.TextEncoder = TextEncoder;
 if (typeof globalThis.PointerEvent === 'undefined') {
   globalThis.PointerEvent = MouseEvent as typeof PointerEvent;
 }
+
+afterAll(() => {
+  vi.useRealTimers();
+});
