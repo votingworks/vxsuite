@@ -35,7 +35,7 @@ Optional flags:
 
 ### Saved Fixtures
 
-To regenerate the saved fixtures in [libs/fixtures](../libs/fixtures), run:
+To regenerate the saved fixtures in [libs/fixtures](../fixtures), run:
 
 ```bash
 pnpm generate-cvr-fixtures
@@ -86,8 +86,7 @@ are optional and have default values.
 
 A command-line tool for generating election packages and elections with grid
 layouts and translations. Follow the instructions to setup Google Cloud account
-authentication [here](/../backend/src/language_and_audio/README.md) before
-using.
+authentication [here](../backend/src/language_and_audio/README.md) before using.
 
 ```bash
 ./bin/generate-election-package -e path/to/base-election-definition.json -o path/to/output-directory

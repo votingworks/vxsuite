@@ -28,8 +28,8 @@ failure. If not specified the disposition will be n/a.
 
 Each log has its own entry in the `LogEventId` enum and corresponding
 `LogDetails`. These types are specified in
-[`config/log_event_details.toml`](config/log_event_details.toml). Resulting
-TypeScript types and Rust enums are found in the generated files
+[`log_event_details.toml`](log_event_details.toml). Resulting TypeScript types
+and Rust enums are found in the generated files
 [log_event_enums.ts](src/log_event_enums.ts) and
 [log_event_enums.rs](types-rust/src/log_event_enums.rs) respectively.
 
@@ -44,8 +44,8 @@ disposition.
 You can optionally provide a `defaultMessage` for a log which will be the
 message included on the log line if one is not specified in the call to `log`.
 
-Adding a log event type is similar to adding a log event, but there are different
-fields to add.
+Adding a log event type is similar to adding a log event, but there are
+different fields to add.
 
 ## Generating TypeScript and Rust types
 
