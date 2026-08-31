@@ -4,6 +4,7 @@ import { IO } from '../types';
 import { validateMonorepo, ValidationIssue } from './validation';
 import * as cargo from './validation/cargo';
 import * as circleci from './validation/circleci';
+import * as markdownLinks from './validation/markdown_links';
 import * as pkgs from './validation/packages';
 import * as tsconfig from './validation/tsconfig';
 import * as turbo from './validation/turbo';
@@ -139,6 +140,14 @@ export async function main({ stderr }: IO): Promise<number> {
       case turbo.ValidationIssueKind.MissingCargoBinaryOutput:
         stderr.write(
           `${issue.packageDir}: Cargo binary "${issue.binaryName}" is not a turbo output. Add it to build:self outputs in ${issue.packageDir}/turbo.json, e.g. "outputs": ["build/**", "${issue.expectedOutput}"]\n`
+        );
+        break;
+
+      case markdownLinks.ValidationIssueKind.BrokenLink:
+        stderr.write(
+          `${relative(cwd, issue.markdownPath)}:${issue.line}: broken link to ${
+            issue.link
+          }\n`
         );
         break;
 

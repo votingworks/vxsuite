@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import * as cargo from './cargo';
 import * as circleci from './circleci';
+import * as markdownLinks from './markdown_links';
 import * as pkgs from './packages';
 import * as tsconfig from './tsconfig';
 import * as turbo from './turbo';
@@ -12,7 +13,8 @@ export type ValidationIssue =
   | tsconfig.ValidationIssue
   | circleci.ValidationIssue
   | cargo.ValidationIssue
-  | turbo.ValidationIssue;
+  | turbo.ValidationIssue
+  | markdownLinks.ValidationIssue;
 
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const root = join(__dirname, '../../../..');
@@ -48,4 +50,5 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   yield* circleci.checkConfig(workspacePackages);
   yield* cargo.checkConfig(root);
   yield* turbo.checkConfig(root, workspacePackages);
+  yield* markdownLinks.checkLinks(root);
 }
