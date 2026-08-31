@@ -1,10 +1,15 @@
 import { afterEach, expect, test, vi } from 'vitest';
+import { Buffer } from 'node:buffer';
 import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import { makeTemporaryFile } from '@votingworks/fixtures';
+import { err, ok, typedAs } from '@votingworks/basics';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Client, DbConnectionOptions, Statement } from './client';
+import { BackupError, Client, DbConnectionOptions, Statement } from './client';
 import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
 
 afterEach(() => {
@@ -27,7 +32,7 @@ test('file database client', async () => {
   client.run('insert into muppets (name) values (?)', 'Fozzie');
 
   const backupDbFile = makeTemporaryFile();
-  await client.backup(backupDbFile);
+  expect(await client.backup(backupDbFile)).toEqual(ok());
 
   const clientForBackup = Client.fileClient(
     backupDbFile,
@@ -56,7 +61,7 @@ test('backs up a database whose connection is not yet established', async () => 
   // here to touch the database.
   const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
   const backupDbFile = makeTemporaryFile();
-  await client.backup(backupDbFile);
+  expect(await client.backup(backupDbFile)).toEqual(ok());
 
   const clientForBackup = Client.fileClient(
     backupDbFile,
@@ -75,7 +80,7 @@ test('backs up a memory database', async () => {
   client.run('insert into muppets (name) values (?)', 'Rizzo');
 
   const backupDbFile = makeTemporaryFile();
-  await client.backup(backupDbFile);
+  expect(await client.backup(backupDbFile)).toEqual(ok());
 
   const clientForBackup = Client.fileClient(
     backupDbFile,
@@ -759,4 +764,118 @@ test('vacuuming reduces file size', () => {
 
   // vacuuming reduces the file size
   expect(postDeleteSize).toBeGreaterThan(postVacuumSize);
+});
+
+/**
+ * A path for a snapshot to be written to. Not `makeTemporaryFile`, which
+ * creates the file: a destination SQLite did not create is one it does not
+ * remove when it refuses to copy.
+ */
+function makeSnapshotPath(): string {
+  return join(makeTemporaryDirectory(), 'snapshot.db');
+}
+
+/**
+ * Builds a client whose database takes several steps to copy, so that a
+ * snapshot of it reports progress more than once and can be stopped partway.
+ */
+function makeClientWithLargeDatabase(): Client {
+  const client = Client.fileClient(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  client.exec('create table blobs (data blob not null)');
+  for (let i = 0; i < 200; i += 1) {
+    client.run('insert into blobs (data) values (?)', Buffer.alloc(64 * 1024));
+  }
+  return client;
+}
+
+test('backup reports how much of the database it has copied', async () => {
+  const client = makeClientWithLargeDatabase();
+  const fractions: number[] = [];
+
+  expect(
+    await client.backup(makeSnapshotPath(), {
+      onProgress: (fraction) => fractions.push(fraction),
+    })
+  ).toEqual(ok());
+
+  expect(fractions.length).toBeGreaterThan(1);
+  expect(fractions.every((f) => f >= 0 && f <= 1)).toEqual(true);
+  expect(fractions).toEqual([...fractions].sort((a, b) => a - b));
+  expect(fractions.at(-1)).toEqual(1);
+});
+
+test('backup refuses while this connection is partway through writing', async () => {
+  const client = Client.memoryClient();
+  client.exec('create table muppets (name varchar(255) not null)');
+  client.run('begin transaction');
+
+  // SQLite will not copy a page while a write transaction is open on the
+  // connection running the copy, and `better-sqlite3` reports that refusal as
+  // a copy that finished with nothing left to do.
+  expect(await client.backup(makeSnapshotPath())).toEqual(
+    err(typedAs<BackupError>({ type: 'write-in-progress' }))
+  );
+
+  client.run('rollback');
+});
+
+test('backup catches a write that begins after it checks', async () => {
+  const client = makeClientWithLargeDatabase();
+  const backupDbFile = makeSnapshotPath();
+
+  // Slip the write in after the check, to stand in for the window between it
+  // and the copy starting. It takes a real write, not just an open
+  // transaction, for SQLite to hold the write lock that makes the copy a
+  // no-op — which it reports by deleting the destination and claiming success.
+  vi.spyOn(client, 'isInTransaction').mockImplementationOnce(() => {
+    client.run('begin transaction');
+    client.run('insert into blobs (data) values (?)', Buffer.alloc(1));
+    return false;
+  });
+
+  expect(await client.backup(backupDbFile)).toEqual(
+    err(typedAs<BackupError>({ type: 'write-in-progress' }))
+  );
+  expect(fs.existsSync(backupDbFile)).toEqual(false);
+
+  client.run('rollback');
+});
+
+test('backup does not start once its signal has aborted', async () => {
+  const client = makeClientWithLargeDatabase();
+  const backupDbFile = makeSnapshotPath();
+
+  expect(
+    await client.backup(backupDbFile, { signal: AbortSignal.abort() })
+  ).toEqual(err(typedAs<BackupError>({ type: 'cancelled' })));
+
+  expect(fs.existsSync(backupDbFile)).toEqual(false);
+});
+
+test('backup stopped partway leaves no partial snapshot', async () => {
+  const client = makeClientWithLargeDatabase();
+  const backupDbFile = makeSnapshotPath();
+  const controller = new AbortController();
+
+  expect(
+    await client.backup(backupDbFile, {
+      signal: controller.signal,
+      onProgress: () => controller.abort(),
+    })
+  ).toEqual(err(typedAs<BackupError>({ type: 'cancelled' })));
+
+  // Half a database is not something anyone should find where a snapshot was
+  // asked for.
+  expect(fs.existsSync(backupDbFile)).toEqual(false);
+});
+
+test('backup surfaces a failure that is not a refusal or a cancellation', async () => {
+  const client = makeClientWithLargeDatabase();
+
+  await expect(
+    client.backup(join(makeTemporaryDirectory(), 'no-such-dir', 'snapshot.db'))
+  ).rejects.toThrow('directory does not exist');
 });

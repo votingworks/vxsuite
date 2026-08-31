@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import {
   isIntegrationTest,
@@ -12,6 +12,7 @@ import makeDebug from 'debug';
 import * as fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { dirname, join } from 'node:path';
+import { BackupCancelledError } from './backup_cancelled_error';
 import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
 import { findSchemaViolations } from './schema_validation';
 
@@ -20,6 +21,11 @@ type Database = Database.Database;
 const debug = makeDebug('db-client');
 
 const MEMORY_DB_PATH = ':memory:';
+
+/**
+ * Why {@link Client.backup} did not produce a snapshot.
+ */
+export type BackupError = { type: 'write-in-progress' } | { type: 'cancelled' };
 
 /**
  * Table holding the digest of the schema the database was created with. It is
@@ -632,13 +638,83 @@ export class Client {
   }
 
   /**
-   * Writes a copy of the database to the given path.
+   * Writes a copy of the database to the given path, taken while the database
+   * goes on being used: pages written through this connection while the copy
+   * runs are picked up by it, so the result is a consistent snapshot rather
+   * than a file smeared across the time it took to write.
+   *
+   * That only holds for writes made through *this* connection. A write from
+   * another one takes SQLite's write lock and restarts the copy from the
+   * beginning, which for a database of any size never finishes; a write
+   * already in progress is reported as `write-in-progress` rather than waited
+   * on. SQLite reports a copy it refused to start as one that finished with
+   * nothing left to do, removing the destination on its way out, so a write
+   * that begins in the moment between the check and the copy is caught after
+   * the fact and reported the same way. That is why `filePath` must not
+   * already name a file: a destination SQLite did not create is one it does
+   * not remove, leaving a refusal indistinguishable from a snapshot.
+   *
+   * Pass `onProgress` to hear how much of the database has been copied, as a
+   * fraction. Pass `signal` to stop partway. A snapshot that stops for any
+   * reason leaves no file behind, so nothing partial is left to be mistaken
+   * for a copy of the database.
    */
   async backup(
     filePath: string,
-    options?: Parameters<Database['backup']>[1]
-  ): Promise<void> {
-    await this.getDatabase().backup(filePath, options);
+    options: {
+      onProgress?: (fraction: number) => void;
+      signal?: AbortSignal;
+    } = {}
+  ): Promise<Result<void, BackupError>> {
+    const { onProgress, signal } = options;
+
+    if (signal?.aborted) {
+      return err({ type: 'cancelled' });
+    }
+
+    // A copy cannot start while this connection is partway through writing,
+    // and `better-sqlite3` reports that refusal as a copy that succeeded
+    // without doing anything.
+    if (this.isInTransaction()) {
+      return err({ type: 'write-in-progress' });
+    }
+
+    try {
+      await this.getDatabase().backup(filePath, {
+        progress({ totalPages, remainingPages }) {
+          if (signal?.aborted) {
+            // The only way to stop a copy partway: `better-sqlite3` closes it
+            // and rejects when its progress callback throws.
+            throw new BackupCancelledError();
+          }
+
+          onProgress?.((totalPages - remainingPages) / totalPages);
+
+          // The return type says a number, but that is only for a caller
+          // choosing the next chunk's size; `undefined` leaves it to
+          // `better-sqlite3`.
+          return undefined as unknown as number;
+        },
+      });
+    } catch (error) {
+      if (error instanceof BackupCancelledError) {
+        fs.rmSync(filePath, { force: true });
+        return err({ type: 'cancelled' });
+      }
+
+      throw error;
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return err({ type: 'write-in-progress' });
+    }
+
+    // The copy resolves once nothing is left to send without calling the
+    // progress callback again, so the last thing a caller hears about is a
+    // fraction just short of the whole database.
+    onProgress?.(1);
+
+    return ok();
   }
 
   /**

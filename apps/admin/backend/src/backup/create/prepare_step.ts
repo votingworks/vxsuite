@@ -89,13 +89,6 @@ const CANCELLED_ERROR: PrepareError = {
 };
 
 /**
- * Thrown from the database snapshot's progress callback to abort it, which is
- * the only way to stop a snapshot partway: `better-sqlite3` closes the backup
- * and rejects when its progress callback throws.
- */
-class CancelledError extends Error {}
-
-/**
  * Reported when the database cannot be snapshotted because something else is
  * partway through writing to it.
  */
@@ -286,45 +279,19 @@ export async function prepare(
       workspace.store.getDbPath()
     );
 
-    // SQLite refuses to copy a page while a write transaction is open on the
-    // connection running the backup, and `better-sqlite3` reports that refusal
-    // as a backup that finished with nothing left to do, deleting the
-    // destination on its way out. Catch the case we can see coming — a CVR
-    // import holds its transaction open across awaits for the whole import —
-    // rather than letting it look like a successful snapshot.
-    if (dbClient.isInTransaction()) {
-      return err(WRITE_IN_PROGRESS_ERROR);
-    }
-
-    // So that a backup cancelled before the snapshot starts never copies a
-    // page of it.
-    if (signal?.aborted) {
-      return err(CANCELLED_ERROR);
-    }
-
-    await dbClient.backup(dbSnapshotPath, {
-      progress(info) {
-        if (signal?.aborted) {
-          throw new CancelledError();
-        }
-
-        onProgressEvent?.({
-          type: 'db_snapshot',
-          progress: (info.totalPages - info.remainingPages) / info.totalPages,
-        });
-        // NOTE: `better-sqlite3`'s types say the return type has to be a number,
-        // but that's only if we want to control the next chunk of the backup's
-        // page size. Returning `undefined` lets the caller pick.
-        return undefined as unknown as number;
-      },
+    const snapshotResult = await dbClient.backup(dbSnapshotPath, {
+      signal,
+      onProgress: (progress) =>
+        onProgressEvent?.({ type: 'db_snapshot', progress }),
     });
-    if (!(await statOrUndefined(dbSnapshotPath))) {
-      // A write that began after the check above lands here: the backup
-      // resolved without copying anything and unlinked the snapshot.
-      return err(WRITE_IN_PROGRESS_ERROR);
+    if (snapshotResult.isErr()) {
+      return err(
+        snapshotResult.err().type === 'cancelled'
+          ? CANCELLED_ERROR
+          : WRITE_IN_PROGRESS_ERROR
+      );
     }
 
-    onProgressEvent?.({ type: 'db_snapshot', progress: 1 });
     await stagingArea.markStagingPathReady(dbSnapshotPath);
 
     // Enumerate ballot images from the snapshot we just took, not the live
@@ -405,10 +372,6 @@ export async function prepare(
       snapshotStore,
     });
   } catch (error) {
-    if (error instanceof CancelledError) {
-      return err(CANCELLED_ERROR);
-    }
-
     if (isNonExistentFileOrDirectoryError(error)) {
       return err({
         type: 'file-not-found',
