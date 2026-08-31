@@ -41,7 +41,7 @@ export function checkWorkspaceIsRestorable(
   // no way to tell whether its work survived. Checked before the marker, since
   // a workspace left by an interrupted restore is no reason to cut off a write
   // that is happening right now.
-  if (workspace.store['client'].isInTransaction()) {
+  if (workspace.store.isInTransaction()) {
     return err({
       type: 'write-in-progress',
       message:

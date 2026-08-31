@@ -236,9 +236,6 @@ export async function prepare(
     });
   }
   const stagingArea = stagingAreaResult.ok();
-  // The workspace's own connection, so that writes made through it update the
-  // snapshot in place instead of restarting it.
-  const dbClient = workspace.store['client'];
   let snapshotStore: Store | undefined;
   let shouldPurgeStagingArea = true;
 
@@ -279,7 +276,7 @@ export async function prepare(
       workspace.store.getDbPath()
     );
 
-    const snapshotResult = await dbClient.backup(dbSnapshotPath, {
+    const snapshotResult = await workspace.store.backupTo(dbSnapshotPath, {
       signal,
       onProgress: (progress) =>
         onProgressEvent?.({ type: 'db_snapshot', progress }),

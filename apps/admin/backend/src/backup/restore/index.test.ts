@@ -28,6 +28,7 @@ import {
   makeBackup,
   makeConfiguredWorkspace,
   mockDiskSpace,
+  whileWriting,
 } from '../../../test/backup.js';
 import {
   ADMIN_WORKSPACE_DATABASE_NAME,
@@ -1120,16 +1121,14 @@ test('restore refuses while a write transaction is open on the workspace', async
   const workspace = restorable(workspacePath);
   const contentsBefore = listWorkspace(workspacePath);
 
-  // What a CVR import looks like from here: it holds its transaction open
-  // across awaits for the whole import.
-  workspace.store['client'].run('begin transaction');
-
   expect(
-    await restoreBackup({
-      backup: backup.path,
-      workspace,
-      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
-    })
+    await whileWriting(workspace, () =>
+      restoreBackup({
+        backup: backup.path,
+        workspace,
+        logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+      })
+    )
   ).toEqual(
     err({
       type: 'write-in-progress',
@@ -1140,7 +1139,6 @@ test('restore refuses while a write transaction is open on the workspace', async
 
   // Refused before anything was claimed, so the write can carry on.
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
-  workspace.store['client'].run('rollback');
 });
 
 test('restore refuses a write in progress even in a workspace an interrupted restore left', async () => {
@@ -1148,21 +1146,20 @@ test('restore refuses a write in progress even in a workspace an interrupted res
   const workspacePath = makeUnconfiguredWorkspacePath();
   await writeFile(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
   const workspace = restorable(workspacePath);
-  workspace.store['client'].run('begin transaction');
 
   // Recovering an interrupted restore is no reason to cut off a write that is
   // happening right now.
   expect(
     (
-      await restoreBackup({
-        backup: backup.path,
-        workspace,
-        logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
-      })
+      await whileWriting(workspace, () =>
+        restoreBackup({
+          backup: backup.path,
+          workspace,
+          logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+        })
+      )
     ).err()
   ).toMatchObject({ type: 'write-in-progress' });
-
-  workspace.store['client'].run('rollback');
 });
 
 test('restore refuses a workspace belonging to a client machine', async () => {

@@ -15,7 +15,12 @@ import {
   unique,
   deepEqual,
 } from '@votingworks/basics';
-import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
+import {
+  BackupError,
+  Bindable,
+  Client as DbClient,
+  Statement,
+} from '@votingworks/db';
 import {
   AdjudicationReason,
   Contest,
@@ -233,6 +238,32 @@ export class Store implements BaseStore {
       ballotImagesPath,
       electionPackagesPath
     );
+  }
+
+  /**
+   * Whether this store is partway through a write. A CVR import holds its
+   * transaction open across awaits for the whole import, so this is how an
+   * operation that would disturb the database — backing it up, or replacing it
+   * with a restore — tells that it has to wait.
+   */
+  isInTransaction(): boolean {
+    return this.client.isInTransaction();
+  }
+
+  /**
+   * Writes a snapshot of this store's database to `path`, which must not
+   * already name a file. Taken over this store's own connection, so writes
+   * made through it while the snapshot runs are part of the snapshot rather
+   * than a reason to start it over.
+   *
+   * See {@link Client.backup} for what a caller has to handle: a write already
+   * in progress, and a snapshot stopped by `signal`.
+   */
+  backupTo(
+    path: string,
+    options?: { onProgress?: (fraction: number) => void; signal?: AbortSignal }
+  ): Promise<Result<void, BackupError>> {
+    return this.client.backup(path, options);
   }
 
   /**

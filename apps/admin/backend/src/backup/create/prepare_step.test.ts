@@ -20,6 +20,7 @@ import {
   GENEROUS_AVAILABLE_KB,
   makeConfiguredWorkspace,
   mockDiskSpace,
+  whileWriting,
 } from '../../../test/backup.js';
 import { createWorkspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
@@ -117,38 +118,29 @@ test('reclaims a killed run’s staging area before measuring free space', async
 test('refuses while a write transaction is open on the workspace', async () => {
   const workspace = await makeConfiguredWorkspace();
 
-  // What a CVR import looks like from here: it holds its transaction open
-  // across awaits for the whole import.
-  workspace.store['client'].run('begin transaction');
-
-  const result = await prepare({
-    workspace,
-    target: makeTemporaryDirectory(),
-    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
-  });
+  const result = await whileWriting(workspace, () =>
+    prepare({
+      workspace,
+      target: makeTemporaryDirectory(),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    })
+  );
 
   expect(result.err()).toEqual({
     type: 'write-in-progress',
     message:
       'Cannot back up while another operation is writing to the database',
   });
-
-  workspace.store['client'].run('rollback');
 });
 
-test('refuses when a write begins after the snapshot is cleared to start', async () => {
+test('reports a write that began after the snapshot was cleared to start', async () => {
   const workspace = await makeConfiguredWorkspace();
-  const dbClient = workspace.store['client'];
 
-  // Slip the write in after `prepare` checks, to stand in for the window
-  // between the check and the snapshot actually starting. It takes a real
-  // write, not just an open transaction, for SQLite to hold the write lock
-  // that makes the snapshot a no-op.
-  vi.spyOn(dbClient, 'isInTransaction').mockImplementationOnce(() => {
-    dbClient.run('begin transaction');
-    dbClient.run('update elections set election_data = election_data');
-    return false;
-  });
+  // A write that slips into the window between the check and the snapshot
+  // starting is caught by the snapshot itself, which reports it this way.
+  vi.spyOn(workspace.store, 'backupTo').mockResolvedValueOnce(
+    err({ type: 'write-in-progress' })
+  );
 
   const result = await prepare({
     workspace,
@@ -161,8 +153,6 @@ test('refuses when a write begins after the snapshot is cleared to start', async
     message:
       'Cannot back up while another operation is writing to the database',
   });
-
-  dbClient.run('rollback');
 });
 
 test('refuses when a backup of the workspace is already running', async () => {
