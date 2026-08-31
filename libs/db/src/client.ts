@@ -289,6 +289,15 @@ export class Client {
   }
 
   /**
+   * Whether a transaction is currently open on this connection. True for a
+   * transaction started by {@link transaction} as well as one begun by running
+   * `begin` directly.
+   */
+  isInTransaction(): boolean {
+    return this.getDatabase().inTransaction;
+  }
+
+  /**
    * Run {@link fn} within a transaction and roll back the transaction if an
    * exception occurs.
    *

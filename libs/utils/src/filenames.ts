@@ -43,7 +43,9 @@ export function sanitizeStringForFilename(
 }
 
 export function generateElectionBasedSubfolderName(
-  election: Election,
+  election: Pick<Election, 'title'> & {
+    jurisdiction: Pick<Election['jurisdiction'], 'name'>;
+  },
   ballotHash: string
 ): string {
   const jurisdictionCountyName = sanitizeStringForFilename(

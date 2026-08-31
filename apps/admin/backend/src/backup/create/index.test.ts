@@ -182,7 +182,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   const fileStore = vi.spyOn(Store, 'fileStore');
 
   const firstResult = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger,
   });
@@ -241,7 +241,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   // first-ever plain rename.
   addCvrWithBallotImage(workspace, { ballotId: 'ballot-2' });
   const secondResult = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger,
   });
@@ -284,7 +284,7 @@ test('reports an error when copying the backup fails', async () => {
   vi.mocked(copy).mockRejectedValueOnce(outOfSpaceError());
 
   const result = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -301,7 +301,7 @@ test('reports an error when writing the manifest fails, leaving no partial backu
   vi.mocked(writeManifest).mockRejectedValueOnce(outOfSpaceError());
 
   const result = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -321,7 +321,7 @@ test('fails fast when writing the backup fails unexpectedly', async () => {
 
   await expect(
     createBackup({
-      workspace: workspace.path,
+      workspace,
       target,
       logger: mockBaseLogger({ fn: vi.fn }),
     })
@@ -349,7 +349,7 @@ test('reports an error when clearing a leftover in-progress backup fails', async
   );
 
   const result = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -374,7 +374,7 @@ test('reports a failed swap rather than a created backup', async () => {
   );
 
   const result = await createBackup({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });

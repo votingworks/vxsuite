@@ -247,6 +247,21 @@ test('create fails when the workspace cannot be read', async () => {
   expect(stderr).toContain('Workspace directory could not be found');
 });
 
+test('create fails fast when the workspace cannot be opened for another reason', async () => {
+  const workspace = join(makeTemporaryDirectory(), 'a-file');
+  writeFileSync(workspace, 'not a workspace');
+
+  await expect(
+    run([
+      'create',
+      '--workspace',
+      workspace,
+      '--target',
+      makeTemporaryDirectory(),
+    ])
+  ).rejects.toThrow('ENOTDIR');
+});
+
 test('validate lists the backup files', async () => {
   const { code, stdout, stderr } = await run(['validate', makeBackup()]);
   expect(code).toEqual(0);

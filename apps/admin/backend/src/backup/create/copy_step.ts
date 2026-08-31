@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import { Transform } from 'node:stream';
 import { DateTime } from 'luxon';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import { BackupManifest, BackupManifestEntry } from '../backup_manifest.js';
 import { CopyBackupOptions } from './types.js';
@@ -26,7 +26,7 @@ const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
 export async function copy(
   options: CopyBackupOptions
 ): Promise<BackupManifest> {
-  const { source, store, electionRecord } = options;
+  const { electionId, source, store } = options;
   const progressEventIntervalBytes =
     options.progressEventIntervalBytes ?? DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES;
   let copiedCount = 0;
@@ -43,6 +43,10 @@ export async function copy(
   });
   const backupPath = options.backup;
   const backupWorkspacePath = join(backupPath, 'workspace');
+
+  // `prepare` resolved this election ID against the same snapshot, so its
+  // metadata is necessarily there.
+  const electionMetadata = assertDefined(store.getElectionMetadata(electionId));
 
   for (const file of source.listStagedFiles()) {
     options.onProgressEvent?.({
@@ -121,17 +125,12 @@ export async function copy(
 
   const softwareVersion = LATEST_SOFTWARE_VERSION;
   const machineConfig = getMachineConfig();
-  const electionDefinitionId = store.getElectionDefinitionId(electionRecord.id);
 
   return new BackupManifest(
     softwareVersion,
     machineConfig.machineId,
     DateTime.now().toISO(),
-    {
-      id: electionDefinitionId,
-      title: electionRecord.electionDefinition.election.title,
-      date: electionRecord.electionDefinition.election.date,
-    },
+    electionMetadata,
     backupManifestEntries
   );
 }

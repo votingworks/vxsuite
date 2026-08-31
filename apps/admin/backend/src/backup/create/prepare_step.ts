@@ -1,3 +1,5 @@
+import { Stats } from 'node:fs';
+import { stat } from 'node:fs/promises';
 import {
   assertDefined,
   err,
@@ -8,13 +10,10 @@ import {
   Result,
 } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { Stats } from 'node:fs';
-import { stat } from 'node:fs/promises';
-import { openWorkspace } from '../../util/workspace.js';
+import { Id } from '@votingworks/types';
 import { Store } from '../../store.js';
 import { PrepareBackupOptions } from './types.js';
 import { BackupStagingArea } from '../staging_area.js';
-import { ElectionRecord } from '../../types.js';
 
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 
@@ -49,6 +48,10 @@ export type PrepareError =
       message: string;
     }
   | {
+      type: 'write-in-progress';
+      message: string;
+    }
+  | {
       type: 'insufficient-workspace-storage';
       available: number;
       required: number;
@@ -62,6 +65,36 @@ export type PrepareError =
     };
 
 /**
+ * Reported when the database cannot be snapshotted because something else is
+ * partway through writing to it.
+ */
+const WRITE_IN_PROGRESS_ERROR: PrepareError = {
+  type: 'write-in-progress',
+  message: 'Cannot back up while another operation is writing to the database',
+};
+
+/**
+ * A backup staged on the local disk and ready to be copied, minus the manifest.
+ */
+export interface PreparedBackup {
+  /**
+   * The database ID of the election to be backed up.
+   */
+  electionId: Id;
+
+  /**
+   * Manages the location on disk where the database snapshot and other files to
+   * be copied were staged.
+   */
+  source: BackupStagingArea;
+
+  /**
+   * A store for the staged database snapshot, not the original workspace store.
+   */
+  snapshotStore: Store;
+}
+
+/**
  * Prepares the backup creation to take place by ensuring the source workspace
  * and target locations are known and able to fit the data to be copied. Stages
  * the data to be copied, including a database snapshot, returning a reference
@@ -69,33 +102,21 @@ export type PrepareError =
  */
 export async function prepare(
   options: PrepareBackupOptions
-): Promise<
-  Result<
-    { source: BackupStagingArea; store: Store; electionRecord: ElectionRecord },
-    PrepareError
-  >
-> {
+): Promise<Result<PreparedBackup, PrepareError>> {
+  const { logger, onProgressEvent, target, workspace } = options;
   const minAvailableStorageBytes =
     options.minAvailableStorageBytes ?? DEFAULT_MIN_AVAILABLE_STORAGE_BYTES;
-  options.onProgressEvent?.({ type: 'preparing' });
-
-  if (!(await statOrUndefined(options.workspace))) {
-    return err({
-      type: 'file-not-found',
-      path: options.workspace,
-      message: 'Workspace directory could not be found',
-    });
-  }
+  onProgressEvent?.({ type: 'preparing' });
 
   // Check the target up front: an unmounted backup drive is the likeliest
   // reason for a backup to fail, and snapshotting the database before noticing
   // would waste a full copy of it.
-  const targetStat = await statOrUndefined(options.target);
+  const targetStat = await statOrUndefined(target);
 
   if (!targetStat) {
     return err({
       type: 'file-not-found',
-      path: options.target,
+      path: target,
       message: 'Backup target directory could not be found',
     });
   }
@@ -103,17 +124,15 @@ export async function prepare(
   if (!targetStat.isDirectory()) {
     return err({
       type: 'not-directory',
-      path: options.target,
-      message: `${options.target} is not a directory`,
+      path: target,
+      message: `${target} is not a directory`,
     });
   }
 
   // Claim the staging area first. It reclaims what a killed run left behind,
   // so the free space measured below doesn't count a dead run's snapshot
   // against this one, and it holds the lock that makes reclaiming safe.
-  const stagingAreaResult = await BackupStagingArea.inWorkspace(
-    options.workspace
-  );
+  const stagingAreaResult = await BackupStagingArea.inWorkspace(workspace.path);
   if (stagingAreaResult.isErr()) {
     return err({
       type: 'backup-in-progress',
@@ -121,13 +140,14 @@ export async function prepare(
     });
   }
   const stagingArea = stagingAreaResult.ok();
+  // The workspace's own connection, so that writes made through it update the
+  // snapshot in place instead of restarting it.
+  const dbClient = workspace.store['client'];
   let snapshotStore: Store | undefined;
   let shouldPurgeStagingArea = true;
 
   try {
-    const [workspaceDiskSpace] = await getDiskSpaceSummaries([
-      options.workspace,
-    ]);
+    const [workspaceDiskSpace] = await getDiskSpaceSummaries([workspace.path]);
     const workspaceDiskAvailableBytes = workspaceDiskSpace.available * 1024;
 
     //
@@ -136,12 +156,8 @@ export async function prepare(
     // basis of the backup.
     //
 
-    using workspace = openWorkspace(options.workspace, options.logger);
     const currentElectionId = workspace.store.getCurrentElectionId();
-    const currentElectionRecord =
-      currentElectionId && workspace.store.getElection(currentElectionId);
-
-    if (!currentElectionRecord) {
+    if (!currentElectionId) {
       return err({
         type: 'unconfigured',
         message: 'An unconfigured VxAdmin cannot be backed up',
@@ -166,9 +182,20 @@ export async function prepare(
     const dbSnapshotPath = await stagingArea.prepareStagingPath(
       workspace.store.getDbPath()
     );
-    await workspace.store['client'].backup(dbSnapshotPath, {
+
+    // SQLite refuses to copy a page while a write transaction is open on the
+    // connection running the backup, and `better-sqlite3` reports that refusal
+    // as a backup that finished with nothing left to do, deleting the
+    // destination on its way out. Catch the case we can see coming — a CVR
+    // import holds its transaction open across awaits for the whole import —
+    // rather than letting it look like a successful snapshot.
+    if (dbClient.isInTransaction()) {
+      return err(WRITE_IN_PROGRESS_ERROR);
+    }
+
+    await dbClient.backup(dbSnapshotPath, {
       progress(info) {
-        options.onProgressEvent?.({
+        onProgressEvent?.({
           type: 'db_snapshot',
           progress: (info.totalPages - info.remainingPages) / info.totalPages,
         });
@@ -178,7 +205,13 @@ export async function prepare(
         return undefined as unknown as number;
       },
     });
-    options.onProgressEvent?.({ type: 'db_snapshot', progress: 1 });
+    if (!(await statOrUndefined(dbSnapshotPath))) {
+      // A write that began after the check above lands here: the backup
+      // resolved without copying anything and unlinked the snapshot.
+      return err(WRITE_IN_PROGRESS_ERROR);
+    }
+
+    onProgressEvent?.({ type: 'db_snapshot', progress: 1 });
     await stagingArea.markStagingPathReady(dbSnapshotPath);
 
     // Enumerate ballot images from the snapshot we just took, not the live
@@ -191,7 +224,7 @@ export async function prepare(
       dbSnapshotPath,
       workspace.store.getBallotImagesPath(),
       workspace.store.getElectionPackagesPath(),
-      options.logger
+      logger
     );
 
     const electionPackageSourcePath = assertDefined(
@@ -206,7 +239,7 @@ export async function prepare(
       snapshotBallotImagePaths.map(async (ballotImagePath) => {
         await stagingArea.linkWorkspaceFile(ballotImagePath);
         linkedCount += 1;
-        options.onProgressEvent?.({
+        onProgressEvent?.({
           type: 'staging_files',
           progress: linkedCount / snapshotBallotImagePaths.length,
         });
@@ -219,19 +252,19 @@ export async function prepare(
       .sum();
     let targetDiskAvailableBytes: number;
     try {
-      const [targetDiskSpace] = await getDiskSpaceSummaries([options.target]);
+      const [targetDiskSpace] = await getDiskSpaceSummaries([target]);
       targetDiskAvailableBytes = targetDiskSpace.available * 1024;
     } catch (error) {
       // `df` exits non-zero when its path is gone and rejects with that exit
       // code rather than an ENOENT, so ask the filesystem directly to tell a
       // drive removed mid-backup from a genuine failure.
-      if (await statOrUndefined(options.target)) {
+      if (await statOrUndefined(target)) {
         throw error;
       }
 
       return err({
         type: 'file-not-found',
-        path: options.target,
+        path: target,
         message: 'Backup target directory could not be found',
       });
     }
@@ -247,9 +280,9 @@ export async function prepare(
 
     shouldPurgeStagingArea = false;
     return ok({
+      electionId: currentElectionId,
       source: stagingArea,
-      store: snapshotStore,
-      electionRecord: currentElectionRecord,
+      snapshotStore,
     });
   } catch (error) {
     if (isNonExistentFileOrDirectoryError(error)) {

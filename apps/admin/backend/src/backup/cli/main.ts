@@ -2,7 +2,10 @@ import assert from 'node:assert';
 import { relative } from 'node:path';
 import { inspect } from 'node:util';
 import yargs from 'yargs';
-import { extractErrorMessage } from '@votingworks/basics';
+import {
+  extractErrorMessage,
+  isNonExistentFileOrDirectoryError,
+} from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { getNodeEnv } from '@votingworks/backend';
@@ -13,6 +16,7 @@ import * as views from './views.js';
 import { Backup } from '../backup.js';
 import { ProgressEvent } from '../create/types.js';
 import { createBackup } from '../create/index.js';
+import { openWorkspace, Workspace } from '../../util/workspace.js';
 
 /**
  * IO streams given to the CLI.
@@ -163,6 +167,25 @@ function displayProgress(event: ProgressEvent): DisplayProgress {
 }
 
 /**
+ * Opens the workspace to back up, or returns `undefined` if there is no
+ * workspace at `path`. Any other failure to open it is a bug and throws.
+ */
+function openWorkspaceIfPresent(
+  path: string,
+  logger: BaseLogger
+): Workspace | undefined {
+  try {
+    return openWorkspace(path, logger);
+  } catch (error) {
+    if (isNonExistentFileOrDirectoryError(error)) {
+      return undefined;
+    }
+
+    throw error;
+  }
+}
+
+/**
  * Create a backup using the CLI-provided arguments.
  */
 async function create(
@@ -193,8 +216,17 @@ async function create(
     Boolean((stderr as NodeJS.WriteStream).isTTY)
   );
 
+  // The CLI owns the workspace it opens: `createBackup` snapshots over the
+  // connection it is given and leaves closing it to the caller.
+  using workspace = openWorkspaceIfPresent(args.workspace, logger);
+
+  if (!workspace) {
+    stderr.write('Error: Workspace directory could not be found\n');
+    return 1;
+  }
+
   const createBackupResult = await createBackup({
-    workspace: args.workspace,
+    workspace,
     target: args.target,
     logger,
     onProgressEvent: (event) => display.update(displayProgress(event)),

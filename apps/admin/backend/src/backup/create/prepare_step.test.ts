@@ -176,11 +176,11 @@ test('reclaims a killed run’s staging area before measuring free space', async
   });
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
-  const { source, store } = result.unsafeUnwrap();
+  const { source, snapshotStore: store } = result.unsafeUnwrap();
 
   expect(staleBytesAtMeasureTime).toEqual(0);
 
@@ -194,6 +194,57 @@ test('reclaims a killed run’s staging area before measuring free space', async
   expect(existsSync(stagingAreaPath)).toEqual(false);
 });
 
+test('refuses while a write transaction is open on the workspace', async () => {
+  const workspace = await makeConfiguredWorkspace();
+
+  // What a CVR import looks like from here: it holds its transaction open
+  // across awaits for the whole import.
+  workspace.store['client'].run('begin transaction');
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'write-in-progress',
+    message:
+      'Cannot back up while another operation is writing to the database',
+  });
+
+  workspace.store['client'].run('rollback');
+});
+
+test('refuses when a write begins after the snapshot is cleared to start', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const dbClient = workspace.store['client'];
+
+  // Slip the write in after `prepare` checks, to stand in for the window
+  // between the check and the snapshot actually starting. It takes a real
+  // write, not just an open transaction, for SQLite to hold the write lock
+  // that makes the snapshot a no-op.
+  vi.spyOn(dbClient, 'isInTransaction').mockImplementationOnce(() => {
+    dbClient.run('begin transaction');
+    dbClient.run('update elections set election_data = election_data');
+    return false;
+  });
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'write-in-progress',
+    message:
+      'Cannot back up while another operation is writing to the database',
+  });
+
+  dbClient.run('rollback');
+});
+
 test('refuses when a backup of the workspace is already running', async () => {
   const workspace = await makeConfiguredWorkspace();
   const held = (
@@ -201,7 +252,7 @@ test('refuses when a backup of the workspace is already running', async () => {
   ).unsafeUnwrap();
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -214,21 +265,12 @@ test('refuses when a backup of the workspace is already running', async () => {
   await held.cleanup();
 });
 
-test('fails when the workspace directory does not exist', async () => {
-  const result = await prepare({
-    workspace: join(makeTemporaryDirectory(), 'does-not-exist'),
-    target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
-  });
-  expect(result.err()).toMatchObject({ type: 'file-not-found' });
-});
-
 test('fails when no election is configured', async () => {
   const logger = new BaseLogger(LogSource.VxAdminService);
   const workspace = createWorkspace(makeTemporaryDirectory(), logger);
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -244,7 +286,7 @@ test('fails when the backup target directory does not exist', async () => {
   const target = join(makeTemporaryDirectory(), 'not-mounted');
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -262,7 +304,7 @@ test('fails when the backup target is not a directory', async () => {
   writeFileSync(target, 'not a directory');
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -298,7 +340,7 @@ test('fails when the backup target goes away while staging', async () => {
   });
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -329,7 +371,7 @@ test('fails fast when the target disk space check fails for another reason', asy
 
   await expect(
     prepare({
-      workspace: workspace.path,
+      workspace,
       target,
       logger: mockBaseLogger({ fn: vi.fn }),
     })
@@ -351,7 +393,7 @@ test('fails with insufficient-workspace-storage when the workspace volume is too
   );
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -382,7 +424,7 @@ test('fails with insufficient-target-storage when the target volume is too full'
   const fileStore = vi.spyOn(Store, 'fileStore');
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target,
     logger: mockBaseLogger({ fn: vi.fn }),
   });
@@ -401,7 +443,7 @@ test('stages a database snapshot, election package, and ballot images', async ()
   const progressEvents: Array<{ type: string }> = [];
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
     onProgressEvent: (event) => progressEvents.push(event),
@@ -435,7 +477,7 @@ test('fails loudly when a referenced ballot image is missing from disk', async (
   unlinkSync(imagePath);
 
   const result = await prepare({
-    workspace: workspace.path,
+    workspace,
     target: makeTemporaryDirectory(),
     logger: mockBaseLogger({ fn: vi.fn }),
   });

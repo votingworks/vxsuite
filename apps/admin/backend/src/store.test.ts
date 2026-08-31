@@ -18,13 +18,18 @@ import {
   Election,
   ElectionRegisteredVoterCounts,
   SystemSettings,
+  convertVxfElectionToCdfBallotDefinition,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { zipFile } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import { getGroupedBallotStyles } from '@votingworks/utils';
+import {
+  generateElectionBasedSubfolderName,
+  getGroupedBallotStyles,
+} from '@votingworks/utils';
 import {
   addMockCvrFileToStore,
   MockCastVoteRecordFile,
@@ -158,6 +163,63 @@ test('add an election', async () => {
 
   expect(store.getElection('nonexistent-id')).toEqual(undefined);
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
+});
+
+test('reads election metadata without parsing the election definition', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  const { election } = electionDefinition;
+  expect(store.getElectionMetadata(electionId)).toEqual({
+    id: election.id,
+    title: election.title,
+    date: election.date,
+  });
+  expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
+    generateElectionBasedSubfolderName(election, electionDefinition.ballotHash)
+  );
+
+  expect(store.getElectionMetadata('nonexistent-id')).toEqual(undefined);
+  expect(store.getElectionBasedSubfolderName('nonexistent-id')).toEqual(
+    undefined
+  );
+});
+
+test('reads election metadata from a CDF election definition', async () => {
+  const { election: vxfElection } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const cdfElectionDefinition = safeParseElectionDefinition(
+    JSON.stringify(convertVxfElectionToCdfBallotDefinition(vxfElection))
+  ).unsafeUnwrap();
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData: cdfElectionDefinition.electionData,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+
+  // CDF has none of these fields where the fast path looks for them, so both
+  // methods have to fall back to parsing the election definition.
+  const { election } = cdfElectionDefinition;
+  expect(store.getElectionMetadata(electionId)).toEqual({
+    id: election.id,
+    title: election.title,
+    date: election.date,
+  });
+  expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
+    generateElectionBasedSubfolderName(
+      election,
+      cdfElectionDefinition.ballotHash
+    )
+  );
 });
 
 test('addElection surfaces the copy error when the package source is missing', async () => {

@@ -1,6 +1,7 @@
 create table elections (
   id text primary key,
   election_data text not null,
+  ballot_hash text not null,
   system_settings_data text not null,
   election_package_hash text not null,
   is_official_results integer not null default false,

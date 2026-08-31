@@ -1,7 +1,12 @@
 import { dirname } from 'node:path';
 import { mkdir, rm } from 'node:fs/promises';
-import { err, extractErrorMessage, ok, Result } from '@votingworks/basics';
-import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import {
+  assertDefined,
+  err,
+  extractErrorMessage,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { prepare, PrepareError } from './prepare_step.js';
 import { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
@@ -58,11 +63,11 @@ export async function createBackup(
     return prepareResult;
   }
 
-  const { source, store, electionRecord } = prepareResult.ok();
+  const { electionId, source, snapshotStore } = prepareResult.ok();
 
-  const electionBackupName = generateElectionBasedSubfolderName(
-    electionRecord.electionDefinition.election,
-    electionRecord.electionDefinition.ballotHash
+  const electionBackupName = assertDefined(
+    snapshotStore.getElectionBasedSubfolderName(electionId),
+    'the election `prepare` found must still be in the snapshot it took'
   );
 
   const root = new BackupRoot(options.target);
@@ -83,9 +88,9 @@ export async function createBackup(
       await rm(inProgressBackupPath, { recursive: true, force: true });
 
       manifest = await copy({
+        electionId,
         source,
-        store,
-        electionRecord,
+        store: snapshotStore,
         backup: inProgressBackupPath,
         logger: options.logger,
         onProgressEvent: options.onProgressEvent,
@@ -93,7 +98,7 @@ export async function createBackup(
     } finally {
       // Close the snapshot's connection before deleting the file it holds
       // open, or the space it occupies won't be reclaimed until we exit.
-      store.close();
+      snapshotStore.close();
       await source.cleanup();
     }
 
