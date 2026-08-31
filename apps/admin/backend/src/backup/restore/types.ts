@@ -7,6 +7,7 @@ import { ProgressTracking } from '../progress.js';
 export type RestoreError =
   | { type: 'cancelled'; message: string }
   | { type: 'workspace-already-configured'; message: string }
+  | { type: 'write-in-progress'; message: string }
   | { type: 'backup-read-failed'; message: string }
   | { type: 'backup-authentication-failed'; message: string }
   | { type: 'backup-verification-failed'; message: string }

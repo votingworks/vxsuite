@@ -22,13 +22,26 @@ function getMarkerPath(workspacePath: string): string {
 }
 
 /**
- * Checks that the workspace is one a restore may take over: either
- * unconfigured, or left behind by an interrupted restore (per the marker), in
- * which case the restore is what recovers it.
+ * Checks that the workspace is one a restore may take over: not being written
+ * to, and either unconfigured or left behind by an interrupted restore (per
+ * the marker), in which case the restore is what recovers it.
  */
 export function checkWorkspaceIsRestorable(
   workspace: Workspace
 ): Result<void, RestoreError> {
+  // The restore closes this connection and deletes the database under it, so
+  // an operation partway through writing would be cut off mid-transaction with
+  // no way to tell whether its work survived. Checked before the marker, since
+  // a workspace left by an interrupted restore is no reason to cut off a write
+  // that is happening right now.
+  if (workspace.store['client'].isInTransaction()) {
+    return err({
+      type: 'write-in-progress',
+      message:
+        'Cannot restore while another operation is writing to the database',
+    });
+  }
+
   if (existsSync(getMarkerPath(workspace.path))) {
     return ok();
   }

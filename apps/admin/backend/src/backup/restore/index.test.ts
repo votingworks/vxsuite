@@ -1094,3 +1094,54 @@ test('restore closes the workspace store even when it fails after claiming it', 
   );
   expect(listWorkspace(workspacePath)).toEqual([]);
 });
+
+test('restore refuses while a write transaction is open on the workspace', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  const contentsBefore = listWorkspace(workspacePath);
+
+  // What a CVR import looks like from here: it holds its transaction open
+  // across awaits for the whole import.
+  workspace.store['client'].run('begin transaction');
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    })
+  ).toEqual(
+    err({
+      type: 'write-in-progress',
+      message:
+        'Cannot restore while another operation is writing to the database',
+    })
+  );
+
+  // Refused before anything was claimed, so the write can carry on.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+  workspace.store['client'].run('rollback');
+});
+
+test('restore refuses a write in progress even in a workspace an interrupted restore left', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  await writeFile(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
+  const workspace = restorable(workspacePath);
+  workspace.store['client'].run('begin transaction');
+
+  // Recovering an interrupted restore is no reason to cut off a write that is
+  // happening right now.
+  expect(
+    (
+      await restoreBackup({
+        backup: backup.path,
+        workspace,
+        logger: mockBaseLogger({ fn: vi.fn }),
+      })
+    ).err()
+  ).toMatchObject({ type: 'write-in-progress' });
+
+  workspace.store['client'].run('rollback');
+});
