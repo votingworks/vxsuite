@@ -76,7 +76,7 @@ test('JSON serialization/deserialization', () => {
   // DateWithoutTimes
   expectToBePreservedExactly(new DateWithoutTime('2020-01-01'));
   expectToBePreservedExactly({ a: new DateWithoutTime('2020-01-01') });
-  // luxon DateTimes
+  // Luxon DateTimes
   expectToBePreservedExactly(
     DateTime.fromISO('2020-01-01T00:00:00.000Z', { setZone: true })
   );
@@ -138,4 +138,27 @@ test('deserialize errors with invalid JSON', () => {
   expect(() =>
     deserialize('{"__grout_type": "not a real type","__grout_value": 1}')
   ).toThrow('Unknown tag: not a real type');
+});
+
+/**
+ * Luxon ships both an ESM and a CommonJS build, and a DateTime created by one
+ * of them is not `instanceof` the other's class. Grout is CommonJS and
+ * uses the CommonJS build while some packages that import Grout and Luxon use
+ * the ESM build. Copying a DateTime onto a duplicate of its class simulates
+ * one arriving from the other build.
+ */
+test('Luxon DateTimes from another copy of Luxon', () => {
+  const duplicateClassPrototype = Object.create(
+    Object.prototype,
+    Object.getOwnPropertyDescriptors(DateTime.prototype)
+  );
+  const dateTime: DateTime = Object.create(
+    duplicateClassPrototype,
+    Object.getOwnPropertyDescriptors(DateTime.utc())
+  );
+  expect(dateTime instanceof DateTime).toEqual(false);
+
+  expect(deserialize(serialize(dateTime))).toStrictEqual(
+    DateTime.fromISO(dateTime.toISO(), { setZone: true })
+  );
 });
