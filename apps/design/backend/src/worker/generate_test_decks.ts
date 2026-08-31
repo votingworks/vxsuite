@@ -14,6 +14,8 @@ import {
   ElectionSerializationOptions,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
+  RendererPool,
+  ScratchDir,
 } from '@votingworks/hmpb';
 import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
@@ -47,9 +49,27 @@ export const GenerateTestDecksPayloadSchema: z.ZodType<GenerateTestDecksPayload>
   });
 
 export async function generateTestDecks(
+  ctx: WorkerContext,
+  payload: GenerateTestDecksPayload,
+  emitProgress: EmitProgressFunction,
+  scratchDir: ScratchDir
+): Promise<void> {
+  const rendererPool = await createPlaywrightRendererPool();
+
+  try {
+    await generate(ctx, payload, rendererPool, emitProgress, scratchDir);
+  } finally {
+    // eslint-disable-next-line no-console
+    rendererPool.close().catch(console.error);
+  }
+}
+
+async function generate(
   { translator, workspace, fileStorageClient }: WorkerContext,
   { electionId, electionSerializationFormat }: GenerateTestDecksPayload,
-  emitProgress: EmitProgressFunction
+  rendererPool: RendererPool,
+  emitProgress: EmitProgressFunction,
+  scratchDir: ScratchDir
 ): Promise<void> {
   const { store } = workspace;
   const electionRecord = await store.getElection(electionId);
@@ -96,25 +116,24 @@ export async function generateTestDecks(
     (props) =>
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
-  const rendererPool = await createPlaywrightRendererPool();
   const serializationOptions: ElectionSerializationOptions = {
     format: electionSerializationFormat,
     version: jurisdiction.softwareVersion,
   };
-  const { electionDefinition, ballotContents } =
+
+  const { electionDefinition, layoutPaths } =
     await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
       serializationOptions,
+      scratchDir,
       emitProgress
     );
+
   const ballots = iter(testBallotProps)
-    .zip(ballotContents)
-    .map(([props, contents]) => ({
-      props,
-      contents,
-    }))
+    .zip(layoutPaths)
+    .map(([props, layoutPath]) => ({ props, layoutPath }))
     .toArray();
 
   const zip = new JsZip();

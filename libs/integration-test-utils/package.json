@@ -40,10 +40,12 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "@votingworks/utils": "workspace:*"
+    "@votingworks/utils": "workspace:*",
+    "tmp": "^0.2.6"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
+    "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0",

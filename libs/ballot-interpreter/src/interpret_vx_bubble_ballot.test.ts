@@ -16,6 +16,7 @@ import {
   markBallotDocument,
   createTestVotes,
   createPlaywrightRendererPool,
+  ScratchDir,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -37,6 +38,7 @@ import { createCanvas } from 'canvas';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   pdfToPageImages,
@@ -861,7 +863,8 @@ test('Ballot audit IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      makeScratchDir()
     );
   const ballotPdf = ballotPdfs[0]!;
   await rendererPool.close();
@@ -898,18 +901,17 @@ describe('Contest option bounds', () => {
 
     const ballotProps = allBaseBallotProps(electionWithMeasureOnly);
     const rendererPool = await createPlaywrightRendererPool();
-    const { electionDefinition, ballotContents: blankBallotContents } =
+    const { electionDefinition, layoutPaths } =
       await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
-        { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+        { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+        makeScratchDir()
       );
 
     const markedBallotPdf = await rendererPool.runTask(async (renderer) => {
-      const ballotDocument = await renderer.loadDocumentFromContent(
-        blankBallotContents[0]!
-      );
+      const ballotDocument = await renderer.documentFromPath(layoutPaths[0]!);
       const { votes } = createTestVotes(electionWithMeasureOnly.contests);
       await renderBallotPdfWithMetadataQrCode(
         ballotProps[0]!,
@@ -958,18 +960,17 @@ describe('Contest option bounds', () => {
 
     const ballotProps = allBaseBallotProps(electionWithCandidateContestsOnly);
     const rendererPool = await createPlaywrightRendererPool();
-    const { electionDefinition, ballotContents: blankBallotContents } =
+    const { electionDefinition, layoutPaths } =
       await layOutBallotsAndCreateElectionDefinition(
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
-        { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+        { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+        makeScratchDir()
       );
 
     const markedBallotPdf = await rendererPool.runTask(async (renderer) => {
-      const ballotDocument = await renderer.loadDocumentFromContent(
-        blankBallotContents[0]!
-      );
+      const ballotDocument = await renderer.documentFromPath(layoutPaths[0]!);
       const { votes } = createTestVotes(
         electionWithCandidateContestsOnly.contests
       );
@@ -1007,4 +1008,8 @@ describe('Contest option bounds', () => {
 
 function allPrecinctIds(electionDef: ElectionDefinition) {
   return new Set(electionDef.election.precincts.map((p) => p.id));
+}
+
+function makeScratchDir(): ScratchDir {
+  return { path: makeTemporaryDirectory() };
 }

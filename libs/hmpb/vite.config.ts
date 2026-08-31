@@ -28,6 +28,14 @@ export default defineConfig(async (env) => {
         { find: /^buffer\/?$/, replacement: require.resolve('buffer/') },
         { find: /^node:buffer\/?$/, replacement: require.resolve('buffer/') },
         {
+          find: /^crypto$/,
+          replacement: join(__dirname, './src/preview/stubs/crypto.ts'),
+        },
+        {
+          find: /^node:crypto$/,
+          replacement: join(__dirname, './src/preview/stubs/crypto.ts'),
+        },
+        {
           find: /^fs\/promises$/,
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },

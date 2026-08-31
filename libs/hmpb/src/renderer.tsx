@@ -201,7 +201,12 @@ export interface Renderer {
   /**
    * Takes HTML content and returns a {@link RenderDocument} with that content rendered.
    */
-  loadDocumentFromContent(htmlContent: string): Promise<RenderDocument>;
+  documentFromContent(htmlContent: string): Promise<RenderDocument>;
+
+  /**
+   * Creates a {@link RenderDocument} from the HTML content at the given path.
+   */
+  documentFromPath(htmlPath: string): Promise<RenderDocument>;
 }
 
 /**

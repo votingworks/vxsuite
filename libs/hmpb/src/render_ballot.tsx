@@ -1,4 +1,5 @@
-import React from 'react';
+import * as path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import {
   assert,
@@ -37,6 +38,7 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import * as fs from 'node:fs/promises';
 import {
   DocumentElement,
   RenderDocument,
@@ -616,10 +618,22 @@ function serializeElection(
 }
 
 /**
+ * Temporary staging area for ballot layout files. Intermediate HTML layouts are
+ * written to disk to avoid memory exhaustion when processing large elections.
+ *
+ * Can be wiped after final PDFs are generated.
+ */
+export interface ScratchDir {
+  path: string;
+}
+
+/**
  * Given a {@link BallotPageTemplate} and a list of ballot props, lays out
  * each ballot for each set of props. Then, extracts the grid layout from the
- * ballot and creates an election definition. Returns the HTML content for each
- * ballot alongside the election definition.
+ * ballot and creates an election definition.
+ *
+ * Returns the path to the HTML content for each ballot (stored in
+ * {@link scratchDir}) alongside the election definition.
  *
  * Note: This function does not insert metadata QR codes into the ballots.
  */
@@ -633,14 +647,17 @@ export async function layOutBallotsAndCreateElectionDefinition<
     format: ElectionSerializationFormat;
     version: SoftwareVersion;
   },
+  scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
-  ballotContents: string[];
+  layoutPaths: string[];
   electionDefinition: ElectionDefinition;
 }> {
   assert(ballotProps.length > 0, 'No ballot props provided');
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
+
+  const positionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>();
 
   const ballotLayouts = await rendererPool.runTasks(
     ballotProps.map((props) => async (renderer) => {
@@ -649,56 +666,57 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const document = (
         await renderBallotTemplate(renderer, template, props)
       ).unsafeUnwrap();
-      const ballotStylePositions = await extractBallotPositions(
-        document,
-        props.ballotStyleId,
-        template.isAllBubbleBallot
-      );
-      const ballotContent = await document.getContent();
+
+      if (isScannedBallotStyle(props)) {
+        const positions = await extractBallotPositions(
+          document,
+          props.ballotStyleId,
+          template.isAllBubbleBallot
+        );
+        recordBallotPositions(positions);
+      }
+
+      const layoutPath = path.join(scratchDir.path, `${randomUUID()}.html`);
+      await fs.writeFile(layoutPath, await document.getContent());
+
       return {
         props,
-        ballotStylePositions,
-        ballotContent,
+        layoutPath,
       };
     }),
     emitProgress &&
       ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
-  // All ballots of a given ballot style must have the same positions.
-  // Changing precinct/ballot type/ballot mode shouldn't matter.
-  // We need to check sample ballots as well. Even though they don't have visible timing marks, we
-  // can still compute positions for them, and it's important that their bubble positions match
-  // official ballots.
-  const positionsByBallotStyle = iter(ballotLayouts)
+  function isScannedBallotStyle(props: P) {
     // NH state ballots have variants that aren't tabulated by machine and so
     // don't need to share bubble positions with the scanned ballots
-    .filter(
-      (ballot) =>
-        !('variant' in ballot.props && ballot.props.variant) &&
-        !('isHandCount' in ballot.props && ballot.props.isHandCount)
-    )
-    .map((ballot) => ballot.ballotStylePositions)
-    .toMap((positions) => positions.ballotStyleId);
-  for (const [ballotStyleId, positions] of positionsByBallotStyle.entries()) {
-    const [firstPositions, ...restPositions] = positions;
-    const hasDifferingPositions = restPositions.some(
-      (p) => !deepEqual(p, firstPositions)
+    return (
+      !('variant' in props && props.variant) &&
+      !('isHandCount' in props && props.isHandCount)
     );
-    if (hasDifferingPositions) {
-      throw new Error(
-        `Found multiple distinct ballot positions for ballot style ${ballotStyleId}`
+  }
+
+  function recordBallotPositions(p: {
+    ballotStyleId: BallotStyleId;
+    ballotPositions: SheetPositions[];
+  }) {
+    const firstSeenPositions = positionsByBallotStyle.get(p.ballotStyleId);
+
+    if (firstSeenPositions) {
+      // All ballots of a given ballot style must have the same positions.
+      // Changing precinct/ballot type/ballot mode shouldn't matter. We need to
+      // check sample ballots as well. Even though they don't have visible
+      // timing marks, we can still compute positions for them, and it's
+      // important that their bubble positions match official ballots.
+      assert(
+        deepEqual(firstSeenPositions, p.ballotPositions),
+        `Found multiple distinct ballot positions for ballot style ${p.ballotStyleId}`
       );
+    } else {
+      positionsByBallotStyle.set(p.ballotStyleId, p.ballotPositions);
     }
   }
-  // Now that all positions for a ballot style are guaranteed to be equal, we
-  // can just use one per ballot style.
-  const ballotPositionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>(
-    iter(positionsByBallotStyle.entries()).map(([ballotStyleId, positions]) => [
-      ballotStyleId,
-      assertDefined(iter(positions.values()).first()).ballotPositions,
-    ])
-  );
 
   const contests = election.contests
     // Temporary workaround for candidate rotation to ensure that VxMark's voting
@@ -741,7 +759,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     });
 
   const ballotStyles = election.ballotStyles.map((ballotStyle) => {
-    const ballotPositions = ballotPositionsByBallotStyle.get(ballotStyle.id);
+    const ballotPositions = positionsByBallotStyle.get(ballotStyle.id);
     return ballotPositions ? { ...ballotStyle, ballotPositions } : ballotStyle;
   });
 
@@ -750,6 +768,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     ballotStyles,
     contests,
   };
+
   const serializedElection = serializeElection(
     electionWithBallotPositions,
     electionSerializationOptions
@@ -760,7 +779,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     ).unsafeUnwrap();
 
   return {
-    ballotContents: ballotLayouts.map(({ ballotContent }) => ballotContent),
+    layoutPaths: ballotLayouts.map((l) => l.layoutPath),
     electionDefinition,
   };
 }
@@ -772,38 +791,52 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   template: BallotPageTemplate<P>,
   ballotProps: P[],
   electionSerializationOptions: ElectionSerializationOptions,
+  scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPdfs: Uint8Array[];
   electionDefinition: ElectionDefinition;
 }> {
-  const { ballotContents, electionDefinition } =
+  const { layoutPaths, electionDefinition } =
     await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       template,
       ballotProps,
       electionSerializationOptions,
+      scratchDir,
       emitProgress
     );
 
+  // [TODO] Stage PDFs on disk instead of accumulating in memory. They are later
+  // written to disk anyway for ghostscript-based color conversion passes.
   const ballotPdfs = await rendererPool.runTasks(
     iter(ballotProps)
-      .zip(ballotContents)
-      .map(([props, ballotContent]) => async (renderer: Renderer) => {
-        const document = await renderer.loadDocumentFromContent(ballotContent);
-        const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+      .zip(layoutPaths)
+      .map(([props, layoutPath]) => async (renderer: Renderer) => {
+        const document = await renderer.documentFromPath(layoutPath);
+
+        // No need to throw on failed single-file cleanup. Scratch directories
+        // are expected to be cleaned up after each run. If failures pile up for
+        // a very large job, we can expect a "no space" error later downstream.
+        void fs.rm(layoutPath).catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error(`cleanup failed for temp layout ${layoutPath}:`, error);
+        });
+
+        return renderBallotPdfWithMetadataQrCode(
           props,
           document,
           electionDefinition,
           electionSerializationOptions.version
         );
-        return ballotPdf;
       })
       .toArray(),
+
     emitProgress &&
       ((progress, total) =>
         emitProgress('Rendering ballot PDFs', progress, total))
   );
+
   return { ballotPdfs, electionDefinition };
 }
 
@@ -841,17 +874,21 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
-  electionSerializationOptions: ElectionSerializationOptions
+  electionSerializationOptions: ElectionSerializationOptions,
+  scratchDir: ScratchDir
 ): Promise<ElectionDefinition> {
   const minimalBallotProps = groupBy(
     allBallotProps,
     (props) => props.ballotStyleId
   ).map(([, [, props]]) => props);
+
   const { electionDefinition } = await layOutBallotsAndCreateElectionDefinition(
     rendererPool,
     template,
     minimalBallotProps,
-    electionSerializationOptions
+    electionSerializationOptions,
+    scratchDir
   );
+
   return electionDefinition;
 }

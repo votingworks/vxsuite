@@ -7,13 +7,12 @@ import {
   Election,
   HmpbBallotPaperSize,
   PrecinctId,
-  LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ballotTemplates } from './ballot_templates/index.js';
-import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { layOutBallotsAndCreateElectionDefinition } from './render_ballot.js';
+import { createPlaywrightRenderer } from './playwright_renderer.js';
+import { renderBallotTemplate } from './render_ballot.js';
 
 const DISTRICT_ID = 'district-1' as DistrictId;
 const PRECINCT_ID = 'precinct-1' as PrecinctId;
@@ -114,43 +113,35 @@ export async function main(): Promise<number> {
 
   const resolvedOutputPath = resolve(outputPath);
   const election = makeElection();
-  const ballotProps = [
-    {
-      election,
-      ballotStyleId: BALLOT_STYLE_ID,
-      precinctId: PRECINCT_ID,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test' as const,
-      watermark: 'TEST',
-    },
-  ];
 
-  process.stdout.write('Creating renderer pool...\n');
-  const rendererPool = await createPlaywrightRendererPool();
+  process.stdout.write('Creating renderer...\n');
+  const renderer = await createPlaywrightRenderer();
 
   try {
     process.stdout.write('Rendering ballot...\n');
-    // Use layOutBallotsAndCreateElectionDefinition + direct renderToPdf so
-    // that the QR code slot is present (for layout) but is never filled in,
-    // making it clear this ballot is not meant to be scanned.
-    const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
-      rendererPool,
+    // Use `renderBallotTemplate` so that the QR code slot is present (for
+    // layout) but is never filled in, making it clear this ballot is not meant
+    // to be scanned.
+    const result = await renderBallotTemplate(
+      renderer,
       ballotTemplates.VxDefaultBallot,
-      ballotProps,
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      {
+        election,
+        ballotStyleId: BALLOT_STYLE_ID,
+        precinctId: PRECINCT_ID,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test' as const,
+        watermark: 'TEST',
+      }
     );
 
-    const pdf = await rendererPool.runTask(async (renderer) => {
-      const document = await renderer.loadDocumentFromContent(
-        ballotContents[0]
-      );
-      return document.renderToPdf();
-    });
+    const document = result.unsafeUnwrap();
+    const pdf = await document.renderToPdf();
 
     await writeFile(resolvedOutputPath, pdf);
     process.stdout.write(`Written to ${resolvedOutputPath}\n`);
   } finally {
-    await rendererPool.close();
+    await renderer.close();
   }
 
   return 0;

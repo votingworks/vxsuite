@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { afterAll, beforeAll, test, expect } from 'vitest';
 import {
   BALLOT_MODES,
@@ -29,8 +32,10 @@ import {
 } from 'node-html-parser';
 import {
   allBaseBallotProps,
+  layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
   renderBallotTemplate,
+  ScratchDir,
 } from './render_ballot.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
 import { RendererPool } from './renderer.js';
@@ -53,6 +58,7 @@ import {
   OptionInfo,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components.js';
+import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';
 
 let rendererPool: RendererPool;
 beforeAll(async () => {
@@ -131,7 +137,8 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
-      { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+      { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      makeScratchDir()
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
 });
@@ -143,7 +150,8 @@ test('rendered ballot can convert to v4p0 election', async () => {
     rendererPool,
     ballotTemplates.VxDefaultBallot,
     allBallotProps,
-    { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    makeScratchDir()
   );
 
   // Verify at least one ballot style has ballotPositions (i.e., the renderer
@@ -181,7 +189,8 @@ test('reorder candidates based on rotation from template', async () => {
     rendererPool,
     ballotTemplates.NhBallot,
     allBallotProps,
-    { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    makeScratchDir()
   );
 
   const { contests: fixtureContests, ...restFixtureElection } = fixtureElection;
@@ -235,7 +244,8 @@ test('v4.1: ballot measure contests with 3+ options are exported natively as yes
       rendererPool,
       ballotTemplates.NhBallot,
       allBallotProps,
-      { format: 'vxf', version: 'v4.1' }
+      { format: 'vxf', version: 'v4.1' },
+      makeScratchDir()
     );
   const nativeContest = find(
     electionDefinitionV41.election.contests,
@@ -268,7 +278,8 @@ test('v4.0: ballot measure contests with 3+ options are transformed into candida
       rendererPool,
       ballotTemplates.NhBallot,
       allBallotProps,
-      { format: 'vxf', version: 'v4.0' }
+      { format: 'vxf', version: 'v4.0' },
+      makeScratchDir()
     );
   const transformedContest = find(
     electionDefinitionV40.election.contests,
@@ -456,3 +467,29 @@ test.each(templateSpecificTestCases)(
     }
   }
 );
+
+test('fails on inconsistent ballot positions for matching styles', async () => {
+  const baseProps: BaseBallotProps = {
+    ...vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+    compact: false,
+  };
+
+  const conflictingProps: BaseBallotProps = {
+    ...baseProps,
+    compact: true,
+  };
+
+  const res = layOutBallotsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    [baseProps, conflictingProps],
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    makeScratchDir()
+  );
+
+  await expect(res).rejects.toThrow(/multiple distinct ballot positions/);
+});
+
+function makeScratchDir(): ScratchDir {
+  return { path: makeTemporaryDirectory() };
+}

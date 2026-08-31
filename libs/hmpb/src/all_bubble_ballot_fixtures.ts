@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { assertDefined, iter, range } from '@votingworks/basics';
 import {
   BallotType,
@@ -14,6 +15,7 @@ import {
 import makeDebug from 'debug';
 
 import { join } from 'node:path';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { createElection } from './all_bubble_ballot/election.js';
 import { allBubbleBallotTemplate } from './all_bubble_ballot/template.js';
 import { concatenatePdfs } from './concatenate_pdfs.js';
@@ -21,6 +23,7 @@ import { markBallotDocument } from './mark_ballot.js';
 import {
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
+  ScratchDir,
 } from './render_ballot.js';
 import { RendererPool } from './renderer.js';
 import { injectFooterMetadata } from './all_bubble_ballot/footer.js';
@@ -37,7 +40,10 @@ export interface AllBubbleBallotFixtures {
   blankBallotPath: string;
   filledBallotPath: string;
   cyclingTestDeckPath: string;
-  generate(rendererPool: RendererPool): Promise<{
+  generate(
+    rendererPool: RendererPool,
+    scratchDir?: ScratchDir
+  ): Promise<{
     electionDefinition: ElectionDefinition;
     blankBallotPdf: Uint8Array;
     filledBallotPdf: Uint8Array;
@@ -75,20 +81,22 @@ export function allBubbleBallotFixtures(
     filledBallotPath,
     cyclingTestDeckPath,
 
-    async generate(rendererPool: RendererPool) {
+    async generate(rendererPool: RendererPool, scratchDir?: ScratchDir) {
       debug(`Generating: ${blankBallotPath}`);
-      const { electionDefinition, ballotContents } =
+
+      const { electionDefinition, layoutPaths } =
         await layOutBallotsAndCreateElectionDefinition(
           rendererPool,
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
-          { format: 'vxf', version: LATEST_SOFTWARE_VERSION }
+          { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+          scratchDir ?? { path: makeTemporaryDirectory() }
         );
 
       return await rendererPool.runTask(async (renderer) => {
-        const [blankBallotContents] = ballotContents;
+        const blankBallotContents = fs.readFileSync(layoutPaths[0], 'utf8');
         const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
+          await renderer.documentFromContent(blankBallotContents);
 
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
           ballotProps,
@@ -149,7 +157,7 @@ export function allBubbleBallotFixtures(
               ])
             );
             const sheetDocument = await markBallotDocument(
-              await renderer.loadDocumentFromContent(blankBallotContents),
+              await renderer.documentFromContent(blankBallotContents),
               votesForSheet
             );
             await injectFooterMetadata(sheetDocument, {

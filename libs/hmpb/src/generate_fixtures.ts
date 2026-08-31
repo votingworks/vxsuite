@@ -1,3 +1,5 @@
+import * as tmp from 'tmp';
+
 import { iter } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import { HmpbBallotPaperSize } from '@votingworks/types';
@@ -24,12 +26,13 @@ import {
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
 import { Renderer, RendererPool } from './renderer.js';
 import { TimingMarkPaperType } from './timing_mark_paper/template.js';
+import { ScratchDir } from './render_ballot.js';
 
 async function generateAllBubbleBallotFixtures(
   fixtures: AllBubbleBallotFixtures,
   rendererPool: RendererPool
 ) {
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -44,6 +47,7 @@ async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
   const fixtures = vxFamousNamesFixtures;
   const generated = await fixtures.generate(rendererPool, {
     generatePageImages: true,
+    scratchDir: makeScratchDir(),
   });
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
@@ -87,7 +91,8 @@ async function generateVxGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = vxGeneralElectionFixtures;
   const allGenerated = await fixtures.generate(
     rendererPool,
-    fixtures.fixtureSpecs
+    fixtures.fixtureSpecs,
+    makeScratchDir()
   );
   for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
     allGenerated
@@ -112,7 +117,9 @@ async function generateVxGeneralElectionFixtures(rendererPool: RendererPool) {
 
 async function generateVxPrimaryElectionFixtures(rendererPool: RendererPool) {
   const fixtures = vxPrimaryElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, {
+    scratchDir: makeScratchDir(),
+  });
   await mkdir(fixtures.dir, { recursive: true });
 
   for (const party of ['mammalParty', 'fishParty'] as const) {
@@ -137,7 +144,8 @@ async function generateNhGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = nhGeneralElectionFixtures;
   const allGenerated = await fixtures.generate(
     rendererPool,
-    fixtures.fixtureSpecs
+    fixtures.fixtureSpecs,
+    makeScratchDir()
   );
   for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
     allGenerated
@@ -156,7 +164,7 @@ async function generateNhStateGeneralElectionFixtures(
   rendererPool: RendererPool
 ) {
   const fixtures = nhStateGeneralElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -182,7 +190,7 @@ async function generateNhStatePrimaryElectionFixtures(
   rendererPool: RendererPool
 ) {
   const fixtures = nhStatePrimaryElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -210,7 +218,7 @@ async function generateMiClosedPrimaryElectionFixtures(
   rendererPool: RendererPool
 ) {
   const fixtures = miClosedPrimaryElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -226,7 +234,7 @@ async function generateMiCombinedBallotPrimaryElectionFixtures(
   rendererPool: RendererPool
 ) {
   const fixtures = miCombinedBallotPrimaryElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -238,7 +246,7 @@ async function generateMiCombinedBallotPrimaryElectionFixtures(
 
 async function generateMiGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = miGeneralElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -250,7 +258,7 @@ async function generateMiGeneralElectionFixtures(rendererPool: RendererPool) {
 
 async function generateMsGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = msGeneralElectionFixtures;
-  const generated = await fixtures.generate(rendererPool);
+  const generated = await fixtures.generate(rendererPool, makeScratchDir());
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -515,4 +523,10 @@ export async function main(): Promise<number> {
   await rendererPool.close();
 
   return 0;
+}
+
+tmp.setGracefulCleanup();
+
+function makeScratchDir(): ScratchDir {
+  return { path: tmp.dirSync({ unsafeCleanup: true }).name };
 }
