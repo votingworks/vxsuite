@@ -108,6 +108,47 @@ test('a file that grows past the limit while being copied is abandoned', async (
   expect(existsSync(destination)).toEqual(false);
 });
 
+test('a signal already aborted stops the copy before it opens anything', async () => {
+  const source = makeTemporaryFile({ content: 'the contents of the file' });
+  const destination = makeDestinationPath();
+  const open = vi.spyOn(openFile, 'open');
+
+  expect(
+    await copyFile({
+      source,
+      destination,
+      maxSize: 1024,
+      signal: AbortSignal.abort(),
+    })
+  ).toEqual(err(typedAs<CopyFileError>({ type: 'Cancelled' })));
+
+  expect(open).not.toHaveBeenCalled();
+  expect(existsSync(destination)).toEqual(false);
+});
+
+test('aborting partway through leaves no partial destination', async () => {
+  // Big enough that the abort below lands between chunks rather than after
+  // the whole file has already been read.
+  const content = Buffer.from('a'.repeat(READ_CHUNK_SIZE * 4));
+  const source = makeTemporaryFile({ content });
+  const destination = makeDestinationPath();
+  const controller = new AbortController();
+
+  const result = await copyFile({
+    source,
+    destination,
+    maxSize: content.byteLength,
+    onProgress: () => controller.abort(),
+    signal: controller.signal,
+  });
+
+  expect(result).toEqual(err(typedAs<CopyFileError>({ type: 'Cancelled' })));
+
+  // A cancelled copy is abandoned like a failed one: what landed so far is
+  // not a file anyone should find.
+  expect(existsSync(destination)).toEqual(false);
+});
+
 test('a source that cannot be opened is reported as such', async () => {
   const destination = makeDestinationPath();
 

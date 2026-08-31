@@ -13,7 +13,8 @@ export type CopyFileError =
   | { type: 'OpenFileError'; error: globalThis.Error }
   | { type: 'FileExceedsMaxSize'; maxSize: number }
   | { type: 'ReadFileError'; error: globalThis.Error }
-  | { type: 'WriteFileError'; error: globalThis.Error };
+  | { type: 'WriteFileError'; error: globalThis.Error }
+  | { type: 'Cancelled' };
 
 /**
  * What a copied file turned out to hold, measured as it was copied rather than
@@ -46,12 +47,18 @@ export interface DigestedCopiedFile extends CopiedFile {
  *
  * Pass `onProgress` to hear how many bytes have landed in the destination so
  * far, called once per chunk written.
+ *
+ * Pass `signal` to be able to stop the copy partway. Aborting is checked
+ * between chunks, so a copy stops within one chunk of the signal rather than
+ * running to completion, and the partial destination is removed just as it is
+ * for a failure.
  */
 export async function copyFile(options: {
   source: string;
   destination: string;
   maxSize: number;
   onProgress?: (copiedBytes: number) => void;
+  signal?: AbortSignal;
 }): Promise<Result<CopiedFile, CopyFileError>>;
 /**
  * Copies a file, up to `maxSize` bytes, hashing its contents along the way.
@@ -62,6 +69,7 @@ export async function copyFile(options: {
   maxSize: number;
   digest: 'sha256';
   onProgress?: (copiedBytes: number) => void;
+  signal?: AbortSignal;
 }): Promise<Result<DigestedCopiedFile, CopyFileError>>;
 /**
  * Copies a file, up to `maxSize` bytes.
@@ -72,15 +80,23 @@ export async function copyFile({
   maxSize,
   digest,
   onProgress,
+  signal,
 }: {
   source: string;
   destination: string;
   maxSize: number;
   digest?: 'sha256';
   onProgress?: (copiedBytes: number) => void;
+  signal?: AbortSignal;
 }): Promise<Result<CopiedFile | DigestedCopiedFile, CopyFileError>> {
   if (maxSize < 0) {
     throw new Error('maxSize must be non-negative');
+  }
+
+  // Checked before opening anything so that a copy cancelled up front costs
+  // nothing and leaves no destination at all.
+  if (signal?.aborted) {
+    return err({ type: 'Cancelled' });
   }
 
   const openSourceResult = await open(source);
@@ -109,6 +125,10 @@ export async function copyFile({
       for await (const chunk of readChunksWithinLimit(sourceFd, maxSize, {
         reuseBuffer: true,
       })) {
+        if (signal?.aborted) {
+          return err({ type: 'Cancelled' });
+        }
+
         size += chunk.byteLength;
         hash?.update(chunk);
 
