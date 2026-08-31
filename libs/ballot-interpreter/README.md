@@ -122,16 +122,16 @@ Because no bubbles may appear in the timing mark area, bubble coordinates
 effectively begin at (1, 1).
 
 The implementation uses a "corners" algorithm
-([timing_marks/corners/](src/bubble-ballot-rust/timing_marks/corners/)) that
-starts by identifying the four corners of the ballot grid and then walks along
-each border to find all timing marks.
+([timing_marks/corner_finding.rs](./src/bubble-ballot-rust/timing_marks/corner_finding.rs))
+that starts by identifying the four corners of the ballot grid and then walks
+along each border to find all timing marks.
 
 #### Timing Mark Detection Algorithm
 
 The timing mark detection process consists of three main steps:
 
 1. **Shape Finding**
-   ([timing_marks/corners/shape_finding/mod.rs](src/bubble-ballot-rust/timing_marks/corners/shape_finding/mod.rs)):
+   ([shape_finding/mod.rs](./src/bubble-ballot-rust/timing_marks/shape_finding/mod.rs)):
    The algorithm scans the ballot image column by column within an inset region
    from each edge. For each column, it groups contiguous black pixels vertically
    and filters groups by height to match expected timing mark dimensions.
@@ -141,7 +141,7 @@ The timing mark detection process consists of three main steps:
    timing mark size and aspect ratio.
 
 2. **Corner Finding**
-   ([timing_marks/corners/corner_finding.rs](src/bubble-ballot-rust/timing_marks/corners/corner_finding.rs)):
+   ([corner_finding.rs](./src/bubble-ballot-rust/timing_marks/corner_finding.rs)):
    For each of the four corners (top-left, top-right, bottom-left,
    bottom-right), the algorithm identifies candidate corner groupings. Each
    grouping consists of three timing marks: the corner mark itself, plus one
@@ -151,7 +151,7 @@ The timing mark detection process consists of three main steps:
    no such grouping is found, an error is returned.
 
 3. **Border Finding**
-   ([timing_marks/corners/border_finding.rs](src/bubble-ballot-rust/timing_marks/corners/border_finding.rs)):
+   ([border_finding.rs](./src/bubble-ballot-rust/timing_marks/border_finding.rs)):
    After corners are identified, the algorithm finds timing marks along each
    border by "walking" from one corner to the other. Starting at a corner mark,
    it computes a unit vector pointing toward the opposite corner with length

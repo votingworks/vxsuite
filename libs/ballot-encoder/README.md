@@ -105,7 +105,7 @@ information as possible is encoded. Here are some of the guidelines:
 
 ### Shared Ballot Config
 
-See `BallotConfig` in [index.ts](./index.ts) for the data structure used to
+See `BallotConfig` in [index.ts](src/index.ts) for the data structure used to
 represent this data in memory and applies to both BMD ballots and HMPB ballots.
 Given `E` (an `Election`) and `C` (a `BallotConfig`) corresponding to `E`, `C`
 is encoded as follows:
@@ -136,7 +136,7 @@ is encoded as follows:
 ### Completed BMD Ballot Encoding
 
 A "completed ballot" is one that has been filled out by a voter. See
-`CompletedBallot` in [election.ts](../../types/src/election.ts) for the data
+`CompletedBallot` in [election.ts](../types/src/election.ts) for the data
 structures used to represent a completed ballot in memory. Given `ED` (an
 `ElectionDefinition`), `B` (a `CompletedBallot`) corresponding to `ED`, `B` is
 encoded as follows:
@@ -183,7 +183,7 @@ encoded as follows:
 ### HMPB Metadata Encoding
 
 HMPB metadata describes the information needed to properly scan a hand-marked
-paper ballot. See `HMPBBallotPageMetadata` in [index.ts](./index.ts). Given
+paper ballot. See `HMPBBallotPageMetadata` in [index.ts](./src/index.ts). Given
 metadata `H` and election definition `ED`, `H` is encoded as follows:
 
 - **Prelude:** This is the literal string `VP` encoded as UTF-8 bytes, followed
