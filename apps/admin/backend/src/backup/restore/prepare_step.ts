@@ -6,6 +6,7 @@ import { err, iter, ok, Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { Workspace } from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
+import { checkWorkspaceIsHostMode } from '../host_mode.js';
 import { RestoreError } from './types.js';
 
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
@@ -22,13 +23,19 @@ function getMarkerPath(workspacePath: string): string {
 }
 
 /**
- * Checks that the workspace is one a restore may take over: not being written
- * to, and either unconfigured or left behind by an interrupted restore (per
- * the marker), in which case the restore is what recovers it.
+ * Checks that the workspace is one a restore may take over: a host machine's,
+ * not being written to, and either unconfigured or left behind by an
+ * interrupted restore (per the marker), in which case the restore is what
+ * recovers it.
  */
 export function checkWorkspaceIsRestorable(
   workspace: Workspace
 ): Result<void, RestoreError> {
+  const hostModeResult = checkWorkspaceIsHostMode(workspace);
+  if (hostModeResult.isErr()) {
+    return hostModeResult;
+  }
+
   // The restore closes this connection and deletes the database under it, so
   // an operation partway through writing would be cut off mid-transaction with
   // no way to tell whether its work survived. Checked before the marker, since

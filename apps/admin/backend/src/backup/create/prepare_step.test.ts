@@ -20,6 +20,7 @@ import {
 import { createWorkspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { BackupStagingArea } from '../staging_area.js';
+import { FileBackedMachineModeController } from '../../machine_mode.js';
 import { prepare } from './prepare_step.js';
 
 vi.mock(
@@ -465,5 +466,25 @@ test('cancels after staging files, before measuring the target', async () => {
     message: 'Backup cancelled',
   });
 
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses to back up a workspace belonging to a client machine', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  FileBackedMachineModeController.forWorkspace(workspace.path).set('client');
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+
+  // A client machine keeps whatever database it had before it was switched, so
+  // backing one up would capture data the machine is no longer using.
+  expect(result.err()).toEqual({
+    type: 'not-host-mode',
+    message:
+      'Only a VxAdmin in host mode can be backed up or restored, but this one is in client mode',
+  });
   expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
 });

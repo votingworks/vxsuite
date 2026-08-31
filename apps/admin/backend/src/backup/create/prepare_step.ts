@@ -12,6 +12,7 @@ import {
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { Id } from '@votingworks/types';
 import { Store } from '../../store.js';
+import { checkWorkspaceIsHostMode } from '../host_mode.js';
 import { PrepareBackupOptions } from './types.js';
 import { BackupStagingArea } from '../staging_area.js';
 
@@ -31,6 +32,10 @@ async function statOrUndefined(path: string): Promise<Stats | undefined> {
 export type PrepareError =
   | {
       type: 'cancelled';
+      message: string;
+    }
+  | {
+      type: 'not-host-mode';
       message: string;
     }
   | {
@@ -129,6 +134,11 @@ export async function prepare(
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
+  }
+
+  const hostModeResult = checkWorkspaceIsHostMode(workspace);
+  if (hostModeResult.isErr()) {
+    return hostModeResult;
   }
 
   // Check the target up front: an unmounted backup drive is the likeliest

@@ -8,6 +8,7 @@ export type RestoreError =
   | { type: 'cancelled'; message: string }
   | { type: 'workspace-already-configured'; message: string }
   | { type: 'write-in-progress'; message: string }
+  | { type: 'not-host-mode'; message: string }
   | { type: 'backup-read-failed'; message: string }
   | { type: 'backup-authentication-failed'; message: string }
   | { type: 'backup-verification-failed'; message: string }

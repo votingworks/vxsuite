@@ -37,6 +37,7 @@ import {
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
 import { Backup } from '../backup.js';
+import { FileBackedMachineModeController } from '../../machine_mode.js';
 import {
   BackupManifest,
   BACKUP_MANIFEST_VERSION,
@@ -1144,4 +1145,30 @@ test('restore refuses a write in progress even in a workspace an interrupted res
   ).toMatchObject({ type: 'write-in-progress' });
 
   workspace.store['client'].run('rollback');
+});
+
+test('restore refuses a workspace belonging to a client machine', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  FileBackedMachineModeController.forWorkspace(workspacePath).set('client');
+  const workspace = restorable(workspacePath);
+  const contentsBefore = listWorkspace(workspacePath);
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    })
+  ).toEqual(
+    err({
+      type: 'not-host-mode',
+      message:
+        'Only a VxAdmin in host mode can be backed up or restored, but this one is in client mode',
+    })
+  );
+
+  // Restoring would have emptied the workspace, taking the mode with it and
+  // silently turning a client machine into a host one.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
 });
