@@ -22,11 +22,16 @@ const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
 /**
  * Copies files from a backup staging area to the target, building a manifest
  * as it does so.
+ *
+ * Cancelling is left to {@link copyFile}, which refuses to open a file once
+ * `signal` has aborted and stops between chunks of one it is partway through.
+ * A cancel between two files is therefore reported by the next file's copy
+ * rather than by this loop.
  */
 export async function copy(
   options: CopyBackupOptions
 ): Promise<Result<BackupManifest, CopyFileError>> {
-  const { electionId, source, store } = options;
+  const { electionId, signal, source, store } = options;
   const progressEventIntervalBytes =
     options.progressEventIntervalBytes ?? DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES;
   let copiedCount = 0;
@@ -68,6 +73,7 @@ export async function copy(
       destination: targetFilePath,
       maxSize: file.size,
       digest: 'sha256',
+      signal,
       onProgress(fileCopiedBytes) {
         if (fileCopiedBytes - reportedSize >= progressEventIntervalBytes) {
           reportedSize = fileCopiedBytes;

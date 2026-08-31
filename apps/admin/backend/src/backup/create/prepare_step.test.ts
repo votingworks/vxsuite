@@ -365,3 +365,105 @@ test('fails loudly when a referenced ballot image is missing from disk', async (
     path: imagePath,
   });
 });
+
+test('cancels before doing any work when the signal is already aborted', async () => {
+  const workspace = await makeConfiguredWorkspace();
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: AbortSignal.abort(),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+
+  // Nothing was claimed, so a later run has no leftovers to reclaim.
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('cancels before snapshotting the database', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const controller = new AbortController();
+
+  // Measuring free space is the last thing that happens before the snapshot,
+  // which is the expensive part a cancel is meant to avoid paying for.
+  vi.mocked(getDiskSpaceSummaries).mockImplementation((paths) => {
+    controller.abort();
+    return Promise.resolve(
+      paths.map((path) => ({
+        path,
+        mountpoint: '/',
+        total: GENEROUS_AVAILABLE_KB,
+        used: 0,
+        available: GENEROUS_AVAILABLE_KB,
+      }))
+    );
+  });
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+});
+
+test('cancels partway through snapshotting the database', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const controller = new AbortController();
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent: (event) => {
+      if (event.type === 'db_snapshot') {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+
+  // The snapshot the aborted backup was writing is not left behind.
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('cancels after staging files, before measuring the target', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const controller = new AbortController();
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent: (event) => {
+      if (event.type === 'staging_files') {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});

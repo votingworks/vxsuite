@@ -4,6 +4,7 @@ import { ProgressTracking } from '../progress.js';
  * Possible expected errors that can occur when restoring a backup.
  */
 export type RestoreError =
+  | { type: 'cancelled'; message: string }
   | { type: 'workspace-already-configured'; message: string }
   | { type: 'backup-read-failed'; message: string }
   | { type: 'backup-authentication-failed'; message: string }

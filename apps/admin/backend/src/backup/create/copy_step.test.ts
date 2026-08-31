@@ -240,3 +240,37 @@ test('reports a staged file that cannot be read', async () => {
 
   await source.cleanup();
 });
+
+test('stops copying when cancelled between files', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+
+  const prepareResult = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
+  const backup = join(makeTemporaryDirectory(), 'backup');
+  const controller = new AbortController();
+
+  const result = await copy({
+    electionId,
+    source,
+    store: snapshotStore,
+    backup,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      // Abort once the first file has landed, so the copy stops with files
+      // still to go rather than after it would have finished anyway.
+      if (event.type === 'copy_files' && event.copiedCount === 1) {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({ type: 'Cancelled' });
+
+  await source.cleanup();
+});

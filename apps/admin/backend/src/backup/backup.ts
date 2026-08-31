@@ -123,6 +123,12 @@ function describeCopyFileError(path: string, error: CopyFileError): string {
       return `${path} is larger than the maximum of ${error.maxSize} bytes`;
     }
 
+    /* istanbul ignore next: opening a backup passes no signal, so there is
+       nothing to cancel it */
+    case 'Cancelled': {
+      return `Reading ${path} was cancelled`;
+    }
+
     default: {
       return `${extractErrorMessage(error.error)} (${path})`;
     }

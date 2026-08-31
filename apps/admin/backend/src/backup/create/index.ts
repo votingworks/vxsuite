@@ -26,9 +26,21 @@ export interface WriteBackupError {
 }
 
 /**
+ * Reported when the caller cancelled the backup.
+ */
+export interface CancelBackupError {
+  type: 'cancelled';
+  message: string;
+}
+
+/**
  * Possible expected errors that can occur when creating a backup.
  */
-export type CreateBackupError = PrepareError | WriteBackupError | SwapError;
+export type CreateBackupError =
+  | PrepareError
+  | WriteBackupError
+  | CancelBackupError
+  | SwapError;
 
 /**
  * Error codes we expect from writing a backup to its target: the drive filling
@@ -89,6 +101,29 @@ export async function createBackup(
   return result;
 }
 
+/**
+ * Reported when the caller cancelled the backup.
+ */
+const CANCELLED_ERROR: CreateBackupError = {
+  type: 'cancelled',
+  message: 'Backup cancelled',
+};
+
+/**
+ * Throws away a backup that will never be finished. Best effort: whatever
+ * stopped the write may stop the cleanup too, and the next run clears the path
+ * before it writes anything.
+ */
+async function discardInProgressBackup(
+  inProgressBackupPath: string
+): Promise<void> {
+  try {
+    await rm(inProgressBackupPath, { recursive: true, force: true });
+  } catch {
+    // ignored
+  }
+}
+
 async function tryCreateBackup(
   options: PrepareBackupOptions
 ): Promise<Result<CreatedBackup, CreateBackupError>> {
@@ -128,16 +163,15 @@ async function tryCreateBackup(
         backup: inProgressBackupPath,
         logger: options.logger,
         onProgressEvent: options.onProgressEvent,
+        signal: options.signal,
       });
       if (copyResult.isErr()) {
         const error = copyResult.err();
 
-        // Same cleanup as a thrown write error below: discard what we managed
-        // to write, best effort.
-        try {
-          await rm(inProgressBackupPath, { recursive: true, force: true });
-        } catch {
-          // ignored
+        await discardInProgressBackup(inProgressBackupPath);
+
+        if (error.type === 'Cancelled') {
+          return err(CANCELLED_ERROR);
         }
 
         return err({
@@ -156,6 +190,14 @@ async function tryCreateBackup(
       await source.cleanup();
     }
 
+    // The last point a backup can be abandoned cheaply: past the swap below
+    // there is a new backup in place of the old one, and the operator is
+    // better served by a finished backup than by a half-swapped directory.
+    if (options.signal?.aborted) {
+      await discardInProgressBackup(inProgressBackupPath);
+      return err(CANCELLED_ERROR);
+    }
+
     await writeManifest({
       manifest,
       backup: inProgressBackupPath,
@@ -168,15 +210,9 @@ async function tryCreateBackup(
       throw error;
     }
 
-    // The backup at its final path is still intact, so discard what we managed
-    // to write instead of leaving it for a later run to clean up. Best effort:
-    // whatever stopped the write may stop the cleanup too, and the next run
-    // clears the path before it writes anything.
-    try {
-      await rm(inProgressBackupPath, { recursive: true, force: true });
-    } catch {
-      // ignored
-    }
+    // The backup at its final path is still intact, so what this run managed
+    // to write is discarded rather than left for a later run to clean up.
+    await discardInProgressBackup(inProgressBackupPath);
 
     return err({
       type: 'backup-write-failed',

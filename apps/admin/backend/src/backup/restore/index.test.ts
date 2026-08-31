@@ -24,6 +24,7 @@ import { exists } from 'fs-extra';
 import { syncFilesystem } from '@votingworks/fs';
 import {
   addCvrWithBallotImage,
+  GENEROUS_AVAILABLE_KB,
   makeBackup,
   makeConfiguredWorkspace,
   mockDiskSpace,
@@ -928,4 +929,113 @@ test('restoring into a configured workspace fails', async () => {
   using workspace = openWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
   const electionId = assertDefined(workspace.store.getCurrentElectionId());
   expect(workspace.store.getAllBallotImagePaths(electionId)).toHaveLength(1);
+});
+
+test('a restore cancelled before it starts leaves the workspace alone', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  await writeFile(join(workspacePath, 'stray-file'), 'left over from before');
+  const contentsBefore = listWorkspace(workspacePath);
+
+  const logger = mockBaseLogger({ fn: vi.fn });
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace: workspacePath,
+      logger,
+      signal: AbortSignal.abort(),
+    })
+  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupRestoreComplete,
+    'system',
+    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+  );
+});
+
+test('a restore cancelled while vetting the backup leaves the workspace alone', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  await writeFile(join(workspacePath, 'stray-file'), 'left over from before');
+  const contentsBefore = listWorkspace(workspacePath);
+  const controller = new AbortController();
+
+  // Measuring the workspace volume is the last thing that happens before the
+  // workspace is claimed and emptied.
+  mockDiskSpace(() => {
+    controller.abort();
+    return GENEROUS_AVAILABLE_KB;
+  });
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace: workspacePath,
+      logger: mockBaseLogger({ fn: vi.fn }),
+      signal: controller.signal,
+    })
+  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+
+  // Nothing was claimed, so what the operator had is what they still have.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+});
+
+test('a restore cancelled between files empties the workspace it had claimed', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const controller = new AbortController();
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace: workspacePath,
+      logger: mockBaseLogger({ fn: vi.fn }),
+      signal: controller.signal,
+      onProgressEvent(event) {
+        // Abort once one file has landed, so files remain to be copied.
+        if (event.type === 'copy_files' && event.copiedCount === 1) {
+          controller.abort();
+        }
+      },
+    })
+  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+
+  // A partly-restored workspace is not something to leave behind: it must be
+  // as empty as a failed restore leaves it, and the marker must be gone with
+  // it so the next restore is not told it is recovering an interrupted one.
+  expect(listWorkspace(workspacePath)).toEqual([]);
+});
+
+test('a restore cancelled partway through a file empties the workspace', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const controller = new AbortController();
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace: workspacePath,
+      logger: mockBaseLogger({ fn: vi.fn }),
+      signal: controller.signal,
+      // Low enough that even these small files report mid-copy progress.
+      progressEventIntervalBytes: 1,
+      onProgressEvent(event) {
+        // Mid-file: bytes have landed for a file that is not yet counted as
+        // copied, so the abort has to be noticed by the copy itself rather
+        // than by the loop around it.
+        if (
+          event.type === 'copy_files' &&
+          event.current !== undefined &&
+          event.copiedBytes > 0 &&
+          event.copiedCount < event.totalCount
+        ) {
+          controller.abort();
+        }
+      },
+    })
+  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+
+  expect(listWorkspace(workspacePath)).toEqual([]);
 });

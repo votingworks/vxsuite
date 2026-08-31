@@ -380,3 +380,102 @@ test('reports a failed swap rather than a created backup', async () => {
     message: 'could not swap',
   });
 });
+
+test('a cancelled copy leaves no partial backup behind', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(copy).mockResolvedValueOnce(err({ type: 'Cancelled' }));
+
+  // No signal here: what is under test is how the orchestration handles a
+  // copy that reports it was cancelled, not where the cancel came from.
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const result = await createBackup({
+    workspace,
+    target,
+    logger,
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+    LogEventId.BackupCreateComplete,
+    'system',
+    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+  );
+});
+
+test('cancelling after the copy finishes stops before the manifest is written', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const target = makeTemporaryDirectory();
+  const controller = new AbortController();
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      // The event announcing the last file copied: everything is written but
+      // nothing has been signed or swapped into place yet.
+      if (
+        event.type === 'copy_files' &&
+        event.copiedCount === event.totalCount
+      ) {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(result.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+  expect(vi.mocked(writeManifest)).not.toHaveBeenCalled();
+
+  // An unsigned pile of copied files is not a backup, so it is discarded
+  // rather than left where `listBackups` would find it.
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+});
+
+test('a backup already in place survives a cancelled attempt to replace it', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const target = makeTemporaryDirectory();
+
+  const firstResult = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+  });
+  const backupPath = firstResult.unsafeUnwrap().path;
+  const backupContentsBefore = readdirSync(backupPath).sort();
+
+  const controller = new AbortController();
+  const secondResult = await createBackup({
+    workspace,
+    target,
+    logger: mockBaseLogger({ fn: vi.fn }),
+    signal: controller.signal,
+    onProgressEvent(event) {
+      if (event.type === 'db_snapshot') {
+        controller.abort();
+      }
+    },
+  });
+
+  expect(secondResult.err()).toEqual({
+    type: 'cancelled',
+    message: 'Backup cancelled',
+  });
+
+  // Cancelling replaces nothing: the backup the operator already had is the
+  // backup they still have.
+  expect(readdirSync(backupPath).sort()).toEqual(backupContentsBefore);
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([
+    relative(new BackupRoot(target).pathFor('.'), backupPath),
+  ]);
+});

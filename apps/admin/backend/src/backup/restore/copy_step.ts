@@ -22,20 +22,35 @@ import { RestoreError } from './types.js';
 const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
 
 /**
+ * Reported when the caller cancelled the restore.
+ */
+const CANCELLED_ERROR: RestoreError = {
+  type: 'cancelled',
+  message: 'Restore cancelled',
+};
+
+/**
  * Copies every file the manifest promises into the workspace, verifying each
  * against its manifest entry as it lands.
+ *
+ * Cancelling is left to {@link copyFile}, which refuses to open a file once
+ * `signal` has aborted and stops between chunks of one it is partway through.
+ * A cancel between two files is therefore reported by the next file's copy
+ * rather than by this loop.
  */
 export async function copyBackupFiles({
   backup,
   manifest,
   workspacePath,
   onProgressEvent,
+  signal,
   progressEventIntervalBytes = DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES,
 }: {
   backup: AuthenticatedBackup;
   manifest: BackupManifest;
   workspacePath: string;
   onProgressEvent?: (event: ProgressEvent) => void;
+  signal?: AbortSignal;
   progressEventIntervalBytes?: number;
 }): Promise<Result<void, RestoreError>> {
   const workspacePrefix = `${BACKUP_WORKSPACE_DIR}/`;
@@ -77,6 +92,7 @@ export async function copyBackupFiles({
       destination: destinationPath,
       maxSize: file.size,
       digest: 'sha256',
+      signal,
       onProgress: (fileBytes) => {
         if (fileBytes - lastReportedFileBytes >= progressEventIntervalBytes) {
           lastReportedFileBytes = fileBytes;
@@ -95,6 +111,10 @@ export async function copyBackupFiles({
     if (copyResult.isErr()) {
       const error = copyResult.err();
       switch (error.type) {
+        case 'Cancelled': {
+          return err(CANCELLED_ERROR);
+        }
+
         case 'OpenFileError': {
           return err({
             type: 'backup-verification-failed',

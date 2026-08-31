@@ -14,6 +14,19 @@ export interface ProgressTracking {
    * Where to send log messages during the operation.
    */
   logger: BaseLogger;
+
+  /**
+   * When given, aborting this signal stops the operation at the next point it
+   * can stop cleanly, and it reports `cancelled` rather than succeeding. What
+   * has already been written is discarded, so a cancelled operation leaves
+   * nothing half-finished behind.
+   *
+   * Cancelling is honored up to the point where the operation commits — where
+   * a backup is swapped into its final location, and where a restore has all
+   * the files down and only has to verify and flush them. Past that, finishing
+   * is both quick and the only way to leave the disk in a state anyone can use.
+   */
+  signal?: AbortSignal;
 }
 
 /**

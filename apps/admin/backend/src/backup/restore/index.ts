@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { Result } from '@votingworks/basics';
+import { err, Result } from '@votingworks/basics';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { copyBackupFiles } from './copy_step.js';
 import { openBackup, vetManifest } from './open_step.js';
@@ -50,11 +50,23 @@ export async function restoreBackup(
   return logRestoreResult(logger, await tryRestoreBackup(options));
 }
 
+/**
+ * Reported when the caller cancelled the restore.
+ */
+const CANCELLED_ERROR: RestoreError = {
+  type: 'cancelled',
+  message: 'Restore cancelled',
+};
+
 async function tryRestoreBackup(
   options: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
-  const { logger, onProgressEvent } = options;
+  const { logger, onProgressEvent, signal } = options;
   onProgressEvent?.({ type: 'preparing' });
+
+  if (signal?.aborted) {
+    return err(CANCELLED_ERROR);
+  }
 
   const checkResult = checkWorkspaceIsRestorable(options.workspace, logger);
   if (checkResult.isErr()) {
@@ -82,6 +94,13 @@ async function tryRestoreBackup(
     return spaceResult;
   }
 
+  // The last point a restore can be abandoned without touching the workspace:
+  // claiming it empties it, so from here on the only way out is to empty it
+  // again rather than to leave it as it was.
+  if (signal?.aborted) {
+    return err(CANCELLED_ERROR);
+  }
+
   await claimWorkspace(options.workspace);
   let succeeded = false;
   try {
@@ -90,6 +109,7 @@ async function tryRestoreBackup(
       manifest,
       workspacePath: options.workspace,
       onProgressEvent,
+      signal,
       progressEventIntervalBytes: options.progressEventIntervalBytes,
     });
     if (copyResult.isErr()) {
