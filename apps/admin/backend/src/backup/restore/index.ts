@@ -30,16 +30,20 @@ export { RESTORE_IN_PROGRESS_MARKER_FILENAME } from './prepare_step.js';
  * current election — unless a marker left by an interrupted restore shows that
  * the apparent configuration is half-restored debris, in which case the
  * restore is what recovers the workspace.
+ *
+ * Emptying the workspace means deleting the database out from under whoever
+ * opened it, so the workspace's store is closed first and is not reopened.
+ * Once the workspace has been claimed the caller is done with it whatever the
+ * outcome, since a failed restore empties it too: a machine has to restart, at
+ * which point it reads either the restored database or none at all.
  */
 export async function restoreBackup(
   rawOptions: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
-  // Resolve the caller-supplied paths up front, as `createBackup` does, so the
-  // workspace paths `openWorkspace` resolves and the paths we log and derive
-  // here agree.
+  // The workspace resolved its own path when it was opened; only the backup's
+  // needs resolving, as `createBackup` resolves its target.
   const options: RestoreBackupOptions = {
     ...rawOptions,
-    workspace: resolve(rawOptions.workspace),
     backup: resolve(rawOptions.backup),
   };
   const { logger } = options;
@@ -61,14 +65,14 @@ const CANCELLED_ERROR: RestoreError = {
 async function tryRestoreBackup(
   options: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
-  const { logger, onProgressEvent, signal } = options;
+  const { logger, onProgressEvent, signal, workspace } = options;
   onProgressEvent?.({ type: 'preparing' });
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
   }
 
-  const checkResult = checkWorkspaceIsRestorable(options.workspace, logger);
+  const checkResult = checkWorkspaceIsRestorable(workspace);
   if (checkResult.isErr()) {
     return checkResult;
   }
@@ -86,7 +90,7 @@ async function tryRestoreBackup(
   const manifest = vetResult.ok();
 
   const spaceResult = await checkWorkspaceHasSufficientSpace({
-    workspacePath: options.workspace,
+    workspacePath: workspace.path,
     manifest,
     minAvailableStorageBytes: options.minAvailableStorageBytes,
   });
@@ -101,13 +105,19 @@ async function tryRestoreBackup(
     return err(CANCELLED_ERROR);
   }
 
-  await claimWorkspace(options.workspace);
+  // The database file is about to be deleted, so the connection to it goes
+  // first. Held open, it would keep reading and writing the unlinked file: the
+  // restored database would land on disk while this connection went on serving
+  // the one it replaced.
+  workspace.store.close();
+
+  await claimWorkspace(workspace.path);
   let succeeded = false;
   try {
     const copyResult = await copyBackupFiles({
       backup,
       manifest,
-      workspacePath: options.workspace,
+      workspacePath: workspace.path,
       onProgressEvent,
       signal,
       progressEventIntervalBytes: options.progressEventIntervalBytes,
@@ -119,7 +129,7 @@ async function tryRestoreBackup(
     onProgressEvent?.({ type: 'verifying' });
     const verifyResult = verifyRestoredWorkspace({
       manifest,
-      workspacePath: options.workspace,
+      workspacePath: workspace.path,
       logger,
     });
     if (verifyResult.isErr()) {
@@ -130,14 +140,14 @@ async function tryRestoreBackup(
     // restore complete, which must not happen while the restored files live
     // only in the page cache.
     onProgressEvent?.({ type: 'flushing_workspace' });
-    const flushResult = await flushRestoredWorkspace(options.workspace);
+    const flushResult = await flushRestoredWorkspace(workspace.path);
     succeeded = flushResult.isOk();
     return flushResult;
   } finally {
     if (succeeded) {
-      await completeRestore(options.workspace);
+      await completeRestore(workspace.path);
     } else {
-      await abandonFailedRestore(options.workspace);
+      await abandonFailedRestore(workspace.path);
     }
   }
 }

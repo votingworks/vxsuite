@@ -1,3 +1,4 @@
+import { Workspace } from '../../util/workspace.js';
 import { ProgressTracking } from '../progress.js';
 
 /**
@@ -29,13 +30,18 @@ export interface RestoreBackupOptions extends ProgressTracking {
   backup: string;
 
   /**
-   * The workspace directory into which the backup should be restored. Its
-   * contents belong to the restore: whatever it holds is emptied before
-   * copying begins, so it must not contain anything worth keeping. A workspace
-   * whose database is already configured with an election is refused rather
-   * than cleared.
+   * The workspace into which the backup should be restored, with an
+   * already-open client for the database. Its contents belong to the restore:
+   * whatever it holds is emptied before copying begins, so it must not contain
+   * anything worth keeping. A workspace whose database is already configured
+   * with an election is refused rather than cleared.
+   *
+   * The restore closes this workspace's store on its way to emptying the
+   * directory, and does not reopen it. Whatever holds the workspace must be
+   * finished with it: on a machine this means restarting, since the process
+   * kept running would be reading a database file that no longer exists.
    */
-  workspace: string;
+  workspace: Workspace;
 
   /**
    * How many bytes must remain available on the workspace's volume after the

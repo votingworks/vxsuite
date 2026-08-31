@@ -33,6 +33,7 @@ import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   openWorkspace,
+  Workspace,
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
 import { Backup } from '../backup.js';
@@ -90,6 +91,14 @@ async function makeConfiguredWorkspacePath(): Promise<string> {
   using workspace = await makeConfiguredWorkspace();
   addCvrWithBallotImage(workspace, { ballotId: 'existing-ballot' });
   return workspace.path;
+}
+
+/**
+ * Opens a workspace for a restore to take over, as a running backend holds one
+ * open. `restoreBackup` closes it, so nothing here has to.
+ */
+function restorable(workspacePath: string): Workspace {
+  return createWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
 }
 
 /**
@@ -213,7 +222,7 @@ test('restore copies the database, ballot images, and election packages', async 
   expect(
     await restoreBackup({
       backup: created.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger,
       onProgressEvent: (event) => events.push(event),
     })
@@ -301,7 +310,7 @@ test('restore recreates workspace directories the backup has no files in', async
   expect(
     await restoreBackup({
       backup: created.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger,
     })
   ).toEqual(ok());
@@ -312,7 +321,7 @@ test('restore recreates workspace directories the backup has no files in', async
   );
 });
 
-test('restore resolves relative workspace and backup paths', async () => {
+test('restore resolves a relative backup path', async () => {
   const backup = await makeBackup();
   const workspacePath = makeUnconfiguredWorkspacePath();
   const logger = mockBaseLogger({ fn: vi.fn });
@@ -320,7 +329,7 @@ test('restore resolves relative workspace and backup paths', async () => {
   expect(
     await restoreBackup({
       backup: relative(process.cwd(), backup.path),
-      workspace: relative(process.cwd(), workspacePath),
+      workspace: restorable(workspacePath),
       logger,
     })
   ).toEqual(ok());
@@ -340,7 +349,7 @@ test('restore fails if there is no backup manifest', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -370,7 +379,7 @@ test('restore fails if the backup manifest is not readable', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -396,7 +405,7 @@ test('restore fails if the backup manifest version does not match', async () => 
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -431,7 +440,7 @@ test('restore fails if the backup manifest software version does not match', asy
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -463,7 +472,7 @@ test('restore warns but does not fail if the machine ID does not match', async (
   const logger = mockBaseLogger({ fn: vi.fn });
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger,
   });
 
@@ -521,7 +530,7 @@ test.each<{ description: string; tamper: (backup: Backup) => Promise<void> }>([
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -556,7 +565,7 @@ test('restore fails if a backup file cannot be read', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -585,7 +594,7 @@ test('restore fails on missing files from the backup manifest', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -610,7 +619,7 @@ test('restore fails if any backup files are an unexpected size', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -642,7 +651,7 @@ test('restore fails if any backup files have unexpected content (by hash)', asyn
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -687,7 +696,7 @@ test.each<{ description: string; makePath: (escapeTarget: string) => string }>([
     const workspacePath = makeUnconfiguredWorkspacePath();
     const result = await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
     });
 
@@ -722,7 +731,7 @@ test('restore refuses a manifest entry it does not know how to restore', async (
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -757,7 +766,7 @@ test('restore fails if there is no current election in the backup', async () => 
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -789,7 +798,7 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
       onProgressEvent: (event) => events.push(event),
       // Low enough that even these small files report mid-copy progress.
@@ -824,7 +833,7 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
     })
   ).toEqual(ok());
@@ -840,7 +849,7 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
     })
   ).toEqual(ok());
@@ -857,7 +866,7 @@ test('restore refuses a backup the workspace volume cannot hold', async () => {
 
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
     minAvailableStorageBytes: 1024,
   });
@@ -884,7 +893,7 @@ test('restore fails if the restored files cannot be flushed to disk', async () =
 
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger: mockBaseLogger({ fn: vi.fn }),
   });
 
@@ -905,7 +914,7 @@ test('restoring into a configured workspace fails', async () => {
   const logger = mockBaseLogger({ fn: vi.fn });
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger,
   });
 
@@ -941,7 +950,7 @@ test('a restore cancelled before it starts leaves the workspace alone', async ()
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger,
       signal: AbortSignal.abort(),
     })
@@ -972,7 +981,7 @@ test('a restore cancelled while vetting the backup leaves the workspace alone', 
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
       signal: controller.signal,
     })
@@ -990,7 +999,7 @@ test('a restore cancelled between files empties the workspace it had claimed', a
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
       signal: controller.signal,
       onProgressEvent(event) {
@@ -1016,7 +1025,7 @@ test('a restore cancelled partway through a file empties the workspace', async (
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger: mockBaseLogger({ fn: vi.fn }),
       signal: controller.signal,
       // Low enough that even these small files report mid-copy progress.
@@ -1037,5 +1046,51 @@ test('a restore cancelled partway through a file empties the workspace', async (
     })
   ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
 
+  expect(listWorkspace(workspacePath)).toEqual([]);
+});
+
+test('restore closes the workspace store instead of leaving it on a deleted database', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  expect(
+    await restoreBackup({ backup: backup.path, workspace, logger })
+  ).toEqual(ok());
+
+  // Emptying the workspace unlinks the database this connection was opened on.
+  // Left open it would go on serving the file the restore replaced, and writes
+  // through it would land somewhere nothing will ever read again.
+  expect(() => workspace.store.getCurrentElectionId()).toThrow(
+    /database client .* is closed/
+  );
+
+  // What the restore put on disk is what the next connection finds.
+  using restored = openWorkspace(workspacePath, logger);
+  expect(restored.store.getCurrentElectionId()).toBeDefined();
+});
+
+test('restore closes the workspace store even when it fails after claiming it', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  await rm(join(backup.path, 'workspace', ADMIN_WORKSPACE_DATABASE_NAME));
+
+  expect(
+    (
+      await restoreBackup({
+        backup: backup.path,
+        workspace,
+        logger: mockBaseLogger({ fn: vi.fn }),
+      })
+    ).err()
+  ).toMatchObject({ type: 'backup-verification-failed' });
+
+  // A failed restore empties the workspace too, so the connection is just as
+  // dead as after one that succeeded, and the caller is just as finished.
+  expect(() => workspace.store.getCurrentElectionId()).toThrow(
+    /database client .* is closed/
+  );
   expect(listWorkspace(workspacePath)).toEqual([]);
 });

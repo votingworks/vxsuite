@@ -11,7 +11,11 @@ import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
 import { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
-import { openWorkspace, Workspace } from '../../util/workspace.js';
+import {
+  createWorkspace,
+  openWorkspace,
+  Workspace,
+} from '../../util/workspace.js';
 import { restoreBackup } from '../restore/index.js';
 
 /**
@@ -382,9 +386,13 @@ async function restore(
     Boolean((stderr as NodeJS.WriteStream).isTTY)
   );
 
+  // Not `using`: `restoreBackup` closes the store itself, and the workspace is
+  // not usable afterwards.
+  const workspace = createWorkspace(args.workspace, logger);
+
   const restoreBackupResult = await restoreBackup({
     backup: args.backup,
-    workspace: args.workspace,
+    workspace,
     logger,
     signal,
     onProgressEvent: (event) => display.update(displayProgress(event)),

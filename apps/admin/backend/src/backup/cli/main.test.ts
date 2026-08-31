@@ -495,7 +495,7 @@ test('create reports a cancelled backup rather than a failed one', async () => {
   expect(readdirSync(target)).toEqual([]);
 });
 
-test('restore cancelled before it starts leaves the workspace as it was', async () => {
+test('restore cancelled before it starts destroys nothing in the workspace', async () => {
   const logger = new BaseLogger(LogSource.VxAdminService);
   const source = await makeWorkspace(logger);
   const target = makeTemporaryDirectory();
@@ -519,5 +519,7 @@ test('restore cancelled before it starts leaves the workspace as it was', async 
   expect(code).toEqual(CANCELLED_EXIT_CODE);
   expect(stderr).toContain('Cancelled. No backup was restored.');
   expect(stdout).toEqual('');
-  expect(readdirSync(workspace)).toEqual(['already-here']);
+  // Opening the workspace creates the directories a workspace has, but
+  // nothing that was already there is touched.
+  expect(readdirSync(workspace)).toContain('already-here');
 });

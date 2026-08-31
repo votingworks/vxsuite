@@ -4,8 +4,7 @@ import { join } from 'node:path';
 import { emptydir } from 'fs-extra';
 import { err, iter, ok, Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { BaseLogger } from '@votingworks/logging';
-import { createWorkspace } from '../../util/workspace.js';
+import { Workspace } from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { RestoreError } from './types.js';
 
@@ -28,14 +27,12 @@ function getMarkerPath(workspacePath: string): string {
  * which case the restore is what recovers it.
  */
 export function checkWorkspaceIsRestorable(
-  workspacePath: string,
-  logger: BaseLogger
+  workspace: Workspace
 ): Result<void, RestoreError> {
-  if (existsSync(getMarkerPath(workspacePath))) {
+  if (existsSync(getMarkerPath(workspace.path))) {
     return ok();
   }
 
-  using workspace = createWorkspace(workspacePath, logger);
   const currentElectionId = workspace.store.getCurrentElectionId();
   if (currentElectionId) {
     return err({
