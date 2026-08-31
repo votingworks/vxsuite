@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { afterAll, beforeAll, beforeEach, expect } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 import {
@@ -56,3 +56,7 @@ configure({ asyncUtilTimeout: 5_000 });
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
+
+afterAll(() => {
+  vi.useRealTimers();
+});
