@@ -62,6 +62,8 @@ export class S3FileStorageClient {
     filePath: string,
     contents: Buffer
   ): Promise<Result<void, FileStorageClientError>> {
+    // [TODO] Use @aws-sdk/lib-storage/Upload instead, to enable multipart
+    // uploads > 5GB.
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,

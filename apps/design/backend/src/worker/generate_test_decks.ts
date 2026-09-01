@@ -175,6 +175,8 @@ async function generate(
 
   for (const [precinct, ballotSpecs] of precinctHmpbBallotSpecs) {
     // Generate HMPB test deck
+    // [TODO] Stage PDFs on disk before archiving, to avoid OOM errors on large
+    // elections.
     const testDeckPdf = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
