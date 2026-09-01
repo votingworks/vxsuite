@@ -1,7 +1,7 @@
 import { tmpNameSync } from 'tmp';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
   decodePDFRawStream,
@@ -14,7 +14,7 @@ import {
   PDFRef,
 } from 'pdf-lib';
 import { assert } from '@votingworks/basics';
-import { normalizePdf } from './normalize_pdf.js';
+import { normalizePdf, normalizePdfFile } from './normalize_pdf.js';
 
 /**
  * Converts a PDF to grayscale via Ghostscript, without normalizing the output.
@@ -22,21 +22,36 @@ import { normalizePdf } from './normalize_pdf.js';
 async function ghostscriptGrayscale(pdf: Uint8Array): Promise<Buffer> {
   const tmpPdfFilePath = tmpNameSync();
   await writeFile(tmpPdfFilePath, pdf);
-  const tmpGrayscalePdfFilePath = tmpNameSync();
-  await promisify(execFile)('gs', [
-    `-sOutputFile=${tmpGrayscalePdfFilePath}`,
-    '-sDEVICE=pdfwrite',
-    '-sColorConversionStrategy=Gray',
-    '-dProcessColorModel=/DeviceGray',
-    '-dNOPAUSE',
-    '-dBATCH',
-    tmpPdfFilePath,
-  ]);
+
   try {
-    return await readFile(tmpGrayscalePdfFilePath);
+    await ghostscriptGrayscaleFile(tmpPdfFilePath);
+    return await readFile(tmpPdfFilePath);
   } finally {
-    await rm(tmpGrayscalePdfFilePath);
     await rm(tmpPdfFilePath);
+  }
+}
+
+/**
+ * Converts the PDF at the given path to grayscale via Ghostscript, replacing
+ * the original file iff successful.
+ */
+async function ghostscriptGrayscaleFile(pdfPath: string): Promise<void> {
+  const outputPath = tmpNameSync();
+
+  try {
+    await promisify(execFile)('gs', [
+      `-sOutputFile=${outputPath}`,
+      '-sDEVICE=pdfwrite',
+      '-sColorConversionStrategy=Gray',
+      '-dProcessColorModel=/DeviceGray',
+      '-dNOPAUSE',
+      '-dBATCH',
+      pdfPath,
+    ]);
+
+    await rename(outputPath, pdfPath);
+  } finally {
+    await rm(outputPath, { force: true });
   }
 }
 
@@ -47,6 +62,19 @@ export async function convertPdfToGrayscale(
   pdf: Uint8Array
 ): Promise<Uint8Array> {
   return normalizePdf(await ghostscriptGrayscale(pdf));
+}
+
+/**
+ * Converts the PDF at the given path to grayscale, replacing the original file.
+ *
+ * NOTE: Non-atomic - assumes usage with scratch files. Errors during conversion
+ * may leave the file in an undefined state.
+ */
+export async function convertPdfFileToGrayscale(
+  pdfPath: string
+): Promise<void> {
+  await ghostscriptGrayscaleFile(pdfPath);
+  await normalizePdfFile(pdfPath);
 }
 
 /**
@@ -234,7 +262,8 @@ function pageContentString(context: PDFContext, pageNode: PDFDict): string {
 }
 
 /**
- * Converts a color ballot PDF into a spot-color PDF for two-ink printing.
+ * Converts a color ballot PDF into a spot-color PDF for two-ink printing,
+ * replacing the original file.
  *
  * First converts the PDF to grayscale, then identifies the given {@link
  * SpotColor}s in the PDF's content streams using their resulting grayscale
@@ -244,12 +273,17 @@ function pageContentString(context: PDFContext, pageNode: PDFDict): string {
  *
  * Throws if the PDF contains more than one of the given spot colors, since in
  * our use case we only expect one spot color per ballot template.
+ *
+ * NOTE: Non-atomic - assumes usage with scratch files. Errors during conversion
+ * may leave the file in an undefined state.
  */
-export async function convertPdfToSpotColor(
-  pdf: Uint8Array,
-  spotColors: readonly SpotColor[]
-): Promise<Uint8Array> {
-  const grayscalePdf = await ghostscriptGrayscale(pdf);
+export async function convertPdfToSpotColor(p: {
+  pdfPath: string;
+  spotColors: readonly SpotColor[];
+}): Promise<void> {
+  await ghostscriptGrayscaleFile(p.pdfPath);
+  const grayscalePdf = await readFile(p.pdfPath);
+
   const doc = await PDFDocument.load(grayscalePdf, { updateMetadata: false });
   const { context } = doc;
 
@@ -258,7 +292,7 @@ export async function convertPdfToSpotColor(
   function separationRef(spotIndex: number): PDFRef {
     const cached = separationRefs.get(spotIndex);
     if (cached !== undefined) return cached;
-    const spot = spotColors[spotIndex];
+    const spot = p.spotColors[spotIndex];
     const tintTransformRef = context.register(
       context.obj({
         FunctionType: 2,
@@ -286,7 +320,7 @@ export async function convertPdfToSpotColor(
     const original = pageContentString(context, page.node);
     const { content, appliedSpotColors } = replaceTintOperatorsWithSpotColors(
       original,
-      spotColors
+      p.spotColors
     );
     if (appliedSpotColors.length === 0) continue;
 
@@ -318,7 +352,7 @@ export async function convertPdfToSpotColor(
       resources.set(PDFName.of('ColorSpace'), colorSpaces);
     }
     for (const spotColor of appliedSpotColors) {
-      const spotIndex = spotColors.indexOf(spotColor);
+      const spotIndex = p.spotColors.indexOf(spotColor);
       const name = PDFName.of(spotColorResourceName(spotIndex));
       const existing = colorSpaces.get(name);
       assert(
@@ -340,5 +374,6 @@ export async function convertPdfToSpotColor(
   );
 
   const saved = await doc.save({ useObjectStreams: false });
-  return normalizePdf(Buffer.from(saved));
+  const normalized = normalizePdf(Buffer.from(saved));
+  await writeFile(p.pdfPath, normalized);
 }

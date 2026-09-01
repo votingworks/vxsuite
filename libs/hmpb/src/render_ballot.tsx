@@ -39,6 +39,7 @@ import {
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import * as fs from 'node:fs/promises';
+import { Readable } from 'node:stream';
 import {
   DocumentElement,
   RenderDocument,
@@ -643,10 +644,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationOptions: {
-    format: ElectionSerializationFormat;
-    version: SoftwareVersion;
-  },
+  electionSerializationOptions: ElectionSerializationOptions,
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
@@ -676,8 +674,10 @@ export async function layOutBallotsAndCreateElectionDefinition<
         recordBallotPositions(positions);
       }
 
-      const layoutPath = path.join(scratchDir.path, `${randomUUID()}.html`);
-      await fs.writeFile(layoutPath, await document.getContent());
+      const layoutPath = await writeScratchFile(scratchDir, {
+        data: await document.getContent(),
+        extension: 'html',
+      });
 
       return {
         props,
@@ -794,7 +794,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
-  ballotPdfs: Uint8Array[];
+  ballotPaths: string[];
   electionDefinition: ElectionDefinition;
 }> {
   const { layoutPaths, electionDefinition } =
@@ -807,9 +807,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       emitProgress
     );
 
-  // [TODO] Stage PDFs on disk instead of accumulating in memory. They are later
-  // written to disk anyway for ghostscript-based color conversion passes.
-  const ballotPdfs = await rendererPool.runTasks(
+  const ballotPaths = await rendererPool.runTasks(
     iter(ballotProps)
       .zip(layoutPaths)
       .map(([props, layoutPath]) => async (renderer: Renderer) => {
@@ -823,12 +821,14 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
           console.error(`cleanup failed for temp layout ${layoutPath}:`, error);
         });
 
-        return renderBallotPdfWithMetadataQrCode(
+        const pdf = await renderBallotPdfWithMetadataQrCode(
           props,
           document,
           electionDefinition,
           electionSerializationOptions.version
         );
+
+        return writeScratchFile(scratchDir, { data: pdf, extension: 'pdf' });
       })
       .toArray(),
 
@@ -837,7 +837,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         emitProgress('Rendering ballot PDFs', progress, total))
   );
 
-  return { ballotPdfs, electionDefinition };
+  return { ballotPaths, electionDefinition };
 }
 
 /**
@@ -891,4 +891,21 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   );
 
   return electionDefinition;
+}
+
+/**
+ * Writes to a new file in the given scratch dir and returns the resulting
+ * file path.
+ */
+async function writeScratchFile(
+  dir: ScratchDir,
+  p: {
+    data: string | Buffer | Readable | Uint8Array;
+    extension: string;
+  }
+): Promise<string> {
+  const filePath = path.join(dir.path, `${randomUUID()}.${p.extension}`);
+  await fs.writeFile(filePath, p.data);
+
+  return filePath;
 }

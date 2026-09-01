@@ -1,27 +1,42 @@
+import { assert } from '@votingworks/basics';
 import {
   convertPdfToGrayscale,
-  convertPdfToSpotColor,
   calibrationSheetTemplate,
   Renderer,
   BallotTemplateId,
   NhStateSpotColors,
+  convertPdfFileToGrayscale,
+  convertPdfToSpotColor,
 } from '@votingworks/hmpb';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 
-export async function normalizeBallotColorModeForPrinting(
-  ballotPdf: Uint8Array,
-  ballotTemplateId: BallotTemplateId
-): Promise<Uint8Array> {
-  switch (ballotTemplateId) {
+const NEEDS_COLOR_NORMALIZATION: Record<BallotTemplateId, boolean> = {
+  MiBallot: false,
+  MsBallot: false,
+  NhBallot: true,
+  NhStateBallot: true,
+  VxDefaultBallot: false,
+};
+
+export function needsColorNormalization(template: BallotTemplateId): boolean {
+  return NEEDS_COLOR_NORMALIZATION[template];
+}
+
+export async function normalizeBallotColorModeForPrinting(p: {
+  ballotPath: string;
+  ballotTemplateId: BallotTemplateId;
+}): Promise<void> {
+  switch (p.ballotTemplateId) {
     case 'NhBallot':
-      return await convertPdfToGrayscale(ballotPdf);
+      return await convertPdfFileToGrayscale(p.ballotPath);
     case 'NhStateBallot':
-      return await convertPdfToSpotColor(
-        ballotPdf,
-        Object.values(NhStateSpotColors)
-      );
+      return await convertPdfToSpotColor({
+        pdfPath: p.ballotPath,
+        spotColors: Object.values(NhStateSpotColors),
+      });
     default:
-      return ballotPdf;
+      assert(!needsColorNormalization(p.ballotTemplateId));
+      break;
   }
 }
 

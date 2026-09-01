@@ -3,7 +3,8 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { safeParseInt } from '@votingworks/types';
-import { normalizePdf } from './normalize_pdf.js';
+import { makeTemporaryFile } from '@votingworks/fixtures';
+import { normalizePdf, normalizePdfFile } from './normalize_pdf.js';
 
 function toBuffer(str: string): Buffer {
   return Buffer.from(str, 'latin1');
@@ -311,4 +312,22 @@ describe('normalizePdf', () => {
     const twice = normalizePdf(Buffer.from(once));
     expect(fromBytes(once)).toEqual(fromBytes(twice));
   });
+});
+
+test('normalizePdfFile/normalizePdfOutput parity smoke test', async () => {
+  const content = [
+    '<<',
+    "/CreationDate (D:20260325120000-07'00')",
+    "/ModDate (D:20260325130000+00'00')",
+    '/ID [<AE62F4165DB0622FD2E57DED09838D><AE62F4165DB0622FD2E57DED09838D>]',
+    '>>',
+  ].join(' ');
+
+  const pdf = makePdf({ objects: [{ num: 1, content }] });
+  const pdfPath = makeTemporaryFile({ content: pdf });
+  await normalizePdfFile(pdfPath);
+
+  const actual = fs.readFileSync(pdfPath, 'latin1');
+  const expected = fromBytes(normalizePdf(toBuffer(pdf)));
+  expect(actual).toEqual(expected);
 });

@@ -1,4 +1,7 @@
 import JsZip from 'jszip';
+import * as os from 'node:os';
+import * as fs from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import { Buffer } from 'node:buffer';
 import {
   ElectionSerializationFormat,
@@ -15,6 +18,7 @@ import {
   EncodedBallotEntry,
   BaseBallotProps,
   SoftwareVersion,
+  ElectionDefinition,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
@@ -24,6 +28,7 @@ import {
   ElectionSerializationOptions,
   ScratchDir,
   RendererPool,
+  BallotTemplateId,
 } from '@votingworks/hmpb';
 import {
   generateAudioIdsAndClips,
@@ -47,6 +52,7 @@ import {
 } from '../ballots.js';
 import { getBallotPdfFileName } from '../utils.js';
 import {
+  needsColorNormalization,
   normalizeBallotColorModeForPrinting,
   renderCalibrationSheetPdf,
 } from './ballot_pdfs.js';
@@ -203,15 +209,13 @@ async function triggerCircleCiQaBuild(params: {
   }
 }
 
-function generateEncodedBallots(
-  normalizedBallotPdfs: Array<{
-    props: BaseBallotProps;
-    ballotPdf: Uint8Array<ArrayBufferLike>;
-  }>
-): NodeJS.ReadableStream {
+function generateEncodedBallots(p: {
+  ballotProps: BaseBallotProps[];
+  ballotPaths: string[];
+}): NodeJS.ReadableStream {
   return Readable.from(
-    (function* generateJsonLines() {
-      for (const { props, ballotPdf } of normalizedBallotPdfs) {
+    (async function* generateJsonLines() {
+      for (const [props, path] of iter(p.ballotProps).zip(p.ballotPaths)) {
         const encodedBallot: EncodedBallotEntry = {
           ballotStyleId: props.ballotStyleId,
           precinctId: props.precinctId,
@@ -220,7 +224,7 @@ function generateEncodedBallots(
           watermark: props.watermark,
           compact: props.compact,
           ballotAuditId: props.ballotAuditId,
-          encodedBallot: Buffer.from(ballotPdf).toString('base64'),
+          encodedBallot: await fs.readFile(path, 'base64'),
         };
         yield `${JSON.stringify(encodedBallot)}\n`;
       }
@@ -354,7 +358,7 @@ async function generate(
     version: jurisdiction.softwareVersion,
   };
 
-  const { electionDefinition, ballotPdfs } =
+  const { electionDefinition, ballotPaths } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
@@ -363,6 +367,14 @@ async function generate(
       scratchDir,
       emitProgress
     );
+
+  const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
+    renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
+  );
+
+  // Close renderer pool early to free up memory for remaining tasks.
+  // eslint-disable-next-line no-console
+  await rendererPool.close().catch(console.error);
 
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,
@@ -400,59 +412,32 @@ async function generate(
     );
   }
 
-  // Normalizing the ballot PDF colors is not very memory intensive, so it's safe
-  // to do them all at once rather than using a worker pool like we do when
-  // rendering ballots.
-  const normalizedBallotPdfs = await Promise.all(
-    iter(allBallotProps)
-      .zip(ballotPdfs)
-      .map(async ([props, ballotPdf]) => ({
-        props,
-        ballotPdf: await normalizeBallotColorModeForPrinting(
-          ballotPdf,
-          ballotTemplateId
-        ),
-      }))
-      .toArray()
-  );
+  await normalizeBallots({ ballotPaths, ballotTemplateId });
 
-  const encodedBallots = generateEncodedBallots(normalizedBallotPdfs);
+  const encodedBallots = generateEncodedBallots({
+    ballotProps: allBallotProps,
+    ballotPaths,
+  });
   electionPackageZip.file(ElectionPackageFileName.BALLOTS, encodedBallots);
 
-  const electionPackageZipContents = await electionPackageZip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
-  const electionPackageHash = createHash('sha256')
-    .update(electionPackageZipContents)
-    .digest('hex');
-
-  const combinedHash = formatElectionHashes(
-    electionDefinition.ballotHash,
-    electionPackageHash
-  );
-
-  electionPackageZip.file(
-    ElectionPackageFileName.APP_STRINGS,
-    JSON.stringify(appStrings, null, 2)
-  );
-
   // Add ballots to ZIP files, grouped by ballot type:
-  for (const { props, ballotPdf } of normalizedBallotPdfs) {
+  for (const [props, ballotPath] of iter(allBallotProps).zip(ballotPaths)) {
     const fileName = getBallotPdfFileName(props);
     const { ballotMode } = props;
 
     switch (ballotMode) {
       case 'official':
-        officialBallotsZip.file(fileName, ballotPdf);
+        // [TODO] Create lazy file streams to avoid opening all files at once,
+        // or switch to zip library better suited for streaming from file.
+        officialBallotsZip.file(fileName, createReadStream(ballotPath));
         break;
 
       case 'sample':
-        sampleBallotsZip.file(fileName, ballotPdf);
+        sampleBallotsZip.file(fileName, createReadStream(ballotPath));
         break;
 
       case 'test':
-        testBallotsZip.file(fileName, ballotPdf);
+        testBallotsZip.file(fileName, createReadStream(ballotPath));
         break;
 
       default: {
@@ -463,10 +448,6 @@ async function generate(
   }
 
   const calibrationSheetFilename = 'VxScan-calibration-sheet.pdf';
-  const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
-    renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
-  );
-
   officialBallotsZip.file(calibrationSheetFilename, calibrationSheetPdf);
 
   if (shouldExportTestBallots) {
@@ -480,9 +461,9 @@ async function generate(
     sampleBallotsUrl,
     testBallotsUrl,
   ] = await Promise.all([
-    writeZipFile(ctx, electionPackageZipContents, {
+    writeElectionZip(ctx, electionDefinition, {
       jurisdictionId,
-      name: `election-package-${combinedHash}.zip`,
+      zip: electionPackageZip,
     }),
 
     writeBallotsZip(ctx, {
@@ -529,6 +510,33 @@ async function generate(
   });
 }
 
+/**
+ * Normalizes ballot PDF files, performing any color mode conversion necessary
+ * for the specified ballot template.
+ */
+async function normalizeBallots(p: {
+  ballotPaths: string[];
+  ballotTemplateId: BallotTemplateId;
+}) {
+  if (!needsColorNormalization(p.ballotTemplateId)) return;
+
+  const it = p.ballotPaths.values();
+
+  async function worker() {
+    while (true) {
+      const next = it.next();
+      if (next.done) return;
+
+      await normalizeBallotColorModeForPrinting({
+        ballotPath: next.value,
+        ballotTemplateId: p.ballotTemplateId,
+      });
+    }
+  }
+
+  await Promise.all(Array.from({ length: os.availableParallelism() }, worker));
+}
+
 async function writeBallotsZip(
   ctx: WorkerContext,
   p: { jurisdictionId: string; name: string; zip: JsZip }
@@ -541,6 +549,34 @@ async function writeBallotsZip(
   return writeZipFile(ctx, contents, {
     jurisdictionId: p.jurisdictionId,
     name: p.name,
+  });
+}
+
+async function writeElectionZip(
+  ctx: WorkerContext,
+  electionDefinition: ElectionDefinition,
+  p: { jurisdictionId: string; zip: JsZip }
+) {
+  // [TODO] Generate a stream instead and pipe to S3.
+  const electionPackageZipContents = await p.zip.generateAsync({
+    type: 'nodebuffer',
+    streamFiles: true,
+  });
+
+  // [TODO] Use streaming hasher to avoid limit errors when hashing large
+  // election packages.
+  const electionPackageHash = createHash('sha256')
+    .update(electionPackageZipContents)
+    .digest('hex');
+
+  const combinedHash = formatElectionHashes(
+    electionDefinition.ballotHash,
+    electionPackageHash
+  );
+
+  return writeZipFile(ctx, electionPackageZipContents, {
+    jurisdictionId: p.jurisdictionId,
+    name: `election-package-${combinedHash}.zip`,
   });
 }
 
