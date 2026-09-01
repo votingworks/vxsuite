@@ -20,6 +20,7 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   Election,
   safeParseElectionDefinition,
+  ValidStreetInfo,
   Voter,
 } from '@votingworks/types';
 import {
@@ -428,6 +429,96 @@ function describeElection(report: Report, election: Election): void {
   }
 }
 
+/**
+ * Cross-checks the town/city name across three sources so a package assembled
+ * from mismatched customer files fails fast:
+ *   1. the package filename,
+ *   2. the election definition's jurisdiction (county.name),
+ *   3. the street file's Town and Postal City/Town columns.
+ * Comparison is case-insensitive and ignores punctuation/whitespace. A Postal
+ * City/Town mismatch is only a warning because the postal town can
+ * legitimately differ from the municipal town.
+ */
+function checkTownConsistency(
+  report: Report,
+  filename: string,
+  election: Election,
+  validStreets: ValidStreetInfo[]
+): void {
+  const normalize = (value: string) =>
+    value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const jurisdiction = election.county.name?.trim() ?? '';
+  if (!jurisdiction) {
+    report.fail(
+      'election definition has no jurisdiction (county.name is empty) — cannot cross-check town name'
+    );
+    return;
+  }
+
+  if (normalize(filename).includes(normalize(jurisdiction))) {
+    report.ok(`filename contains jurisdiction name "${jurisdiction}"`);
+  } else {
+    report.fail(
+      `filename "${filename}" does not contain the election's jurisdiction name "${jurisdiction}" — possible file mixup`
+    );
+  }
+
+  const streetFields: Array<{
+    field: 'town' | 'postalCityTown';
+    label: string;
+    mismatchIsFailure: boolean;
+  }> = [
+    { field: 'town', label: 'Town', mismatchIsFailure: true },
+    {
+      field: 'postalCityTown',
+      label: 'Postal City/Town',
+      mismatchIsFailure: false,
+    },
+  ];
+  for (const { field, label, mismatchIsFailure } of streetFields) {
+    const counts = new Map<string, number>();
+    for (const street of validStreets) {
+      const value = (street as unknown as Record<string, string | undefined>)[
+        field
+      ]?.trim();
+      if (value) {
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+      }
+    }
+    if (counts.size === 0) {
+      report.info(
+        `street file has no "${label}" values to cross-check against the jurisdiction`
+      );
+      continue;
+    }
+    const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
+    const mismatched = [...counts.entries()].filter(
+      ([value]) => normalize(value) !== normalize(jurisdiction)
+    );
+    if (mismatched.length === 0) {
+      report.ok(
+        `street file ${label} matches jurisdiction "${jurisdiction}" on all ${total} rows with a value`
+      );
+    } else {
+      const samples = mismatched
+        .slice(0, 5)
+        .map(([value, count]) => `"${value}" (${count} row(s))`)
+        .join(', ');
+      const message = `street file ${label} does not match jurisdiction "${jurisdiction}": ${samples}${
+        mismatched.length > 5 ? `, +${mismatched.length - 5} more` : ''
+      } — possible file mixup`;
+      if (mismatchIsFailure) {
+        report.fail(message);
+      } else {
+        report.warn(
+          `${message} (warning only: postal town can legitimately differ)`
+        );
+      }
+    }
+  }
+}
+
 function checkVoterData(
   report: Report,
   voters: Voter[],
@@ -539,6 +630,7 @@ async function validatePackage(path: string): Promise<boolean> {
     } streets (package hash ${pollbookPackage.packageHash.slice(0, 10)}…)`
   );
   describeElection(report, election);
+  checkTownConsistency(report, name, election, pollbookPackage.validStreets);
   if (pollbookPackage.voters.length === 0) {
     report.fail('no voters parsed');
   }
