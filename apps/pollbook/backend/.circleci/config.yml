@@ -25,6 +25,15 @@ commands:
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - run:
+          name: Configure Turbo for CI
+          command: |
+            # Identifies the toolchain that produced cached artifacts.
+            echo 'export VX_TOOLCHAIN_ID="votingworks/cimg-debian12:4.8.0"' >> $BASH_ENV
+            # Run summaries record each task's hash under .turbo/runs;
+            # script/prune-turbo-cache uses them to trim the cache before
+            # it is saved.
+            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV
+      - run:
           name: Fix node-gyp gyp entrypoint permissions
           command: |
             # TODO: Remove once we upgrade past pnpm 11.10, which ships
@@ -65,6 +74,11 @@ commands:
                 paths:
                   - /root/.local/share/pnpm/store/v10
                   - /root/.cache/ms-playwright
+            - restore_cache:
+                name: Restore Turbo Cache
+                keys:
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-
       - restore_cache:
           name: Restore Cargo Cache
           key:
@@ -109,6 +123,22 @@ jobs:
                 path: apps/pollbook/backend/reports/
             - store_artifacts:
                 path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
 workflows:
   test-pollbook-backend:

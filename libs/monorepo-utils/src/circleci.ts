@@ -9,6 +9,75 @@ function jobIdForPackage(pkg: PnpmPackageInfo): string {
 
 const RUST_CRATES_JOB_ID = 'test-rust-crates';
 
+const DOCKER_IMAGE = 'votingworks/cimg-debian12:4.8.0';
+
+// Turbo's on-disk cache lives at `<repo root>/.turbo/cache`. CI persists it so
+// a job restores its dependency chain instead of rebuilding it.
+//
+// Only `main` writes the cache; branch jobs are read-only against it. CircleCI
+// cache keys are immutable, so a key has to rotate per revision to stay fresh,
+// and letting all ~60 jobs write on every push to every branch would pile up
+// an archive per job per push. Branches still restore main's baseline, which
+// is where nearly all of the reuse is.
+//
+// The key is scoped to the job (dozens of jobs sharing one key would keep only
+// whichever finished first, and per-job archives stay small) and to the config
+// checksum, which covers the executor image — an image bump can't replay
+// artifacts built by a different toolchain.
+const TURBO_CACHE_PATH = '.turbo/cache';
+const TURBO_CACHE_KEY_PREFIX =
+  'turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main';
+
+function turboCacheRestoreSteps(indent: string): string[] {
+  return [
+    `${indent}- restore_cache:`,
+    `${indent}    name: Restore Turbo Cache`,
+    `${indent}    keys:`,
+    // An exact hit only happens when re-running a job on the same `main`
+    // commit; everything else falls back to the newest `main` archive.
+    `${indent}      - ${TURBO_CACHE_KEY_PREFIX}-{{ .Revision }}`,
+    `${indent}      - ${TURBO_CACHE_KEY_PREFIX}-`,
+  ];
+}
+
+// Branches that write the Turbo cache. Normally just `main` — add a branch
+// here temporarily to exercise the prune/save path on it before merging.
+const CACHE_WRITING_BRANCHES = ['main'];
+
+// Always an `or:`, even for a single branch: special-casing one branch to a
+// bare `equal:` would leave whichever form is currently unused uncovered.
+function cacheWritingBranchCondition(indent: string): string[] {
+  return [
+    `${indent}  or:`,
+    ...CACHE_WRITING_BRANCHES.map(
+      (branch) =>
+        `${indent}    - equal: [ ${branch}, << pipeline.git.branch >> ]`
+    ),
+  ];
+}
+
+function turboCacheSaveSteps(indent: string): string[] {
+  return [
+    `${indent}- when:`,
+    `${indent}    condition:`,
+    ...cacheWritingBranchCondition(`${indent}    `),
+    `${indent}    steps:`,
+    `${indent}      - run:`,
+    `${indent}          name: Prune Turbo Cache`,
+    // Save even when the job failed: the build artifacts are still valid and
+    // worth reusing, and turbo never caches a failing task anyway.
+    `${indent}          when: always`,
+    `${indent}          command: |`,
+    `${indent}            ./script/prune-turbo-cache`,
+    `${indent}      - save_cache:`,
+    `${indent}          name: Save Turbo Cache`,
+    `${indent}          when: always`,
+    `${indent}          key: ${TURBO_CACHE_KEY_PREFIX}-{{ .Revision }}`,
+    `${indent}          paths:`,
+    `${indent}            - ${TURBO_CACHE_PATH}`,
+  ];
+}
+
 const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
 // The following packages are only tested when there is a change to its directory.
 const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
@@ -141,6 +210,8 @@ function generateTestJobForNodeJsPackage(
       lines.push(`${indent}            fi`);
     }
   }
+
+  lines.push(...turboCacheSaveSteps('    '));
 
   return lines;
 }
@@ -281,7 +352,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     'executors:',
     '  nodejs:',
     '    docker:',
-    '      - image: votingworks/cimg-debian12:4.8.0',
+    `      - image: ${DOCKER_IMAGE}`,
     '        auth:',
     '          username: $VX_DOCKER_USERNAME',
     '          password: $VX_DOCKER_PASSWORD',
@@ -297,6 +368,15 @@ function generateCircleCiFilteredAppConfigForPackage(
     '          name: Ensure Rust tooling is in PATH',
     '          command: |',
     '            echo \'export PATH="/root/.cargo/bin:$PATH"\' >> $BASH_ENV',
+    '      - run:',
+    '          name: Configure Turbo for CI',
+    '          command: |',
+    '            # Identifies the toolchain that produced cached artifacts.',
+    `            echo 'export VX_TOOLCHAIN_ID="${DOCKER_IMAGE}"' >> $BASH_ENV`,
+    "            # Run summaries record each task's hash under .turbo/runs;",
+    '            # script/prune-turbo-cache uses them to trim the cache before',
+    '            # it is saved.',
+    `            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV`,
     '      - run:',
     '          name: Fix node-gyp gyp entrypoint permissions',
     '          command: |',
@@ -338,6 +418,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     '                paths:',
     '                  - /root/.local/share/pnpm/store/v10',
     '                  - /root/.cache/ms-playwright',
+    ...turboCacheRestoreSteps('            '),
     '      - restore_cache:',
     '          name: Restore Cargo Cache',
     '          key:',
@@ -435,14 +516,14 @@ orbs:
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.8.0
+      - image: ${DOCKER_IMAGE}
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.8.0
+      - image: ${DOCKER_IMAGE}
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -486,6 +567,7 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           name: Validate
           command: |
             ./script/validate-monorepo
+${turboCacheSaveSteps('      ').join('\n')}
 
 ${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)
@@ -517,6 +599,15 @@ commands:
           name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Configure Turbo for CI
+          command: |
+            # Identifies the toolchain that produced cached artifacts.
+            echo 'export VX_TOOLCHAIN_ID="${DOCKER_IMAGE}"' >> $BASH_ENV
+            # Run summaries record each task's hash under .turbo/runs;
+            # script/prune-turbo-cache uses them to trim the cache before it
+            # is saved.
+            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV
       - run:
           name: Fix node-gyp gyp entrypoint permissions
           command: |
@@ -556,6 +647,7 @@ commands:
                 paths:
                   - /root/.local/share/pnpm/store/v10
                   - /root/.cache/ms-playwright
+${turboCacheRestoreSteps('            ').join('\n')}
       - restore_cache:
           name: Restore Cargo Cache
           key:

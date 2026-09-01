@@ -86,10 +86,27 @@ Turbo shares one local cache across all git worktrees of this repo (it lives
 under the shared `.git` directory, not inside any single worktree). So a package
 you built in one worktree is restored for free in another. Two things to know:
 
-- The cache is **per-machine** — it is not shared between developers or with CI.
-  A fresh checkout of a commit nobody on this machine has built yet gets few
-  hits; the speed-up is on rebuilds of commits you've already built.
+- The cache is **per-machine** — it is not shared between developers, nor with
+  CI (which keeps its own, via CircleCI's `save_cache`/`restore_cache`). A fresh
+  checkout of a commit nobody on this machine has built yet gets few hits; the
+  speed-up is on rebuilds of commits you've already built.
 - The cache is **unbounded** — it grows over time and is never auto-evicted.
+
+## Caching in CI
+
+CI keeps its own cache, separate from any developer's. Each CircleCI job
+restores `.turbo/cache` at the start; jobs on `main` prune it to the entries
+that job used (`script/prune-turbo-cache`) and save it again at the end.
+Branches are read-only against `main`'s cache, so a branch build reuses
+everything it hasn't changed but doesn't write anything back.
+
+Two consequences worth knowing when reading a CI log:
+
+- The first build after any change to `.circleci/config.yml` is cold. The cache
+  key includes that file's checksum, which is what keeps an executor image bump
+  from replaying artifacts built by a different toolchain.
+- CircleCI expires caches after 15 days, which is also the maximum retention it
+  allows, so even a constantly-reused entry is rebuilt at least that often.
 
 ## Troubleshooting
 

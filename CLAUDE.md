@@ -219,8 +219,8 @@ Tasks and their wiring (`turbo.json`):
 | `build:self`    | `^build:self` | `build/**`, `*.node`                               |
 | `type-check`    | `^build:self` | `tsconfig.tsbuildinfo`                             |
 | `lint:self`     | `^build:self` | (logs only)                                        |
-| `test:run:self` | `build:self`  | (logs only)                                        |
-| `test:ci:self`  | `build:self`  | (logs only; design's Postgres/migration CI steps)  |
+| `test:run:self` | `build:self`  | `reports/**` (junit)                               |
+| `test:ci:self`  | `build:self`  | `reports/**`; design's Postgres/migration CI steps |
 | `clean:self`    | —             | not cached                                         |
 | `dev:server`    | `^build:self` | not cached (persistent; frontend Vite dev server)  |
 | `dev`           | `build:self`  | not cached (persistent + interruptible; a backend) |
@@ -258,9 +258,31 @@ per-machine (not shared between developers) and unbounded — see
 [docs/turborepo.md](docs/turborepo.md) for how to clear it, force a rebuild, and
 other troubleshooting.
 
-**CI caching:** CI currently runs Turbo tasks per package without a shared
-remote cache (each job builds fresh). Enabling Turbo remote caching in CI is a
-planned follow-up.
+**CI caching:** each CircleCI job restores Turbo's cache directory
+(`.turbo/cache`) via `restore_cache`, and jobs on `main` save it again at the
+end. Branch jobs are read-only: CircleCI cache keys are immutable, so a key has
+to rotate per revision to stay fresh, and letting every job write on every push
+to every branch would pile up an archive per job per push. A branch still
+restores `main`'s baseline, which is where nearly all of the reuse is; the only
+cost is that a branch rebuilds its own changed packages on each push.
+
+The key is scoped to the job name (~60 jobs sharing one key would keep only
+whichever finished first, and per-job archives stay small) and to the config
+checksum, which covers the executor image — an image bump can't replay artifacts
+built by a different toolchain. CI also exports `VX_TOOLCHAIN_ID` (the image
+tag), declared in `globalEnv`, so the same guard applies inside Turbo's own
+hashes.
+
+Before saving, `script/prune-turbo-cache` trims the cache to the entries the job
+actually used, which it reads from the run summaries Turbo writes under
+`.turbo/runs` (CI sets `TURBO_RUN_SUMMARY`). Turbo never evicts, so without this
+the restore/save cycle would grow the archive without bound. Pruning by age
+would be wrong: Turbo does not update an entry's mtime on a cache hit, so the
+oldest entries are typically the hottest ones.
+
+Because a job's cache is written when it finishes, this shares work only _across
+pushes_ to `main`; sharing across the jobs of a single pipeline needs a remote
+cache, which is a planned follow-up.
 
 **Tooling scripts:** repo tooling that depends on built workspace packages
 (`configure-env`, `generate-circleci-config`) is a shell `bin/` in the package

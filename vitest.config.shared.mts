@@ -45,8 +45,14 @@ export const base: vitest.ViteUserConfig = {
     },
     clearMocks: true,
     maxWorkers: isCI ? 6 : localMaxWorkers,
-    reporters: isCI ? ['verbose', 'junit'] : [],
-    outputFile: isCI ? 'reports/junit.xml' : undefined,
+    // The junit reporter runs everywhere so that `reports/junit.xml` is
+    // always produced and can be declared as a turbo output for
+    // `test:run:self` — without it, a cached test task would leave CircleCI's
+    // `store_test_results` with nothing to upload. It writes to the file
+    // rather than the console, so local output is unaffected (`junit.xml` is
+    // gitignored).
+    reporters: isCI ? ['verbose', 'junit'] : ['junit'],
+    outputFile: 'reports/junit.xml',
     // 10s everywhere. A full-workspace `pnpm test` runs many suites at once and
     // briefly oversubscribes the CPU, so a tighter budget would flake
     // otherwise-fast tests under that transient load.
