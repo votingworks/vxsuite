@@ -7,7 +7,6 @@ import {
 } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import { mockLogger } from '@votingworks/logging';
-import { ok } from '@votingworks/basics';
 import {
   authenticateArtifactUsingSignatureFile,
   SIGNATURE_FILE_EXTENSION,
@@ -71,12 +70,14 @@ test('writes a manifest alongside a signature that authenticates it', async () =
   ).toBeGreaterThan(0);
 
   expect(
-    await authenticateArtifactUsingSignatureFile({
-      type: 'vxadmin_backup',
-      context: 'import',
-      directoryPath: backupPath,
-    })
-  ).toEqual(ok());
+    (
+      await authenticateArtifactUsingSignatureFile({
+        type: 'vxadmin_backup',
+        context: 'import',
+        directoryPath: backupPath,
+      })
+    ).err()
+  ).toBeUndefined();
 });
 
 test('the signature does not authenticate a tampered-with manifest', async () => {

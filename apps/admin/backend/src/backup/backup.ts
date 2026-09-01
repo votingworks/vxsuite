@@ -6,7 +6,13 @@ import {
   constructSignatureFilePath,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from '@votingworks/auth';
-import { err, extractErrorMessage, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  extractErrorMessage,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { copyFile, CopyFileError } from '@votingworks/fs';
 import { AuthenticatedBackup } from './authenticated_backup.js';
 
@@ -103,8 +109,14 @@ export class Backup {
         });
       }
 
+      // `authenticateArtifactUsingSignatureFile` already refused anything but a
+      // VxAdmin cert for this artifact type; this narrows that to the type
+      // system, since only a VxAdmin cert carries a jurisdiction.
+      const signer = authenticateResult.ok();
+      assert(signer.component === 'admin');
+
       opened = true;
-      return ok(new AuthenticatedBackup(this.backupPath, stagingPath));
+      return ok(new AuthenticatedBackup(this.backupPath, stagingPath, signer));
     } finally {
       if (!opened) {
         await rm(stagingPath, { recursive: true, force: true });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { err, ok } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import { dirname, join, relative } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -146,7 +146,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   }
 
   const firstManifest = readManifest();
-  expect(await authenticateBackup()).toEqual(ok());
+  expect((await authenticateBackup()).err()).toBeUndefined();
   const firstBallotImages = readdirSync(
     join(
       backupPath,
@@ -169,7 +169,7 @@ test('a second backup atomically replaces the first, leaving no leftovers', asyn
   expect(secondResult.unsafeUnwrap().path).toEqual(backupPath);
 
   const secondManifest = readManifest();
-  expect(await authenticateBackup()).toEqual(ok());
+  expect((await authenticateBackup()).err()).toBeUndefined();
   expect(secondManifest.createdAt).not.toEqual(firstManifest.createdAt);
   expect(secondManifest.files.length).toBeGreaterThan(
     firstManifest.files.length

@@ -4,6 +4,8 @@ import {
 } from '@votingworks/types';
 import type { Mocked, vi } from 'vitest';
 
+import { MachineCustomCertFields } from './certs';
+import { DEV_JURISDICTION } from './jurisdictions';
 import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api';
 import {
   InsertedSmartCardAuthApi,
@@ -48,5 +50,22 @@ export function buildMockInsertedSmartCardAuth(
     readCardData: fn(),
     writeCardData: fn(),
     clearCardData: fn(),
+  };
+}
+
+/**
+ * Stands in for the signing machine's cert fields that
+ * `authenticateArtifactUsingSignatureFile` returns, for tests that mock
+ * artifact authentication and do not care who signed what. Pass `overrides` to
+ * test code that does care.
+ */
+export function mockSigningMachineCertFields(
+  overrides: Partial<MachineCustomCertFields> = {}
+): MachineCustomCertFields {
+  return {
+    component: 'admin',
+    machineId: '0000',
+    jurisdiction: DEV_JURISDICTION,
+    ...overrides,
   };
 }

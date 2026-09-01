@@ -1,11 +1,10 @@
 import {
-  DEV_JURISDICTION,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { isIntegrationTest } from '@votingworks/utils';
-import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
+import { getMachineJurisdiction } from '../machine_config.js';
 import type { BaseStore } from '../types.js';
 
 /**
@@ -17,10 +16,7 @@ export function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionId = store.getCurrentElectionId();
 
-  /* istanbul ignore next - covered by integration testing */
-  const jurisdiction = isIntegrationTest()
-    ? TEST_JURISDICTION
-    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
+  const jurisdiction = getMachineJurisdiction();
 
   if (!electionId) {
     return {

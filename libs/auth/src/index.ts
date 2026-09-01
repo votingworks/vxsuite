@@ -2,6 +2,13 @@ export * from './artifact_authentication';
 export * as cac from './cac';
 export type { Card, CardStatus } from './card';
 export * from './cast_vote_record_hashes';
+export type {
+  CardCustomCertFields,
+  Component,
+  CustomCertFields,
+  MachineCustomCertFields,
+  VxAdminCustomCertFields,
+} from './certs';
 export * from './config';
 export {
   manageOpensslConfig,

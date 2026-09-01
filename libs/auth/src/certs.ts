@@ -49,7 +49,12 @@ interface BaseMachineCustomCertFields {
   machineId: string;
 }
 
-interface VxAdminCustomCertFields extends BaseMachineCustomCertFields {
+/**
+ * Parsed custom cert fields for a VxAdmin machine cert. Exported because a
+ * VxAdmin is the only machine that signs an artifact whose consumer cares
+ * which jurisdiction signed it.
+ */
+export interface VxAdminCustomCertFields extends BaseMachineCustomCertFields {
   component: 'admin';
   jurisdiction: string;
 }

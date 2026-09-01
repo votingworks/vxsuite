@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -72,6 +72,10 @@ vi.mock(
 
 beforeEach(() => {
   mockDiskSpace();
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 /**
@@ -478,11 +482,10 @@ test('restore fails if the backup manifest software version does not match', asy
 
 test('restore warns but does not fail if the machine ID does not match', async () => {
   const backup = await makeBackup();
-  const otherMachineId = 'VX-00-999';
-  await rewriteManifest(backup, (manifest) => ({
-    ...manifest,
-    machineId: otherMachineId,
-  }));
+  // The backup is signed by the dev VxAdmin cert, so making this machine
+  // anyone else is what makes the backup another machine's.
+  const thisMachineId = 'VX-00-999';
+  vi.stubEnv('VX_MACHINE_ID', thisMachineId);
 
   const workspacePath = makeUnconfiguredWorkspacePath();
   const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
@@ -506,9 +509,61 @@ test('restore warns but does not fail if the machine ID does not match', async (
   // apart from a restore onto the machine that made it.
   const warnings = vi
     .mocked(logger.log)
-    .mock.calls.filter((call) => JSON.stringify(call).includes(otherMachineId));
+    .mock.calls.filter((call) => JSON.stringify(call).includes(thisMachineId));
   expect(warnings).toHaveLength(1);
   expect(JSON.stringify(warnings[0])).toContain(DEV_MACHINE_ID);
+});
+
+test('the recorded machine ID is the signer, not what the manifest claims', async () => {
+  const backup = await makeBackup();
+  // A manifest is written by whoever holds a signing key, so a machine ID in
+  // one is a claim. Here it claims to be this very machine while the cert that
+  // signed it says otherwise, which is what the record has to survive.
+  const thisMachineId = 'VX-00-999';
+  vi.stubEnv('VX_MACHINE_ID', thisMachineId);
+  await rewriteManifest(backup, (manifest) => ({
+    ...manifest,
+    machineId: thisMachineId,
+  }));
+
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace: restorable(makeUnconfiguredWorkspacePath()),
+      logger,
+    })
+  ).toEqual(ok());
+
+  const warnings = vi
+    .mocked(logger.log)
+    .mock.calls.filter((call) => JSON.stringify(call).includes(DEV_MACHINE_ID));
+  expect(warnings).toHaveLength(1);
+});
+
+test('restore fails if the backup was signed in another jurisdiction', async () => {
+  const backup = await makeBackup();
+  // Every VxAdmin's cert chains to the same VotingWorks CA, so a valid
+  // signature on its own says only that some VxAdmin somewhere made this.
+  vi.stubEnv('VX_MACHINE_JURISDICTION', 'st.somewhere-else');
+
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const result = await restoreBackup({
+    backup: backup.path,
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(result.err()).toMatchObject({
+    type: 'backup-authentication-failed',
+  });
+
+  // Refused during vetting, so the workspace still holds what it had.
+  expect(listWorkspace(workspacePath)).toEqual([
+    'ballot-images',
+    ADMIN_WORKSPACE_DATABASE_NAME,
+    'election-packages',
+  ]);
 });
 
 test.each<{ description: string; tamper: (backup: Backup) => Promise<void> }>([
@@ -537,12 +592,14 @@ test.each<{ description: string; tamper: (backup: Backup) => Promise<void> }>([
   const backup = await makeBackup();
   // Proves the tampering below is what breaks authentication, not the fixture.
   expect(
-    await authenticateArtifactUsingSignatureFile({
-      type: 'vxadmin_backup',
-      context: 'import',
-      directoryPath: backup.path,
-    })
-  ).toEqual(ok());
+    (
+      await authenticateArtifactUsingSignatureFile({
+        type: 'vxadmin_backup',
+        context: 'import',
+        directoryPath: backup.path,
+      })
+    ).err()
+  ).toBeUndefined();
 
   await tamper(backup);
 

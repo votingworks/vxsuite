@@ -1,7 +1,10 @@
 import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import { Logger, LogEventId } from '@votingworks/logging';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import { getMachineConfig } from '../../machine_config.js';
+import {
+  getMachineConfig,
+  getMachineJurisdiction,
+} from '../../machine_config.js';
 import { AuthenticatedBackup } from '../authenticated_backup.js';
 import { Backup } from '../backup.js';
 import { BACKUP_WORKSPACE_DIR, BackupManifest } from '../backup_manifest.js';
@@ -31,9 +34,13 @@ export async function openBackup(
 
 /**
  * Reads the authenticated manifest and checks that it describes a backup this
- * software can restore. A backup made by a different machine is recorded
- * rather than refused: moving a backup between machines is how failed hardware
- * is replaced.
+ * software can restore, and one this machine has any business restoring.
+ *
+ * A backup signed by a different machine is recorded rather than refused:
+ * moving a backup between machines is how failed hardware is replaced. One
+ * signed in a different *jurisdiction* is refused — no jurisdiction has cause
+ * to restore another's data — which is what keeps "a different machine" from
+ * meaning any VxAdmin in existence.
  */
 export async function vetManifest(
   backup: AuthenticatedBackup,
@@ -77,12 +84,33 @@ export async function vetManifest(
     });
   }
 
+  // Every machine's cert chains to the same VotingWorks CA, so a signature
+  // says a VxAdmin signed this and nothing more. The signer's jurisdiction is
+  // the one account of where a backup came from that its author did not write:
+  // a manifest holds whatever the signer chose to type, while the jurisdiction
+  // is what the CA issued them.
+  const jurisdiction = getMachineJurisdiction();
+  if (backup.signer.jurisdiction !== jurisdiction) {
+    return err({
+      type: 'backup-authentication-failed',
+      message:
+        `Backup was signed by a VxAdmin in jurisdiction ` +
+        `${backup.signer.jurisdiction}, but this machine belongs to ` +
+        `${jurisdiction}`,
+    });
+  }
+
+  // Which machine made the backup is read from the signing cert, not from the
+  // manifest. Restoring another machine's backup is allowed, so nothing
+  // refuses a manifest naming the wrong machine — which is exactly why the
+  // manifest's own account of its origin is not what gets recorded here.
   const { machineId } = getMachineConfig();
-  if (manifest.machineId !== machineId) {
+  if (backup.signer.machineId !== machineId) {
     await logger.logAsCurrentRole(LogEventId.BackupRestoreMachineMismatch, {
+      signingMachineId: backup.signer.machineId,
       backupManifestMachineId: manifest.machineId,
       machineId,
-      message: `Backup was created by ${manifest.machineId} which does not match ${machineId}`,
+      message: `Backup was created by ${backup.signer.machineId} which does not match ${machineId}`,
     });
   }
 

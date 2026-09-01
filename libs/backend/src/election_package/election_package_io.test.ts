@@ -54,7 +54,10 @@ import {
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
+import {
+  authenticateArtifactUsingSignatureFile,
+  mockSigningMachineCertFields,
+} from '@votingworks/auth';
 import { join } from 'node:path';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -93,7 +96,9 @@ vi.mock(
 );
 
 beforeEach(() => {
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    ok(mockSigningMachineCertFields())
+  );
   mockFeatureFlagger.resetFeatureFlags();
 });
 
