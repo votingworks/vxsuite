@@ -35,15 +35,6 @@ ruleTester.run('no-import-workspace-subfolders', rule, {
     {
       code: `import * as a from 'random/library/with/many/slashes'`,
     },
-    {
-      code: `import a from '@votingworks/types/something/else'`,
-    },
-    {
-      code: `import { a } from '@votingworks/types/api/services/scan'`,
-    },
-    {
-      code: `import * as a from '@votingworks/types/a/bunch/of/folders'`,
-    },
   ],
   invalid: [
     {
@@ -74,6 +65,11 @@ ruleTester.run('no-import-workspace-subfolders', rule, {
     {
       code: `import * as a from '@votingworks/something/src/utils'`,
       output: `import * as a from '@votingworks/something'`,
+      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+    },
+    {
+      code: `import { a } from '@votingworks/types/src'`,
+      output: `import { a } from '@votingworks/types'`,
       errors: [{ messageId: 'noImportSubfolders', line: 1 }],
     },
   ],

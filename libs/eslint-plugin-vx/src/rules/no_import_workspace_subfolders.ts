@@ -28,7 +28,7 @@ const rule: TSESLint.RuleModule<'noImportSubfolders', readonly unknown[]> =
           assert(typeof importSource === 'string');
           if (importSource.startsWith(VOTINGWORKS_WORKSPACE_PREFIX)) {
             const folders = importSource.split('/');
-            if (folders.length > 2 && folders[1] !== 'types') {
+            if (folders.length > 2) {
               context.report({
                 node,
                 messageId: 'noImportSubfolders',
