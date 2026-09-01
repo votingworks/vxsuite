@@ -5,6 +5,7 @@ import {
   BallotType,
   BallotStyleId,
   Election,
+  ElectionDefinition,
   VotesDict,
   getContests,
   getBallotStyle,
@@ -35,20 +36,31 @@ import type {
 } from './bubble-ballot-ts/types.js';
 
 /**
- * Real elections rather than `arbitraryElectionDefinition`. That generator
- * picks each ballot style's districts independently of the contests' districts,
- * so `getContests` comes back empty and the properties below used to skip their
- * bodies on 49 of every 50 runs — including every case that would have caught
- * the contest-selection divergence this commit fixes.
+ * Real elections rather than generated ones, so the contest bitmap is written
+ * against the contest and party shapes that ship in production — notably the
+ * combined ballot primary, whose party-less ballot styles carry every party's
+ * contests.
+ *
+ * Each fixture is read at most once and only if it is actually drawn: reading
+ * one re-parses the whole election and re-hashes it, which is far too expensive
+ * to repeat per run.
  */
-function arbitraryFixtureElectionDefinition() {
-  return fc.constantFrom(
-    readElectionGeneralDefinition(),
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    electionTwoPartyPrimaryFixtures.readElectionDefinition(),
-    electionStraightPartyFixtures.readElectionDefinition(),
-    electionCombinedBallotPrimaryFixtures.readElectionDefinition()
-  );
+const FIXTURE_ELECTION_LOADERS = [
+  readElectionGeneralDefinition,
+  electionFamousNames2021Fixtures.readElectionDefinition,
+  electionTwoPartyPrimaryFixtures.readElectionDefinition,
+  electionStraightPartyFixtures.readElectionDefinition,
+  electionCombinedBallotPrimaryFixtures.readElectionDefinition,
+].map((load) => {
+  let cached: ElectionDefinition | undefined;
+  return () => {
+    cached ??= load();
+    return cached;
+  };
+});
+
+function arbitraryFixtureElectionDefinition(): fc.Arbitrary<ElectionDefinition> {
+  return fc.constantFrom(...FIXTURE_ELECTION_LOADERS).map((load) => load());
 }
 
 /**
