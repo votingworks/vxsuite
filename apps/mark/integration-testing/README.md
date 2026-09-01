@@ -5,19 +5,20 @@ Integration tests for VxMark using the backend (`apps/mark/backend`), frontend
 
 ## Development
 
-In order to run integration tests locally on your VM, you will have to install
-Chromium with:
+These tests run in the Playwright-managed Chromium browser. Install it with:
 
 ```bash
-sudo apt install chromium
+pnpm exec playwright install chromium
 ```
 
-The tests can also be run in Chrome (and in CircleCI, they do run in Chrome) but
-currently there is not a Debian 11 ARM version of Chrome available so we use
-Chromium locally.
+Do **not** install a system Chromium (e.g. `apt install chromium`): a
+system-wide browser can change image rendering and throw the image snapshots in
+other libraries out of sync with CI. CI installs the Playwright-managed browser
+the same way (see the generated `Install Browser` step in
+`.circleci/config.yml`).
 
 See the "Installation" section of the Playwright docs for more information:
-https://playwright.dev/docs/intro.
+<https://playwright.dev/docs/intro>.
 
 ```bash
 # build the frontend, backend, and required services
