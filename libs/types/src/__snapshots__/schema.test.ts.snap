@@ -166,6 +166,24 @@ exports[`parsing validates district references 1`] = `
   {
     "code": "custom",
     "path": [
+      "contests",
+      0,
+      "districtId"
+    ],
+    "message": "Contest 'CC' has district 'D', but no such district is defined. Districts defined: [DIS]."
+  },
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      1,
+      "districtId"
+    ],
+    "message": "Contest 'YNC' has district 'D', but no such district is defined. Districts defined: [DIS]."
+  },
+  {
+    "code": "custom",
+    "path": [
       "ballotStyles",
       0,
       "districts",

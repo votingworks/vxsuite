@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { err } from '@votingworks/basics';
+import { assertDefined, err } from '@votingworks/basics';
 import { election as electionGeneral, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
@@ -120,6 +120,20 @@ test('parsing validates district references', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchSnapshot();
+});
+
+test('parsing validates contest district references', () => {
+  const [contest, ...restContests] = electionGeneral.contests;
+  const result = t.safeParseVxfElection({
+    ...electionGeneral,
+    contests: [
+      { ...assertDefined(contest), districtId: 'not-a-real-district' },
+      ...restContests,
+    ],
+  });
+  expect(result.unsafeUnwrapErr().message).toContain(
+    `Contest '${assertDefined(contest).id}' has district 'not-a-real-district', but no such district is defined.`
+  );
 });
 
 test('parsing validates precinct references', () => {
