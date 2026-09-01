@@ -3569,7 +3569,7 @@ test('Election package management', async () => {
   // Complete the task
   emitProgress('Test progress message', 10, 10);
   deferredRenderResult.resolve({
-    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    ballotPaths: props.map(() => makeTemporaryFile()),
     electionDefinition: baseElectionDefinition,
   });
   await taskPromise;
@@ -5145,7 +5145,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
 
   const props = allBaseBallotProps(electionDefinition.election);
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
-    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    ballotPaths: props.map(() => makeTemporaryFile()),
     electionDefinition,
   });
   await exportElectionPackage({

@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   getCastVoteRecordExportDirectoryPaths,
@@ -409,7 +410,7 @@ test('audit ballot IDs', async () => {
     ballotAuditId: '123',
   };
   const rendererPool = await createPlaywrightRendererPool();
-  const { ballotPdfs, electionDefinition: electionDefinitionModified } =
+  const { ballotPaths, electionDefinition: electionDefinitionModified } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
@@ -417,7 +418,7 @@ test('audit ballot IDs', async () => {
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       { path: makeTemporaryDirectory() }
     );
-  const ballotPdf = ballotPdfs[0];
+  const ballotPdf = fs.readFileSync(ballotPaths[0]);
   await rendererPool.close();
   const ballotImages = await pdfToImageSheet(ballotPdf);
 

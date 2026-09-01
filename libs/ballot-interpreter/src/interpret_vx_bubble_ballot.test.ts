@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, find, iter } from '@votingworks/basics';
@@ -858,7 +859,7 @@ test('Ballot audit IDs', async () => {
     ballotAuditId: 'test-ballot-audit-id',
   };
   const rendererPool = await createPlaywrightRendererPool();
-  const { ballotPdfs, electionDefinition: electionDefinitionModified } =
+  const { ballotPaths, electionDefinition: electionDefinitionModified } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
@@ -866,7 +867,7 @@ test('Ballot audit IDs', async () => {
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       makeScratchDir()
     );
-  const ballotPdf = ballotPdfs[0]!;
+  const ballotPdf = fs.readFileSync(ballotPaths[0]!);
   await rendererPool.close();
   const images = asSheet(await pdfToPageImages(ballotPdf).toArray());
   expect(images).toHaveLength(2);

@@ -12,7 +12,10 @@ import {
 import { createHash } from 'node:crypto';
 import * as types from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import {
   allBaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
@@ -588,7 +591,7 @@ test('getExportedElectionDefinition returns the exported election including reor
   // Mock the ballot rendering to return the reordered election
   const props = allBaseBallotProps(reorderedElection);
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
-    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    ballotPaths: props.map(() => makeTemporaryFile()),
     electionDefinition: reorderedElectionDefinition,
   });
 
@@ -815,7 +818,7 @@ test('getExportedElection returns election-out-of-date error when election data 
   // Mock the ballot rendering to return a valid election
   const props = allBaseBallotProps(baseElectionDefinition.election);
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
-    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
+    ballotPaths: props.map(() => makeTemporaryFile()),
     electionDefinition: baseElectionDefinition,
   });
 

@@ -24,7 +24,10 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { encodeQuickResultsMessage } from '@votingworks/auth';
-import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
+import {
+  electionWithMsEitherNeitherFixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmpb';
 import type * as grout from '@votingworks/grout';
@@ -110,7 +113,7 @@ async function setUpElectionInSystem(
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockImplementation(
     // eslint-disable-next-line @typescript-eslint/require-await
     async (_, _ballotTemplates, ballotProps) => ({
-      ballotPdfs: ballotProps.map(() => Uint8Array.from('mock-pdf-contents')),
+      ballotPaths: ballotProps.map(() => makeTemporaryFile()),
       electionDefinition: safeParseElectionDefinition(
         JSON.stringify(ballotProps[0].election, null, 2)
       ).unsafeUnwrap(),
@@ -2128,7 +2131,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   ).mockImplementationOnce(
     // eslint-disable-next-line @typescript-eslint/require-await
     async (_, _ballotTemplates, ballotProps) => ({
-      ballotPdfs: ballotProps.map(() => Uint8Array.from('mock-pdf-contents')),
+      ballotPaths: ballotProps.map(() => makeTemporaryFile()),
       electionDefinition: reorderedElectionDefinition,
     })
   );
