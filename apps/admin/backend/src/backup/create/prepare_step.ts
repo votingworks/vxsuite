@@ -1,5 +1,6 @@
 import { Stats } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import {
   assertDefined,
   err,
@@ -10,8 +11,10 @@ import {
   Result,
 } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { exchangePaths } from '@votingworks/fs';
 import { Id } from '@votingworks/types';
 import { Store } from '../../store.js';
+import { checkWorkspaceIsHostMode } from '../host_mode.js';
 import { PrepareBackupOptions } from './types.js';
 import { BackupStagingArea } from '../staging_area.js';
 
@@ -34,12 +37,21 @@ export type PrepareError =
       message: string;
     }
   | {
+      type: 'not-host-mode';
+      message: string;
+    }
+  | {
       type: 'file-not-found';
       path: string;
       message: string;
     }
   | {
       type: 'not-directory';
+      path: string;
+      message: string;
+    }
+  | {
+      type: 'target-cannot-swap';
       path: string;
       message: string;
     }
@@ -77,13 +89,6 @@ const CANCELLED_ERROR: PrepareError = {
 };
 
 /**
- * Thrown from the database snapshot's progress callback to abort it, which is
- * the only way to stop a snapshot partway: `better-sqlite3` closes the backup
- * and rejects when its progress callback throws.
- */
-class CancelledError extends Error {}
-
-/**
  * Reported when the database cannot be snapshotted because something else is
  * partway through writing to it.
  */
@@ -114,6 +119,64 @@ export interface PreparedBackup {
 }
 
 /**
+ * Prefix for the throwaway directory {@link checkTargetCanSwap} works in. Its
+ * leading dot keeps it out of the way of anything listing the drive, and
+ * `mkdtemp` completes it with enough randomness that two runs never collide.
+ */
+const SWAP_CHECK_PREFIX = '.vx-swap-check-';
+
+/**
+ * Checks that the target can have a finished backup swapped into place, which
+ * is how the last backup is replaced without either one ever being missing.
+ * `renameat2(2)` with `RENAME_EXCHANGE` is not supported on every filesystem —
+ * FAT32 refuses it — and only a target that already holds a backup would
+ * exercise it, so the first backup to a drive would succeed and every one
+ * after it would fail. Two throwaway directories answer the question outright,
+ * rather than a copy of the whole database finding out at the end.
+ */
+async function checkTargetCanSwap(
+  target: string
+): Promise<Result<void, PrepareError>> {
+  // A directory of its own, so that whatever a killed run left behind is never
+  // mistaken for a target that cannot hold backups. `target` has just been
+  // confirmed to be a directory, so the two inside it need no parents created.
+  let checkPath: string | undefined;
+
+  try {
+    checkPath = await mkdtemp(join(target, SWAP_CHECK_PREFIX));
+    const a = join(checkPath, 'a');
+    const b = join(checkPath, 'b');
+    await mkdir(a);
+    await mkdir(b);
+
+    const exchangeResult = exchangePaths(a, b);
+    if (exchangeResult.isErr()) {
+      return err({
+        type: 'target-cannot-swap',
+        path: target,
+        message: `${target} cannot hold backups: ${
+          exchangeResult.err().message
+        }`,
+      });
+    }
+
+    return ok();
+  } catch (error) {
+    // A target that cannot even be written to is one no backup can be swapped
+    // into, so it fails here rather than after the copy.
+    return err({
+      type: 'target-cannot-swap',
+      path: target,
+      message: `${target} cannot hold backups: ${extractErrorMessage(error)}`,
+    });
+  } finally {
+    if (checkPath) {
+      await rm(checkPath, { recursive: true, force: true });
+    }
+  }
+}
+
+/**
  * Prepares the backup creation to take place by ensuring the source workspace
  * and target locations are known and able to fit the data to be copied. Stages
  * the data to be copied, including a database snapshot, returning a reference
@@ -129,6 +192,11 @@ export async function prepare(
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
+  }
+
+  const hostModeResult = checkWorkspaceIsHostMode(workspace);
+  if (hostModeResult.isErr()) {
+    return hostModeResult;
   }
 
   // Check the target up front: an unmounted backup drive is the likeliest
@@ -152,6 +220,11 @@ export async function prepare(
     });
   }
 
+  const swapResult = await checkTargetCanSwap(target);
+  if (swapResult.isErr()) {
+    return swapResult;
+  }
+
   // Claim the staging area first. It reclaims what a killed run left behind,
   // so the free space measured below doesn't count a dead run's snapshot
   // against this one, and it holds the lock that makes reclaiming safe.
@@ -163,9 +236,6 @@ export async function prepare(
     });
   }
   const stagingArea = stagingAreaResult.ok();
-  // The workspace's own connection, so that writes made through it update the
-  // snapshot in place instead of restarting it.
-  const dbClient = workspace.store['client'];
   let snapshotStore: Store | undefined;
   let shouldPurgeStagingArea = true;
 
@@ -206,45 +276,19 @@ export async function prepare(
       workspace.store.getDbPath()
     );
 
-    // SQLite refuses to copy a page while a write transaction is open on the
-    // connection running the backup, and `better-sqlite3` reports that refusal
-    // as a backup that finished with nothing left to do, deleting the
-    // destination on its way out. Catch the case we can see coming — a CVR
-    // import holds its transaction open across awaits for the whole import —
-    // rather than letting it look like a successful snapshot.
-    if (dbClient.isInTransaction()) {
-      return err(WRITE_IN_PROGRESS_ERROR);
-    }
-
-    // So that a backup cancelled before the snapshot starts never copies a
-    // page of it.
-    if (signal?.aborted) {
-      return err(CANCELLED_ERROR);
-    }
-
-    await dbClient.backup(dbSnapshotPath, {
-      progress(info) {
-        if (signal?.aborted) {
-          throw new CancelledError();
-        }
-
-        onProgressEvent?.({
-          type: 'db_snapshot',
-          progress: (info.totalPages - info.remainingPages) / info.totalPages,
-        });
-        // NOTE: `better-sqlite3`'s types say the return type has to be a number,
-        // but that's only if we want to control the next chunk of the backup's
-        // page size. Returning `undefined` lets the caller pick.
-        return undefined as unknown as number;
-      },
+    const snapshotResult = await workspace.store.backupTo(dbSnapshotPath, {
+      signal,
+      onProgress: (progress) =>
+        onProgressEvent?.({ type: 'db_snapshot', progress }),
     });
-    if (!(await statOrUndefined(dbSnapshotPath))) {
-      // A write that began after the check above lands here: the backup
-      // resolved without copying anything and unlinked the snapshot.
-      return err(WRITE_IN_PROGRESS_ERROR);
+    if (snapshotResult.isErr()) {
+      return err(
+        snapshotResult.err().type === 'cancelled'
+          ? CANCELLED_ERROR
+          : WRITE_IN_PROGRESS_ERROR
+      );
     }
 
-    onProgressEvent?.({ type: 'db_snapshot', progress: 1 });
     await stagingArea.markStagingPathReady(dbSnapshotPath);
 
     // Enumerate ballot images from the snapshot we just took, not the live
@@ -325,10 +369,6 @@ export async function prepare(
       snapshotStore,
     });
   } catch (error) {
-    if (error instanceof CancelledError) {
-      return err(CANCELLED_ERROR);
-    }
-
     if (isNonExistentFileOrDirectoryError(error)) {
       return err({
         type: 'file-not-found',

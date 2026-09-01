@@ -3,7 +3,7 @@ import { relative } from 'node:path';
 import yargs from 'yargs';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { getNodeEnv } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
@@ -11,7 +11,11 @@ import { DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
 import { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
-import { openWorkspace, Workspace } from '../../util/workspace.js';
+import {
+  createWorkspace,
+  openWorkspace,
+  Workspace,
+} from '../../util/workspace.js';
 import { restoreBackup } from '../restore/index.js';
 
 /**
@@ -26,11 +30,11 @@ export interface Streams {
 /**
  * Everything the CLI needs from its caller: the IO streams, and optionally
  * where to send log messages. Without a logger, log messages go to a real
- * {@link BaseLogger}, i.e. to stdout as JSON lines — tests pass a mock so log
+ * {@link Logger}, i.e. to stdout as JSON lines — tests pass a mock so log
  * output doesn't interleave with the command's own.
  */
 export interface MainContext extends Streams {
-  logger?: BaseLogger;
+  logger?: Logger;
 
   /**
    * When given, aborting this signal cancels a `create` or `restore` in
@@ -62,7 +66,13 @@ export async function main(
   argv: readonly string[],
   { stdin, stdout, stderr, logger: providedLogger, signal }: MainContext
 ): Promise<number> {
-  const logger = providedLogger ?? new BaseLogger(LogSource.VxAdminService);
+  // Nobody is signed in to a command run from a shell, so what it does is the
+  // system's doing, unlike the same operations run from VxAdmin itself.
+  const logger =
+    providedLogger ??
+    Logger.from(new BaseLogger(LogSource.VxAdminService), () =>
+      Promise.resolve('system')
+    );
   const parser = yargs()
     .scriptName('backups')
     .usage('Usage: $0 <command> [options]')
@@ -207,7 +217,7 @@ function displayProgress(event: ProgressEvent): DisplayProgress {
  */
 function openWorkspaceIfPresent(
   path: string,
-  logger: BaseLogger
+  logger: Logger
 ): Workspace | undefined {
   try {
     return openWorkspace(path, logger);
@@ -230,7 +240,7 @@ async function create(
     stderr,
     logger,
     signal,
-  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
+  }: Streams & { logger: Logger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.target === 'string');
@@ -370,7 +380,7 @@ async function restore(
     stderr,
     logger,
     signal,
-  }: Streams & { logger: BaseLogger; signal?: AbortSignal }
+  }: Streams & { logger: Logger; signal?: AbortSignal }
 ): Promise<number> {
   assert(typeof args.workspace === 'string');
   assert(typeof args.backup === 'string');
@@ -382,9 +392,13 @@ async function restore(
     Boolean((stderr as NodeJS.WriteStream).isTTY)
   );
 
+  // Not `using`: `restoreBackup` closes the store itself, and the workspace is
+  // not usable afterwards.
+  const workspace = createWorkspace(args.workspace, logger);
+
   const restoreBackupResult = await restoreBackup({
     backup: args.backup,
-    workspace: args.workspace,
+    workspace,
     logger,
     signal,
     onProgressEvent: (event) => display.update(displayProgress(event)),

@@ -1,6 +1,6 @@
 import { err, ok, Result } from '@votingworks/basics';
 import { syncFilesystem } from '@votingworks/fs';
-import { BaseLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { RestoreError } from './types.js';
@@ -17,7 +17,7 @@ export function verifyRestoredWorkspace({
 }: {
   manifest: BackupManifest;
   workspacePath: string;
-  logger: BaseLogger;
+  logger: Logger;
 }): Result<void, RestoreError> {
   // A manifest lists only files, so a backup carries no record of workspace
   // directories that were empty (e.g. `ballot-images` before any CVRs are

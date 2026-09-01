@@ -6,7 +6,7 @@ import { rmSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockLogger } from '@votingworks/logging';
 import {
   addCvrWithBallotImage,
   makeConfiguredWorkspace,
@@ -42,7 +42,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
   const prepareResult = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
 
@@ -58,7 +58,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
       source,
       store: snapshotStore,
       backup: backupPath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       onProgressEvent: (event) => progressEvents.push(event),
     })
   ).unsafeUnwrap();
@@ -129,7 +129,7 @@ async function copyWithProgress(
   const prepareResult = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const {
     electionId,
@@ -144,7 +144,7 @@ async function copyWithProgress(
       source,
       store,
       backup: join(makeTemporaryDirectory(), 'backup'),
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       progressEventIntervalBytes,
       onProgressEvent: (event) => events.push(event),
     })
@@ -220,7 +220,7 @@ test('reports a staged file that cannot be read', async () => {
   const prepareResult = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
 
@@ -233,7 +233,7 @@ test('reports a staged file that cannot be read', async () => {
     source,
     store: snapshotStore,
     backup: join(makeTemporaryDirectory(), 'backup'),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({ type: 'OpenFileError' });
@@ -248,7 +248,7 @@ test('stops copying when cancelled between files', async () => {
   const prepareResult = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
   const backup = join(makeTemporaryDirectory(), 'backup');
@@ -259,7 +259,7 @@ test('stops copying when cancelled between files', async () => {
     source,
     store: snapshotStore,
     backup,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent(event) {
       // Abort once the first file has landed, so the copy stops with files

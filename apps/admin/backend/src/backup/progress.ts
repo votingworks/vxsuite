@@ -1,4 +1,4 @@
-import { BaseLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 
 /**
  * Basic options for all backup and restore steps.
@@ -13,7 +13,7 @@ export interface ProgressTracking {
   /**
    * Where to send log messages during the operation.
    */
-  logger: BaseLogger;
+  logger: Logger;
 
   /**
    * When given, aborting this signal stops the operation at the next point it

@@ -8,7 +8,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { assertDefined, err, iter, ok } from '@votingworks/basics';
-import { LogEventId, mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, mockLogger } from '@votingworks/logging';
 import {
   authenticateArtifactUsingSignatureFile,
   prepareSignatureFile,
@@ -28,14 +28,17 @@ import {
   makeBackup,
   makeConfiguredWorkspace,
   mockDiskSpace,
+  whileWriting,
 } from '../../../test/backup.js';
 import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   openWorkspace,
+  Workspace,
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
 import { Backup } from '../backup.js';
+import { FileBackedMachineModeController } from '../../machine_mode.js';
 import {
   BackupManifest,
   BACKUP_MANIFEST_VERSION,
@@ -77,7 +80,10 @@ beforeEach(() => {
  */
 function makeUnconfiguredWorkspacePath(): string {
   const path = makeTemporaryDirectory();
-  using workspace = createWorkspace(path, mockBaseLogger({ fn: vi.fn }));
+  using workspace = createWorkspace(
+    path,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
   expect(workspace.store.getCurrentElectionId()).toBeUndefined();
   return path;
 }
@@ -90,6 +96,17 @@ async function makeConfiguredWorkspacePath(): Promise<string> {
   using workspace = await makeConfiguredWorkspace();
   addCvrWithBallotImage(workspace, { ballotId: 'existing-ballot' });
   return workspace.path;
+}
+
+/**
+ * Opens a workspace for a restore to take over, as a running backend holds one
+ * open. `restoreBackup` closes it, so nothing here has to.
+ */
+function restorable(workspacePath: string): Workspace {
+  return createWorkspace(
+    workspacePath,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
 }
 
 /**
@@ -186,104 +203,112 @@ async function replaceBackupFile(
   }));
 }
 
-test('restore copies the database, ballot images, and election packages', async () => {
-  const logger = mockBaseLogger({ fn: vi.fn });
-  using source = await makeConfiguredWorkspace();
-  addCvrWithBallotImage(source, { ballotId: 'ballot-1' });
-  addCvrWithBallotImage(source, { ballotId: 'ballot-2' });
+test(
+  'restore copies the database, ballot images, and election packages',
+  { timeout: 30_000 },
+  async () => {
+    const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
+    using source = await makeConfiguredWorkspace();
+    addCvrWithBallotImage(source, { ballotId: 'ballot-1' });
+    addCvrWithBallotImage(source, { ballotId: 'ballot-2' });
 
-  const electionId = source.store.getCurrentElectionId()!;
-  const sourceBallotImagePaths = source.store
-    .getAllBallotImagePaths(electionId)
-    .sort();
-  expect(sourceBallotImagePaths).toHaveLength(2);
-  const sourceElectionPackagePath =
-    source.store.getElectionPackageFilePath(electionId)!;
+    const electionId = source.store.getCurrentElectionId()!;
+    const sourceBallotImagePaths = source.store
+      .getAllBallotImagePaths(electionId)
+      .sort();
+    expect(sourceBallotImagePaths).toHaveLength(2);
+    const sourceElectionPackagePath =
+      source.store.getElectionPackageFilePath(electionId)!;
 
-  const created = (
-    await createBackup({
-      workspace: source,
-      target: makeTemporaryDirectory(),
-      logger,
-    })
-  ).unsafeUnwrap();
+    const created = (
+      await createBackup({
+        workspace: source,
+        target: makeTemporaryDirectory(),
+        logger,
+      })
+    ).unsafeUnwrap();
 
-  const workspacePath = makeUnconfiguredWorkspacePath();
-  const events: ProgressEvent[] = [];
-  expect(
-    await restoreBackup({
-      backup: created.path,
-      workspace: workspacePath,
-      logger,
-      onProgressEvent: (event) => events.push(event),
-    })
-  ).toEqual(ok());
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const events: ProgressEvent[] = [];
+    expect(
+      await restoreBackup({
+        backup: created.path,
+        workspace: restorable(workspacePath),
+        logger,
+        onProgressEvent: (event) => events.push(event),
+      })
+    ).toEqual(ok());
 
-  // Progress walks through the phases in order, and the copy events account
-  // for every file and byte the manifest promised.
-  expect(events[0]).toEqual({ type: 'preparing' });
-  expect(events.at(-2)).toEqual({ type: 'verifying' });
-  expect(events.at(-1)).toEqual({ type: 'flushing_workspace' });
-  const copyEvents = events.filter((event) => event.type === 'copy_files');
-  const manifest = await readBackupManifest(new Backup(created.path));
-  expect(copyEvents[0]).toMatchObject({ copiedCount: 0, copiedBytes: 0 });
-  expect(copyEvents.at(-1)).toEqual({
-    type: 'copy_files',
-    copiedCount: manifest.files.length,
-    totalCount: manifest.files.length,
-    copiedBytes: iter(manifest.files).sum(({ size }) => size),
-    totalBytes: iter(manifest.files).sum(({ size }) => size),
-  });
+    // Progress walks through the phases in order, and the copy events account
+    // for every file and byte the manifest promised.
+    expect(events[0]).toEqual({ type: 'preparing' });
+    expect(events.at(-2)).toEqual({ type: 'verifying' });
+    expect(events.at(-1)).toEqual({ type: 'flushing_workspace' });
+    const copyEvents = events.filter((event) => event.type === 'copy_files');
+    const manifest = await readBackupManifest(new Backup(created.path));
+    expect(copyEvents[0]).toMatchObject({ copiedCount: 0, copiedBytes: 0 });
+    expect(copyEvents.at(-1)).toEqual({
+      type: 'copy_files',
+      copiedCount: manifest.files.length,
+      totalCount: manifest.files.length,
+      copiedBytes: iter(manifest.files).sum(({ size }) => size),
+      totalBytes: iter(manifest.files).sum(({ size }) => size),
+    });
 
-  // Restoring replaces the machine's entire data state, so both the attempt
-  // and its outcome belong in the audit log.
-  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupRestoreInit,
-    'system',
-    expect.objectContaining({ message: expect.stringContaining(created.path) })
-  );
-  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupRestoreComplete,
-    'system',
-    expect.objectContaining({ disposition: 'success' })
-  );
+    // Restoring replaces the machine's entire data state, so both the attempt
+    // and its outcome belong in the audit log.
+    expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+      LogEventId.BackupRestoreInit,
+      'system_administrator',
+      expect.objectContaining({
+        message: expect.stringContaining(created.path),
+      })
+    );
+    expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+      LogEventId.BackupRestoreComplete,
+      'system_administrator',
+      expect.objectContaining({ disposition: 'success' })
+    );
 
-  using restored = openWorkspace(workspacePath, logger);
+    using restored = openWorkspace(workspacePath, logger);
 
-  // The database came across whole: same election, same current election, same
-  // CVR data hanging off it.
-  expect(restored.store.getCurrentElectionId()).toEqual(electionId);
-  expect(restored.store.getElection(electionId)).toEqual(
-    source.store.getElection(electionId)
-  );
+    // The database came across whole: same election, same current election, same
+    // CVR data hanging off it.
+    expect(restored.store.getCurrentElectionId()).toEqual(electionId);
+    expect(restored.store.getElection(electionId)).toEqual(
+      source.store.getElection(electionId)
+    );
 
-  // Ballot images land at the same workspace-relative paths, with the same
-  // contents.
-  const restoredBallotImagePaths = restored.store
-    .getAllBallotImagePaths(electionId)
-    .sort();
-  expect(
-    restoredBallotImagePaths.map((path) => relative(restored.path, path))
-  ).toEqual(sourceBallotImagePaths.map((path) => relative(source.path, path)));
-  for (const [index, restoredPath] of restoredBallotImagePaths.entries()) {
-    expect(readFileSync(restoredPath)).toEqual(
-      readFileSync(sourceBallotImagePaths[index]!)
+    // Ballot images land at the same workspace-relative paths, with the same
+    // contents.
+    const restoredBallotImagePaths = restored.store
+      .getAllBallotImagePaths(electionId)
+      .sort();
+    expect(
+      restoredBallotImagePaths.map((path) => relative(restored.path, path))
+    ).toEqual(
+      sourceBallotImagePaths.map((path) => relative(source.path, path))
+    );
+    for (const [index, restoredPath] of restoredBallotImagePaths.entries()) {
+      expect(readFileSync(restoredPath)).toEqual(
+        readFileSync(sourceBallotImagePaths[index]!)
+      );
+    }
+
+    // As does the election package.
+    const restoredElectionPackagePath =
+      restored.store.getElectionPackageFilePath(electionId)!;
+    expect(relative(restored.path, restoredElectionPackagePath)).toEqual(
+      relative(source.path, sourceElectionPackagePath)
+    );
+    expect(readFileSync(restoredElectionPackagePath)).toEqual(
+      readFileSync(sourceElectionPackagePath)
     );
   }
-
-  // As does the election package.
-  const restoredElectionPackagePath =
-    restored.store.getElectionPackageFilePath(electionId)!;
-  expect(relative(restored.path, restoredElectionPackagePath)).toEqual(
-    relative(source.path, sourceElectionPackagePath)
-  );
-  expect(readFileSync(restoredElectionPackagePath)).toEqual(
-    readFileSync(sourceElectionPackagePath)
-  );
-});
+);
 
 test('restore recreates workspace directories the backup has no files in', async () => {
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
 
   // A workspace that is configured but has no CVRs loaded holds an empty
   // `ballot-images` directory, which a backup — a manifest of files — cannot
@@ -301,7 +326,7 @@ test('restore recreates workspace directories the backup has no files in', async
   expect(
     await restoreBackup({
       backup: created.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger,
     })
   ).toEqual(ok());
@@ -312,15 +337,15 @@ test('restore recreates workspace directories the backup has no files in', async
   );
 });
 
-test('restore resolves relative workspace and backup paths', async () => {
+test('restore resolves a relative backup path', async () => {
   const backup = await makeBackup();
   const workspacePath = makeUnconfiguredWorkspacePath();
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
 
   expect(
     await restoreBackup({
       backup: relative(process.cwd(), backup.path),
-      workspace: relative(process.cwd(), workspacePath),
+      workspace: restorable(workspacePath),
       logger,
     })
   ).toEqual(ok());
@@ -328,7 +353,7 @@ test('restore resolves relative workspace and backup paths', async () => {
   // The audit log records the resolved absolute path.
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupRestoreInit,
-    'system',
+    'system_administrator',
     expect.objectContaining({ message: expect.stringContaining(backup.path) })
   );
 });
@@ -340,8 +365,8 @@ test('restore fails if there is no backup manifest', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // The CLI renders a failed restore as `Error: ${err().message}`, the same as
@@ -370,8 +395,8 @@ test('restore fails if the backup manifest is not readable', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({ type: 'backup-read-failed' });
@@ -396,8 +421,8 @@ test('restore fails if the backup manifest version does not match', async () => 
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // A version field exists to explain *why* a backup can't be read, so this
@@ -431,8 +456,8 @@ test('restore fails if the backup manifest software version does not match', asy
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -460,17 +485,20 @@ test('restore warns but does not fail if the machine ID does not match', async (
   }));
 
   const workspacePath = makeUnconfiguredWorkspacePath();
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger,
   });
 
   // Moving a backup between machines is a legitimate thing to do — replacing
   // failed hardware — so this is worth recording, not refusing.
   expect(result).toEqual(ok());
-  using workspace = openWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
+  using workspace = openWorkspace(
+    workspacePath,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
   expect(workspace.store.getCurrentElectionId()).toBeDefined();
 
   // The event id is left to the implementation, but the log has to say which
@@ -521,8 +549,8 @@ test.each<{ description: string; tamper: (backup: Backup) => Promise<void> }>([
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // Every hash in the manifest is only as trustworthy as the manifest itself,
@@ -556,8 +584,8 @@ test('restore fails if a backup file cannot be read', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // Any failure to copy has to be reported. Reporting success here hands the
@@ -585,8 +613,8 @@ test('restore fails on missing files from the backup manifest', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -610,8 +638,8 @@ test('restore fails if any backup files are an unexpected size', async () => {
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // The file is present and readable, so existence is not enough — the size the
@@ -642,8 +670,8 @@ test('restore fails if any backup files have unexpected content (by hash)', asyn
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -687,8 +715,8 @@ test.each<{ description: string; makePath: (escapeTarget: string) => string }>([
     const workspacePath = makeUnconfiguredWorkspacePath();
     const result = await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     });
 
     // A backup comes off a USB drive an operator was handed, so its manifest is
@@ -722,8 +750,8 @@ test('restore refuses a manifest entry it does not know how to restore', async (
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // The manifest is the signed statement of what the backup holds, so an entry
@@ -757,8 +785,8 @@ test('restore fails if there is no current election in the backup', async () => 
   const workspacePath = makeUnconfiguredWorkspacePath();
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // Restoring this would report success and leave the machine unconfigured,
@@ -789,8 +817,8 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       onProgressEvent: (event) => events.push(event),
       // Low enough that even these small files report mid-copy progress.
       progressEventIntervalBytes: 1,
@@ -814,7 +842,10 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
   await expect(
     exists(join(workspacePath, 'stray-directory'))
   ).resolves.toBeFalsy();
-  using workspace = openWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
+  using workspace = openWorkspace(
+    workspacePath,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
   expect(workspace.store.getCurrentElectionId()).toBeDefined();
 });
 
@@ -824,8 +855,8 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).toEqual(ok());
 
@@ -840,13 +871,16 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).toEqual(ok());
 
   await expect(exists(markerPath)).resolves.toBeFalsy();
-  using workspace = openWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
+  using workspace = openWorkspace(
+    workspacePath,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
   expect(workspace.store.getCurrentElectionId()).toBeDefined();
 });
 
@@ -857,8 +891,8 @@ test('restore refuses a backup the workspace volume cannot hold', async () => {
 
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     minAvailableStorageBytes: 1024,
   });
 
@@ -884,8 +918,8 @@ test('restore fails if the restored files cannot be flushed to disk', async () =
 
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    workspace: restorable(workspacePath),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   // Success is declared by removing the marker, which must not happen while
@@ -902,10 +936,10 @@ test('restoring into a configured workspace fails', async () => {
   const workspacePath = await makeConfiguredWorkspacePath();
 
   const before = listWorkspace(workspacePath);
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   const result = await restoreBackup({
     backup: backup.path,
-    workspace: workspacePath,
+    workspace: restorable(workspacePath),
     logger,
   });
 
@@ -915,7 +949,7 @@ test('restoring into a configured workspace fails', async () => {
   // and its reason belong in the audit log.
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupRestoreComplete,
-    'system',
+    'system_administrator',
     expect.objectContaining({
       disposition: 'failure',
       errorType: 'workspace-already-configured',
@@ -926,7 +960,10 @@ test('restoring into a configured workspace fails', async () => {
   // restore that wipes the election already on the machine and then reports
   // failure has destroyed the very data it declined to replace.
   expect(listWorkspace(workspacePath)).toEqual(before);
-  using workspace = openWorkspace(workspacePath, mockBaseLogger({ fn: vi.fn }));
+  using workspace = openWorkspace(
+    workspacePath,
+    mockLogger({ fn: vi.fn, role: 'system_administrator' })
+  );
   const electionId = assertDefined(workspace.store.getCurrentElectionId());
   expect(workspace.store.getAllBallotImagePaths(electionId)).toHaveLength(1);
 });
@@ -937,11 +974,11 @@ test('a restore cancelled before it starts leaves the workspace alone', async ()
   await writeFile(join(workspacePath, 'stray-file'), 'left over from before');
   const contentsBefore = listWorkspace(workspacePath);
 
-  const logger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
+      workspace: restorable(workspacePath),
       logger,
       signal: AbortSignal.abort(),
     })
@@ -950,7 +987,7 @@ test('a restore cancelled before it starts leaves the workspace alone', async ()
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupRestoreComplete,
-    'system',
+    'system_administrator',
     expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
   );
 });
@@ -972,8 +1009,8 @@ test('a restore cancelled while vetting the backup leaves the workspace alone', 
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       signal: controller.signal,
     })
   ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
@@ -990,8 +1027,8 @@ test('a restore cancelled between files empties the workspace it had claimed', a
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       signal: controller.signal,
       onProgressEvent(event) {
         // Abort once one file has landed, so files remain to be copied.
@@ -1016,8 +1053,8 @@ test('a restore cancelled partway through a file empties the workspace', async (
   expect(
     await restoreBackup({
       backup: backup.path,
-      workspace: workspacePath,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       signal: controller.signal,
       // Low enough that even these small files report mid-copy progress.
       progressEventIntervalBytes: 1,
@@ -1038,4 +1075,123 @@ test('a restore cancelled partway through a file empties the workspace', async (
   ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
 
   expect(listWorkspace(workspacePath)).toEqual([]);
+});
+
+test('restore closes the workspace store instead of leaving it on a deleted database', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
+
+  expect(
+    await restoreBackup({ backup: backup.path, workspace, logger })
+  ).toEqual(ok());
+
+  // Emptying the workspace unlinks the database this connection was opened on.
+  // Left open it would go on serving the file the restore replaced, and writes
+  // through it would land somewhere nothing will ever read again.
+  expect(() => workspace.store.getCurrentElectionId()).toThrow(
+    /database client .* is closed/
+  );
+
+  // What the restore put on disk is what the next connection finds.
+  using restored = openWorkspace(workspacePath, logger);
+  expect(restored.store.getCurrentElectionId()).toBeDefined();
+});
+
+test('restore closes the workspace store even when it fails after claiming it', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  await rm(join(backup.path, 'workspace', ADMIN_WORKSPACE_DATABASE_NAME));
+
+  expect(
+    (
+      await restoreBackup({
+        backup: backup.path,
+        workspace,
+        logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+      })
+    ).err()
+  ).toMatchObject({ type: 'backup-verification-failed' });
+
+  // A failed restore empties the workspace too, so the connection is just as
+  // dead as after one that succeeded, and the caller is just as finished.
+  expect(() => workspace.store.getCurrentElectionId()).toThrow(
+    /database client .* is closed/
+  );
+  expect(listWorkspace(workspacePath)).toEqual([]);
+});
+
+test('restore refuses while a write transaction is open on the workspace', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const workspace = restorable(workspacePath);
+  const contentsBefore = listWorkspace(workspacePath);
+
+  expect(
+    await whileWriting(workspace, () =>
+      restoreBackup({
+        backup: backup.path,
+        workspace,
+        logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+      })
+    )
+  ).toEqual(
+    err({
+      type: 'write-in-progress',
+      message:
+        'Cannot restore while another operation is writing to the database',
+    })
+  );
+
+  // Refused before anything was claimed, so the write can carry on.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+});
+
+test('restore refuses a write in progress even in a workspace an interrupted restore left', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  await writeFile(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
+  const workspace = restorable(workspacePath);
+
+  // Recovering an interrupted restore is no reason to cut off a write that is
+  // happening right now.
+  expect(
+    (
+      await whileWriting(workspace, () =>
+        restoreBackup({
+          backup: backup.path,
+          workspace,
+          logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+        })
+      )
+    ).err()
+  ).toMatchObject({ type: 'write-in-progress' });
+});
+
+test('restore refuses a workspace belonging to a client machine', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  FileBackedMachineModeController.forWorkspace(workspacePath).set('client');
+  const workspace = restorable(workspacePath);
+  const contentsBefore = listWorkspace(workspacePath);
+
+  expect(
+    await restoreBackup({
+      backup: backup.path,
+      workspace,
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    })
+  ).toEqual(
+    err({
+      type: 'not-host-mode',
+      message:
+        'Only a VxAdmin in host mode can be backed up or restored, but this one is in client mode',
+    })
+  );
+
+  // Restoring would have emptied the workspace, taking the mode with it and
+  // silently turning a client machine into a host one.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
 });

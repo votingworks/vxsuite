@@ -3,24 +3,49 @@ import { join } from 'node:path';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
+import { mkdtemp } from 'node:fs/promises';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
+import { err } from '@votingworks/basics';
+import { exchangePaths } from '@votingworks/fs';
 import {
   addCvrWithBallotImage,
   GENEROUS_AVAILABLE_KB,
   makeConfiguredWorkspace,
   mockDiskSpace,
+  whileWriting,
 } from '../../../test/backup.js';
 import { createWorkspace } from '../../util/workspace.js';
 import { Store } from '../../store.js';
 import { BackupStagingArea } from '../staging_area.js';
+import { FileBackedMachineModeController } from '../../machine_mode.js';
 import { prepare } from './prepare_step.js';
+
+vi.mock(
+  import('node:fs/promises'),
+  async (importActual): Promise<typeof import('node:fs/promises')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      mkdtemp: vi.fn(actual.mkdtemp) as unknown as typeof mkdtemp,
+    };
+  }
+);
+
+vi.mock(
+  import('@votingworks/fs'),
+  async (importActual): Promise<typeof import('@votingworks/fs')> => {
+    const actual = await importActual();
+    return { ...actual, exchangePaths: vi.fn(actual.exchangePaths) };
+  }
+);
 
 vi.mock(
   import('@votingworks/backend'),
@@ -74,7 +99,7 @@ test('reclaims a killed run’s staging area before measuring free space', async
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
   const { source, snapshotStore: store } = result.unsafeUnwrap();
 
@@ -93,43 +118,34 @@ test('reclaims a killed run’s staging area before measuring free space', async
 test('refuses while a write transaction is open on the workspace', async () => {
   const workspace = await makeConfiguredWorkspace();
 
-  // What a CVR import looks like from here: it holds its transaction open
-  // across awaits for the whole import.
-  workspace.store['client'].run('begin transaction');
-
-  const result = await prepare({
-    workspace,
-    target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
-  });
+  const result = await whileWriting(workspace, () =>
+    prepare({
+      workspace,
+      target: makeTemporaryDirectory(),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    })
+  );
 
   expect(result.err()).toEqual({
     type: 'write-in-progress',
     message:
       'Cannot back up while another operation is writing to the database',
   });
-
-  workspace.store['client'].run('rollback');
 });
 
-test('refuses when a write begins after the snapshot is cleared to start', async () => {
+test('reports a write that began after the snapshot was cleared to start', async () => {
   const workspace = await makeConfiguredWorkspace();
-  const dbClient = workspace.store['client'];
 
-  // Slip the write in after `prepare` checks, to stand in for the window
-  // between the check and the snapshot actually starting. It takes a real
-  // write, not just an open transaction, for SQLite to hold the write lock
-  // that makes the snapshot a no-op.
-  vi.spyOn(dbClient, 'isInTransaction').mockImplementationOnce(() => {
-    dbClient.run('begin transaction');
-    dbClient.run('update elections set election_data = election_data');
-    return false;
-  });
+  // A write that slips into the window between the check and the snapshot
+  // starting is caught by the snapshot itself, which reports it this way.
+  vi.spyOn(workspace.store, 'backupTo').mockResolvedValueOnce(
+    err({ type: 'write-in-progress' })
+  );
 
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -137,8 +153,6 @@ test('refuses when a write begins after the snapshot is cleared to start', async
     message:
       'Cannot back up while another operation is writing to the database',
   });
-
-  dbClient.run('rollback');
 });
 
 test('refuses when a backup of the workspace is already running', async () => {
@@ -150,7 +164,7 @@ test('refuses when a backup of the workspace is already running', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -168,7 +182,7 @@ test('fails when no election is configured', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -184,7 +198,7 @@ test('fails when the backup target directory does not exist', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -202,7 +216,7 @@ test('fails when the backup target is not a directory', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -238,7 +252,7 @@ test('fails when the backup target goes away while staging', async () => {
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toEqual({
@@ -269,7 +283,7 @@ test('fails fast when the target disk space check fails for another reason', asy
     prepare({
       workspace,
       target,
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).rejects.toThrow('df is broken');
 });
@@ -283,7 +297,7 @@ test('fails with insufficient-workspace-storage when the workspace volume is too
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -304,7 +318,7 @@ test('fails with insufficient-target-storage when the target volume is too full'
   const result = await prepare({
     workspace,
     target,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({ type: 'insufficient-target-storage' });
@@ -323,7 +337,7 @@ test('stages a database snapshot, election package, and ballot images', async ()
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     onProgressEvent: (event) => progressEvents.push(event),
   });
 
@@ -357,7 +371,7 @@ test('fails loudly when a referenced ballot image is missing from disk', async (
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
   });
 
   expect(result.err()).toMatchObject({
@@ -372,7 +386,7 @@ test('cancels before doing any work when the signal is already aborted', async (
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: AbortSignal.abort(),
   });
 
@@ -407,7 +421,7 @@ test('cancels before snapshotting the database', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
   });
 
@@ -425,7 +439,7 @@ test('cancels partway through snapshotting the database', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
       if (event.type === 'db_snapshot') {
@@ -451,7 +465,7 @@ test('cancels after staging files, before measuring the target', async () => {
   const result = await prepare({
     workspace,
     target: makeTemporaryDirectory(),
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
       if (event.type === 'staging_files') {
@@ -466,4 +480,92 @@ test('cancels after staging files, before measuring the target', async () => {
   });
 
   expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses to back up a workspace belonging to a client machine', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  FileBackedMachineModeController.forWorkspace(workspace.path).set('client');
+
+  const result = await prepare({
+    workspace,
+    target: makeTemporaryDirectory(),
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  // A client machine keeps whatever database it had before it was switched, so
+  // backing one up would capture data the machine is no longer using.
+  expect(result.err()).toEqual({
+    type: 'not-host-mode',
+    message:
+      'Only a VxAdmin in host mode can be backed up or restored, but this one is in client mode',
+  });
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses a target whose filesystem cannot swap a backup into place', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  // What FAT32 does: `renameat2(2)` with `RENAME_EXCHANGE` is refused, which
+  // only the *second* backup to a drive would otherwise discover.
+  vi.mocked(exchangePaths).mockReturnValueOnce(
+    err({ code: 'EINVAL', message: 'EINVAL: invalid argument, renameexchange' })
+  );
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'target-cannot-swap',
+    path: target,
+    message: expect.stringContaining('cannot hold backups'),
+  });
+
+  // Refused before the database was snapshotted, which is the point.
+  expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);
+});
+
+test('refuses a target that cannot be written to at all', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  // A read-only drive, or one removed between being checked and being written
+  // to: the directories the check would exchange cannot even be created. The
+  // failure has to be mocked because permissions cannot produce it — CI runs
+  // as root, for whom a directory with no write bit is still writable.
+  vi.mocked(mkdtemp).mockRejectedValueOnce(
+    Object.assign(new Error('EROFS: read-only file system, mkdtemp'), {
+      code: 'EROFS',
+    })
+  );
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(result.err()).toMatchObject({ type: 'target-cannot-swap' });
+});
+
+test('leaves nothing behind after checking that the target can swap', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+
+  const result = await prepare({
+    workspace,
+    target,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+  const { source, snapshotStore } = result.unsafeUnwrap();
+
+  // The directories the check exchanged are gone, so a drive that has never
+  // been backed up to still looks that way.
+  expect(readdirSync(target)).toEqual([]);
+
+  snapshotStore.close();
+  await source.cleanup();
 });

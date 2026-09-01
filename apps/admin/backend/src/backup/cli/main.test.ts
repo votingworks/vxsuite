@@ -13,7 +13,7 @@ import {
   mockWritable,
 } from '@votingworks/test-utils';
 import { Client } from '@votingworks/db';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { DateWithoutTime } from '@votingworks/basics';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -56,7 +56,7 @@ async function run(
   // interleaved with the command's own output.
   const code = await main(['node', 'backups', ...args], {
     ...streams,
-    logger: mockBaseLogger({ fn: vi.fn }),
+    logger: mockLogger({ fn: vi.fn, role: 'system' }),
     signal,
   });
   return {
@@ -163,6 +163,34 @@ test('a logger is optional, since the real entry point does not have one', async
   expect(stderr.toString()).toContain('Usage: backups <command> [options]');
 });
 
+test('without a logger, what the CLI does is attributed to the system', async () => {
+  const source = await makeWorkspace(new BaseLogger(LogSource.VxAdminService));
+  // The default logger writes JSON lines with `console.log`, which is where
+  // the attribution being tested shows up.
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+  await main(
+    [
+      'node',
+      'backups',
+      'create',
+      '--workspace',
+      source.path,
+      '--target',
+      makeTemporaryDirectory(),
+    ],
+    { stdin: mockReadable(), stdout: mockWritable(), stderr: mockWritable() }
+  );
+
+  // Nobody is signed in to a command run from a shell, unlike the same
+  // operation run from VxAdmin itself.
+  expect(
+    log.mock.calls.map(([line]) => JSON.parse(line as string))
+  ).toContainEqual(
+    expect.objectContaining({ eventId: 'backup-create-init', user: 'system' })
+  );
+});
+
 test('create requires a target', async () => {
   const { code, stderr } = await run([
     'create',
@@ -235,7 +263,7 @@ test('create copies the database into a directory within the target', async () =
   expect(backupWorkspaceNames).toContain('data.db');
   const client = Client.fileClient(
     join(backupWorkspace, 'data.db'),
-    mockBaseLogger({ fn: vi.fn })
+    mockLogger({ fn: vi.fn, role: 'system' })
   );
   const { count } = client.one('select count(*) as count from elections') as {
     count: number;
@@ -427,7 +455,7 @@ test('restore copies a backup into the workspace', async () => {
 
   const client = Client.fileClient(
     join(workspace, 'data.db'),
-    mockBaseLogger({ fn: vi.fn })
+    mockLogger({ fn: vi.fn, role: 'system' })
   );
   const { count } = client.one('select count(*) as count from elections') as {
     count: number;
@@ -495,7 +523,7 @@ test('create reports a cancelled backup rather than a failed one', async () => {
   expect(readdirSync(target)).toEqual([]);
 });
 
-test('restore cancelled before it starts leaves the workspace as it was', async () => {
+test('restore cancelled before it starts destroys nothing in the workspace', async () => {
   const logger = new BaseLogger(LogSource.VxAdminService);
   const source = await makeWorkspace(logger);
   const target = makeTemporaryDirectory();
@@ -519,5 +547,7 @@ test('restore cancelled before it starts leaves the workspace as it was', async 
   expect(code).toEqual(CANCELLED_EXIT_CODE);
   expect(stderr).toContain('Cancelled. No backup was restored.');
   expect(stdout).toEqual('');
-  expect(readdirSync(workspace)).toEqual(['already-here']);
+  // Opening the workspace creates the directories a workspace has, but
+  // nothing that was already there is touched.
+  expect(readdirSync(workspace)).toContain('already-here');
 });

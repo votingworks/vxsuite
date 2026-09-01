@@ -8,7 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Id } from '@votingworks/types';
-import { BaseLogger, LogSource, mockBaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, Workspace } from '../src/util/workspace.js';
 import { createBackup } from '../src/backup/create/index.js';
@@ -169,8 +169,27 @@ export async function makeBackup(): Promise<Backup> {
     await createBackup({
       workspace: source,
       target: makeTemporaryDirectory(),
-      logger: mockBaseLogger({ fn: vi.fn }),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     })
   ).unsafeUnwrap();
   return new Backup(created.path);
+}
+
+/**
+ * Runs `fn` while a write transaction is held open on `workspace`'s database,
+ * standing in for a CVR import, which holds one open across awaits for the
+ * whole import. Reaches past the store for the client because nothing else
+ * can open a transaction and leave it open, which is the state under test.
+ */
+export async function whileWriting<T>(
+  workspace: Workspace,
+  fn: () => Promise<T>
+): Promise<T> {
+  const dbClient = workspace.store['client'];
+  dbClient.run('begin transaction');
+  try {
+    return await fn();
+  } finally {
+    dbClient.run('rollback');
+  }
 }
