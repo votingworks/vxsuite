@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
-import { Id, PollingPlace } from '@votingworks/types/src';
+import { Id, PollingPlace } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
 import * as api from '../../api.js';

@@ -35,46 +35,119 @@ ruleTester.run('no-import-workspace-subfolders', rule, {
     {
       code: `import * as a from 'random/library/with/many/slashes'`,
     },
-    {
-      code: `import a from '@votingworks/types/something/else'`,
-    },
-    {
-      code: `import { a } from '@votingworks/types/api/services/scan'`,
-    },
-    {
-      code: `import * as a from '@votingworks/types/a/bunch/of/folders'`,
-    },
   ],
   invalid: [
     {
       code: `import a from '@votingworks/something/src'`,
-      output: `import a from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import a from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import { a } from '@votingworks/something/src'`,
-      output: `import { a } from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import { a } from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import * as a from '@votingworks/something/src'`,
-      output: `import * as a from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import * as a from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import a from '@votingworks/something/utils'`,
-      output: `import a from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import a from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import { a } from '@votingworks/something/src/utils/lib'`,
-      output: `import { a } from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import { a } from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import * as a from '@votingworks/something/src/utils'`,
-      output: `import * as a from '@votingworks/something'`,
-      errors: [{ messageId: 'noImportSubfolders', line: 1 }],
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/something' },
+              output: `import * as a from '@votingworks/something'`,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `import { a } from '@votingworks/types/src'`,
+      errors: [
+        {
+          messageId: 'noImportSubfolders',
+          line: 1,
+          suggestions: [
+            {
+              messageId: 'importEntryPoint',
+              data: { packageName: '@votingworks/types' },
+              output: `import { a } from '@votingworks/types'`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });
