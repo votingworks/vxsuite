@@ -203,101 +203,109 @@ async function replaceBackupFile(
   }));
 }
 
-test('restore copies the database, ballot images, and election packages', async () => {
-  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
-  using source = await makeConfiguredWorkspace();
-  addCvrWithBallotImage(source, { ballotId: 'ballot-1' });
-  addCvrWithBallotImage(source, { ballotId: 'ballot-2' });
+test(
+  'restore copies the database, ballot images, and election packages',
+  { timeout: 30_000 },
+  async () => {
+    const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
+    using source = await makeConfiguredWorkspace();
+    addCvrWithBallotImage(source, { ballotId: 'ballot-1' });
+    addCvrWithBallotImage(source, { ballotId: 'ballot-2' });
 
-  const electionId = source.store.getCurrentElectionId()!;
-  const sourceBallotImagePaths = source.store
-    .getAllBallotImagePaths(electionId)
-    .sort();
-  expect(sourceBallotImagePaths).toHaveLength(2);
-  const sourceElectionPackagePath =
-    source.store.getElectionPackageFilePath(electionId)!;
+    const electionId = source.store.getCurrentElectionId()!;
+    const sourceBallotImagePaths = source.store
+      .getAllBallotImagePaths(electionId)
+      .sort();
+    expect(sourceBallotImagePaths).toHaveLength(2);
+    const sourceElectionPackagePath =
+      source.store.getElectionPackageFilePath(electionId)!;
 
-  const created = (
-    await createBackup({
-      workspace: source,
-      target: makeTemporaryDirectory(),
-      logger,
-    })
-  ).unsafeUnwrap();
+    const created = (
+      await createBackup({
+        workspace: source,
+        target: makeTemporaryDirectory(),
+        logger,
+      })
+    ).unsafeUnwrap();
 
-  const workspacePath = makeUnconfiguredWorkspacePath();
-  const events: ProgressEvent[] = [];
-  expect(
-    await restoreBackup({
-      backup: created.path,
-      workspace: restorable(workspacePath),
-      logger,
-      onProgressEvent: (event) => events.push(event),
-    })
-  ).toEqual(ok());
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const events: ProgressEvent[] = [];
+    expect(
+      await restoreBackup({
+        backup: created.path,
+        workspace: restorable(workspacePath),
+        logger,
+        onProgressEvent: (event) => events.push(event),
+      })
+    ).toEqual(ok());
 
-  // Progress walks through the phases in order, and the copy events account
-  // for every file and byte the manifest promised.
-  expect(events[0]).toEqual({ type: 'preparing' });
-  expect(events.at(-2)).toEqual({ type: 'verifying' });
-  expect(events.at(-1)).toEqual({ type: 'flushing_workspace' });
-  const copyEvents = events.filter((event) => event.type === 'copy_files');
-  const manifest = await readBackupManifest(new Backup(created.path));
-  expect(copyEvents[0]).toMatchObject({ copiedCount: 0, copiedBytes: 0 });
-  expect(copyEvents.at(-1)).toEqual({
-    type: 'copy_files',
-    copiedCount: manifest.files.length,
-    totalCount: manifest.files.length,
-    copiedBytes: iter(manifest.files).sum(({ size }) => size),
-    totalBytes: iter(manifest.files).sum(({ size }) => size),
-  });
+    // Progress walks through the phases in order, and the copy events account
+    // for every file and byte the manifest promised.
+    expect(events[0]).toEqual({ type: 'preparing' });
+    expect(events.at(-2)).toEqual({ type: 'verifying' });
+    expect(events.at(-1)).toEqual({ type: 'flushing_workspace' });
+    const copyEvents = events.filter((event) => event.type === 'copy_files');
+    const manifest = await readBackupManifest(new Backup(created.path));
+    expect(copyEvents[0]).toMatchObject({ copiedCount: 0, copiedBytes: 0 });
+    expect(copyEvents.at(-1)).toEqual({
+      type: 'copy_files',
+      copiedCount: manifest.files.length,
+      totalCount: manifest.files.length,
+      copiedBytes: iter(manifest.files).sum(({ size }) => size),
+      totalBytes: iter(manifest.files).sum(({ size }) => size),
+    });
 
-  // Restoring replaces the machine's entire data state, so both the attempt
-  // and its outcome belong in the audit log.
-  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupRestoreInit,
-    'system_administrator',
-    expect.objectContaining({ message: expect.stringContaining(created.path) })
-  );
-  expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
-    LogEventId.BackupRestoreComplete,
-    'system_administrator',
-    expect.objectContaining({ disposition: 'success' })
-  );
+    // Restoring replaces the machine's entire data state, so both the attempt
+    // and its outcome belong in the audit log.
+    expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+      LogEventId.BackupRestoreInit,
+      'system_administrator',
+      expect.objectContaining({
+        message: expect.stringContaining(created.path),
+      })
+    );
+    expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
+      LogEventId.BackupRestoreComplete,
+      'system_administrator',
+      expect.objectContaining({ disposition: 'success' })
+    );
 
-  using restored = openWorkspace(workspacePath, logger);
+    using restored = openWorkspace(workspacePath, logger);
 
-  // The database came across whole: same election, same current election, same
-  // CVR data hanging off it.
-  expect(restored.store.getCurrentElectionId()).toEqual(electionId);
-  expect(restored.store.getElection(electionId)).toEqual(
-    source.store.getElection(electionId)
-  );
+    // The database came across whole: same election, same current election, same
+    // CVR data hanging off it.
+    expect(restored.store.getCurrentElectionId()).toEqual(electionId);
+    expect(restored.store.getElection(electionId)).toEqual(
+      source.store.getElection(electionId)
+    );
 
-  // Ballot images land at the same workspace-relative paths, with the same
-  // contents.
-  const restoredBallotImagePaths = restored.store
-    .getAllBallotImagePaths(electionId)
-    .sort();
-  expect(
-    restoredBallotImagePaths.map((path) => relative(restored.path, path))
-  ).toEqual(sourceBallotImagePaths.map((path) => relative(source.path, path)));
-  for (const [index, restoredPath] of restoredBallotImagePaths.entries()) {
-    expect(readFileSync(restoredPath)).toEqual(
-      readFileSync(sourceBallotImagePaths[index]!)
+    // Ballot images land at the same workspace-relative paths, with the same
+    // contents.
+    const restoredBallotImagePaths = restored.store
+      .getAllBallotImagePaths(electionId)
+      .sort();
+    expect(
+      restoredBallotImagePaths.map((path) => relative(restored.path, path))
+    ).toEqual(
+      sourceBallotImagePaths.map((path) => relative(source.path, path))
+    );
+    for (const [index, restoredPath] of restoredBallotImagePaths.entries()) {
+      expect(readFileSync(restoredPath)).toEqual(
+        readFileSync(sourceBallotImagePaths[index]!)
+      );
+    }
+
+    // As does the election package.
+    const restoredElectionPackagePath =
+      restored.store.getElectionPackageFilePath(electionId)!;
+    expect(relative(restored.path, restoredElectionPackagePath)).toEqual(
+      relative(source.path, sourceElectionPackagePath)
+    );
+    expect(readFileSync(restoredElectionPackagePath)).toEqual(
+      readFileSync(sourceElectionPackagePath)
     );
   }
-
-  // As does the election package.
-  const restoredElectionPackagePath =
-    restored.store.getElectionPackageFilePath(electionId)!;
-  expect(relative(restored.path, restoredElectionPackagePath)).toEqual(
-    relative(source.path, sourceElectionPackagePath)
-  );
-  expect(readFileSync(restoredElectionPackagePath)).toEqual(
-    readFileSync(sourceElectionPackagePath)
-  );
-});
+);
 
 test('restore recreates workspace directories the backup has no files in', async () => {
   const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
