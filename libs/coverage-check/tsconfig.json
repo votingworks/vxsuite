@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["esnext"],
+    "composite": true,
+    "noEmit": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "references": []
+}

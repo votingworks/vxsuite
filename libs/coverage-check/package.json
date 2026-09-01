@@ -1,0 +1,35 @@
+{
+  "name": "@votingworks/coverage-check",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Code coverage reporter that checks that every uncovered statement/branch carries an @coverage directive",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "pnpm -w vx-task build $npm_package_name",
+    "build:lint-plugin": "pnpm --filter eslint-plugin-vx build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
+    "clean:self": "rm -rf build",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
+    "lint:fix": "pnpm build:lint-plugin && pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm build:lint-plugin && pnpm type-check && eslint --cache .",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "vitest run",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@typescript/native": "npm:typescript@7.0.2"
+  },
+  "devDependencies": {
+    "@types/istanbul-lib-report": "^3.0.0",
+    "@types/node": "24.13.3",
+    "@vitest/coverage-istanbul": "^4.1.6",
+    "sort-package-json": "^1.50.0",
+    "vitest": "^4.1.6"
+  },
+  "packageManager": "pnpm@10.34.5"
+}
