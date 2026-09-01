@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { setBaseTitle, useTitle } from './use_title.js';
 
@@ -52,4 +52,20 @@ test('empty title parts', async () => {
   await waitFor(() => {
     expect(document.title).toEqual('My Site');
   });
+});
+
+test('skips the reset when the document is gone before it fires', () => {
+  vi.useFakeTimers();
+  try {
+    const { unmount } = renderHook(() => useTitle('My Page'));
+    expect(document.title).toEqual('My Page – My Site');
+    unmount();
+    // The test environment tears down the document while a reset is pending.
+    vi.stubGlobal('document', undefined);
+    expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+  } finally {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  }
+  expect(document.title).toEqual('My Page – My Site');
 });
