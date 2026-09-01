@@ -6,6 +6,10 @@ import { FileHandle, open as fsOpen } from 'node:fs/promises';
  * Opens a file and returns a file descriptor. You are responsible for closing
  * the file descriptor when you are done with it. Use `readFile` instead if you
  * need to read the entire file into memory.
+ *
+ * Opens whatever the path names, including directories, devices and FIFOs; see
+ * {@link openRegularFile} for the reasons a caller reading a file's contents
+ * wants {@link openRegularFileForReading} instead.
  */
 export async function open(
   path: string,

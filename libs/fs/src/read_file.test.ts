@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { writeFileSync } from 'node:fs';
 import { err, ok, typedAs } from '@votingworks/basics';
@@ -8,8 +8,13 @@ import {
   makeTemporaryPath,
 } from '@votingworks/fixtures';
 import fc from 'fast-check';
+import * as openRegularFile from './open_regular_file';
 import { ReadFileError, readFile } from './read_file';
 import { READ_CHUNK_SIZE } from './read_chunks';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 test('file open error', async () => {
   const path = makeTemporaryPath();
@@ -23,22 +28,39 @@ test('file open error', async () => {
   );
 });
 
-test('file read error after a successful open', async () => {
-  // A directory opens fine and then fails the read itself, with EISDIR. Before
-  // the try/finally around the read this threw past the `Result` contract and
-  // leaked the file descriptor.
-  const path = makeTemporaryDirectory();
+test('a path that is not a regular file is refused', async () => {
+  // A directory used to get as far as the first read and fail with EISDIR.
+  // It is now turned away at the open, along with the FIFOs and devices that
+  // would not have failed at all.
+  expect(
+    await readFile(makeTemporaryDirectory(), { maxSize: 1024 * 1024 })
+  ).toEqual(err(typedAs<ReadFileError>({ type: 'NotRegularFile' })));
+});
 
-  // Comfortably above the size a directory inode stats at, so the size check
-  // passes and the read itself is what fails.
-  const result = await readFile(path, { maxSize: 1024 * 1024 });
-  expect(result).toEqual(
-    err({
-      type: 'ReadFileError',
-      error: expect.objectContaining({
-        message: expect.stringContaining('EISDIR'),
-      }),
-    })
+test('file read error after a successful open', async () => {
+  // Before the try/finally around the read this threw past the `Result`
+  // contract and leaked the file descriptor.
+  const path = makeTemporaryFile({ content: 'contents' });
+  const realOpen = openRegularFile.openRegularFileForReading;
+  vi.spyOn(openRegularFile, 'openRegularFileForReading').mockImplementation(
+    async (filePath) => {
+      const result = await realOpen(filePath);
+      if (result.isOk()) {
+        vi.spyOn(result.ok(), 'read').mockRejectedValue(
+          Object.assign(new Error('EIO: i/o error, read'), { code: 'EIO' })
+        );
+      }
+      return result;
+    }
+  );
+
+  expect(await readFile(path, { maxSize: 1024 * 1024 })).toEqual(
+    err(
+      typedAs<ReadFileError>({
+        type: 'ReadFileError',
+        error: expect.objectContaining({ code: 'EIO' }),
+      })
+    )
   );
 });
 

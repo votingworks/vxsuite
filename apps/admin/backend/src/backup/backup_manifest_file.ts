@@ -25,6 +25,10 @@ function describeReadFileError(error: ReadFileError): string {
       return `file is larger than the maximum of ${error.maxSize} bytes`;
     }
 
+    case 'NotRegularFile': {
+      return 'file is not a regular file';
+    }
+
     default: {
       return extractErrorMessage(error.error);
     }

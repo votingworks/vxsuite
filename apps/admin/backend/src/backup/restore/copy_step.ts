@@ -129,6 +129,24 @@ export async function copyBackupFiles({
           });
         }
 
+        // A manifest entry names a file, so anything else at that path is a
+        // backup that does not hold what it says it holds.
+        case 'SourceNotRegularFile': {
+          return err({
+            type: 'backup-verification-failed',
+            message: `Backup file is not a regular file: ${file.path}`,
+          });
+        }
+
+        /* istanbul ignore next: the workspace was emptied immediately before
+           the copy began, so nothing can be sitting at the destination */
+        case 'DestinationNotRegularFile': {
+          return err({
+            type: 'backup-read-failed',
+            message: `Cannot write ${file.path}: the workspace holds something that is not a regular file`,
+          });
+        }
+
         case 'ReadFileError':
         case 'WriteFileError': {
           return err({

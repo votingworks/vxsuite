@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { truncateSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
@@ -110,5 +111,17 @@ test('a manifest too large to be one of ours is refused before it is read', asyn
   expect(result.unsafeUnwrapErr()).toMatchObject({
     type: 'read-failed',
     message: expect.stringContaining('100000000'),
+  });
+});
+
+test('a manifest that is not a regular file is refused', async () => {
+  const dir = makeTemporaryDirectory();
+  const manifestPath = join(dir, 'manifest.json');
+  execFileSync('mkfifo', [manifestPath]);
+
+  const result = await new BackupManifestFile(manifestPath).readManifest();
+  expect(result.unsafeUnwrapErr()).toMatchObject({
+    type: 'read-failed',
+    message: expect.stringContaining('not a regular file'),
   });
 });

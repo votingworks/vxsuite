@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { err, typedAs } from '@votingworks/basics';
@@ -10,6 +11,7 @@ import {
 } from '@votingworks/fixtures';
 import { CopyFileError, copyFile } from './copy_file';
 import * as openFile from './open_file';
+import * as openRegularFile from './open_regular_file';
 import { READ_CHUNK_SIZE } from './read_chunks';
 
 afterEach(() => {
@@ -169,25 +171,79 @@ test('a source that cannot be opened is reported as such', async () => {
   expect(existsSync(destination)).toEqual(false);
 });
 
-test('a source that opens but cannot be read is not blamed on the destination', async () => {
-  // A directory opens fine and fails the read itself, with EISDIR, standing in
-  // for the errors a failing drive raises partway through.
+test('a source that is not a regular file is refused', async () => {
   const source = makeTemporaryDirectory();
   const destination = makeDestinationPath();
 
-  expect(
-    await copyFile({
-      source,
-      destination,
-      maxSize: 1024 * 1024,
-    })
-  ).toEqual(
+  expect(await copyFile({ source, destination, maxSize: 1024 * 1024 })).toEqual(
+    err(typedAs<CopyFileError>({ type: 'SourceNotRegularFile' }))
+  );
+  expect(existsSync(destination)).toEqual(false);
+});
+
+// If the check regresses this hangs rather than fails; see {@link
+// openRegularFile} for why nothing in the caller can interrupt it.
+test.runIf(process.platform === 'linux')(
+  'a FIFO source is refused rather than waited on',
+  async () => {
+    const source = join(makeTemporaryDirectory(), 'fifo');
+    execFileSync('mkfifo', [source]);
+    const destination = makeDestinationPath();
+
+    expect(await copyFile({ source, destination, maxSize: 1024 })).toEqual(
+      err(typedAs<CopyFileError>({ type: 'SourceNotRegularFile' }))
+    );
+    expect(existsSync(destination)).toEqual(false);
+  },
+  5000
+);
+
+test.runIf(process.platform === 'linux')(
+  'a FIFO destination is refused rather than waited on',
+  async () => {
+    const source = makeTemporaryFile({ content: 'contents' });
+    const destination = join(makeTemporaryDirectory(), 'fifo');
+    execFileSync('mkfifo', [destination]);
+
+    // Nothing is reading it, so the open fails outright rather than reaching
+    // the type check.
+    expect(await copyFile({ source, destination, maxSize: 1024 })).toEqual(
+      err(
+        typedAs<CopyFileError>({
+          type: 'WriteFileError',
+          error: expect.objectContaining({ code: 'ENXIO' }),
+        })
+      )
+    );
+  },
+  5000
+);
+
+test('a read that fails partway through is not blamed on the destination', async () => {
+  const content = 'the contents of the file';
+  const source = makeTemporaryFile({ content });
+  const destination = makeDestinationPath();
+
+  // Stands in for the errors a failing drive raises once a read is underway,
+  // which a regular file cannot be talked into producing on demand.
+  const realOpen = openRegularFile.openRegularFileForReading;
+  vi.spyOn(openRegularFile, 'openRegularFileForReading').mockImplementation(
+    async (path) => {
+      const result = await realOpen(path);
+      if (result.isOk()) {
+        vi.spyOn(result.ok(), 'read').mockRejectedValue(
+          Object.assign(new Error('EIO: i/o error, read'), { code: 'EIO' })
+        );
+      }
+      return result;
+    }
+  );
+
+  expect(await copyFile({ source, destination, maxSize: 1024 })).toEqual(
     err(
       typedAs<CopyFileError>({
         type: 'ReadFileError',
-        error: expect.objectContaining({
-          message: expect.stringContaining('EISDIR'),
-        }),
+        error: expect.objectContaining({ code: 'EIO' }),
       })
     )
   );
@@ -221,21 +277,27 @@ test('a short write is completed rather than trusted', async () => {
   // `write` may accept fewer bytes than offered without erroring. Wrap the
   // destination handle so every write takes at most a few bytes, forcing the
   // copy to notice and finish the job.
-  const realOpen = openFile.open;
-  vi.spyOn(openFile, 'open').mockImplementation(async (path, flags, mode) => {
-    const result = await realOpen(path, flags, mode);
-    if (flags === 'w' && result.isOk()) {
-      const handle = result.ok();
-      const realWrite = handle.write.bind(handle);
-      vi.spyOn(handle, 'write').mockImplementation(((
-        buffer: Buffer,
-        offset: number,
-        length: number
-      ) =>
-        realWrite(buffer, offset, Math.min(length, 7))) as typeof handle.write);
+  const realOpen = openRegularFile.openRegularFileForWriting;
+  vi.spyOn(openRegularFile, 'openRegularFileForWriting').mockImplementation(
+    async (path) => {
+      const result = await realOpen(path);
+      if (result.isOk()) {
+        const handle = result.ok();
+        const realWrite = handle.write.bind(handle);
+        vi.spyOn(handle, 'write').mockImplementation(((
+          buffer: Buffer,
+          offset: number,
+          length: number
+        ) =>
+          realWrite(
+            buffer,
+            offset,
+            Math.min(length, 7)
+          )) as typeof handle.write);
+      }
+      return result;
     }
-    return result;
-  });
+  );
 
   const result = await copyFile({
     source,
@@ -251,27 +313,52 @@ test('a short write is completed rather than trusted', async () => {
   expect(readFileSync(destination, 'utf-8')).toEqual(content);
 });
 
-// `/dev/full` opens fine and fails every write with ENOSPC, which is what a
-// destination disk filling up mid-copy looks like. It is Linux-only, so this is
-// skipped elsewhere; CI, where coverage is enforced, runs on Linux. As a device
-// rather than a regular file, it also exercises cleanup declining to unlink a
-// destination that cannot be holding a partial copy.
-test.runIf(existsSync('/dev/full'))(
-  'a write that fails partway through is not blamed on the source',
+test('a write that fails partway through is not blamed on the source', async () => {
+  const source = makeTemporaryFile({ content: 'contents' });
+  const destination = makeDestinationPath();
+
+  // Stands in for the destination disk filling up mid-copy.
+  const realOpen = openRegularFile.openRegularFileForWriting;
+  vi.spyOn(openRegularFile, 'openRegularFileForWriting').mockImplementation(
+    async (path) => {
+      const result = await realOpen(path);
+      if (result.isOk()) {
+        vi.spyOn(result.ok(), 'write').mockRejectedValue(
+          Object.assign(new Error('ENOSPC: no space left on device, write'), {
+            code: 'ENOSPC',
+          })
+        );
+      }
+      return result;
+    }
+  );
+
+  expect(await copyFile({ source, destination, maxSize: 100 })).toEqual(
+    err(
+      typedAs<CopyFileError>({
+        type: 'WriteFileError',
+        error: expect.objectContaining({ code: 'ENOSPC' }),
+      })
+    )
+  );
+
+  // A failed copy leaves nothing behind, however it failed.
+  expect(existsSync(destination)).toEqual(false);
+});
+
+// A device, not a directory: a directory fails the open before the type check
+// can reject it.
+test.runIf(existsSync('/dev/null'))(
+  'a destination that is not a regular file is refused',
   async () => {
     const source = makeTemporaryFile({ content: 'contents' });
 
     expect(
-      await copyFile({ source, destination: '/dev/full', maxSize: 100 })
+      await copyFile({ source, destination: '/dev/null', maxSize: 100 })
     ).toEqual(
-      err(
-        typedAs<CopyFileError>({
-          type: 'WriteFileError',
-          error: expect.objectContaining({ code: 'ENOSPC' }),
-        })
-      )
+      err(typedAs<CopyFileError>({ type: 'DestinationNotRegularFile' }))
     );
-    expect(existsSync('/dev/full')).toEqual(true);
+    expect(existsSync('/dev/null')).toEqual(true);
   }
 );
 

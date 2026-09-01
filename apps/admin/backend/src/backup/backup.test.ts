@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import { rm, truncate, writeFile } from 'node:fs/promises';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -55,6 +56,23 @@ test('a backup with no manifest cannot be read', async () => {
     message: expect.stringContaining(backup.manifestPath),
   });
 });
+
+// Worth its own test because it lands before authentication: the signature
+// that protects everything else never gets a chance to run.
+test.runIf(process.platform === 'linux')(
+  'a manifest that is not a regular file cannot be read',
+  async () => {
+    const backup = await makeBackup();
+    await rm(backup.manifestPath);
+    execFileSync('mkfifo', [backup.manifestPath]);
+
+    expect((await backup.open()).err()).toEqual({
+      type: 'read-failed',
+      message: expect.stringContaining('not a regular file'),
+    });
+  },
+  10_000
+);
 
 test('a manifest too large to be one of ours is refused before it is read', async () => {
   const backup = await makeBackup();

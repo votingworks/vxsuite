@@ -1,6 +1,6 @@
 import { assert, Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { open } from './open_file';
+import { openRegularFileForReading } from './open_regular_file';
 import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error';
 import { ReadChunkError } from './read_chunk_error';
 import { readChunksWithinLimit } from './read_chunks';
@@ -10,6 +10,7 @@ import { readChunksWithinLimit } from './read_chunks';
  */
 export type ReadFileError =
   | { type: 'OpenFileError'; error: globalThis.Error }
+  | { type: 'NotRegularFile' }
   | { type: 'FileExceedsMaxSize'; maxSize: number }
   | { type: 'ReadFileError'; error: globalThis.Error };
 
@@ -51,10 +52,15 @@ export async function readFile(
     throw new Error('maxSize must be non-negative');
   }
 
-  const openResult = await open(path);
+  const openResult = await openRegularFileForReading(path);
 
   if (openResult.isErr()) {
-    return err({ type: 'OpenFileError', error: openResult.err() });
+    const error = openResult.err();
+    return err(
+      error.type === 'NotRegularFile'
+        ? { type: 'NotRegularFile' }
+        : { type: 'OpenFileError', error: error.error }
+    );
   }
 
   const fd = openResult.ok();
