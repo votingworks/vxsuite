@@ -72,30 +72,46 @@ heartbeat (host marks scanners offline after a timeout). Registration requires a
 rejects an unconfigured scanner and a `machineId` already registered in another
 role. Configuration over the network is left as a followup improvement.
 
-**Transfer.** One batch = one transfer session = one import record on VxAdmin:
+**Transfer.** One batch = one transfer session, validated at intake and made
+visible atomically at finish. The flow of one batch:
 
-1. `startCvrTransfer` — batch manifest (ids, labels, sheet count) +
-   test/official mode.
-2. One `POST /api/cvr-transfer/:sessionId/cvr` per sheet — a zip of the CVR
-   report JSON, layout files, and both page images.
-3. `finishCvrTransfer` — reconciles the received count against the manifest's
-   sheet count and makes the import visible.
+- The scanner's `cvr_sync` loop (while registered with a host) picks the oldest
+  completed batch with `sent_to_admin_at` unset — strictly oldest-first, one
+  batch in flight.
+- `startCvrTransfer` sends the batch manifest (id, label, polling place, sheet
+  count, test/official mode) plus code version and ballot hash. The host
+  re-checks compatibility and the CVR mode lock, answers `alreadyComplete` if
+  this `(scanner, batch)` was already imported (so a lost acknowledgment costs
+  one request, not a re-upload), and otherwise writes the manifest to a
+  per-batch transfer directory.
+- One `POST /api/cvr-transfer/:scanner/:batch/:cvrId` per sheet — a zip of the
+  CVR report JSON, layout files, and page images, built with the same code as
+  the USB export. The host **fully validates each record at intake**: same
+  parsing, election checks, and image hash verification as a USB import. A
+  malformed record is rejected with a reason the moment it arrives. Valid
+  records are inserted into a `cvrs_staging` table (image bytes staged as files)
+  — invisible to every other consumer, and durable, so staged records are the
+  crash/resume state. Re-sends simply replace the staged record.
+- `finishCvrTransfer` reconciles the staged count against the manifest's sheet
+  count, then **moves the staged records into the real tables in one short
+  synchronous transaction** — batch row, import record, CVRs, write-ins, image
+  rows (files move by rename). That commit is the first moment tallies,
+  adjudication queues, or the CVR file list can see any of it; a failure rolls
+  the whole move back. Finish is idempotent.
+- The scanner marks `sent_to_admin_at` only after finish succeeds, so a crash
+  anywhere earlier just means a harmless re-send.
 
-There is no separate session state: **the import record itself is the session**,
-keyed by a unique `(scanner machineId, batchId)` with an `is_complete` flag. The
-import only becomes visible (in the CVR file list, mode lock, and adjudication
-queues) once `finish` marks it complete — an incomplete import is invisible and
-harmless. This makes error handling mostly free: after any interruption (host
-restart, dropped connection, scanner crash) the scanner simply starts the same
-batch again, the unique key lands it on the same import record, per-ballot-id
-dedup skips CVRs already received, and `finish` completes it. Nothing to expire,
-sweep, or resume.
+Interruption recovery is therefore free: after any failure (host restart,
+dropped connection, scanner crash) the scanner starts the same batch again,
+uploads upsert over the staged records, and finish moves them. Nothing to expire
+or resume, and per-ballot-id dedup at move time protects against records that
+also arrived by USB.
 
-We send CVRs one by one rather then one request per batch to not overflow
-request sizes and to not lock up the VxAdminHost for a long interval while it
-needs to process a large number of CVRs. Each request should be small and fast
-so that VxAdminHost can continue to respond to adjudication stations,
-heartbeats, etc.
+We send CVRs one by one rather than one request per batch to keep requests small
+and to spread the validation work across the transfer instead of concentrating
+it at finish; the finalize transaction only moves already-validated rows (~tens
+of milliseconds for a full hopper), so the host keeps responding to adjudication
+stations and heartbeats throughout.
 
 **Sending order & failure.** Batches send strictly oldest-first. A batch that
 repeatedly fails stops the queue and raises a **prominent alert** on
@@ -112,6 +128,21 @@ mode) — the same posture as multi-station adjudication. The app layer stays
 plain HTTP inside that boundary; only Vx-certified machines can complete the
 handshake. No per-CVR signature files (the USB artifact-signature scheme doesn't
 map to a streaming protocol).
+
+### Reusing the staged-import pattern for USB imports
+
+Today's USB import wraps the whole file in one long async transaction, which
+blocks adjudication claims (nested-transaction errors), risks unrelated writes
+silently joining the transaction, and stalls backups for its full duration. The
+network transfer's staged-import machinery is the intended replacement shape:
+read and validate records from the USB export in chunks (the per-record reader
+and `prepareCastVoteRecord` are already shared), insert them into the staging
+table with short transactions as they're validated, then move each file's
+records into the real tables with the same atomic move used by
+`finishCvrTransfer`. That gives USB imports the same properties the network path
+has — no long transactions, partial state never visible to tallies or
+adjudication, progress reportable to the UI, and interruptions resumable from
+the durable staged rows.
 
 ### Images and the backup requirement
 
@@ -166,11 +197,11 @@ NIC/switch upgrades) lives on the hardware track:
 3. **Happy-path batch sending after batches are saved.** The `cvr_sync`
    background loop with `sent_to_admin_at` tracking and an immediate pass on
    `saveBatch`; the three-step transfer flow (`startCvrTransfer` → per-CVR POST
-   → `finishCvrTransfer`) where the import record keyed `(scanner, batch)` with
-   an `is_complete` flag is the only transfer state — import visible only at
-   `finish`, sheet-count check at finish, idempotent finish; host write queue
-   serializing imports with file I/O outside transactions (required for
-   correctness with concurrent writers); VxAdmin CVR-list treatment (source
+   → `finishCvrTransfer`) with records validated and staged at upload and moved
+   into the real tables by one atomic transaction at `finish` (import keyed
+   `(scanner, batch)`, sheet-count check at finish, idempotent finish); host
+   queue serializing finalizations, with file I/O outside transactions (required
+   for correctness with concurrent writers); VxAdmin CVR-list treatment (source
    badges, batch-label titles, reconciled with main's `deleteCvrFile`); Batch
    History sent column.
 
@@ -213,11 +244,13 @@ NIC/switch upgrades) lives on the hardware track:
 - VxCentralScan: `batches.sent_to_admin_at` (indexed) + per-batch send-failure
   state.
 - VxAdmin: `cvr_files.source ('usb'|'network')`, `batch_labels`, `batch_ids`;
-  `sha256_hash` nullable; `cvr_files.is_complete` + a unique
-  `(scanner_id, batch_id)` key for network imports (no separate session table);
-  `machines.machine_mode` gains `'scanner'`; `machines.polling_place_id`.
-  (`ballot_images` is unchanged — images are already files on disk; only the
-  store-for-all-CVRs behavior changes.)
+  `sha256_hash` nullable; a unique `(scanner_id, batch_id)` key for network
+  imports; a `cvrs_staging` table holding validated-but-not-yet-finalized
+  records (the atomic move at finish means no incomplete import record can ever
+  exist, so there is no completeness flag); `machines.machine_mode` gains
+  `'scanner'`; `machines.polling_place_id`. (`ballot_images` is unchanged —
+  images are already files on disk; only the store-for-all-CVRs behavior
+  changes.)
 
 ## Alternatives Considered
 
