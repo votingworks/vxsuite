@@ -16,7 +16,6 @@ import {
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
-import { ContestResults } from '@votingworks/types/src/tabulation';
 import { getContestsForPrecinctAndElection } from './contest_filtering';
 import { singlePrecinctSelectionFor } from '../precinct_selection';
 
@@ -399,8 +398,11 @@ function decodeContestEntriesFromUint16Array(
   uint16Array: Uint16Array,
   contests: readonly Contest[],
   offset: number
-): { contestResults: Record<ContestId, ContestResults>; nextOffset: number } {
-  const contestResults: Record<ContestId, ContestResults> = {};
+): {
+  contestResults: Record<ContestId, Tabulation.ContestResults>;
+  nextOffset: number;
+} {
+  const contestResults: Record<ContestId, Tabulation.ContestResults> = {};
   let currentOffset = offset;
   for (const contest of contests) {
     const tallyLength = getNumberOfEntriesInContest(contest);
@@ -433,7 +435,7 @@ function decodeContestEntriesFromUint16Array(
 function decodeBitmapTally(
   uint16Array: Uint16Array,
   election: Election
-): Record<PrecinctId, Record<ContestId, ContestResults>> {
+): Record<PrecinctId, Record<ContestId, Tabulation.ContestResults>> {
   // Skip version byte at offset 0
   const { bitmap, nextOffset: dataOffset } = readPrecinctBitmap(
     uint16Array,
@@ -441,7 +443,10 @@ function decodeBitmapTally(
     election.precincts.length
   );
 
-  const result: Record<PrecinctId, Record<ContestId, ContestResults>> = {};
+  const result: Record<
+    PrecinctId,
+    Record<ContestId, Tabulation.ContestResults>
+  > = {};
   let offset = dataOffset;
 
   for (const [i, precinct] of election.precincts.entries()) {
@@ -489,7 +494,7 @@ export function readV0CompressedTallyAsContestResults({
   election: Election;
   precinctSelection: PrecinctSelection;
   encodedTally: string;
-}): Record<ContestId, ContestResults> {
+}): Record<ContestId, Tabulation.ContestResults> {
   const uint16Array = decodeEncodedTallyToUint16Array(encodedTally);
   const version = uint16Array[0];
 
@@ -503,7 +508,7 @@ export function readV0CompressedTallyAsContestResults({
     election,
     precinctSelection
   );
-  const allContestResults: Record<ContestId, ContestResults> = {};
+  const allContestResults: Record<ContestId, Tabulation.ContestResults> = {};
   for (const [contestIdx, contest] of contests.entries()) {
     const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);
@@ -525,7 +530,7 @@ export function decodeAndReadPerPrecinctCompressedTally({
 }: {
   election: Election;
   encodedTally: string;
-}): Record<PrecinctId, Record<ContestId, ContestResults>> {
+}): Record<PrecinctId, Record<ContestId, Tabulation.ContestResults>> {
   const uint16Array = decodeEncodedTallyToUint16Array(encodedTally);
   const version = uint16Array[0];
   assert(

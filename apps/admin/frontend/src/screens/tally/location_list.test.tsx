@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { PollingPlace } from '@votingworks/types/src';
+import { PollingPlace } from '@votingworks/types';
 import { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 

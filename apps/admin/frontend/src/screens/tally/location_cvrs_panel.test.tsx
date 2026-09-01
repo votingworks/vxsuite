@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { pollingPlaceTypeName } from '@votingworks/types/src';
+import { pollingPlaceTypeName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationCvrsPanel } from './location_cvrs_panel.js';
