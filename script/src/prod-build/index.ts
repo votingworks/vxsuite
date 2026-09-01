@@ -14,6 +14,7 @@ import { execSync } from './utils/exec_sync';
 import { existsSync } from './utils/exists_sync';
 import { mkdirp } from './utils/mkdirp';
 import { rmrf } from './utils/rmrf';
+import { useTurbo } from './utils/use_turbo';
 
 export function main({ stdout }: IO): void {
   assertExpectedPnpmVersion();
@@ -32,10 +33,10 @@ export function main({ stdout }: IO): void {
   );
   const prodPackages = getProductionPackages(root);
 
-  if (process.env['VX_USE_TURBO']) {
-    // Opt-in: build the app packages via turbo, which orders and caches the
-    // whole dependency graph. `pnpm exec` resolves turbo from the workspace
-    // without relying on it being on PATH.
+  if (useTurbo()) {
+    // Build the app packages via turbo, which orders and caches the whole
+    // dependency graph. `pnpm exec` resolves turbo from the workspace without
+    // relying on it being on PATH.
     const buildFilters = appPackages.map((pkg) => `--filter=${pkg.name}`);
     stdout.write(
       `🔨 Building ${appPackages.map((pkg) => pkg.name).join(', ')}\n`
@@ -44,7 +45,7 @@ export function main({ stdout }: IO): void {
       cwd: WORKSPACE_ROOT,
     });
   } else {
-    // Default (pre-Turbo): build each app package in turn via `make build`,
+    // Opted out of Turbo: build each app package in turn via `make build`,
     // which delegates to the package's own dependency-ordered `pnpm build`.
     for (const { path } of appPackages) {
       stdout.write(`🔨 ${path}\n`);

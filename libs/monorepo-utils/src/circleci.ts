@@ -406,8 +406,6 @@ export function generateAllConfigs(
     // hardcoded jobs
     'shellcheck',
     'validate-monorepo',
-    // TEMPORARY: remove once Turborepo is the default (see the job definition).
-    'build-with-turbo',
     RUST_CRATES_JOB_ID,
   ];
 
@@ -488,23 +486,6 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           name: Validate
           command: |
             ./script/validate-monorepo
-
-  # TEMPORARY: Turborepo is opt-in (via VX_USE_TURBO); every other CI job runs
-  # the pre-Turbo pnpm path. This job exercises the Turbo build path end-to-end
-  # so it can't silently rot while opt-in. Remove it once VX_USE_TURBO is the
-  # default and the rest of CI runs through Turbo.
-  build-with-turbo:
-    executor: nodejs
-    resource_class: xlarge
-    environment:
-      VX_USE_TURBO: '1'
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build all packages with Turbo
-          command: |
-            pnpm build
 
 ${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)
