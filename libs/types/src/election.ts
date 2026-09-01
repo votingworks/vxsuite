@@ -833,6 +833,21 @@ export const ElectionSchema = z
   })
   .check((ctx) => {
     const election = ctx.value;
+    for (const [contestIndex, contest] of election.contests.entries()) {
+      if (!election.districts.some((d) => d.id === contest.districtId)) {
+        ctx.issues.push({
+          code: 'custom',
+          path: ['contests', contestIndex, 'districtId'],
+          message: `Contest '${contest.id}' has district '${
+            contest.districtId
+          }', but no such district is defined. Districts defined: [${election.districts
+            .map((d) => d.id)
+            .join(', ')}].`,
+          input: election,
+        });
+      }
+    }
+
     for (const [
       ballotStyleIndex,
       { id, districts, precincts },
