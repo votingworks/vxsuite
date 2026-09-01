@@ -9,7 +9,7 @@
 
 ## Problem
 
-VxSuite currently has a very limited understanding of the status of print jobs.
+VxSuite currently has a limited understanding of the status of print jobs.
 Currently, the application
 
 - submits a print job to CUPS
@@ -17,11 +17,37 @@ Currently, the application
 - reports success in logging and UI
 
 Downstream failures like jams, insufficient paper, or pulling the printer cable
-out are clear failures that are represented as success in the logs, user-facing
+out are failures that are represented as success in the logs, user-facing
 messages, and ballots printed count. We want VxMark and VxPrint to instead
 accurately track and represent print job status.
 
 ## Proposal
+
+### Context: Existing printer state tracking
+
+`PrinterDevice` tracks the necessary state for a caller to maintain a connection
+to a printer. The state is isolated to `libs/printing` and not exposed to the
+caller. An instance of `Printer` is exposed to the caller by `detectPrinter`
+(production) or `MockFilePrinter`.
+
+```
+interface PrinterDevice {
+  uri?: string;
+  lastPrint: number;
+}
+
+export interface Printer {
+  status: () => Promise<PrinterStatus>;
+  print: PrintFunction;
+}
+```
+
+### Proposal
+
+Per the product spec we'll report when a job has been successfully submitted to
+the CUPS scheduler and CUPS has successfully transferred the job to the printer.
+Downstream issues like jams mid-print will be displayed and handled on printer
+hardware.
 
 ### Prerequisites
 
@@ -40,44 +66,42 @@ concatenate the ballots into a single long job for easier job tracking.
 
 **Extend `PrinterDevice`**
 
-`PrinterDevice` tracks the necessary state for a caller to maintain a connection
-to a supported printer. The state is isolated to `libs/printing` and not exposed
-to the caller. An instance of `Printer` is exposed to the caller by
-`detectPrinter` (production) or `MockFilePrinter`.
-
-```
-interface PrinterDevice {
-  uri?: string;
-  lastPrint: number;
-}
-
-export interface Printer {
-  status: () => Promise<PrinterStatus>;
-  print: PrintFunction;
-}
-```
-
 We'll extend `PrinterDevice` to track jobs:
 
 ```
 type JobId = number;
 
-export type JobState =
-   // `ipptool` states
+// IPP `job-state`, as reported by `ipptool` when querying CUPS.
+type IppJobState =
   | 'pending'
   | 'pending-held'
   | 'processing'
-  | 'processing-stopped'
+  | 'processing-stopped' // Not observed during testing but included for completeness
   | 'canceled'
   | 'aborted'
-  | 'completed'
-  // Additional states
-  | 'stalled' ;
+  | 'completed';
+
+export type JobOutcome = 'in-progress' | 'sent-to-printer' | 'failed';
+
+function classify(state: IppJobState): JobOutcome {
+  switch (state) {
+    case 'completed':
+      return 'sent-to-printer';
+    case 'canceled':
+    case 'aborted':
+      return 'failed';
+    case 'pending':
+    case 'pending-held':
+    case 'processing':
+    case 'processing-stopped':
+      return 'in-progress';
+    default:
+      throwIllegalValue(state);
+  }
+}
 
 export interface JobStatus {
-   state: JobState;
-   sheetsCompleted: number;
-   lastProgressAt: Date;
+   outcome: JobOutcome;
    reason?: string;
 }
 
@@ -87,6 +111,7 @@ interface PrinterDevice {
   // New state
   jobs: Map<JobId, JobStatus>;
 }
+
 export interface Printer {
   status: () => Promise<PrinterStatus>;
   print: PrintFunction;
@@ -96,20 +121,45 @@ export interface Printer {
 }
 ```
 
+Additionally, extend `Printer.status()` to `clearJobQueue()` when it detects the
+printer is disconnected (it already knows when this happens).
+
 **IPP Endpoints**
 
-TODO
+Additional scheduler status added in this spec is accessible by querying CUPS at
+ipp://localhost:631/printers/VxPrinter.
+
+Query a single job with the `Get-Job-Attributes` operation and an explicit
+`job-id`.
+
+Per Claude: Do not use `Get-Jobs` with a `which-jobs` filter: IPP classifies
+jobs as `not-completed` or `completed`, where "completed" means finished —
+including aborted and canceled. A monitor polling `which-jobs=not-completed`
+would watch failed jobs disappear from its results rather than observe them
+fail.
 
 **`Printer.print()`**
 
 When a print job is initiated by `print()`, kick off a monitor responsible for
+polling CUPS for job status. CUPS reports 2 bits of information we care about:
 
-- polling `ipptool` for the job's status
-- storing updated status in `PrinterDevice.jobs`
+- `job-state`, 1 of 7 states for a job encoded by `IppJobState`
+- `job-printer-state-message`: diagnostic text about the job's state
+
+The monitor's flow is roughly:
+
+- polling `ipptool` for the job's state
+- classifying `job-state` into abstracted `JobOutcome`
+- storing updated `JobOutcome` in `PrinterDevice.jobs.outcome`
+- storing `job-printer-state-message` in `PrinterDevice.jobs.reason`
 - logging for print job success and failure
+- storing a `failure` `JobOutcome` if a job runs for longer than `JOB_TIMEOUT`
+  from monitor start. The latter is likely unnecessary because failures should
+  report as `aborted`, but protects us from hanging indefinitely.
 
-Logging redundant with the above logging cases will be removed from VxSuite
-apps. Polling ceases when the job reaches a terminal state.
+Logging that's redundant with the above logging cases will be removed from
+VxSuite apps. Polling ceases when the job reaches a terminal `JobOutcome` i.e.
+`outcome !== 'in-progress'.
 
 The monitor is necessary because VxMark and VxPrint will read the status from 2
 different places (more on these later):
@@ -131,29 +181,6 @@ export function startCpuMetricsLogging(
 ): { stop(): void }
 ```
 
-In more detail, the monitor
-
-1. Gets updated job status from `ipptool`.
-2. Decides when a job is stalled and marks it as such.
-   - On each call to `ipptool` to update status, it checks `sheetsCompleted` and
-     `lastProgressAt` of every job.
-   - The job is marked as `stalled` if `sheetsCompleted` hasn't changed and
-     `lastProgressAt` was before some constant `JOB_STALLED_TIMEOUT` time ago.
-     `stalled` status takes priority over native CUPS job state and is not
-     overwritten (see 3, below).
-   - `stalled` status detection for the first sheet printed should be longer
-     than subsequent sheets. This is because enqueuing a long print job (long
-     reports, test decks, all ballot styles, etc) may take several seconds to
-     begin printing. A ~5 second delay for printing the first sheet isn't
-     unreasonable, but a 5 second delay between sheets 1 and 2 is more likely to
-     indicate a stall.
-3. Stores the following in `PrinterDevice.JobStatus`
-   - job state (with priority to `stalled`)
-   - number of sheets completed
-   - reason for job state from `ipptool` output `printer-state-reasons` and
-     possibly `job-state-reasons`
-   - timestamp
-
 **`Printer.getJobStatus(jobId): Result<JobStatus, Error>`**
 
 Looks up the specified job in `PrinterDevice.jobs` and returns its status.
@@ -169,6 +196,15 @@ Runs `Cancel-Jobs` to clear CUPS queue. Does not change status in
 `createMockPrinterHandler` and `MockFilePrinter` need to support new status
 tracking behavior.
 
+**Update printer config**
+
+Set the error policy to abort failed jobs to avoid the "5 minute delayed print"
+problem:
+
+```
+lpadmin -p VxPrinter ... -o printer-error-policy=abort-job
+```
+
 ### Update VxMark and VxPrint
 
 VxSuite apps currently show a "Printing ..." message for a hardcoded n seconds
@@ -177,12 +213,15 @@ should be isolated to the backend.
 
 To that end we will make the following API changes in VxMark and VxPrint:
 
-1. `print()` endpoints start a monitor whose job is to
+1. `print()` endpoints start a monitor whose responsibility is to
    - poll `Printer.getJobStatus(jobId)`
-   - increment ballot print count on success
-   - call `clearJobQueue()` on failure or stall
+   - increment ballot print count on transition to `sent-to-printer` status
+   - call `clearJobQueue()` on failure
    - emit app-specific logs not covered by `libs/printing`
-   - terminate when a job reaches a terminal state and cleanup is done
+   - determine when a job reaches a terminal `JobOutcome` and
+   - schedule cleanup of the job entry in the map after `JOB_STATUS_RETENTION`
+     duration
+   - terminate itself
 2. Add `getJobStatus(jobId): Result<JobStatus, Error>` endpoint to app backends.
    This endpoint wraps `getJobStatus(jobId)`.
 
@@ -195,10 +234,6 @@ The new end to end VxMark and VxPrint app flows:
   print queue on failure
 - Backend returns the job ID to the frontend
 - Frontend polls `getJobStatus(jobId)` and displays the status
-  - If a job is reported as failed or stalled, display an error message and the
-    reason why
-  - After a constant delay shared by the backend monitor automatically navigate
-    to the previous page
 
 ### Logging
 
@@ -206,7 +241,7 @@ In `libs/printing`:
 
 1. `Printer.print()` emits `PrinterPrintRequest`
 2. `Printer`'s monitor emits `PrinterPrintComplete` with failure/success
-   dispotiion on state transition to a terminal state
+   disposition on state transition to a terminal `JobOutcome`
 
 In `VxMark` and `VxPrint`:
 
