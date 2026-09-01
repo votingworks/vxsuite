@@ -23,6 +23,8 @@ let resetToBaseTitleTimeout: ReturnType<typeof setTimeout> | undefined;
  * to avoid flickering when the title is updated in quick succession.
  */
 function resetToBaseTitle() {
+  // Prevent errors in tests if jsdom has been torn down before this fires
+  if (typeof document === 'undefined') return;
   /* istanbul ignore next */
   document.title = baseTitle ?? '';
 }
