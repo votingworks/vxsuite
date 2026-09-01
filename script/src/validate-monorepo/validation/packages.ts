@@ -46,7 +46,8 @@ export type ValidationIssue =
 
 /**
  * Public tasks that delegate to the `vx-task` orchestrator, which picks between
- * Turborepo (opt-in via `VX_USE_TURBO`) and the pre-Turbo pnpm behavior. The
+ * Turborepo (the default) and the pre-Turbo pnpm behavior (`VX_USE_TURBO=0`).
+ * The
  * real per-package work lives in the `:self` counterpart. Any package that
  * defines the `:self` task must delegate its public task to `vx-task`, so the
  * orchestration choice stays centralized in `script/vx-task`.

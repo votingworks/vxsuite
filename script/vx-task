@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 
-# Per-package task orchestrator with a Turborepo opt-in.
+# Per-package task orchestrator, backed by Turborepo.
 #
 # Each package's public `build`/`lint`/`test:run`/`test:ci`/`clean` scripts
 # delegate here (via `pnpm -w vx-task <task> $npm_package_name [args...]`) so the
 # choice of orchestration lives in one place:
 #
-#   * VX_USE_TURBO set  -> run the matching Turbo task (dependency-ordered and
-#                          cached). This is opt-in.
-#   * VX_USE_TURBO unset -> reproduce the pre-Turbo behavior from `main`: pnpm's
-#                           recursive `--filter` for dependency-ordered builds,
-#                           and the package's own `:self` script for lint/test
-#                           (dependencies are assumed already built, as they were
-#                           on `main`, where CI's separate Build step ran first).
+#   * default             -> run the matching Turbo task (dependency-ordered and
+#                            cached).
+#   * VX_USE_TURBO=0      -> opt out and use the pre-Turbo behavior: pnpm's
+#     (or false/no/off)      recursive `--filter` for dependency-ordered builds,
+#                            and the package's own `:self` script for lint/test
+#                            (dependencies are assumed already built, as CI's
+#                            separate Build step ran first).
 #
 # The real per-package work always lives in the `:self` scripts; only the
 # orchestration around them differs between the two modes.
 
 set -euo pipefail
+
+# shellcheck source=script/lib/turbo.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/turbo.sh"
 
 task="${1:?vx-task: task name required}"
 pkg="${2:?vx-task: package name required (pass \$npm_package_name)}"
@@ -30,7 +33,7 @@ if [[ -n "${CI:-}" ]]; then
   seq=(--sequential)
 fi
 
-if [[ -n "${VX_USE_TURBO:-}" ]]; then
+if use_turbo; then
   case "${task}" in
     build) exec turbo run build:self --filter="${pkg}" ;;
     clean) exec turbo run clean:self --filter="${pkg}..." ;;
