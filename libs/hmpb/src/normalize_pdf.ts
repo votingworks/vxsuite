@@ -1,3 +1,5 @@
+import * as fs from 'node:fs/promises';
+
 import { Buffer } from 'node:buffer';
 import { assert } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
@@ -174,4 +176,15 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
   );
 
   return Buffer.from(str, 'latin1');
+}
+
+/**
+ * Normalizes a PDF file in place. See {@link normalizePdf} for details.
+ *
+ * NOTE: Non-atomic - assumes usage with scratch files. Errors during conversion
+ * may leave the file in an undefined state.
+ */
+export async function normalizePdfFile(pdfPath: string): Promise<void> {
+  const original = await fs.readFile(pdfPath);
+  await fs.writeFile(pdfPath, normalizePdf(original));
 }

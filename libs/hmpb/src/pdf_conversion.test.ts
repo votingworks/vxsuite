@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { promisify } from 'node:util';
@@ -15,9 +16,12 @@ import {
   StandardFonts,
 } from 'pdf-lib';
 import { assert, assertDefined } from '@votingworks/basics';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import {
+  convertPdfFileToGrayscale,
   convertPdfToGrayscale,
   convertPdfToSpotColor,
+  SpotColor,
 } from './pdf_conversion.js';
 import { fixturesDir } from './ballot_fixtures.js';
 import { Colors } from './ballot_components.js';
@@ -95,7 +99,7 @@ describe('convertPdfToSpotColor', () => {
     // Page 2 has no tint, exercising the untouched-content-stream path.
     const pdf = await buildColorPdf([ColorTints.BLUE, BLACK, WHITE], [BLACK]);
 
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       pdf,
       Object.values(NhStateSpotColors)
     );
@@ -122,7 +126,7 @@ describe('convertPdfToSpotColor', () => {
       borderColor: rgb(...hexToRgb(ColorTints.BLUE)),
       borderWidth: 3,
     });
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       await doc.save(),
       Object.values(NhStateSpotColors)
     );
@@ -131,7 +135,7 @@ describe('convertPdfToSpotColor', () => {
 
   test('produces a single named spot plate plus black', async () => {
     const pdf = await buildColorPdf([ColorTints.BLUE, BLACK]);
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       pdf,
       Object.values(NhStateSpotColors)
     );
@@ -171,14 +175,14 @@ describe('convertPdfToSpotColor', () => {
     // tints is unconditionally a bug.
     const pdf = await buildColorPdf([ColorTints.BLUE, BLACK], [ColorTints.RED]);
     await expect(
-      convertPdfToSpotColor(pdf, Object.values(NhStateSpotColors))
+      convertPdfBufferToSpotColor(pdf, Object.values(NhStateSpotColors))
     ).rejects.toThrow(/at most one spot color/);
   });
 
   test('converts only the party tint, leaving other grays on the black plate', async () => {
     // Like a Return of Votes form: a party tint plus a gray design shade.
     const pdf = await buildColorPdf([ColorTints.BLUE, GRAY_SHADE, BLACK]);
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       pdf,
       Object.values(NhStateSpotColors)
     );
@@ -195,7 +199,7 @@ describe('convertPdfToSpotColor', () => {
 
   test('applies no ink when no source color is present', async () => {
     const noTint = await buildColorPdf([BLACK, WHITE, GRAY_SHADE]);
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       noTint,
       Object.values(NhStateSpotColors)
     );
@@ -218,7 +222,7 @@ describe('convertPdfToSpotColor', () => {
       height: 15,
       color: rgb(...hexToRgb(ColorTints.BLUE)),
     });
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       await doc.save(),
       Object.values(NhStateSpotColors)
     );
@@ -236,7 +240,7 @@ describe('convertPdfToSpotColor', () => {
     const ballot = await readFile(
       join(fixturesDir, 'nh-state-primary-election/dem-blank-ballot.pdf')
     );
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       ballot,
       Object.values(NhStateSpotColors)
     );
@@ -249,7 +253,7 @@ describe('convertPdfToSpotColor', () => {
     const ballot = await readFile(
       join(fixturesDir, 'nh-state-general-election/blank-ballot.pdf')
     );
-    const converted = await convertPdfToSpotColor(
+    const converted = await convertPdfBufferToSpotColor(
       ballot,
       Object.values(NhStateSpotColors)
     );
@@ -302,3 +306,22 @@ describe('NH spot color declarations', () => {
     }
   });
 });
+
+test('convertPdfFileToGrayscale/convertPdfToGrayscale parity smoke test', async () => {
+  const pdf = await buildColorPdf([ColorTints.RED]);
+  const pdfPath = makeTemporaryFile({ content: pdf });
+
+  await convertPdfFileToGrayscale(pdfPath);
+  const result = fs.readFileSync(pdfPath);
+  expect(result).toEqual(await convertPdfToGrayscale(pdf));
+});
+
+async function convertPdfBufferToSpotColor(
+  pdf: Uint8Array,
+  spotColors: SpotColor[]
+) {
+  const pdfPath = makeTemporaryFile({ content: pdf });
+  await convertPdfToSpotColor({ pdfPath, spotColors });
+
+  return fs.readFileSync(pdfPath);
+}
