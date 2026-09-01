@@ -9,6 +9,11 @@
     ".prettierrc.js",
     "stylelint.shared.js"
   ],
+  // Identifies the toolchain the artifacts were built with (in CI, the Docker
+  // image tag). Native addons and `tsc` output depend on it, but none of it is
+  // visible in the file inputs, so a cache shared across toolchains would
+  // otherwise replay artifacts built by a different compiler.
+  "globalEnv": ["VX_TOOLCHAIN_ID"],
   "tasks": {
     "build:self": {
       "dependsOn": ["^build:self"],
@@ -24,10 +29,16 @@
     },
     "test:run:self": {
       "dependsOn": ["build:self"],
+      // `CI` switches on coverage (and its thresholds) and the junit reporter
+      // in vitest.config.shared.mts, so it has to be part of the hash.
+      "env": ["CI"],
+      "outputs": ["reports/**"],
       "passThroughEnv": ["VX_TEST_WORKERS"]
     },
     "test:ci:self": {
       "dependsOn": ["build:self"],
+      "env": ["CI"],
+      "outputs": ["reports/**"],
       "passThroughEnv": ["VX_TEST_WORKERS"]
     },
     "clean:self": {

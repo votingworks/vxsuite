@@ -54,6 +54,22 @@ jobs:
           path: apps/admin/backend/reports/
       - store_artifacts:
           path: apps/admin/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/admin-frontend
   test-apps-admin-frontend:
@@ -78,6 +94,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/admin/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/admin-integration-testing
   test-apps-admin-integration-testing:
@@ -122,6 +154,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/central-scan-backend
   test-apps-central-scan-backend:
@@ -148,6 +196,22 @@ jobs:
           path: apps/central-scan/backend/reports/
       - store_artifacts:
           path: apps/central-scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/central-scan-frontend
   test-apps-central-scan-frontend:
@@ -172,6 +236,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/central-scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/central-scan-integration-testing
   test-apps-central-scan-integration-testing:
@@ -216,6 +296,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/design-backend
   test-apps-design-backend:
@@ -242,6 +338,22 @@ jobs:
           path: apps/design/backend/reports/
       - store_artifacts:
           path: apps/design/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/design-frontend
   test-apps-design-frontend:
@@ -266,6 +378,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/design/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-scan-backend
   test-apps-mark-scan-backend:
@@ -292,6 +420,22 @@ jobs:
           path: apps/mark-scan/backend/reports/
       - store_artifacts:
           path: apps/mark-scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-scan-frontend
   test-apps-mark-scan-frontend:
@@ -316,6 +460,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/mark-scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-scan-integration-testing
   test-apps-mark-scan-integration-testing:
@@ -360,6 +520,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-backend
   test-apps-mark-backend:
@@ -386,6 +562,22 @@ jobs:
           path: apps/mark/backend/reports/
       - store_artifacts:
           path: apps/mark/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-frontend
   test-apps-mark-frontend:
@@ -410,6 +602,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/mark/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-integration-testing
   test-apps-mark-integration-testing:
@@ -454,6 +662,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/pollbook-frontend
   test-apps-pollbook-frontend:
@@ -478,6 +702,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/pollbook/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/print-backend
   test-apps-print-backend:
@@ -504,6 +744,22 @@ jobs:
           path: apps/print/backend/reports/
       - store_artifacts:
           path: apps/print/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/print-frontend
   test-apps-print-frontend:
@@ -528,6 +784,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/print/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/print-integration-testing
   test-apps-print-integration-testing:
@@ -572,6 +844,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/scan-backend
   test-apps-scan-backend:
@@ -598,6 +886,22 @@ jobs:
           path: apps/scan/backend/reports/
       - store_artifacts:
           path: apps/scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/scan-frontend
   test-apps-scan-frontend:
@@ -622,6 +926,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/scan-integration-testing
   test-apps-scan-integration-testing:
@@ -666,6 +986,22 @@ jobs:
                       "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
                       --exclude "*" --include "*.png" --delete
                   fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/exercises
   test-docs-exercises:
@@ -690,6 +1026,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: docs/exercises/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/auth
   test-libs-auth:
@@ -714,6 +1066,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/auth/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/backend
   test-libs-backend:
@@ -738,6 +1106,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/backend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/ballot-encoder
   test-libs-ballot-encoder:
@@ -762,6 +1146,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/ballot-encoder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/ballot-interpreter
   test-libs-ballot-interpreter:
@@ -790,6 +1190,22 @@ jobs:
           path: libs/ballot-interpreter/src/__image_snapshots__/__diff_output__/
       - store_artifacts:
           path: libs/ballot-interpreter/src/summary-ballot/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/basics
   test-libs-basics:
@@ -814,6 +1230,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/basics/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/bmd-ballot-fixtures
   test-libs-bmd-ballot-fixtures:
@@ -840,6 +1272,22 @@ jobs:
           path: libs/bmd-ballot-fixtures/reports/
       - store_artifacts:
           path: libs/bmd-ballot-fixtures/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/cdf-schema-builder
   test-libs-cdf-schema-builder:
@@ -864,6 +1312,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/custom-paper-handler
   test-libs-custom-paper-handler:
@@ -888,6 +1352,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/custom-paper-handler/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/db
   test-libs-db:
@@ -912,6 +1392,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/db/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/dev-dock-backend
   test-libs-dev-dock-backend:
@@ -936,6 +1432,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/dev-dock/backend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/dev-dock-frontend
   test-libs-dev-dock-frontend:
@@ -960,6 +1472,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/dev-dock/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # eslint-plugin-vx
   test-libs-eslint-plugin-vx:
@@ -984,6 +1512,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/eslint-plugin-vx/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/fixture-generators
   test-libs-fixture-generators:
@@ -1008,6 +1552,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/fixture-generators/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/fixtures
   test-libs-fixtures:
@@ -1032,6 +1592,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/fixtures/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/fs
   test-libs-fs:
@@ -1056,6 +1632,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/fs/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/fujitsu-thermal-printer
   test-libs-fujitsu-thermal-printer:
@@ -1080,6 +1672,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/fujitsu-thermal-printer/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/grout
   test-libs-grout:
@@ -1104,6 +1712,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/grout/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/grout-test-utils
   test-libs-grout-test-utils:
@@ -1128,6 +1752,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/grout/test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/hmpb
   test-libs-hmpb:
@@ -1154,6 +1794,22 @@ jobs:
           path: libs/hmpb/reports/
       - store_artifacts:
           path: libs/hmpb/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/image-utils
   test-libs-image-utils:
@@ -1178,6 +1834,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/image-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/integration-test-utils
   test-libs-integration-test-utils:
@@ -1202,6 +1874,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/integration-test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/logging
   test-libs-logging:
@@ -1226,6 +1914,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/logging/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/logging-utils
   test-libs-logging-utils:
@@ -1250,6 +1954,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/logging-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/mark-flow-ui
   test-libs-mark-flow-ui:
@@ -1274,6 +1994,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/mark-flow-ui/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/message-coder
   test-libs-message-coder:
@@ -1298,6 +2034,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/message-coder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/monorepo-utils
   test-libs-monorepo-utils:
@@ -1322,6 +2074,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/monorepo-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/networking
   test-libs-networking:
@@ -1346,6 +2114,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/networking/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/pdi-scanner
   test-libs-pdi-scanner:
@@ -1370,6 +2154,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/pdi-scanner/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/printing
   test-libs-printing:
@@ -1396,6 +2196,22 @@ jobs:
           path: libs/printing/reports/
       - store_artifacts:
           path: libs/printing/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/test-decks
   test-libs-test-decks:
@@ -1422,6 +2238,22 @@ jobs:
           path: libs/test-decks/reports/
       - store_artifacts:
           path: libs/test-decks/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/test-utils
   test-libs-test-utils:
@@ -1446,6 +2278,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/types
   test-libs-types:
@@ -1470,6 +2318,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/types/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/ui
   test-libs-ui:
@@ -1494,6 +2358,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/ui/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/usb-drive
   test-libs-usb-drive:
@@ -1518,6 +2398,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/usb-drive/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   # @votingworks/utils
   test-libs-utils:
@@ -1542,6 +2438,22 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   test-rust-crates:
     executor: 'nodejs'
@@ -1607,6 +2519,22 @@ jobs:
           name: Validate
           command: |
             ./script/validate-monorepo
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
 
   notify-gallery:
     executor: nodejs
@@ -1838,6 +2766,15 @@ commands:
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - run:
+          name: Configure Turbo for CI
+          command: |
+            # Identifies the toolchain that produced cached artifacts.
+            echo 'export VX_TOOLCHAIN_ID="votingworks/cimg-debian12:4.8.0"' >> $BASH_ENV
+            # Run summaries record each task's hash under .turbo/runs;
+            # script/prune-turbo-cache uses them to trim the cache before it
+            # is saved.
+            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV
+      - run:
           name: Fix node-gyp gyp entrypoint permissions
           command: |
             # TODO: Remove once we upgrade past pnpm 11.10, which ships
@@ -1876,6 +2813,11 @@ commands:
                 paths:
                   - /root/.local/share/pnpm/store/v10
                   - /root/.cache/ms-playwright
+            - restore_cache:
+                name: Restore Turbo Cache
+                keys:
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-
       - restore_cache:
           name: Restore Cargo Cache
           key:

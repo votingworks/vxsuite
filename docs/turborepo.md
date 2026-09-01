@@ -86,9 +86,10 @@ Turbo shares one local cache across all git worktrees of this repo (it lives
 under the shared `.git` directory, not inside any single worktree). So a package
 you built in one worktree is restored for free in another. Two things to know:
 
-- The cache is **per-machine** — it is not shared between developers or with CI.
-  A fresh checkout of a commit nobody on this machine has built yet gets few
-  hits; the speed-up is on rebuilds of commits you've already built.
+- The cache is **per-machine** — it is not shared between developers, nor with
+  CI (which keeps its own, via CircleCI's `save_cache`/`restore_cache`). A fresh
+  checkout of a commit nobody on this machine has built yet gets few hits; the
+  speed-up is on rebuilds of commits you've already built.
 - The cache is **unbounded** — it grows over time and is never auto-evicted.
 
 ## Troubleshooting
