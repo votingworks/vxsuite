@@ -337,9 +337,11 @@ function arbitraryStraightPartyContest({
 }
 
 export function arbitraryContests({
+  districtId,
   electionType,
   partyIds,
 }: {
+  districtId?: fc.Arbitrary<District['id']>;
   electionType?: ElectionType;
   partyIds?: fc.Arbitrary<Array<Party['id']>>;
 } = {}): fc.Arbitrary<readonly Contest[]> {
@@ -349,7 +351,7 @@ export function arbitraryContests({
     electionType === 'general' && ids.length === 0
       ? fc.constant([])
       : fc
-          .option(arbitraryStraightPartyContest({ partyIds }))
+          .option(arbitraryStraightPartyContest({ districtId, partyIds }))
           .map((contest) => (contest ? [contest] : []))
   );
   return fc
@@ -357,11 +359,12 @@ export function arbitraryContests({
       arbitraryStraightPartyContests,
       fc.array(
         arbitraryCandidateContest({
+          districtId,
           partyIds,
           allowWriteIns: fc.constant(true),
         })
       ),
-      fc.array(arbitraryYesNoContest())
+      fc.array(arbitraryYesNoContest({ districtId }))
     )
     .map(([straightPartyContests, candidateContests, otherContests]) => [
       ...straightPartyContests,
@@ -531,6 +534,9 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({
+            // Contests must sit in districts the election actually has, or
+            // `getContests` finds nothing for any ballot style.
+            districtId: fc.constantFrom(...districts.map(({ id }) => id)),
             electionType: type,
             partyIds: fc.constant(parties.map(({ id }) => id)),
           }),
