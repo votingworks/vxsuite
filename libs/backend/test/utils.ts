@@ -1,4 +1,6 @@
 /* eslint-disable max-classes-per-file */
+import { readdir } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import {
   CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA,
   clearCastVoteRecordHashes,
@@ -15,7 +17,6 @@ import {
   PollsState,
   SystemSettings,
 } from '@votingworks/types';
-import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import {
   CentralScannerStore,
   ElectionRecord,
@@ -221,11 +222,14 @@ export async function summarizeDirectoryContents(
   directoryPath: string
 ): Promise<string[]> {
   const filePathsRelativeToDirectoryPath: string[] = [];
-  for await (const entryResult of listDirectoryRecursive(directoryPath)) {
-    const entry = entryResult.unsafeUnwrap();
-    if (entry.type === FileSystemEntryType.File) {
+
+  for (const entry of await readdir(directoryPath, {
+    recursive: true,
+    withFileTypes: true,
+  })) {
+    if (entry.isFile()) {
       filePathsRelativeToDirectoryPath.push(
-        entry.path.replace(`${directoryPath}/`, '')
+        relative(directoryPath, join(entry.parentPath, entry.name))
       );
     }
   }
