@@ -36,7 +36,6 @@
     "@fortawesome/react-fontawesome": "3.5.0",
     "@testing-library/react": "^15.0.7",
     "@votingworks/backend": "workspace:*",
-    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",

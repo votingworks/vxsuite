@@ -49,6 +49,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "esbuild": "0.28.1",

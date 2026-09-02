@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@types/tmp": "0.2.4",
+    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",

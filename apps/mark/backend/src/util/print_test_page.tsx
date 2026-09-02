@@ -1,5 +1,10 @@
 import { BmdPaperBallot } from '@votingworks/ui';
-import { ElectionDefinition, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  BallotType,
+  ElectionDefinition,
+  HmpbBallotPaperSize,
+} from '@votingworks/types';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -93,6 +98,21 @@ export async function printTestPage({
   logger: Logger;
 }): Promise<void> {
   const mockElectionDefinition = getMockElectionDefinition();
+  const encodedBallot = encodeSummaryBallotPage(
+    mockElectionDefinition.election,
+    {
+      ballotHash: mockElectionDefinition.ballotHash,
+      ballotStyleId: 'ballot-style-0',
+      precinctId: 'precinct-0',
+      votes: {},
+      isTestMode: true,
+      ballotType: BallotType.Precinct,
+      pageNumber: 1,
+      totalPages: 1,
+      ballotAuditId: 'test-page-audit-id',
+      contests: mockElectionDefinition.election.contests,
+    }
+  );
 
   const ballot = (
     <BmdPaperBallot
@@ -104,8 +124,8 @@ export async function printTestPage({
       machineType="mark"
       pageNumber={1}
       totalPages={1}
-      ballotAuditId="test-page-audit-id"
       contestsForPage={mockElectionDefinition.election.contests}
+      encodedBallot={encodedBallot}
     />
   );
 
