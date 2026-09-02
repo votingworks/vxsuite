@@ -4,7 +4,10 @@ import * as fs from 'node:fs/promises';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
-import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
+import {
+  authenticateArtifactUsingSignatureFile,
+  mockSigningMachineCertFields,
+} from '@votingworks/auth';
 import { readCastVoteRecordExportMetadata } from '@votingworks/backend';
 import {
   electionPrimaryPrecinctSplitsFixtures,
@@ -45,7 +48,9 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    ok(mockSigningMachineCertFields({ component: 'central-scan' }))
+  );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
