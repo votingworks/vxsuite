@@ -8,6 +8,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import { CopyFileError, WriteFileError } from '@votingworks/fs';
 import { prepare, PrepareError } from './prepare_step.js';
 import { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
@@ -109,6 +110,39 @@ const CANCELLED_ERROR: CreateBackupError = {
   message: 'Backup cancelled',
 };
 
+const NOT_REGULAR_FILE_MESSAGE =
+  'The backup target holds something that is not a regular file';
+
+function describeFileFailure(
+  error: Exclude<CopyFileError, { type: 'Cancelled' }> | WriteFileError
+): string {
+  switch (error.type) {
+    case 'FileExceedsMaxSize': {
+      return `A staged file grew past its measured size (max ${error.maxSize} bytes)`;
+    }
+
+    /* istanbul ignore next: the staging area only ever links regular files,
+       having stat'd each one before staging it */
+    case 'SourceNotRegularFile': {
+      return 'A staged file is no longer a regular file';
+    }
+
+    /* istanbul ignore next: requires the target to substitute something for a
+       path between the run clearing it and the copy reaching it */
+    case 'DestinationNotRegularFile': {
+      return NOT_REGULAR_FILE_MESSAGE;
+    }
+
+    case 'NotRegularFile': {
+      return NOT_REGULAR_FILE_MESSAGE;
+    }
+
+    default: {
+      return extractErrorMessage(error.error);
+    }
+  }
+}
+
 /**
  * Throws away a backup that will never be finished. Best effort: whatever
  * stopped the write may stop the cleanup too, and the next run clears the path
@@ -176,10 +210,7 @@ async function tryCreateBackup(
 
         return err({
           type: 'backup-write-failed',
-          message:
-            error.type === 'FileExceedsMaxSize'
-              ? `A staged file grew past its measured size (max ${error.maxSize} bytes)`
-              : extractErrorMessage(error.error),
+          message: describeFileFailure(error),
         });
       }
       manifest = copyResult.ok();
@@ -198,12 +229,21 @@ async function tryCreateBackup(
       return err(CANCELLED_ERROR);
     }
 
-    await writeManifest({
+    const writeManifestResult = await writeManifest({
       manifest,
       backup: inProgressBackupPath,
       logger: options.logger,
       onProgressEvent: options.onProgressEvent,
     });
+
+    if (writeManifestResult.isErr()) {
+      await discardInProgressBackup(inProgressBackupPath);
+
+      return err({
+        type: 'backup-write-failed',
+        message: describeFileFailure(writeManifestResult.err()),
+      });
+    }
   } catch (error) {
     const { code } = error as NodeJS.ErrnoException;
     if (!code || !EXPECTED_WRITE_ERROR_CODES.includes(code)) {

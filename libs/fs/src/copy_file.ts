@@ -1,7 +1,10 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import { rm } from 'node:fs/promises';
-import { open } from './open_file';
+import {
+  openRegularFileForReading,
+  openRegularFileForWriting,
+} from './open_regular_file';
 import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error';
 import { ReadChunkError } from './read_chunk_error';
 import { readChunksWithinLimit } from './read_chunks';
@@ -11,6 +14,8 @@ import { readChunksWithinLimit } from './read_chunks';
  */
 export type CopyFileError =
   | { type: 'OpenFileError'; error: globalThis.Error }
+  | { type: 'SourceNotRegularFile' }
+  | { type: 'DestinationNotRegularFile' }
   | { type: 'FileExceedsMaxSize'; maxSize: number }
   | { type: 'ReadFileError'; error: globalThis.Error }
   | { type: 'WriteFileError'; error: globalThis.Error }
@@ -99,19 +104,26 @@ export async function copyFile({
     return err({ type: 'Cancelled' });
   }
 
-  const openSourceResult = await open(source);
+  const openSourceResult = await openRegularFileForReading(source);
   if (openSourceResult.isErr()) {
-    return err({ type: 'OpenFileError', error: openSourceResult.err() });
+    const error = openSourceResult.err();
+    return err(
+      error.type === 'NotRegularFile'
+        ? { type: 'SourceNotRegularFile' }
+        : { type: 'OpenFileError', error: error.error }
+    );
   }
 
   const sourceFd = openSourceResult.ok();
   try {
-    const openDestinationResult = await open(destination, 'w');
+    const openDestinationResult = await openRegularFileForWriting(destination);
     if (openDestinationResult.isErr()) {
-      return err({
-        type: 'WriteFileError',
-        error: openDestinationResult.err(),
-      });
+      const error = openDestinationResult.err();
+      return err(
+        error.type === 'NotRegularFile'
+          ? { type: 'DestinationNotRegularFile' }
+          : { type: 'WriteFileError', error: error.error }
+      );
     }
 
     const destinationFd = openDestinationResult.ok();
@@ -161,10 +173,9 @@ export async function copyFile({
 
       return err({ type: 'WriteFileError', error: error as Error });
     } finally {
-      const shouldRemove = !succeeded && (await destinationFd.stat()).isFile();
       await destinationFd.close();
 
-      if (shouldRemove) {
+      if (!succeeded) {
         await rm(destination, { force: true });
       }
     }

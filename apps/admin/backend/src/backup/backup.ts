@@ -141,6 +141,16 @@ function describeCopyFileError(path: string, error: CopyFileError): string {
       return `Reading ${path} was cancelled`;
     }
 
+    case 'SourceNotRegularFile': {
+      return `${path} is not a regular file`;
+    }
+
+    /* istanbul ignore next: the destination is a directory this process just
+       created for itself, so nothing can be sitting at the path */
+    case 'DestinationNotRegularFile': {
+      return `Could not write a private copy of ${path}`;
+    }
+
     default: {
       return `${extractErrorMessage(error.error)} (${path})`;
     }

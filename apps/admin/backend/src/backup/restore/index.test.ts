@@ -1,7 +1,15 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { readdirSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { appendFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  appendFile,
+  mkdir,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import {
   electionFamousNames2021Fixtures,
@@ -629,37 +637,41 @@ test.each<{ description: string; tamper: (backup: Backup) => Promise<void> }>([
   ]);
 });
 
-test('restore fails if a backup file cannot be read', async () => {
-  const backup = await makeBackup();
-  const manifest = await readBackupManifest(backup);
-  const unreadableFile = assertDefined(manifest.files.at(-1));
-  const unreadablePath = join(backup.path, unreadableFile.path);
-  // A directory in place of the file reads as EISDIR, standing in for the
-  // whole class of errors a dying USB drive raises mid-copy — EIO, EACCES —
-  // which, unlike ENOENT, say nothing about whether the backup is intact.
-  await rm(unreadablePath);
-  await mkdir(unreadablePath);
+test.runIf(existsSync('/proc/self/mem'))(
+  'restore fails if a backup file cannot be read',
+  async () => {
+    const backup = await makeBackup();
+    const manifest = await readBackupManifest(backup);
+    const unreadableFile = assertDefined(manifest.files.at(-1));
+    const unreadablePath = join(backup.path, unreadableFile.path);
+    // `/proc/self/mem` is a regular file whose reads fail with EIO — a real
+    // failure partway through a read, which a regular file cannot otherwise be
+    // talked into producing, and which says nothing about whether the backup
+    // is intact.
+    await rm(unreadablePath);
+    await symlink('/proc/self/mem', unreadablePath);
 
-  const workspacePath = makeUnconfiguredWorkspacePath();
-  const result = await restoreBackup({
-    backup: backup.path,
-    workspace: restorable(workspacePath),
-    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
-  });
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const result = await restoreBackup({
+      backup: backup.path,
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
 
-  // Any failure to copy has to be reported. Reporting success here hands the
-  // operator a workspace missing a file they will not learn about until
-  // something later needs it.
-  // The error type is left open: this is a broken drive, not a claim about
-  // whether the backup itself is valid.
-  expect(result.err()).toMatchObject({
-    message: expect.stringContaining(unreadableFile.path),
-  });
+    // Any failure to copy has to be reported. Reporting success here hands the
+    // operator a workspace missing a file they will not learn about until
+    // something later needs it.
+    // The error type is left open: this is a broken drive, not a claim about
+    // whether the backup itself is valid.
+    expect(result.err()).toMatchObject({
+      message: expect.stringContaining(unreadableFile.path),
+    });
 
-  await expect(
-    exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-  ).resolves.toBeFalsy();
-});
+    await expect(
+      exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+    ).resolves.toBeFalsy();
+  }
+);
 
 test('restore fails on missing files from the backup manifest', async () => {
   const backup = await makeBackup();
@@ -685,6 +697,37 @@ test('restore fails on missing files from the backup manifest', async () => {
     exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
   ).resolves.toBeFalsy();
 });
+
+// The manifest is signed, but it names paths and the drive decides what sits
+// at each one.
+test.runIf(process.platform === 'linux')(
+  'restore fails if a backup file is a FIFO rather than a regular file',
+  async () => {
+    const backup = await makeBackup();
+    const manifest = await readBackupManifest(backup);
+    const swappedFile = assertDefined(manifest.files.at(-1));
+    const swappedPath = join(backup.path, swappedFile.path);
+    await rm(swappedPath);
+    execFileSync('mkfifo', [swappedPath]);
+
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const result = await restoreBackup({
+      backup: backup.path,
+      workspace: restorable(workspacePath),
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
+
+    expect(result.err()).toMatchObject({
+      type: 'backup-verification-failed',
+      message: expect.stringContaining(swappedFile.path),
+    });
+
+    await expect(
+      exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+    ).resolves.toBeFalsy();
+  },
+  10_000
+);
 
 test('restore fails if any backup files are an unexpected size', async () => {
   const backup = await makeBackup();
