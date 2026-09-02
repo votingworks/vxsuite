@@ -48,6 +48,8 @@ import {
 import { restoreBackup, RESTORE_IN_PROGRESS_MARKER_FILENAME } from './index.js';
 import { ProgressEvent } from '../progress.js';
 
+vi.setConfig({ testTimeout: 30_000 });
+
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {

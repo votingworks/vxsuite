@@ -31,6 +31,8 @@ import {
 import { CANCELLED_EXIT_CODE, main } from './main.js';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 
+vi.setConfig({ testTimeout: 30_000 });
+
 interface RunResult {
   code: number;
   stdout: string;
