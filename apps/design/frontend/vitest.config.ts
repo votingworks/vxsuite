@@ -8,10 +8,6 @@ export default defineConfig({
     clearMocks: true,
 
     coverage: {
-      thresholds: {
-        lines: -63,
-        branches: -169,
-      },
       exclude: [
         'src/stubs/*',
         'src/**/*.d.ts',

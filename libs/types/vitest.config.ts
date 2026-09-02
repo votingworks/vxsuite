@@ -8,10 +8,6 @@ export default defineConfig({
         'src/cdf/*/index.ts',
         'src/cdf/ballot-definition/cli.ts',
       ],
-      thresholds: {
-        lines: -3,
-        branches: -22,
-      },
     },
   },
 });

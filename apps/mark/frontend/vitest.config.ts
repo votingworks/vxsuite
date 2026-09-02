@@ -19,10 +19,6 @@ export default defineConfig({
         'src/electrical_testing',
         '**/*.test.{ts,tsx}',
       ],
-      thresholds: {
-        lines: -5,
-        branches: -5,
-      },
     },
     alias: [
       {

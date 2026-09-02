@@ -17,10 +17,6 @@ export default defineConfig({
         '**/*.test.{ts,tsx}',
         'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
-      thresholds: {
-        lines: -13,
-        branches: -6,
-      },
     },
     alias: [
       {

@@ -6,10 +6,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
-      thresholds: {
-        lines: -128,
-        branches: -101,
-      },
       exclude: [
         '**/node_modules/**',
         '**/*.test.ts',

@@ -6,10 +6,6 @@ export default defineConfig({
     setupFiles: ['src/setupTests.ts'],
 
     coverage: {
-      thresholds: {
-        lines: -30,
-        branches: -104,
-      },
       exclude: [
         'src/index.ts',
         'src/stubs/*',

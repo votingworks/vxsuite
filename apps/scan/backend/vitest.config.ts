@@ -9,10 +9,6 @@ export default defineConfig({
       './test/setupTests.ts',
     ],
     coverage: {
-      thresholds: {
-        lines: -40,
-        branches: -45,
-      },
       exclude: [
         '**/node_modules/**',
         '**/*.test.ts',

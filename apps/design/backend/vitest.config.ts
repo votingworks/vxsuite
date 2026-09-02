@@ -6,10 +6,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
-      thresholds: {
-        lines: -60,
-        branches: -65,
-      },
       exclude: [
         'src/configure_sentry.ts',
         // Dev-only CLI entry points for the `scripts/` launchers.

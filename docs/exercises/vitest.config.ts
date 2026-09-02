@@ -6,10 +6,6 @@ export default defineConfig({
     coverage: {
       // Training exercises — coverage is not meaningful here
       enabled: false,
-      thresholds: {
-        lines: 0,
-        branches: 0,
-      },
     },
   },
 });

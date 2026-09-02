@@ -5,10 +5,6 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       exclude: ['src/index.ts'],
-      thresholds: {
-        lines: 100,
-        branches: -1,
-      },
     },
   },
 });

@@ -11,10 +11,6 @@ export default defineConfig({
         // Dev-only CLI
         'src/bubble-ballot-ts/diagnostic_cli.ts',
       ],
-      thresholds: {
-        lines: -275,
-        branches: -141,
-      },
     },
   },
 });

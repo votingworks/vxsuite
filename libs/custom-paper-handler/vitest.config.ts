@@ -12,10 +12,6 @@ export default defineConfig({
         // Test double used by libs/fujitsu-thermal-printer's tests
         'src/driver/mock_minimal_web_usb_device.ts',
       ],
-      thresholds: {
-        lines: 0,
-        branches: 0,
-      },
     },
   },
 });

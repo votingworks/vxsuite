@@ -11,10 +11,6 @@ export default defineConfig({
         'src/generate-election-package',
         '**/*.test.ts',
       ],
-      thresholds: {
-        lines: -6,
-        branches: -22,
-      },
     },
     alias: [
       {

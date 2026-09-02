@@ -7,10 +7,6 @@ export default defineConfig({
     coverage: {
       // Dev-only CLI
       exclude: ['src/printer/cli.ts'],
-      thresholds: {
-        lines: 100,
-        branches: -1,
-      },
     },
     alias: [
       {

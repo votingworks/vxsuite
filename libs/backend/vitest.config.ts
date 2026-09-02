@@ -9,10 +9,6 @@ export default defineConfig({
         'src/**/index.ts',
         'src/**/test_utils.ts',
       ],
-      thresholds: {
-        lines: -15,
-        branches: -31,
-      },
     },
   },
 });
