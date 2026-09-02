@@ -1,6 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import * as vitest from 'vitest/config';
 
 const isCI = process.env['CI'] === 'true';
+
+const coverageCheckReporter = fileURLToPath(
+  new URL('./libs/coverage-check/vitest_coverage_reporter.cjs', import.meta.url)
+);
 
 // When the whole workspace is tested at once (root `pnpm test` → `turbo run
 // test:run` across ~50 packages), many vitest suites run concurrently in a
@@ -38,7 +43,10 @@ export const base: vitest.ViteUserConfig = {
         lines: 100,
         branches: 100,
       },
-      reportOnFailure: true,
+      // coverage-check is our custom reporter from libs/coverage-check
+      // `json` writes coverage-final.json if needed for debugging
+      // (e.g. if something weird happens in CI)
+      reporter: ['json', [coverageCheckReporter, {}]],
       provider: 'istanbul',
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
