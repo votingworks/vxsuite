@@ -69,7 +69,6 @@ export async function vetManifest(
         });
       }
 
-      /* istanbul ignore next: Compile-time check for completeness */
       default: {
         throwIllegalValue(error, 'type');
       }

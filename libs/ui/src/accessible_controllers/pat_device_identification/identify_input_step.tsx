@@ -72,7 +72,6 @@ export function IdentifyInputStep({
             setInputIdentificationPhase('identified');
             break;
           default: {
-            /* istanbul ignore next - compile time check for completeness */
             throwIllegalValue(inputIdentificationPhase);
           }
         }
@@ -133,7 +132,6 @@ export function IdentifyInputStep({
       icon = <Icons.Danger />;
       break;
     default: {
-      /* istanbul ignore next - compile time check for completeness */
       throwIllegalValue(inputIdentificationPhase);
     }
   }

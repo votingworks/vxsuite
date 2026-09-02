@@ -76,7 +76,6 @@ export function ExportVoterActivityModal({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(exportVoterActivityMutation);
     }
   }

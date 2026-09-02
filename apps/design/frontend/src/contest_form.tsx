@@ -289,7 +289,6 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </Callout>
           );
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(error);
         }
       }
@@ -1047,7 +1046,6 @@ function draftContestFromContest(contest: Contest): DraftContest {
     case 'straight-party':
       return { ...contest };
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }
@@ -1081,7 +1079,6 @@ function tryContestFromDraftContest(
       });
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(draftContest, 'type');
     }
   }

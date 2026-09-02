@@ -195,7 +195,6 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING:
       return process.env.REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }
@@ -356,7 +355,6 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     default:
-      /* istanbul ignore next */
       throwIllegalValue(name);
   }
 }

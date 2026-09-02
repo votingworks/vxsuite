@@ -101,7 +101,6 @@ function getColumnLabel(column: Column): string {
     case 'filler':
       return '';
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -123,13 +122,11 @@ function getColumnWidth(column: Column): string {
         case 'right':
           return '2fr';
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(column);
         }
       }
     // eslint-disable-next-line no-fallthrough
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -411,7 +408,6 @@ function getCellContent({
           return format.localeDate(new Date(`${batchDate}T00:00:00`));
         }
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(column);
         }
       }
@@ -422,7 +418,6 @@ function getCellContent({
     case 'sheet-count':
       return getFormattedCount(cardCounts, column);
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(column);
     }
   }
@@ -595,7 +590,6 @@ function BallotCountTable({
                   />
                 );
               default: {
-                /* istanbul ignore next */
                 throwIllegalValue(column);
               }
             }

@@ -210,7 +210,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         case 'unknown':
           return unreadableEjectInfo;
 
-        // istanbul ignore next
         default:
           throwIllegalValue(reason);
       }

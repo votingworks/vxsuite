@@ -473,7 +473,6 @@ export function buildCVRContestsFromVotes({
         );
         break;
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest);
     }
   }

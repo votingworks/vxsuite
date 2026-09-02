@@ -344,7 +344,6 @@ function markInfo(
       }
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest);
     }
   }

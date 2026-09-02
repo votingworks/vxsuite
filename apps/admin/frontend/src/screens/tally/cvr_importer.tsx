@@ -303,7 +303,6 @@ export function errorMessage(err: ImportCastVoteRecordsError): string {
             return 'The record references a precinct that does not exist.';
           }
 
-          /* istanbul ignore next */
           default: {
             throwIllegalValue(err, 'subType');
           }
@@ -320,7 +319,6 @@ export function errorMessage(err: ImportCastVoteRecordsError): string {
       return 'Unable to parse metadata file.';
     }
 
-    /* istanbul ignore next */
     default: {
       throwIllegalValue(err, 'type');
     }

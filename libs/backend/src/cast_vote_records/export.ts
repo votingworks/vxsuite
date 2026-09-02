@@ -258,7 +258,6 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(exportOptions, 'scannerType');
     }
   }
@@ -559,7 +558,6 @@ async function exportMetadataFileToUsbDrive(
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(exportOptions, 'scannerType');
     }
   }

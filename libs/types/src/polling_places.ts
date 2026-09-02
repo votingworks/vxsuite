@@ -109,7 +109,6 @@ export function pollingPlaceGroups(
         break;
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(place.type);
     }
   }
@@ -162,7 +161,6 @@ export function pollingPlaceMembers(
       }
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(member, 'type');
       }
     }
@@ -229,7 +227,6 @@ export function pollingPlaceTypeName(type: PollingPlaceType): string {
       return 'Election Day';
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(type);
   }
 }

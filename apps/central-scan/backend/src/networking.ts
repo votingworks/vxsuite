@@ -30,7 +30,6 @@ function statusForRegistrationError(
       return 'online-host-unconfigured';
     case 'ballot-hash-mismatch':
       return 'online-ballot-hash-mismatch';
-    // istanbul ignore next -- compile-time check
     default:
       return throwIllegalValue(errorType);
   }

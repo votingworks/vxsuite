@@ -155,7 +155,6 @@ export async function copyBackupFiles({
           });
         }
 
-        /* istanbul ignore next: Compile-time check for completeness */
         default: {
           throwIllegalValue(error, 'type');
         }

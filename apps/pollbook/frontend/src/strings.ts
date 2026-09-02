@@ -15,7 +15,6 @@ export function partyAbbreviationToString(
     case 'NOT_APPLICABLE':
       return 'Not Applicable';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(party);
   }
 }

@@ -78,7 +78,6 @@ export function getCandidateOrderingByPrecinctAlphabetical({
           break;
         }
         default: {
-          /* istanbul ignore next */
           return throwIllegalValue(contest, 'type');
         }
       }
@@ -124,7 +123,6 @@ function getDefaultCandidateOrdering({
         // do nothing
         break;
       default: {
-        /* istanbul ignore next */
         return throwIllegalValue(contest, 'type');
       }
     }
@@ -175,7 +173,6 @@ export function getAllPossibleCandidateOrderings(
       case 'MiBallot':
         return getDefaultCandidateOrdering(params);
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(ballotStyleTemplateId);
       }
     }

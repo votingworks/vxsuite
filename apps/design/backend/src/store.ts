@@ -543,7 +543,6 @@ async function insertContest(
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }
@@ -812,7 +811,6 @@ export class Store {
           return { ...userBase, type: userRow.type };
 
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(userRow.type);
         }
       }
@@ -1180,7 +1178,6 @@ export class Store {
             });
           }
           default: {
-            /* istanbul ignore next */
             return throwIllegalValue(row.type);
           }
         }
@@ -1761,7 +1758,6 @@ export class Store {
                   );
 
                 default:
-                  /* istanbul ignore next */
                   throwIllegalValue(error);
               }
             }

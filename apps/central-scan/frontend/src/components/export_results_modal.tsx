@@ -156,7 +156,6 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element | null {
           }
         />
       );
-    // istanbul ignore next -- compile-time check
     default:
       throwIllegalValue(usbDriveStatus);
   }

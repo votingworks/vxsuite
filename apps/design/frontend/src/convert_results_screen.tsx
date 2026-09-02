@@ -115,7 +115,6 @@ export function ConvertResultsScreen(): JSX.Element | null {
                       case 'report-contests-mismatch':
                         return 'This report contains different contests than this election.';
                       default: {
-                        /* istanbul ignore next */
                         throwIllegalValue(error);
                       }
                     }

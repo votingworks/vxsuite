@@ -114,7 +114,6 @@ function SaveReadinessReportModal({
       );
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(mutationStatus);
     }
   }

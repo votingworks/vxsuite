@@ -151,7 +151,6 @@ export function adjudicatedVotes(
             ),
           ];
         default:
-          /* istanbul ignore next */
           return throwIllegalValue(contest);
       }
     })

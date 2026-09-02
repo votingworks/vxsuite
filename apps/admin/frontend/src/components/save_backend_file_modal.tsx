@@ -95,7 +95,6 @@ export function SaveBackendFileModal({
           />
         );
       }
-      // istanbul ignore next
       default:
         throwIllegalValue(usbDriveStatus, 'status');
     }
@@ -144,7 +143,6 @@ export function SaveBackendFileModal({
       case 'missing-usb-drive':
       case 'relative-file-path':
         return 'Application error.';
-      // istanbul ignore next
       default:
         throwIllegalValue(error.type);
     }

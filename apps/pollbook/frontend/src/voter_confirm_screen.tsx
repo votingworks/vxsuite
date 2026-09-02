@@ -77,7 +77,6 @@ function partyAbbreviationToCheckInBallotParty(
         'REP or DEM ballot party must be specified for undeclared voters in a primary'
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(abbreviation);
   }
 }

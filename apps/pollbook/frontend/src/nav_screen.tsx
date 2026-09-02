@@ -124,7 +124,6 @@ function getIconAndLabelForPollbookConnection(
       ];
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(typedStatus);
     }
   }

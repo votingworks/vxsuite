@@ -29,7 +29,6 @@ function proxyErrorMessage(error: AdjudicationError): string {
     case 'adjudication-disabled':
       return 'Adjudication is not currently enabled on the host machine.';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(error, 'type');
   }
 }
@@ -162,7 +161,6 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
       );
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }

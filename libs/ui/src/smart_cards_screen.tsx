@@ -166,7 +166,6 @@ function ActionResultCallout({
         break;
       }
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(action);
       }
     }
@@ -222,7 +221,6 @@ function ActionResultCallout({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(action);
     }
   }
@@ -268,7 +266,6 @@ function ConfirmSystemAdminCardActionModal({
         };
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(actionType);
       }
     }
@@ -611,7 +608,6 @@ export function SmartCardsScreen({
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(card.status);
     }
   }

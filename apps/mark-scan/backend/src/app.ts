@@ -376,7 +376,6 @@ export function buildApi(
             }
             return LogEventId.VotingResumed;
           default:
-            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
         }
       })();

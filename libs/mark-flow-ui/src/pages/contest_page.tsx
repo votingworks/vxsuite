@@ -134,7 +134,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
             contest.neitherOption.id
         );
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(contest);
       }
     }

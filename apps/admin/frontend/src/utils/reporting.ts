@@ -220,7 +220,6 @@ function generateReportFilenameFilterPrefix({
       case 'hasCrossoverVote':
         filterPrefixes.push('crossover-voted');
         break;
-      // istanbul ignore next
       default:
         throwIllegalValue(adjudicationFlag);
     }

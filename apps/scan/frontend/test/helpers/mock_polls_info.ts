@@ -20,7 +20,6 @@ function getLikelyLastPollsTransitionType(
       return 'open_polls';
     case 'polls_paused':
       return 'pause_voting';
-    // istanbul ignore next
     default:
       throwIllegalValue(pollsState);
   }

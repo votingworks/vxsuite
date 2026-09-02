@@ -192,7 +192,6 @@ function generateOptionsForFilter({
         )})`,
       }));
     default: {
-      /* istanbul ignore next - compile-time check for completeness */
       throwIllegalValue(filterType);
     }
   }
@@ -239,7 +238,6 @@ function convertFilterRowsToTabulationFilter(
         filter.pollingPlaceIds = filterValues;
         break;
       default: {
-        /* istanbul ignore next - compile-time check for completeness */
         throwIllegalValue(filterType);
       }
     }

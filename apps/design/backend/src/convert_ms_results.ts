@@ -276,7 +276,6 @@ export function convertMsResults(
             };
           }
           default: {
-            /* istanbul ignore next */
             throwIllegalValue(contest);
           }
         }

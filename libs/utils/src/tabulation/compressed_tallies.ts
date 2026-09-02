@@ -124,7 +124,6 @@ export function compressTally(
       }
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest, 'type');
     }
   });
@@ -301,7 +300,6 @@ function getContestTalliesForCompressedContest(
       };
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -324,7 +322,6 @@ function getNumberOfEntriesInContest(contest: Contest): number {
         (contest.allowWriteIns ? 1 : 0)
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -383,7 +380,6 @@ export function decodeV0CompressedTally(
       );
       offset += tallyLength;
     } else {
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }

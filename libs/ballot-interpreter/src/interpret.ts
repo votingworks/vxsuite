@@ -666,7 +666,6 @@ async function interpretBmdBallot(
         ];
       }
       default:
-        /* istanbul ignore next - compile-time check */
         throwIllegalValue(error, 'type');
     }
   }

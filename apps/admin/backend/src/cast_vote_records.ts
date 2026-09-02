@@ -153,7 +153,6 @@ export async function listCastVoteRecordExportsInDirectory(
           return err('permission-denied');
         }
         default: {
-          /* istanbul ignore next: Compile-time check for completeness */
           throwIllegalValue(errorType);
         }
       }

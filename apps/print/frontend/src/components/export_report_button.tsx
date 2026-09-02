@@ -78,7 +78,6 @@ export function ExportReportModal({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(exportReportMutation);
     }
   }

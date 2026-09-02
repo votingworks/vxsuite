@@ -143,7 +143,6 @@ function renderClientStatus(status: Admin.ClientMachineStatus): JSX.Element {
         </React.Fragment>
       );
     default:
-      /* istanbul ignore next  */
       throwIllegalValue(status);
   }
 }

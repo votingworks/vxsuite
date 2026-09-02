@@ -323,7 +323,6 @@ async function generate(
         return shouldExportTestBallots;
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(ballotMode);
       }
     }
@@ -441,7 +440,6 @@ async function generate(
         break;
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(ballotMode);
       }
     }

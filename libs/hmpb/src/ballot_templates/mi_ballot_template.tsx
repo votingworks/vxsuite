@@ -632,7 +632,6 @@ function buildContestSections(
       case 'general':
         return (contest.candidates[0]?.partyIds ?? []).length > 0;
       default:
-        /* istanbul ignore next */
         throwIllegalValue(election.type);
     }
   }

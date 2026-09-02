@@ -142,7 +142,6 @@ export function ExportLogsModal({
       );
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(usbDriveStatus);
     }
   }

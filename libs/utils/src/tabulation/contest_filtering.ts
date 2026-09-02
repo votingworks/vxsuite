@@ -123,7 +123,6 @@ export function groupContestsByParty(
           // all yes/no and straight party contests are non-partisan
           return !partyId;
         default:
-          /* istanbul ignore next */
           throwIllegalValue(c);
       }
     }),

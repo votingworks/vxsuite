@@ -339,7 +339,6 @@ export function createPdiScannerClient() {
         break;
       }
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(message, 'event');
       }
     }

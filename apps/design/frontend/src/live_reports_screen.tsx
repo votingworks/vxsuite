@@ -103,7 +103,6 @@ function getOverallStatusIcon(
     case 'closed':
       return <Icons.Done color="primary" />;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -119,7 +118,6 @@ function getOverallStatusLabel(status: PollingPlaceOverallStatus): string {
     case 'closed':
       return 'Voting complete';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(status);
   }
 }
@@ -173,7 +171,6 @@ function getLiveReportTransitionName(
     case 'close_polls':
       return 'Closed';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(transitionType);
   }
 }
@@ -185,7 +182,6 @@ function getErrorMessage(error: GetExportedElectionError): string {
     case 'election-out-of-date':
       return 'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(error);
   }
 }

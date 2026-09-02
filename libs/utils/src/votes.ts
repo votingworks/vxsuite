@@ -177,7 +177,6 @@ function markToVotes(
     case 'straight-party':
       return markToStraightPartyVotes(markThresholds, mark);
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }

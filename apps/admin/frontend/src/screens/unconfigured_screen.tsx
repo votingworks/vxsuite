@@ -104,7 +104,6 @@ function SelectElectionPackage({
                       configureError.violation
                     );
                   default: {
-                    /* istanbul ignore next */
                     throwIllegalValue(configureError, 'type');
                   }
                 }

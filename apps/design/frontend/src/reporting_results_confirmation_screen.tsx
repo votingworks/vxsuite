@@ -69,7 +69,6 @@ function getVotingTypeLabel(votingType: LiveReportVotingType): string {
     case 'absentee':
       return 'Absentee';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(votingType);
   }
 }
@@ -89,7 +88,6 @@ function getTimestampLabel(pollsTransition: PollsTransitionType): string {
     case 'close_polls':
       return 'Polls Closed at';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(pollsTransition);
   }
 }
@@ -631,7 +629,6 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
       );
 
     default:
-      /* istanbul ignore next -  */
       throwIllegalValue(reportData, 'pollsTransitionType');
   }
 }

@@ -279,7 +279,6 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
             </Callout>
           );
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(error);
         }
       }

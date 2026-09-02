@@ -160,7 +160,6 @@ function votingStateReducer(
     case 'setHasPrintedBallot':
       return { ...state, hasPrintedBallot: true };
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(action);
     }
   }

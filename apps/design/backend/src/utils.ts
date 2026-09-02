@@ -133,7 +133,6 @@ export function regenerateElectionIds(
             })) as unknown as typeof contest.options,
           };
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(contest);
         }
       }
@@ -224,7 +223,6 @@ export function userCanAccessJurisdiction(
     case 'support_user':
       return true;
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(user);
     }
   }

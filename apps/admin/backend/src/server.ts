@@ -251,7 +251,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     }
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(machineModeValue);
   }
 

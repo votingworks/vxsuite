@@ -322,7 +322,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
           errorMessage = 'Voter Has No Declared Party';
           break;
         default:
-          /* istanbul ignore next */
           throwIllegalValue(flowState.errorType);
       }
       return (
@@ -350,7 +349,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
       );
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }

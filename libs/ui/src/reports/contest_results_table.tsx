@@ -287,7 +287,6 @@ export function ContestResultsTable({
       break;
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }

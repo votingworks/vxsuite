@@ -64,7 +64,6 @@ export function getAllowedExportPatterns(
       return ['/tmp/**/*', DEV_MOCK_USB_DRIVE_GLOB_PATTERN];
 
     default:
-      /* istanbul ignore next - compile time check */
       throwIllegalValue(nodeEnv);
   }
 }

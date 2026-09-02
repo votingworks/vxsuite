@@ -14,7 +14,6 @@ export function getBallotCountReportWarningText({
     case 'content-too-large':
       return `This report is too large to be exported as a PDF. You may export the report as a CSV instead.`;
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(ballotCountReportWarning);
     }
   }

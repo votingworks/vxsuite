@@ -160,7 +160,6 @@ export function PrinterStatusDisplay({
           </P>
         );
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(state);
       }
     }

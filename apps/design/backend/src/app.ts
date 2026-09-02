@@ -333,7 +333,6 @@ export function buildApi(ctx: AppContext) {
         case 'support_user':
           return store.listJurisdictions();
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(context.user);
         }
       }
@@ -435,7 +434,6 @@ export function buildApi(ctx: AppContext) {
             }
 
             default: {
-              /* istanbul ignore next */
               return throwIllegalValue(input.upload);
             }
           }
@@ -1506,7 +1504,6 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
             });
           }
           default:
-            /* istanbul ignore next */
             throwIllegalValue(pollsTransitionType);
         }
       } catch {

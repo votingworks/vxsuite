@@ -279,7 +279,6 @@ export function* generateCvrs({
                 ]);
                 break;
               }
-              // istanbul ignore next
               default:
                 throwIllegalValue(contest);
             }

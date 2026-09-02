@@ -137,7 +137,6 @@ export function PollingPlaceForm(
         );
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(error);
       }
     }

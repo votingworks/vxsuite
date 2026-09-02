@@ -580,7 +580,6 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
         height: 13.25,
       };
     default: {
-      /* istanbul ignore next */
       return throwIllegalValue(paperSize);
     }
   }

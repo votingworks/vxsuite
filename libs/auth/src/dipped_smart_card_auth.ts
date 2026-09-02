@@ -80,7 +80,6 @@ function cardStatusToProgrammableCard(
       };
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(cardStatus, 'status');
     }
   }
@@ -194,7 +193,6 @@ function logAuthEventIfNecessary(
     }
 
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(previousAuthStatus, 'status');
     }
   }
@@ -418,7 +416,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         return undefined;
       }
       default: {
-        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(input, 'userRole');
       }
     }
@@ -534,7 +531,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 };
               }
               default: {
-                /* istanbul ignore next: Compile-time check for completeness */
                 return throwIllegalValue(action.cardStatus, 'status');
               }
             }
@@ -572,7 +568,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   return { status: 'logged_in', user, sessionExpiresAt };
                 }
                 default: {
-                  /* istanbul ignore next: Compile-time check for completeness */
                   throwIllegalValue(user, 'role');
                 }
               }
@@ -595,7 +590,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           }
 
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(currentAuthStatus, 'status');
           }
         }
@@ -634,7 +628,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
             };
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
         }
@@ -658,7 +651,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       }
 
       default: {
-        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(action, 'type');
       }
     }

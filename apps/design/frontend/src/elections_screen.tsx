@@ -100,7 +100,6 @@ function ElectionStatus({
     case 'ballotsFinalized':
     case 'ballotsApproved':
       return <Status icon={<Icons.Done color="primary" />} label="Finalized" />;
-    /* istanbul ignore next */
     default: {
       throwIllegalValue(election.status);
     }

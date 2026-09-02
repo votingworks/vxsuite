@@ -122,7 +122,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         break;
       }
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(writeInStatus, 'type');
       }
     }

@@ -60,7 +60,6 @@ export function UnconfiguredNetworkStatusIndicator({
         </Row>
       );
     default:
-      /* istanbul ignore next  - @preserve */
       throwIllegalValue(status);
   }
 }

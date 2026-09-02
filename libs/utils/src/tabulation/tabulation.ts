@@ -113,7 +113,6 @@ function getEmptyContestResults(
     case 'straight-party':
       return getEmptyStraightPartyContestResults(contest);
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest);
   }
 }
@@ -266,7 +265,6 @@ function addCastVoteRecordToElectionResult(
       }
 
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contestResult);
     }
   }
@@ -642,7 +640,6 @@ export function combineContestResults({
           allContestResults as Tabulation.StraightPartyContestResults[],
       });
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest);
   }
 }
@@ -909,7 +906,6 @@ export function buildContestResultsFixture({
     }
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest);
   }
 
@@ -1049,7 +1045,6 @@ function sumTallies(contestResults: Tabulation.ContestResults): number {
     case 'straight-party':
       return iter(Object.values(contestResults.tallies)).sum();
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contestResults);
   }
 }

@@ -23,7 +23,6 @@ function indicatorStatus(
     case 'online-multiple-hosts-detected':
     case 'online-code-version-mismatch':
       return 'error';
-    // istanbul ignore next -- compile-time check
     default:
       return throwIllegalValue(status);
   }

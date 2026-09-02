@@ -140,7 +140,6 @@ export class PatConnectionStatusReader
       case 'bmd-155':
         return this.openBmd155();
       default: {
-        /* istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive */
         throw new Error(`Unhandled BMD model ${this.bmdModelNumber}`);
       }
     }

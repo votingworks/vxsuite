@@ -65,7 +65,6 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     case 'bubble_ballot':
       return printBubbleBallot(p);
     default:
-      /* istanbul ignore next  */
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 

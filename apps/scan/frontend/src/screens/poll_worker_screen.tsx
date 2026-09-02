@@ -279,7 +279,6 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
     case 'resume_voting':
       return 'Resuming Voting…';
     default:
-      /* istanbul ignore next - compile-time check for completeness */
       throwIllegalValue(pollsTransitionType);
   }
 }
@@ -768,7 +767,6 @@ function PollWorkerScreenContents({
           />
         );
       default:
-        /* istanbul ignore next - compile-time check for completeness */
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
   }
@@ -965,7 +963,6 @@ function PollWorkerScreenContents({
           </Container>
         );
       default:
-        /* istanbul ignore next - compile-time check for completeness */
         throwIllegalValue(pollsState);
     }
   })();

@@ -61,7 +61,6 @@ export function isPageWithVotes(
     case 'InvalidTestModePage':
       return false;
     default:
-      /* istanbul ignore next -- preserve */
       throwIllegalValue(type);
   }
 }

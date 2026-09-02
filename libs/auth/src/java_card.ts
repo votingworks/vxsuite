@@ -280,7 +280,6 @@ export class JavaCard implements Card {
             return;
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             throwIllegalValue(readerStatus);
           }
         }
@@ -402,7 +401,6 @@ export class JavaCard implements Card {
         break;
       }
       default: {
-        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(user, 'role');
       }
     }

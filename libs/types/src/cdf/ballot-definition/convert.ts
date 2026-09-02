@@ -586,7 +586,6 @@ export function convertVxfElectionToCdfBallotDefinition(
               return gridPosition.optionId;
             }
             default: {
-              /* istanbul ignore next */
               return throwIllegalValue(contest);
             }
           }
@@ -594,7 +593,6 @@ export function convertVxfElectionToCdfBallotDefinition(
         case 'write-in':
           return writeInOptionId(contest.id, gridPosition.writeInIndex);
         default: {
-          /* istanbul ignore next */
           return throwIllegalValue(gridPosition);
         }
       }
@@ -904,7 +902,6 @@ export function convertVxfElectionToCdfBallotDefinition(
               };
 
             default: {
-              /* istanbul ignore next */
               throwIllegalValue(contest);
             }
           }
@@ -1134,7 +1131,6 @@ export function convertCdfBallotDefinitionToVxfElection(
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
       default: {
-        /* istanbul ignore next */
         return throwIllegalValue(contest);
       }
     }
@@ -1330,7 +1326,6 @@ export function convertCdfBallotDefinitionToVxfElection(
         }
 
         default: {
-          /* istanbul ignore next */
           throw throwIllegalValue(contest, 'type');
         }
       }

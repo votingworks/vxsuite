@@ -115,7 +115,6 @@ export function* allContestOptionsWithMultiEndorsements(
     }
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
   }
 }
@@ -197,7 +196,6 @@ export function contestOptionName(
       return find(election.parties, (p) => p.id === option.id).fullName;
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(option);
   }
 }

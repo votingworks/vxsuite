@@ -40,7 +40,6 @@ export function UpdatePollsButton(props: UpdatePollsButtonProps): JSX.Element {
       case 'close_polls':
         return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`;
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(pollsTransition);
       }
     }

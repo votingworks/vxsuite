@@ -524,7 +524,6 @@ export function buildApi(ctx: Context) {
             }
             return LogEventId.VotingResumed;
           default: {
-            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
           }
         }

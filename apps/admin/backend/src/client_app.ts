@@ -207,7 +207,6 @@ function buildClientApi({
         case ClientConnectionStatus.OnlineIncompatibleHostVersion:
           return { status: 'online-incompatible-host-version' };
         default:
-          /* istanbul ignore next */
           throwIllegalValue(status);
       }
     },

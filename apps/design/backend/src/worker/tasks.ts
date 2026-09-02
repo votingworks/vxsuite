@@ -88,7 +88,6 @@ async function processTask(
       break;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(taskName);
     }
   }

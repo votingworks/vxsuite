@@ -268,7 +268,6 @@ function encodeBallotVotesInto(
           break;
         }
         default:
-          /* istanbul ignore next */
           throwIllegalValue(contest);
       }
     }
@@ -379,7 +378,6 @@ function decodeBallotVotes(
         break;
       }
       default:
-        /* istanbul ignore next */
         throwIllegalValue(contest);
     }
   }

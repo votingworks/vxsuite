@@ -69,7 +69,6 @@ function ConnectionStatusMessage({
           {connection.hostMachineId}) connected on the network
         </P>
       );
-    // istanbul ignore next -- compile-time check
     default:
       throwIllegalValue(connection.status);
   }

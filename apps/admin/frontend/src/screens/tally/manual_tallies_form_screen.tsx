@@ -341,7 +341,6 @@ function emptyFormContestResults(
       };
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }
@@ -949,7 +948,6 @@ function ContestForm({
                       </P>
                     );
                   default: {
-                    /* istanbul ignore next */
                     throwIllegalValue(validationError);
                   }
                 }

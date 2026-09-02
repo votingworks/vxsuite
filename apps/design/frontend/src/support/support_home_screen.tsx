@@ -79,7 +79,6 @@ function SortHeaderButton(
           case undefined:
             return onPress('asc');
           default: {
-            /* istanbul ignore next */
             throwIllegalValue(direction);
           }
         }
@@ -148,7 +147,6 @@ function AllOrgsElectionsList({
         case 'Jurisdiction':
           return election.jurisdictionName;
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(field);
         }
       }

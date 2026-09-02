@@ -106,7 +106,6 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(status.state);
     }
   }

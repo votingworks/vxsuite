@@ -548,7 +548,6 @@ export function buildMachine(
             return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
-          /* istanbul ignore next - unreachable if exhaustive */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           logger.log(LogEventId.UnknownError, 'system', {

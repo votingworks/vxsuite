@@ -119,7 +119,6 @@ export function ScanErrorScreen({
           errorMessage: appStrings.warningBallotPrintedAtInvalidScale(),
         };
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(error);
       }
     }

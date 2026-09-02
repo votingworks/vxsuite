@@ -106,7 +106,6 @@ export function CastVoteRecordSyncRequiredScreen({
         );
       }
       default: {
-        /* istanbul ignore next - Compile-time check for completeness */
         throwIllegalValue(modalState);
       }
     }

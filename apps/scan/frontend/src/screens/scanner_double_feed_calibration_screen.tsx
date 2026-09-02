@@ -128,7 +128,6 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(status.state);
     }
   }

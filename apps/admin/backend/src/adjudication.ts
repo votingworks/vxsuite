@@ -47,7 +47,6 @@ export function buildAdjudicatedContestOption({
           ),
         };
       default:
-        /* istanbul ignore next */
         throwIllegalValue(writeInRecord, 'adjudicationType');
     }
   }
@@ -78,7 +77,6 @@ function logWriteInAdjudication({
       case 'write-in-candidate':
         return `a vote for a write-in candidate (${initialWriteInRecord.candidateId})`;
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(initialWriteInRecord, 'adjudicationType');
       }
     }
@@ -93,7 +91,6 @@ function logWriteInAdjudication({
       case 'write-in-candidate':
         return `a vote for a write-in candidate (${adjudicationAction.candidateId})`;
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(adjudicationAction, 'type');
       }
     }
@@ -159,7 +156,6 @@ function adjudicateWriteIn(
       }
       break;
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(adjudicationAction, 'type');
     }
   }
@@ -289,7 +285,6 @@ function applyAdjudicatedCvrContest(
         break;
       }
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(option, 'candidateType');
       }
     }
