@@ -62,8 +62,8 @@ test('toggles location CVR details on click', () => {
 
   userEvent.click(screen.getButton(/place 1/i));
   expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-    ['11/7/2020, 8:00 AM', 'Scanner SCAN-0001 •  USB', '100'].join(''),
-    ['11/7/2020, 9:00 AM', 'Scanners: SCAN-0001, SCAN-0002 •  USB', '400'].join(
+    ['11/7/2020, 8:00 AM', ' USB • Scanner SCAN-0001', '100'].join(''),
+    ['11/7/2020, 9:00 AM', ' USB • Scanners: SCAN-0001, SCAN-0002', '400'].join(
       ''
     ),
   ]);
