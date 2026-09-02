@@ -187,6 +187,32 @@ describe('startHostNetworking', () => {
     });
   });
 
+  test('ignores advertisements carrying its own machine ID', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    // e.g. a stale copy of this host's own service (renamed by avahi after a
+    // name collision, which the parser maps back to the same machine ID)
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0001', address: 'http://192.168.1.1:3002' },
+      { machineId: '0001', address: 'http://192.168.1.5:3002' },
+    ]);
+    const mockClient = {
+      getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
+    } as unknown as grout.Client<PeerApi>;
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+    startHostNetworking({
+      machineId: '0001',
+      peerPort: 3002,
+      store,
+      logger: mockBaseLogger({ fn: vi.fn }),
+    });
+    await advancePollingInterval();
+
+    expect(mockClient.getCurrentElectionMetadata).not.toHaveBeenCalled();
+    expect(store.getMultipleHostsDetected('0001')).toEqual(false);
+    expect(store.getMachines().map((m) => m.machineId)).toEqual(['0001']);
+  });
+
   test('disables client adjudication when another host is detected', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     store.setIsClientAdjudicationEnabled(true);

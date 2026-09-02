@@ -16,6 +16,8 @@ test('machineIdFromVxAdminServiceName', () => {
   expect(machineIdFromVxAdminServiceName('VxAdmin-machine-123')).toEqual(
     'machine-123'
   );
+  // avahi renames a service after a name collision
+  expect(machineIdFromVxAdminServiceName('VxAdmin-0000 #2')).toEqual('0000');
   expect(machineIdFromVxAdminServiceName('VxPollBook-0000')).toBeUndefined();
   expect(machineIdFromVxAdminServiceName('VxAdmin')).toBeUndefined();
 });

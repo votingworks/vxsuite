@@ -4,6 +4,13 @@ import { isValidIpv4Address } from './utils.js';
 const VX_ADMIN_SERVICE_NAME_PREFIX = 'VxAdmin-';
 
 /**
+ * Matches an advertised VxAdmin service name, tolerating the ` #N` suffix
+ * avahi appends when it renames a service after a name collision (e.g. a
+ * stale copy of this machine's own advertisement).
+ */
+const VX_ADMIN_SERVICE_NAME_PATTERN = /^VxAdmin-(.+?)(?: #\d+)?$/;
+
+/**
  * The avahi service name a VxAdmin host advertises on the network.
  */
 export function getVxAdminServiceName(machineId: string): string {
@@ -17,9 +24,7 @@ export function getVxAdminServiceName(machineId: string): string {
 export function machineIdFromVxAdminServiceName(
   serviceName: string
 ): string | undefined {
-  return serviceName.startsWith(VX_ADMIN_SERVICE_NAME_PREFIX)
-    ? serviceName.slice(VX_ADMIN_SERVICE_NAME_PREFIX.length)
-    : undefined;
+  return VX_ADMIN_SERVICE_NAME_PATTERN.exec(serviceName)?.[1];
 }
 
 /** A VxAdmin host machine advertised on the network. */
