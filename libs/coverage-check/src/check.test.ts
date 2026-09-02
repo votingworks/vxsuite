@@ -53,7 +53,11 @@ function mockTypescriptSession(
   function unavailable(): never {
     throw new Error('not available in a mock session');
   }
-  return { unreachableStatements, sourceFile: unavailable, close: unavailable };
+  return {
+    unreachableStatements,
+    sourceFile: unavailable,
+    [Symbol.dispose]: unavailable,
+  };
 }
 
 test('the tightest containing directive wins', () => {

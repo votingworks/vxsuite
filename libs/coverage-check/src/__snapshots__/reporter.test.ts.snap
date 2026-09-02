@@ -10,7 +10,7 @@ exports[`the fixtures report 1`] = `
     ·        ╰── else branch not covered
  26 │     value = 1;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
    ╭─[src/method_chain.ts:7:17]
@@ -20,7 +20,7 @@ exports[`the fixtures report 1`] = `
    ·                    ╰── not covered
  8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
    ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/method_chain.ts:9:17]
@@ -30,7 +30,7 @@ exports[`the fixtures report 1`] = `
     ·                    ╰── not covered
  10 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-function): function is never called in tests
    ╭─[src/method_chain.ts:7:17]
@@ -40,7 +40,7 @@ exports[`the fixtures report 1`] = `
    ·                    ╰── not covered
  8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
    ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-function): function is never called in tests
     ╭─[src/method_chain.ts:9:17]
@@ -50,7 +50,7 @@ exports[`the fixtures report 1`] = `
     ·                    ╰── not covered
  10 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(misplaced-file-directive): directive must appear before the first statement
    ╭─[src/misplaced_file.ts:6:1]
@@ -130,7 +130,7 @@ exports[`the fixtures report 1`] = `
     ·        ╰── not covered
  32 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/statement_form.ts:47:3]
@@ -140,7 +140,7 @@ exports[`the fixtures report 1`] = `
     ·        ╰── not covered
  48 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): the \`if\` condition is never false in tests
     ╭─[src/statement_form.ts:31:3]
@@ -150,7 +150,7 @@ exports[`the fixtures report 1`] = `
     ·        ╰── else branch not covered
  32 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): the \`if\` condition is never false in tests
     ╭─[src/statement_form.ts:47:3]
@@ -160,7 +160,7 @@ exports[`the fixtures report 1`] = `
     ·        ╰── else branch not covered
  48 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (cond-expr) is never taken in tests
     ╭─[src/styled_interpolation.ts:18:61]
@@ -170,7 +170,7 @@ exports[`the fixtures report 1`] = `
     ·                                                                       ╰── not covered
  19 │   };
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/switch_cases.ts:10:5]
@@ -180,7 +180,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  11 │     case 'write':
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   ⚠ coverage(stale-directive): everything this @coverage-defer directive marks is covered
     ╭─[src/unreachable_types.ts:87:5]
@@ -200,7 +200,7 @@ exports[`the fixtures report 1`] = `
     ·               ╰── not covered
  10 │ }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:20:5]
@@ -210,7 +210,7 @@ exports[`the fixtures report 1`] = `
     ·             ╰── not covered
  21 │   }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:27:29]
@@ -220,7 +220,7 @@ exports[`the fixtures report 1`] = `
     ·                                      ╰── not covered
  28 │   void impossible;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:38:7]
@@ -230,7 +230,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  39 │     default: {
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:40:13]
@@ -240,7 +240,7 @@ exports[`the fixtures report 1`] = `
     ·                          ╰── not covered
  41 │       return cb();
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:40:24]
@@ -250,7 +250,7 @@ exports[`the fixtures report 1`] = `
     ·                               ╰── not covered
  41 │       return cb();
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:41:7]
@@ -260,7 +260,7 @@ exports[`the fixtures report 1`] = `
     ·             ╰── not covered
  42 │     }
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:53:7]
@@ -270,7 +270,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  54 │     default: {
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:74:7]
@@ -280,7 +280,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  75 │     default:
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:86:7]
@@ -290,7 +290,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  87 │     // @coverage-defer: unreachable anyway, so this is stale
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
     ╭─[src/unreachable_types.ts:98:7]
@@ -300,7 +300,7 @@ exports[`the fixtures report 1`] = `
     ·           ╰── not covered
  99 │     case 'b':
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-statement): statement is never executed in tests
      ╭─[src/unreachable_types.ts:100:7]
@@ -310,7 +310,7 @@ exports[`the fixtures report 1`] = `
      ·           ╰── not covered
  101 │     default:
      ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-function): function is never called in tests
    ╭─[src/unreachable_types.ts:8:39]
@@ -320,7 +320,7 @@ exports[`the fixtures report 1`] = `
    ·                                       ╰── not covered
  9 │   throw new Error(message);
    ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-function): function is never called in tests
     ╭─[src/unreachable_types.ts:26:34]
@@ -330,7 +330,7 @@ exports[`the fixtures report 1`] = `
     ·                                  ╰── not covered
  27 │   const impossible: never = undefined as never;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-function): function is never called in tests
     ╭─[src/unreachable_types.ts:40:24]
@@ -340,7 +340,7 @@ exports[`the fixtures report 1`] = `
     ·                               ╰── not covered
  41 │       return cb();
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (if) is never taken in tests
     ╭─[src/unreachable_types.ts:19:3]
@@ -350,7 +350,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  20 │     fail('negative');
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:37:5]
@@ -360,7 +360,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  38 │       return 2;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:39:5]
@@ -370,7 +370,7 @@ exports[`the fixtures report 1`] = `
     ·          ╰── not covered
  40 │       const cb = () => assertNever(k);
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:52:5]
@@ -380,7 +380,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  53 │       return 2;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:73:5]
@@ -390,7 +390,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  74 │       return 2;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:85:5]
@@ -400,7 +400,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  86 │       return 2;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
     ╭─[src/unreachable_types.ts:97:5]
@@ -410,7 +410,7 @@ exports[`the fixtures report 1`] = `
     ·         ╰── not covered
  98 │       return 1;
     ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
   × coverage(uncovered-branch): branch arm (switch) is never taken in tests
      ╭─[src/unreachable_types.ts:99:5]
@@ -420,7 +420,7 @@ exports[`the fixtures report 1`] = `
      ·         ╰── not covered
  100 │       return 2;
      ╰────
-  help: add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
 coverage summary: 34 uncovered, 2 stale, 6 errors (24 deferred, 35 excluded)
 

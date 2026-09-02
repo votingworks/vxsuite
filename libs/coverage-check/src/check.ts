@@ -111,26 +111,22 @@ export function checkPackage(
   packageDir: string,
   fileCoverages: readonly IstanbulFileCoverageData[]
 ): PackageCheckResult {
-  const tsSession = startTypescriptCompilerSession(packageDir);
-  try {
-    const fileResults = fileCoverages
-      // To save time, only check files with uncovered code or directives
-      .filter(
-        (fileCoverage) =>
-          hasUncovered(fileCoverage) ||
-          maybeHasDirectives(readFileSync(fileCoverage.path, 'utf8'))
-      )
-      .map((fileCoverage) => {
-        const sourceFile = tsSession.sourceFile(fileCoverage.path);
-        return checkFile(sourceFile, fileCoverage, tsSession);
-      });
-    return {
-      issues: fileResults.flatMap((fileResult) => fileResult.issues),
-      summary: summarizeResults(fileResults),
-    };
-  } finally {
-    tsSession.close();
-  }
+  using tsSession = startTypescriptCompilerSession(packageDir);
+  const fileResults = fileCoverages
+    // To save time, only check files with uncovered code or directives
+    .filter(
+      (fileCoverage) =>
+        hasUncovered(fileCoverage) ||
+        maybeHasDirectives(readFileSync(fileCoverage.path, 'utf8'))
+    )
+    .map((fileCoverage) => {
+      const sourceFile = tsSession.sourceFile(fileCoverage.path);
+      return checkFile(sourceFile, fileCoverage, tsSession);
+    });
+  return {
+    issues: fileResults.flatMap((fileResult) => fileResult.issues),
+    summary: summarizeResults(fileResults),
+  };
 }
 
 function summarizeResults(
@@ -403,7 +399,7 @@ function counterIssue(
     span,
     severity: 'error',
     spanCaption: isImplicitElse ? 'else branch not covered' : 'not covered',
-    help: 'add a test that exercises this code, or mark it with @coverage-defer/@coverage-exclude',
+    help: 'add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude',
   } as const;
   switch (counter.type) {
     case 'function':

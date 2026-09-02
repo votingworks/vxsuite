@@ -60,14 +60,14 @@ export interface TypescriptCompilerSession {
   readonly unreachableStatements: (
     statements: readonly Node[]
   ) => ReadonlySet<Node>;
-  readonly close: () => void;
+  [Symbol.dispose](): void;
 }
 
 /**
  * Starts the TypeScript compiler using a package's `tsconfig.json`. This uses
- * the TS API to start an ongoing tsgo child process, which must be cleaned up
- * by calling `close()`.
- * */
+ * the TS API to start an ongoing tsgo child process, which is stopped when the
+ * session is disposed.
+ */
 export function startTypescriptCompilerSession(
   packageDir: string
 ): TypescriptCompilerSession {
@@ -91,7 +91,7 @@ export function startTypescriptCompilerSession(
       },
       unreachableStatements: (statements) =>
         findUnreachableStatements(checker, statements),
-      close: () => api.close(),
+      [Symbol.dispose]: () => api.close(),
     };
   } catch (error) {
     api.close();

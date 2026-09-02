@@ -21,6 +21,16 @@ test('opening a directory without a tsconfig fails', () => {
   );
 });
 
+test('disposing a session stops the compiler', () => {
+  const { directory, session } = openTempPackage({
+    'src/a.ts': 'export const a = 1;\n',
+  });
+  const file = join(directory, 'src/a.ts');
+  session.sourceFile(file);
+  session[Symbol.dispose]();
+  expect(() => session.sourceFile(file)).toThrow(/closed/);
+});
+
 test('comments are collected everywhere they can sit, minus JSX text', () => {
   const source = parseSnippet(
     [

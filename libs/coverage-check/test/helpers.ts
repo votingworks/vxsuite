@@ -81,7 +81,7 @@ export function openTempPackage(files: Record<string, string>): {
 } {
   const directory = makeTempPackage(files);
   const session = startTypescriptCompilerSession(directory);
-  onTestFinished(() => session.close());
+  onTestFinished(() => session[Symbol.dispose]());
   return { directory, session };
 }
 
