@@ -1,4 +1,4 @@
-import { statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { ensureDirSync } from 'fs-extra';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
@@ -11,6 +11,27 @@ import { ClientStore } from '../client_store.js';
  * Base name of the VxAdmin SQLite database.
  */
 export const ADMIN_WORKSPACE_DATABASE_NAME = 'data.db';
+
+/**
+ * Dropped into a workspace while a restore is running and removed only once it
+ * succeeds. Its presence afterwards means a restore was interrupted partway
+ * through, so the workspace holds nothing worth keeping.
+ */
+export const RESTORE_IN_PROGRESS_MARKER_FILENAME = 'restore-in-progress';
+
+/**
+ * Path of the marker described by {@link RESTORE_IN_PROGRESS_MARKER_FILENAME}.
+ */
+export function getRestoreInProgressMarkerPath(workspacePath: string): string {
+  return join(resolve(workspacePath), RESTORE_IN_PROGRESS_MARKER_FILENAME);
+}
+
+/**
+ * Whether a restore was interrupted, implying the workspace data is incomplete.
+ */
+export function hasInterruptedRestore(workspacePath: string): boolean {
+  return existsSync(getRestoreInProgressMarkerPath(workspacePath));
+}
 
 /**
  * Shared workspace interface for both host and client machines.

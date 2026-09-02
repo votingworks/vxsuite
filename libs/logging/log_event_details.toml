@@ -647,6 +647,12 @@ eventType = "user-action"
 documentationMessage = "Restoring from a backup completed, success or failure is indicated by the disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.BackupRestoreInterrupted]
+eventId = "backup-restore-interrupted"
+eventType = "system-status"
+documentationMessage = "A restore was interrupted before it finished, leaving the workspace holding neither the data it had nor the data it was being given. What it left behind is discarded, since a restore only ever claims a workspace that held nothing worth keeping."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.BackupRestoreMachineMismatch]
 eventId = "backup-restore-machine-mismatch"
 eventType = "user-action"

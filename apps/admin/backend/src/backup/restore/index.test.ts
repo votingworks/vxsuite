@@ -42,6 +42,7 @@ import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   openWorkspace,
+  RESTORE_IN_PROGRESS_MARKER_FILENAME,
   Workspace,
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
@@ -53,7 +54,7 @@ import {
   BackupManifestStruct,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
-import { restoreBackup, RESTORE_IN_PROGRESS_MARKER_FILENAME } from './index.js';
+import { restoreBackup } from './index.js';
 import { ProgressEvent } from '../progress.js';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -970,13 +971,21 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   // The configured election is half-restored debris, not data to protect, so
   // this must restore rather than refuse — refusing would leave the operator
   // with no way forward.
+  const logger = mockLogger({ fn: vi.fn, role: 'system_administrator' });
   expect(
     await restoreBackup({
       backup: backup.path,
       workspace: restorable(workspacePath),
-      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+      logger,
     })
   ).toEqual(ok());
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.BackupRestoreInterrupted,
+    expect.objectContaining({
+      message: expect.stringContaining('unfinished'),
+    })
+  );
 
   await expect(exists(markerPath)).resolves.toBeFalsy();
   using workspace = openWorkspace(

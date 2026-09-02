@@ -1,4 +1,5 @@
 import express from 'express';
+import { emptydir } from 'fs-extra';
 import {
   LogEventId,
   BaseLogger,
@@ -33,6 +34,7 @@ import { PEER_PORT, PORT } from './globals.js';
 import {
   createWorkspace,
   createClientWorkspace,
+  hasInterruptedRestore,
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
@@ -106,6 +108,15 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
+  if (hasInterruptedRestore(workspacePath)) {
+    await emptydir(workspacePath);
+    baseLogger.log(LogEventId.BackupRestoreInterrupted, 'system', {
+      message:
+        `A restore of ${workspacePath} was interrupted before it finished; ` +
+        `discarded what it left behind and starting unconfigured.`,
+    });
+  }
+
   const machineMode =
     options.machineMode ??
     FileBackedMachineModeController.forWorkspace(workspacePath);
