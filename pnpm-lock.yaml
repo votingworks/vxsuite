@@ -3520,6 +3520,28 @@ importers:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
+  libs/coverage-check:
+    dependencies:
+      '@typescript/native':
+        specifier: npm:typescript@7.0.2
+        version: typescript@7.0.2
+    devDependencies:
+      '@types/istanbul-lib-report':
+        specifier: ^3.0.0
+        version: 3.0.0
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      '@vitest/coverage-istanbul':
+        specifier: ^4.1.6
+        version: 4.1.6(vitest@4.1.6)
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
+      vitest:
+        specifier: ^4.1.6
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+
   libs/custom-paper-handler:
     dependencies:
       '@votingworks/basics':

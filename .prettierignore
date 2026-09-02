@@ -5,3 +5,8 @@ pnpm-lock.yaml
 libs/logging-utils/index.d.ts
 libs/logging-utils/index.js
 libs/logging/VotingWorksLoggingDocumentation.md
+
+# Coverage-check fixtures: position-sensitive test sources whose exact layout
+# the snapshots depend on; coverage output is machine-generated.
+libs/coverage-check/fixtures/src/**
+libs/coverage-check/fixtures/coverage/**

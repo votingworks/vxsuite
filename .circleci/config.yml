@@ -1329,6 +1329,46 @@ jobs:
                 paths:
                   - .turbo/cache
 
+  # @votingworks/coverage-check
+  test-libs-coverage-check:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/coverage-check build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/coverage-check lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/coverage-check test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/coverage-check/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
   # @votingworks/custom-paper-handler
   test-libs-custom-paper-handler:
     executor: nodejs
@@ -2645,6 +2685,9 @@ workflows:
           context:
             - screenshots-publishing
       - test-libs-cdf-schema-builder:
+          context:
+            - screenshots-publishing
+      - test-libs-coverage-check:
           context:
             - screenshots-publishing
       - test-libs-custom-paper-handler:

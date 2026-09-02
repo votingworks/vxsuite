@@ -1,0 +1,428 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the fixtures report 1`] = `
+"
+  × coverage(uncovered-branch): the \`if\` condition is never false in tests
+    ╭─[src/implicit_else.ts:25:3]
+ 24 │   let value = 0;
+ 25 │   if (flag) {
+    ·   ─────┬─────
+    ·        ╰── else branch not covered
+ 26 │     value = 1;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+   ╭─[src/method_chain.ts:7:17]
+ 6 │   return items
+ 7 │     .map((n) => n * 2)
+   ·                 ───┬──
+   ·                    ╰── not covered
+ 8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
+   ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/method_chain.ts:9:17]
+  8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
+  9 │     .map((n) => n + 1);
+    ·                 ───┬───
+    ·                    ╰── not covered
+ 10 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-function): function is never called in tests
+   ╭─[src/method_chain.ts:7:17]
+ 6 │   return items
+ 7 │     .map((n) => n * 2)
+   ·                 ───┬──
+   ·                    ╰── not covered
+ 8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
+   ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-function): function is never called in tests
+    ╭─[src/method_chain.ts:9:17]
+  8 │     .filter(/* @coverage-exclude: sentinel filter, driver sends [] */ (n) => n < 0)
+  9 │     .map((n) => n + 1);
+    ·                 ───┬───
+    ·                    ╰── not covered
+ 10 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(misplaced-file-directive): directive must appear before the first statement
+   ╭─[src/misplaced_file.ts:6:1]
+ 5 │ // A -file directive after the first statement is misplaced.
+ 6 │ // @coverage-exclude-file: too late — must precede the first statement
+   · ───────────────────────────────────┬──────────────────────────────────
+   ·                                    ╰── code precedes this directive
+ 7 │ 
+   ╰────
+  help: move it to the top of the file, or use a plain directive for a single node
+
+  × coverage(orphaned-directive): directive has no code to bind to
+   ╭─[src/orphans.ts:8:3]
+ 7 │   // An orphan at the end of a block.
+ 8 │   // @coverage-defer: nothing bindable follows inside this block
+   ·   ───────────────────────────────┬──────────────────────────────
+   ·                                  ╰── nothing bindable before the end of this scope
+ 9 │ }
+   ╰────
+  help: delete it, or move it directly above the code it should mark
+
+  × coverage(misplaced-else-directive): directive targets an \`if\` with an explicit \`else\`
+    ╭─[src/orphans.ts:13:3]
+ 12 │   // An -else directive misused on an if that has an explicit else.
+ 13 │   // @coverage-exclude-else: misuse — this if has an explicit else
+    ·   ────────────────────────────────┬───────────────────────────────
+    ·                                   ╰── the next \`if\` has an explicit else arm
+ 14 │   if (flag) {
+    ╰────
+  help: mark the else arm itself with a plain directive instead
+
+  × coverage(orphaned-directive): directive has no \`if\` to bind to
+    ╭─[src/orphans.ts:23:3]
+ 22 │   // An -else directive with no if to bind.
+ 23 │   // @coverage-defer-else: no if follows
+    ·   ───────────────────┬──────────────────
+    ·                      ╰── no \`if\` follows before the end of this scope
+ 24 │   return 3;
+    ╰────
+  help: delete it, or move it directly above the \`if\` whose implicit else it should mark
+
+  × coverage(orphaned-directive): directive has no code to bind to
+    ╭─[src/orphans.ts:28:1]
+ 27 │ // An orphan at the end of the file.
+ 28 │ // @coverage-exclude: trailing orphan at end of file
+    · ──────────────────────────┬─────────────────────────
+    ·                           ╰── nothing bindable before the end of this scope
+ 29 │ 
+    ╰────
+  help: delete it, or move it directly above the code it should mark
+
+  ⚠ coverage(stale-directive): everything this @coverage-exclude directive marks is covered
+    ╭─[src/statement_form.ts:36:3]
+ 35 │ export function staleFlag(n: number): number {
+ 36 │   // @coverage-exclude: thought unreachable, but the driver covers it
+    ·   ─────────────────────────────────┬─────────────────────────────────
+    ·                                    ╰── no longer needed
+ 37 │   return n + 1;
+    ╰────
+  help: delete this directive
+
+  × coverage(directive-parse-error): comment starts like a coverage directive but does not parse
+    ╭─[src/statement_form.ts:46:3]
+ 45 │   }
+ 46 │   // @coverage-skip: not a recognized action, reported as a parse error
+    ·   ──────────────────────────────────┬──────────────────────────────────
+    ·                                     ╰── not a valid directive
+ 47 │   return -n;
+    ╰────
+  help: write @coverage-exclude or @coverage-defer, optionally followed by -file or -else, optionally followed by a colon and a reason
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/statement_form.ts:31:3]
+ 30 │   }
+ 31 │   return -1;
+    ·   ─────┬────
+    ·        ╰── not covered
+ 32 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/statement_form.ts:47:3]
+ 46 │   // @coverage-skip: not a recognized action, reported as a parse error
+ 47 │   return -n;
+    ·   ─────┬────
+    ·        ╰── not covered
+ 48 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): the \`if\` condition is never false in tests
+    ╭─[src/statement_form.ts:31:3]
+ 30 │   }
+ 31 │   return -1;
+    ·   ─────┬────
+    ·        ╰── else branch not covered
+ 32 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): the \`if\` condition is never false in tests
+    ╭─[src/statement_form.ts:47:3]
+ 46 │   // @coverage-skip: not a recognized action, reported as a parse error
+ 47 │   return -n;
+    ·   ─────┬────
+    ·        ╰── else branch not covered
+ 48 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (cond-expr) is never taken in tests
+    ╭─[src/styled_interpolation.ts:18:61]
+ 17 │     // The '' case below is deliberately uncovered, producing a cond-expr branch in the report.
+ 18 │     return \`\${strings.raw.join('*')}\${first === undefined ? '' : first(props)}\`;
+    ·                                                             ──────────┬─────────
+    ·                                                                       ╰── not covered
+ 19 │   };
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/switch_cases.ts:10:5]
+  9 │   switch (mode) {
+ 10 │     case 'read':
+    ·     ──────┬─────
+    ·           ╰── not covered
+ 11 │     case 'write':
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  ⚠ coverage(stale-directive): everything this @coverage-defer directive marks is covered
+    ╭─[src/unreachable_types.ts:87:5]
+ 86 │       return 2;
+ 87 │     // @coverage-defer: unreachable anyway, so this is stale
+    ·     ────────────────────────────┬───────────────────────────
+    ·                                 ╰── no longer needed
+ 88 │     default:
+    ╰────
+  help: delete this directive
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:9:3]
+  8 │ function fail(message: string): never {
+  9 │   throw new Error(message);
+    ·   ────────────┬────────────
+    ·               ╰── not covered
+ 10 │ }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:20:5]
+ 19 │   if (x < 0) {
+ 20 │     fail('negative');
+    ·     ────────┬────────
+    ·             ╰── not covered
+ 21 │   }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:27:29]
+ 26 │ export function declared(): void {
+ 27 │   const impossible: never = undefined as never;
+    ·                             ─────────┬─────────
+    ·                                      ╰── not covered
+ 28 │   void impossible;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:38:7]
+ 37 │     case 'b':
+ 38 │       return 2;
+    ·       ────┬────
+    ·           ╰── not covered
+ 39 │     default: {
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:40:13]
+ 39 │     default: {
+ 40 │       const cb = () => assertNever(k);
+    ·             ─────────────┬────────────
+    ·                          ╰── not covered
+ 41 │       return cb();
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:40:24]
+ 39 │     default: {
+ 40 │       const cb = () => assertNever(k);
+    ·                        ───────┬───────
+    ·                               ╰── not covered
+ 41 │       return cb();
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:41:7]
+ 40 │       const cb = () => assertNever(k);
+ 41 │       return cb();
+    ·       ──────┬─────
+    ·             ╰── not covered
+ 42 │     }
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:53:7]
+ 52 │     case 'b':
+ 53 │       return 2;
+    ·       ────┬────
+    ·           ╰── not covered
+ 54 │     default: {
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:74:7]
+ 73 │     case 'b':
+ 74 │       return 2;
+    ·       ────┬────
+    ·           ╰── not covered
+ 75 │     default:
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:86:7]
+ 85 │     case 'b':
+ 86 │       return 2;
+    ·       ────┬────
+    ·           ╰── not covered
+ 87 │     // @coverage-defer: unreachable anyway, so this is stale
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+    ╭─[src/unreachable_types.ts:98:7]
+ 97 │     case 'a':
+ 98 │       return 1;
+    ·       ────┬────
+    ·           ╰── not covered
+ 99 │     case 'b':
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-statement): statement is never executed in tests
+     ╭─[src/unreachable_types.ts:100:7]
+  99 │     case 'b':
+ 100 │       return 2;
+     ·       ────┬────
+     ·           ╰── not covered
+ 101 │     default:
+     ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-function): function is never called in tests
+   ╭─[src/unreachable_types.ts:8:39]
+ 7 │ 
+ 8 │ function fail(message: string): never {
+   ·                                       ┬
+   ·                                       ╰── not covered
+ 9 │   throw new Error(message);
+   ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-function): function is never called in tests
+    ╭─[src/unreachable_types.ts:26:34]
+ 25 │ // A never-typed variable's declaration is not excused; the later use of it is.
+ 26 │ export function declared(): void {
+    ·                                  ┬
+    ·                                  ╰── not covered
+ 27 │   const impossible: never = undefined as never;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-function): function is never called in tests
+    ╭─[src/unreachable_types.ts:40:24]
+ 39 │     default: {
+ 40 │       const cb = () => assertNever(k);
+    ·                        ───────┬───────
+    ·                               ╰── not covered
+ 41 │       return cb();
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (if) is never taken in tests
+    ╭─[src/unreachable_types.ts:19:3]
+ 18 │ export function guard(x: number): number {
+ 19 │   if (x < 0) {
+    ·   ──────┬─────
+    ·         ╰── not covered
+ 20 │     fail('negative');
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:37:5]
+ 36 │       return 1;
+ 37 │     case 'b':
+    ·     ────┬────
+    ·         ╰── not covered
+ 38 │       return 2;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:39:5]
+ 38 │       return 2;
+ 39 │     default: {
+    ·     ─────┬────
+    ·          ╰── not covered
+ 40 │       const cb = () => assertNever(k);
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:52:5]
+ 51 │       return 1;
+ 52 │     case 'b':
+    ·     ────┬────
+    ·         ╰── not covered
+ 53 │       return 2;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:73:5]
+ 72 │       return 1;
+ 73 │     case 'b':
+    ·     ────┬────
+    ·         ╰── not covered
+ 74 │       return 2;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:85:5]
+ 84 │       return 1;
+ 85 │     case 'b':
+    ·     ────┬────
+    ·         ╰── not covered
+ 86 │       return 2;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+    ╭─[src/unreachable_types.ts:97:5]
+ 96 │   switch (k) {
+ 97 │     case 'a':
+    ·     ────┬────
+    ·         ╰── not covered
+ 98 │       return 1;
+    ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+  × coverage(uncovered-branch): branch arm (switch) is never taken in tests
+     ╭─[src/unreachable_types.ts:99:5]
+  98 │       return 1;
+  99 │     case 'b':
+     ·     ────┬────
+     ·         ╰── not covered
+ 100 │       return 2;
+     ╰────
+  help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
+
+☂️ coverage summary: 34 uncovered, 2 stale, 6 errors (24 deferred, 35 excluded)
+
+"
+`;
