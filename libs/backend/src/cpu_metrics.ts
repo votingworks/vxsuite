@@ -80,7 +80,6 @@ function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
     }
   }
 
-  // istanbul ignore next
   return null;
 }
 
@@ -154,7 +153,6 @@ async function getMemoryStats(): Promise<MemoryStats> {
     // @coverage-exclude
     if (!line) return 0;
     const match = line.match(/:\s+(\d+)/);
-    // istanbul ignore next
     if (!match) return 0;
     const valueResult = safeParseInt(match[1]);
     // @coverage-exclude

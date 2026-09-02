@@ -1147,7 +1147,6 @@ export function convertCdfBallotDefinitionToVxfElection(
     const match = /^-option-write-in-([0-9]+)$/.exec(
       optionId.replace(contestId, '')
     );
-    /* istanbul ignore next */
     return safeParseInt(match?.[1]).assertOk(
       `Invalid write-in option id: ${optionId}`
     );

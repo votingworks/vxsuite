@@ -1,5 +1,3 @@
-/* istanbul ignore file - [TODO] need to update CI image to include postgres. */
-
 import { Buffer } from 'node:buffer';
 // Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
 import type * as pg from 'pg';

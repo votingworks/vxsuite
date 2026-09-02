@@ -108,7 +108,6 @@ export function CloneElectionButton(
     );
   }
 
-  /* istanbul ignore next */
   if (!userQuery.isSuccess) {
     return null;
   }

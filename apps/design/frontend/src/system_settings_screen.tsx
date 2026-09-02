@@ -171,7 +171,6 @@ export function SystemSettingsForm({
     }
   }
 
-  /* istanbul ignore next */
   if (
     !getUserFeaturesQuery.isSuccess ||
     !getResultsReportingUrlQuery.isSuccess

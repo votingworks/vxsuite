@@ -109,7 +109,6 @@ export function startHostNetworking({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard */
       if (isPolling) return;
       isPolling = true;
 
@@ -255,7 +254,6 @@ export function startClientNetworking({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard */
       if (isPolling) return;
       isPolling = true;
 

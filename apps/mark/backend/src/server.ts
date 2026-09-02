@@ -45,9 +45,8 @@ export async function start({
   // @coverage-exclude
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
 
-  const logger = Logger.from(
-    baseLogger,
-    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
+  const logger = Logger.from(baseLogger, () =>
+    getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDriveFromEnv({ logger });
   const printer = detectPrinter(logger);

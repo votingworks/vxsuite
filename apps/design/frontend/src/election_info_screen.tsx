@@ -81,7 +81,6 @@ function ElectionInfoForm({
   const { electionId } = useParams<ElectionIdParams>();
   const infoRoutes = routes.election(electionId).electionInfo;
 
-  /* istanbul ignore next */
   if (!getStateFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
     return null;
   }

@@ -10,7 +10,6 @@ export function partyAbbreviationToString(
     case 'REP':
       return 'Republican';
     case 'UND':
-      /* istanbul ignore next */
       return 'Undeclared';
     case 'NOT_APPLICABLE':
       return 'Not Applicable';

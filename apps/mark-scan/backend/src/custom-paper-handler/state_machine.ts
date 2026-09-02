@@ -247,7 +247,6 @@ export function paperHandlerStatusToEvent(
     return { type: 'PAPER_READY_TO_LOAD' };
   }
 
-  /* istanbul ignore next */
   if (isPaperInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
@@ -1453,7 +1452,6 @@ function setUpLogging(
             LogEventId.MarkScanStateMachineEvent,
             'system',
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next */
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         }
@@ -1503,7 +1501,6 @@ function setUpLogging(
           message: `Context updated`,
           changedFields: JSON.stringify(Object.fromEntries(changed)),
         },
-        /* istanbul ignore next */
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
     })
@@ -1516,7 +1513,6 @@ function setUpLogging(
           message: `Transitioned to: ${JSON.stringify(state.value)}`,
           newState: JSON.stringify(state.value),
         },
-        /* istanbul ignore next */
         (logLine: LogLine) => debug(logLine.message)
       );
     });
@@ -1581,13 +1577,11 @@ export async function getPaperHandlerStateMachine({
         case state.matches('paper_handler_diagnostic.load_paper'):
           return 'paper_handler_diagnostic.load_paper';
         case state.matches('paper_handler_diagnostic.print_ballot_fixture'): {
-          /* istanbul ignore next */
           return 'paper_handler_diagnostic.print_ballot_fixture';
         }
         case state.matches('paper_handler_diagnostic.scan_ballot'):
           return 'paper_handler_diagnostic.scan_ballot';
         case state.matches('paper_handler_diagnostic.interpret_ballot'): {
-          /* istanbul ignore next */
           return 'paper_handler_diagnostic.interpret_ballot';
         }
         case state.matches('paper_handler_diagnostic.eject_to_rear'):
@@ -1595,7 +1589,6 @@ export async function getPaperHandlerStateMachine({
         case state.matches('paper_handler_diagnostic.success'):
           return 'paper_handler_diagnostic.success';
         case state.matches('paper_handler_diagnostic.failure'): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
           return 'paper_handler_diagnostic.failure';
         }
         case state.matches('voting_flow.not_accepting_paper'):

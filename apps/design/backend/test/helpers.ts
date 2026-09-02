@@ -390,7 +390,6 @@ export function generateAllPrecinctsTallyReportRows(
 ): AllPrecinctsTallyReportRow[] {
   return election.precincts.flatMap((precinct) =>
     election.contests.flatMap((contest, contestIndex) => {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }

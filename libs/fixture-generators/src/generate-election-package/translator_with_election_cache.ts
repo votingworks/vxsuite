@@ -77,8 +77,7 @@ export class GoogleCloudTranslatorWithElectionCache extends GoogleCloudTranslato
   }) {
     super({ translationClient: input.translationClient });
     this.vendoredTranslations =
-      input.vendoredTranslations ??
-      /* istanbul ignore next */ parseVendoredTranslations();
+      input.vendoredTranslations ?? parseVendoredTranslations();
     this.stringCache = input.priorElectionPackage
       ? createStringCache(
           mergeUiStrings(

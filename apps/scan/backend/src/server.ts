@@ -70,9 +70,7 @@ export async function start({
 
   const precinctScannerStateMachine = scanner.createPrecinctScannerStateMachine(
     {
-      scannerClient:
-        /* istanbul ignore next */
-        mockPdiScanner?.client ?? createPdiScannerClient(),
+      scannerClient: mockPdiScanner?.client ?? createPdiScannerClient(),
       workspace,
       usbDrive: resolvedUsbDrive,
       auth,
@@ -83,7 +81,6 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  /* istanbul ignore next */
   const nodeEnv = getNodeEnv();
   const resolvedAudioPlayer =
     audioPlayer ??

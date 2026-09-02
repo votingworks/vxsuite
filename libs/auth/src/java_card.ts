@@ -248,7 +248,7 @@ export class JavaCard implements Card {
     // @coverage-exclude
     this.generateChallenge =
       config.generateChallengeOverride ??
-      /* istanbul ignore next */ (() =>
+      (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid({
           disableEntropyCache: true,
         })}`);

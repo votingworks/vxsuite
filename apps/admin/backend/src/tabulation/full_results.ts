@@ -153,7 +153,6 @@ export async function tabulateElectionResults({
     });
 
     // ignore manual results if the tabulation is not successful
-    /* istanbul ignore else */
     if (queryResult.isOk()) {
       debug('merging manual results into CVR results');
       const groupedManualResults = queryResult.ok();

@@ -400,25 +400,21 @@ export function createMockPdiScanner(
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
     // @coverage-exclude
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
     // @coverage-exclude
     calibrateImageSensors() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
     // @coverage-exclude
     reboot() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
     async disconnect() {
       await simulateCommandDelay();
@@ -430,7 +426,6 @@ export function createMockPdiScanner(
     exit() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
   };
 
   return {

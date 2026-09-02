@@ -129,7 +129,6 @@ async function normalizeDataUrl(
       const scaleY = (params.maxHeightPx || img.height) / img.height;
       const scale = Math.min(scaleX, scaleY);
 
-      /* istanbul ignore else */
       if (scale >= 1) {
         return resolve(
           ok({
@@ -250,7 +249,6 @@ async function loadSvgImage(file: File): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      /* istanbul ignore next */
       const contents = e.target?.result;
       assert(typeof contents === 'string');
       resolve(contents);

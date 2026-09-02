@@ -170,7 +170,6 @@ export function ElectionsScreen({
   const loadElectionMutation = loadElection.useMutation();
   const cloneElectionMutation = cloneElection.useMutation();
 
-  /* istanbul ignore next */
   if (!listElectionsQuery.isSuccess) {
     return null;
   }

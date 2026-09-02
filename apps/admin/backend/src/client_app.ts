@@ -386,7 +386,6 @@ function buildClientApi({
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
@@ -398,7 +397,6 @@ function buildClientApi({
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(clientStore)),
     }),
-    /* istanbul ignore stop */
   });
 }
 

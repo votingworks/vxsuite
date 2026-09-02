@@ -474,7 +474,6 @@ export function convertRustInterpretResult(
   result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
-  /* istanbul ignore next */
   if (result.isErr()) {
     const error = result.err();
     if (error.type === 'invalidBallotHash') {

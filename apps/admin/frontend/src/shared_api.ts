@@ -98,7 +98,6 @@ export const sharedEjectUsbDrive = {
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;

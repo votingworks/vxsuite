@@ -105,7 +105,6 @@ export function CreateElectionButton(
     );
   }
 
-  /* istanbul ignore next */
   if (!userQuery.isSuccess) {
     return null;
   }

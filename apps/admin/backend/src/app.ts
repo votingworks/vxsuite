@@ -423,7 +423,6 @@ function buildApi({
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDriveAdapter.status();
@@ -1628,7 +1627,6 @@ function buildApi({
       // @coverage-exclude
       getAuthStatus: () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
-      /* istanbul ignore stop */
     }),
   });
 }

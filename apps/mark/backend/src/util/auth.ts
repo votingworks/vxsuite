@@ -56,7 +56,5 @@ export async function getUserRole(
   const authStatus = await auth.getAuthStatus(
     constructAuthMachineState(workspace)
   );
-  return authStatus.status === 'logged_in'
-    ? authStatus.user.role
-    : /* istanbul ignore next */ 'unknown';
+  return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
 }

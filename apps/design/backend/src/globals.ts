@@ -52,7 +52,6 @@ export const FRONTEND_PORT = Number(process.env.FRONTEND_PORT || 3000);
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || FRONTEND_PORT + 1);
 
-/* istanbul ignore next */
 function requiredProdEnvVar<Fallback>(
   name: string,
   devFallback: Fallback
@@ -67,7 +66,6 @@ function requiredProdEnvVar<Fallback>(
   return devFallback;
 }
 
-/* istanbul ignore next */
 export function databaseUrl(): string {
   return requiredProdEnvVar(
     'DATABASE_URL',
@@ -117,17 +115,14 @@ export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }
 
-/* istanbul ignore next */
 export function slackWebhookUrl(): string {
   return requiredProdEnvVar('SLACK_WEBHOOK_URL', '');
 }
 
-/* istanbul ignore next */
 export function votingWorksOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
 
-/* istanbul ignore next */
 export function sliOrganizationId(): string {
   return requiredProdEnvVar('ORG_ID_SLI', 'sli');
 }

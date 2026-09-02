@@ -477,7 +477,6 @@ export function buildApi(
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     // @coverage-defer
     getMarkScanBmdModel(): BmdModelNumber {

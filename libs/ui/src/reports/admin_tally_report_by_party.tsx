@@ -86,7 +86,6 @@ export function AdminTallyReportByParty({
     if (!partyId) continue; // non-partisan contests handled separately
 
     const partyCardCounts =
-      /* istanbul ignore next - trivial fallthrough case */
       tallyReportResults.cardCountsByParty[partyId] ?? getEmptyCardCounts();
     const partyLabel = CachedElectionLookups.getPartyById(
       electionDefinition,

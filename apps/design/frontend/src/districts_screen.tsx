@@ -263,10 +263,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                 <Button onPress={cancelDelete}>Cancel</Button>
               </React.Fragment>
             }
-            onOverlayClick={
-              /* istanbul ignore next */
-              cancelDelete
-            }
+            onOverlayClick={cancelDelete}
           />
         )}
       {!hasExternalSource && (

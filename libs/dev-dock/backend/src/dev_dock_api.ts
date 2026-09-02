@@ -146,10 +146,7 @@ export const DESIGN_EXPORT_DIR = getDesignDevWorkspaceDir(REPO_ROOT);
 
 // Convert paths relative to the VxSuite root to absolute paths
 export function electionPathToAbsolute(path: string): string {
-  return isAbsolute(path)
-    ? /* istanbul ignore next */
-      path
-    : join(REPO_ROOT, path);
+  return isAbsolute(path) ? path : join(REPO_ROOT, path);
 }
 
 function electionAbsolutePathToRelative(absolutePath: string): string {
@@ -777,7 +774,6 @@ export function useDevDockRouter(
   mockSpec: MockSpec,
   // @coverage-exclude
   devDockDir: string = DEFAULT_DEV_DOCK_DIR,
-  /* istanbul ignore next */
   designExportDir: string = DESIGN_EXPORT_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {

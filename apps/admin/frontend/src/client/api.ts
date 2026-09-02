@@ -142,7 +142,6 @@ export const checkPin = {
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -224,7 +223,6 @@ export const ejectUsbDrive = {
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -238,7 +236,6 @@ export const formatUsbDrive = {
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;

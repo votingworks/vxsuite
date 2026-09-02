@@ -128,7 +128,6 @@ export function SaveBackendFileModal({
   }
 
   const errorMessage = (() => {
-    // istanbul ignore next - if this actually happens, error will go to error boundary
     if (saveFileStatus === 'error') {
       return 'Unknown API Error.';
     }

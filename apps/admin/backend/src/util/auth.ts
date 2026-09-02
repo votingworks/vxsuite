@@ -50,6 +50,5 @@ export async function getUserRole(
   if (authStatus.status === 'logged_in') {
     return authStatus.user.role;
   }
-  /* istanbul ignore next - trivial fallback case */
   return 'unknown';
 }

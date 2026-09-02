@@ -247,7 +247,6 @@ export function UiStringScreenReader(
 
     // Ignore event if the target element has since been removed from the DOM.
     // (e.g. a button click event that triggers page navigation.)
-    /* istanbul ignore next */
     if (!window.document.body.contains(target)) {
       return;
     }

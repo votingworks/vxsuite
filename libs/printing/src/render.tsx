@@ -61,8 +61,7 @@ function inchesToText(inches: number): string {
 const HTML_DOCTYPE = '<!DOCTYPE html>';
 const CONTENT_WRAPPER_ID = 'content-wrapper';
 
-// coverage tool breaks on code evaluated within the browser
-/* istanbul ignore next -  */
+/* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
 function getContentHeight(page: Page): Promise<number> {
   return page.evaluate(() => {
     const rect = (

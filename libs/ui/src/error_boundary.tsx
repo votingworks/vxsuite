@@ -75,7 +75,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     this.setState({ error });
   }
-  /* istanbul ignore stop */
 
   componentDidMount(): void {
     window.addEventListener(

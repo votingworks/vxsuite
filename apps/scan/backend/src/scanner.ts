@@ -572,10 +572,8 @@ function buildMachine({
         invoke: [
           {
             src: async () => {
-              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('accepting');
               (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
-              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('eject command sent');
             },
             onDone: 'checkingComplete',
@@ -899,13 +897,11 @@ function buildMachine({
           id: 'interpreting',
           invoke: {
             src: async ({ scanImages }) => {
-              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpreting');
               const result = await interpretSheet(
                 workspace,
                 assertDefined(scanImages)
               );
-              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpretComplete');
               return result;
             },
@@ -945,7 +941,6 @@ function buildMachine({
         accepted: {
           id: 'accepted',
           entry: async (context) => {
-            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('accepted');
             await recordScannedSheet({
               workspace,
@@ -954,9 +949,7 @@ function buildMachine({
               isAccepted: true,
               logger,
             });
-            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('recordScannedSheet complete');
-            /* istanbul ignore next */
             scanAndInterpretTimer?.end();
             scanAndInterpretTimer = undefined;
           },
@@ -1603,13 +1596,11 @@ export function createPrecinctScannerStateMachine({
     },
 
     accept: () => {
-      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('ACCEPT');
       machineService.send('ACCEPT');
     },
 
     return: () => {
-      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('RETURN');
       machineService.send('RETURN');
     },

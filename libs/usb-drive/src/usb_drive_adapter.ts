@@ -81,7 +81,6 @@ export function createUsbDriveAdapter(
           return Promise.resolve({ status: 'no_drive' });
         default:
           return throwIllegalValue(mount);
-        /* istanbul ignore stop */
       }
     },
 

@@ -53,14 +53,10 @@ export function start({ auth, baseLogger, workspace }: StartOptions): void {
 
   startCpuMetricsLogging(baseLogger);
 
-  app.listen(
-    PORT,
-    /* istanbul ignore next */
-    () => {
-      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `VxPrint backend running at http://localhost:${PORT}/`,
-        disposition: 'success',
-      });
-    }
-  );
+  app.listen(PORT, () => {
+    void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+      message: `VxPrint backend running at http://localhost:${PORT}/`,
+      disposition: 'success',
+    });
+  });
 }

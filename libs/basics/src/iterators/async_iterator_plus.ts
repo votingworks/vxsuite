@@ -526,9 +526,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       (async function* gen(): AsyncIterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map(
           (it) =>
-            /* istanbul ignore next */
             (it as AsyncIterable<unknown>)[Symbol.asyncIterator]?.() ??
-            /* istanbul ignore next */
             (it as Iterable<unknown>)[Symbol.iterator]?.()
         );
 

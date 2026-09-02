@@ -335,7 +335,6 @@ export function buildApi(ctx: AppContext) {
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,
@@ -562,7 +561,6 @@ export function buildApi(ctx: AppContext) {
       return {
         usbDrive: usbDriveStatus,
         printer: printerStatus,
-        /* istanbul ignore next */
         battery: batteryStatus ?? undefined,
       };
     },

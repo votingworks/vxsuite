@@ -91,7 +91,6 @@ const rule: TSESLint.RuleModule<
 
             // @coverage-exclude: this can't happen because `isPropertyInitializerAssignment` will not return true for anything other than these types
             default:
-              /* istanbul ignore next - this can't happen because `isPropertyInitializerAssignment` will not return true for anything other than these types */
               // nothing to do
               break;
           }

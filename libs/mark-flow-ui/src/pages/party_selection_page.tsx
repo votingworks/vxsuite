@@ -174,10 +174,7 @@ export function PartySelectionPage({
               </Button>
             </React.Fragment>
           }
-          onOverlayClick={
-            /* istanbul ignore next */
-            () => setPartyIdToConfirm(undefined)
-          }
+          onOverlayClick={() => setPartyIdToConfirm(undefined)}
         />
       )}
     </VoterScreen>

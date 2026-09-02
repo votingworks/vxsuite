@@ -590,7 +590,6 @@ export class Store {
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
   }
-  /* istanbul ignore stop */
 
   async listOrganizations(): Promise<Organization[]> {
     return await this.db.withClient(
@@ -1634,7 +1633,6 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next */
       throw error;
     }
   }

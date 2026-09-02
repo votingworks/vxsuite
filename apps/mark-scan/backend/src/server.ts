@@ -52,8 +52,7 @@ export async function resolveDriver(
   const maxPrintWidth =
     // @coverage-exclude: hardware support in flux
     getMarkScanBmdModel() === 'bmd-150'
-      ? /* istanbul ignore next - hardware support in flux */
-        MaxPrintWidthDots.BMD_150
+      ? MaxPrintWidthDots.BMD_150
       : MaxPrintWidthDots.BMD_155;
   const driver = await getPaperHandlerDriver({ maxPrintWidth });
 

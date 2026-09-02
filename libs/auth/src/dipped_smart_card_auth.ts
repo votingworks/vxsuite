@@ -115,7 +115,6 @@ function logAuthEventIfNecessary(
     }
 
     case 'checking_pin': {
-      /* istanbul ignore else */
       if (newAuthStatus.status === 'logged_out') {
         logger.log(LogEventId.AuthPinEntry, previousAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Failure,
@@ -309,7 +308,6 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     const programmedUserRole =
       ('programmableCard' in this.authStatus &&
         'programmedUser' in this.authStatus.programmableCard &&
-        /* istanbul ignore next */
         this.authStatus.programmableCard.programmedUser?.role) ||
       'unprogrammed';
     this.logger.log(LogEventId.SmartCardUnprogramInit, 'system_administrator', {

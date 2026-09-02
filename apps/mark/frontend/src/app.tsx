@@ -27,7 +27,7 @@ export interface Props {
 
 export function App({
   logger = new BaseLogger(LogSource.VxMarkFrontend, window.kiosk),
-  /* istanbul ignore next */ apiClient = createApiClient(),
+  apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,
   noAudio,

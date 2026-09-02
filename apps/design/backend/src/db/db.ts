@@ -1,5 +1,3 @@
-/* istanbul ignore file - [TODO] need to update CI image to include postgres. */
-
 // [TODO] Move to separate libs/ package once it's stable/cleaned up.
 
 import {

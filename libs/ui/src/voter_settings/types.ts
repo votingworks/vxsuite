@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 export const PANE_IDS = [
   'voterSettingsColor',
   'voterSettingsSize',

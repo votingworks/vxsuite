@@ -75,7 +75,6 @@ const undefinedTagger: Tagger<undefined, 'undefined'> = {
   serialize: () => 'undefined',
   // @coverage-exclude
   deserialize: () => {
-    /* istanbul ignore next */
     throw new Error('not used');
   },
 };

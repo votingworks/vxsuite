@@ -84,7 +84,6 @@ export class RealUsbPlatform implements UsbPlatform {
         break;
       default:
         throwIllegalValue(fstype);
-      /* istanbul ignore stop */
     }
   }
 

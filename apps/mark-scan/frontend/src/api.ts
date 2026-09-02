@@ -111,7 +111,6 @@ export const getInterpretation = {
   },
 } as const;
 
-/* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -255,7 +254,6 @@ export const checkPin = {
   },
 } as const;
 
-/* istanbul ignore next */
 export const logOut = {
   useMutation() {
     const apiClient = useApiClient();

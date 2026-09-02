@@ -50,7 +50,6 @@ export function useApiClient(): ApiClient {
   return apiClient;
 }
 
-/* istanbul ignore next */
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS,

@@ -144,7 +144,6 @@ export function pollingPlaceMembers(
       continue;
     }
 
-    /* istanbul ignore next - coverage not getting detected here */
     switch (member.type) {
       case 'partial': {
         for (const split of precinct.splits) {

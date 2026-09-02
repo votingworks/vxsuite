@@ -100,8 +100,7 @@ export interface LanguageContext {
 /**
  * Renders a summary ballot page and returns the content height in pixels.
  */
-// coverage tool breaks on code evaluated within the browser
-/* istanbul ignore next */
+/* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
 async function measureBallotHeight(
   page: Page,
   electionDefinition: ElectionDefinition,

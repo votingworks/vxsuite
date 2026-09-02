@@ -37,7 +37,6 @@ let sharedRenderer: SummaryBallotLayoutRenderer | null = null;
  * Closes the shared renderer. Call this on application shutdown.
  */
 export async function closeLayoutRenderer(): Promise<void> {
-  /* istanbul ignore next */
   if (sharedRenderer) {
     await sharedRenderer.close();
     sharedRenderer = null;

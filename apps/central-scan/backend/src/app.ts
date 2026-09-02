@@ -453,7 +453,6 @@ function buildApi({
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,

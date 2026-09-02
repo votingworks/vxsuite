@@ -300,7 +300,6 @@ function generateTestJobForPackage(
   pkg: PnpmPackageInfo,
   isConditional?: boolean
 ): Optional<string[]> {
-  /* istanbul ignore else */
   if (pkg.packageJson) {
     return generateTestJobForNodeJsPackage(pkg, isConditional);
   }

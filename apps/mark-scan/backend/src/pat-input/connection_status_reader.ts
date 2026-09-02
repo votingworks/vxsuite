@@ -101,13 +101,11 @@ export class PatConnectionStatusReader
       if (openResult.isErr()) {
         // @coverage-exclude
         if (!openResult.err().message.match('ENOENT')) {
-          /* istanbul ignore next */
           this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
             message: `Unexpected error trying to open ${path}.`,
             disposition: 'failure',
             error: openResult.err().message,
           });
-          /* istanbul ignore next */
           return false;
         }
 
