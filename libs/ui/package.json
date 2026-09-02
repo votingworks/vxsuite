@@ -89,6 +89,7 @@
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/backend": "workspace:*",
+    "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

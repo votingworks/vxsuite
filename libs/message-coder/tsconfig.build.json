@@ -11,6 +11,7 @@
   },
   "references": [
     { "path": "../../libs/basics/tsconfig.build.json" },
+    { "path": "../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }
   ]
 }

@@ -16,6 +16,7 @@
     "resolveJsonModule": true
   },
   "references": [
+    { "path": "../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../bmd-ballot-fixtures/tsconfig.build.json" },

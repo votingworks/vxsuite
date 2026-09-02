@@ -13,6 +13,7 @@
     "skipLibCheck": true
   },
   "references": [
+    { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../../auth/tsconfig.build.json" },
     { "path": "../../basics/tsconfig.build.json" },

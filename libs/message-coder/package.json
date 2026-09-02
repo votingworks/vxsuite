@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "vitest": "^4.1.6"

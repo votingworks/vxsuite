@@ -208,6 +208,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -401,6 +404,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -616,6 +622,9 @@ importers:
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../../../libs/bmd-ballot-fixtures
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -752,6 +761,9 @@ importers:
       '@votingworks/central-scan-backend':
         specifier: workspace:*
         version: link:../backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -970,6 +982,9 @@ importers:
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1172,6 +1187,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1326,6 +1344,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1498,6 +1519,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1689,6 +1713,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1858,6 +1885,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2076,6 +2106,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2248,6 +2281,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2396,6 +2432,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2535,6 +2574,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2744,6 +2786,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2895,6 +2940,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../../libs/coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -3016,6 +3064,10 @@ importers:
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+    devDependencies:
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../libs/coverage-check
 
   libs/@types/compress-commons:
     dependencies:
@@ -3102,6 +3154,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3223,6 +3278,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3269,6 +3327,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3354,6 +3415,9 @@ importers:
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../bmd-ballot-fixtures
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3403,6 +3467,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3458,6 +3525,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -3510,6 +3580,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3584,6 +3657,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -3630,6 +3706,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3691,6 +3770,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../fixtures
@@ -3782,6 +3864,9 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../auth
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../coverage-check
       '@votingworks/fujitsu-thermal-printer':
         specifier: workspace:*
         version: link:../../fujitsu-thermal-printer
@@ -3885,6 +3970,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint:
         specifier: 9.39.5
         version: 9.39.5
@@ -3961,6 +4049,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3995,6 +4086,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4047,6 +4141,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4117,6 +4214,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -4157,6 +4257,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4185,6 +4288,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../../coverage-check
       '@votingworks/grout':
         specifier: workspace:*
         version: link:..
@@ -4285,6 +4391,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils
@@ -4367,6 +4476,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4437,6 +4549,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4489,6 +4604,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4525,6 +4643,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4610,6 +4731,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4683,6 +4807,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4705,6 +4832,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -4751,6 +4881,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -4803,6 +4936,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -4894,6 +5030,9 @@ importers:
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4970,6 +5109,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5046,6 +5188,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -5095,6 +5240,9 @@ importers:
       '@votingworks/cdf-schema-builder':
         specifier: workspace:*
         version: link:../cdf-schema-builder
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       ajv:
         specifier: ^8.12.0
         version: 8.12.0
@@ -5297,6 +5445,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5436,6 +5587,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -5512,6 +5666,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.6)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures

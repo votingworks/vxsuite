@@ -27,6 +27,7 @@
     "@types/deep-eql": "^4.0.2",
     "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "sort-package-json": "^1.50.0",

@@ -25,6 +25,7 @@
     { "path": "../../../libs/bmd-ballot-fixtures/tsconfig.build.json" },
     { "path": "../../../libs/ballot-interpreter/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../../libs/custom-paper-handler/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },

@@ -64,6 +64,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/coverage-check": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.28.1",
