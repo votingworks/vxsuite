@@ -434,11 +434,16 @@ export async function prepareSignatureFile(
  * Verifies the authenticity of the provided artifact using its signature file, which is expected
  * to be found at the same file path as the artifact, but with a .vxsig extension, e.g.
  * /path/to/artifact.txt.vxsig. Returns an error Result if artifact authentication fails.
+ *
+ * On success, returns the custom fields of the cert that signed the artifact. Authentication
+ * establishes only that *a* VotingWorks machine of the expected component signed it, so a caller
+ * that cares *which* machine — to bind the artifact's own claims about its origin to the signer,
+ * or to confine an artifact to its jurisdiction — has to check these fields itself.
  */
 export async function authenticateArtifactUsingSignatureFile(
   artifact: ArtifactToImport,
   configOverride?: ArtifactAuthenticationConfig
-): Promise<Result<void, Error>> {
+): Promise<Result<MachineCustomCertFields, Error>> {
   const config =
     configOverride ??
     /* istanbul ignore next */ constructArtifactAuthenticationConfig();
@@ -454,6 +459,7 @@ export async function authenticateArtifactUsingSignatureFile(
         artifactSignatureBundle
       );
     await performArtifactSpecificAuthenticationChecks(artifact, machineDetails);
+    return ok(machineDetails);
   } catch (error) {
     const artifactSummary = JSON.stringify(artifact);
     const errorMessage = extractErrorMessage(error);
@@ -463,5 +469,4 @@ export async function authenticateArtifactUsingSignatureFile(
       )
     );
   }
-  return ok();
 }

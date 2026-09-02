@@ -1,6 +1,9 @@
 import { join } from 'node:path';
 import { rm } from 'node:fs/promises';
-import { VXADMIN_BACKUP_MANIFEST_FILE_NAME } from '@votingworks/auth';
+import {
+  VXADMIN_BACKUP_MANIFEST_FILE_NAME,
+  VxAdminCustomCertFields,
+} from '@votingworks/auth';
 import { Result } from '@votingworks/basics';
 import { BackupManifest } from './backup_manifest.js';
 import {
@@ -27,11 +30,15 @@ import {
  * covered by the hashes *within* the manifest, and still lives on untrusted
  * media, so each file has to be verified against its manifest entry as it is
  * read.
+ *
+ * Authentication says a VxAdmin signed the manifest, not which one, so the
+ * signer's identity is carried alongside it — see {@link signer}.
  */
 export class AuthenticatedBackup implements AsyncDisposable {
   constructor(
     private readonly backupPath: string,
-    private readonly stagingPath: string
+    private readonly stagingPath: string,
+    private readonly signingMachine: VxAdminCustomCertFields
   ) {}
 
   /**
@@ -39,6 +46,15 @@ export class AuthenticatedBackup implements AsyncDisposable {
    */
   get path(): string {
     return this.backupPath;
+  }
+
+  /**
+   * The VxAdmin whose cert signed this backup's manifest, as the cert states
+   * it. This is the only trustworthy account of where the backup came from:
+   * everything the manifest says about its own origin is text the signer chose.
+   */
+  get signer(): VxAdminCustomCertFields {
+    return this.signingMachine;
   }
 
   /**

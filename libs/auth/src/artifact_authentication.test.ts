@@ -9,6 +9,7 @@ import {
   CastVoteRecordExportMetadata,
   CVR,
   DEV_MACHINE_ID,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
@@ -20,6 +21,7 @@ import {
   SIGNATURE_FILE_EXTENSION,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from './artifact_authentication';
+import { MachineCustomCertFields } from './certs';
 import { ArtifactAuthenticationConfig } from './config';
 
 vi.mock(
@@ -215,24 +217,36 @@ test.each<{
   artifactGenerator: ArtifactGenerator;
   exportingMachineConfig: ArtifactAuthenticationConfig;
   importingMachineConfig: ArtifactAuthenticationConfig;
+  expectedSigner: MachineCustomCertFields;
 }>([
   {
     description: 'cast vote records',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
+    expectedSigner: { component: 'scan', machineId: DEV_MACHINE_ID },
   },
   {
     description: 'election package',
     artifactGenerator: () => electionPackage,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
+    expectedSigner: {
+      component: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction: TEST_JURISDICTION,
+    },
   },
   {
     description: 'VxAdmin backup',
     artifactGenerator: () => vxAdminBackup,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxAdminTestConfig,
+    expectedSigner: {
+      component: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction: TEST_JURISDICTION,
+    },
   },
 ])(
   'Preparing signature file and authenticating artifact using signature file - $description',
@@ -240,6 +254,7 @@ test.each<{
     artifactGenerator,
     exportingMachineConfig,
     importingMachineConfig,
+    expectedSigner,
   }) => {
     const { artifactToExport, artifactToImport } = artifactGenerator();
     const signatureFile = await prepareSignatureFile(
@@ -253,12 +268,15 @@ test.each<{
       ),
       signatureFile.fileContents
     );
+    // Authentication yields who signed the artifact, not just that someone
+    // did: a caller confining an artifact to its jurisdiction has no other
+    // trustworthy source for that.
     expect(
       await authenticateArtifactUsingSignatureFile(
         artifactToImport,
         importingMachineConfig
       )
-    ).toEqual(ok());
+    ).toEqual(ok(expectedSigner));
   }
 );
 

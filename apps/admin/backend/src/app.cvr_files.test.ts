@@ -21,7 +21,10 @@ import {
   generateCastVoteRecordExportDirectoryName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
+import {
+  authenticateArtifactUsingSignatureFile,
+  mockSigningMachineCertFields,
+} from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
   combineImageAndLayoutHashes,
@@ -67,7 +70,9 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    ok(mockSigningMachineCertFields({ component: 'central-scan' }))
+  );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
