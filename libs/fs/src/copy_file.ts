@@ -173,10 +173,9 @@ export async function copyFile({
 
       return err({ type: 'WriteFileError', error: error as Error });
     } finally {
-      const shouldRemove = !succeeded && (await destinationFd.stat()).isFile();
       await destinationFd.close();
 
-      if (shouldRemove) {
+      if (!succeeded) {
         await rm(destination, { force: true });
       }
     }
