@@ -92,9 +92,17 @@ test('renders scanners in error states with the rejection reason', async () => {
         machineId: 'CS-04',
         registrationError: 'host-unconfigured',
       }),
-      // Offline wins over a stale registration error
       mockScanner({
         machineId: 'CS-05',
+        registrationError: 'results-official',
+      }),
+      mockScanner({
+        machineId: 'CS-06',
+        registrationError: 'invalid-mode',
+      }),
+      // Offline wins over a stale registration error
+      mockScanner({
+        machineId: 'CS-07',
         registrationError: 'code-version-mismatch',
         status: Admin.ClientMachineStatus.Offline,
       }),
@@ -112,6 +120,8 @@ test('renders scanners in error states with the rejection reason', async () => {
     'CS-02— Different Election00Now',
     'CS-03— Scanner Not Configured00Now',
     'CS-04— VxAdmin Not Configured00Now',
-    'CS-05— Offline00Now',
+    'CS-05— Connected00Now',
+    'CS-06— Ballot Mode Mismatch00Now',
+    'CS-07— Offline00Now',
   ]);
 });

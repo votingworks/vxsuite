@@ -56,6 +56,21 @@ const testCases: Array<{
     expectedLabel: 'No VxAdmin Connected',
     expectedTreatment: 'warning',
   },
+  // Refusals explained on the Scan Ballots screen read as connected here
+  {
+    connection: { status: 'online-results-official', hostMachineId: '0002' },
+    expectedLabel: 'Connected',
+    expectedTreatment: 'connected',
+  },
+  {
+    connection: {
+      status: 'online-invalid-mode',
+      hostMachineId: '0002',
+      hostCvrFileMode: 'official',
+    },
+    expectedLabel: 'Connected',
+    expectedTreatment: 'connected',
+  },
   {
     connection: { status: 'online-multiple-hosts-detected' },
     expectedLabel: 'Network Error',
@@ -70,7 +85,11 @@ const testCases: Array<{
     expectedTreatment: 'error',
   },
   {
-    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
     expectedLabel: 'Connected',
     expectedTreatment: 'connected',
   },

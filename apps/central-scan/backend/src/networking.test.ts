@@ -213,6 +213,7 @@ test('reports machine-unconfigured when this scanner has no election', async () 
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
     ballotHash: undefined,
+    isTestMode: true,
   });
 });
 
@@ -264,7 +265,45 @@ test('reports host-detected when everything matches', async () => {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
     ballotHash: readElectionGeneralDefinition().ballotHash,
+    isTestMode: true,
   });
+});
+
+test('reports results-official when the host has marked its results official', async () => {
+  vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
+  const mockClient = createMockHostApiClient();
+  mockClient.registerScanner.mockResolvedValue(
+    err({ type: 'results-official' })
+  );
+  const store = Store.memoryStore();
+  configureStore(store, readElectionGeneralDefinition());
+  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  expect(store.getNetworkConnectionInfo()).toEqual({
+    status: 'online-results-official',
+    hostMachineId: '0002',
+  });
+});
+
+test('reports invalid-mode, with the host mode, when the host is locked to the other ballot mode', async () => {
+  vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
+  const mockClient = createMockHostApiClient();
+  mockClient.registerScanner.mockResolvedValue(
+    err({ type: 'invalid-mode', currentMode: 'official' })
+  );
+  const store = Store.memoryStore();
+  configureStore(store, readElectionGeneralDefinition());
+  store.setTestMode(true);
+  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  expect(store.getNetworkConnectionInfo()).toEqual({
+    status: 'online-invalid-mode',
+    hostMachineId: '0002',
+    hostCvrFileMode: 'official',
+  });
+  expect(mockClient.registerScanner).toHaveBeenCalledWith(
+    expect.objectContaining({ isTestMode: true })
+  );
 });
 
 test('logs status transitions and returns to offline when the interface goes down', async () => {

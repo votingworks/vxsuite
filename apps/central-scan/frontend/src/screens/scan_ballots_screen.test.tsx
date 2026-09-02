@@ -47,7 +47,11 @@ test('null state', () => {
 test('shows a sent-to-VxAdmin column when networking is enabled', async () => {
   apiMock.setNetworkStatus({
     isEnabled: true,
-    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
   });
   const status: ScanStatus = mockStatus({
     batches: [
@@ -65,6 +69,97 @@ test('shows a sent-to-VxAdmin column when networking is enabled', async () => {
   expect(rows[0]).toHaveTextContent('Batch 1');
   expect(rows[0]).not.toHaveTextContent('Not sent');
   expect(rows[1]).toHaveTextContent('Not sent');
+});
+
+test('shows a failed batch with a retry button', async () => {
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
+  });
+  const status: ScanStatus = mockStatus({
+    batches: [
+      mockBatch({
+        id: 'failed-batch',
+        label: 'Batch 1',
+        sendToAdminError: 'sending failed 5 times in a row',
+      }),
+    ],
+  });
+  renderScreen({ status });
+  await screen.findByText('Send failed');
+
+  apiMock.apiClient.retrySendBatchToAdmin
+    .expectCallWith({ batchId: 'failed-batch' })
+    .resolves();
+  userEvent.click(screen.getButton('Retry'));
+  await vi.waitFor(() => apiMock.assertComplete());
+});
+
+test('shows a batch waiting to retry as sending', async () => {
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
+  });
+  const status: ScanStatus = mockStatus({
+    batches: [
+      mockBatch({
+        id: 'retrying',
+        label: 'Batch 1',
+        isSendingToAdmin: true,
+      }),
+      mockBatch({ id: 'queued', label: 'Batch 2' }),
+    ],
+  });
+  renderScreen({ status });
+  await screen.findByText('Sending…');
+  const rows = screen.getAllByRole('row').slice(1);
+  expect(rows[0]).toHaveTextContent('Sending…');
+  expect(rows[1]).toHaveTextContent('Not sent');
+});
+
+test.each([
+  {
+    hostCvrFileMode: 'official' as const,
+    expectedText:
+      /is tabulating official results, but this machine is in test ballot mode/,
+  },
+  {
+    hostCvrFileMode: 'test' as const,
+    expectedText:
+      /is tabulating test results, but this machine is in official ballot mode/,
+  },
+])(
+  'warns when VxAdmin is locked to $hostCvrFileMode mode',
+  async ({ hostCvrFileMode, expectedText }) => {
+    apiMock.setNetworkStatus({
+      isEnabled: true,
+      connection: {
+        status: 'online-invalid-mode',
+        hostMachineId: '0002',
+        hostCvrFileMode,
+      },
+    });
+    renderScreen({ status: mockStatus({ batches: [mockBatch()] }) });
+    await screen.findByText(expectedText);
+    screen.getByText('Not sent');
+  }
+);
+
+test('warns when VxAdmin results are marked official', async () => {
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: { status: 'online-results-official', hostMachineId: '0002' },
+  });
+  renderScreen({ status: mockStatus({ batches: [mockBatch()] }) });
+  await screen.findByText(/has marked its results official/);
 });
 
 test('hides the sent-to-VxAdmin column when networking is disabled', () => {
