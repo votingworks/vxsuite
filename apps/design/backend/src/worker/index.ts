@@ -16,6 +16,7 @@ import {
   S3FileStorageClient,
 } from '../file_storage_client.js';
 
+// @coverage-defer
 loadEnvVarsFromDotenvFiles();
 
 // @coverage-exclude

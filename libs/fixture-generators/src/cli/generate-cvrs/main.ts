@@ -132,6 +132,7 @@ export async function main(
     return 1;
   }
 
+  // @coverage-defer
   if (args.scannerIds && args.scannerIds.length < 1) {
     stderr.write(
       'Must specify at least one scanner id with --scannerIds option\n'
@@ -191,6 +192,7 @@ export async function main(
     // we need each cast vote record to have a unique id
     const newCastVoteRecord = replaceUniqueId(
       castVoteRecord,
+      // @coverage-defer
       ballotIdPrefix ? `${ballotIdPrefix}-${ballotId}` : ballotId.toString()
     );
 

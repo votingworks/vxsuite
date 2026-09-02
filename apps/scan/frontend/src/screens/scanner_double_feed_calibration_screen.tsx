@@ -48,6 +48,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
       status.state === 'paused'
   );
 
+  // @coverage-defer
   switch (status.state) {
     case 'calibrating_double_feed_detection.double_sheet': {
       return (

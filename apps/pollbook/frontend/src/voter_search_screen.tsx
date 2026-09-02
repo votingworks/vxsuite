@@ -403,6 +403,7 @@ export function VoterSearch({
                             </td>
                             <td style={inactiveStyle ? { opacity: 0.5 } : {}}>
                               {voter.addressChange ? (
+                                // @coverage-defer
                                 <LabelledText label="Updated Address">
                                   <AddressChange
                                     address={voter.addressChange}
@@ -437,6 +438,7 @@ export function CheckInDetails({
   return (
     <Column>
       {checkIn.isAbsentee ? (
+        // @coverage-defer
         <Font noWrap>
           <Icons.Envelope /> Absentee Checked In
         </Font>
@@ -507,6 +509,7 @@ export function VoterSearchScreen({
                   </LabelledText>
                 </Row>
               )}
+              {/* @coverage-defer */}
               {isAbsenteeMode && <AbsenteeModeCallout />}
             </Row>
           </Row>

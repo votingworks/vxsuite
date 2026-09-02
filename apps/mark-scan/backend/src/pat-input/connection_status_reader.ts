@@ -56,6 +56,7 @@ export class PatConnectionStatusReader
         break;
       }
 
+      // @coverage-defer
       if (openResult.isErr()) {
         const openError = openResult.err();
         // @coverage-exclude

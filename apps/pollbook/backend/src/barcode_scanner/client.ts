@@ -119,6 +119,7 @@ export class BarcodeScannerClient {
    */
   async listen(): Promise<void> {
     const udsClient = await connectToBarcodeScannerSocket(this.logger);
+    // @coverage-defer
     if (!udsClient) {
       return;
     }

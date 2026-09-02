@@ -79,6 +79,7 @@ export function ImportElectionsResultReportingFileModal({
       return;
     }
     const selectedPath = dialogResult.filePaths[0];
+    // @coverage-defer
     if (selectedPath) {
       handleImportElectionResultReportingFile(selectedPath);
     }

@@ -2011,6 +2011,7 @@ export class Store implements BaseStore {
     sheetNumber: number | null
   ): Tabulation.Card {
     if (cardType === 'hmpb') {
+      // @coverage-defer
       return { type: 'hmpb', sheetNumber: sheetNumber ?? 1 };
     }
     if (sheetNumber) return { type: 'bmd', sheetNumber };

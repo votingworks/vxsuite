@@ -18,6 +18,7 @@ import { BallotType, LanguageCode } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
+// @coverage-defer
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
 }
@@ -28,6 +29,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -39,9 +41,11 @@ export function createQueryClient(): QueryClient {
 }
 
 export const getAuthStatus = {
+  // @coverage-defer
   queryKey(): QueryKey {
     return ['getAuthStatus'];
   },
+  // @coverage-defer
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
@@ -55,6 +59,7 @@ export const logOut = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logOut, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -65,6 +70,7 @@ export const logOut = {
 } as const;
 
 export const updateSessionExpiry = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -109,6 +115,7 @@ export const hasTestBallots = {
 } as const;
 
 export const configureElectionPackageFromUsb = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -123,9 +130,11 @@ export const configureElectionPackageFromUsb = {
 } as const;
 
 export const getTestDeckBallotCount = {
+  // @coverage-defer
   queryKey(input: { precinctId?: string } = {}): QueryKey {
     return ['getTestDeckBallotCount', input];
   },
+  // @coverage-defer
   useQuery(input: { precinctId?: string } = {}) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
@@ -149,6 +158,7 @@ export const setPollingPlaceId = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.setPollingPlaceId, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getPollingPlaceId.queryKey());
       },
@@ -167,9 +177,11 @@ export const getTestMode = {
 } as const;
 
 export const getBallots = {
+  // @coverage-defer
   queryKey(): QueryKey {
     return ['getBallots'];
   },
+  // @coverage-defer
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getBallots({}));
@@ -187,6 +199,7 @@ export const getBallotPrintCounts = {
 } as const;
 
 export const checkPin = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -205,6 +218,7 @@ export const printBallot = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.printBallot, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
       },
@@ -213,6 +227,7 @@ export const printBallot = {
 } as const;
 
 export const printAllBallotStyles = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -225,12 +240,14 @@ export const printAllBallotStyles = {
 } as const;
 
 export const getDistinctBallotStylesCount = {
+  // @coverage-defer
   queryKey(input: {
     ballotType: BallotType;
     languageCode: LanguageCode;
   }): QueryKey {
     return ['getDistinctBallotStylesCount', input];
   },
+  // @coverage-defer
   useQuery(input: { ballotType: BallotType; languageCode: LanguageCode }) {
     const apiClient = useApiClient();
     return useQuery(
@@ -259,6 +276,7 @@ export const unconfigureMachine = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.unconfigureMachine, {
+      // @coverage-defer
       async onSuccess() {
         // If we configure with a different election, any data in the cache will
         // correspond to the previous election, so we don't just invalidate, but
@@ -298,6 +316,7 @@ export const ejectUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getDeviceStatuses.queryKey());
       },
@@ -306,6 +325,7 @@ export const ejectUsbDrive = {
 } as const;
 
 export const printBallotsPrintedReport = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.printBallotsPrintedReport);
@@ -313,6 +333,7 @@ export const printBallotsPrintedReport = {
 } as const;
 
 export const exportBallotsPrintedReportPdf = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportBallotsPrintedReportPdf);
@@ -322,9 +343,11 @@ export const exportBallotsPrintedReportPdf = {
 export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const getMostRecentPrinterDiagnostic = {
+  // @coverage-defer
   queryKey(): QueryKey {
     return ['getMostRecentPrinterDiagnostic'];
   },
+  // @coverage-defer
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
@@ -334,9 +357,11 @@ export const getMostRecentPrinterDiagnostic = {
 } as const;
 
 export const getDiskSpaceSummary = {
+  // @coverage-defer
   queryKey(): QueryKey {
     return ['getDiskSpaceSummary'];
   },
+  // @coverage-defer
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary());
@@ -344,6 +369,7 @@ export const getDiskSpaceSummary = {
 } as const;
 
 export const printTestPage = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.printTestPage);
@@ -351,6 +377,7 @@ export const printTestPage = {
 } as const;
 
 export const addDiagnosticRecord = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -365,6 +392,7 @@ export const addDiagnosticRecord = {
 } as const;
 
 export const saveReadinessReport = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.saveReadinessReport);

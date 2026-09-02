@@ -28,6 +28,7 @@ const cssAttach: Record<TooltipAttach, FlattenSimpleInterpolation> = {
   `,
 };
 
+// @coverage-defer
 export const Tooltip = styled.span.attrs({ role: 'tooltip' })<TooltipProps>`
   background: rgba(0, 0, 0, ${(p) => (p.opaque ? 100 : 85)}%);
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;

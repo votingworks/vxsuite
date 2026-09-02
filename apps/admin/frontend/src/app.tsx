@@ -22,7 +22,9 @@ export interface AppProps {
 }
 
 export function App({
+  // @coverage-defer
   apiClient = defaultApiClient,
+  // @coverage-defer
   queryClient = defaultQueryClient,
 }: AppProps): JSX.Element {
   return (

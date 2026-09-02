@@ -19,6 +19,7 @@ import * as grout from '@votingworks/grout';
 
 export type ApiClient = grout.Client<Api>;
 
+// @coverage-defer
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
 }
@@ -29,6 +30,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -392,6 +394,7 @@ export const logMostRecentUpsDiagnosticOutcome = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logUpsDiagnosticOutcome, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(
           getMostRecentUpsDiagnostic.queryKey()

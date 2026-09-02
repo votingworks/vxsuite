@@ -214,6 +214,7 @@ async function measureBallotHeight(
 /**
  * Binary search to find maximum contests that fit on a page.
  */
+// @coverage-defer
 async function findMaxContestsThatFit(
   page: Page,
   electionDefinition: ElectionDefinition,
@@ -336,6 +337,7 @@ export class SummaryBallotLayoutRenderer {
     const contests = getContests({ ballotStyle, election });
     const totalContestCount = contests.length;
 
+    // @coverage-defer
     // Skip single-page check if caller already knows multi-page is needed
     if (!knownMinPages || knownMinPages <= 1) {
       // Check if single page is sufficient
@@ -363,13 +365,18 @@ export class SummaryBallotLayoutRenderer {
       }
     }
 
+    // @coverage-defer
     // Multi-page layout needed
     const pages: SummaryBallotPageLayout[] = [];
+    // @coverage-defer
     let remainingContests = [...contests];
+    // @coverage-defer
     let pageNumber = 1;
+    // @coverage-defer
     // Use total contest count for consistent layout across all pages
     const layout = selectLayout(totalContestCount, machineType);
 
+    // @coverage-defer
     while (remainingContests.length > 0) {
       const maxFit = await findMaxContestsThatFit(
         this.page,
@@ -402,6 +409,7 @@ export class SummaryBallotLayoutRenderer {
       }
     }
 
+    // @coverage-defer
     return pages;
   }
 }

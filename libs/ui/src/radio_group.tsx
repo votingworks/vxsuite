@@ -126,6 +126,7 @@ export function RadioOption<T extends RadioGroupValue>(
     inverse,
     isSelected,
     onChange,
+    // @coverage-defer
     shouldUseNativeRadioInteraction = true,
     value,
     label,

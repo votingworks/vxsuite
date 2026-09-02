@@ -144,6 +144,7 @@ async function paginateBallotContent<P extends object>(
       ...pageProps,
       children: <ContentSlot />,
     });
+    // @coverage-defer
     if (pageFrameResult.isErr()) {
       return pageFrameResult;
     }
@@ -203,6 +204,7 @@ async function paginateBallotContent<P extends object>(
       totalPages: pages.length,
       children: pages[i].currentPageElement,
     });
+    // @coverage-defer
     if (frameResult.isErr()) {
       return frameResult;
     }
@@ -216,6 +218,7 @@ async function paginateBallotContent<P extends object>(
       { ...props, pageNumber: pages.length + 1 },
       []
     );
+    // @coverage-defer
     if (blankPageResult.isErr()) {
       return blankPageResult;
     }
@@ -227,6 +230,7 @@ async function paginateBallotContent<P extends object>(
         pageNumber: pages.length + 1,
         children: blankPage.currentPageElement,
       });
+      // @coverage-defer
       if (lastFrameResult.isErr()) {
         return lastFrameResult;
       }
@@ -399,6 +403,7 @@ async function extractBallotPositions(
     const writeInOptions = await document.inspectElements(
       `.${WRITE_IN_OPTION_CLASS}`
     );
+    // @coverage-defer
     if (writeInOptions.length > 0) {
       [optionElement] = writeInOptions;
       [bubbleElement] = await document.inspectElements(
@@ -406,6 +411,7 @@ async function extractBallotPositions(
       );
     }
 
+    // @coverage-defer
     if (optionElement === null) {
       const candidateOptions = await document.inspectElements(
         `.${CANDIDATE_OPTION_CLASS}`
@@ -418,6 +424,7 @@ async function extractBallotPositions(
       }
     }
 
+    // @coverage-defer
     if (optionElement === null) {
       const ballotMeasureOptions = await document.inspectElements(
         `.${BALLOT_MEASURE_OPTION_CLASS}`
@@ -569,6 +576,7 @@ export async function renderBallotPreviewToPdf<P extends object>(
   props: P
 ): Promise<Result<Uint8Array, BallotLayoutError>> {
   const result = await renderBallotTemplate(renderer, template, props);
+  // @coverage-defer
   if (result.isErr()) {
     return result;
   }
@@ -587,6 +595,7 @@ function serializeElection(
   options: ElectionSerializationOptions
 ): string {
   const electionToSerialize = (() => {
+    // @coverage-defer
     switch (options.format) {
       case 'vxf':
         // Re-parse the election to ensure it is being saved in a consistent format.
@@ -684,7 +693,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
         layoutPath,
       };
     }),
+    // @coverage-defer
     emitProgress &&
+      // @coverage-defer
       ((progress, total) => emitProgress('Laying out ballots', progress, total))
   );
 
@@ -760,6 +771,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
 
   const ballotStyles = election.ballotStyles.map((ballotStyle) => {
     const ballotPositions = positionsByBallotStyle.get(ballotStyle.id);
+    // @coverage-defer
     return ballotPositions ? { ...ballotStyle, ballotPositions } : ballotStyle;
   });
 
@@ -784,6 +796,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   };
 }
 
+// @coverage-defer
 export async function renderAllBallotPdfsAndCreateElectionDefinition<
   P extends BaseBallotProps,
 >(

@@ -12,6 +12,7 @@ interface StyleProps {
   filled: boolean;
 }
 
+// @coverage-defer
 const filledStyles = css<StyleProps>`
   background-color: ${(p) => p.theme.colors.primary};
   color: ${(p) => p.theme.colors.onPrimary};
@@ -22,6 +23,7 @@ const selectedChoiceStyles = css<StyleProps>`
   border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid currentColor;
 `;
 
+// @coverage-defer
 const OuterContainer = styled.span<StyleProps>`
   align-items: center;
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid currentColor;

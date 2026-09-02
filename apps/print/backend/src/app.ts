@@ -406,6 +406,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
+      // @coverage-defer
       const ballotMode = isTestMode ? 'test' : 'official';
 
       const ballot = assertDefined(

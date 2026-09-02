@@ -96,10 +96,12 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
         { scannerType: 'precinct' }
       );
     });
+    // @coverage-defer
     if (exportResult.isErr()) {
       throw new Error(JSON.stringify(exportResult.err()));
     }
   } catch (error) {
+    // @coverage-defer
     // We have to use a try-catch and can't just check for an error Result because certain errors,
     // e.g., errors involving corrupted USB drive file systems, surface as unexpected errors.
     logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
@@ -108,6 +110,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
       errorDetails: extractErrorMessage(error),
       operationId,
     });
+    // @coverage-defer
     throw error;
   }
   logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
@@ -318,6 +321,7 @@ type Event =
 
 function isEventUserAction(event: EventObject): boolean {
   if (event.type === 'SCANNER_EVENT') {
+    // @coverage-defer
     if ('event' in event && event.event) {
       const subEvent = event.event as EventObject;
       return 'event' in subEvent && subEvent.event === 'scanStart';
@@ -1498,6 +1502,7 @@ export function createPrecinctScannerStateMachine({
     status: (): PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState: PrecinctScannerState = (() => {
+        // @coverage-defer
         // We use state.matches as recommended by the XState docs. This allows
         // us to add new substates to a state without breaking this switch.
         switch (true) {

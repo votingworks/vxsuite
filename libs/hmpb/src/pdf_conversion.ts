@@ -149,6 +149,7 @@ function splitContentStreamOnOperators(
     if (depth > 0 && char === '\\') {
       i += 1;
     } else if (char === '(') {
+      // @coverage-defer
       if (depth === 0) {
         segments.push({
           text: content.slice(segmentStart, i),
@@ -159,6 +160,7 @@ function splitContentStreamOnOperators(
       depth += 1;
     } else if (char === ')' && depth > 0) {
       depth -= 1;
+      // @coverage-defer
       if (depth === 0) {
         segments.push({
           text: content.slice(segmentStart, i + 1),
@@ -236,6 +238,7 @@ function replaceTintOperatorsWithSpotColors(
 }
 
 function decodeStream(stream: PDFRawStream): Uint8Array {
+  // @coverage-defer
   return stream.dict.has(PDFName.of('Filter'))
     ? decodePDFRawStream(stream).decode()
     : stream.contents;
@@ -248,8 +251,10 @@ function decodeStream(stream: PDFRawStream): Uint8Array {
  */
 function pageContentString(context: PDFContext, pageNode: PDFDict): string {
   const contents = context.lookup(pageNode.get(PDFName.of('Contents')));
+  // @coverage-defer
   if (contents === undefined) return '';
   const streams =
+    // @coverage-defer
     contents instanceof PDFArray
       ? contents.asArray().map((ref) => context.lookup(ref))
       : [contents];
@@ -291,6 +296,7 @@ export async function convertPdfToSpotColor(p: {
   const separationRefs = new Map<number, PDFRef>();
   function separationRef(spotIndex: number): PDFRef {
     const cached = separationRefs.get(spotIndex);
+    // @coverage-defer
     if (cached !== undefined) return cached;
     const spot = p.spotColors[spotIndex];
     const tintTransformRef = context.register(
@@ -329,11 +335,13 @@ export async function convertPdfToSpotColor(p: {
     // as unreferenced bloat.
     const oldContentsValue = page.node.get(PDFName.of('Contents'));
     const oldContents = context.lookup(oldContentsValue);
+    // @coverage-defer
     if (oldContents instanceof PDFArray) {
       for (const ref of oldContents.asArray()) {
         if (ref instanceof PDFRef) context.delete(ref);
       }
     }
+    // @coverage-defer
     if (oldContentsValue instanceof PDFRef) context.delete(oldContentsValue);
 
     page.node.set(
@@ -342,11 +350,13 @@ export async function convertPdfToSpotColor(p: {
     );
 
     let resources = page.node.Resources();
+    // @coverage-defer
     if (resources === undefined) {
       resources = context.obj({});
       page.node.set(PDFName.of('Resources'), resources);
     }
     let colorSpaces = resources.lookupMaybe(PDFName.of('ColorSpace'), PDFDict);
+    // @coverage-defer
     if (colorSpaces === undefined) {
       colorSpaces = context.obj({});
       resources.set(PDFName.of('ColorSpace'), colorSpaces);
@@ -356,6 +366,7 @@ export async function convertPdfToSpotColor(p: {
       const name = PDFName.of(spotColorResourceName(spotIndex));
       const existing = colorSpaces.get(name);
       assert(
+        // @coverage-defer
         existing === undefined || existing === separationRef(spotIndex),
         `page resources already define colorspace /${name.decodeText()}`
       );

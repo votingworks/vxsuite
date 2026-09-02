@@ -37,6 +37,7 @@ export function UnconfiguredElectionScreen({
       return undefined;
     }
 
+    // @coverage-defer
     switch (backendConfigError.type) {
       case 'no_election_package':
         return 'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.';

@@ -258,7 +258,9 @@ export async function getTopCpuProcesses(
  */
 export function startCpuMetricsLogging(
   logger: BaseLogger,
+  // @coverage-defer
   {
+    // @coverage-defer
     interval = 60_000, // 60 seconds
     topProcessCount = 5,
   } = {}

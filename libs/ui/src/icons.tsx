@@ -203,6 +203,7 @@ function FaIcon(props: InnerProps): JSX.Element {
    */
   if (theme.colorMode === 'contrastMedium' && color === 'warning') {
     assert(!pulse && !spin, 'Custom SVGs do not support pulse or spin');
+    // @coverage-defer
     switch (type) {
       case faExclamationTriangle: {
         return (
@@ -321,6 +322,7 @@ export const Icons = {
       <FaIcon
         {...props}
         flipInRtlMode={false}
+        // @coverage-defer
         type={filled ? faCircleSolid : faCircle}
       />
     );
@@ -348,6 +350,7 @@ export const Icons = {
       <FaIcon
         {...props}
         flipInRtlMode={false}
+        // @coverage-defer
         type={filled ? faCheckSquareSolid : faCheckSquare}
       />
     );

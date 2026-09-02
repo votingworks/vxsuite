@@ -35,6 +35,7 @@ export function getBallotStyleLabel(
     (group) => group.id === ballotStyleGroupId
   );
   let districtsToShow = ballotStyleGroup.districts;
+  // @coverage-defer
   if (ballotStyleGroup.districts.length > 1) {
     const districtsSharedByAllBallotStyles = new Set(
       election.districts

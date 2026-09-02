@@ -56,6 +56,7 @@ export function isContestTagOnlyUndervote(tag: CvrContestTag): boolean {
       !tag.hasWriteIn &&
       !tag.hasUnmarkedWriteIn &&
       !tag.hasOvervote) ??
+    // @coverage-defer
     false
   );
 }

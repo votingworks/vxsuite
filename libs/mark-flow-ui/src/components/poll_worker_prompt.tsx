@@ -12,6 +12,7 @@ const Container = styled.div`
   text-align: left;
 `;
 
+// @coverage-defer
 export function PollWorkerPrompt({
   children,
 }: {

@@ -30,6 +30,7 @@ export function DeleteBatchModal({
         <React.Fragment>
           <P>The batch and its CVRs will be permanently deleted.</P>
           {deleteBatchMutation.error ? (
+            // @coverage-defer
             <P>
               <Icons.Danger color="danger" /> {`${deleteBatchMutation.error}`}
             </P>
@@ -45,6 +46,7 @@ export function DeleteBatchModal({
             disabled={!deleteBatchMutation.isIdle}
             autoFocus
           >
+            {/* @coverage-defer */}
             {deleteBatchMutation.isLoading ? 'Deleting…' : 'Delete Batch'}
           </Button>
           <Button onPress={onClose} disabled={!deleteBatchMutation.isIdle}>

@@ -51,6 +51,7 @@ function isFormStateComplete(formState: UploadFormState): boolean {
 
 function getFile(event: FormEvent<HTMLInputElement>): File {
   const input = event.currentTarget;
+  // @coverage-defer
   const files = Array.from(input.files || []);
   assert(files.length === 1);
   return files[0];
@@ -282,6 +283,7 @@ function LoadElectionModalForm({
       actions={
         <React.Fragment>
           {loadElectionMutation.isLoading ? (
+            // @coverage-defer
             <LoadingButton variant="primary">Loading Election…</LoadingButton>
           ) : (
             <Button

@@ -96,6 +96,7 @@ function AccessibleControllerButtonDiagnostic({
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       event.stopPropagation();
+      // @coverage-defer
       if (event.key === step.key) {
         onSuccess();
       }

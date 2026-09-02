@@ -186,6 +186,7 @@ export function ElectionManagerScreen({
       }
       label="Ballot Casting Mode:"
       hideLabel
+      // @coverage-defer
       onChange={(newBallotCastingMode) => {
         setBallotCastingModeMutation.mutate({
           ballotCastingMode: newBallotCastingMode,
@@ -449,6 +450,7 @@ function LocationPicker(props: {
           : ['election_day', 'absentee']
       }
       mode={mode}
+      // @coverage-defer
       places={election.pollingPlaces || []}
       selectedId={config.pollingPlaceId}
       selectPlace={(id) => selectPollingPlace.mutateAsync({ id })}

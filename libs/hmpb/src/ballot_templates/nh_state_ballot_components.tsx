@@ -368,6 +368,7 @@ export function Footer({
         style={{
           // Ballots that don't get tabulated by a scanner don't need metadata.
           display: isHandCount || variant !== undefined ? 'none' : undefined,
+          // @coverage-defer
           // Sample ballots also don't have metadata, but need to exactly match
           // the layout of their official counterparts, so we hide the metadata
           // instead of omitting it so it still takes up space in the layout.

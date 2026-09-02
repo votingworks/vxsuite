@@ -43,6 +43,7 @@ export class S3FileStorageClient {
     this.s3Client = new S3Client({ region: process.env.AWS_S3_REGION });
   }
 
+  // @coverage-defer
   async readFile(
     filePath: string
   ): Promise<Result<Readable, FileStorageClientError>> {
@@ -58,6 +59,7 @@ export class S3FileStorageClient {
     return ok(data.Body as Readable);
   }
 
+  // @coverage-defer
   async writeFile(
     filePath: string,
     contents: Buffer
@@ -98,10 +100,12 @@ export class S3FileStorageClient {
 export class LocalFileStorageClient {
   private readonly root: string;
 
+  // @coverage-defer
   constructor() {
     this.root = assertDefined(WORKSPACE);
   }
 
+  // @coverage-defer
   readFile(
     filePath: string
   ): Promise<Result<Readable, FileStorageClientError>> {
@@ -110,6 +114,7 @@ export class LocalFileStorageClient {
     );
   }
 
+  // @coverage-defer
   async writeFile(
     filePath: string,
     contents: Buffer

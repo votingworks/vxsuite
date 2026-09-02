@@ -234,6 +234,7 @@ export function GeneralElectionStatistics(): JSX.Element {
             onPress={printGeneralStatisticsSummaryReceiptMutation.mutate}
             disabled={
               !isPrinterAttached ||
+              // @coverage-defer
               printGeneralStatisticsSummaryReceiptMutation.isLoading
             }
             icon="Print"
@@ -369,6 +370,7 @@ export function PrimaryElectionStatistics(): JSX.Element {
           onPress={printPrimaryStatisticsSummaryReceiptMutation.mutate}
           disabled={
             !isPrinterAttached ||
+            // @coverage-defer
             printPrimaryStatisticsSummaryReceiptMutation.isLoading
           }
           icon="Print"

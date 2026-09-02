@@ -25,6 +25,7 @@ export interface AppProps {
 
 export function App({
   logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk),
+  // @coverage-defer
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

@@ -8,6 +8,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 
+// @coverage-defer
 function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
   return iter(contest.candidates)
     .cycle()
@@ -16,6 +17,7 @@ function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
     .toArray();
 }
 
+// @coverage-defer
 function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
   return [assertDefined(c.options[seed % c.options.length]).id];
 }

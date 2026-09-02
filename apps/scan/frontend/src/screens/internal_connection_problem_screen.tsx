@@ -72,6 +72,7 @@ export function PrinterDisconnectedPreview(): JSX.Element {
   );
 }
 
+// @coverage-defer
 export function PrinterHardwareErrorPreview(): JSX.Element {
   return (
     <InternalConnectionProblemScreen

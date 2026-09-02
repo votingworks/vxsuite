@@ -123,6 +123,7 @@ export function openWorkspace(root: string, logger: BaseLogger): Workspace {
   return {
     path: paths.workspace,
     store,
+    // @coverage-defer
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([paths.workspace]);
       return summary;

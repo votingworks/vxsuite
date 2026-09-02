@@ -101,6 +101,7 @@ export function getScannerConfigCoderValues(
   return {
     optionPaperConfig:
       PaperMovementAfterScanEncoder[scannerConfig.paperMovementAfterScan],
+    // @coverage-defer
     optionSensorConfig: scannerConfig.disableJamWheelSensor ? 0x04 : 0x00,
     flags: ScanDirectionEncoder[scannerConfig.scanDirection],
     scan: ScanTypeEncoder[scannerConfig.scanDataFormat][
@@ -114,6 +115,7 @@ export function getScannerConfigCoderValues(
   };
 }
 
+// @coverage-defer
 export function encodeScannerConfig(scannerConfig: ScannerConfig): Uint8[] {
   const data: Uint8[] = [];
   data.push(

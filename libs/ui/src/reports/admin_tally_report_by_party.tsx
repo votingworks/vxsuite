@@ -121,6 +121,7 @@ export function AdminTallyReportByParty({
     );
   }
 
+  // @coverage-defer
   // if there are nonpartisan contests, we must add a nonpartisan page
   // and combine the results across partisan ballots
   if (relevantPartyIds.includes(undefined)) {

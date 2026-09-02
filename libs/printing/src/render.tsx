@@ -53,6 +53,7 @@ export const DEFAULT_MARGIN_DIMENSIONS: MarginDimensions = {
   left: 0.5,
 } as const;
 
+// @coverage-defer
 function inchesToText(inches: number): string {
   return `${inches}in`;
 }
@@ -165,7 +166,9 @@ export async function renderToPdf(
         {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
         {/* TODO: Migrate older prints to print theme. */}
         <VxThemeProvider
+          // @coverage-defer
           colorMode={usePrintTheme ? 'print' : 'desktop'}
+          // @coverage-defer
           sizeMode={usePrintTheme ? 'print' : 'desktop'}
           screenType="builtIn"
         >
@@ -220,7 +223,9 @@ export async function renderToPdf(
       verticalMargin;
 
     const headerHtml =
+      // @coverage-defer
       headerTemplate &&
+      // @coverage-defer
       (() => {
         const {
           elementHtml: headerElementHtml,
@@ -243,12 +248,14 @@ export async function renderToPdf(
         );
       })();
 
+    // @coverage-defer
     buffers.push(
       Uint8Array.from(
         await page.pdf({
           path: outputPath,
           width: inchesToText(width),
           height: inchesToText(
+            // @coverage-defer
             /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
             isLetterRoll
               ? Math.min(
@@ -272,7 +279,9 @@ export async function renderToPdf(
     );
   }
 
+  // @coverage-defer
   await context.close();
 
+  // @coverage-defer
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }

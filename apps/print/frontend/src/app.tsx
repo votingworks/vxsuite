@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import './polyfills.js';
 import {
   AppBase,

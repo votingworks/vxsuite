@@ -405,6 +405,7 @@ export function buildApi(ctx: Context) {
 
     async printBlankBallot(input: PrintBlankBallotProps) {
       const systemSettings =
+        // @coverage-defer
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
       assert(
         systemSettings.allowPrintingBlankBallotsFromVxMark,

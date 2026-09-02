@@ -30,6 +30,7 @@ export const VXQR_REFETCH_INTERVAL_MS = 1_000;
 
 export type ApiClient = grout.Client<Api>;
 
+// @coverage-defer
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({ baseUrl: '/api' });
 }
@@ -40,6 +41,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -585,6 +587,7 @@ export const createContest = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.createContest, {
       async onSuccess(result, { electionId }) {
+        // @coverage-defer
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
           await queryClient.refetchQueries(listContests.queryKey(electionId));

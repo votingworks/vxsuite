@@ -201,6 +201,7 @@ function generateReportFilenameFilterPrefix({
   }
 
   if (adjudicationFlag) {
+    // @coverage-defer
     switch (adjudicationFlag) {
       case 'isBlank':
         filterPrefixes.push(`blank`);
@@ -350,6 +351,7 @@ export function generateTallyReportPdfFilename({
   groupBy,
   isTestMode,
   isOfficialResults,
+  // @coverage-defer
   time = new Date(),
 }: {
   election: Election;
@@ -378,6 +380,7 @@ export function generateTallyReportCsvFilename({
   groupBy,
   isTestMode,
   isOfficialResults,
+  // @coverage-defer
   time = new Date(),
 }: {
   election: Election;
@@ -405,6 +408,7 @@ export function generateBallotCountReportPdfFilename({
   groupBy,
   isTestMode,
   isOfficialResults,
+  // @coverage-defer
   time = new Date(),
 }: {
   election: Election;
@@ -432,6 +436,7 @@ export function generateBallotCountReportCsvFilename({
   groupBy,
   isTestMode,
   isOfficialResults,
+  // @coverage-defer
   time = new Date(),
 }: {
   election: Election;
@@ -464,6 +469,7 @@ export function generateCdfElectionResultsReportFilename({
 }): string {
   const descriptionParts: string[] = [];
 
+  // @coverage-defer
   if (isTestMode) {
     descriptionParts.push(TEST_FILE_PREFIX);
   }

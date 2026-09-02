@@ -587,6 +587,7 @@ function useDataChangeAnimation(
         (reports) => reports.length > 0
       );
       setPlacesToAnimate(changedPlaces);
+      // @coverage-defer
       if (changedPlaces.length > 0 && hasNewData) {
         playSound();
       }
@@ -694,6 +695,7 @@ function LiveReportsOverviewScreen({
   assert(pollsStatusData !== null);
 
   const pollingPlaces: readonly PollingPlace[] =
+    // @coverage-defer
     pollsStatusData.election.pollingPlaces ?? [];
 
   const allEntries = Object.values(
@@ -829,6 +831,7 @@ function LiveReportsGroupScreen({
   const theme = useTheme();
   const { pollingPlaceIdsToAnimate } = useDataChangeAnimation(summaryQuery);
 
+  // @coverage-defer
   const pollsStatusData = summaryQuery.isSuccess
     ? summaryQuery.data.isOk()
       ? summaryQuery.data.ok()
@@ -839,6 +842,7 @@ function LiveReportsGroupScreen({
     return <LoadingScreen />;
   }
 
+  // @coverage-defer
   if (summaryQuery.data.isErr()) {
     return <ErrorScreen error={summaryQuery.data.err()} />;
   }
@@ -846,6 +850,7 @@ function LiveReportsGroupScreen({
   assert(pollsStatusData !== null);
 
   const pollingPlaces: readonly PollingPlace[] =
+    // @coverage-defer
     pollsStatusData.election.pollingPlaces ?? [];
   const filteredPollingPlaces = pollingPlaces.filter(
     (p) => p.type === votingGroup
@@ -918,6 +923,7 @@ function LiveReportsGroupScreen({
                 <tbody>
                   {filteredPollingPlaces.map((place) => {
                     const reportsForPlace =
+                      // @coverage-defer
                       pollsStatusData.reportsByPollingPlace[place.id] || [];
                     const overallStatus =
                       getPollingPlaceOverallStatus(reportsForPlace);

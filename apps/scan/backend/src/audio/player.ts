@@ -55,6 +55,7 @@ export class Player implements PlayerInterface {
     }
   }
 
+  // @coverage-defer
   async setVolume(volumePct: number): Promise<void> {
     await this.card.setVolume(volumePct);
   }

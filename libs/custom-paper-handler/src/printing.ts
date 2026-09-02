@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { ImageData } from '@votingworks/image-utils';

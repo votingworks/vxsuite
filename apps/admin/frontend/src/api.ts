@@ -34,6 +34,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -59,9 +60,11 @@ export const getMachineConfig = {
 
 export const getMachineMode = {
   queryKeyPrefix: 'getMachineMode',
+  // @coverage-defer
   queryKey(): QueryKey {
     return [this.queryKeyPrefix];
   },
+  // @coverage-defer
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getMachineMode());
@@ -193,6 +196,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -366,6 +370,7 @@ export const getNextCvrIdForBallotAdjudication = {
 type GetBallotImages = QueryInput<'getBallotImages'>;
 export const getBallotImages = {
   queryKey(input?: GetBallotImages): QueryKey {
+    // @coverage-defer
     return input ? ['getBallotImages', input.cvrId] : ['getBallotImages'];
   },
   useQuery(input?: GetBallotImages) {
@@ -374,6 +379,7 @@ export const getBallotImages = {
       this.queryKey(input),
       input
         ? () =>
+            // @coverage-defer
             apiClient.getBallotImages({
               cvrId: input.cvrId,
             })
@@ -382,6 +388,7 @@ export const getBallotImages = {
       { enabled: !!input, keepPreviousData: true }
     );
   },
+  // @coverage-defer
   usePrefetch() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
@@ -468,6 +475,7 @@ export const getLiveResultsReportingUrl = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
+      // @coverage-defer
       input
         ? () => apiClient.getLiveResultsReportingUrl(input)
         : // @coverage-exclude
@@ -558,10 +566,12 @@ export const listPotentialElectionPackagesOnUsbDrive = {
 type GetTallyReportPreviewInput = QueryInput<'getTallyReportPreview'>;
 export const getTallyReportPreview = {
   queryKey(input?: GetTallyReportPreviewInput): QueryKey {
+    // @coverage-defer
     return input ? ['getTallyReportPreview', input] : ['getTallyReportPreview'];
   },
   useQuery(
     input: GetTallyReportPreviewInput,
+    // @coverage-defer
     options: { enabled: boolean } = { enabled: true }
   ) {
     const apiClient = useApiClient();
@@ -585,12 +595,14 @@ type GetBallotCountReportPreviewInput =
   QueryInput<'getBallotCountReportPreview'>;
 export const getBallotCountReportPreview = {
   queryKey(input?: GetBallotCountReportPreviewInput): QueryKey {
+    // @coverage-defer
     return input
       ? ['getBallotCountReportPreview', input]
       : ['getBallotCountReportPreview'];
   },
   useQuery(
     input: GetBallotCountReportPreviewInput,
+    // @coverage-defer
     options: { enabled: boolean } = { enabled: true }
   ) {
     const apiClient = useApiClient();

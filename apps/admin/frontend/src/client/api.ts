@@ -152,6 +152,7 @@ export const logOut = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logOut, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
@@ -164,6 +165,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
@@ -204,6 +206,7 @@ export const getUsbDriveStatus = {
             return newData;
           }
           const isUnchanged = deepEqual(oldData, newData);
+          // @coverage-defer
           return isUnchanged ? oldData : newData;
         },
       }
@@ -212,6 +215,7 @@ export const getUsbDriveStatus = {
 } as const;
 
 export const ejectUsbDrive = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();

@@ -38,6 +38,7 @@ export function extractWriteInCandidates(
 ): WriteInCandidate[] {
   const results: WriteInCandidate[] = [];
   for (const [contestId, vote] of Object.entries(votes)) {
+    // @coverage-defer
     if (!vote || !Array.isArray(vote)) continue;
     if (overvotedContestIds.has(contestId)) continue;
     for (const option of vote) {

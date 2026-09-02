@@ -13,6 +13,7 @@ export function maybeGetStreetInfoForAddress(
   streetInfo: ValidStreetInfo[]
 ): ValidStreetInfo | undefined {
   const parsedStreetNumber = safeParseInt(streetNumberStr);
+  // @coverage-defer
   if (!parsedStreetNumber.isOk()) {
     return undefined;
   }

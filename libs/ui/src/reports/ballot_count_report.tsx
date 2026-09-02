@@ -385,6 +385,7 @@ function getCellContent({
           const partyId = assertDefined(
             determinePartyId(electionDefinition, cardCounts)
           );
+          // @coverage-defer
           if (Tabulation.isNoPartyId(partyId)) return 'No Party';
           return CachedElectionLookups.getPartyById(electionDefinition, partyId)
             .name;

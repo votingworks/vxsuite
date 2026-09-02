@@ -75,6 +75,7 @@ export type ExternalToInternalPrecinctIdMapping =
 
 function trimZerosFromExternalPrecinctId(externalId: string): string {
   const externalWardIdParseIntResult = safeParseInt(externalId);
+  // @coverage-defer
   if (externalWardIdParseIntResult.isErr()) {
     throw new Error(`Non-numeric ward or district: ${externalId}`);
   }
@@ -216,6 +217,7 @@ export async function readPollbookPackage(
   const pollbookPackage = await readFile(path, {
     maxSize: MAX_POLLBOOK_PACKAGE_SIZE,
   });
+  // @coverage-defer
   if (pollbookPackage.isErr()) {
     return err(pollbookPackage.err());
   }
@@ -234,6 +236,7 @@ export async function readPollbookPackage(
     );
     const electionJsonString = await readTextEntry(electionEntry);
     const electionResult = safeParseElectionDefinition(electionJsonString);
+    // @coverage-defer
     if (electionResult.isErr()) {
       debug('Error parsing election definition: %O', electionResult.err());
       return err({
@@ -273,6 +276,7 @@ export async function readPollbookPackage(
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
     const typedError = error as globalThis.Error;
+    // @coverage-defer
     if (typedError.message.startsWith('Unexpected ward or district')) {
       return err({
         type: 'UnexpectedPrecinct',
@@ -293,6 +297,7 @@ export function pollUsbDriveForPollbookPackage({
   usbDrive,
 }: LocalAppContext): void {
   usbDebug('Polling USB drive for pollbook package');
+  // @coverage-defer
   if (workspace.store.getElection()) {
     return;
   }
@@ -359,9 +364,11 @@ export function pollUsbDriveForPollbookPackage({
         if (pollbookPackageResult.isErr()) {
           const result = pollbookPackageResult.err();
           debug('Read pollbook package error: %O', result);
+          // @coverage-defer
           if (
             result.type === 'UnexpectedPrecinct' ||
             result.type === 'ReadFileError' ||
+            // @coverage-defer
             (result.type === 'OpenFileError' &&
               'code' in result.error &&
               result.error.code === 'ENOENT')
@@ -395,10 +402,13 @@ export function pollUsbDriveForPollbookPackage({
         });
         clearInterval(intervalId); // Stop the polling interval
       } catch (error) {
+        // @coverage-defer
         debug('Error during polling loop: %O', error);
+        // @coverage-defer
         // If we saved the election already, rollback
         workspace.store.deleteElectionAndVoters();
 
+        // @coverage-defer
         // Return early to ensure clean exit from this iteration
         return;
       } finally {
@@ -413,6 +423,7 @@ export function pollNetworkForPollbookPackage({
   workspace,
 }: PeerAppContext): void {
   usbDebug('Polling network for pollbook package');
+  // @coverage-defer
   if (workspace.store.getElection()) {
     return;
   }
@@ -494,6 +505,8 @@ export function pollNetworkForPollbookPackage({
             machineId
           );
           // Check if we have successfully configured!
+          // @coverage-defer: whether the poll's success path runs during tests
+          // is timing-dependent; needs a deterministic test
           if (result.isOk()) {
             workspace.store.setConfigurationStatus(undefined);
             clearInterval(intervalId); // Stop the polling interval

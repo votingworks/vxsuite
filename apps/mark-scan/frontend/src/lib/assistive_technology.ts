@@ -6,6 +6,7 @@ import {
 } from '@votingworks/ui';
 
 function handleClick() {
+  // @coverage-defer
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.click();
   }

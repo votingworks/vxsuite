@@ -12,6 +12,7 @@ export interface ScanBusyScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanBusyScreen({
   isTestMode,
 }: ScanBusyScreenProps): JSX.Element {

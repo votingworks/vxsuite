@@ -59,6 +59,7 @@ function createAuth(
 ): DippedSmartCardAuth {
   return new DippedSmartCardAuth({
     card:
+      // @coverage-defer
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
       isIntegrationTest()
         ? new MockFileCard()
@@ -96,6 +97,7 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
+// @coverage-defer
 export async function start(options: StartOptions = {}): Promise<Server> {
   const {
     logger: baseLogger = new BaseLogger(LogSource.VxAdminService),

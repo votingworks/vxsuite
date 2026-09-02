@@ -44,6 +44,7 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
           }
 
           const { parserServices } = context.sourceCode;
+          // @coverage-defer
           if (
             !parserServices?.esTreeNodeToTSNodeMap ||
             !parserServices?.program

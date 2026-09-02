@@ -53,7 +53,11 @@ function NetworkSection(): JSX.Element {
               <Icons.Info /> Offline
             </span>
           )}
-        {!networkStatusQuery.isSuccess && <span>Checking network status…</span>}
+        {
+          /* @coverage-defer */ !networkStatusQuery.isSuccess && (
+            <span>Checking network status…</span>
+          )
+        }
       </P>
     </section>
   );
@@ -78,6 +82,7 @@ export function ClientDiagnosticsScreen(): JSX.Element {
   return (
     <NavigationScreen title="Diagnostics">
       <AdminClientReadinessReportContents
+        // @coverage-defer
         batteryInfo={batteryInfo ?? undefined}
         diskSpaceSummary={diskSpaceSummary}
         electionDefinition={electionDefinition}

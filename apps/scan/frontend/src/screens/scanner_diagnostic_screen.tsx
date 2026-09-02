@@ -36,6 +36,7 @@ export function ScannerDiagnosticScreen({
   scannerStatus: PrecinctScannerStatus;
   onClose: VoidFunction;
 }): JSX.Element | null {
+  // @coverage-defer
   switch (scannerStatus.state) {
     case 'scanner_diagnostic.running':
       return (

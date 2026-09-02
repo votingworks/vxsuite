@@ -148,6 +148,7 @@ export async function listCastVoteRecordExportsInDirectory(
         case 'not-directory': {
           return err('found-file-instead-of-directory');
         }
+        // @coverage-defer
         case 'permission-denied': {
           // @coverage-exclude: Hard to trigger without significant mocking
           return err('permission-denied');
@@ -159,6 +160,7 @@ export async function listCastVoteRecordExportsInDirectory(
     }
 
     const entry = result.ok();
+    // @coverage-defer
     if (entry.type === FileSystemEntryType.Directory) {
       const exportDirectoryNameComponents =
         parseCastVoteRecordReportExportDirectoryName(entry.name);

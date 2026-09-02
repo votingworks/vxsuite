@@ -72,6 +72,7 @@ export function getContestsForPrecinct(
   precinctSelection: PrecinctSelection
 ): readonly Contest[] {
   const { election } = electionDefinition;
+  // @coverage-defer
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
   }

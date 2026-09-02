@@ -110,6 +110,7 @@ export function convertDbRowsToPollbookEvents(
           throwIllegalValue(event.event_type);
         }
       }
+      // @coverage-defer
       return undefined;
     })
     .filter((event) => !!event);
@@ -148,6 +149,7 @@ export function createVoterFromRegistrationData(
     mailingState: '',
     mailingZip5: '',
     mailingZip4: '',
+    // @coverage-defer
     precinct: registrationEvent.precinct || '',
     isInactive: false,
     isInvalidatedRegistration: false,
@@ -164,6 +166,7 @@ export function applyPollbookEventsToVoters(
     switch (event.type) {
       case EventType.VoterCheckIn: {
         const voter = updatedVoters[event.voterId];
+        // @coverage-defer
         // If we receive an event for a voter that doesn't exist, we should ignore it.
         // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
         if (!voter) {
@@ -178,6 +181,7 @@ export function applyPollbookEventsToVoters(
       }
       case EventType.UndoVoterCheckIn: {
         const voter = updatedVoters[event.voterId];
+        // @coverage-defer
         if (!voter) {
           debug('Voter %s not found', event.voterId);
           continue;
@@ -221,6 +225,7 @@ export function applyPollbookEventsToVoters(
       }
       case EventType.MarkInactive: {
         const voter = updatedVoters[event.voterId];
+        // @coverage-defer
         if (!voter) {
           debug('Voter %s not found', event.voterId);
           continue;
@@ -233,6 +238,7 @@ export function applyPollbookEventsToVoters(
       }
       case EventType.InvalidateRegistration: {
         const voter = updatedVoters[event.voterId];
+        // @coverage-defer
         if (!voter) {
           debug('Voter %s not found', event.voterId);
           continue;

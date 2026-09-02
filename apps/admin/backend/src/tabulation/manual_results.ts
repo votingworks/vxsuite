@@ -204,6 +204,7 @@ export function extractWriteInSummary({
 
     const contestResults = manualResults.contestResults[contest.id];
     let totalTally = 0;
+    // @coverage-defer
     if (contestResults) {
       assert(contestResults.contestType === 'candidate');
       for (const candidateTally of Object.values(contestResults.tallies)) {

@@ -537,6 +537,7 @@ function buildApi(
       }
     },
 
+    // @coverage-defer
     async saveScreenshotForApp({
       fileName,
       screenshot,
@@ -784,11 +785,13 @@ export function useDevDockRouter(
   }
 
   // Create dev dock dir and file if it doesn't exist so we can always read from it
+  // @coverage-defer
   if (!fs.existsSync(devDockDir)) {
     fs.mkdirSync(devDockDir, { recursive: true });
   }
 
   const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
+  // @coverage-defer
   if (!fs.existsSync(devDockFilePath)) {
     writeDevDockFileContents(devDockFilePath, {});
   }
@@ -796,6 +799,7 @@ export function useDevDockRouter(
   const api = buildApi(devDockDir, mockSpec, designExportDir);
 
   // Set a default election if one is not already set
+  // @coverage-defer
   if (!getElection(devDockDir)) {
     void setElection(DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH, devDockDir);
   }

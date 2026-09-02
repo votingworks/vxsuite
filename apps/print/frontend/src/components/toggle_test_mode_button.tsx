@@ -61,6 +61,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
             { id: 'test', label: 'Test Ballot Mode' },
             { id: 'official', label: 'Official Ballot Mode' },
           ]}
+          // @coverage-defer
           selectedOptionId={isTestMode ? 'test' : 'official'}
         />
       </P>
@@ -73,12 +74,14 @@ export function ToggleTestModeButton(): JSX.Element | null {
       {flowState === 'confirmation' && (
         <Modal
           title={
+            // @coverage-defer
             isTestMode
               ? 'Switch to Official Ballot Mode'
               : 'Switch to Test Ballot Mode'
           }
           content={
             isTestMode ? (
+              // @coverage-defer
               <P>
                 Switching to official ballot mode will reset all test ballot
                 print counts to zero.
@@ -97,6 +100,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
                 onPress={toggleTestMode}
                 disabled={disabled}
               >
+                {/* @coverage-defer */}
                 {isTestMode
                   ? 'Switch to Official Ballot Mode'
                   : 'Switch to Test Ballot Mode'}

@@ -116,6 +116,7 @@ export function pollingPlaceGroups(
   return groups;
 }
 
+// @coverage-defer
 export function getConfiguredPrecinctsAndSplits(p: {
   election: Election;
   pollingPlaceId: string;

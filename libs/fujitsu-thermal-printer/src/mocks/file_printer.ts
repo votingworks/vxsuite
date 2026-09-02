@@ -41,6 +41,7 @@ const MAX_PRINTS = 100;
 
 function trimOldPrints(): void {
   if (!existsSync(MOCK_PRINTER_OUTPUT_DIR)) return;
+  // @coverage-defer
   const files = readdirSync(MOCK_PRINTER_OUTPUT_DIR, { withFileTypes: true })
     .filter((d) => d.isFile())
     .map((f) => join(MOCK_PRINTER_OUTPUT_DIR, f.name))
@@ -48,6 +49,7 @@ function trimOldPrints(): void {
       (a, b) => lstatSync(a).ctime.getTime() - lstatSync(b).ctime.getTime()
     );
   for (const file of files.slice(0, Math.max(0, files.length - MAX_PRINTS))) {
+    // @coverage-defer
     rmSync(file);
   }
 }
@@ -153,8 +155,10 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
     logPrinterStatusIfChanged(
       this.logger,
       this.lastKnownStatus,
+      // @coverage-defer
       newPrinterStatus || null
     );
+    // @coverage-defer
     this.lastKnownStatus = newPrinterStatus || null;
     return newPrinterStatus;
   }
@@ -163,6 +167,7 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
     return this.mockPrintJob((filename) => writeFile(`${filename}.pdf`, data));
   }
 
+  // @coverage-defer
   async printImageData(imageData: ImageData): Promise<PrintResult> {
     return this.mockPrintJob((filename) =>
       writeImageData(`${filename}.png`, imageData)
@@ -185,6 +190,7 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
       throw new Error('can only print when printer is idle');
     }
 
+    // @coverage-defer
     // To allow mocking failed prints, if the printer status changes during
     // the print, fail the print just as the real printer would.
     if (this.printPollingConfig.timeout > 0) {

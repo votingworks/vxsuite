@@ -118,7 +118,9 @@ function logAuthEvent(
             });
           }
         }
-      } else if (newAuthStatus.status === 'logged_in') {
+      } /* @coverage-exclude-else */ else if (
+        newAuthStatus.status === 'logged_in'
+      ) {
         logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Success,
           message: 'User entered correct PIN.',

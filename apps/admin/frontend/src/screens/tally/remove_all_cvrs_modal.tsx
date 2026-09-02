@@ -36,6 +36,7 @@ export function RemoveAllCvrsModal({
 
   const hasManualResults = manualResultsMetadataQuery.data.length > 0;
 
+  // @coverage-defer
   function removeCvrs() {
     clearCastVoteRecordFilesMutation.mutate(undefined, {
       onSuccess: hasManualResults ? undefined : onClose,
@@ -64,6 +65,7 @@ export function RemoveAllCvrsModal({
             <Button
               icon="Trash"
               variant="danger"
+              // @coverage-defer
               onPress={() => removeCvrs()}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
             >

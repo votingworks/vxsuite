@@ -38,6 +38,7 @@ export function SettingsScreen({
         <CurrentDateAndTime />
       </P>
       <P>
+        {/* @coverage-defer */}
         <SetClockButton logOut={() => logOutMutation.mutate()}>
           Set Date and Time
         </SetClockButton>

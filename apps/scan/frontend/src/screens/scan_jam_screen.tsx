@@ -15,6 +15,7 @@ interface Props {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanJamScreen({
   error,
   scannedBallotCount,

@@ -101,6 +101,7 @@ export function MarkReadinessReportContents(
   );
 }
 
+// @coverage-defer
 export function MarkReadinessReport({
   generatedAtTime,
   machineId,

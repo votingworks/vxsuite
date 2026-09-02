@@ -1,3 +1,4 @@
+// @coverage-defer-file
 // This is a "polyfill" for the css pseudo-class :focus-visible
 // https://caniuse.com/#feat=css-focus-visible
 

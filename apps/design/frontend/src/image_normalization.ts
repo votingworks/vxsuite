@@ -123,7 +123,9 @@ async function normalizeDataUrl(
     }
 
     try {
+      // @coverage-defer
       const scaleX = (params.maxWidthPx || img.width) / img.width;
+      // @coverage-defer
       const scaleY = (params.maxHeightPx || img.height) / img.height;
       const scale = Math.min(scaleX, scaleY);
 

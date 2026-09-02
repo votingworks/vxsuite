@@ -124,6 +124,7 @@ const rule: TSESLint.RuleModule<
           assert(colonToken && colonToken.value === ':');
           const questionMarkToken = sourceCode.getTokenBefore(colonToken);
           assert(questionMarkToken);
+          // @coverage-defer
           if (questionMarkToken.value !== '?') {
             yield fixer.insertTextBefore(colonToken, '?');
           }

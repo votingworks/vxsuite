@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,

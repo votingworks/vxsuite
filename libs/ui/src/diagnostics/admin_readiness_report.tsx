@@ -47,6 +47,7 @@ type ClientReportContentsProps = ConfigurationSectionProps &
     networkSectionUi?: React.ReactNode;
   };
 
+// @coverage-defer
 export function AdminClientReadinessReportContents(
   props: ClientReportContentsProps
 ): JSX.Element {

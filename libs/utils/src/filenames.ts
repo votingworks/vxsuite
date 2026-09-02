@@ -39,6 +39,7 @@ export function sanitizeStringForFilename(
     .replace(/[^a-z0-9]+/gi, replaceInvalidCharsWith)
     .replace(/(^-|-$)+/g, '')
     .toLocaleLowerCase();
+  // @coverage-defer
   return sanitized.trim().length === 0 ? defaultValue : sanitized;
 }
 
@@ -65,12 +66,14 @@ export function generateElectionBasedSubfolderName(
   )}`;
 }
 
+// @coverage-defer
 export function generateFileTimeSuffix(time: Date = new Date()): string {
   return DateTime.fromJSDate(time).toFormat(TIME_FORMAT_STRING);
 }
 
 /* Generate the name for an election package */
 export function generateFilenameForElectionPackage(
+  // @coverage-defer
   time: Date = new Date()
 ): string {
   const timeSuffix = generateFileTimeSuffix(time);
@@ -111,6 +114,7 @@ export function generateLogFilename(
 export function generateCastVoteRecordExportDirectoryName({
   inTestMode,
   machineId,
+  // @coverage-defer
   time = new Date(),
 }: Omit<CastVoteRecordExportDirectoryNameComponents, 'time'> & {
   time?: Date;

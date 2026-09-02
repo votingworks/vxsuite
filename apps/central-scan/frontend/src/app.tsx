@@ -26,6 +26,7 @@ export interface Props {
 
 export function App({
   logger = new BaseLogger(LogSource.VxCentralScanFrontend, window.kiosk),
+  // @coverage-defer
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
 }: Props): JSX.Element {

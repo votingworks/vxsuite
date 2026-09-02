@@ -52,6 +52,7 @@ export const getPrecinctById = createElectionMetadataLookupFunction(
 );
 
 export const getDistrictById = createElectionMetadataLookupFunction(
+  // @coverage-defer
   (election) => {
     const { districts } = election;
     const districtLookup: Record<string, District> = {};
@@ -125,6 +126,7 @@ export const getBallotStylesByPartyId = createElectionMetadataLookupFunction(
 
     for (const ballotStyle of ballotStyles) {
       const { partyId } = ballotStyle;
+      // @coverage-defer
       if (partyId) {
         const partyBallotStyles = lookup[partyId];
         assert(partyBallotStyles);

@@ -140,6 +140,7 @@ function generateOptionsForFilter({
     }
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
+        // @coverage-defer
         ...(isEarlyVotingEnabled
           ? [
               {

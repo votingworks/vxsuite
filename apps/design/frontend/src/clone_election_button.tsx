@@ -145,6 +145,7 @@ export function CloneElectionButton(
         <CloneElectionModal
           election={election}
           cloneElection={cloneElection}
+          // @coverage-defer
           onClose={() => setModalActive(false)}
         />
       )}

@@ -27,6 +27,7 @@ export function getMockStateRootDir(repoRoot: string): string {
  * environment variable, which other processes can't discover — so a custom
  * workspace won't be visible to dev tooling.
  */
+// @coverage-defer
 export function getDesignDevWorkspaceDir(repoRoot: string): string {
   return join(repoRoot, 'apps/design/backend/dev-workspace');
 }

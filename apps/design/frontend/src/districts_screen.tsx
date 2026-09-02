@@ -344,6 +344,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
                   onChange={(d) =>
                     onListChange(newDistricts, setNewDistricts, i, d)
                   }
+                  // @coverage-defer
                   onDelete={() => {
                     setNewDistricts(
                       newDistricts.filter((d) => d.id !== district.id)

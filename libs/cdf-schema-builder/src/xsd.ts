@@ -55,6 +55,7 @@ export function extractDocumentation(element: Element): string | undefined {
       'xsd:documentation'
     );
 
+    // @coverage-defer
     if (documentationElements.length > 0) {
       return (
         (documentationElements[0] as Element).textContent ??

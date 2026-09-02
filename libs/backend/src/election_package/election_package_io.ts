@@ -127,6 +127,7 @@ function createBufferBackedZip(zipFile: JsZipFile): ElectionPackageZip {
     readEntryText: (name) =>
       readTextEntry(getFileByName(entries, name, ZIP_NAME)),
     openEntryStream: (name) =>
+      // @coverage-defer
       Promise.resolve(getEntryStream(getFileByName(entries, name, ZIP_NAME))),
   };
 }
@@ -442,6 +443,7 @@ export async function* streamElectionPackageJsonlEntry<T>(
     // the run (surfaced by scan-backend's "invalid audio clip" test). Destroying
     // an already-ended stream is a no-op, so the happy path is unaffected.
     fileLines.close();
+    // @coverage-defer
     // The interface type is NodeJS.ReadableStream (no `destroy`), but the
     // concrete streams are always node Readables; narrow before tearing down.
     if (entryStream instanceof Readable) {
@@ -510,6 +512,7 @@ export async function getMostRecentElectionPackageFilepath(
       (entry) => entry.isDirectory() && entry.name === ELECTION_PACKAGE_FOLDER
     );
 
+    // @coverage-defer
     if (hasElectionPackageDirectory) {
       electionElectionPackageDirectories.push(
         join(directory, possibleElectionDirectory.name, ELECTION_PACKAGE_FOLDER)

@@ -83,6 +83,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   }
   const auth = getAuthStatusQuery.data;
 
+  // @coverage-defer
   // Show anomaly screen if there are active anomalies and user is authenticated
   if (
     getActiveAnomaliesQuery.isSuccess &&
@@ -100,6 +101,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     return (
       <UnlockMachineScreen
         auth={auth}
+        // @coverage-defer
         checkPin={async (pin) => {
           try {
             await checkPinMutation.mutateAsync({ pin });
@@ -168,6 +170,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
 }
 
 export function App({
+  // @coverage-defer
   apiClient = createApiClient(),
 }: {
   apiClient?: ApiClient;

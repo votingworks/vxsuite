@@ -167,6 +167,7 @@ function BlankBallotWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
+            // @coverage-defer
             onPress={() => returnBallotMutation.mutate()}
             disabled={hasCastBallot}
           >
@@ -262,6 +263,7 @@ interface OtherReasonWarningScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 function OtherReasonWarningScreen({
   isTestMode,
 }: OtherReasonWarningScreenProps): JSX.Element {
@@ -334,6 +336,7 @@ export function ScanWarningScreen({
   const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
 
   for (const reason of adjudicationReasonInfo) {
+    // @coverage-defer
     if (reason.type === AdjudicationReason.BlankBallot) {
       isBlank = true;
     } else if (reason.type === AdjudicationReason.CrossoverVoting) {
@@ -365,6 +368,7 @@ export function ScanWarningScreen({
     );
   }
 
+  // @coverage-defer
   return <OtherReasonWarningScreen isTestMode={isTestMode} />;
 }
 

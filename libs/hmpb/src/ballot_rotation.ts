@@ -58,6 +58,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
 
           // rotate so candidates starting with letters at or after the precinct letter come first
           const startIndex = sortedCandidates.findIndex(
+            // @coverage-defer
             (c) => (c.name.charAt(0) || '').toUpperCase() >= firstLetter
           );
 

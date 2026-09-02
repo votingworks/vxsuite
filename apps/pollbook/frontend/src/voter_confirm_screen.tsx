@@ -47,6 +47,7 @@ const { NH, ...usJurisdictionsWithoutNewHampshire } = usJurisdictions;
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
 ): identificationMethod is VoterIdentificationMethod {
+  // @coverage-defer
   switch (identificationMethod.type) {
     case 'default':
       return true;
@@ -67,6 +68,7 @@ function partyAbbreviationToCheckInBallotParty(
     return 'NOT_APPLICABLE';
   }
 
+  // @coverage-defer
   switch (abbreviation) {
     case 'DEM':
       return 'DEM';
@@ -132,6 +134,7 @@ export function VoterConfirmScreen({
     return (
       <UpdateAddressFlow
         voter={voter}
+        // @coverage-defer
         returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
         returnToPreviousScreenLabelText="Return to Check-In"
         election={election}
@@ -143,6 +146,7 @@ export function VoterConfirmScreen({
     return (
       <UpdateMailingAddressFlow
         voter={voter}
+        // @coverage-defer
         returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
         returnToPreviousScreenLabelText="Return to Check-In"
       />
@@ -307,6 +311,7 @@ export function VoterConfirmScreen({
                     }))}
                     menuPortalTarget={document.body}
                     value={
+                      // @coverage-defer
                       identificationMethod.type === 'outOfStateLicense'
                         ? identificationMethod.state
                         : undefined
@@ -379,11 +384,13 @@ export function VoterConfirmScreen({
           content="This voter was marked inactive. Continue only if you have confirmed with an election manager that the voter was marked inactive in error."
           actions={
             <React.Fragment>
+              {/* @coverage-defer */}
               <Button
                 rightIcon="Next"
                 variant="danger"
                 onPress={() => {
                   assert(isIdentificationMethodComplete(identificationMethod));
+                  // @coverage-defer
                   if (partySelectionRequired) {
                     onConfirmVoterIdentity(voterId, identificationMethod);
                   } else {

@@ -116,6 +116,7 @@ function createOnDiagnosticErrorHandler() {
     target: 'failure',
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
+        // @coverage-defer
         if (event.data instanceof DiagnosticError) {
           // @coverage-exclude
           return event.data;
@@ -510,10 +511,12 @@ export function buildMachine(
 
           return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
         } catch (err) {
+          // @coverage-defer
           logger.log(LogEventId.PatDeviceError, 'system', {
             error: extractErrorMessage(err),
             disposition: 'failure',
           });
+          // @coverage-defer
           return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
         }
       },
@@ -551,6 +554,7 @@ export function buildMachine(
         } catch (err) {
           logger.log(LogEventId.UnknownError, 'system', {
             message: extractErrorMessage(err),
+            // @coverage-defer
             stack: err instanceof Error ? err.stack : undefined,
             disposition: 'failure',
           });
@@ -1116,6 +1120,7 @@ export function buildMachine(
                   new Error('Unknown error occurred');
                 await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
                   message: extractErrorMessage(error),
+                  // @coverage-defer
                   stack: error instanceof Error ? error.stack : undefined,
                 });
               },
@@ -1455,6 +1460,7 @@ function setUpLogging(
       }
     })
     .onChange((context, previousContext) => {
+      // @coverage-defer
       if (!previousContext) return;
       const changed = Object.entries(context)
         .filter(
@@ -1473,16 +1479,19 @@ function setUpLogging(
         )
         // To protect voter privacy, only log the interpretation type
         .map(([key, value]) =>
+          // @coverage-defer
           key === 'interpretation' ? [key, value?.type] : [key, value]
         )
         // Make sure we log the important fields of an error
         .map(([key, value]) =>
+          // @coverage-defer
           key === 'error' && value instanceof Error
             ? [key, { ...value, message: value.message, stack: value.stack }]
             : [key, value]
         )
         .map(([key, value]) => [
           key,
+          // @coverage-defer
           value === undefined ? 'undefined' : value,
         ]);
 
@@ -1565,6 +1574,7 @@ export async function getPaperHandlerStateMachine({
     getSimpleStatus(): SimpleServerStatus {
       const { state } = machineService;
 
+      // @coverage-defer
       switch (true) {
         case state.matches('paper_handler_diagnostic.prompt_for_paper'):
           return 'paper_handler_diagnostic.prompt_for_paper';

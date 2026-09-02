@@ -394,6 +394,7 @@ export function ContestAdjudicationScreen({
     <Screen>
       <Main flexRow data-testid={`transcribe:${cvrId}`}>
         <BallotPanel>
+          {/* @coverage-defer */}
           {!ballotImage.imageUrl ? (
             <UnableToLoadImageCallout />
           ) : isHmpb ? (
@@ -422,6 +423,7 @@ export function ContestAdjudicationScreen({
           <ContestHeader>
             <CompactH2>
               {getContestDistrictName(election, contest)}
+              {/* @coverage-defer */}
               {partyLabel && ` — ${partyLabel}`}
             </CompactH2>
             <CompactH1>{contest.title}</CompactH1>

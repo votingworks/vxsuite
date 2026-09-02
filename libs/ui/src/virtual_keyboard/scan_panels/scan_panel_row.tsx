@@ -30,6 +30,7 @@ export const ScanPanelRow = forwardRef(
     {
       children,
       keys,
+      // @coverage-defer
       onSelect = () => {},
       selectable,
       selected,

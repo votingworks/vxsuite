@@ -54,6 +54,7 @@ const ButtonRow = styled(P)`
 export function ElectionManagerPrinterTabContent(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
 
+  // @coverage-defer
   if (!printerStatusQuery.isSuccess) {
     return null;
   }

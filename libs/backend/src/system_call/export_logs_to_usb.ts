@@ -234,6 +234,7 @@ export async function exportLogsToUsb({
     let cause: string | undefined;
     if ('cause' in error) {
       if (error.cause instanceof Error) {
+        // @coverage-defer
         cause = error.cause.stack || extractErrorMessage(error.cause);
       } else {
         cause = extractErrorMessage(error.cause);

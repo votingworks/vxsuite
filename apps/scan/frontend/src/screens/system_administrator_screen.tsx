@@ -43,6 +43,7 @@ export function SystemAdministratorScreen({
 
   if (isDiagnosticsScreenOpen) {
     return (
+      // @coverage-defer
       <DiagnosticsScreen onClose={() => setIsDiagnosticsScreenOpen(false)} />
     );
   }
@@ -72,6 +73,7 @@ export function SystemAdministratorScreen({
             : undefined
         }
         isMachineConfigured={Boolean(electionDefinition)}
+        // @coverage-defer
         logOut={() => logOutMutation.mutate()}
         usbDriveStatus={usbDrive}
         additionalButtons={

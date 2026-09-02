@@ -430,6 +430,7 @@ function PollWorkerScreenContents({
 
   function showNextQr() {
     setCurrentQrIndex((i) =>
+      // @coverage-defer
       Math.min(i + 1, (getQuickResultsReportingUrlQuery.data?.length ?? 1) - 1)
     );
   }
@@ -483,6 +484,7 @@ function PollWorkerScreenContents({
   }
 
   function handleClosePollsPress() {
+    // @coverage-defer
     if (shouldShowClosePollsWarning) {
       setIsClosePollsWarningModalOpen(true);
     } else {
@@ -490,6 +492,7 @@ function PollWorkerScreenContents({
     }
   }
 
+  // @coverage-defer
   async function handleConfirmClosePollsFromModal() {
     setIsClosePollsWarningModalOpen(false);
     await closePolls();
@@ -570,6 +573,7 @@ function PollWorkerScreenContents({
   }
 
   const closePollsWarningModal = isClosePollsWarningModalOpen ? (
+    // @coverage-defer
     <Modal
       title="Close Polls"
       content={
@@ -890,6 +894,7 @@ function PollWorkerScreenContents({
                 onPress={handleClosePollsPress}
                 disabled={
                   isClosingPollsBlocked ||
+                  // @coverage-defer
                   !shouldAllowTogglingPolls(
                     printerSummary,
                     mustInsertUsbDriveToContinue

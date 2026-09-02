@@ -188,6 +188,7 @@ export function createMockPdiScanner(
     on: {
       DISCONNECT: 'disconnected',
       '*': {
+        // @coverage-defer
         actions: (_, event) => {
           // @coverage-exclude
           emitScannerEvent({
@@ -313,6 +314,7 @@ export function createMockPdiScanner(
     await Promise.race([
       new Promise<void>((resolve) => {
         mockScanner.onTransition(function listener(state) {
+          // @coverage-defer
           if (state.matches(stateMatch)) {
             mockScanner.off(listener);
             resolve();
@@ -349,6 +351,7 @@ export function createMockPdiScanner(
     async getScannerStatus() {
       await simulateCommandDelay();
       const { state } = mockScanner;
+      // @coverage-defer
       switch (true) {
         case state.matches('disconnected'):
           return err({ code: 'disconnected' });

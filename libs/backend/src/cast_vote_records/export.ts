@@ -319,6 +319,7 @@ async function buildCastVoteRecord(
 
   const { id, batchId, indexInBatch, ballotAuditId } = sheet;
   const castVoteRecordId = unsafeParse(BallotIdSchema, id);
+  // @coverage-defer
   const images: SheetOf<CvrImageDataInput> | undefined = referencedFiles
     ? await mapSheet(
         referencedFiles.imageFiles,

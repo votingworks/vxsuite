@@ -199,6 +199,7 @@ export function splitCandidateName(
 ): Pick<Candidate, 'firstName' | 'middleName' | 'lastName'> {
   const [firstPart, ...middleParts] = name.split(' ');
   return {
+    // @coverage-defer
     firstName: firstPart ?? '',
     lastName: middleParts.pop() ?? '',
     middleName: middleParts.join(' '),

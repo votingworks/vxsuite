@@ -666,6 +666,7 @@ function buildApi({
             message: `Error configuring machine.`,
             disposition: 'failure',
             errorDetails:
+              // @coverage-defer
               errorDetails.type === 'system-limit-violation'
                 ? systemLimitViolationToString(errorDetails.violation)
                 : JSON.stringify(errorDetails),

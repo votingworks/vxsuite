@@ -109,6 +109,7 @@ export function VoterTurnoutReport({
 
   const ballotsByPrecinct = new Map<string, number>();
   for (const group of cardCountsList) {
+    // @coverage-defer
     if (group.precinctId) {
       ballotsByPrecinct.set(group.precinctId, getBallotCount(group));
     }

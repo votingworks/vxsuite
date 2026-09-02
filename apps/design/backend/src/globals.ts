@@ -16,6 +16,7 @@ const NodeEnvSchema = z.union([
  */
 export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
+  // @coverage-defer
   process.env.NODE_ENV ?? 'development'
 );
 
@@ -136,6 +137,7 @@ export function sliOrganizationId(): string {
  */
 export const WORKSPACE =
   process.env.WORKSPACE ??
+  // @coverage-defer
   (NODE_ENV === 'development'
     ? // Shared with dev tooling that reads VxDesign's exports.
       getDesignDevWorkspaceDir(join(import.meta.dirname, '../../../..'))

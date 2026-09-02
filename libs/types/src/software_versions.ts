@@ -229,6 +229,7 @@ function ballotPositionsToGridLayoutV4p0(
 ): GridLayoutV4p0 {
   const flat = flattenBallotPositions(ballotPositions);
   const firstOption = flat[0]?.option;
+  // @coverage-defer
   const optionBoundsFromTargetMark = firstOption
     ? outsetFromOptionPosition(firstOption)
     : DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET;
@@ -263,6 +264,7 @@ function renameBallotStringKey(
 ): UiStringsPackage {
   return Object.fromEntries(
     Object.entries(ballotStrings).map(([languageCode, strings]) => {
+      // @coverage-defer
       if (!(fromKey in strings)) return [languageCode, strings];
       const { [fromKey]: value, ...rest } = strings;
       return [languageCode, { ...rest, [toKey]: value }];

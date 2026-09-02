@@ -759,6 +759,7 @@ interface ContestHeaderProps {
   compact?: boolean;
 }
 
+// @coverage-defer
 export const ContestHeader = styled.div<ContestHeaderProps>`
   background: ${Colors.LIGHT_GRAY};
   padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};

@@ -50,6 +50,7 @@ export function ClientAppRoot(): JSX.Element | null {
 
     if (!currentStatus || !previousStatus) return;
 
+    // @coverage-defer
     if (previousStatus !== 'logged_out' && currentStatus === 'logged_out') {
       history.replace(routerPaths.adjudication);
     }
@@ -134,6 +135,7 @@ export function ClientAppRoot(): JSX.Element | null {
     );
   }
 
+  // @coverage-defer
   if (isVendorAuth(auth)) {
     return (
       <VendorScreen

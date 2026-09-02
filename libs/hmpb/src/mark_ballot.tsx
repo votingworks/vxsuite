@@ -133,6 +133,7 @@ export async function markBallotDocument(
             case 'write-in': {
               const markedWriteInVote = contestVotes?.find(
                 (vote): vote is WriteInCandidate => {
+                  // @coverage-defer
                   const voteWriteInIndex = voteIsCandidate(vote)
                     ? vote.writeInIndex
                     : undefined;

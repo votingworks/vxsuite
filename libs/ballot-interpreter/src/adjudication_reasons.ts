@@ -56,6 +56,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
 
   for (const contest of contests) {
     const expectedSelectionCount = getExpectedVoteCount(contest);
+    // @coverage-defer
     const actualVotes = votes[contest.id] ?? [];
 
     const actualVoteCount = actualVotes.length;
@@ -67,6 +68,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
     // Check for undervotes
     if (actualVoteCount < expectedSelectionCount) {
       const optionIds = actualVotes.map((option) =>
+        // @coverage-defer
         typeof option === 'string' ? option : option.id
       );
       reasons.push({

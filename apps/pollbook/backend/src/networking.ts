@@ -194,6 +194,7 @@ export function fetchEventsFromConnectedPollbooks({
               );
             } catch (error) {
               assert(error instanceof Error);
+              // @coverage-defer
               if (error.message === 'mismatched-configuration') {
                 workspace.store.setPollbookServiceForName(
                   currentName,

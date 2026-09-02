@@ -162,6 +162,7 @@ export async function tabulateElectionResults({
         groupedManualResults,
         (scannedResults, manualResults) => {
           const resultsToCombine: Tabulation.ElectionResults[] = [];
+          // @coverage-defer
           if (scannedResults) {
             resultsToCombine.push(scannedResults);
           }

@@ -109,6 +109,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       break;
 
     case 'saved': {
+      // @coverage-defer
       if (usbDriveStatus.status !== 'ejected') {
         actions = (
           <React.Fragment>

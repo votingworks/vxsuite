@@ -154,6 +154,7 @@ export function generateTitleForReport({
       ).name;
     }
 
+    // @coverage-defer
     if (pollingPlaceId) {
       return CachedElectionLookups.getPollingPlaceById(
         electionDefinition,

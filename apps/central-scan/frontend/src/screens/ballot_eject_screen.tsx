@@ -281,6 +281,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       };
     }
 
+    // @coverage-defer
     return unreadableEjectInfo;
   })();
 

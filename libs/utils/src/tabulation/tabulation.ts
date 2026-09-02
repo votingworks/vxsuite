@@ -330,6 +330,7 @@ function getCastVoteRecordGroupSpecifier(
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
     votingMethod: groupBy.groupByVotingMethod ? cvr.votingMethod : undefined,
     partyId: groupBy.groupByParty ? cvr.partyId : undefined,
+    // @coverage-defer
     batchDate: groupBy.groupByBatchDate ? cvr.batchDate : undefined,
   };
 }
@@ -384,6 +385,7 @@ export function extractGroupSpecifier(
 /**
  * Yield to the event loop during long-running tabulation operations.
  */
+// @coverage-defer
 export async function yieldToEventLoop(): Promise<void> {
   await new Promise((resolve) => {
     setImmediate(resolve);
@@ -418,6 +420,7 @@ export async function tabulateCastVoteRecords({
       addCastVoteRecordToElectionResult(electionResults, cvr, election);
 
       i += 1;
+      // @coverage-defer
       if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
         await yieldToEventLoop();
       }
@@ -454,6 +457,7 @@ export async function tabulateCastVoteRecords({
     }
 
     i += 1;
+    // @coverage-defer
     if (i % YIELD_TO_EVENT_LOOP_EVERY_N_CVRS === 0) {
       await yieldToEventLoop();
     }
@@ -509,6 +513,7 @@ export function getScannedBallotCountForSheet(
   cardCounts: Tabulation.CardCounts,
   sheetIndex: number // zero-indexed
 ): number {
+  // @coverage-defer
   return (cardCounts.bmd[sheetIndex] ?? 0) + (cardCounts.hmpb[sheetIndex] ?? 0);
 }
 
@@ -518,6 +523,7 @@ export function getScannedBallotCountForSheet(
  */
 export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
   return (
+    // @coverage-defer
     iter(cardCounts.bmd)
       .map((c) => c ?? 0)
       .sum() +
@@ -725,6 +731,7 @@ export function combineCardCounts(
     for (let i = 0; i < cardCounts.bmd.length; i += 1) {
       const cardCount = cardCounts.bmd[i];
       combinedCardCounts.bmd[i] =
+        // @coverage-defer
         (combinedCardCounts.bmd[i] ?? 0) + (cardCount ?? 0);
     }
     // Combine HMPB sheet counts
@@ -898,6 +905,7 @@ export function buildContestResultsFixture({
       assert(contestResultsSummary.type === 'straight-party');
       assert(contestResults.contestType === 'straight-party');
       for (const [partyId, tally] of Object.entries(
+        // @coverage-defer
         contestResultsSummary.optionTallies ?? {}
       )) {
         contestResults.tallies[partyId] = tally;

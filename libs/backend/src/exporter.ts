@@ -167,6 +167,7 @@ export class Exporter {
     if (machineDirectoryToWriteToFirst) {
       const machineFilePath = join(machineDirectoryToWriteToFirst, name);
       const result = await this.exportData(machineFilePath, dataToWrite);
+      // @coverage-defer
       if (result.isErr()) {
         return result;
       }

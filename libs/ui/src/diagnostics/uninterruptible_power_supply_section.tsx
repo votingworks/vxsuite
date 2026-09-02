@@ -13,6 +13,7 @@ export function UninterruptiblePowerSupplySection(
 ): JSX.Element {
   const { upsSectionAdditionalContents, mostRecentUpsDiagnostic } = props;
 
+  // @coverage-defer
   if (mostRecentUpsDiagnostic) {
     assert(mostRecentUpsDiagnostic.type === 'uninterruptible-power-supply');
   }
@@ -20,6 +21,7 @@ export function UninterruptiblePowerSupplySection(
   return (
     <section>
       <H2>Uninterruptible Power Supply</H2>
+      {/* @coverage-defer */}
       {!mostRecentUpsDiagnostic ? (
         <P>
           <InfoIcon /> No UPS test on record

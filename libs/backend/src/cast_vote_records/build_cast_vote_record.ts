@@ -435,6 +435,7 @@ export function buildCVRContestsFromVotes({
     // If there is no element in the `votes` object, there are no votes. We
     // must include information about this contest as an undervoted contest
     // per VVSG 2.0 1.1.5-E.2
+    // @coverage-defer
     const contestVote = votes[contest.id] || [];
     const contestUnmarkedWriteIns = unmarkedWriteIns?.filter(
       ({ contestId }) => contestId === contest.id
@@ -609,6 +610,7 @@ export function buildCastVoteRecord({
     '@type': 'CVR.CVR',
     BallotStyleId: ballotMetadata.ballotStyleId,
     BallotStyleUnitId: ballotMetadata.precinctId, // VVSG 2.0 1.1.5-G.3
+    // @coverage-defer
     PartyIds: ballotParty ? [ballotParty] : undefined, // VVSG 2.0 1.1.5-E.4
     CreatingDeviceId: scannerId,
     ElectionId: electionId,

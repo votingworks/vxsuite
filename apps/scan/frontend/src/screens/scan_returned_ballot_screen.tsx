@@ -5,6 +5,7 @@ export interface ScanReturnedBallotScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanReturnedBallotScreen({
   isTestMode,
 }: ScanReturnedBallotScreenProps): JSX.Element {

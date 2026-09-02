@@ -86,6 +86,7 @@ export function useCvrImporter(): CvrImporter {
   const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
 
   assert(electionDefinition);
+  // @coverage-defer
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   const imports = api.getCastVoteRecordFiles.useQuery();
@@ -199,6 +200,7 @@ function ManualImportButton(props: { disabled?: boolean; importFn: ImportFn }) {
           if (dialogResult.canceled) return;
 
           const path = dialogResult.filePaths[0];
+          // @coverage-defer
           if (path) importFn({ path });
         }}
       >

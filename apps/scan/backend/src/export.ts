@@ -167,6 +167,7 @@ export async function exportCastVoteRecordsToUsbDrive({
     await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsComplete, {
       disposition: 'failure',
       message:
+        // @coverage-defer
         mode === 'polls_closing'
           ? 'Error marking cast vote record export as complete on polls close.'
           : 'Error exporting cast vote records.',

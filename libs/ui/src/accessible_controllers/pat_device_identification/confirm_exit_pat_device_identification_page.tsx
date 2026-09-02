@@ -51,6 +51,7 @@ export function ConfirmExitPatDeviceIdentificationPage({
       hideMenuButtons={isDiagnostic}
       actionButtons={
         isDiagnostic ? (
+          // @coverage-defer
           <Button variant="primary" onPress={onPressContinue}>
             Exit
           </Button>
@@ -76,6 +77,7 @@ export function ConfirmExitPatDeviceIdentificationPage({
       <DiagnosticScreenHeader>
         <P>
           <Font weight="bold">
+            {/* @coverage-defer */}
             {isDiagnostic
               ? 'Personal Assistive Technology Input Test'
               : appStrings.titleBmdPatCalibrationIdentificationPage()}
@@ -85,7 +87,9 @@ export function ConfirmExitPatDeviceIdentificationPage({
       <ExitStepInnerContainer>
         <ReadOnLoad>
           <Icons.Done color="success" />
+          {/* @coverage-defer */}
           <H1 align={isDiagnostic ? 'center' : undefined}>
+            {/* @coverage-defer */}
             {isDiagnostic
               ? 'Test Passed'
               : appStrings.titleBmdPatCalibrationConfirmExitScreen()}

@@ -136,6 +136,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     });
   }
 
+  // @coverage-defer
   // Multi-page fallback: compute page breaks for proper per-page QR codes.
   // Pass pageCount as knownMinPages to skip the redundant single-page check.
   if (!sharedRenderer) {

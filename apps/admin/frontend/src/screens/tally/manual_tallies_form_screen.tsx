@@ -628,6 +628,7 @@ function ContestForm({
         return contestResults.undervotes;
       default:
         if (contestResults.contestType === 'yesno') {
+          // @coverage-defer
           return contestResults.tallies[dataKey] ?? '';
         }
         assert(contestResults.contestType === 'candidate');

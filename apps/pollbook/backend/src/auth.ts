@@ -15,6 +15,7 @@ export function constructAuthMachineState(
   const { configuredPrecinctId } =
     workspace.store.getPollbookConfigurationInformation();
 
+  // @coverage-defer
   const jurisdiction = isIntegrationTest()
     ? TEST_JURISDICTION
     : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;

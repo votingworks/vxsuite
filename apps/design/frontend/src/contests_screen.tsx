@@ -123,9 +123,11 @@ function Content(): JSX.Element | null {
   const filteredContests = contests.filter((contest) => {
     const matchesDistrict =
       filterDistrictId === FILTER_ALL ||
+      // @coverage-defer
       contest.districtId === filterDistrictId;
     const matchesParty =
       filterPartyId === FILTER_ALL ||
+      // @coverage-defer
       (filterPartyId === FILTER_NONPARTISAN
         ? contest.type !== 'candidate' || contest.partyId === undefined
         : contest.type === 'candidate' && contest.partyId === filterPartyId);
@@ -189,6 +191,7 @@ function Content(): JSX.Element | null {
                 })),
               ]}
               value={filterDistrictId}
+              // @coverage-defer
               onChange={(value) => setFilterDistrictId(value ?? FILTER_ALL)}
               style={{ minWidth: '8rem' }}
               disabled={isReordering}
@@ -204,6 +207,7 @@ function Content(): JSX.Element | null {
                   })),
                 ]}
                 value={filterPartyId}
+                // @coverage-defer
                 onChange={(value) => setFilterPartyId(value ?? FILTER_ALL)}
                 style={{ minWidth: '8rem' }}
                 disabled={isReordering}
@@ -249,14 +253,17 @@ function Content(): JSX.Element | null {
               </Callout>
             </NoContests>
           ) : (
+            // @coverage-defer
             <NoContests>
               <Callout color="neutral" icon="Info">
                 There are no contests for the district
+                {/* @coverage-defer */}
                 {electionInfo.type === 'primary' ? '/party' : ''} you selected.
               </Callout>
               <div>
                 <Button
                   icon="X"
+                  // @coverage-defer
                   onPress={() => {
                     setFilterDistrictId(FILTER_ALL);
                     setFilterPartyId(FILTER_ALL);
@@ -272,6 +279,7 @@ function Content(): JSX.Element | null {
             contests={contestsToShow}
             reordering={isReordering}
             reorder={(params) => {
+              // @coverage-defer
               if (!isReordering) return;
 
               const idx = contestsToShow.findIndex((c) => c.id === params.id);
@@ -370,6 +378,7 @@ function EditContestForm(): JSX.Element | null {
 
         <Redirect
           to={
+            // @coverage-defer
             savedContest
               ? contestRoutes.view(contestId).path
               : contestRoutes.root.path

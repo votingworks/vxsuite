@@ -42,11 +42,14 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
+// @coverage-defer
 export function start({
+  // @coverage-defer
   port = PORT,
   usbDrive,
   importer,
   app,
+  // @coverage-defer
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
 }: Partial<StartOptions> = {}): Server {

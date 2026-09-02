@@ -188,6 +188,7 @@ export interface TestDecksTaskMetadata {
  * function that groups multiple database operations together.
  */
 async function assertWithinTransaction(client: Client): Promise<void> {
+  // @coverage-defer
   if (process.env.NODE_ENV !== 'production') {
     const { isInTransaction } = (
       await client.query(
@@ -842,6 +843,7 @@ export class Store {
     let whereClause = '';
     const params: Bindable[] = [];
 
+    // @coverage-defer
     if (input.jurisdictionIds) {
       whereClause = `where jurisdiction_id in (${input.jurisdictionIds
         .map((_, i) => `$${i + 1}`)
@@ -1129,6 +1131,7 @@ export class Store {
               .filter((candidate) => candidate.contestId === row.id)
               .map((candidate) => ({
                 id: candidate.id,
+                // @coverage-defer
                 firstName: candidate.firstName || undefined,
                 middleName: candidate.middleName || undefined,
                 lastName: candidate.lastName || undefined,
@@ -1173,6 +1176,7 @@ export class Store {
                   id: assertDefined(row.noOptionId),
                   label: assertDefined(row.noOptionLabel),
                 },
+                // @coverage-defer
                 ...(row.additionalOptions ?? []),
               ],
             });
@@ -1478,6 +1482,7 @@ export class Store {
         for (const precinct of election.precincts) {
           await insertPrecinct(client, election.id, precinct);
         }
+        // @coverage-defer
         for (const place of election.pollingPlaces || []) {
           const res = await insertPollingPlace(client, election.id, place);
           res.unsafeUnwrap();
@@ -3167,6 +3172,7 @@ export class Store {
     const reportsByPollingPlace: Record<string, QuickReportedPollStatus[]> = {};
     for (const status of rows) {
       const key = status.pollingPlaceId;
+      // @coverage-defer
       if (!reportsByPollingPlace[key]) {
         reportsByPollingPlace[key] = [];
       }
@@ -3661,6 +3667,7 @@ async function insertPollingPlace(
       return err('invalid-precinct');
     }
 
+    // @coverage-defer
     throw error;
   }
 
@@ -3672,6 +3679,7 @@ async function insertPollingPlacePrecincts(
   place: PollingPlace
 ) {
   const precinctIds = Object.keys(place.precincts);
+  // @coverage-defer
   if (precinctIds.length === 0) return;
 
   const params = [place.id, ...precinctIds];

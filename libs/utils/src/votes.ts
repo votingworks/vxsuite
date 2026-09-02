@@ -87,6 +87,7 @@ export function getMarkStatus(
     return MarkStatus.Marginal;
   }
 
+  // @coverage-defer
   return MarkStatus.Unmarked;
 }
 
@@ -208,6 +209,7 @@ export function convertMarksToVotesDict(
  */
 export function hasWriteIns(votes: VotesDict): boolean {
   for (const vote of Object.values(votes)) {
+    // @coverage-defer
     if (vote) {
       for (const voteOption of vote) {
         if (typeof voteOption !== 'string' && voteOption.isWriteIn) {

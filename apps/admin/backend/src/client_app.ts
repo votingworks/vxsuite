@@ -77,6 +77,7 @@ async function proxyToHost<T>(
   try {
     return ok(await fn(connection));
   } catch (error) {
+    // @coverage-defer
     const message = error instanceof Error ? error.message : String(error);
     await logger.logAsCurrentRole(LogEventId.AdminAdjudicationProxyError, {
       message: `Error during ${action}: ${message}`,

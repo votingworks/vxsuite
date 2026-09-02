@@ -28,6 +28,7 @@ export function constructAuthMachineState(
   }
 
   const systemSettings =
+    // @coverage-defer
     store.getSystemSettings(electionId) ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,

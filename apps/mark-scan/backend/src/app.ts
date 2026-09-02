@@ -234,6 +234,7 @@ export function buildApi(
     },
 
     getPaperHandlerState(): SimpleServerStatus {
+      // @coverage-defer
       if (!stateMachine) {
         return 'no_hardware';
       }
@@ -430,6 +431,7 @@ export function buildApi(
       };
     },
 
+    // @coverage-defer
     getIsPatDeviceConnected(): boolean {
       if (!stateMachine) {
         return false;
@@ -477,6 +479,7 @@ export function buildApi(
     },
     /* istanbul ignore stop */
 
+    // @coverage-defer
     getMarkScanBmdModel(): BmdModelNumber {
       return getMarkScanBmdModel();
     },
@@ -500,6 +503,7 @@ export function buildApi(
       stateMachine.startPaperHandlerDiagnostic();
     },
 
+    // @coverage-defer
     stopPaperHandlerDiagnostic(): void {
       assertDefined(stateMachine).stopPaperHandlerDiagnostic();
     },

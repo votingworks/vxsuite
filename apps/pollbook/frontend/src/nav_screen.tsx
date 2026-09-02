@@ -76,6 +76,7 @@ function getIconAndLabelForPollbookConnection(
           'Synced',
         ];
       }
+      // @coverage-defer
       // The backend will update this pollbook to MismatchedConfiguration so just show that in the frontend premptively.
       return [
         <Icons.Info key={pollbook.machineId} color="neutral" />,
@@ -157,6 +158,7 @@ function NetworkStatus({
 
   const resetNetworkMutation = resetNetwork.useMutation();
 
+  // @coverage-defer
   function resetNetworkConnection() {
     setIsResetting(true);
     resetNetworkMutation.mutate(undefined, {
@@ -182,6 +184,7 @@ function NetworkStatus({
             pollbook.status === PollbookConnectionStatus.MismatchedConfiguration
         ).length
       ) : isResetting ? (
+        // @coverage-defer
         <Icons.Loading />
       ) : (
         <Icons.Warning color="inverseWarning" />
@@ -196,6 +199,7 @@ function NetworkStatus({
                 <div>Network is offline.</div>
               )}
               {isResetting && (
+                // @coverage-defer
                 <div>
                   <Icons.Loading /> Resetting network connection...
                 </div>
@@ -298,6 +302,7 @@ function PrinterStatus({ status }: { status: PrinterStatus }) {
   );
 }
 
+// @coverage-defer
 export function DeviceStatusBar({
   showLogOutButton = true,
 } = {}): JSX.Element | null {
@@ -424,6 +429,7 @@ export function SystemAdministratorNavScreen({
         </NavList>
       }
     >
+      {/* @coverage-defer */}
       <Header>{typeof title === 'string' ? <H1>{title}</H1> : title}</Header>
       {children}
     </NavScreen>

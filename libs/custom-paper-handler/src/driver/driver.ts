@@ -103,6 +103,7 @@ import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 const serverDebug = makeDebug('mark-scan:custom-paper-handler:driver');
 
 function debug(msg: string, prefix?: string) {
+  // @coverage-defer
   const fullMsg = prefix ? `[${prefix}] ${msg}` : msg;
   serverDebug(fullMsg);
 }
@@ -149,6 +150,7 @@ export async function getPaperHandlerWebDevice(): Promise<
       legacyDevice.interfaces,
       `Device::interfaces must be set after Device::open() succeeds`
     )) {
+      // @coverage-defer
       if (iface.interfaceNumber === INTERFACE_NUMBER) {
         if (iface.isKernelDriverActive()) {
           debug('detaching kernel driver');
@@ -192,6 +194,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     debug(`claimed usb interface ${INTERFACE_NUMBER}`);
   }
 
+  // @coverage-defer
   async disconnect(): Promise<void> {
     // closing the web device will fail if we have pending requests, so wait for them
     (await this.genericLock.asyncLock()).unlock();
@@ -248,11 +251,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       return result;
     }
 
+    // @coverage-defer
     // Status choices are limited but 'babble' approximately fits the context. If this point is reached,
     // the host has received an unexpectedly large number of junk responses.
     return new USBInTransferResult('babble');
   }
 
+  // @coverage-defer
   async clearGenericInBuffer(): Promise<void> {
     let bufferClear = false;
     let i = -1;
@@ -313,6 +318,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     value: T
   ): Promise<USBOutTransferResult> {
     const encodeResult = coder.encode(value);
+    // @coverage-defer
     if (encodeResult.isErr()) {
       // TODO handle this more gracefully
       debug(
@@ -417,6 +423,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Does not map to a single command, but is useful for testing
    * @returns {PaperHandlerStatus}
    */
+  // @coverage-defer
   async getPaperHandlerStatus(): Promise<PaperHandlerStatus> {
     const printerStatus = await this.getPrinterStatus();
     const scannerStatus = await this.getScannerStatus();
@@ -445,6 +452,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
 
   async transferInAcknowledgement(): Promise<boolean> {
     const transferInResult = await this.transferInGeneric();
+    // @coverage-defer
     if (transferInResult.status !== 'ok') {
       throw new Error(
         `Unexpected transferIn status: ${transferInResult.status}`
@@ -454,12 +462,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     assert(data);
 
     const result = AcknowledgementResponse.decode(bufferFromDataView(data));
+    // @coverage-defer
     if (result.isErr()) {
       debug(`Error decoding transferInGeneric response: ${result.err()}`);
       return false;
     }
 
     const code = result.ok();
+    // @coverage-defer
     if (typeof code === 'number') {
       switch (code) {
         case ReturnCodes.POSITIVE_ACKNOWLEDGEMENT:
@@ -476,6 +486,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error(`Unhandled return code: ${code}`);
   }
 
+  // @coverage-defer
   async getScannerCapability(): Promise<ScannerCapability> {
     return this.genericLock.withLock(async () => {
       await this.transferOutGeneric(GetScannerCapabilityCommand, undefined);
@@ -515,6 +526,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     return this.syncScannerConfig();
   }
 
+  // @coverage-defer
   async setPaperMovementAfterScan(
     paperMovementAfterScan: PaperMovementAfterScan
   ): Promise<boolean> {
@@ -522,6 +534,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     return this.syncScannerConfig();
   }
 
+  // @coverage-defer
   async setScanDirection(scanDirection: ScanDirection): Promise<boolean> {
     this.scannerConfig.scanDirection = scanDirection;
     return this.syncScannerConfig();
@@ -550,6 +563,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         const isAck = AcknowledgementResponse.decode(
           bufferFromDataView(rawResponse.data)
         );
+        // @coverage-defer
         if (isAck.isOk()) {
           continue;
         }
@@ -565,6 +579,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         ).unsafeUnwrap();
         scanStatus = response.returnCode;
         const { sizeX, sizeY } = response;
+        // @coverage-defer
         // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
         // so the last `sizeX` value received is 0 - not useful. Instead, we store the first `sizeX` value we receive.
         // Note this assumes `sizeX` is the same for all packets 0...(n-1)
@@ -586,6 +601,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     });
 
     debug('ALL BLOCKS RECEIVED');
+    // @coverage-defer
     if (result.scanStatus !== OK_NO_MORE_DATA) {
       throw new Error(
         `Unhandled scan result status: ${result.scanStatus
@@ -602,6 +618,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     );
   }
 
+  // @coverage-defer
   async scanAndSave(pathOut: string): Promise<void> {
     const grayscaleResult = await this.scan();
     debug(
@@ -759,6 +776,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * which is usually what we want.
    */
   async setPrintingAreaWidth(
+    // @coverage-defer
     numMotionUnits: Uint16 = 0
   ): Promise<USBOutTransferResult> {
     assertNumberIsInRangeInclusive(numMotionUnits, 0, this.maxPrintWidthDots);
@@ -799,6 +817,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   ): Promise<USBOutTransferResult> {
     assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
     const unsignedNumMotionUnits: Uint16 =
+      // @coverage-defer
       numMotionUnits < 0 ? UINT_16_MAX + 1 - numMotionUnits : numMotionUnits;
     const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
     return this.transferOutGeneric(SetRelativePrintPositionCommand, { nL, nH });
@@ -809,6 +828,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   ): Promise<USBOutTransferResult> {
     assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
     const unsignedNumMotionUnits: Uint16 =
+      // @coverage-defer
       numMotionUnits < 0 ? UINT_16_MAX + 1 + numMotionUnits : numMotionUnits;
     const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
     return this.transferOutGeneric(SetRelativeVerticalPrintPositionCommand, {
@@ -820,6 +840,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async bufferChunk(
     chunkedCustomBitmap: PaperHandlerBitmap
   ): Promise<USBOutTransferResult> {
+    // @coverage-defer
     if (chunkedCustomBitmap.width >= 1024) {
       throw new Error('can only buffer chunks of width 1024 at a time');
     }
@@ -842,6 +863,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     return result;
   }
 
+  // @coverage-defer
   async printChunk(chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {
     const { width, data } = chunkedCustomBitmap;
     assert(

@@ -40,6 +40,7 @@ const rule: TSESLint.RuleModule<
           refContainer = refContainer.parent
         ) {
           if (refContainer.parent === node) {
+            // @coverage-defer
             if (node.params.includes(refContainer as TSESTree.Parameter)) {
               typeParameterReferencedByFunctionParamType = true;
             } else if (node.returnType === refContainer) {

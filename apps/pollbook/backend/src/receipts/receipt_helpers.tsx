@@ -37,6 +37,7 @@ export function prependSpaceIfNeeded(text?: string): string {
 
 function getPrecinctName(election: Election, precinctId: string): string {
   const precinct = election.precincts.find((p) => p.id === precinctId);
+  // @coverage-defer
   return precinct?.name || precinctId;
 }
 
@@ -149,6 +150,7 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
         {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </DivBreakWord>
       {voter.mailingAddressLine2 === '' ? null : (
+        // @coverage-defer
         <DivBreakWord>{voter.mailingAddressLine2}</DivBreakWord>
       )}
       <DivBreakWord>

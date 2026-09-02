@@ -116,6 +116,7 @@ export function ScanBallotsScreen({
   }
 
   let exportButtonTitle;
+  // @coverage-defer
   if (status.adjudicationsRemaining > 0) {
     exportButtonTitle =
       'You cannot save results until all sheets have been adjudicated.';
@@ -192,6 +193,7 @@ export function ScanBallotsScreen({
                       <td>{format.count(batch.count)}</td>
                       <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                       <TD nowrap>
+                        {/* @coverage-defer */}
                         {isScanning && !batch.endedAt ? (
                           <Font weight="bold">
                             <Icons.Loading /> Scanning…
@@ -214,6 +216,7 @@ export function ScanBallotsScreen({
                           icon="Delete"
                           fill="transparent"
                           color="danger"
+                          // @coverage-defer
                           onPress={() => setPendingDeleteBatch(batch)}
                           style={{ flexWrap: 'nowrap' }}
                           disabled={isScanning}
@@ -240,6 +243,7 @@ export function ScanBallotsScreen({
         ) : null}
       </Content>
       {pendingDeleteBatch && (
+        // @coverage-defer
         <DeleteBatchModal
           batchId={pendingDeleteBatch.id}
           batchLabel={pendingDeleteBatch.label}

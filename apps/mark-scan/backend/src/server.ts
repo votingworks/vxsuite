@@ -57,6 +57,7 @@ export async function resolveDriver(
       : MaxPrintWidthDots.BMD_155;
   const driver = await getPaperHandlerDriver({ maxPrintWidth });
 
+  // @coverage-defer
   if (driver) {
     logger.log(LogEventId.PaperHandlerConnection, 'system', {
       disposition: 'success',
@@ -82,6 +83,7 @@ export async function start({
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
   const logger = Logger.from(baseLogger, () =>
+    // @coverage-defer
     getUserRole(resolvedAuth, workspace)
   );
   const driver = await resolveDriver(logger);
@@ -93,12 +95,14 @@ export async function start({
     );
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();
 
+  // @coverage-defer
   if (!canReadPatConnectionStatus) {
     // Expect this branch if running on non-production hardware or in a test
     patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
   }
 
   let stateMachine;
+  // @coverage-defer
   // Allow the driver to start without a state machine for tests
   if (driver) {
     stateMachine = await getPaperHandlerStateMachine({

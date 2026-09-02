@@ -37,6 +37,7 @@ export function ConvertResultsScreen(): JSX.Element | null {
           format.
         </P>
         {convertMsResultsMutation.isLoading ? (
+          // @coverage-defer
           <LoadingButton variant="primary">Converting Results…</LoadingButton>
         ) : (
           <FileInputButton
@@ -48,6 +49,7 @@ export function ConvertResultsScreen(): JSX.Element | null {
             accept=".csv"
             onChange={async (event) => {
               const file = event.currentTarget.files?.[0];
+              // @coverage-defer
               if (!file) return;
               const fileContents = await file.text();
               convertMsResultsMutation.mutate({

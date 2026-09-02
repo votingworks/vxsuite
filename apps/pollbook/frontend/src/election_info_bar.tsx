@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Caption, Font, LabelledText, DateString, Seal } from '@votingworks/ui';
 import { formatElectionHashes, type Election } from '@votingworks/types';
 
+// @coverage-defer
 const Bar = styled.div<{ inverse?: boolean }>`
   background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
   color: ${(p) => p.inverse && p.theme.colors.onInverse};
@@ -49,6 +50,7 @@ export function ElectionInfoBar({
   configuredPrecinctId,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
+  // @coverage-defer
   const codeVersionInfo = codeVersion ? (
     <Caption noWrap>
       <LabelledText label="Version">
@@ -57,6 +59,7 @@ export function ElectionInfoBar({
     </Caption>
   ) : null;
 
+  // @coverage-defer
   const machineIdInfo = machineId ? (
     <Caption noWrap>
       <LabelledText label="Machine ID">

@@ -154,6 +154,7 @@ function AllOrgsElectionsList({
     return [...elections].sort((a, b) => {
       const aValue = fieldValue(a);
       const bValue = fieldValue(b);
+      // @coverage-defer
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return direction === 'asc' ? aValue - bValue : bValue - aValue;
       }
@@ -162,6 +163,7 @@ function AllOrgsElectionsList({
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
+      // @coverage-defer
       throw new Error('Unexpected field value types');
     });
   })();

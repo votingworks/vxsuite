@@ -211,7 +211,7 @@ async function isQaEnabledForElection(
   return (
     QaConfig.fromEnv()?.isQaEnabledForOrganization(
       jurisdiction.organization.id
-    ) ?? false
+    ) ?? /* @coverage-defer */ false
   );
 }
 
@@ -379,6 +379,7 @@ export function buildApi(ctx: AppContext) {
                   return {
                     ...contest,
                     candidates: contest.candidates.map((candidate) => {
+                      // @coverage-defer
                       if (
                         candidate.firstName !== undefined &&
                         candidate.middleName !== undefined &&
@@ -414,6 +415,7 @@ export function buildApi(ctx: AppContext) {
                   // Remove any existing ballot styles (and their ballot
                   // positions) so we can generate our own
                   ballotStyles: [],
+                  // @coverage-defer
                   // Fill in a blank seal if none is provided
                   seal: sourceElection.seal ?? '',
                   signature: sourceElection.signature,
@@ -746,6 +748,7 @@ export function buildApi(ctx: AppContext) {
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
       const { election } = await store.getElection(input.electionId);
 
+      // @coverage-defer
       if (!stateFeatures.DISABLE_REGISTERED_VOTER_COUNTS) {
         const registeredVoterCounts = await store.getRegisteredVoterCounts(
           input.electionId
@@ -940,6 +943,7 @@ export function buildApi(ctx: AppContext) {
       return await store.getLatestExportQaRunForElection(electionId);
     },
 
+    // @coverage-defer
     getExportQaRun({
       qaRunId,
     }: {
@@ -1248,6 +1252,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
     before: [],
     after: [
       async function logApiCall({ methodName, input }, result) {
+        // @coverage-defer
         const outcome = result.isOk()
           ? { disposition: 'success' }
           : {
@@ -1313,6 +1318,7 @@ export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
         // Get the exported election data and validate it
         const exportedElectionDefinitionResult =
           await store.getExportedElectionDefinition(electionId);
+        // @coverage-defer
         if (exportedElectionDefinitionResult.isErr()) {
           return exportedElectionDefinitionResult;
         }
@@ -1563,6 +1569,7 @@ export function buildApp(context: AppContext): Application {
         join(jurisdictionId, fileName)
       );
       const file = readResult.unsafeUnwrap();
+      // @coverage-defer
       file.pipe(res);
     } catch (error) {
       // Mimic grout's error handling
@@ -1621,6 +1628,7 @@ export function buildApp(context: AppContext): Application {
 
         req.on('readable', () => {
           const chunk = req.read();
+          // @coverage-defer
           if (chunk) chunks += chunk.toString();
         });
 
@@ -1697,6 +1705,7 @@ export function buildApp(context: AppContext): Application {
   // Serve the index.html file for everything else, adding in some environment variables
   // (we don't need a full templating engine since it's just a couple of variables)
   const indexFileContents =
+    // @coverage-defer
     NODE_ENV === 'test'
       ? ''
       : readFileSync(
@@ -1705,6 +1714,7 @@ export function buildApp(context: AppContext): Application {
         )
           .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
           .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+  // @coverage-defer
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });

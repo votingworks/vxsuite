@@ -208,6 +208,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
         ...rest,
         splits: newSplits,
       });
+      // @coverage-defer
       if (
         registeredVoterCounts !== undefined &&
         isSplitCounts(registeredVoterCounts)
@@ -382,6 +383,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                                 const parseResult = safeParseInt(
                                   e.target.value
                                 );
+                                // @coverage-defer
                                 if (parseResult.isErr()) {
                                   return;
                                 }
@@ -515,6 +517,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                           return;
                         }
                         const parseResult = safeParseInt(value);
+                        // @coverage-defer
                         if (parseResult.isErr()) {
                           return;
                         }

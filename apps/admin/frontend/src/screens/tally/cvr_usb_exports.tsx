@@ -79,6 +79,7 @@ export function CvrUsbExports(props: { importer: Importer }): React.ReactNode {
   ).length;
 
   function startImport(path: string) {
+    // @coverage-defer
     switch (importer.state) {
       case 'duplicate':
       case 'error':

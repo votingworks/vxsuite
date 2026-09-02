@@ -509,6 +509,7 @@ export function convertVxfElectionToCdfBallotDefinition(
           .map((split) => split.id);
       }
 
+      // @coverage-defer
       // If the precinct doesn't have splits, verify districts match and return the precinct ID
       return deepEqual(
         precinct.districtIds.toSorted(),
@@ -627,6 +628,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                 pos.partyIds === undefined ||
                 deepEqual(orderedCandidate.partyIds, pos.partyIds))
           );
+          // @coverage-defer
           if (position) {
             physicalOptions.push({
               '@type': 'BallotDefinition.PhysicalContestOption',
@@ -730,6 +732,7 @@ export function convertVxfElectionToCdfBallotDefinition(
               },
             ],
             WriteInPosition:
+              // @coverage-defer
               position.type === 'write-in'
                 ? [
                     {
@@ -1013,6 +1016,7 @@ export function convertVxfElectionToCdfBallotDefinition(
             )
           : []
       ),
+      // @coverage-defer
       ...(vxfElection.pollingPlaces ?? []).map(
         (pollingPlace): Cdf.ReportingUnit => ({
           '@type': 'BallotDefinition.ReportingUnit',
@@ -1340,6 +1344,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       const placePrecincts: Record<Vxf.PrecinctId, Vxf.PollingPlacePrecinct> =
         {};
 
+      // @coverage-defer
       const memberIds = place.ComposingGpUnitIds || [];
       for (const precinct of precincts) {
         if (memberIds.includes(precinct['@id'])) {
@@ -1488,6 +1493,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0],
+        // @coverage-defer
         languages: ballotStyle.Language ?? ['en'],
         orderedCandidatesByContest,
         ballotPositions: ballotPositionsForCdfBallotStyle(ballotStyle),

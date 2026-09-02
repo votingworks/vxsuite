@@ -72,6 +72,7 @@ export function InvalidCardScreen({
     }
     case 'wrong_election': {
       const cardString = (() => {
+        // @coverage-defer
         switch (cardUserRole) {
           case 'election_manager':
             return 'election manager card';

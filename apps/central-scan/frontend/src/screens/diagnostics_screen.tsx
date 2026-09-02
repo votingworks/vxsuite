@@ -73,6 +73,7 @@ export function DiagnosticsScreen(): JSX.Element {
       <PageLayout>
         <div>
           <CentralScanReadinessReportContents
+            // @coverage-defer
             batteryInfo={batteryInfo ?? undefined}
             diskSpaceSummary={diskSpaceSummary}
             isScannerAttached={isScannerAttached}

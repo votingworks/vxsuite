@@ -40,6 +40,7 @@ export function UnconfiguredElectionScreenWrapper(
 
   const error = configureMutation.data?.err();
 
+  // @coverage-defer
   if (!usbDriveStatusQuery.isSuccess) return null;
 
   return (

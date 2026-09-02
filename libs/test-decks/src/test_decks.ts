@@ -120,6 +120,7 @@ export function generateTestDeckBallots({
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {};
         for (const contest of contests) {
+          // @coverage-defer
           if (contest.type === 'yesno') {
             // Cycle through all options so every option gets a ballot
             const optionIndex = ballotNum % contest.options.length;
@@ -161,6 +162,7 @@ export function generateTestDeckBallots({
               contest.candidates.length > contest.seats
             );
           });
+          // @coverage-defer
           if (overvoteContest) {
             // @coverage-exclude
             if (overvoteContest.type === 'straight-party') {

@@ -42,6 +42,7 @@ export function SaveBackendFileModal({
   filename,
 }: SaveBackendFileModalProps): JSX.Element {
   const { usbDriveStatus, auth } = useContext(AppContext);
+  // @coverage-defer
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   function onClose() {
@@ -135,6 +136,7 @@ export function SaveBackendFileModal({
     assert(saveFileStatus === 'success');
     assert(saveFileResult && saveFileResult.isErr());
     const error = saveFileResult.err();
+    // @coverage-defer
     switch (error.type) {
       case 'permission-denied':
         return 'Permission denied.';

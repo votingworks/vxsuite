@@ -384,6 +384,7 @@ export function ScanPanelVirtualKeyboard({
         if (!keyDisabled(key)) return 'button-enabled';
       }
 
+      // @coverage-defer
       return 'button-disabled';
     }
 

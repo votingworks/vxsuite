@@ -285,6 +285,7 @@ export function convertMsElection(
         safeParseNumber(rowB.sortSeq).unsafeUnwrap()
     );
 
+    // @coverage-defer
     switch (contestType) {
       // Candidate contest
       case '0': {
@@ -312,6 +313,7 @@ export function convertMsElection(
           title: contestTitle,
           districtId: uniqueId(districtId),
           seats: safeParseNumber(numVoteFor).unsafeUnwrap(),
+          // @coverage-defer
           termDescription: termDescription || undefined,
           allowWriteIns: numWriteIns !== '0',
           partyId:

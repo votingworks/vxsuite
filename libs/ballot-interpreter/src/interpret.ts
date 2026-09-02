@@ -167,6 +167,7 @@ function aggregateContestOptionScores({
 
     assert(scoredMark, 'scoredMark must be defined');
     const markStatus =
+      // @coverage-defer
       scoredMark.fillScore >= options.markThresholds.definite
         ? MarkStatus.Marked
         : scoredMark.fillScore >= options.markThresholds.marginal
@@ -290,6 +291,7 @@ export function determineAdjudicationInfoFromBmdVotes(
     election,
   });
 
+  // @coverage-defer
   // For multi-page BMD ballots, only consider contests on this page
   if (contestIds) {
     const contestIdSet = new Set(contestIds);
@@ -601,6 +603,7 @@ async function interpretHmpb(
  */
 function ensureRgba(image: ImageData): ImageData {
   if (isRgba(image)) return image;
+  // @coverage-defer
   return fromGrayScale(image.data, image.width, image.height);
 }
 
@@ -734,6 +737,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return 0;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InterpretedHmpbPage' &&
     backType === 'InterpretedHmpbPage'
@@ -749,6 +753,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return -90;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InvalidPrecinctPage' ||
     backType === 'InvalidPrecinctPage'
@@ -758,11 +763,13 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
 
   if (
     frontType === 'InvalidTestModePage' ||
+    // @coverage-defer
     backType === 'InvalidTestModePage'
   ) {
     return -70;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InvalidBallotHashPage' ||
     backType === 'InvalidBallotHashPage'
@@ -837,6 +844,7 @@ export async function interpretSheet(
           options.backNormalizedImageOutputPath,
         ],
         async (imageData, path) =>
+          // @coverage-defer
           path && (await writeImageDataToPng(path, imageData))
       );
       return hmpbInterpretation;

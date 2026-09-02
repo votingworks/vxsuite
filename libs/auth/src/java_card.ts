@@ -245,6 +245,7 @@ export class JavaCard implements Card {
       configOverride ?? /* @coverage-exclude */ constructJavaCardConfig();
     this.cardProgrammingConfig = config.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card_reader' };
+    // @coverage-exclude
     this.generateChallenge =
       config.generateChallengeOverride ??
       /* istanbul ignore next */ (() =>

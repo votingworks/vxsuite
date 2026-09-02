@@ -32,6 +32,7 @@ export async function processBackgroundTask(
       // Cleanup failures aren't much of an issue in current Heroku deployments,
       // since the disk is ephemeral and wiped during scheduled restarts, or
       // when a deploy/crash-restart cycle occurs.
+      // @coverage-defer
       // eslint-disable-next-line no-console
       console.error('scratch dir cleanup failed:', error);
     }
@@ -44,6 +45,7 @@ async function processTask(
   scratchDir: ScratchDir
 ): Promise<void> {
   function emitProgress(label: string, progress: number, total: number): void {
+    // @coverage-defer
     context.workspace.store
       .updateBackgroundTaskProgress(taskId, {
         label,

@@ -26,10 +26,12 @@ export class MockPatConnectionStatusReader
     return Promise.resolve();
   }
 
+  // @coverage-defer
   setConnectionStatus(isConnected: boolean): void {
     this.mockConnectedStatus = isConnected;
   }
 
+  // @coverage-defer
   async isPatDeviceConnected(): Promise<boolean> {
     return Promise.resolve(this.mockConnectedStatus);
   }

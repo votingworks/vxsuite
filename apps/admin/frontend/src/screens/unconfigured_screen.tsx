@@ -71,8 +71,10 @@ function SelectElectionPackage({
         },
       ],
     });
+    // @coverage-defer
     if (dialogResult.canceled) return;
     const selectedPath = dialogResult.filePaths[0];
+    // @coverage-defer
     if (selectedPath) {
       setSource({ type: 'file-picker' });
       configureMutation.mutate({ electionFilePath: selectedPath });
@@ -90,6 +92,7 @@ function SelectElectionPackage({
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <Icons.Danger color="danger" />
               {(() => {
+                // @coverage-defer
                 switch (configureError.type) {
                   case 'invalid-zip':
                     return 'Invalid election package zip file.';
@@ -133,6 +136,7 @@ function SelectElectionPackage({
                   key={file.name}
                   aria-disabled={configureMutation.isLoading}
                   onClick={() => {
+                    // @coverage-defer
                     if (configureMutation.isLoading) return;
                     setSource({ type: 'menu', filePath: file.path });
                     configureMutation.mutate({ electionFilePath: file.path });

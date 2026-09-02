@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Svg } from './svg';
 
 export function CalibrationInsertSingleSheetIllustration(): JSX.Element {

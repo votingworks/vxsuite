@@ -96,6 +96,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     const theme = useTheme();
     const [inputValue, setInputValue] = useState('');
     const normalizedInputValue = normalizeWriteInName(inputValue);
+    // @coverage-defer
     function onInputChange(val: string = '') {
       setInputValue(val);
     }

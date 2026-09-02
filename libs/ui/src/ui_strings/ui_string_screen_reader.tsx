@@ -260,6 +260,7 @@ export function UiStringScreenReader(
       const i18nKey = audioElement.getAttribute(I18N_KEY);
       const languageCode = audioElement.getAttribute(LANGUAGE_CODE);
 
+      // @coverage-defer
       if (i18nKey && languageCode) {
         newI18nKeys.push({ i18nKey, languageCode });
       }
@@ -295,6 +296,7 @@ export function UiStringScreenReader(
   let clipQueue = EMPTY_CLIP_QUEUE;
 
   const isDataReady = Object.values(audioIdQueries).every((q) => q.isSuccess);
+  // @coverage-defer
   if (isDataReady) {
     // To avoid interrupting in-progress screen reader audio, only play audio
     // feedback if the UI string audio queue is empty:

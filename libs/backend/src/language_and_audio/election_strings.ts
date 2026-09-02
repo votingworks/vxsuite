@@ -244,6 +244,7 @@ const electionStringExtractorFns: Record<
     }));
   },
   [ElectionStringKey.POLLING_PLACE_NAME](election) {
+    // @coverage-defer
     return (election.pollingPlaces || []).map((place) => ({
       stringKey: [ElectionStringKey.POLLING_PLACE_NAME, place.id],
       stringInEnglish: place.name,

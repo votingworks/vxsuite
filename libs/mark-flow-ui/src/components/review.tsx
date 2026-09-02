@@ -201,6 +201,7 @@ function StraightPartyContestResult({
       ]
     : [];
 
+  // @coverage-defer
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
     : appStrings.noteBallotContestNoSelection();
@@ -287,6 +288,7 @@ export function Review({
   selectionsAreEditable = true,
 }: ReviewProps): JSX.Element {
   function onChangeClick(contestId: ContestId) {
+    // @coverage-defer
     if (!returnToContest) {
       return;
     }
@@ -303,6 +305,7 @@ export function Review({
           data-testid={`contest-wrapper-${contest.id}`}
           key={contest.id}
           onKeyDown={(event) => {
+            // @coverage-defer
             if (event.key === 'Enter' || event.key === ' ') {
               // Default behavior for Space key is to scroll and should be prevented.
               // See code example at https://www.w3.org/WAI/ARIA/apg/patterns/button/examples/button/

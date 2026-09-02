@@ -59,6 +59,7 @@ const rule: TSESLint.RuleModule<
       NewExpression: checkCall,
 
       UnaryExpression(node: TSESTree.UnaryExpression): void {
+        // @coverage-defer
         if (node.operator === '+') {
           context.report({
             node,

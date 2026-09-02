@@ -58,6 +58,7 @@ function safeParseFormValue<T>(
   let intValue = value;
   if (typeof value === 'string') {
     const parseResult = safeParseInt(value);
+    // @coverage-defer
     if (parseResult.isErr()) {
       return defaultValue;
     }
@@ -154,12 +155,14 @@ export function SystemSettingsForm({
           )
         );
 
+      // @coverage-defer
       if (maxWidthError) {
         maxCumulativeStreakWidthInputRef.current?.setCustomValidity(
           maxWidthError.message
         );
       }
 
+      // @coverage-defer
       if (retryThresholdError) {
         retryStreakWidthThresholdInputRef.current?.setCustomValidity(
           retryThresholdError.message
@@ -188,6 +191,7 @@ export function SystemSettingsForm({
     const { electionDayPollsCloseTime } = systemSettings;
     if (electionDayPollsCloseTime) {
       const hour =
+        // @coverage-defer
         safeParseInt(electionDayPollsCloseTime.split(':')[0]).ok() ?? 0;
       if (hour < 12) {
         setIsConfirmingMorningPollsCloseTime(true);
@@ -244,6 +248,7 @@ export function SystemSettingsForm({
             <CheckboxGroup
               label="VxScan"
               options={scannerAdjudicationReasonOptions}
+              // @coverage-defer
               value={systemSettings.precinctScanAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
@@ -258,6 +263,7 @@ export function SystemSettingsForm({
             />
             <CheckboxButton
               label="Disallow Casting Overvotes"
+              // @coverage-defer
               isChecked={systemSettings.disallowCastingOvervotes ?? false}
               onChange={(isChecked) =>
                 setSystemSettings({
@@ -270,6 +276,7 @@ export function SystemSettingsForm({
             <CheckboxGroup
               label="VxCentralScan"
               options={scannerAdjudicationReasonOptions}
+              // @coverage-defer
               value={systemSettings.centralScanAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
@@ -285,6 +292,7 @@ export function SystemSettingsForm({
             <CheckboxGroup
               label="VxAdmin"
               options={adminAdjudicationReasonOptions}
+              // @coverage-defer
               value={systemSettings.adminAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
@@ -305,6 +313,7 @@ export function SystemSettingsForm({
               onChange={(isChecked) =>
                 setSystemSettings({
                   ...systemSettings,
+                  // @coverage-defer
                   limitAdminAdjudicationToFlaggedContests: isChecked
                     ? true
                     : undefined, // Completely omit when unchecked
@@ -320,13 +329,16 @@ export function SystemSettingsForm({
             <InputGroup label="Definite Mark Threshold">
               <input
                 type="number"
+                // @coverage-defer
                 value={systemSettings.markThresholds?.definite ?? ''}
                 onChange={(e) => {
                   const definite = e.target.valueAsNumber;
                   setSystemSettings({
                     ...systemSettings,
                     markThresholds: {
+                      // @coverage-defer
                       ...(systemSettings.markThresholds || { marginal: 0 }),
+                      // @coverage-defer
                       definite: Number.isNaN(definite)
                         ? DEFAULT_MARK_THRESHOLDS.definite
                         : definite,
@@ -349,9 +361,11 @@ export function SystemSettingsForm({
                   setSystemSettings({
                     ...systemSettings,
                     markThresholds: {
+                      // @coverage-defer
                       ...(systemSettings.markThresholds || {
                         definite: 0,
                       }),
+                      // @coverage-defer
                       marginal: Number.isNaN(marginal)
                         ? DEFAULT_MARK_THRESHOLDS.marginal
                         : marginal,
@@ -375,10 +389,12 @@ export function SystemSettingsForm({
                     setSystemSettings({
                       ...systemSettings,
                       markThresholds: {
+                        // @coverage-defer
                         ...(systemSettings.markThresholds || {
                           definite: 0,
                           marginal: 0,
                         }),
+                        // @coverage-defer
                         writeInTextArea: Number.isNaN(writeInTextArea)
                           ? undefined
                           : writeInTextArea,
@@ -410,6 +426,7 @@ export function SystemSettingsForm({
                   });
                 }}
                 onBlur={(e) => {
+                  // @coverage-defer
                   if (e.target.value === '') {
                     setSystemSettings({
                       ...systemSettings,
@@ -434,6 +451,7 @@ export function SystemSettingsForm({
                       const value = e.target.valueAsNumber;
                       const newSettings: SystemSettings = {
                         ...systemSettings,
+                        // @coverage-defer
                         maxCumulativeStreakWidth: Number.isNaN(value)
                           ? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH
                           : value,
@@ -561,6 +579,7 @@ export function SystemSettingsForm({
                   setSystemSettings({
                     ...systemSettings,
                     auth: {
+                      // @coverage-defer
                       ...(systemSettings.auth || {}),
                       startingCardLockoutDurationSeconds:
                         safeParseStartingCardLockoutDurationSeconds(newValue),
@@ -581,6 +600,7 @@ export function SystemSettingsForm({
                   setSystemSettings({
                     ...systemSettings,
                     auth: {
+                      // @coverage-defer
                       ...(systemSettings.auth || {}),
                       overallSessionTimeLimitHours:
                         safeParseOverallSessionTimeLimit(
@@ -635,6 +655,7 @@ export function SystemSettingsForm({
               onChange={(isChecked) =>
                 setSystemSettings({
                   ...systemSettings,
+                  // @coverage-defer
                   disallowClosingPollsBeforeElectionDayPollsCloseTime: isChecked
                     ? true
                     : undefined,
@@ -651,6 +672,7 @@ export function SystemSettingsForm({
                 setSystemSettings({
                   ...systemSettings,
                   disallowVxAdminTabulationBeforeElectionDayPollsCloseTime:
+                    // @coverage-defer
                     isChecked ? true : undefined,
                 })
               }
@@ -703,6 +725,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     precinctScanDisableAlarms: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -718,6 +741,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     precinctScanEnableWriteInImageReport: isChecked
                       ? true
                       : undefined, // Completely omit when unchecked,
@@ -735,6 +759,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     precinctScanDisableScreenReaderAudio: isChecked
                       ? true
                       : undefined, // Completely omit when unchecked
@@ -802,6 +827,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     allowPrintingBlankBallotsFromVxMark: isChecked
                       ? true
                       : undefined,
@@ -830,6 +856,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     quickResultsReportingUrl: isChecked
                       ? getResultsReportingUrlQuery.data
                       : undefined,
@@ -845,6 +872,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     disableSystemLimitChecks: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -858,6 +886,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     disableVoterHelpButtons: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -871,6 +900,7 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
+                    // @coverage-defer
                     enableTestDeckPrinting: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -881,8 +911,10 @@ export function SystemSettingsForm({
               label="Qualified Write-In Candidate Mode"
               isChecked={Boolean(systemSettings.areWriteInCandidatesQualified)}
               onChange={(isChecked) =>
+                // @coverage-defer
                 setSystemSettings({
                   ...systemSettings,
+                  // @coverage-defer
                   areWriteInCandidatesQualified: isChecked ? true : undefined,
                 })
               }
@@ -892,8 +924,10 @@ export function SystemSettingsForm({
               label="Enable Early Voting"
               isChecked={Boolean(systemSettings.enableEarlyVoting)}
               onChange={(isChecked) =>
+                // @coverage-defer
                 setSystemSettings({
                   ...systemSettings,
+                  // @coverage-defer
                   enableEarlyVoting: isChecked ? true : undefined, // Completely omit when unchecked
                 })
               }

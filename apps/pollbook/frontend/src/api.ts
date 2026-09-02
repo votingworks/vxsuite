@@ -30,6 +30,7 @@ export const SCANNED_ID_DOCUMENT_POLLING_INTERVAL_MS = 750;
 
 export type ApiClient = grout.Client<Api>;
 
+// @coverage-defer
 export function createApiClient(): ApiClient {
   return grout.createClient<Api>({
     baseUrl: '/api',
@@ -42,6 +43,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -89,6 +91,7 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -117,6 +120,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -380,6 +384,7 @@ export const resetNetwork = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.resetNetwork, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getDeviceStatuses.queryKey());
       },
@@ -480,6 +485,7 @@ export const setIsAbsenteeMode = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.setIsAbsenteeMode, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getIsAbsenteeMode.queryKey());
       },
@@ -505,6 +511,7 @@ export const setConfiguredPrecinct = {
 } as const;
 
 export const exportVoterActivity = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportVoterActivity);

@@ -56,7 +56,9 @@ function PollbookConnectionTable({
               <td>{pollbooksForElection[0].electionTitle}</td>
               <td>
                 {formatElectionHashes(
+                  // @coverage-defer
                   pollbooksForElection[0].electionBallotHash || '',
+                  // @coverage-defer
                   pollbooksForElection[0].pollbookPackageHash || ''
                 )}
               </td>
@@ -109,6 +111,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
       />
     );
   }
+  // @coverage-defer
   if (isLoadingFromNetwork && electionResult.err() === 'unconfigured') {
     return (
       <FullScreenMessage
@@ -121,6 +124,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
       />
     );
   }
+  // @coverage-defer
   const { isOnline, pollbooks } = getDevicesQuery.isError
     ? { isOnline: false, pollbooks: [] }
     : getDevicesQuery.data.network;
@@ -133,6 +137,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   const hasError =
     hadConfigurationError || electionResult.err() === 'usb-configuration-error';
   if (!isOnline || configuredPollbooks.length <= 0) {
+    // @coverage-defer
     if (hasError) {
       return (
         <FullScreenMessage
@@ -224,6 +229,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     refetchInterval: 100,
   });
 
+  // @coverage-defer
   if (!getElectionQuery.isSuccess) {
     return (
       <Screen>

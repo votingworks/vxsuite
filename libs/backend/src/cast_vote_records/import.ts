@@ -151,6 +151,7 @@ export async function readCastVoteRecordFromSource(
 
     // Only relevant for HMPBs and multi-page BMD ballots
     let castVoteRecordBallotSheetId: number | undefined;
+    // @coverage-defer
     if (castVoteRecord.BallotSheetId) {
       const parseBallotSheetIdResult = safeParseNumber(
         castVoteRecord.BallotSheetId

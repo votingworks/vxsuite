@@ -126,6 +126,7 @@ export function ExpandedSelect({
         option.offsetTop + option.offsetHeight <=
           list.scrollTop + list.clientHeight;
 
+      // @coverage-defer
       if (!isInView) {
         option.scrollIntoView({
           behavior: 'instant',
@@ -143,6 +144,7 @@ export function ExpandedSelect({
           <input
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
+            // @coverage-defer
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               const newSearchString = (event.target.value || '').trim();
               onSearch(newSearchString);

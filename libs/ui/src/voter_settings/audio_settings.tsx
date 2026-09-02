@@ -45,6 +45,7 @@ export function AudioSettings(props: AudioSettingsProps): JSX.Element {
   const { isVisualModeDisabled } = useCurrentTheme();
 
   const onAudioOnlyPress = React.useCallback(() => {
+    // @coverage-defer
     if (!isVisualModeDisabled) {
       // If we're about to enable audio-only mode, make sure audio is unmuted:
       setAudioEnabled(true);

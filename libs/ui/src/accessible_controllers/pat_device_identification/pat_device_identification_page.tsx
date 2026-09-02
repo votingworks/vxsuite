@@ -96,6 +96,7 @@ export function PatDeviceIdentificationPage({
       actionButtons={
         <Button onPress={onExitCalibration}>
           {isDiagnostic ? (
+            // @coverage-defer
             <span>
               <Icons.Cancel /> Cancel Test
             </span>
@@ -109,6 +110,7 @@ export function PatDeviceIdentificationPage({
         <DiagnosticScreenHeader>
           <P>
             <Font weight="bold">
+              {/* @coverage-defer */}
               {isDiagnostic
                 ? 'Personal Assistive Technology Input Test'
                 : appStrings.titleBmdPatCalibrationIdentificationPage()}

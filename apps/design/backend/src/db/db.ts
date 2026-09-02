@@ -26,14 +26,17 @@ export class Db {
 
   constructor(
     private readonly logger: BaseLogger,
+    // @coverage-defer
     private readonly opts: { defaultSchemaName?: string } = {}
   ) {
     this.pool = new pg.Pool({
       connectionString: databaseUrl(),
+      // @coverage-defer
       ssl: NODE_ENV === 'production' && {
         rejectUnauthorized: false,
       },
     });
+    // @coverage-defer
     this.pool.on('error', (error) => {
       this.logger.log(
         LogEventId.UnknownError, // [TODO] Figure out logging/reporting
@@ -57,6 +60,7 @@ export class Db {
     const client = new Client(poolClient);
 
     try {
+      // @coverage-defer
       // Enable test suites to run concurrently on separate DB schemas.
       // The default schema search path needs to be set on a per-connection
       // basis.

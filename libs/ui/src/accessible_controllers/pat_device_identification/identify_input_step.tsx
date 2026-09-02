@@ -60,6 +60,7 @@ export function IdentifyInputStep({
       // Stop other listeners (e.g., app-level PAT handlers) from also handling this event
       event.stopImmediatePropagation();
 
+      // @coverage-defer
       if (event.key === behaviorToKeypressMap[inputName]) {
         switch (inputIdentificationPhase) {
           case 'unidentified':

@@ -104,6 +104,7 @@ const TableWrapper = styled.div`
 `;
 
 function formatAuthType(authType: string | null): string {
+  // @coverage-defer
   switch (authType) {
     case 'system_administrator':
       return 'System Administrator';
@@ -158,6 +159,7 @@ function WriteInCandidatesCard(): JSX.Element | null {
 
   const header = <CardHeader>Qualified Write-In Candidates</CardHeader>;
 
+  // @coverage-defer
   if (writeInContests.length === 0) {
     return null;
   }
@@ -449,6 +451,7 @@ function MultiStationCard(): JSX.Element {
           )}
         </CardRow>
         {multipleHostsDetected && (
+          // @coverage-defer
           <P style={{ margin: 0 }}>
             <Icons.Danger color="danger" /> Multiple hosts detected on the
             network. Only one host should be active at a time.

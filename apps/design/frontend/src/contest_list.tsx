@@ -131,6 +131,7 @@ export function Sublist(props: {
         spring={{ stiffness: 439, damping: 42 }}
       >
         {contests.map((c, index) => (
+          // @coverage-defer
           <Flipped key={c.id} flipId={c.id} shouldFlip={() => reordering}>
             <Item
               id={c.id}

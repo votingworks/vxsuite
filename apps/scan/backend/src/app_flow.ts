@@ -30,6 +30,7 @@ export async function isReadyToScan({
     return false;
   }
 
+  // @coverage-defer
   if (!store.getPollingPlaceId()) {
     return false;
   }

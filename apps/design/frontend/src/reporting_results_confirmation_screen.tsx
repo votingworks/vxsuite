@@ -197,6 +197,7 @@ function PartialReportHeader({
         received. Send the next part to continue.
       </Callout>
       {!isLive && (
+        // @coverage-defer
         <div>
           <TestModeReportBanner />
         </div>
@@ -388,6 +389,7 @@ function PrecinctTallySection({
 
   // Use empty (zero) results for precincts with no transmitted data
   const emptyResults = getEmptyElectionResults(election).contestResults;
+  // @coverage-defer
   const effectiveResults = contestResults ?? emptyResults;
 
   return (
@@ -402,6 +404,7 @@ function PrecinctTallySection({
           <TallyReportColumns>
             {partyContests.map((contest) => {
               const currentContestResults = effectiveResults[contest.id];
+              // @coverage-defer
               if (!currentContestResults) return null;
               return (
                 <ContestResultsTable

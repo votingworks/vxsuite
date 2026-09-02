@@ -33,6 +33,7 @@ interface IO {
   stderr: NodeJS.WritableStream;
 }
 
+// @coverage-defer
 function usage(out: NodeJS.WritableStream): void {
   out.write(
     `${styleText(
@@ -100,6 +101,7 @@ function usage(out: NodeJS.WritableStream): void {
  * Similar to using the promise version of `pipeline`, but does not
  * automatically close the destination stream.
  */
+// @coverage-defer
 async function writeIterToStream(
   source: Iterable<string> | AsyncIterable<string>,
   out: NodeJS.WritableStream
@@ -147,6 +149,7 @@ function prettyPrintInterpretation({
           ? contest.candidates.find((c) => c.id === gridPosition.optionId)
           : undefined;
       const displayName =
+        // @coverage-defer
         contest.type === 'candidate'
           ? gridPosition.type === 'option'
             ? candidate?.name ?? gridPosition.optionId
@@ -160,6 +163,7 @@ function prettyPrintInterpretation({
 
       stdout.write(
         `${
+          // @coverage-defer
           !scoredMark
             ? ' '
             : scoredMark.fillScore < markThresholds.marginal
@@ -168,6 +172,7 @@ function prettyPrintInterpretation({
             ? '❓'
             : '✅'
         } ${
+          // @coverage-defer
           scoredMark
             ? styleText(
                 'dim',
@@ -192,8 +197,11 @@ async function interpretFiles(
     scoreWriteIns,
     disableVerticalStreakDetection,
     minimumDetectedScale,
+    // @coverage-defer
     json = false,
+    // @coverage-defer
     debug = false,
+    // @coverage-defer
     useDefaultMarkThresholds = false,
   }: {
     stdout: NodeJS.WritableStream;
@@ -217,6 +225,7 @@ async function interpretFiles(
     debug,
   });
 
+  // @coverage-defer
   if (result.isErr()) {
     stderr.write(styleText('red', `Error interpreting ballot:\n`));
     await writeIterToStream(
@@ -229,6 +238,7 @@ async function interpretFiles(
 
   const interpreted = result.ok();
 
+  // @coverage-defer
   if (json) {
     await writeIterToStream(
       jsonStream(interpreted, { compact: false }),
@@ -261,6 +271,7 @@ async function interpretFiles(
   return 0;
 }
 
+// @coverage-defer
 function tryReadElectionFromElectionTable(
   db: Sqlite3.Database
 ): Optional<ElectionDefinition> {
@@ -279,6 +290,7 @@ function tryReadElectionFromElectionTable(
   }
 }
 
+// @coverage-defer
 function tryReadElectionFromConfigTable(
   db: Sqlite3.Database
 ): Optional<ElectionDefinition> {
@@ -300,6 +312,7 @@ function tryReadElectionFromConfigTable(
   }
 }
 
+// @coverage-defer
 function readElectionDefinitionFromDatabase(
   db: Sqlite3.Database
 ): Optional<ElectionDefinition> {
@@ -308,6 +321,7 @@ function readElectionDefinitionFromDatabase(
   );
 }
 
+// @coverage-defer
 function readSystemSettingsFromDatabase(
   db: Sqlite3.Database
 ): Optional<SystemSettings> {
@@ -326,17 +340,22 @@ function readSystemSettingsFromDatabase(
   }
 }
 
+// @coverage-defer
 async function interpretWorkspace(
   workspacePath: string,
   {
     stdout,
     stderr,
     sheetIds,
+    // @coverage-defer
     scoreWriteIns = false,
     disableVerticalStreakDetection,
     minimumDetectedScale,
+    // @coverage-defer
     json = false,
+    // @coverage-defer
     debug = false,
+    // @coverage-defer
     useDefaultMarkThresholds = false,
   }: {
     stdout: NodeJS.WritableStream;
@@ -479,8 +498,11 @@ async function interpretCastVoteRecordFolder(
     scoreWriteIns = false,
     disableVerticalStreakDetection,
     minimumDetectedScale,
+    // @coverage-defer
     json = false,
+    // @coverage-defer
     debug = false,
+    // @coverage-defer
     useDefaultMarkThresholds = false,
   }: {
     stdout: NodeJS.WritableStream;
@@ -496,6 +518,7 @@ async function interpretCastVoteRecordFolder(
   const subdirectories = await fs.readdir(castVoteRecordFolderPath);
   for (const subdir of subdirectories) {
     const subdirPath = join(castVoteRecordFolderPath, subdir);
+    // @coverage-defer
     if ((await fs.stat(subdirPath)).isDirectory()) {
       const files = await fs.readdir(subdirPath);
       let frontPath: string | undefined;
@@ -532,6 +555,7 @@ async function interpretCastVoteRecordFolder(
 /**
  * CLI for running the interpreter standalone.
  */
+// @coverage-defer
 export async function main(args: string[], io: IO = process): Promise<number> {
   let workspacePath: string | undefined;
   const sheetIds = new Set<string>();

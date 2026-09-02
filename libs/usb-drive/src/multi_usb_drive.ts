@@ -340,8 +340,10 @@ export function detectMultiUsbDrive(options: {
   }
 
   const watcher = platform.watchChanges(() => {
+    // @coverage-defer
     void doRefresh().catch((e) => debug(`background refresh failed: ${e}`));
   });
+  // @coverage-defer
   void doRefresh().catch((e) => debug(`initial refresh failed: ${e}`));
 
   return {

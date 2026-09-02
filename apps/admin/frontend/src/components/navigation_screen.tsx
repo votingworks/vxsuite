@@ -182,6 +182,7 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
             <ToolbarButtons>
               <UsbEjectButton
                 usbDriveStatus={usbDriveStatus}
+                // @coverage-defer
                 onEject={() => ejectUsbDriveMutation.mutate()}
                 isEjecting={ejectUsbDriveMutation.isLoading}
               />

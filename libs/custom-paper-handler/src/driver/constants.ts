@@ -88,6 +88,7 @@ export enum ScanTypes {
 }
 
 export function getBitsPerPixelForScanType(scanType: ScanTypes): number {
+  // @coverage-defer
   switch (scanType) {
     case ScanTypes.NA:
       return 0;

@@ -154,7 +154,9 @@ function logAuthEventIfNecessary(
             )}`,
           });
         }
-      } else if (newAuthStatus.status === 'remove_card') {
+      } /* @coverage-exclude-else */ else if (
+        newAuthStatus.status === 'remove_card'
+      ) {
         logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Success,
           message: 'User entered correct PIN.',

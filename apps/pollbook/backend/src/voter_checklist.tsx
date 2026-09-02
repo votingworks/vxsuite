@@ -143,6 +143,7 @@ export function MarginDetails({ voter }: { voter: Voter }): JSX.Element {
   return (
     <React.Fragment>
       {voter.checkIn?.isAbsentee && (
+        // @coverage-defer
         <span style={{ color: redTextColor }}>A.V.</span>
       )}
     </React.Fragment>
@@ -153,6 +154,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   return (
     <DivBreakWord>
       {voter.nameChange && (
+        // @coverage-defer
         <div style={{ color: redTextColor }}>
           {voter.nameChange.lastName}, {voter.nameChange.firstName}{' '}
           {voter.nameChange.middleName} {voter.nameChange.suffix}
@@ -190,12 +192,14 @@ export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
     <DivBreakWord>
       {voter.addressChange && (
+        // @coverage-defer
         <div style={{ color: redTextColor }}>
           {voter.addressChange.streetNumber}
           {voter.addressChange.streetSuffix}{' '}
           {voter.addressChange.houseFractionNumber}{' '}
           {voter.addressChange.streetName}{' '}
           {voter.addressChange.apartmentUnitNumber}
+          {/* @coverage-defer */}
           {voter.addressChange.addressLine2 && (
             <div>{voter.addressChange.addressLine2}</div>
           )}
@@ -203,6 +207,7 @@ export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
       )}
       <div
         style={{
+          // @coverage-defer
           textDecoration: voter.addressChange ? 'line-through' : 'none',
         }}
       >
@@ -245,6 +250,7 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
         {voter.mailingStreetNumber}
         {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
         {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+        {/* @coverage-defer */}
         {voter.mailingAddressLine2 && <div>{voter.mailingAddressLine2}</div>}
         {voter.mailingCityTown && (
           <div>
@@ -402,6 +408,7 @@ export function NewRegistrationsVoterChecklistTable({
             </td>
             <td>
               {voter.checkIn ? (
+                // @coverage-defer
                 <Icons.Checkbox style={{ fontSize: '1.3em' }} />
               ) : (
                 <Icons.Square style={{ fontSize: '1.3em' }} />

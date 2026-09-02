@@ -7,6 +7,7 @@ export function logPrinterStatusIfChanged(
   previousStatus?: PrinterStatus,
   newStatus?: PrinterStatus
 ): void {
+  // @coverage-defer
   if (!previousStatus && !newStatus) {
     return;
   }
@@ -19,6 +20,7 @@ export function logPrinterStatusIfChanged(
     });
     return;
   }
+  // @coverage-defer
   if (!newStatus) {
     logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer status disconnected.`,

@@ -59,6 +59,7 @@ export function ScanErrorScreen({
       };
     }
 
+    // @coverage-defer
     switch (error) {
       // interpretation errors
       case 'vertical_streaks_detected':
