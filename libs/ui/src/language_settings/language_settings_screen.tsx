@@ -31,7 +31,7 @@ export interface LanguageSettingsScreenProps {
 
 const COMPACT_SIZE_MODES = new Set<SizeMode>(['touchExtraLarge']);
 
-/* istanbul ignore next - presentational */
+// @coverage-exclude: presentational
 function getSpacingRem(p: { theme: DefaultTheme }) {
   return COMPACT_SIZE_MODES.has(p.theme.sizeMode) ? 0.3 : 0.5;
 }
@@ -103,7 +103,7 @@ export function LanguageSettingsScreen(
             hideLabel
             label="Available Languages"
             numColumns={
-              /* istanbul ignore next - presentational */
+              // @coverage-exclude: presentational
               screenInfo.isPortrait ? 1 : 2
             }
             onChange={setLanguage}

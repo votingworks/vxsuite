@@ -21,11 +21,11 @@ export interface StartOptions {
  * Starts the server.
  */
 export function start({ auth, baseLogger, workspace }: StartOptions): void {
-  /* istanbul ignore next */
+  // @coverage-exclude
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
   const logger = Logger.from(
     baseLogger,
-    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
+    /* @coverage-exclude */ () => getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDriveFromEnv({ logger });
   const printer = detectPrinter(logger);

@@ -228,7 +228,7 @@ export function convertMsResults(
             candidatePartyLabel: NONPARTISAN_PARTY_LABEL,
           };
         }
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (contest.type === 'straight-party') {
           return straightPartyNotYetImplemented();
         }

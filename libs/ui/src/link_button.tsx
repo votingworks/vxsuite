@@ -26,7 +26,7 @@ export const LinkButton = forwardRef(
       ...rest
     } = props;
     const handleOnPress: ClickHandler = () => {
-      /* istanbul ignore else */
+      // @coverage-defer
       if (goBack && !to) {
         history.goBack();
       } else if (to && !goBack) {

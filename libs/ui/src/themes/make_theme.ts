@@ -314,7 +314,7 @@ const WINDOWLESS_DEVICE_PIXEL_RATIO = 144;
 /** PPI calculation functions by screen type: */
 const devicePixelsPerInch: Record<ScreenType, () => number> = {
   builtIn: () =>
-    /* istanbul ignore next */
+    // @coverage-exclude
     typeof window === 'undefined'
       ? WINDOWLESS_DEVICE_PIXEL_RATIO
       : window.devicePixelRatio * PIXELS_PER_INCH_WEB,

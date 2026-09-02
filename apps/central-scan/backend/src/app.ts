@@ -428,7 +428,7 @@ function buildApi({
       });
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -450,7 +450,7 @@ function buildApi({
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
   });

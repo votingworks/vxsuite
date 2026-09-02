@@ -83,7 +83,7 @@ export function compressTally(
   );
   // eslint-disable-next-line array-callback-return
   return contests.map((contest) => {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       return straightPartyNotYetImplemented();
     }
@@ -234,7 +234,7 @@ function getContestTalliesForCompressedContest(
   contest: Contest,
   compressedContest: CompressedTallyEntry
 ): Tabulation.ContestResults {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -305,7 +305,7 @@ function getContestTalliesForCompressedContest(
 }
 
 function getNumberOfEntriesInContest(contest: Contest): number {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -361,7 +361,7 @@ export function decodeV0CompressedTally(
   );
   for (const contest of contests) {
     const tallyLength = getNumberOfEntriesInContest(contest);
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }
@@ -406,7 +406,7 @@ function decodeContestEntriesFromUint16Array(
       uint16Array.slice(currentOffset, currentOffset + tallyLength)
     );
     let compressedEntry: CompressedTallyEntry;
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }

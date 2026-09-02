@@ -251,7 +251,7 @@ export class Exporter {
         return false;
       }
 
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }

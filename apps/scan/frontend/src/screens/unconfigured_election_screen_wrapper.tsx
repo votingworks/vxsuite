@@ -56,7 +56,7 @@ export function UnconfiguredElectionScreenWrapper(
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <UnconfiguredElectionScreenWrapper isElectionManagerAuth />;
 }

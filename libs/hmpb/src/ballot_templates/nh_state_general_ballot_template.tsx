@@ -703,7 +703,7 @@ export async function BallotPageContent(
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest, index) => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }

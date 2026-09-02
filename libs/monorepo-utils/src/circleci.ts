@@ -151,7 +151,7 @@ function generateTestJobForNodeJsPackage(
           `                JEST_JUNIT_OUTPUT_DIR: ./reports/`,
           `          - store_test_results:`,
           `              path: ${pkg.relativePath}/${
-            /* istanbul ignore next */
+            // @coverage-exclude
             hasPlaywrightTests ? 'test-results' : 'reports'
           }/`,
         ]
@@ -305,7 +305,7 @@ function generateTestJobForPackage(
     return generateTestJobForNodeJsPackage(pkg, isConditional);
   }
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   throw new Error(`Unsupported package type: ${pkg.relativePath}`);
 }
 
@@ -336,7 +336,7 @@ function generateCircleCiFilteredAppConfigForPackage(
   pkg: PnpmPackageInfo
 ): string[] {
   const jobLines = generateTestJobForPackage(pkg, true); // Pass true for conditional
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!jobLines) {
     return [];
   }
@@ -465,7 +465,7 @@ export function generateAllConfigs(
   }, new Map<PnpmPackageInfo, string[]>());
   const pnpmJobsToFilter = jobsToRunOnChanges.reduce((memo, pkg) => {
     const jobLines = generateJobFilterForPackage(pkg);
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (!jobLines) {
       return memo;
     }
@@ -667,7 +667,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
   for (const pkg of jobsToRunOnChanges) {
     const filteredConfigLines =
       generateCircleCiFilteredAppConfigForPackage(pkg);
-    /* istanbul ignore else */
+    // @coverage-exclude-else
     if (filteredConfigLines.length > 0) {
       const filteredConfigPath = join(
         __dirname,

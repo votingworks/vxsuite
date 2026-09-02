@@ -167,7 +167,7 @@ function openFileBackedZip(
             }
             return new Promise((resolveStream, rejectStream) => {
               zipFile.openReadStream(entry, (streamError, maybeStream) => {
-                // istanbul ignore next - stream open failures require zip corruption in exactly the entry's local header
+                // @coverage-exclude: stream open failures require zip corruption in exactly the entry's local header
                 if (streamError) {
                   rejectStream(streamError);
                   return;

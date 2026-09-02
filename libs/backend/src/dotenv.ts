@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-exclude-file: process startup wiring, called only from the (excluded) index.ts entry points
 
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';

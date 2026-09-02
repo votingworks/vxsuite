@@ -58,7 +58,7 @@ export async function vetManifest(
         });
       }
 
-      /* istanbul ignore next: the manifest was read whole while it was being
+      /* @coverage-exclude: the manifest was read whole while it was being
          authenticated, so a read that fails now means its private copy went
          missing underneath us */
       case 'read-failed':

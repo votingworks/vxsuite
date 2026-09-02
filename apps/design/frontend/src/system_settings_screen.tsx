@@ -955,7 +955,7 @@ export function SystemSettingsForm({
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next */
+            // @coverage-exclude
             () => setIsConfirmingMorningPollsCloseTime(false)
           }
         />

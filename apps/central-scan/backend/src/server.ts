@@ -52,7 +52,7 @@ export function start({
 }: Partial<StartOptions> = {}): Server {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!resolvedWorkspace) {
     const workspacePath = getScanWorkspace();
     if (!workspacePath) {
@@ -89,7 +89,7 @@ export function start({
 
   let resolvedApp = app;
   let mockBatchScanner: MockBatchScanner | undefined;
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
       card:

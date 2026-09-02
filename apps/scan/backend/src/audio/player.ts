@@ -13,7 +13,7 @@ export interface PlayerInterface {
   play(soundName: SoundName): Promise<void>;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function getMockPlayer(): PlayerInterface {
   return {
     setIsScreenReaderEnabled: () => Promise.resolve(),

@@ -54,7 +54,7 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
           const typeChecker = parserServices.program.getTypeChecker();
 
           const mutation = deps.elements.find((element) => {
-            /* istanbul ignore next - unsure how to reproduce this @preserve */
+            // @coverage-exclude: unsure how to reproduce this
             if (!element) {
               return false;
             }

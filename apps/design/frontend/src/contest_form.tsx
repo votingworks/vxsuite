@@ -145,7 +145,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     string | null
   >(null);
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
@@ -927,7 +927,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next */
+            // @coverage-exclude
             () => setIsConfirmingDelete(false)
           }
         />

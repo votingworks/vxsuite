@@ -24,7 +24,7 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(p) =>
-    // istanbul ignore next
+    // @coverage-exclude
     p.theme.sizeMode === 'touchExtraLarge' ? 0.5 : 0.75}rem;
 
   @media (orientation: portrait) {

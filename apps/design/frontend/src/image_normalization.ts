@@ -75,7 +75,7 @@ export async function normalizeImageToSvg(
     const dataUrl = await loadBitmapImage(file);
     return normalizeBitmapToSvg(dataUrl, params);
   } catch (error) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     return err({ code: 'unexpected', error });
   }
 }
@@ -138,7 +138,7 @@ async function normalizeDataUrl(
         );
       }
 
-      /* istanbul ignore next - Manually tested */
+      // @coverage-exclude: Manually tested
       {
         const canvas = document.createElement('canvas');
         const context = assertDefined(canvas.getContext('2d'));
@@ -156,12 +156,12 @@ async function normalizeDataUrl(
         );
       }
     } catch (error) {
-      /* istanbul ignore next */
+      // @coverage-exclude
       resolve(err({ code: 'unexpected', error }));
     }
   }
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   function onError(event: ErrorEvent) {
     img.removeEventListener('load', onLoad);
 
@@ -186,7 +186,7 @@ async function normalizeDataUrl(
   return promise;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 async function canvasToDataUrl(
   canvas: HTMLCanvasElement,
   mimeType?: ImageType
@@ -216,7 +216,7 @@ async function loadBitmapImage(blob: Blob): Promise<string> {
   function onRead() {
     reader.removeEventListener('error', onError);
 
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (typeof reader.result !== 'string') {
       return reject(
         new Error(`Expected image data URL, got ${typeof reader.result}`)
@@ -226,7 +226,7 @@ async function loadBitmapImage(blob: Blob): Promise<string> {
     resolve(reader.result);
   }
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   function onError(event: ProgressEvent<FileReader>) {
     reader.removeEventListener('load', onRead);
 

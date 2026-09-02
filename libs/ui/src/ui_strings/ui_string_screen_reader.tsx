@@ -240,7 +240,7 @@ export function UiStringScreenReader(
 
     const { target } = activeEvent;
 
-    /* istanbul ignore next - tough to test firing click events on non-elements */
+    // @coverage-exclude: tough to test firing click events on non-elements
     if (!(target instanceof Element)) {
       return;
     }

@@ -137,7 +137,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   const setConfirmIdentity = useCallback(
     (voterId: string, identificationMethod: VoterIdentificationMethod) => {
       if (flowState.step !== 'search' && flowState.step !== 'select_party') {
-        /* istanbul ignore next */
+        // @coverage-exclude
         return;
       }
 

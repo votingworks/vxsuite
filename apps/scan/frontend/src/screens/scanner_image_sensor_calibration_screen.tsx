@@ -35,7 +35,7 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
   const endImageSensorCalibrationMutation =
     endImageSensorCalibration.useMutation();
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!scannerStatusQuery.isSuccess) return null;
   const status = scannerStatusQuery.data;
 

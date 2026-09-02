@@ -182,8 +182,7 @@ export async function tabulateElectionResults({
           });
         }
       );
-    } /* istanbul ignore next - debug only */ else {
-      /* istanbul ignore next */
+    } /* @coverage-exclude: debug only */ else {
       debug('filter or group by is not compatible with manual results');
     }
   }

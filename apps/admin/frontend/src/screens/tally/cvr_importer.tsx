@@ -209,7 +209,7 @@ function ManualImportButton(props: { disabled?: boolean; importFn: ImportFn }) {
 }
 
 export function errorMessage(err: ImportCastVoteRecordsError): string {
-  /* istanbul ignore next - mostly trivial error mapping */
+  // @coverage-exclude: mostly trivial error mapping
   switch (err.type) {
     case 'authentication-error': {
       return (

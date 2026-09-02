@@ -359,7 +359,7 @@ export function VirtualKeyboard({
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
-  /* istanbul ignore next */
+  // @coverage-exclude
   const handleKeyboardEventForVirtualKeyboard = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
       // Prevent propagation so behavior here overrides the app-level keydown listeners bound to `window`

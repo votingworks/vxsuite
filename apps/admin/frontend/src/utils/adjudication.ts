@@ -40,7 +40,7 @@ export function getOptionCoordinates(
   optionId: ContestOptionId
 ): Rect {
   const option = optionsLayout.find((opt) => opt.definition?.id === optionId);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!option) {
     throw new Error(
       'unable to find option in layout when determining option ballot coordinates'

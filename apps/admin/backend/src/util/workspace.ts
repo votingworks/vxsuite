@@ -152,7 +152,7 @@ export function createClientWorkspace(root: string): ClientWorkspace {
 /**
  * Path for the database file and other files
  */
-/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests */
+// @coverage-exclude: ADMIN_WORKSPACE is not set in tests
 export function resolveWorkspacePath(logger: BaseLogger): string {
   const workspacePath =
     process.env.ADMIN_WORKSPACE ??

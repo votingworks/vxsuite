@@ -57,7 +57,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
               <Button
                 variant="primary"
                 onPress={
-                  /* istanbul ignore next - no-op in tests */
+                  // @coverage-exclude: no-op in tests
                   () => rebootMutation.mutate()
                 }
               >

@@ -22,7 +22,7 @@ export function InvalidCardScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return (
     <InvalidCardScreen

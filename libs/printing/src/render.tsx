@@ -81,7 +81,7 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
-/* istanbul ignore next - cleanup function for vitest */
+// @coverage-exclude: cleanup function for vitest
 export async function cleanupCachedBrowser(): Promise<void> {
   if (cachedBrowser) {
     await cachedBrowser.close();

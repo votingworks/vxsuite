@@ -78,7 +78,7 @@ export function InvalidCardScreen({
           case 'poll_worker':
             return 'poll worker card';
           default:
-            /* istanbul ignore next */
+            // @coverage-exclude
             return 'card';
         }
       })();

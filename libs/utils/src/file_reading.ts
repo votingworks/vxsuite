@@ -20,7 +20,7 @@ export function readFile(file: File): Promise<Buffer> {
     const reader = new FileReader();
 
     reader.onerror =
-      /* istanbul ignore next */
+      // @coverage-exclude
       () => {
         reject(reader.error);
       };

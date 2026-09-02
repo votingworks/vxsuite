@@ -21,7 +21,7 @@ export function getMachineConfig(): MachineConfig {
  * reports.
  */
 export function getMachineJurisdiction(): string {
-  /* istanbul ignore next - covered by integration testing */
+  // @coverage-exclude: covered by integration testing
   return isIntegrationTest()
     ? TEST_JURISDICTION
     : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;

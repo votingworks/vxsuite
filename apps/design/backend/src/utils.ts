@@ -111,7 +111,7 @@ export function regenerateElectionIds(
     id: replaceId(contest.id),
     districtId: replaceId(contest.districtId),
     ...(() => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -162,8 +162,10 @@ export function regenerateElectionIds(
         newPrecincts[newPrecinctId] =
           oldPrecinct.type === 'whole'
             ? { ...oldPrecinct }
-            : /* istanbul ignore next - not yet supported (asserted at the store level) */
-              { ...oldPrecinct, splitIds: oldPrecinct.splitIds.map(replaceId) };
+            : /* @coverage-defer: not yet supported (asserted at the store level) */ {
+                ...oldPrecinct,
+                splitIds: oldPrecinct.splitIds.map(replaceId),
+              };
       }
 
       return {

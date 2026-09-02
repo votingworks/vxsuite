@@ -39,7 +39,7 @@ export function getLiveReportsPollingPlaces({
   }
 
   const pollingPlaces = (
-    election.pollingPlaces ?? /* istanbul ignore next */ []
+    election.pollingPlaces ?? /* @coverage-exclude */ []
   ).filter((place) => pollingPlaceIds.has(place.id));
   assert(
     pollingPlaces.length === pollingPlaceIds.size,

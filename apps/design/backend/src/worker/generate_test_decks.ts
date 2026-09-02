@@ -192,7 +192,7 @@ async function generate(
       },
     });
     renderedBallots += ballotSpecs.length;
-    /* istanbul ignore else */
+    // @coverage-exclude-else
     if (testDeckPdf) {
       const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
       zip.file(fileName, testDeckPdf);
@@ -215,7 +215,7 @@ async function generate(
       },
     });
     renderedBallots += ballotSpecs.length;
-    /* istanbul ignore else */
+    // @coverage-exclude-else
     if (summaryBallotPdf) {
       const summaryFileName = `${precinct.name.replaceAll(
         ' ',

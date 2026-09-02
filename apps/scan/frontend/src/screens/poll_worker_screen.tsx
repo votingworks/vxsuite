@@ -992,7 +992,7 @@ export function PollWorkerScreen(
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function BallotsAlreadyScannedScreenPreview(): JSX.Element {
   return BallotsAlreadyScannedScreen;
 }

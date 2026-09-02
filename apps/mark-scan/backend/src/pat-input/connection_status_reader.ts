@@ -58,7 +58,7 @@ export class PatConnectionStatusReader
 
       if (openResult.isErr()) {
         const openError = openResult.err();
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!openError.message.match('ENOENT')) {
           this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
             message: `Unexpected error connecting to pin at ${address}: ${openError}`,
@@ -98,7 +98,7 @@ export class PatConnectionStatusReader
       const openResult = await fsOpen(path);
 
       if (openResult.isErr()) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!openResult.err().message.match('ENOENT')) {
           /* istanbul ignore next */
           this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {

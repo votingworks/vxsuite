@@ -164,7 +164,7 @@ export function createMockPdiScanner(
 ): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (listeners.size === 0) {
       throw new Error(
         `No listeners registered, got event: ${JSON.stringify(event)}`
@@ -189,7 +189,7 @@ export function createMockPdiScanner(
       DISCONNECT: 'disconnected',
       '*': {
         actions: (_, event) => {
-          /* istanbul ignore next */
+          // @coverage-exclude
           emitScannerEvent({
             event: 'error',
             code: 'other',
@@ -366,7 +366,7 @@ export function createMockPdiScanner(
         case state.matches('ejectingToFrontAndHold'):
           return ok(mockScannerStatus.documentInFrontAndRear);
         default: {
-          /* istanbul ignore next */
+          // @coverage-exclude
           return err({
             code: 'other',
             message: `Unexpected state: ${state.value}`,
@@ -393,25 +393,25 @@ export function createMockPdiScanner(
       return ok();
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
     /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
     /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     calibrateImageSensors() {
       throw new Error('Not implemented');
     },
     /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     reboot() {
       throw new Error('Not implemented');
     },
@@ -423,7 +423,7 @@ export function createMockPdiScanner(
       return ok();
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     exit() {
       throw new Error('Not implemented');
     },

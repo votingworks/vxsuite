@@ -42,7 +42,7 @@ export function getCandidateOrderingByPrecinctAlphabetical({
     > = {};
 
     for (const contest of contests) {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -105,7 +105,7 @@ function getDefaultCandidateOrdering({
   > = {};
 
   for (const contest of contests) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       return straightPartyNotYetImplemented();
     }

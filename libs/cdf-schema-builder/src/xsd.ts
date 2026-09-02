@@ -58,7 +58,7 @@ export function extractDocumentation(element: Element): string | undefined {
     if (documentationElements.length > 0) {
       return (
         (documentationElements[0] as Element).textContent ??
-        /* istanbul ignore next - in practice textContent never seems to be `null` */ undefined
+        /* @coverage-exclude: in practice textContent never seems to be `null` */ undefined
       );
     }
   }

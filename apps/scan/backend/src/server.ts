@@ -59,7 +59,7 @@ export async function start({
 
   // TODO: We can likely consolidate on the file-based mock scanner in all
   // cases — the branching here isn't known to be required.
-  /* istanbul ignore next */
+  // @coverage-exclude
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
   )
@@ -107,7 +107,7 @@ export async function start({
   const api = buildApi(context);
   const app = buildApp(context, api);
 
-  /* istanbul ignore next - internal dev use only */
+  // @coverage-exclude: internal dev use only
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureElection(),

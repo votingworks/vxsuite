@@ -74,7 +74,7 @@ export function databaseUrl(): string {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function authEnabled(): boolean {
   if (NODE_ENV === 'production') {
     return true;
@@ -85,7 +85,7 @@ export function authEnabled(): boolean {
   return envVar.toLowerCase() === 'true';
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function baseUrl(): string {
   // Special case to support Heroku review apps
   const herokuAppName = process.env['HEROKU_APP_NAME'];
@@ -96,22 +96,22 @@ export function baseUrl(): string {
   return requiredProdEnvVar('BASE_URL', `http://localhost:${FRONTEND_PORT}`);
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0ClientId(): string {
   return requiredProdEnvVar('AUTH0_CLIENT_ID', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0ClientDomain(): string {
   return requiredProdEnvVar('AUTH0_CLIENT_DOMAIN', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0IssuerBaseUrl(): string {
   return requiredProdEnvVar('AUTH0_ISSUER_BASE_URL', '');
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
 }

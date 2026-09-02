@@ -402,7 +402,7 @@ async function insertContest(
   ballotOrder?: number
 ) {
   await assertWithinTransaction(client);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -585,7 +585,7 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 export class Store {
   constructor(private readonly db: Db) {}
 
-  /* istanbul ignore start */
+  // @coverage-exclude
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
   }
@@ -1574,7 +1574,7 @@ export class Store {
       ) {
         return err('duplicate-title-and-date');
       }
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }
@@ -1598,7 +1598,7 @@ export class Store {
       ) {
         return err({ code: 'duplicate-name', districtId: district.id });
       }
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw error;
     }
   }
@@ -1751,7 +1751,7 @@ export class Store {
                   // user will resolve this manually.
                   break;
 
-                /* istanbul ignore next - shouldn't be possible */
+                // @coverage-exclude: shouldn't be possible
                 case 'invalid-precinct':
                   throw new Error(
                     `unexpected polling place generation error: ${error}`

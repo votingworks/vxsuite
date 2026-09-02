@@ -131,7 +131,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const auth = createAuth('host', baseLogger);
       const logger = Logger.from(
         baseLogger,
-        /* istanbul ignore next */
+        // @coverage-exclude
         () => getUserRole(auth, workspace.store)
       );
       const multiUsbDrive =
@@ -219,7 +219,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const auth = createAuth('client', baseLogger);
       const logger = Logger.from(
         baseLogger,
-        /* istanbul ignore next */
+        // @coverage-exclude
         () => getUserRole(auth, clientWorkspace.clientStore)
       );
 

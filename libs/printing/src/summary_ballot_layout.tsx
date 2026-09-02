@@ -83,7 +83,7 @@ function selectLayout(contestCount: number, machineType: MachineType): Layout {
   const layouts = [...ORDERED_BMD_BALLOT_LAYOUTS[machineType]].reverse();
   const layout = layouts.find((l) => contestCount >= l.minContests);
   // Fallback is defensive - all machine types have a layout with minContests: 0
-  /* istanbul ignore next */
+  // @coverage-exclude
   return layout ?? layouts[layouts.length - 1];
 }
 
@@ -288,7 +288,7 @@ export class SummaryBallotLayoutRenderer {
   private page: Page | null = null;
 
   async initialize(): Promise<void> {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (!this.browser) {
       this.browser = await chromium.launch({
         args: ['--font-render-hinting=none'],
@@ -299,7 +299,7 @@ export class SummaryBallotLayoutRenderer {
   }
 
   async close(): Promise<void> {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
@@ -394,7 +394,7 @@ export class SummaryBallotLayoutRenderer {
       remainingContests = remainingContests.slice(maxFit);
       pageNumber += 1;
 
-      /* istanbul ignore next - safety check for runaway page computation */
+      // @coverage-exclude: safety check for runaway page computation
       if (pageNumber > 20) {
         throw new Error(
           `Too many pages computed for ballot style ${ballotStyleId}`

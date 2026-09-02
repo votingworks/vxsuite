@@ -81,7 +81,7 @@ export function ClientAppRoot(): JSX.Element | null {
       <UnlockMachineScreen
         auth={auth}
         checkPin={
-          /* istanbul ignore next - tested via host app */
+          // @coverage-exclude: tested via host app
           async (pin) => {
             try {
               await checkPinMutation.mutateAsync({ pin });
@@ -140,9 +140,9 @@ export function ClientAppRoot(): JSX.Element | null {
         apiClient={apiClient}
         isMachineConfigured={Boolean(electionRecord)}
         logOut={logOutMutation.mutate}
-        unconfigureMachine={async () => {
-          /* istanbul ignore next - no-op on client */
-        }}
+        unconfigureMachine={
+          /* @coverage-exclude: no-op on client */ async () => {}
+        }
       />
     );
   }

@@ -488,7 +488,7 @@ function BallotCountTable({
   // we show the sheet counts if the flag is true even if it's a single-sheet
   // election. it's the caller's responsibility to check the election definition
   if (includeSheetCounts) {
-    /* istanbul ignore next - trivial default value */
+    // @coverage-exclude: trivial default value
     const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });

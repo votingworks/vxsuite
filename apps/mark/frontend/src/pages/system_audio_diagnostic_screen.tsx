@@ -43,7 +43,7 @@ export function SystemAudioDiagnosticScreen({
             disabled
             icon="SoundOn"
             onPress={
-              /* istanbul ignore next */
+              // @coverage-exclude
               () => {}
             }
           >

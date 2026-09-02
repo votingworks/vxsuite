@@ -129,7 +129,7 @@ class KeyedTaskRunner<Key, Task> {
   }
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function detectMultiUsbDriveFromEnv(options: {
   logger: Logger;
 }): MultiUsbDrive {

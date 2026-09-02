@@ -303,7 +303,7 @@ function emptyFormContestResults(
   contest: Contest,
   ballotCount?: number
 ): FormContestResults {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }

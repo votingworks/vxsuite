@@ -23,7 +23,7 @@ function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {
 export function generateMockVotes(election: Election): VotesDict {
   return Object.fromEntries(
     election.contests.map((c, index) => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (c.type === 'straight-party') {
         straightPartyNotYetImplemented();
       }

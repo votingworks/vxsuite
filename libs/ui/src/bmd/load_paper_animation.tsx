@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import { rgba } from 'polished';
 import styled, { css, keyframes } from 'styled-components';
 import { Svg } from '../svg';

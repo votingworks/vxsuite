@@ -152,7 +152,7 @@ function ElectionInfoForm({
   let errorMessage;
   if (updateElectionInfoMutation.data?.isErr()) {
     const error = updateElectionInfoMutation.data.err();
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (error !== 'duplicate-title-and-date') throwIllegalValue(error);
     errorMessage = (
       <Callout icon="Danger" color="danger">

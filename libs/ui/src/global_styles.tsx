@@ -53,7 +53,7 @@ ${NORMALIZE_CSS}
   *::after {
     box-sizing: inherit;
     cursor: ${(p) =>
-      /* istanbul ignore next */ p.hideCursor ? 'none !important' : undefined};
+      /* @coverage-exclude */ p.hideCursor ? 'none !important' : undefined};
   }
 
   html {

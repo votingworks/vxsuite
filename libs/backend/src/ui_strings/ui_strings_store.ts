@@ -1,5 +1,4 @@
-/* istanbul ignore file - tested via VxSuite apps. */
-
+// @coverage-exclude-file: tested via VxSuite apps
 import { Optional, typedAs } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {

@@ -57,7 +57,7 @@ function termDescriptionForContest(
   ballotDefinition: Cdf.BallotDefinition,
   contestId: string
 ): string | undefined {
-  /* istanbul ignore next */
+  // @coverage-exclude
   return (ballotDefinition.Office ?? []).find(
     (office) => office['@id'] === officeId(contestId)
   )?.Term.Label;
@@ -137,7 +137,7 @@ function electionCandidates(
 ): readonly Cdf.Candidate[] {
   return (
     assertDefined(cdfElection.Election[0]).Candidate ||
-    /* istanbul ignore next */ []
+    /* @coverage-exclude */ []
   );
 }
 
@@ -429,7 +429,7 @@ function getUiString(
 ): string | undefined {
   const uiStringsInLanguage = uiStrings[languageCode];
   // No current code paths lead here, but it's also not cause for an assert.
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!uiStringsInLanguage) {
     return undefined;
   }
@@ -573,7 +573,7 @@ export function convertVxfElectionToCdfBallotDefinition(
       contest: Vxf.Contest,
       gridPosition: FlatGridPosition
     ): string {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
@@ -601,7 +601,7 @@ export function convertVxfElectionToCdfBallotDefinition(
     function getOrderedPhysicalContestOptions(
       contest: Vxf.Contest
     ): Cdf.PhysicalContestOption[] {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
@@ -831,7 +831,7 @@ export function convertVxfElectionToCdfBallotDefinition(
 
         // eslint-disable-next-line array-callback-return
         Contest: vxfElection.contests.map((contest) => {
-          /* istanbul ignore next */
+          // @coverage-exclude
           if (contest.type === 'straight-party') {
             return Vxf.straightPartyNotYetImplemented();
           }

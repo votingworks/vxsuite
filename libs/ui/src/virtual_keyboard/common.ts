@@ -18,7 +18,7 @@ export interface Key {
   action?: ActionKey;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function getBorderWidthRem(p: { theme: DefaultTheme }): number {
   switch (p.theme.sizeMode) {
     case 'touchExtraLarge':

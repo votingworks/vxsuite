@@ -108,7 +108,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
   try {
     return deserializeMockFileContents(file);
   } catch {
-    /* istanbul ignore next */
+    // @coverage-exclude
     return undefined;
   }
 }

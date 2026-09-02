@@ -254,7 +254,7 @@ export function* generateCvrs({
 
           const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of contests) {
-            /* istanbul ignore next */
+            // @coverage-exclude
             if (contest.type === 'straight-party') {
               return straightPartyNotYetImplemented();
             }
@@ -459,7 +459,7 @@ export function* generateCvrs({
                             election.contests,
                             (c) => c.id === contestId
                           );
-                          /* istanbul ignore next */
+                          // @coverage-exclude
                           if (contest.type === 'straight-party') {
                             return straightPartyNotYetImplemented();
                           }

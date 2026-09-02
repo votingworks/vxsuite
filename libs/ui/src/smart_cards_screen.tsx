@@ -30,7 +30,7 @@ const SmartCardsScreenButtonList = styled.div`
 `;
 
 function toLowerCaseExceptFirst(str: string): string {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (str.length === 0) {
     return str;
   }
@@ -109,15 +109,15 @@ function InsertCardPrompt({
         <SmartCardsScreenButtonList
           style={{ alignItems: 'start', marginTop: '1rem' }}
         >
-          {/* istanbul ignore next - These functions will never be exercised */}
+          {/* @coverage-exclude: These functions will never be exercised */}
           <Button onPress={() => {}} disabled>
             Program Election Manager Card
           </Button>
-          {/* istanbul ignore next */}
+          {/* @coverage-exclude */}
           <Button onPress={() => {}} disabled>
             Program Poll Worker Card
           </Button>
-          {/* istanbul ignore next */}
+          {/* @coverage-exclude */}
           <Button onPress={() => {}} disabled>
             Program System Administrator Card
           </Button>

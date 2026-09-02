@@ -138,7 +138,7 @@ export async function copyBackupFiles({
           });
         }
 
-        /* istanbul ignore next: the workspace was emptied immediately before
+        /* @coverage-exclude: the workspace was emptied immediately before
            the copy began, so nothing can be sitting at the destination */
         case 'DestinationNotRegularFile': {
           return err({

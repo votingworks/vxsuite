@@ -166,7 +166,7 @@ export function buildApi(ctx: Context) {
     machineId: getMachineConfig().machineId,
     codeVersion: getMachineConfig().codeVersion,
     workspacePath: workspace.path,
-    getAuthStatus: /* istanbul ignore next */ () =>
+    getAuthStatus: /* @coverage-exclude */ () =>
       auth.getAuthStatus(constructAuthMachineState(workspace)),
   });
 
@@ -491,7 +491,7 @@ export function buildApi(ctx: Context) {
           ballotCount: ballotSpecs.length,
         });
       } catch (error) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
           message: 'Error printing summary ballot test deck',
           disposition: 'failure',

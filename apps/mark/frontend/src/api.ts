@@ -251,7 +251,7 @@ export const logOut = {
   },
 } as const;
 
-/* istanbul ignore next */
+// @coverage-exclude
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
@@ -318,7 +318,7 @@ export const getPrintCalibration = {
   },
 } as const;
 
-// istanbul ignore next - WIP
+// @coverage-defer: WIP
 export const setPrintCalibration = {
   useMutation() {
     const apiClient = useApiClient();

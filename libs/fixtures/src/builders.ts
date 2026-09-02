@@ -91,7 +91,7 @@ function locate(path: string): string {
       return realPath;
     }
     const parentDir = dirname(rootDir);
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (parentDir === '.' || parentDir === rootDir) {
       break;
     }
@@ -99,7 +99,7 @@ function locate(path: string): string {
     // eslint-disable-next-line no-constant-condition
   } while (true);
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   throw new Error(`Could not locate resource with path: ${path}`);
 }
 

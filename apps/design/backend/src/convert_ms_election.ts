@@ -364,7 +364,7 @@ export function convertMsElection(
       }
 
       default: {
-        /* istanbul ignore next */
+        // @coverage-exclude
         throw new Error(`Unknown contest type: ${contestType}`);
       }
     }

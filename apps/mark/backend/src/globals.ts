@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-exclude-file: environment-derived configuration
 import { join } from 'node:path';
 import { getNodeEnv } from '@votingworks/backend';
 import { Optional } from '@votingworks/basics';

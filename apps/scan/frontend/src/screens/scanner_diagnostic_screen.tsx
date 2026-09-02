@@ -89,7 +89,7 @@ export function ScannerDiagnosticScreen({
     }
 
     default:
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw new Error(`Unexpected scanner state: ${scannerStatus.state}`);
   }
 }

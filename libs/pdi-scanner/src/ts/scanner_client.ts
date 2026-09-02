@@ -438,7 +438,7 @@ export function createPdiScannerClient() {
 
   pdictl.stderr.on(
     'data',
-    /* istanbul ignore next */
+    // @coverage-exclude
     (data) => {
       debug('pdictl stderr:', data.toString('utf-8'));
     }

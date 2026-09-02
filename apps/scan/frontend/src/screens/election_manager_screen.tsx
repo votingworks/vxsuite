@@ -400,7 +400,7 @@ export function ElectionManagerScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;

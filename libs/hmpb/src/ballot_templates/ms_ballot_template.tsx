@@ -488,7 +488,7 @@ function Contest({
   election: Election;
   ballotStyle: BallotStyle;
 }) {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }

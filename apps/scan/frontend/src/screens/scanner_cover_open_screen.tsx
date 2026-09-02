@@ -30,12 +30,12 @@ export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function WithAlarmPreview(): JSX.Element {
   return <ScannerCoverOpenScreen />;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function WithoutAlarmPreview(): JSX.Element {
   return <ScannerCoverOpenScreen disableAlarm />;
 }

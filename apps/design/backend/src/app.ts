@@ -1153,7 +1153,7 @@ export function buildApi(ctx: AppContext) {
         // Navigate to the right sub-directory if necessary
         let cvrExportDirectory = inputCvrDirectory;
         const zipEntries = await readdir(cvrExportDirectory);
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (zipEntries.length === 1 && zipEntries[0].startsWith('machine')) {
           cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]);
         }
@@ -1521,7 +1521,7 @@ export type UnauthenticatedApi = ReturnType<typeof buildUnauthenticatedApi>;
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (authEnabled()) {
     app.use(
       auth0Middleware({

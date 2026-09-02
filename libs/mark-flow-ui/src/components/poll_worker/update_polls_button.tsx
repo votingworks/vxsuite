@@ -1,4 +1,4 @@
-/* istanbul ignore file - currently tested via apps. */
+// @coverage-exclude-file: currently tested via apps
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { type PollsState, type PollsTransitionType } from '@votingworks/types';

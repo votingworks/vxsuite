@@ -387,7 +387,7 @@ export function ScanPanelVirtualKeyboard({
       return 'button-disabled';
     }
 
-    /* istanbul ignore next - scan panel is currently never rendered unless the parent row is selected */
+    // @coverage-exclude: scan panel is currently never rendered unless the parent row is selected
     throw new Error(
       'Rendering a scan panel without its parent row selected is undefined behavior.'
     );

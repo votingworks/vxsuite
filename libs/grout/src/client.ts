@@ -164,7 +164,7 @@ export function createClient<Api extends AnyApi>(
             cause:
               error instanceof Error
                 ? error
-                : /* istanbul ignore next - no easy way to test throwing a non-Error */
+                : // @coverage-exclude: no easy way to test throwing a non-Error
                   undefined,
           });
         }

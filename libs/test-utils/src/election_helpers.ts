@@ -191,7 +191,7 @@ export function createMockVotes(
 
   const votes: VotesDict = {};
   for (const contest of filteredContests) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       straightPartyNotYetImplemented();
     }

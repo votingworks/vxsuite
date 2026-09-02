@@ -87,7 +87,7 @@ export function validateUsState(aamvaIssuingJurisdiction: string): string {
   }
 
   // TODO add a default
-  /* istanbul ignore next */
+  // @coverage-exclude
   throw new Error(`Unhandled ID jurisdiction: ${aamvaIssuingJurisdiction}`);
 }
 
@@ -173,12 +173,12 @@ export function VoterSearch({
     const merged: VoterSearchParams = {
       firstName:
         voterSearchParams.firstName ||
-        /* istanbul ignore next - voterSearchParams.firstName being falsy is extremely unlikely */
+        // @coverage-exclude: voterSearchParams.firstName being falsy is extremely unlikely
         '',
       middleName: '',
       lastName:
         voterSearchParams.lastName ||
-        /* istanbul ignore next - voterSearchParams.lastName being falsy is extremely unlikely */
+        // @coverage-exclude: voterSearchParams.lastName being falsy is extremely unlikely
         '',
       suffix: '',
       strictMatch: false,
@@ -274,7 +274,7 @@ export function VoterSearch({
                   style={{ flexGrow: 1 }}
                   disabled
                   onChange={
-                    /* istanbul ignore next */
+                    // @coverage-exclude
                     () => {}
                   }
                   type="text"

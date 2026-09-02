@@ -46,7 +46,7 @@ export function PollsNotOpenScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -57,7 +57,7 @@ export function DefaultPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultTestModePreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -68,7 +68,7 @@ export function DefaultTestModePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -79,7 +79,7 @@ export function NoPowerConnectedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function PollsPausedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
@@ -90,7 +90,7 @@ export function PollsPausedPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function PollsClosedFinalPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen

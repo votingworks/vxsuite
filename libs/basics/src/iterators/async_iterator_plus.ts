@@ -281,7 +281,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   async isEmpty(): Promise<boolean> {
-    /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
+    // @coverage-exclude: `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined
     return (await this.intoInner()[Symbol.asyncIterator]().next()).done ?? true;
   }
 

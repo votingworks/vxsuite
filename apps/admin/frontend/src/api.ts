@@ -377,7 +377,7 @@ export const getBallotImages = {
             apiClient.getBallotImages({
               cvrId: input.cvrId,
             })
-        : /* istanbul ignore next */
+        : // @coverage-exclude
           () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
@@ -470,7 +470,7 @@ export const getLiveResultsReportingUrl = {
       this.queryKey(input),
       input
         ? () => apiClient.getLiveResultsReportingUrl(input)
-        : /* istanbul ignore next */
+        : // @coverage-exclude
           () => fail('input is required'),
       {
         enabled: !!input,
@@ -1013,7 +1013,7 @@ export const getWriteInImageReportPreview = {
     const apiClient = useApiClient();
     return useQuery(
       contestId ? this.queryKey(contestId) : ['getWriteInImageReportPreview'],
-      /* istanbul ignore next */
+      // @coverage-exclude
       () =>
         contestId
           ? apiClient.getWriteInImageReportPreview({ contestId })

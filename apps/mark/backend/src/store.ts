@@ -272,7 +272,7 @@ export class Store {
    * Sets the current test mode setting value.
    */
   setTestMode(isTestMode: boolean): void {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (!this.hasElection()) {
       throw new Error('Cannot set test mode without an election.');
     }
@@ -298,7 +298,7 @@ export class Store {
       electionRow.rawPollsState
     );
 
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (pollsStateParseResult.isErr()) {
       throw new Error('Unable to parse stored polls state.');
     }
@@ -310,7 +310,7 @@ export class Store {
    * Sets the current polls state
    */
   setPollsState(pollsState: PollsState): void {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (!this.hasElection()) {
       throw new Error('Cannot set polls state without an election.');
     }
@@ -338,7 +338,7 @@ export class Store {
    * Sets the current ballots printed count
    */
   setBallotsPrintedCount(ballotsPrintedCount: number): void {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (!this.hasElection()) {
       throw new Error('Cannot set ballots printed count without an election.');
     }

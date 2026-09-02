@@ -91,14 +91,14 @@ export async function markBallotDocument(
                   />
                 );
               }
-              /* istanbul ignore next - marginal marks are only rendered when
+              /* @coverage-exclude: marginal marks are only rendered when
                  generating fixtures via @votingworks/integration-test-utils */
               const marginalMark = marginalMarks?.find(
                 (mark) =>
                   mark.contestId === optionInfo.contestId &&
                   mark.optionId === optionInfo.optionId
               );
-              /* istanbul ignore next */
+              // @coverage-exclude
               return marginalMark ? (
                 <BubbleShape
                   key={optionInfo.optionId}
@@ -217,7 +217,7 @@ export function createTestVotes(contests: readonly Contest[]): {
 } {
   const votes: VotesDict = Object.fromEntries(
     contests.map((contest, i) => {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }

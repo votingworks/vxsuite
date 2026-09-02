@@ -20,7 +20,7 @@ import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<ClientApi>;
 
-/* istanbul ignore next - creates real API client */
+// @coverage-exclude: creates real API client
 export function createApiClient(): ApiClient {
   return grout.createClient<ClientApi>({ baseUrl: '/api' });
 }
@@ -31,7 +31,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -138,7 +138,7 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
-      /* istanbul ignore start - query invalidation */
+      // @coverage-exclude: query invalidation
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
@@ -216,7 +216,7 @@ export const ejectUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components */
+      // @coverage-exclude: tested via shared UI components
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
@@ -230,7 +230,7 @@ export const formatUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.formatUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components */
+      // @coverage-exclude: tested via shared UI components
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },

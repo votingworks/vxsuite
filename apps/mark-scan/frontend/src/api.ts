@@ -269,7 +269,7 @@ export const logOut = {
   },
 } as const;
 
-/* istanbul ignore next */
+// @coverage-exclude
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
@@ -526,7 +526,7 @@ export const returnPreprintedBallot = {
   useMutation: () => useMutation(useApiClient().returnPreprintedBallot),
 } as const;
 
-/* istanbul ignore next */
+// @coverage-exclude
 export const getMockPaperHandlerStatus = {
   queryKey: ['getMockPaperHandlerStatus'] as QueryKey,
 
@@ -548,7 +548,7 @@ export const getMockPaperHandlerStatus = {
   },
 } as const;
 
-/* istanbul ignore next */
+// @coverage-exclude
 export const setMockPaperHandlerStatus = {
   useMutation() {
     const apiClient = useApiClient();

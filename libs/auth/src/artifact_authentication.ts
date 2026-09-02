@@ -413,7 +413,7 @@ export async function prepareSignatureFile(
 ): Promise<{ fileContents: Buffer; fileName: string }> {
   const config =
     configOverride ??
-    /* istanbul ignore next */ constructArtifactAuthenticationConfig();
+    /* @coverage-exclude */ constructArtifactAuthenticationConfig();
   const artifactSignatureBundle = await constructArtifactSignatureBundle(
     config,
     artifact
@@ -440,7 +440,7 @@ export async function authenticateArtifactUsingSignatureFile(
 ): Promise<Result<MachineCustomCertFields, Error>> {
   const config =
     configOverride ??
-    /* istanbul ignore next */ constructArtifactAuthenticationConfig();
+    /* @coverage-exclude */ constructArtifactAuthenticationConfig();
   try {
     const signatureFilePath = constructSignatureFilePath(artifact);
     const artifactSignatureBundle = deserializeArtifactSignatureBundle(

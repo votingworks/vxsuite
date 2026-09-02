@@ -638,7 +638,7 @@ function buildApi(
         [Symbol.asyncIterator]();
 
       async function insertNextSheet(): Promise<void> {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!pdiScannerSheetQueue) return;
         if (mockPdiScanner.getSheetStatus() === 'noSheetEnabled') {
           const { done, value } =
@@ -666,7 +666,7 @@ function buildApi(
     },
 
     pdiScannerClearSheetQueue(): void {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (!pdiScannerSheetQueue) return;
       clearTimeout(pdiScannerSheetQueue.timeoutId);
       pdiScannerSheetQueue = undefined;
@@ -774,7 +774,7 @@ export function useDevDockRouter(
   app: Express.Application,
   express: typeof Express,
   mockSpec: MockSpec,
-  /* istanbul ignore next */
+  // @coverage-exclude
   devDockDir: string = DEFAULT_DEV_DOCK_DIR,
   /* istanbul ignore next */
   designExportDir: string = DESIGN_EXPORT_DIR

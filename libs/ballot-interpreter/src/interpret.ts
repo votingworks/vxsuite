@@ -180,7 +180,7 @@ function aggregateContestOptionScores({
       : undefined;
     const writeInTextAreaThreshold =
       options.markThresholds.writeInTextArea ??
-      /* istanbul ignore next */
+      // @coverage-exclude
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
       ? scoredWriteInArea.score >= writeInTextAreaThreshold
@@ -770,7 +770,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return -60;
   }
 
-  /* istanbul ignore next - should be unreachable */
+  // @coverage-exclude: should be unreachable
   throw new Error(`Unexpected result types: ${frontType}, ${backType}`);
 }
 

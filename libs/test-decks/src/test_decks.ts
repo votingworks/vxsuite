@@ -48,7 +48,7 @@ export interface TestDeckBallot {
 }
 
 export function numBallotPositions(contest: Contest): number {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -152,7 +152,7 @@ export function generateTestDeckBallots({
           // candidate contests where you must select a write-in to overvote. See
           // discussion: https://github.com/votingworks/vxsuite/issues/1711.
           const overvoteContest = contests.find((contest) => {
-            /* istanbul ignore next */
+            // @coverage-exclude
             if (contest.type === 'straight-party') {
               straightPartyNotYetImplemented();
             }
@@ -162,7 +162,7 @@ export function generateTestDeckBallots({
             );
           });
           if (overvoteContest) {
-            /* istanbul ignore next */
+            // @coverage-exclude
             if (overvoteContest.type === 'straight-party') {
               straightPartyNotYetImplemented();
             }

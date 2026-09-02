@@ -56,7 +56,7 @@ export function getBatteryIcon(
     case 4:
       return <Icons.BatteryFull {...iconProps} />;
     default: {
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw new Error('Invalid battery level');
     }
   }

@@ -44,7 +44,7 @@ export type PrecinctScannerErrorType =
   | 'image_sensor_calibration_failed'
   | 'scanner_diagnostic_failed';
 
-/* istanbul ignore next */
+// @coverage-exclude
 export class PrecinctScannerError extends Error {
   constructor(
     // eslint-disable-next-line vx/gts-no-public-class-fields

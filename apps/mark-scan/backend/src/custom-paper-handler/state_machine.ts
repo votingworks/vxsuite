@@ -117,15 +117,14 @@ function createOnDiagnosticErrorHandler() {
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
         if (event.data instanceof DiagnosticError) {
-          /* istanbul ignore next */
+          // @coverage-exclude
           return event.data;
         }
 
         return new DiagnosticError('An unknown error occurred.', {
           originalError:
             event.data instanceof Error
-              ? /* istanbul ignore next */
-                event.data
+              ? /* @coverage-exclude */ event.data
               : undefined,
         });
       },
@@ -256,7 +255,7 @@ export function paperHandlerStatusToEvent(
     return { type: 'NO_PAPER_ANYWHERE' };
   }
 
-  /* istanbul ignore next - unreachable if exhaustive */
+  // @coverage-exclude: unreachable if exhaustive
   return { type: 'UNHANDLED_EVENT' };
 }
 
@@ -319,7 +318,7 @@ const INTEGRATION_TEST_DELAYS = {
   DELAY_NOTIFICATION_DURATION_MS: 1_000,
 } satisfies Delays;
 
-/* istanbul ignore next - integration-test delays are covered by integration testing */
+// @coverage-exclude: integration-test delays are covered by integration testing
 export const delays = isIntegrationTest()
   ? INTEGRATION_TEST_DELAYS
   : PRODUCTION_DELAYS;
@@ -1113,7 +1112,7 @@ export function buildMachine(
                 const error =
                   context.error ??
                   // Fallback is unreachable unless we erroneously transition to this state without an error
-                  /* istanbul ignore next */
+                  // @coverage-exclude
                   new Error('Unknown error occurred');
                 await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
                   message: extractErrorMessage(error),
@@ -1440,7 +1439,7 @@ function setUpLogging(
             // To protect voter privacy, only log the event type since some event objects include,
             // e.g., ballot interpretations
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next */
+            // @coverage-exclude
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         } else {
@@ -1541,7 +1540,7 @@ export async function getPaperHandlerStateMachine({
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
-      : /* istanbul ignore next */
+      : // @coverage-exclude
         undefined,
   };
 
@@ -1657,7 +1656,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches(
           'voting_flow.resetting_state_machine_after_success'
         ): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead */
+          // @coverage-exclude: nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead
           return 'resetting_state_machine_after_success';
         }
         case state.matches('voting_flow.poll_worker_auth_ended_unexpectedly'):
@@ -1665,7 +1664,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.empty_ballot_box'):
           return 'empty_ballot_box';
         case state.matches('voting_flow.transition_interpretation'): {
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead */
+          // @coverage-exclude: nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead
           return 'interpreting';
         }
         case state.matches('voting_flow.blank_page_interpretation'):
@@ -1680,7 +1679,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.unrecoverable_error'):
           return 'unrecoverable_error';
         default: {
-          /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
+          // @coverage-exclude: this branch is not exercisable when the switch is exhaustive
           debug('Unhandled state: %O', state.value);
           return 'no_hardware';
         }

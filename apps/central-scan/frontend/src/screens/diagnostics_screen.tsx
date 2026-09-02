@@ -65,7 +65,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
   const upsDiagnosticRecord = upsDiagnosticRecordQuery.data ?? undefined;
-  /* istanbul ignore next */
+  // @coverage-exclude
   const { markThresholds } = systemSettings.data ?? {};
 
   return (

@@ -125,7 +125,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
-  // istanbul ignore next -- compile-time check
+  // @coverage-exclude: compile-time check
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState);
   }

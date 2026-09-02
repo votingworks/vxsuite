@@ -439,7 +439,7 @@ export function startClientNetworking({
           );
         }
       } catch (error) {
-        /* istanbul ignore next - defensive */
+        // @coverage-exclude: defensive
         debug('Error in client networking loop: %s', error);
       } finally {
         isPolling = false;

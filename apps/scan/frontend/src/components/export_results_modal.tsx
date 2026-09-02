@@ -107,7 +107,7 @@ export function ExportResultsModal({
     return <Modal content={<Loading>Saving CVRs</Loading>} />;
   }
 
-  /* istanbul ignore next - compile time check */
+  // @coverage-exclude: compile time check
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState);
   }

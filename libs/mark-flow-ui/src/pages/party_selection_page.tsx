@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via Mark/Mark-Scan */
+// @coverage-exclude-file: tested via Mark/Mark-Scan
 import React from 'react';
 import styled from 'styled-components';
 import { Election, PartyId, VotesDict } from '@votingworks/types';

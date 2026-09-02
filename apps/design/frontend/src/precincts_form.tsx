@@ -604,7 +604,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next */
+            // @coverage-exclude
             () => setIsConfirmingDelete(false)
           }
         />

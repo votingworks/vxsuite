@@ -50,7 +50,7 @@ export async function resolveDriver(
   }
 
   const maxPrintWidth =
-    /* istanbul ignore next - hardware support in flux */
+    // @coverage-exclude: hardware support in flux
     getMarkScanBmdModel() === 'bmd-150'
       ? /* istanbul ignore next - hardware support in flux */
         MaxPrintWidthDots.BMD_150
@@ -132,7 +132,7 @@ export async function start({
     api
   );
 
-  /* istanbul ignore next - internal dev use only */
+  // @coverage-exclude: internal dev use only
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureMachine(),
@@ -147,7 +147,7 @@ export async function start({
 
   const server = app.listen(
     port,
-    /* istanbul ignore next */
+    // @coverage-exclude
     () => {
       logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMarkScan backend running at http://localhost:${port}/`,

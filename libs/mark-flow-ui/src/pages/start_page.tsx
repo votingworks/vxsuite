@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via Mark/Mark-Scan */
+// @coverage-exclude-file: tested via Mark/Mark-Scan
 import styled, { keyframes } from 'styled-components';
 import {
   Button,

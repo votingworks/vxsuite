@@ -149,7 +149,7 @@ export async function listCastVoteRecordExportsInDirectory(
           return err('found-file-instead-of-directory');
         }
         case 'permission-denied': {
-          /* istanbul ignore next: Hard to trigger without significant mocking */
+          // @coverage-exclude: Hard to trigger without significant mocking
           return err('permission-denied');
         }
         default: {
@@ -199,7 +199,7 @@ export async function listCastVoteRecordExportsInDirectory(
 
   return ok(
     [...castVoteRecordExportSummaries].sort(
-      /* istanbul ignore next */
+      // @coverage-exclude
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );
