@@ -215,9 +215,15 @@ export class BackupStagingArea {
    * to the staging area will be deleted.
    */
   async cleanup(): Promise<void> {
-    await rm(this.stagingAreaPath, { recursive: true, force: true });
-    this.preparedPaths.clear();
-    this.readyFiles.clear();
-    await this.lock.release();
+    // Released even if the removal fails: the descriptor holds the lock until
+    // the process exits, so skipping this would refuse every later backup
+    // until a restart.
+    try {
+      await rm(this.stagingAreaPath, { recursive: true, force: true });
+      this.preparedPaths.clear();
+      this.readyFiles.clear();
+    } finally {
+      await this.lock.release();
+    }
   }
 }
