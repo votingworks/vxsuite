@@ -3226,9 +3226,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/fs':
-        specifier: workspace:*
-        version: link:../fs
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
