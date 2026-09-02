@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './assert';
 export * from './buffers';
 export * as collections from './collections';

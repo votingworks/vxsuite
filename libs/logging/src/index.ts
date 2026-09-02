@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './base_types';
 export * from './export';
 export * from './helpers';

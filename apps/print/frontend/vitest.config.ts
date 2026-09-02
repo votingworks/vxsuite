@@ -14,6 +14,7 @@ export default defineConfig({
       exclude: [
         'src/**/*.d.ts',
         'src/index.tsx',
+        'src/polyfills.ts',
         'src/stubs/*',
         'src/*.test.tsx',
       ],

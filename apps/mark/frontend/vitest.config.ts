@@ -13,6 +13,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/contexts/ballot_context.ts',
+        'src/polyfills.ts',
         // Hardware-test app code — not exercised by unit tests (only wired
         // up via index.tsx, which is itself excluded).
         'src/electrical_testing',

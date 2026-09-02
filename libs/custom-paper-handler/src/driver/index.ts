@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './driver.js';
 export * from './mock_driver.js';
 export * from './driver_interface.js';

@@ -3,7 +3,6 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-/* istanbul ignore file - used only in internal dev and testing */
 let mockAccessibleControllerConnected = true;
 
 export function setMockAccessibleControllerConnected(connected: boolean): void {

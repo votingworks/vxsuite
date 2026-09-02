@@ -14,6 +14,7 @@ export default defineConfig({
         'src/configure_sentry.ts',
         // Dev-only CLI entry points for the `scripts/` launchers.
         'src/scripts/**',
+        'src/index.ts',
         '**/*.test.ts',
       ],
     },

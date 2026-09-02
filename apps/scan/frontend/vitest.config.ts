@@ -13,6 +13,10 @@ export default defineConfig({
       },
       exclude: [
         'src/config/*',
+        'src/polyfills.ts',
+        // Development-only preview harness
+        'src/preview_app.tsx',
+        'src/preview_dashboard.tsx',
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/stubs/*',

@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.tsx'],
     coverage: {
       exclude: [
+        'src/polyfills.ts',
         'src/config',
         'src/stubs',
         'src/**/*.d.ts',

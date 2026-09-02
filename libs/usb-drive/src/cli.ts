@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { LogSource, Logger } from '@votingworks/logging';
 import { detectMultiUsbDriveFromEnv, MultiUsbDrive } from './multi_usb_drive';
 import { UsbDiskDevPathSchema, UsbDriveFilesystemType } from './types';

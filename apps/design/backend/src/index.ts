@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { fileURLToPath } from 'node:url';
 import './configure_sentry.js'; // Must be imported first to instrument code
 import { resolve } from 'node:path';

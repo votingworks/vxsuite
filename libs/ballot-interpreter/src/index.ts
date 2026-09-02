@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './combine_page_interpretations_for_sheet.js';
 export * from './interpret.js';
 export * from './bubble-ballot-ts/index.js';

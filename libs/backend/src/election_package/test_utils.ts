@@ -1,4 +1,3 @@
-// istanbul ignore file - test helpers
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackage,

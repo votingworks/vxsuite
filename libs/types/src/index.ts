@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * as Admin from './admin';
 export * from './auth';
 export * from './election_package_metadata';

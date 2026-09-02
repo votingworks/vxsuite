@@ -1,5 +1,3 @@
-/* istanbul ignore file - test util */
-
 import type * as vitest from 'vitest';
 import { UiStringsStore } from './ui_strings_store';
 

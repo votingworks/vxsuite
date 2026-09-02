@@ -1,5 +1,4 @@
 /* eslint-disable vx/gts-jsdoc */
-/* istanbul ignore file */
 
 import type { Mocked, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
