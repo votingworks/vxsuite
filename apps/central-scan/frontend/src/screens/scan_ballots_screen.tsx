@@ -14,7 +14,10 @@ import {
 import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import { iter } from '@votingworks/basics';
-import type { ScanStatus } from '@votingworks/central-scan-backend';
+import type {
+  NetworkConnectionInfo,
+  ScanStatus,
+} from '@votingworks/central-scan-backend';
 import { format } from '@votingworks/utils';
 import { DeleteBatchModal } from '../components/delete_batch_modal.js';
 import { NavigationScreen } from '../navigation_screen.js';
@@ -103,6 +106,38 @@ export interface ScanBallotsScreenProps {
   status: ScanStatus;
   statusIsStale: boolean;
   isPollingPlaceUnconfigured: boolean;
+}
+
+/**
+ * A screen-level warning for VxAdmin refusing this machine's batches for a
+ * reason that applies to every batch, so it isn't repeated per row.
+ */
+function SendingPausedCallout({
+  connection,
+}: {
+  connection: NetworkConnectionInfo;
+}): JSX.Element | null {
+  switch (connection.status) {
+    case 'online-results-official':
+      return (
+        <Callout color="warning" icon="Warning">
+          VxAdmin ({connection.hostMachineId}) has marked its results official
+          and is not accepting batches. Batches will not be sent to VxAdmin.
+        </Callout>
+      );
+    case 'online-invalid-mode':
+      return (
+        <Callout color="warning" icon="Warning">
+          VxAdmin ({connection.hostMachineId}) is tabulating{' '}
+          {connection.hostCvrFileMode} results, but this machine is in{' '}
+          {connection.hostCvrFileMode === 'official' ? 'test' : 'official'}{' '}
+          ballot mode. Batches will not be sent to VxAdmin until the modes
+          match.
+        </Callout>
+      );
+    default:
+      return null;
+  }
 }
 
 interface BatchSendState {
@@ -194,6 +229,9 @@ export function ScanBallotsScreen({
             No polling place selected. Select a polling place on the Settings
             screen before scanning ballots.
           </Callout>
+        )}
+        {isNetworkingEnabled && networkStatus && (
+          <SendingPausedCallout connection={networkStatus.connection} />
         )}
         <TopBar>
           {batchCount ? (

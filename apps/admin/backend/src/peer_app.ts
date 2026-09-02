@@ -44,6 +44,7 @@ import {
   getBallotImageMetadata,
 } from './util/adjudication.js';
 import {
+  checkCvrImportAllowed,
   finishCvrTransfer,
   NetworkCvrImportQueue,
   receiveCvrTransferUpload,
@@ -82,6 +83,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       codeVersion: string;
       ballotHash?: string;
       pollingPlaceId?: string;
+      isTestMode: boolean;
     }): Result<MachineConfig, RegisterScannerError> {
       const machineConfig = getMachineConfig();
 
@@ -136,16 +138,14 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         );
       }
       const currentElectionId = store.getCurrentElectionId();
-      const hostBallotHash = currentElectionId
-        ? assertDefined(store.getElection(currentElectionId)).electionDefinition
-            .ballotHash
-        : undefined;
-      if (hostBallotHash === undefined) {
+      if (!currentElectionId) {
         return reject(
           { type: 'host-unconfigured' },
           'this host is not configured with an election.'
         );
       }
+      const hostBallotHash = assertDefined(store.getElection(currentElectionId))
+        .electionDefinition.ballotHash;
       if (input.ballotHash !== hostBallotHash) {
         return reject(
           { type: 'ballot-hash-mismatch' },
@@ -154,6 +154,27 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
             scannerBallotHash: input.ballotHash,
             hostBallotHash,
           }
+        );
+      }
+      // Refuse to register a scanner whose cast vote records this host could
+      // not accept, so the scanner shows the reason instead of sending
+      // batches into a refusal.
+      const importAllowed = checkCvrImportAllowed(
+        store,
+        currentElectionId,
+        input.isTestMode
+      );
+      if (importAllowed.isErr()) {
+        const error = importAllowed.err();
+        return reject(
+          error,
+          error.type === 'results-official'
+            ? 'results on this host have been marked official.'
+            : `this host is tabulating ${
+                error.currentMode
+              } ballots and the scanner is in ${
+                input.isTestMode ? 'test' : 'official'
+              } ballot mode.`
         );
       }
       debug('Scanner %s registered with host', input.machineId);

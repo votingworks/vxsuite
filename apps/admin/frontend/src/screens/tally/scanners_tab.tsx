@@ -78,6 +78,16 @@ function ScannerStatus({ scanner }: { scanner: MachineRecord }): JSX.Element {
             <Icons.Warning color="warning" /> VxAdmin Not Configured
           </InlineStatus>
         );
+      // Results being official refuses the scanner's batches, not the
+      // scanner itself, so it still reads as connected here.
+      case 'results-official':
+        break;
+      case 'invalid-mode':
+        return (
+          <InlineStatus>
+            <Icons.Warning color="warning" /> Ballot Mode Mismatch
+          </InlineStatus>
+        );
       default:
         throwIllegalValue(registrationError);
     }

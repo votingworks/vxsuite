@@ -62,6 +62,10 @@ function ConnectionStatusMessage({
           a different election
         </P>
       );
+    // VxAdmin is reachable but won't take this machine's batches; the Scan
+    // Ballots screen explains why, so the connection itself reads as fine.
+    case 'online-results-official':
+    case 'online-invalid-mode':
     case 'online-host-detected':
       return (
         <P>
@@ -70,7 +74,7 @@ function ConnectionStatusMessage({
         </P>
       );
     default:
-      throwIllegalValue(connection.status);
+      throwIllegalValue(connection, 'status');
   }
 }
 

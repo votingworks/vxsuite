@@ -8,12 +8,24 @@ export interface VxAdminHostMachineConfig {
   codeVersion: string;
 }
 
-/** Why a VxAdmin host refused to register a scanner. */
+/**
+ * Why a VxAdmin host refused to register a scanner. Registration is refused
+ * whenever the host could not accept the scanner's cast vote records, so the
+ * scanner's connection status reflects every such condition and no batch is
+ * sent into a known refusal.
+ */
 export type RegisterScannerError =
   | { type: 'code-version-mismatch' }
   | { type: 'scanner-unconfigured' }
   | { type: 'host-unconfigured' }
-  | { type: 'ballot-hash-mismatch' };
+  | { type: 'ballot-hash-mismatch' }
+  /** The host's results have been marked official; it accepts no more CVRs. */
+  | { type: 'results-official' }
+  /**
+   * The host's existing CVRs lock it to `currentMode`, and the scanner is in
+   * the other mode.
+   */
+  | { type: 'invalid-mode'; currentMode: 'test' | 'official' };
 
 /**
  * Manifest describing one scanned batch being transferred to a VxAdmin host.
@@ -31,16 +43,20 @@ export interface CvrTransferManifest {
   isTestMode: boolean;
 }
 
-/** Why a VxAdmin host refused to start a CVR transfer. */
-export type StartCvrTransferError =
-  | RegisterScannerError
-  | { type: 'invalid-mode'; currentMode: 'test' | 'official' };
+/**
+ * Why a VxAdmin host refused to start a CVR transfer. The same checks as
+ * registration, re-run at transfer time because the host's state can change
+ * between heartbeats.
+ */
+export type StartCvrTransferError = RegisterScannerError;
 
 /** Why a VxAdmin host refused to finish a CVR transfer. */
 export type FinishCvrTransferError =
   | { type: 'transfer-not-found' }
   | { type: 'sheet-count-mismatch'; expected: number; received: number }
-  | { type: 'import-failed'; subType: string };
+  | { type: 'import-failed'; subType: string }
+  | { type: 'results-official' }
+  | { type: 'invalid-mode'; currentMode: 'test' | 'official' };
 
 /**
  * The path of the host's (non-grout) CVR upload endpoint. One request per
@@ -71,6 +87,8 @@ export type VxAdminHostApi = Api<{
     ballotHash?: string;
     /** The polling place the scanner is configured for, if any. */
     pollingPlaceId?: string;
+    /** Whether the scanner is in test ballot mode. */
+    isTestMode: boolean;
   }) => Result<VxAdminHostMachineConfig, RegisterScannerError>;
   /**
    * Read-only, side-effect-free method also used by scanners as a

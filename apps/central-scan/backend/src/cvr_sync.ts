@@ -128,23 +128,13 @@ async function sendBatchToAdmin({
   if (startResult.isErr()) {
     const errorType = startResult.err().type;
     logFailure('start', `host refused transfer (${errorType}).`);
-    switch (errorType) {
-      // These won't resolve without operator action.
-      case 'ballot-hash-mismatch':
-      case 'code-version-mismatch':
-      case 'invalid-mode':
-        return {
-          type: 'fatal-failure',
-          detail: `VxAdmin refused the transfer: ${errorType}`,
-        };
-      // The host may simply not be configured yet.
-      case 'host-unconfigured':
-      case 'scanner-unconfigured':
-        return { type: 'transient-failure', detail: errorType };
-      // istanbul ignore next -- compile-time check
-      default:
-        return throwIllegalValue(errorType);
-    }
+    // The heartbeat registers with the same checks, so any refusal here can
+    // only be racing a connection status change that will pause sending and
+    // surface the condition itself.
+    return {
+      type: 'transient-failure',
+      detail: `VxAdmin refused the transfer (${errorType})`,
+    };
   }
   if (startResult.ok().alreadyComplete) {
     store.setBatchSentToAdmin(batch.id);
@@ -225,9 +215,12 @@ async function sendBatchToAdmin({
           type: 'fatal-failure',
           detail: 'VxAdmin could not import the batch',
         };
-      // Recoverable by re-sending on the next pass.
+      // Recoverable by re-sending on the next pass, or (for a host-state
+      // refusal) racing a connection status change, as at start.
       case 'transfer-not-found':
       case 'sheet-count-mismatch':
+      case 'results-official':
+      case 'invalid-mode':
         return { type: 'transient-failure', detail: errorType };
       default:
         return throwIllegalValue(errorType);
@@ -278,10 +271,7 @@ export function startCvrSync({
       isSending = true;
       try {
         const connection = store.getNetworkConnectionInfo();
-        if (
-          connection.status !== 'online-host-detected' ||
-          !connection.hostAddress
-        ) {
+        if (connection.status !== 'online-host-detected') {
           store.clearSendToAdminAttempts();
           return;
         }
