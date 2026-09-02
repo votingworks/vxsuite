@@ -2,7 +2,6 @@ import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 
 import {
-  ImageConversionOptions,
   PaperHandlerDriverInterface,
   VERTICAL_DOTS_IN_CHUNK,
   chunkBinaryBitmap,
@@ -14,7 +13,11 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
-import { PRINT_DPI, PAPER_HANDLER_RESET_DELAY_MS, SCAN_DPI } from './constants.js';
+import {
+  PRINT_DPI,
+  PAPER_HANDLER_RESET_DELAY_MS,
+  SCAN_DPI,
+} from './constants.js';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -41,8 +44,7 @@ export async function setDefaults(
 
 export async function printBallotChunks(
   driver: PaperHandlerDriverInterface,
-  pdfData: Uint8Array,
-  options: Partial<ImageConversionOptions> = {}
+  pdfData: Uint8Array
 ): Promise<void> {
   debug('+printBallotChunks');
   const enablePrintPromise = driver.enablePrint();
@@ -67,7 +69,7 @@ export async function printBallotChunks(
     return;
   }
 
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
+  const ballotBinaryBitmap = imageDataToBinaryBitmap(page);
   const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
 
   await enablePrintPromise;

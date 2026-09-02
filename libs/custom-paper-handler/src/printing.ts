@@ -15,49 +15,6 @@ export interface PaperHandlerBitmapExt extends PaperHandlerBitmap {
   empty?: boolean;
 }
 
-// Grayscale conversion algorithm used is from
-// https://en.wikipedia.org/wiki/Grayscale#Colorimetric_(perceptual_luminance-preserving)_conversion_to_grayscale
-
-/**
- *
- * @param x Gamma-compressed color value
- * @returns
- */
-function gammaExpand(x: number) {
-  if (x < 0.04045) {
-    return x / 12.92;
-  }
-
-  return ((x + 0.055) / 1.055) ** 2.4;
-}
-
-function gammaCompress(x: number) {
-  if (x < 0.0031308) {
-    return x * 12.92;
-  }
-
-  return 1.055 * x ** (1 / 1.24) - 0.055;
-}
-
-/**
- * Converts 8-bit sRGB color values to an 8-bit grayscale value with gamma
- * correction.
- *
- * @param r Red color value from 0 - 255
- * @param g Green color value from 0 - 255
- * @param b Blue color value from 0 - 255
- * @returns Grayscale color value from 0 - 255
- */
-export function rgbToGrayscaleGamma(r: number, g: number, b: number): number {
-  return (
-    gammaCompress(
-      0.2126 * gammaExpand(r / 256) +
-        0.7152 * gammaExpand(g / 256) +
-        0.0722 * gammaExpand(b / 256)
-    ) * 256
-  );
-}
-
 /**
  * Converts 8-bit sRGB color values to an 8-bit grayscale value without gamma
  * correction.
@@ -74,18 +31,7 @@ export function rgbToGrayscale(r: number, g: number, b: number): number {
 /**
  * Below this value, we consider the grayscale to be black. Otherwise, white.
  */
-const DEFAULT_GRAYSCALE_WHITE_THRESHOLD = 230;
-
-export interface ImageConversionOptions {
-  useGammaConversion: boolean;
-  // number in [0, 256), above which the grayscale will be considered white
-  whiteThreshold: number;
-}
-
-export const DEFAULT_IMAGE_CONVERSION_OPTIONS: ImageConversionOptions = {
-  useGammaConversion: false,
-  whiteThreshold: DEFAULT_GRAYSCALE_WHITE_THRESHOLD,
-};
+const GRAYSCALE_WHITE_THRESHOLD = 230;
 
 /**
  * Converts 8-bit sRGB color values to a binary black/white representation.
@@ -96,27 +42,11 @@ export const DEFAULT_IMAGE_CONVERSION_OPTIONS: ImageConversionOptions = {
  * @param b Blue color value from 0 - 255
  * @returns true for black, false for white
  */
-function rgbToBinary(
-  r: number,
-  g: number,
-  b: number,
-  options: ImageConversionOptions
-): boolean {
-  const grayscaleValue = (
-    options.useGammaConversion ? rgbToGrayscaleGamma : rgbToGrayscale
-  )(r, g, b);
-  return grayscaleValue < options.whiteThreshold;
+function rgbToBinary(r: number, g: number, b: number): boolean {
+  return rgbToGrayscale(r, g, b) < GRAYSCALE_WHITE_THRESHOLD;
 }
 
-export function imageDataToBinaryBitmap(
-  imageData: ImageData,
-  overrideOptions: Partial<ImageConversionOptions> = {}
-): BinaryBitmap {
-  const options: ImageConversionOptions = {
-    ...DEFAULT_IMAGE_CONVERSION_OPTIONS,
-    ...overrideOptions,
-  };
-
+export function imageDataToBinaryBitmap(imageData: ImageData): BinaryBitmap {
   const data: boolean[] = [];
 
   let r = 0;
@@ -136,7 +66,7 @@ export function imageDataToBinaryBitmap(
         b = element;
         return;
       case 3:
-        data.push(rgbToBinary(r, g, b, options));
+        data.push(rgbToBinary(r, g, b));
     }
   });
 

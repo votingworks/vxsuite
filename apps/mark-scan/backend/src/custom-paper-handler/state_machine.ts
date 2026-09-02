@@ -775,7 +775,7 @@ export function buildMachine(
                   id: 'printBallot',
                   src: (context, event) => {
                     assert(event.type === 'VOTER_INITIATED_PRINT');
-                    return printBallotChunks(context.driver, event.pdfData, {});
+                    return printBallotChunks(context.driver, event.pdfData);
                   },
                   onDone: 'scanning',
                   onError: {
@@ -1203,7 +1203,7 @@ export function buildMachine(
                   );
                   return renderDiagnosticMockBallot(electionDefinition).then(
                     (ballotData) =>
-                      printBallotChunks(context.driver, ballotData, {})
+                      printBallotChunks(context.driver, ballotData)
                   );
                 },
                 onDone: 'scan_ballot',
