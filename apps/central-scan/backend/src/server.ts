@@ -28,6 +28,7 @@ import { buildCentralScannerApp } from './app.js';
 import { getUserRole } from './util/auth.js';
 import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { startScannerNetworking } from './networking.js';
+import { startCvrSync } from './cvr_sync.js';
 
 export interface StartOptions {
   port: number | string;
@@ -143,6 +144,10 @@ export function start({
 
   if (isCentralScanNetworkingEnabled()) {
     startScannerNetworking({
+      logger: baseLogger,
+      store: resolvedWorkspace.store,
+    });
+    startCvrSync({
       logger: baseLogger,
       store: resolvedWorkspace.store,
     });

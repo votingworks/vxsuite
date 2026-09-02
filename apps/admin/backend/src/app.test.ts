@@ -36,6 +36,7 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app.js';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
 
@@ -111,6 +112,36 @@ test('setMachineMode throws when election is configured', async () => {
     expect(apiClient.setMachineMode({ mode: 'client' })).rejects.toThrow(
       'Cannot change machine mode while an election is configured.'
     )
+  );
+});
+
+test('getCastVoteRecordsDataVersion reflects CVR changes', async () => {
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  // Unconfigured: no election to version
+  expect(await apiClient.getCastVoteRecordsDataVersion()).toEqual(0);
+
+  await configureMachine(apiClient, auth, readElectionGeneralDefinition());
+  const initialVersion = await apiClient.getCastVoteRecordsDataVersion();
+
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+  addMockCvrFileToStore({
+    electionId,
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '1M',
+        batchId: 'batch-1',
+        scannerId: 'scanner-1',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: {},
+        card: { type: 'bmd' },
+      },
+    ],
+  });
+  expect(await apiClient.getCastVoteRecordsDataVersion()).toBeGreaterThan(
+    initialVersion
   );
 });
 

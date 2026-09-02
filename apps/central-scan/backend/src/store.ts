@@ -812,6 +812,7 @@ export class Store {
       endedAt: string | null;
       error: string | null;
       count: number;
+      sentToAdminAt: string | null;
     }
     const batchInfo = this.client.all(`
       select
@@ -821,6 +822,7 @@ export class Store {
         batches.polling_place_id as pollingPlaceId,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
+        (case when sent_to_admin_at is null then sent_to_admin_at else strftime('%s', sent_to_admin_at) end) as sentToAdminAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -852,7 +854,41 @@ export class Store {
         undefined,
       error: info.error || undefined,
       count: info.count,
+      sentToAdminAt:
+        (info.sentToAdminAt &&
+          // eslint-disable-next-line vx/gts-safe-number-parse
+          DateTime.fromSeconds(Number(info.sentToAdminAt)).toISO()) ||
+        undefined,
     }));
+  }
+
+  /**
+   * Returns the oldest completed batch whose cast vote records have not yet
+   * been sent to a VxAdmin host, if any. Batches send strictly oldest-first.
+   */
+  getNextBatchToSendToAdmin(): BatchInfo | undefined {
+    const row = this.client.one(`
+      select id
+      from batches
+      where
+        ended_at is not null
+        and deleted_at is null
+        and sent_to_admin_at is null
+      order by started_at asc, batch_number asc
+      limit 1
+    `) as { id: string } | undefined;
+    return row ? this.getBatch(row.id) : undefined;
+  }
+
+  /**
+   * Records that a batch's cast vote records were successfully sent to a
+   * VxAdmin host.
+   */
+  setBatchSentToAdmin(batchId: string): void {
+    this.client.run(
+      'update batches set sent_to_admin_at = current_timestamp where id = ?',
+      batchId
+    );
   }
 
   /**

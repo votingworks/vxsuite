@@ -59,7 +59,13 @@ import {
   isCombinedBallotPrimary,
   PartyId,
 } from '@votingworks/types';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import { Buffer } from 'node:buffer';
@@ -1175,21 +1181,32 @@ export class Store implements BaseStore {
     isTestMode,
     filename,
     exportedTimestamp,
-    sha256Hash,
     scannerIds,
     pollingPlaceIds,
     batchIds,
+    source,
   }: {
     id: Id;
     electionId: Id;
     isTestMode: boolean;
     filename: string;
     exportedTimestamp: Iso8601Timestamp;
-    sha256Hash: string;
     scannerIds: Set<string>;
     pollingPlaceIds: Set<string>;
     batchIds: string[];
+    /**
+     * Where the file came from. A USB export carries the hash of its signed
+     * metadata, which detects re-imports of the same export; a network
+     * transfer has no export signature and is deduplicated by (scanner,
+     * batch) instead.
+     */
+    source:
+      | { type: 'usb'; sha256Hash: string }
+      | { type: 'network'; scannerId: string; batchId: string };
   }): void {
+    if (source.type === 'usb') {
+      assert(source.sha256Hash.length > 0, 'USB imports must record a hash');
+    }
     this.client.run(
       `
         insert into cvr_files (
@@ -1202,9 +1219,12 @@ export class Store implements BaseStore {
           scanner_ids,
           polling_place_ids,
           batch_ids,
-          sha256_hash
+          sha256_hash,
+          source,
+          network_scanner_id,
+          network_batch_id
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1216,8 +1236,171 @@ export class Store implements BaseStore {
       JSON.stringify([...scannerIds]),
       JSON.stringify([...pollingPlaceIds]),
       JSON.stringify(batchIds),
-      sha256Hash
+      source.type === 'usb' ? source.sha256Hash : null,
+      source.type,
+      source.type === 'network' ? source.scannerId : null,
+      source.type === 'network' ? source.batchId : null
     );
+  }
+
+  /**
+   * Stages (or replaces) one validated cast vote record for a pending import,
+   * keyed by the scanner and batch it belongs to. Staged records are
+   * invisible to every other consumer until the import is finalized and they
+   * move into the real tables.
+   */
+  upsertStagedCvr({
+    electionId,
+    scannerId,
+    batchId,
+    ballotId,
+    cvrData,
+  }: {
+    electionId: Id;
+    scannerId: string;
+    batchId: string;
+    ballotId: string;
+    cvrData: string;
+  }): void {
+    this.client.run(
+      `
+        insert into cvrs_staging (
+          election_id, scanner_id, batch_id, ballot_id, cvr_data
+        ) values (?, ?, ?, ?, ?)
+        on conflict (election_id, scanner_id, batch_id, ballot_id)
+        do update set cvr_data = excluded.cvr_data
+      `,
+      electionId,
+      scannerId,
+      batchId,
+      ballotId,
+      cvrData
+    );
+  }
+
+  /**
+   * Counts the staged cast vote records for one pending import.
+   */
+  getStagedCvrCount(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): number {
+    const row = this.client.one(
+      `
+        select count(*) as count from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as { count: number };
+    return row.count;
+  }
+
+  /**
+   * Returns the staged cast vote records for one pending import.
+   */
+  getStagedCvrs(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): Array<{ ballotId: string; cvrData: string }> {
+    return this.client.all(
+      `
+        select ballot_id as ballotId, cvr_data as cvrData
+        from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+        order by ballot_id
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as Array<{ ballotId: string; cvrData: string }>;
+  }
+
+  /**
+   * Deletes one pending import's staged cast vote records.
+   */
+  deleteStagedCvrs(electionId: Id, scannerId: string, batchId: string): void {
+    this.client.run(
+      `
+        delete from cvrs_staging
+        where election_id = ? and scanner_id = ? and batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    );
+  }
+
+  /**
+   * Like {@link addBallotImage}, but moves an already-written (and already
+   * hash-verified) image file into place instead of writing a buffer —
+   * cheap enough to run inside the finalize transaction.
+   */
+  addBallotImageFromFile({
+    cvrId,
+    electionDefinitionId,
+    imageFilePath,
+    pageLayout,
+    side,
+  }: {
+    cvrId: Id;
+    electionDefinitionId: string;
+    imageFilePath: string;
+    pageLayout?: BallotPageLayout;
+    side: Side;
+  }): void {
+    const ballotImagePath = this.getBallotImageFilePath(
+      electionDefinitionId,
+      cvrId,
+      side
+    );
+    mkdirSync(dirname(ballotImagePath), { recursive: true });
+    renameSync(imageFilePath, ballotImagePath);
+    this.client.run(
+      `
+      insert into ballot_images (
+        cvr_id,
+        side,
+        layout
+      ) values (
+        ?, ?, ?
+      )
+    `,
+      cvrId,
+      side,
+      pageLayout ? JSON.stringify(pageLayout) : null
+    );
+  }
+
+  /**
+   * Looks up the import record for a network CVR transfer from the given
+   * scanner and batch, if one exists. Because a transfer's import is a
+   * single atomic transaction, an existing record is always a completed
+   * import.
+   */
+  getNetworkCvrImportId(
+    electionId: Id,
+    scannerId: string,
+    batchId: string
+  ): Optional<Id> {
+    const row = this.client.one(
+      `
+        select id
+        from cvr_files
+        where
+          election_id = ?
+          and source = 'network'
+          and network_scanner_id = ?
+          and network_batch_id = ?
+      `,
+      electionId,
+      scannerId,
+      batchId
+    ) as { id: Id } | undefined;
+    return row?.id;
   }
 
   updateCastVoteRecordFileRecord({
@@ -1697,6 +1880,7 @@ export class Store implements BaseStore {
         precinct_ids as precinctIds,
         scanner_ids as scannerIds,
         sha256_hash as sha256Hash,
+        source,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
       left join cvr_file_entries on cvr_file_entries.cvr_file_id = cvr_files.id
@@ -1713,7 +1897,8 @@ export class Store implements BaseStore {
       pollingPlaceIds: string;
       precinctIds: string;
       scannerIds: string;
-      sha256Hash: string;
+      sha256Hash: string | null;
+      source: 'usb' | 'network';
       createdAt: string;
     }>;
     debug('queried database for cvr file list');
@@ -1724,6 +1909,7 @@ export class Store implements BaseStore {
           id: result.id,
           electionId,
           sha256Hash: result.sha256Hash,
+          source: result.source,
           filename: result.filename,
           exportTimestamp: convertSqliteTimestampToIso8601(
             result.exportTimestamp

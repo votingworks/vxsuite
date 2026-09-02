@@ -750,6 +750,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
       numCvrsImported: 1,
       pollingPlaceIds: ['precinct-1-polling-place'],
       precinctIds: ['precinct-1'],
+      source: 'usb',
       scannerIds: ['scanner-1'],
       sha256Hash: 'hash',
       createdAt: new Date().toISOString(),

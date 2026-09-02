@@ -343,6 +343,16 @@ function buildApi({
       return electionId ? store.getScannerImportCounts(electionId) : {};
     },
 
+    /**
+     * A counter that increments whenever cast vote records change (bumped by
+     * database triggers on import and delete). Cheap to poll; lets the
+     * frontend refresh CVR-derived data when network imports land.
+     */
+    getCastVoteRecordsDataVersion(): number {
+      const electionId = store.getCurrentElectionId();
+      return electionId ? store.getCastVoteRecordsDataVersion(electionId) : 0;
+    },
+
     getIsClientAdjudicationEnabled(): boolean {
       return store.getIsClientAdjudicationEnabled();
     },

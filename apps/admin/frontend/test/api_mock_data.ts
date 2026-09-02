@@ -16,6 +16,7 @@ export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   scannerIds: [],
   sha256Hash: '',
   createdAt: '',
+  source: 'usb',
 };
 
 export const TEST_FILE1 =
