@@ -8,4 +8,5 @@ export * from './list_directory';
 export * from './open_file';
 export * from './open_regular_file';
 export * from './read_file';
+export * from './write_file';
 export * from './syscalls';

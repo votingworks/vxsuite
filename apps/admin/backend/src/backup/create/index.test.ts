@@ -312,6 +312,28 @@ test('reports an error when writing the manifest fails, leaving no partial backu
   expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
 });
 
+test('reports a manifest the target will not hold, leaving no partial backup', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  const target = makeTemporaryDirectory();
+  vi.mocked(writeManifest).mockResolvedValueOnce(
+    err({ type: 'NotRegularFile' })
+  );
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+  });
+
+  expect(result.err()).toEqual({
+    type: 'backup-write-failed',
+    message: 'The backup target holds something that is not a regular file',
+  });
+  // Everything copied before the manifest failed goes with it, rather than
+  // being left at a path a later run would have to recognize as debris.
+  expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
+});
+
 test('fails fast when writing the backup fails unexpectedly', async () => {
   const workspace = await makeConfiguredWorkspace();
   const target = makeTemporaryDirectory();
