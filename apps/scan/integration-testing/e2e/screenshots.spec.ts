@@ -336,8 +336,8 @@ test('voting', async ({ page }, testInfo) => {
   const multiSeatContests = election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   );
-  /* istanbul ignore next */
-  if (singleSeatContests.length === 0 || multiSeatContests.length === 0) throw new Error('Expected single- and multi-seat contests');
+  if (singleSeatContests.length === 0 || multiSeatContests.length === 0)
+    throw new Error('Expected single- and multi-seat contests');
 
   const [singleSeatContest] = singleSeatContests;
   const [multiSeatContest] = multiSeatContests;
@@ -726,7 +726,6 @@ test('write-in-report', async ({ page }, testInfo) => {
   );
   const singleSeatContest = candidateContests.find((c) => c.seats === 1);
   const multiSeatContest = candidateContests.find((c) => c.seats > 1);
-  /* istanbul ignore next */
   if (!singleSeatContest || !multiSeatContest) {
     throw new Error('Expected single- and multi-seat write-in contests');
   }

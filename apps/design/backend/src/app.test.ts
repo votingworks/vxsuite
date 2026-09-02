@@ -573,7 +573,6 @@ test('create/list/delete elections', async () => {
   }
   expect(election2Contests).toEqual(
     sliElection.contests.map((contest) => {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }
@@ -3251,7 +3250,6 @@ test('cloneElection', async () => {
   }
   expect(destContests).toEqual(
     srcContests.map((contest) => {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
       }

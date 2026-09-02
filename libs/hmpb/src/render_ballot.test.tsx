@@ -417,7 +417,6 @@ test.each(templateSpecificTestCases)(
     ).toEqual(new Set(contests.map((c) => c.id)));
 
     for (const contest of contests) {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         straightPartyNotYetImplemented();
       }

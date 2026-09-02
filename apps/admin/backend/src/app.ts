@@ -518,7 +518,7 @@ function buildApi({
         signatureFile.fileContents
       );
       /* @coverage-exclude: Tricky to make this second export err but the first export succeed
-        without significant mocking @preserve */
+        without significant mocking */
       if (exportSignatureFileResult.isErr()) {
         return exportSignatureFileResult;
       }
