@@ -4,10 +4,8 @@ export default defineConfig({
   test: {
     include: ['**/*.exercise.ts'],
     coverage: {
-      thresholds: {
-        lines: 0,
-        branches: 0,
-      },
+      // Training exercises — coverage is not meaningful here
+      enabled: false,
     },
   },
 });

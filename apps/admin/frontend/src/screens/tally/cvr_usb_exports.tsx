@@ -79,11 +79,12 @@ export function CvrUsbExports(props: { importer: Importer }): React.ReactNode {
   ).length;
 
   function startImport(path: string) {
+    // @coverage-defer
     switch (importer.state) {
       case 'duplicate':
       case 'error':
       case 'importing':
-        /* istanbul ignore next - UI blocked by parent modals in these states */
+        // @coverage-exclude: UI blocked by parent modals in these states
         return;
 
       default:
@@ -110,7 +111,7 @@ export function CvrUsbExports(props: { importer: Importer }): React.ReactNode {
           const locationId = e.pollingPlaceIds[0];
           const location = locationMap.get(locationId);
 
-          /* istanbul ignore next - unreachable in practice, but doesn't warrant a crash. */
+          // @coverage-exclude: unreachable in practice, but doesn't warrant a crash.
           if (!location) return null;
 
           return (

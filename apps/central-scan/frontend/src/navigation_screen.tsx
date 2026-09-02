@@ -100,6 +100,7 @@ function NavigationToolbar(): JSX.Element {
       <ToolbarButtons>
         <UsbEjectButton
           usbDriveStatus={usbDriveStatus}
+          // @coverage-defer
           onEject={() => ejectUsbDriveMutation.mutate()}
           isEjecting={ejectUsbDriveMutation.isLoading}
         />

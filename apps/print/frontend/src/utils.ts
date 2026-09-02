@@ -8,6 +8,7 @@ export function getPartyOptions(election: Election): Party[] {
       .filter((partyId) => partyId !== undefined)
   );
   const parties = Array.from(uniquePartyIds).map((partyId) =>
+    // @coverage-defer
     find(election.parties, (p) => p.id === partyId)
   );
   return parties;

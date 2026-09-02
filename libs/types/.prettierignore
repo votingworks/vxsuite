@@ -1,3 +1,4 @@
 src/cdf/ballot-definition/index.ts
 src/cdf/cast-vote-records/index.ts
+src/cdf/election-event-logging/index.ts
 src/cdf/election-results-reporting/index.ts

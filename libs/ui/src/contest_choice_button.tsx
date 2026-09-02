@@ -49,7 +49,7 @@ const derivedVoteStyles = css<StyleProps>`
     ${(p) => p.theme.colors.primary};
 `;
 
-/* istanbul ignore next */
+// @coverage-exclude
 const OuterContainer = styled(Button)<StyleProps>`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid currentColor;
   grid-area: ${(p) => p.gridArea};
@@ -67,7 +67,7 @@ const OuterContainer = styled(Button)<StyleProps>`
   }
 `;
 
-/* istanbul ignore next */
+// @coverage-exclude
 const Content = styled.span`
   align-items: center;
   display: flex;

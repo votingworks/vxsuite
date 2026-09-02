@@ -164,7 +164,7 @@ export function createMockPdiScanner(
 ): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (listeners.size === 0) {
       throw new Error(
         `No listeners registered, got event: ${JSON.stringify(event)}`
@@ -188,8 +188,9 @@ export function createMockPdiScanner(
     on: {
       DISCONNECT: 'disconnected',
       '*': {
+        // @coverage-defer
         actions: (_, event) => {
-          /* istanbul ignore next */
+          // @coverage-exclude
           emitScannerEvent({
             event: 'error',
             code: 'other',
@@ -313,6 +314,7 @@ export function createMockPdiScanner(
     await Promise.race([
       new Promise<void>((resolve) => {
         mockScanner.onTransition(function listener(state) {
+          // @coverage-defer
           if (state.matches(stateMatch)) {
             mockScanner.off(listener);
             resolve();
@@ -349,6 +351,7 @@ export function createMockPdiScanner(
     async getScannerStatus() {
       await simulateCommandDelay();
       const { state } = mockScanner;
+      // @coverage-defer
       switch (true) {
         case state.matches('disconnected'):
           return err({ code: 'disconnected' });
@@ -366,7 +369,7 @@ export function createMockPdiScanner(
         case state.matches('ejectingToFrontAndHold'):
           return ok(mockScannerStatus.documentInFrontAndRear);
         default: {
-          /* istanbul ignore next */
+          // @coverage-exclude
           return err({
             code: 'other',
             message: `Unexpected state: ${state.value}`,
@@ -393,29 +396,25 @@ export function createMockPdiScanner(
       return ok();
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     calibrateImageSensors() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     reboot() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
 
     async disconnect() {
       await simulateCommandDelay();
@@ -423,11 +422,10 @@ export function createMockPdiScanner(
       return ok();
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     exit() {
       throw new Error('Not implemented');
     },
-    /* istanbul ignore stop */
   };
 
   return {

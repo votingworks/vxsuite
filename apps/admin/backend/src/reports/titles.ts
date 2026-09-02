@@ -142,7 +142,6 @@ export function generateTitleForReport({
         case 'hasCrossoverVote':
           return 'Ballots With Crossover Votes';
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(adjudicationFlag);
         }
       }
@@ -155,6 +154,7 @@ export function generateTitleForReport({
       ).name;
     }
 
+    // @coverage-defer
     if (pollingPlaceId) {
       return CachedElectionLookups.getPollingPlaceById(
         electionDefinition,

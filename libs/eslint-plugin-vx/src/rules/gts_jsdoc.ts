@@ -84,6 +84,7 @@ const rule: TSESLint.RuleModule<
         const scope = context.sourceCode.getScope(node);
         const variable = scope.set.get(node.name);
 
+        // @coverage-defer
         if (variable) {
           for (const def of variable.defs) {
             checkHasJsDoc(def.node);

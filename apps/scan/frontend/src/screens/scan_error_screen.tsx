@@ -59,6 +59,7 @@ export function ScanErrorScreen({
       };
     }
 
+    // @coverage-defer
     switch (error) {
       // interpretation errors
       case 'vertical_streaks_detected':
@@ -119,7 +120,6 @@ export function ScanErrorScreen({
           errorMessage: appStrings.warningBallotPrintedAtInvalidScale(),
         };
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(error);
       }
     }
@@ -147,7 +147,7 @@ export function ScanErrorScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function UnreadablePreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -158,7 +158,7 @@ export function UnreadablePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function InvalidBallotHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -169,7 +169,7 @@ export function InvalidBallotHashPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function InvalidBallotTestModePreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -180,7 +180,7 @@ export function InvalidBallotTestModePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function InvalidBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -191,7 +191,7 @@ export function InvalidBallotPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function InvalidPrecinctPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -202,7 +202,7 @@ export function InvalidPrecinctPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function UnknownInterpretationErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -213,7 +213,7 @@ export function UnknownInterpretationErrorPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -224,7 +224,7 @@ export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -235,7 +235,7 @@ export function AfterReconnectBallotInBackPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function UnexpectedScannerErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -247,7 +247,7 @@ export function UnexpectedScannerErrorPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -258,7 +258,7 @@ export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DoubleSheetErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen

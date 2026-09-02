@@ -58,13 +58,11 @@ export function createFullyVotedBallot(
 ): VotesDict {
   const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({ election, ballotStyleId });
-  /* istanbul ignore next */
   if (!ballotStyle) throw new Error(`Ballot style ${ballotStyleId} not found`);
   const contests = getContests({ election, ballotStyle });
 
   return Object.fromEntries(
     contests.map((contest) => {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         straightPartyNotYetImplemented();
       }
@@ -106,9 +104,7 @@ export function withOvervote(
   const current = votes[contest.id] as CandidateContest['candidates'];
   const currentIds = new Set(current.map((c) => c.id));
   const extra = contest.candidates.find((c) => !currentIds.has(c.id));
-  /* istanbul ignore next */
-  if (!extra)
-    throw new Error(`No extra candidate to overvote in ${contest.id}`);
+  if (!extra) throw new Error(`No extra candidate to overvote in ${contest.id}`);
   return { ...votes, [contest.id]: [...current, extra] };
 }
 

@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { DateTime } from 'luxon';
 import {
   CardlessVoterUser,

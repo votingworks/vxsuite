@@ -30,6 +30,7 @@ export function getBatteryIcon(
   batteryInfo?: BatteryInfoType,
   inverse = false
 ): JSX.Element {
+  // @coverage-defer
   if (!batteryInfo) {
     return <Icons.BatteryFull color={inverse ? 'inverse' : undefined} />;
   }
@@ -44,6 +45,7 @@ export function getBatteryIcon(
     style: { fontSize: '1.2em' },
   };
 
+  // @coverage-defer
   switch (quarters) {
     case 0:
       return <Icons.BatteryEmpty {...iconProps} />;
@@ -56,7 +58,7 @@ export function getBatteryIcon(
     case 4:
       return <Icons.BatteryFull {...iconProps} />;
     default: {
-      /* istanbul ignore next */
+      // @coverage-exclude
       throw new Error('Invalid battery level');
     }
   }

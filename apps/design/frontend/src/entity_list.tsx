@@ -138,6 +138,7 @@ function Item(props: EntityListItemProps): React.ReactNode {
     if (ref.current) ref.current.scrollIntoView({ block: 'nearest' });
   }, [selected]);
 
+  // @coverage-defer
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.repeat) return;
 

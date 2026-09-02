@@ -258,12 +258,14 @@ function getAdjacentRowTargetButtonIndex(
   focusedRowIndex: number,
   direction: -1 | 1
 ) {
+  // @coverage-defer
   // The first time the user interacts with the keyboard there is no focused key
   if (focusedRowIndex === -1) {
     return 0;
   }
 
   const focusedElement = document.activeElement;
+  // @coverage-defer
   if (!focusedElement) {
     return 0;
   }
@@ -277,6 +279,7 @@ function getAdjacentRowTargetButtonIndex(
     direction
   );
   const adjacentRow = rowRefs.current[adjacentRowIndex];
+  // @coverage-defer
   if (!adjacentRow) {
     return 0;
   }
@@ -359,7 +362,7 @@ export function VirtualKeyboard({
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
-  /* istanbul ignore next */
+  // @coverage-exclude
   const handleKeyboardEventForVirtualKeyboard = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
       // Prevent propagation so behavior here overrides the app-level keydown listeners bound to `window`

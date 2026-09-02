@@ -1,5 +1,4 @@
-/* istanbul ignore file - no production consumer yet; tests to come with the
-   NH delivery integration */
+// @coverage-defer-file: no production consumer yet; tests to come with the NH delivery integration
 import React from 'react';
 import { assertDefined, find, range } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';

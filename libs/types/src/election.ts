@@ -289,6 +289,7 @@ export const StraightPartyContestSchema: z.ZodSchema<StraightPartyContest> =
  * This can be placed wherever type narrowing is required, and also marks all
  * outstanding straight-party contest cases.
  */
+// @coverage-defer
 export function straightPartyNotYetImplemented(): never {
   throw new Error('Straight party contests are not yet implemented');
 }
@@ -940,6 +941,7 @@ export const ElectionSchema = z
             });
             continue;
           }
+          // @coverage-defer
           if (contest.type === 'candidate') {
             for (const [candidateId, candidateOptions] of iter(
               orderedCandidates

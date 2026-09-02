@@ -135,7 +135,7 @@ function describeCopyFileError(path: string, error: CopyFileError): string {
       return `${path} is larger than the maximum of ${error.maxSize} bytes`;
     }
 
-    /* istanbul ignore next: opening a backup passes no signal, so there is
+    /* @coverage-exclude: opening a backup passes no signal, so there is
        nothing to cancel it */
     case 'Cancelled': {
       return `Reading ${path} was cancelled`;
@@ -145,7 +145,7 @@ function describeCopyFileError(path: string, error: CopyFileError): string {
       return `${path} is not a regular file`;
     }
 
-    /* istanbul ignore next: the destination is a directory this process just
+    /* @coverage-exclude: the destination is a directory this process just
        created for itself, so nothing can be sitting at the path */
     case 'DestinationNotRegularFile': {
       return `Could not write a private copy of ${path}`;

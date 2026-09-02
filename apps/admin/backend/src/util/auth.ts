@@ -28,6 +28,7 @@ export function constructAuthMachineState(
   }
 
   const systemSettings =
+    // @coverage-defer
     store.getSystemSettings(electionId) ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
@@ -49,6 +50,5 @@ export async function getUserRole(
   if (authStatus.status === 'logged_in') {
     return authStatus.user.role;
   }
-  /* istanbul ignore next - trivial fallback case */
   return 'unknown';
 }

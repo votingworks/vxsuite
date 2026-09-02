@@ -36,6 +36,7 @@ function writeEnumType(enumeration: Enum, out: NodeJS.WritableStream): void {
 
   out.write(`export enum ${enumeration.name} {`);
 
+  // @coverage-defer
   if (enumeration.values.length > 0) {
     out.write(`\n`);
   }
@@ -110,6 +111,7 @@ function writeStringAlias(
   out.write(
     `export const ${stringAlias.name}Schema: z.ZodSchema<${stringAlias.name}> = z.string()`
   );
+  // @coverage-defer
   if (stringAlias.pattern) {
     out.write(`.regex(/${stringAlias.pattern.replace(/\//g, '\\/')}/)`);
   }
@@ -180,15 +182,18 @@ export function buildSchema(
 
   for (const [name, def] of Object.entries(jsonSchemaObject.definitions)) {
     const localName = name.split('.').pop() as string;
+    // @coverage-defer
     if (def.enum) {
       const jsonEnum = createEnumFromDefinition(localName, def);
 
+      // @coverage-defer
       if (jsonEnum) {
         enums.push(jsonEnum);
       }
     } else if (def.type === 'object') {
       const jsonInterface = createInterfaceFromDefinition(localName, def);
 
+      // @coverage-defer
       if (jsonInterface) {
         interfaces.push(jsonInterface);
       }

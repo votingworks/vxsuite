@@ -42,7 +42,6 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
         </P>
       );
     default:
-      /* istanbul ignore next */
       throwIllegalValue(printerStatus, 'state');
   }
 }
@@ -55,6 +54,7 @@ const ButtonRow = styled(P)`
 export function ElectionManagerPrinterTabContent(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
 
+  // @coverage-defer
   if (!printerStatusQuery.isSuccess) {
     return null;
   }

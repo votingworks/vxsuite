@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Matcher } from '@testing-library/react';
 
 export function hasTextAcrossElements(text: string | RegExp): Matcher {

@@ -265,17 +265,21 @@ function HostBallotAdjudicationScreen({
         setClaimError(null);
         return true;
       }
+      // @coverage-defer
       // Host returned ok(undefined) — no ballot. Treat as a failed claim
       // so the caller can navigate away.
       return false;
     } catch {
+      // @coverage-defer
       return false;
     }
   }
 
   // Claim+load the initial ballot on mount, release on unmount
   useEffect(() => {
+    // @coverage-defer
     if (currentCvrId) {
+      // @coverage-defer
       claimAndRelease(currentCvrId)
         .catch(() => setClaimError({ type: 'claim-failed' }))
         .finally(() => setIsClaimInFlight(false));
@@ -283,12 +287,13 @@ function HostBallotAdjudicationScreen({
       setIsClaimInFlight(false);
     }
     return () => {
+      // @coverage-defer
       claimAndRelease().catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* istanbul ignore next - empty queue redirect */
+  // @coverage-exclude: empty queue redirect
   if (!currentCvrId) {
     history.push(routerPaths.adjudication);
     return (
@@ -318,6 +323,7 @@ function HostBallotAdjudicationScreen({
   async function navigateSkip(): Promise<void> {
     setIsClaimInFlight(true);
     try {
+      // @coverage-defer
       if (isLastInQueue) {
         await claimAndRelease();
         history.push(routerPaths.adjudication);
@@ -413,6 +419,7 @@ function HostBallotAdjudicationScreenDataLoader({
   const { mutateAsync: adjudicateCvrMutation } = adjudicateCvr.useMutation();
   const [saveError, setSaveError] = useState(false);
 
+  // @coverage-defer
   if (saveError) {
     return (
       <Screen>
@@ -476,6 +483,7 @@ function HostBallotAdjudicationScreenDataLoader({
       isClaimInFlight={isClaimInFlight}
       onAccept={async (input) => {
         const result = await adjudicateCvrMutation(input);
+        // @coverage-defer
         if (result.isErr()) setSaveError(true);
       }}
       onExit={onExit}
@@ -727,6 +735,7 @@ function BallotView({
       <Main flexRow>
         <BallotPanel>
           {!visibleImage.imageUrl ? (
+            // @coverage-defer
             <UnableToLoadImageCallout />
           ) : (
             <BallotStaticImageViewer
@@ -790,9 +799,11 @@ function BallotView({
                     <PrimaryNavButton
                       onPress={onSkipGuarded}
                       disabled={isClaimInFlight}
+                      // @coverage-defer
                       rightIcon={isLastBallot ? 'Done' : 'Next'}
                       variant="primary"
                     >
+                      {/* @coverage-defer */}
                       {isLastBallot ? 'Done' : 'Next'}
                     </PrimaryNavButton>
                   )}

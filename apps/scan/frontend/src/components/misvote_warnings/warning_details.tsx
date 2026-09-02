@@ -44,6 +44,7 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
           maxColumns={layout.maxColumnsPerCard}
           title={appStrings.titleScannerNoVotesWarning()}
           helpNote={
+            // @coverage-defer
             blankContests.length === 1
               ? appStrings.noteScannerBlankContestsCardSingular()
               : appStrings.noteScannerBlankContestsCardPlural()
@@ -57,6 +58,7 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
           maxColumns={layout.maxColumnsPerCard}
           title={appStrings.titleScannerUndervoteWarning()}
           helpNote={
+            // @coverage-defer
             partiallyVotedContests.length === 1
               ? appStrings.noteScannerUndervoteContestsCardSingular()
               : appStrings.noteScannerUndervoteContestsCardPlural()

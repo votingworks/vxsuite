@@ -9,6 +9,7 @@ export { TEST_PAGE_PRINT_DELAY_SECONDS } from '@votingworks/ui';
 
 export function PrintTestPageButton(): JSX.Element {
   const isPrinterConnected =
+    // @coverage-defer
     getPrinterStatus.usePollingQuery().data?.connected ?? false;
   const printTestPageMutation = printTestPage.useMutation();
   const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation();

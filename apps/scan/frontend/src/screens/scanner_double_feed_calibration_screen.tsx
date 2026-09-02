@@ -36,11 +36,11 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
   const endDoubleFeedCalibrationMutation =
     endDoubleFeedCalibration.useMutation();
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!scannerStatusQuery.isSuccess) return null;
   const status = scannerStatusQuery.data;
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   assert(
     status.state === 'calibrating_double_feed_detection.double_sheet' ||
       status.state === 'calibrating_double_feed_detection.single_sheet' ||
@@ -48,6 +48,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
       status.state === 'paused'
   );
 
+  // @coverage-defer
   switch (status.state) {
     case 'calibrating_double_feed_detection.double_sheet': {
       return (
@@ -128,7 +129,6 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
     }
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(status.state);
     }
   }

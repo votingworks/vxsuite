@@ -1,6 +1,7 @@
 import { Voter, VoterNameChangeRequest } from '@votingworks/types';
 
 export function getUpdatedVoterFirstName(voter: Voter): string {
+  // @coverage-defer
   if (voter.nameChange) {
     return voter.nameChange.firstName;
   }
@@ -8,6 +9,7 @@ export function getUpdatedVoterFirstName(voter: Voter): string {
 }
 
 export function getUpdatedVoterMiddleName(voter: Voter): string {
+  // @coverage-defer
   if (voter.nameChange) {
     return voter.nameChange.middleName;
   }
@@ -15,6 +17,7 @@ export function getUpdatedVoterMiddleName(voter: Voter): string {
 }
 
 export function getUpdatedVoterLastName(voter: Voter): string {
+  // @coverage-defer
   if (voter.nameChange) {
     return voter.nameChange.lastName;
   }
@@ -22,6 +25,7 @@ export function getUpdatedVoterLastName(voter: Voter): string {
 }
 
 export function getUpdatedVoterSuffix(voter: Voter): string {
+  // @coverage-defer
   if (voter.nameChange) {
     return voter.nameChange.suffix;
   }

@@ -53,6 +53,7 @@ export const DEFAULT_MARGIN_DIMENSIONS: MarginDimensions = {
   left: 0.5,
 } as const;
 
+// @coverage-defer
 function inchesToText(inches: number): string {
   return `${inches}in`;
 }
@@ -60,8 +61,7 @@ function inchesToText(inches: number): string {
 const HTML_DOCTYPE = '<!DOCTYPE html>';
 const CONTENT_WRAPPER_ID = 'content-wrapper';
 
-// coverage tool breaks on code evaluated within the browser
-/* istanbul ignore next -  */
+/* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
 function getContentHeight(page: Page): Promise<number> {
   return page.evaluate(() => {
     const rect = (
@@ -81,7 +81,7 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
-/* istanbul ignore next - cleanup function for vitest */
+// @coverage-exclude: cleanup function for vitest
 export async function cleanupCachedBrowser(): Promise<void> {
   if (cachedBrowser) {
     await cachedBrowser.close();
@@ -165,7 +165,9 @@ export async function renderToPdf(
         {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
         {/* TODO: Migrate older prints to print theme. */}
         <VxThemeProvider
+          // @coverage-defer
           colorMode={usePrintTheme ? 'print' : 'desktop'}
+          // @coverage-defer
           sizeMode={usePrintTheme ? 'print' : 'desktop'}
           screenType="builtIn"
         >
@@ -220,7 +222,9 @@ export async function renderToPdf(
       verticalMargin;
 
     const headerHtml =
+      // @coverage-defer
       headerTemplate &&
+      // @coverage-defer
       (() => {
         const {
           elementHtml: headerElementHtml,
@@ -243,12 +247,14 @@ export async function renderToPdf(
         );
       })();
 
+    // @coverage-defer
     buffers.push(
       Uint8Array.from(
         await page.pdf({
           path: outputPath,
           width: inchesToText(width),
           height: inchesToText(
+            // @coverage-defer
             /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
             isLetterRoll
               ? Math.min(
@@ -272,7 +278,9 @@ export async function renderToPdf(
     );
   }
 
+  // @coverage-defer
   await context.close();
 
+  // @coverage-defer
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }

@@ -45,10 +45,8 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-/*
- * istanbul ignore next - @starting-style rule is incompatible with our
- * current jsdom version.
- */
+/* @coverage-exclude: @starting-style rule is incompatible with our
+   current jsdom version. */
 const CONTENT_STARTING_STYLE =
   process.env.NODE_ENV !== 'test' &&
   css`

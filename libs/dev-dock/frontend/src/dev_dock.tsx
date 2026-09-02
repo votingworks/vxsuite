@@ -93,6 +93,7 @@ function useElectionQuery() {
   const apiClient = useApiClient();
   return useQuery(
     ['getElection'],
+    // @coverage-defer
     async () => (await apiClient.getElection()) ?? null
   );
 }
@@ -104,6 +105,7 @@ function ElectionControl(): JSX.Element | null {
   // Polled so that a fresh VxDesign export shows up without reloading the app.
   const availableElectionsQuery = useQuery(
     ['getAvailableElections'],
+    // @coverage-defer
     async () => (await apiClient.getAvailableElections()) ?? null,
     { refetchInterval: AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS }
   );
@@ -120,6 +122,7 @@ function ElectionControl(): JSX.Element | null {
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const inputPath = event.target.value;
+    // @coverage-defer
     if (inputPath === 'Pick from file...') {
       const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
         properties: ['openFile'],
@@ -140,6 +143,7 @@ function ElectionControl(): JSX.Element | null {
   }
 
   const elections = uniqueBy(
+    // @coverage-defer
     availableElections.concat(selectedElection ?? []),
     (election) => election.inputPath
   );
@@ -241,6 +245,7 @@ function SmartCardMockControls() {
   const apiClient = useApiClient();
   const getCardStatusQuery = useQuery(
     ['getCardStatus'],
+    // @coverage-defer
     async () => (await apiClient.getCardStatus()) ?? null
   );
   const insertCardMutation = useMutation(apiClient.insertCard, {
@@ -888,12 +893,14 @@ function BatchScannerMockControl() {
               ],
             });
             if (dialogResult.canceled) return;
+            // @coverage-defer
             if (dialogResult.filePaths.length > 0) {
               loadBallotsMutation.mutate({ paths: dialogResult.filePaths });
             }
           }}
           disabled={loadBallotsMutation.isLoading}
         >
+          {/* @coverage-defer */}
           {loadBallotsMutation.isLoading ? 'Loading...' : 'Load Ballots'}
         </ScannerButton>
         ×
@@ -973,6 +980,7 @@ function PdiScannerMockControl() {
     });
     if (dialogResult.canceled) return;
     const selectedPath = dialogResult.filePaths[0];
+    // @coverage-defer
     if (selectedPath) {
       insertSheetMutation.mutate({ path: selectedPath });
     }
@@ -993,6 +1001,7 @@ function PdiScannerMockControl() {
         </ScannerButton>
       ) : (
         <ScannerButton onClick={onInsertBallot} disabled={!canInsert}>
+          {/* @coverage-defer */}
           {insertSheetMutation.isLoading ? 'Loading...' : 'Insert Ballot'}
         </ScannerButton>
       )}
@@ -1261,6 +1270,7 @@ function createQueryClient() {
       queries: {
         networkMode: 'always',
         staleTime: Infinity,
+        // @coverage-defer
         onError: (error) => {
           // eslint-disable-next-line no-console
           console.error('Dev Dock error:', error);
@@ -1268,6 +1278,7 @@ function createQueryClient() {
       },
       mutations: {
         networkMode: 'always',
+        // @coverage-defer
         onError: (error) => {
           // eslint-disable-next-line no-console
           console.error('Dev Dock error:', error);
@@ -1292,11 +1303,13 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   );
 
   function onKeyDown(event: KeyboardEvent): void {
+    // @coverage-defer
     if (event.key.toLowerCase() === 'd' && event.metaKey) {
       event.preventDefault();
       event.stopPropagation();
       setIsOpen((previousIsOpen) => !previousIsOpen);
     }
+    // @coverage-defer
     if (isOpen) {
       if (event.key === 'Escape') setIsOpen(false);
     }
@@ -1394,6 +1407,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
  * on.
  */
 function DevDockWrapper({
+  // @coverage-defer
   apiClient = grout.createClient<Api>({ baseUrl: '/dock' }),
   enableAccessibleNav,
 }: {
@@ -1415,7 +1429,9 @@ function DevDockWrapper({
         <ApiClientContext.Provider value={apiClient}>
           <DevDock enableAccessibleNav={enableAccessibleNav} />
           {/* eslint-disable-next-line no-constant-binary-expression */}
-          {false && <ReactQueryDevtools initialIsOpen={false} />}
+          {false && (
+            /* @coverage-defer */ <ReactQueryDevtools initialIsOpen={false} />
+          )}
         </ApiClientContext.Provider>
       </VxThemeProvider>
     </QueryClientProvider>

@@ -5,10 +5,8 @@ export default defineConfig({
   test: {
     setupFiles: ['test/setupTests.ts'],
     coverage: {
-      thresholds: {
-        lines: 100,
-        branches: -1,
-      },
+      // Dev-only CLI
+      exclude: ['src/printer/cli.ts'],
     },
     alias: [
       {

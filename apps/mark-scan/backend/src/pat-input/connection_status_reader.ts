@@ -56,9 +56,10 @@ export class PatConnectionStatusReader
         break;
       }
 
+      // @coverage-defer
       if (openResult.isErr()) {
         const openError = openResult.err();
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!openError.message.match('ENOENT')) {
           this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
             message: `Unexpected error connecting to pin at ${address}: ${openError}`,
@@ -98,15 +99,13 @@ export class PatConnectionStatusReader
       const openResult = await fsOpen(path);
 
       if (openResult.isErr()) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!openResult.err().message.match('ENOENT')) {
-          /* istanbul ignore next */
           this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
             message: `Unexpected error trying to open ${path}.`,
             disposition: 'failure',
             error: openResult.err().message,
           });
-          /* istanbul ignore next */
           return false;
         }
 
@@ -140,7 +139,6 @@ export class PatConnectionStatusReader
       case 'bmd-155':
         return this.openBmd155();
       default: {
-        /* istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive */
         throw new Error(`Unhandled BMD model ${this.bmdModelNumber}`);
       }
     }

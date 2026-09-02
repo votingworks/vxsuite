@@ -108,6 +108,7 @@ function getVoteConfigurations(
 ): VotesDict[] {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
   const numOptionsToProduce =
+    // @coverage-defer
     iter(optionsForEachContest.values())
       .map((options) => options.length)
       .max() ?? 0;
@@ -150,6 +151,7 @@ export function generateBallotPageLayouts(
     })
   );
 
+  // @coverage-defer
   if (!ballotStyle.ballotPositions) {
     throw new Error(
       `no ballot positions found for ballot style ${metadata.ballotStyleId}`
@@ -246,6 +248,7 @@ export function* generateCvrs({
               ballotType,
               isTestMode: testMode,
             });
+        // @coverage-defer
         if (ballotPageLayouts.length > 2) {
           throw new Error('only single-sheet ballots are supported');
         }
@@ -254,7 +257,7 @@ export function* generateCvrs({
 
           const optionsForEachContest = new Map<string, readonly Vote[]>();
           for (const contest of contests) {
-            /* istanbul ignore next */
+            // @coverage-exclude
             if (contest.type === 'straight-party') {
               return straightPartyNotYetImplemented();
             }
@@ -279,7 +282,6 @@ export function* generateCvrs({
                 ]);
                 break;
               }
-              // istanbul ignore next
               default:
                 throwIllegalValue(contest);
             }
@@ -305,6 +307,7 @@ export function* generateCvrs({
                 assetType: 'image',
                 frontOrBack: 'back',
               });
+              // @coverage-defer
               const uniqueId = ballotIdPrefix
                 ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
                 : castVoteRecordId.toString();
@@ -403,6 +406,7 @@ export function* generateCvrs({
                   '@type': 'CVR.CVR',
                   BallotStyleId: ballotStyleId,
                   BallotStyleUnitId: precinctId,
+                  // @coverage-defer
                   PartyIds: partyId ? [partyId] : undefined,
                   CreatingDeviceId: scannerId,
                   ElectionId: electionDefinition.ballotHash,
@@ -460,10 +464,11 @@ export function* generateCvrs({
                             election.contests,
                             (c) => c.id === contestId
                           );
-                          /* istanbul ignore next */
+                          // @coverage-exclude
                           if (contest.type === 'straight-party') {
                             return straightPartyNotYetImplemented();
                           }
+                          // @coverage-defer
                           const contestVotes = votes[contest.id] || [];
                           return {
                             '@type': 'CVR.CVRContest',

@@ -1,3 +1,4 @@
+// @coverage-defer-file
 /**
  * Simply a wrapper for `Date.now()`, returns the current time in Unix time.
  *

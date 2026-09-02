@@ -86,6 +86,7 @@ export function useCvrImporter(): CvrImporter {
   const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
 
   assert(electionDefinition);
+  // @coverage-defer
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
 
   const imports = api.getCastVoteRecordFiles.useQuery();
@@ -199,6 +200,7 @@ function ManualImportButton(props: { disabled?: boolean; importFn: ImportFn }) {
           if (dialogResult.canceled) return;
 
           const path = dialogResult.filePaths[0];
+          // @coverage-defer
           if (path) importFn({ path });
         }}
       >
@@ -209,7 +211,7 @@ function ManualImportButton(props: { disabled?: boolean; importFn: ImportFn }) {
 }
 
 export function errorMessage(err: ImportCastVoteRecordsError): string {
-  /* istanbul ignore next - mostly trivial error mapping */
+  // @coverage-exclude: mostly trivial error mapping
   switch (err.type) {
     case 'authentication-error': {
       return (
@@ -303,7 +305,6 @@ export function errorMessage(err: ImportCastVoteRecordsError): string {
             return 'The record references a precinct that does not exist.';
           }
 
-          /* istanbul ignore next */
           default: {
             throwIllegalValue(err, 'subType');
           }
@@ -320,7 +321,6 @@ export function errorMessage(err: ImportCastVoteRecordsError): string {
       return 'Unable to parse metadata file.';
     }
 
-    /* istanbul ignore next */
     default: {
       throwIllegalValue(err, 'type');
     }

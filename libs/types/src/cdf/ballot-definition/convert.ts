@@ -57,7 +57,7 @@ function termDescriptionForContest(
   ballotDefinition: Cdf.BallotDefinition,
   contestId: string
 ): string | undefined {
-  /* istanbul ignore next */
+  // @coverage-exclude
   return (ballotDefinition.Office ?? []).find(
     (office) => office['@id'] === officeId(contestId)
   )?.Term.Label;
@@ -137,7 +137,7 @@ function electionCandidates(
 ): readonly Cdf.Candidate[] {
   return (
     assertDefined(cdfElection.Election[0]).Candidate ||
-    /* istanbul ignore next */ []
+    /* @coverage-exclude */ []
   );
 }
 
@@ -429,7 +429,7 @@ function getUiString(
 ): string | undefined {
   const uiStringsInLanguage = uiStrings[languageCode];
   // No current code paths lead here, but it's also not cause for an assert.
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!uiStringsInLanguage) {
     return undefined;
   }
@@ -509,6 +509,7 @@ export function convertVxfElectionToCdfBallotDefinition(
           .map((split) => split.id);
       }
 
+      // @coverage-defer
       // If the precinct doesn't have splits, verify districts match and return the precinct ID
       return deepEqual(
         precinct.districtIds.toSorted(),
@@ -573,7 +574,7 @@ export function convertVxfElectionToCdfBallotDefinition(
       contest: Vxf.Contest,
       gridPosition: FlatGridPosition
     ): string {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
@@ -586,7 +587,6 @@ export function convertVxfElectionToCdfBallotDefinition(
               return gridPosition.optionId;
             }
             default: {
-              /* istanbul ignore next */
               return throwIllegalValue(contest);
             }
           }
@@ -594,7 +594,6 @@ export function convertVxfElectionToCdfBallotDefinition(
         case 'write-in':
           return writeInOptionId(contest.id, gridPosition.writeInIndex);
         default: {
-          /* istanbul ignore next */
           return throwIllegalValue(gridPosition);
         }
       }
@@ -603,7 +602,7 @@ export function convertVxfElectionToCdfBallotDefinition(
     function getOrderedPhysicalContestOptions(
       contest: Vxf.Contest
     ): Cdf.PhysicalContestOption[] {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (contest.type === 'straight-party') {
         return Vxf.straightPartyNotYetImplemented();
       }
@@ -629,6 +628,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                 pos.partyIds === undefined ||
                 deepEqual(orderedCandidate.partyIds, pos.partyIds))
           );
+          // @coverage-defer
           if (position) {
             physicalOptions.push({
               '@type': 'BallotDefinition.PhysicalContestOption',
@@ -732,6 +732,7 @@ export function convertVxfElectionToCdfBallotDefinition(
               },
             ],
             WriteInPosition:
+              // @coverage-defer
               position.type === 'write-in'
                 ? [
                     {
@@ -833,7 +834,7 @@ export function convertVxfElectionToCdfBallotDefinition(
 
         // eslint-disable-next-line array-callback-return
         Contest: vxfElection.contests.map((contest) => {
-          /* istanbul ignore next */
+          // @coverage-exclude
           if (contest.type === 'straight-party') {
             return Vxf.straightPartyNotYetImplemented();
           }
@@ -904,7 +905,6 @@ export function convertVxfElectionToCdfBallotDefinition(
               };
 
             default: {
-              /* istanbul ignore next */
               throwIllegalValue(contest);
             }
           }
@@ -1016,6 +1016,7 @@ export function convertVxfElectionToCdfBallotDefinition(
             )
           : []
       ),
+      // @coverage-defer
       ...(vxfElection.pollingPlaces ?? []).map(
         (pollingPlace): Cdf.ReportingUnit => ({
           '@type': 'BallotDefinition.ReportingUnit',
@@ -1134,7 +1135,6 @@ export function convertCdfBallotDefinitionToVxfElection(
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
       default: {
-        /* istanbul ignore next */
         return throwIllegalValue(contest);
       }
     }
@@ -1147,7 +1147,6 @@ export function convertCdfBallotDefinitionToVxfElection(
     const match = /^-option-write-in-([0-9]+)$/.exec(
       optionId.replace(contestId, '')
     );
-    /* istanbul ignore next */
     return safeParseInt(match?.[1]).assertOk(
       `Invalid write-in option id: ${optionId}`
     );
@@ -1330,7 +1329,6 @@ export function convertCdfBallotDefinitionToVxfElection(
         }
 
         default: {
-          /* istanbul ignore next */
           throw throwIllegalValue(contest, 'type');
         }
       }
@@ -1345,6 +1343,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       const placePrecincts: Record<Vxf.PrecinctId, Vxf.PollingPlacePrecinct> =
         {};
 
+      // @coverage-defer
       const memberIds = place.ComposingGpUnitIds || [];
       for (const precinct of precincts) {
         if (memberIds.includes(precinct['@id'])) {
@@ -1493,6 +1492,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0],
+        // @coverage-defer
         languages: ballotStyle.Language ?? ['en'],
         orderedCandidatesByContest,
         ballotPositions: ballotPositionsForCdfBallotStyle(ballotStyle),

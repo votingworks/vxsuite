@@ -118,6 +118,7 @@ const COLUMN_WIDTH_MAP: Record<AttributeColumnCount, ColumnWidths> = {
   },
 };
 
+// @coverage-defer
 export function ReportScreen({
   isElectionManagerAuth,
 }: {

@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { Redirect, Route, Switch } from 'react-router-dom';
 import React from 'react';
 import { PrintScreen } from './screens/print_screen.js';

@@ -148,6 +148,7 @@ export function CustomFilterSummary({
           </Font>{' '}
           {filter.partyIds
             .map((partyId) =>
+              // @coverage-defer
               Tabulation.isNoPartyId(partyId)
                 ? 'No Party'
                 : CachedElectionLookups.getPartyById(

@@ -140,7 +140,6 @@ test('renders as expected for all precincts in a primary election', () => {
       isLiveMode
       scannedElectionResults={primaryElectionResults}
       contests={electionTwoPartyPrimary.contests.filter((c) => {
-        /* istanbul ignore next */
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }

@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './app_strings';
 export * from './ballot_strings';
 export * from './audio';

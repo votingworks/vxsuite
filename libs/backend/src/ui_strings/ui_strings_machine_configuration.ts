@@ -1,5 +1,4 @@
-/* istanbul ignore file - tested via VxSuite apps. */
-
+// @coverage-exclude-file: tested via VxSuite apps
 import { BaseLogger } from '@votingworks/logging';
 import {
   ElectionPackageZip,

@@ -92,9 +92,7 @@ export class CardReader {
           );
         } else {
           this.updateReader({ status: 'no_card' });
-          reader.disconnect(
-            /* istanbul ignore next */ () => undefined
-          );
+          reader.disconnect(/* @coverage-exclude */ () => undefined);
         }
       });
 

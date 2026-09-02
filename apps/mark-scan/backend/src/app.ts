@@ -234,6 +234,7 @@ export function buildApi(
     },
 
     getPaperHandlerState(): SimpleServerStatus {
+      // @coverage-defer
       if (!stateMachine) {
         return 'no_hardware';
       }
@@ -330,7 +331,7 @@ export function buildApi(
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace)),
     }),
 
@@ -343,7 +344,7 @@ export function buildApi(
 
       // Confirm there are no printed ballots before opening polls, in compliance
       // with VVSG 2.0 1.1.3-B, even though it should be an impossible app state.
-      /* istanbul ignore next - impossible app state */
+      // @coverage-exclude: impossible app state
       if (
         newPollsState === 'polls_open' &&
         oldPollsState === 'polls_closed_initial'
@@ -376,7 +377,6 @@ export function buildApi(
             }
             return LogEventId.VotingResumed;
           default:
-            /* istanbul ignore next */
             throwIllegalValue(newPollsState);
         }
       })();
@@ -431,6 +431,7 @@ export function buildApi(
       };
     },
 
+    // @coverage-defer
     getIsPatDeviceConnected(): boolean {
       if (!stateMachine) {
         return false;
@@ -462,7 +463,7 @@ export function buildApi(
       });
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -476,8 +477,8 @@ export function buildApi(
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
+    // @coverage-defer
     getMarkScanBmdModel(): BmdModelNumber {
       return getMarkScanBmdModel();
     },
@@ -501,6 +502,7 @@ export function buildApi(
       stateMachine.startPaperHandlerDiagnostic();
     },
 
+    // @coverage-defer
     stopPaperHandlerDiagnostic(): void {
       assertDefined(stateMachine).stopPaperHandlerDiagnostic();
     },

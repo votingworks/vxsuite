@@ -1,4 +1,4 @@
-/* istanbul ignore file - placeholder component that will change */
+// @coverage-defer-file: placeholder component that will change
 import React from 'react';
 
 import styled from 'styled-components';

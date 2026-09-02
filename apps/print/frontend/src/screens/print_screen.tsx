@@ -131,6 +131,7 @@ export function PrintScreen({
   const parties = getPartyOptions(election);
   const { printer } = getDeviceStatusesQuery.data;
   const hidePartySelection =
+    // @coverage-defer
     election.type !== 'primary' || isCombinedBallotPrimary(election);
 
   // If VxPrint is configured for a single precinct, hide the precinct
@@ -142,11 +143,13 @@ export function PrintScreen({
     : undefined;
 
   const availableSplits =
+    // @coverage-defer
     selectedPrecinct && hasSplits(selectedPrecinct)
       ? selectedPrecinct.splits
       : [];
   const hideSplitSelection = availableSplits.length === 0;
 
+  // @coverage-defer
   function handlePrint() {
     setIsShowingPrintingModal(true);
     setTimeout(() => {
@@ -190,6 +193,7 @@ export function PrintScreen({
                 selectedPrecinctId={selectedPrecinctId}
                 precincts={precincts}
                 onSearch={setSearchValue}
+                // @coverage-defer
                 onSelect={(value) => {
                   if (value !== selectedPrecinctId) {
                     setSelectedPrecinctId(value);
@@ -199,10 +203,12 @@ export function PrintScreen({
               />
             </FormSection>
             {hideSplitSelection ? null : (
+              // @coverage-defer
               <FormSection>
                 <strong style={{ marginBottom: '0.25rem' }}>Split</strong>
                 <ExpandedSelect
                   selectedValue={selectedSplitId}
+                  // @coverage-defer
                   options={availableSplits.map((split) => ({
                     value: split.id,
                     label: split.name,
@@ -214,11 +220,13 @@ export function PrintScreen({
           </Column>
           <Column>
             {hidePartySelection ? null : (
+              // @coverage-defer
               <FormSection style={{ gap: '0.25rem' }}>
                 <strong>Party</strong>
                 <RadioGroup
                   label="Party"
                   value={selectedPartyId}
+                  // @coverage-defer
                   options={parties.map((party) => ({
                     label: party.name,
                     value: party.id,
@@ -229,11 +237,13 @@ export function PrintScreen({
               </FormSection>
             )}
             {hideLanguageSelection ? null : (
+              // @coverage-defer
               <FormSection style={{ gap: '0.25rem' }}>
                 <strong>Language</strong>
                 <RadioGroup
                   label="Language"
                   value={selectedLanguageCode}
+                  // @coverage-defer
                   options={languages.map((language) => ({
                     label: format.languageDisplayName({
                       languageCode: language,
@@ -254,11 +264,13 @@ export function PrintScreen({
               <strong>Ballot Type:</strong>
               <SegmentedButton
                 label="Precinct or Absentee"
+                // @coverage-defer
                 selectedOptionId={isAbsentee ? 'absentee' : 'precinct'}
                 options={[
                   { label: 'Precinct', id: 'precinct' },
                   { label: 'Absentee', id: 'absentee' },
                 ]}
+                // @coverage-defer
                 onChange={(newValue) => {
                   setIsAbsentee(newValue === 'absentee');
                 }}
@@ -270,6 +282,7 @@ export function PrintScreen({
             <strong>Copies:</strong>
             <NumberInput
               value={numCopies}
+              // @coverage-defer
               onChange={(value) => setNumCopies(value || 0)}
               style={{ width: '4rem' }}
             />
@@ -282,7 +295,9 @@ export function PrintScreen({
             disabled={
               !selectedPrecinct ||
               !selectedLanguageCode ||
+              // @coverage-defer
               (!hidePartySelection && !selectedPartyId) ||
+              // @coverage-defer
               (!hideSplitSelection && !selectedSplitId) ||
               !printer.connected
             }
@@ -291,6 +306,7 @@ export function PrintScreen({
           </PrintButton>
         </Footer>
         {isShowingPrintingModal && (
+          // @coverage-defer
           <Modal
             centerContent
             content={

@@ -442,7 +442,6 @@ export function getUndeclaredPrimaryPartyChoiceRaw(
     case 'REP':
       return undeclaredPrimaryStats.totalUndeclaredRepCheckIns;
     default:
-      /* istanbul ignore next */
       throwIllegalValue(partyAbbreviation);
   }
 }

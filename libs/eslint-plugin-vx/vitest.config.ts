@@ -12,10 +12,6 @@ export default defineConfig({
         'src/configs/*.ts',
         'src/util/index.ts',
       ],
-      thresholds: {
-        lines: -1,
-        branches: -12,
-      },
     },
   },
 });

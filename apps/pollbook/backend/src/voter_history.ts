@@ -26,21 +26,30 @@ export function generateVoterHistoryCsvContent(
         'First Name': voterName.firstName,
         'Middle Name': voterName.middleName,
         'Name Suffix': voterName.suffix,
+        // @coverage-defer
         'Street Number': voterAddress.streetNumber ?? '',
         'Street Number Suffix':
+          // @coverage-defer
           (voter.addressChange
             ? voter.addressChange.streetSuffix
             : voter.addressSuffix) ?? '',
+        // @coverage-defer
         'Street Number Fraction': voterAddress.houseFractionNumber ?? '',
+        // @coverage-defer
         'Street Name': voterAddress.streetName ?? '',
+        // @coverage-defer
         'Apartment/Unit Number': voterAddress.apartmentUnitNumber ?? '',
+        // @coverage-defer
         'Address Line 2': voterAddress.addressLine2 ?? '',
+        // @coverage-defer
         'Address Line 3': voterAddress.addressLine3 ?? '',
         'City/Town':
+          // @coverage-defer
           (voter.addressChange
             ? voter.addressChange.city
             : voter.postalCityTown) ?? '',
         'Zip Code':
+          // @coverage-defer
           (voter.addressChange
             ? voter.addressChange.zipCode
             : voter.postalZip5) ?? '',

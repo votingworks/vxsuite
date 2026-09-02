@@ -237,6 +237,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {/* @coverage-defer */}
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
@@ -312,6 +313,7 @@ function CandidateContest({
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
+  // @coverage-defer
   if (!voteForText) {
     throw new Error(
       `Unsupported number of seats for contest: ${contest.seats}`
@@ -377,6 +379,7 @@ function CandidateContest({
                 left: -0.6,
                 bottom: 0.5,
                 right:
+                  // @coverage-defer
                   numContestColumns === 2
                     ? 14.6
                     : numContestColumns === 4
@@ -632,7 +635,6 @@ function buildContestSections(
       case 'general':
         return (contest.candidates[0]?.partyIds ?? []).length > 0;
       default:
-        /* istanbul ignore next */
         throwIllegalValue(election.type);
     }
   }
@@ -686,6 +688,7 @@ function buildCombinedBallotPrimaryContestSections(
     (section) => section.contests.length > 0
   );
   for (const section of nonEmptyPartisanSections) {
+    // @coverage-defer
     if (
       !deepEqual(
         section.contests.map(({ districtId, title }) => ({
@@ -875,6 +878,7 @@ async function CombinedBallotPrimaryContestColumns({
 
   const numPartisanColumns = partisanSections.length;
   const maxNumPartisanColumns = numColumns - 1;
+  // @coverage-defer
   if (numPartisanColumns > maxNumPartisanColumns) {
     throw new Error(
       `Too many parties to fit on ballot: ${numPartisanColumns} (max ${maxNumPartisanColumns})`
@@ -912,6 +916,7 @@ async function CombinedBallotPrimaryContestColumns({
   );
 
   const [partisanSectionHeaderMeasurements] =
+    // @coverage-defer
     numPartisanColumns > 0
       ? await scratchpad.measureElements(
           <BackendLanguageContextProvider

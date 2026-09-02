@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-/* istanbul ignore next */
 let baseTitle: string | undefined | null =
   document.getElementsByTagName('title')[0]?.textContent;
 
@@ -25,7 +24,6 @@ let resetToBaseTitleTimeout: ReturnType<typeof setTimeout> | undefined;
 function resetToBaseTitle() {
   // Prevent errors in tests if jsdom has been torn down before this fires
   if (typeof document === 'undefined') return;
-  /* istanbul ignore next */
   document.title = baseTitle ?? '';
 }
 

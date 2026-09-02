@@ -137,7 +137,6 @@ export function PollingPlaceForm(
         );
 
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(error);
       }
     }
@@ -390,7 +389,7 @@ function DeleteModalButton(props: {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next */
+            // @coverage-exclude
             () => setIsConfirmingDelete(false)
           }
         />

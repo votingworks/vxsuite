@@ -146,6 +146,7 @@ export function groupOptionPositionsIntoSheets(
   const maxSheetNumber = Math.max(0, ...bySheet.keys());
   const sheets: SheetPositions[] = [];
   for (let sheetNumber = 1; sheetNumber <= maxSheetNumber; sheetNumber += 1) {
+    // @coverage-defer
     const sheet = bySheet.get(sheetNumber) ?? {
       front: new Map(),
       back: new Map(),

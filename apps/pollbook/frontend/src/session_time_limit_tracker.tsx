@@ -11,9 +11,11 @@ export function SessionTimeLimitTracker(): JSX.Element {
   return (
     <SessionTimeLimitTrackerBase
       authStatus={authStatusQuery.data}
+      // @coverage-defer
       logOut={() => logOutMutation.mutate()}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       updateSessionExpiry={(sessionExpiresAt: Date) =>
+        // @coverage-defer
         updateSessionExpiryMutation.mutate({ sessionExpiresAt })
       }
     />

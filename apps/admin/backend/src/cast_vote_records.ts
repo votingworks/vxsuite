@@ -148,18 +148,19 @@ export async function listCastVoteRecordExportsInDirectory(
         case 'not-directory': {
           return err('found-file-instead-of-directory');
         }
+        // @coverage-defer
         case 'permission-denied': {
-          /* istanbul ignore next: Hard to trigger without significant mocking */
+          // @coverage-exclude: Hard to trigger without significant mocking
           return err('permission-denied');
         }
         default: {
-          /* istanbul ignore next: Compile-time check for completeness */
           throwIllegalValue(errorType);
         }
       }
     }
 
     const entry = result.ok();
+    // @coverage-defer
     if (entry.type === FileSystemEntryType.Directory) {
       const exportDirectoryNameComponents =
         parseCastVoteRecordReportExportDirectoryName(entry.name);
@@ -200,7 +201,7 @@ export async function listCastVoteRecordExportsInDirectory(
 
   return ok(
     [...castVoteRecordExportSummaries].sort(
-      /* istanbul ignore next */
+      // @coverage-exclude
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );

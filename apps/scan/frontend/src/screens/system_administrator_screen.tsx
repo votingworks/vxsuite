@@ -43,6 +43,7 @@ export function SystemAdministratorScreen({
 
   if (isDiagnosticsScreenOpen) {
     return (
+      // @coverage-defer
       <DiagnosticsScreen onClose={() => setIsDiagnosticsScreenOpen(false)} />
     );
   }
@@ -72,6 +73,7 @@ export function SystemAdministratorScreen({
             : undefined
         }
         isMachineConfigured={Boolean(electionDefinition)}
+        // @coverage-defer
         logOut={() => logOutMutation.mutate()}
         usbDriveStatus={usbDrive}
         additionalButtons={
@@ -97,7 +99,7 @@ export function SystemAdministratorScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;

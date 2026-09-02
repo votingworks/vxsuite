@@ -10,8 +10,8 @@
     "lint": "pnpm type-check && eslint --cache .",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "test": "vitest",
-    "type-check": "tsc --build",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "type-check": "tsc --build"
   },
   "dependencies": {
     "@types/node": "24.13.3",
@@ -21,6 +21,9 @@
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.6"
+  },
+  "devDependencies": {
+    "@votingworks/coverage-check": "workspace:*"
   },
   "packageManager": "pnpm@10.34.5"
 }

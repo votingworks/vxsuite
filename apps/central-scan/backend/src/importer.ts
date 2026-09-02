@@ -175,6 +175,7 @@ export class Importer {
       frontInterpretation,
       backInterpretation,
     ]);
+    // @coverage-defer
     if (validationResult.isErr()) {
       const error = validationResult.err();
       const errDescription = describeValidationError(error);
@@ -267,6 +268,7 @@ export class Importer {
     ballotAuditId?: string
   ): Promise<string> {
     if ('metadata' in frontInterpretation && 'metadata' in backInterpretation) {
+      // @coverage-defer
       if (
         'pageNumber' in frontInterpretation.metadata &&
         'pageNumber' in backInterpretation.metadata
@@ -310,6 +312,7 @@ export class Importer {
 
   private async finishBatch(error?: string): Promise<void> {
     const { currentBatch } = this;
+    // @coverage-defer
     if (!currentBatch) {
       return;
     }
@@ -320,6 +323,7 @@ export class Importer {
       error,
     });
     const batch = this.workspace.store.getBatch(currentBatch.batchId);
+    // @coverage-defer
     if (!error) {
       await logBatchComplete(this.logger, batch);
     }
@@ -365,11 +369,13 @@ export class Importer {
       this.getElectionDefinition(); // ensure election definition is loaded
       const hasImprinter = await this.scanner.isImprinterAttached();
 
+      // @coverage-defer
       if (this.currentBatch) {
         throw new Error('scanning already in progress');
       }
 
       this.logger.log(LogEventId.ImprinterStatus, 'system', {
+        // @coverage-defer
         message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
       });
 
@@ -389,6 +395,7 @@ export class Importer {
       const sheetGenerator = this.scanner.scanSheets({
         directory: batchScanDirectory,
         pageSize: ballotPaperSize,
+        // @coverage-defer
         // If the imprinter is attached automatically imprint an ID prefixed by the batchID
         imprintIdPrefix: hasImprinter ? batchId : undefined,
       });
@@ -402,6 +409,7 @@ export class Importer {
 
       return batchId;
     } catch (error) {
+      // @coverage-defer
       if (!this.currentBatch) {
         // Might have done some setup work, but didn't get to
         // `this.currentBatch = ...`. Clean up anything that would be a loose
@@ -425,6 +433,7 @@ export class Importer {
    * Continue the existing scanning process
    */
   continueImport(options: { forceAccept: boolean }): void {
+    // @coverage-defer
     if (!this.currentBatch) {
       throw new Error('no scanning job in progress');
     }
@@ -432,6 +441,7 @@ export class Importer {
     const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
+      // @coverage-defer
       if (options.forceAccept) {
         this.workspace.store.adjudicateSheet(sheet.id);
       } else {
@@ -439,6 +449,7 @@ export class Importer {
       }
     }
 
+    // @coverage-defer
     this.scanOneSheet().catch((error) => {
       const message = extractErrorMessage(error);
       debug('processing sheet failed with error: %s', message);

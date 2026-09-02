@@ -10,5 +10,8 @@
     "declaration": true,
     "declarationMap": true
   },
-  "references": [{ "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }]
+  "references": [
+    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }
+  ]
 }

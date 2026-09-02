@@ -44,7 +44,6 @@ function isFormStateComplete(formState: UploadFormState): boolean {
         Boolean(formState.electionFile) && Boolean(formState.candidateFile)
       );
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(formState);
     }
   }
@@ -52,6 +51,7 @@ function isFormStateComplete(formState: UploadFormState): boolean {
 
 function getFile(event: FormEvent<HTMLInputElement>): File {
   const input = event.currentTarget;
+  // @coverage-defer
   const files = Array.from(input.files || []);
   assert(files.length === 1);
   return files[0];
@@ -78,7 +78,6 @@ async function loadFileContents(
       };
     }
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(formState);
     }
   }
@@ -284,6 +283,7 @@ function LoadElectionModalForm({
       actions={
         <React.Fragment>
           {loadElectionMutation.isLoading ? (
+            // @coverage-defer
             <LoadingButton variant="primary">Loading Election…</LoadingButton>
           ) : (
             <Button

@@ -121,13 +121,13 @@ function describeFileFailure(
       return `A staged file grew past its measured size (max ${error.maxSize} bytes)`;
     }
 
-    /* istanbul ignore next: the staging area only ever links regular files,
+    /* @coverage-exclude: the staging area only ever links regular files,
        having stat'd each one before staging it */
     case 'SourceNotRegularFile': {
       return 'A staged file is no longer a regular file';
     }
 
-    /* istanbul ignore next: requires the target to substitute something for a
+    /* @coverage-exclude: requires the target to substitute something for a
        path between the run clearing it and the copy reaching it */
     case 'DestinationNotRegularFile': {
       return NOT_REGULAR_FILE_MESSAGE;

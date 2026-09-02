@@ -225,6 +225,7 @@ export function InstructionsDiagramWriteIn({
 }
 
 export function ArrowDown({
+  // @coverage-defer
   style = {},
 }: {
   style?: React.CSSProperties;

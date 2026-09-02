@@ -4,7 +4,8 @@ import { isMultiStationAdjudicationEnabled } from '../shared_api.js';
 
 export function NetworkSection(): JSX.Element | null {
   const isMultiStationEnabled =
-    isMultiStationAdjudicationEnabled.useQuery().data ?? false;
+    isMultiStationAdjudicationEnabled.useQuery().data ??
+    /* @coverage-defer */ false;
   const networkStatusQuery = getNetworkStatus.usePollingQuery({
     enabled: isMultiStationEnabled,
   });

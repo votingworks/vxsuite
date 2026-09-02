@@ -90,6 +90,7 @@ interface SystemInfoProps {
 }
 
 export function SystemInfo({
+  // @coverage-defer
   mode = 'voter',
   electionDefinition,
   electionPackageHash,

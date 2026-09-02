@@ -72,6 +72,7 @@ export async function saveReadinessReport({
     data
   );
 
+  // @coverage-defer
   if (exportFileResult.isOk()) {
     await logger.logAsCurrentRole(LogEventId.ReadinessReportSaved, {
       message: `User saved the equipment readiness report to a USB drive.`,

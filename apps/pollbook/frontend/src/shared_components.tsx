@@ -73,6 +73,7 @@ export function VoterAddress({
         {voter.addressSuffix} {voter.streetName}
         {prependSpaceIfNeeded(voter.apartmentUnitNumber)}
       </DivBreakWord>
+      {/* @coverage-defer */}
       {voter.addressLine2 === '' ? null : (
         <DivBreakWord>{voter.addressLine2}</DivBreakWord>
       )}
@@ -124,6 +125,7 @@ export function MailingAddressChange({
       )}
       <DivBreakWord>
         {address.mailingCityTown}, {address.mailingState} {address.mailingZip5}
+        {/* @coverage-defer */}
         {address.mailingZip4 ? `-${address.mailingZip4}` : ''}
       </DivBreakWord>
     </div>
@@ -214,6 +216,7 @@ export function PrecinctName({
   election: Election;
 }): string {
   const precinct = election.precincts.find((p) => p.id === precinctId);
+  // @coverage-defer
   if (!precinct) {
     throw new Error(`Precinct with ID ${precinctId} not found in election.`);
   }
@@ -248,6 +251,7 @@ export function VoterMailingAddress({
         {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </div>
       {voter.mailingAddressLine2 === '' ? null : (
+        // @coverage-defer
         <div>{voter.mailingAddressLine2}</div>
       )}
       <div>

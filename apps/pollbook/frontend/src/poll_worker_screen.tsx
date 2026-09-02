@@ -70,6 +70,7 @@ export function VoterCheckInSuccessScreen({
   onClose: () => void;
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
+  // @coverage-defer
   if (!getVoterQuery.isSuccess) {
     return null;
   }
@@ -81,6 +82,7 @@ export function VoterCheckInSuccessScreen({
       <MainHeader>
         <Row style={{ justifyContent: 'space-between' }}>
           <H1>Voter Checked In</H1>
+          {/* @coverage-defer */}
           {isAbsenteeMode && <AbsenteeModeCallout />}
         </Row>
       </MainHeader>
@@ -136,8 +138,9 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
   const setConfirmIdentity = useCallback(
     (voterId: string, identificationMethod: VoterIdentificationMethod) => {
+      // @coverage-defer
       if (flowState.step !== 'search' && flowState.step !== 'select_party') {
-        /* istanbul ignore next */
+        // @coverage-exclude
         return;
       }
 
@@ -151,6 +154,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
     [flowState]
   );
 
+  // @coverage-defer
   const onCancel = useCallback(() => {
     let search = createEmptySearchParams({ strictMatch: false });
     if (
@@ -284,6 +288,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           <MainHeader>
             <Row style={{ justifyContent: 'space-between' }}>
               <H1>Check In Voter</H1>
+              {/* @coverage-defer */}
               {isAbsenteeMode && <AbsenteeModeCallout />}
             </Row>
           </MainHeader>
@@ -322,7 +327,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
           errorMessage = 'Voter Has No Declared Party';
           break;
         default:
-          /* istanbul ignore next */
           throwIllegalValue(flowState.errorType);
       }
       return (
@@ -330,6 +334,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           <MainHeader>
             <Row style={{ justifyContent: 'space-between' }}>
               <H1>Check In Voter</H1>
+              {/* @coverage-defer */}
               {isAbsenteeMode && <AbsenteeModeCallout />}
             </Row>
           </MainHeader>
@@ -350,7 +355,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
       );
     }
     default:
-      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }

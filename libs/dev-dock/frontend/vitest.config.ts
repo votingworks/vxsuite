@@ -5,10 +5,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['src/setupTests.ts'],
     coverage: {
-      thresholds: {
-        lines: -21,
-        branches: -30,
-      },
+      exclude: ['src/index.ts'],
     },
   },
 });

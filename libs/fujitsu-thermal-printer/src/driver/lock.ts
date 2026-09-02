@@ -10,12 +10,16 @@ export class Lock {
       return Promise.resolve();
     }
 
+    // @coverage-defer
     const { promise, resolve } = deferred<void>();
+    // @coverage-defer
     this.resolveFunctions.push(resolve);
+    // @coverage-defer
     return promise;
   }
 
   release(): void {
+    // @coverage-defer
     if (this.resolveFunctions.length > 0) {
       const resolve = this.resolveFunctions.shift();
       assert(resolve);

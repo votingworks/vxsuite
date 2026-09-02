@@ -321,7 +321,7 @@ export function buildApi(ctx: AppContext) {
       });
     },
 
-    /* istanbul ignore start */
+    // @coverage-exclude
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
@@ -335,7 +335,6 @@ export function buildApi(ctx: AppContext) {
       });
       return qrCodeValue;
     },
-    /* istanbul ignore stop */
 
     ...createSystemCallApi({
       usbDrive,
@@ -343,7 +342,7 @@ export function buildApi(ctx: AppContext) {
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
       workspacePath: workspace.path,
-      getAuthStatus: /* istanbul ignore next */ () =>
+      getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
 
@@ -406,6 +405,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
+      // @coverage-defer
       const ballotMode = isTestMode ? 'test' : 'official';
 
       const ballot = assertDefined(
@@ -462,7 +462,7 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
-      /* istanbul ignore next */
+      // @coverage-exclude
       const ballotMode = isTestMode ? 'test' : 'official';
 
       // BallotPrintCounts are hydrated with precinct/split names
@@ -485,7 +485,7 @@ export function buildApi(ctx: AppContext) {
               assertDefined(printCountB.partyName)
             );
           }
-          /* istanbul ignore next */
+          // @coverage-exclude
           return 0;
         });
       for (let i = 0; i < sortedPrintCounts.length; i += 1) {
@@ -561,7 +561,6 @@ export function buildApi(ctx: AppContext) {
       return {
         usbDrive: usbDriveStatus,
         printer: printerStatus,
-        /* istanbul ignore next */
         battery: batteryStatus ?? undefined,
       };
     },
@@ -683,7 +682,7 @@ export function buildApi(ctx: AppContext) {
           ballotCount: ballotsToPrint.length,
         });
       } catch (error) {
-        /* istanbul ignore next */
+        // @coverage-exclude
         await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
           message: 'Error printing test deck',
           disposition: 'failure',

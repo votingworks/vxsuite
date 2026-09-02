@@ -152,6 +152,7 @@ function EditForm(): JSX.Element | null {
   const placeRoutes = routes.election(electionId).pollingPlaces;
   const nav = useNav(electionId);
 
+  // @coverage-defer
   if (!placesQuery.isSuccess || !finalizedAtQuery.isSuccess) return null;
 
   const pollingPlaces = placesQuery.data;
@@ -192,6 +193,7 @@ function EditForm(): JSX.Element | null {
 
         <Redirect
           to={
+            // @coverage-defer
             savedPollingPlace
               ? placeRoutes.view(placeId)
               : placeRoutes.root.path

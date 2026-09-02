@@ -16,9 +16,10 @@ import {
   S3FileStorageClient,
 } from '../file_storage_client.js';
 
+// @coverage-defer
 loadEnvVarsFromDotenvFiles();
 
-/* istanbul ignore next */
+// @coverage-exclude
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
   const logger = new BaseLogger(LogSource.VxDesignWorker);
@@ -45,7 +46,7 @@ async function main(): Promise<void> {
   });
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 // ESM has no `require.main`/`module`, so compare this module's path to the entry
 // point node was given — `process.argv[1]`, which node resolves to an absolute
 // path even when invoked relatively (`node ./build/index.js`, as start.sh does).

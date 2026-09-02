@@ -55,7 +55,7 @@ async function sendBatchToAdmin({
 }): Promise<void> {
   const { machineId, codeVersion } = getMachineConfig();
   const electionRecord = store.getElectionRecord();
-  /* istanbul ignore next - batches can't exist while unconfigured */
+  // @coverage-exclude: batches can't exist while unconfigured
   if (!electionRecord) return;
   const { electionDefinition } = electionRecord;
 
@@ -213,7 +213,7 @@ export function startCvrSync({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard */
+      // @coverage-exclude: re-entrancy guard
       if (isSending) return;
       isSending = true;
       try {
@@ -233,7 +233,7 @@ export function startCvrSync({
           batch,
         });
       } catch (error) {
-        /* istanbul ignore next - defensive */
+        // @coverage-exclude: defensive
         debug('Error in CVR sync loop: %s', error);
       } finally {
         isSending = false;

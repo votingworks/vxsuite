@@ -65,7 +65,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
   const upsDiagnosticRecord = upsDiagnosticRecordQuery.data ?? undefined;
-  /* istanbul ignore next */
+  // @coverage-exclude
   const { markThresholds } = systemSettings.data ?? {};
 
   return (
@@ -73,6 +73,7 @@ export function DiagnosticsScreen(): JSX.Element {
       <PageLayout>
         <div>
           <CentralScanReadinessReportContents
+            // @coverage-defer
             batteryInfo={batteryInfo ?? undefined}
             diskSpaceSummary={diskSpaceSummary}
             isScannerAttached={isScannerAttached}

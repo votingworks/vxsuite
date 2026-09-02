@@ -30,10 +30,8 @@ export function generateCandidateVotes(contest: CandidateContest): Vote {
 }
 
 export function generateYesNoVote(c: YesNoContest): Vote {
-  /* istanbul ignore next */
-  if (Math.random() < 0.25) {
-    return [] as Vote;
-  }
-
-  return [assertDefined(sample(c.options.map((option) => option.id)))] as Vote;
+  // 25% chance of no vote, otherwise a random option
+  const optionId = assertDefined(sample(c.options.map((option) => option.id)));
+  const choices: Vote[] = [[], [optionId], [optionId], [optionId]];
+  return assertDefined(sample(choices));
 }

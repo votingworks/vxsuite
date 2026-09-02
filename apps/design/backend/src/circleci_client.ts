@@ -147,6 +147,7 @@ export class CircleCiClient {
     } catch (error) {
       debug(
         'Error triggering CircleCI pipeline: error=%s, qaRunId=%s',
+        // @coverage-defer
         error instanceof Error ? error.message : String(error),
         qaRunId
       );

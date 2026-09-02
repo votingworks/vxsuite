@@ -101,6 +101,7 @@ function Header({
   const ballotTitle = ballotTitles[ballotMode][ballotType];
 
   const party =
+    // @coverage-defer
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
@@ -128,6 +129,7 @@ function Header({
       <DualLanguageText>
         <div>
           <h1>{ballotTitle}</h1>
+          {/* @coverage-defer */}
           {party && <h1>{electionStrings.partyFullName(party)}</h1>}
           <h2>{electionStrings.electionTitle(election)}</h2>
           <h2>{electionStrings.electionDate(election)}</h2>
@@ -217,6 +219,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {/* @coverage-defer */}
         {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid
           pageDimensions={pageDimensions}
@@ -291,6 +294,7 @@ function CandidateContest({
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
+  // @coverage-defer
   if (!voteForText) {
     throw new Error(
       `Unsupported number of seats for contest: ${contest.seats}`
@@ -313,6 +317,7 @@ function CandidateContest({
           <div>{voteForText}</div>
         </DualLanguageText>
         {contest.termDescription && (
+          // @coverage-defer
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>
           </DualLanguageText>
@@ -321,6 +326,7 @@ function CandidateContest({
       <ul>
         {candidates.map((candidate, i) => {
           const partyText =
+            // @coverage-defer
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
                 candidate={candidate}
@@ -488,7 +494,7 @@ function Contest({
   election: Election;
   ballotStyle: BallotStyle;
 }) {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -642,6 +648,7 @@ async function BallotPageContent(
         {pageSections}
       </div>
     ) : (
+      // @coverage-defer
       <BlankPageMessage />
     );
   return ok({

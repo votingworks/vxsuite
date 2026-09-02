@@ -53,6 +53,7 @@ export function validateSheetInterpretation([
   front,
   back,
 ]: SheetOf<PageInterpretation>): Result<void, ValidationError> {
+  // @coverage-defer
   if (
     BlankPageTypes.includes(front.type) &&
     !BlankPageTypes.includes(back.type)
@@ -77,6 +78,7 @@ export function validateSheetInterpretation([
       });
     }
 
+    // @coverage-defer
     if (front.metadata.pageNumber > back.metadata.pageNumber) {
       return validateSheetInterpretation([back, front]);
     }
@@ -130,6 +132,7 @@ export function describeValidationError(
     case ValidationErrorType.InvalidFrontBackPageTypes: {
       const [front, back] = validationError.types;
 
+      // @coverage-defer
       switch (front) {
         case 'InterpretedBmdPage':
           return `expected the back of a BMD page to be blank, but got '${back}'`;

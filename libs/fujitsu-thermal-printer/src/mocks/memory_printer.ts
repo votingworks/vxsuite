@@ -54,6 +54,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
     return ok();
   }
 
+  // @coverage-defer
   async function mockPrintImageData(
     imageData: ImageData
   ): Promise<PrintResult> {

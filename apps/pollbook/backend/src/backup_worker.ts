@@ -66,6 +66,7 @@ async function* splitIntoBalancedChunks<T>(
     currentChunk.push(item);
     currentChunkWeight += weight;
   }
+  // @coverage-defer
   if (currentChunk.length > 0) {
     yield currentChunk;
   }
@@ -73,6 +74,7 @@ async function* splitIntoBalancedChunks<T>(
 
 export async function getBackupPaperChecklistPdfs(
   store: LocalStore,
+  // @coverage-defer
   exportTime: Date = new Date()
 ): Promise<Uint8Array[]> {
   const election = assertDefined(store.getElection());
@@ -80,6 +82,7 @@ export async function getBackupPaperChecklistPdfs(
   const totalCheckIns = store.getCheckInCount();
   const lastEventPerMachine = store.getMostRecentEventIdPerMachine();
   const { configuredPrecinctId } = store.getPollbookConfigurationInformation();
+  // @coverage-defer
   const configuredPrecinct = configuredPrecinctId
     ? election.precincts.find((p) => p.id === configuredPrecinctId)
     : undefined;
@@ -204,17 +207,22 @@ export async function exportBackupVoterChecklist(
       new Error('Machine not configured with precinct, skipping backup')
     );
   }
+  // @coverage-defer
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
     message: 'Exporting backup voter checklist...',
   });
+  // @coverage-defer
   const startTime = Date.now();
 
+  // @coverage-defer
   const pdfs = await getBackupPaperChecklistPdfs(workspace.store);
 
+  // @coverage-defer
   const exporter = new Exporter({
     allowedExportPatterns: ['**'], // TODO restrict allowed export paths
     usbDrive,
   });
+  // @coverage-defer
   for (const [i, pdf] of iter(pdfs).enumerate()) {
     const inProgressName = `part_${
       i + 1
@@ -231,17 +239,21 @@ export async function exportBackupVoterChecklist(
     ).unsafeUnwrap();
     await move(inProgressPath, finalPath, { overwrite: true });
   }
+  // @coverage-defer
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
     message: `Backup voter checklist exported successfully in ${
       Date.now() - startTime
     }ms`,
     disposition: 'success',
   });
+  // @coverage-defer
   await usbDrive.sync();
 
+  // @coverage-defer
   return ok();
 }
 
+// @coverage-defer
 export function start({
   workspace,
   usbDrive,

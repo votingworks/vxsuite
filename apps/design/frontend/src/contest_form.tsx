@@ -145,7 +145,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     string | null
   >(null);
 
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
@@ -167,6 +167,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   }
 
   function setEditing(switchToEdit: boolean) {
+    // @coverage-defer
     if (!savedContest) return goBackToContestsList();
 
     history.replace(
@@ -205,6 +206,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         { electionId, newContest: formContest },
         {
           onSuccess: (result) => {
+            // @coverage-defer
             if (result.isOk()) {
               history.replace(contestRoutes.view(formContest.id).path);
             }
@@ -232,6 +234,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
     }
   ) {
     const {
+      // @coverage-defer
       first = candidate.firstName,
       middle = candidate.middleName,
       last = candidate.lastName,
@@ -289,7 +292,6 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </Callout>
           );
         default: {
-          /* istanbul ignore next */
           throwIllegalValue(error);
         }
       }
@@ -308,6 +310,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
       onReset={(e) => {
         e.preventDefault();
         setContest(
+          // @coverage-defer
           savedContest
             ? draftContestFromContest(savedContest)
             : createBlankCandidateContest
@@ -350,6 +353,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             disabled={disabled || hasExternalSource}
             value={contest.districtId || undefined}
             onChange={(value) => {
+              // @coverage-defer
               setContest({ ...contest, districtId: value || undefined });
             }}
             options={[
@@ -382,6 +386,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
               selectedOptionId={contest.type}
               onChange={(type) =>
                 setContest({
+                  // @coverage-defer
                   ...(type === 'candidate'
                     ? createBlankCandidateContest()
                     : createBlankYesNoContest()),
@@ -426,6 +431,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   onChange={(value) =>
                     setContest({
                       ...contest,
+                      // @coverage-defer
                       partyId: value || undefined,
                     })
                   }
@@ -470,6 +476,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                   onBlur={(e) =>
                     setContest({
                       ...contest,
+                      // @coverage-defer
                       termDescription: e.target.value.trim() || undefined,
                     })
                   }
@@ -517,6 +524,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                             }
                             onBlur={(e) =>
                               onNameChange(contest, candidate, index, {
+                                // @coverage-defer
                                 first: e.target.value.trim() || undefined,
                                 middle: candidate.middleName,
                                 last: candidate.lastName,
@@ -542,6 +550,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                             onBlur={(e) =>
                               onNameChange(contest, candidate, index, {
                                 first: candidate.firstName,
+                                // @coverage-defer
                                 middle: e.target.value.trim() || undefined,
                                 last: candidate.lastName,
                               })
@@ -566,6 +575,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                               onNameChange(contest, candidate, index, {
                                 first: candidate.firstName,
                                 middle: candidate.middleName,
+                                // @coverage-defer
                                 last: e.target.value.trim() || undefined,
                               })
                             }
@@ -793,7 +803,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                           value={option.label}
                           onChange={(e) => {
                             const updatedOptions = (
-                              contest.additionalOptions ?? []
+                              contest.additionalOptions ??
+                              /* @coverage-defer */ []
                             ).map((o, i) =>
                               i === index
                                 ? { ...option, label: e.target.value }
@@ -815,7 +826,8 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
                               className="icon-button"
                               onPress={() => {
                                 const updatedOptions = (
-                                  contest.additionalOptions ?? []
+                                  contest.additionalOptions ??
+                                  /* @coverage-defer */ []
                                 ).filter((_, i) => i !== index);
                                 setContest({
                                   ...contest,
@@ -928,7 +940,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
             </React.Fragment>
           }
           onOverlayClick={
-            /* istanbul ignore next */
+            // @coverage-exclude
             () => setIsConfirmingDelete(false)
           }
         />
@@ -1008,10 +1020,13 @@ type DraftContest =
   | DraftStraightPartyContest;
 
 function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
+  // @coverage-defer
   let firstName = candidate.firstName ?? '';
   let middleName = candidate.middleName ?? '';
+  // @coverage-defer
   let lastName = candidate.lastName ?? '';
 
+  // @coverage-defer
   if (!firstName && !middleName && !lastName) {
     const [firstPart, ...middleParts] = candidate.name.split(' ');
     firstName = firstPart ?? '';
@@ -1047,7 +1062,6 @@ function draftContestFromContest(contest: Contest): DraftContest {
     case 'straight-party':
       return { ...contest };
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest, 'type');
     }
   }
@@ -1081,7 +1095,6 @@ function tryContestFromDraftContest(
       });
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(draftContest, 'type');
     }
   }

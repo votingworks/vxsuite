@@ -167,6 +167,7 @@ function aggregateContestOptionScores({
 
     assert(scoredMark, 'scoredMark must be defined');
     const markStatus =
+      // @coverage-defer
       scoredMark.fillScore >= options.markThresholds.definite
         ? MarkStatus.Marked
         : scoredMark.fillScore >= options.markThresholds.marginal
@@ -180,7 +181,7 @@ function aggregateContestOptionScores({
       : undefined;
     const writeInTextAreaThreshold =
       options.markThresholds.writeInTextArea ??
-      /* istanbul ignore next */
+      // @coverage-exclude
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
       ? scoredWriteInArea.score >= writeInTextAreaThreshold
@@ -290,6 +291,7 @@ export function determineAdjudicationInfoFromBmdVotes(
     election,
   });
 
+  // @coverage-defer
   // For multi-page BMD ballots, only consider contests on this page
   if (contestIds) {
     const contestIdSet = new Set(contestIds);
@@ -472,7 +474,6 @@ export function convertRustInterpretResult(
   result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
-  /* istanbul ignore next */
   if (result.isErr()) {
     const error = result.err();
     if (error.type === 'invalidBallotHash') {
@@ -601,6 +602,7 @@ async function interpretHmpb(
  */
 function ensureRgba(image: ImageData): ImageData {
   if (isRgba(image)) return image;
+  // @coverage-defer
   return fromGrayScale(image.data, image.width, image.height);
 }
 
@@ -666,7 +668,6 @@ async function interpretBmdBallot(
         ];
       }
       default:
-        /* istanbul ignore next - compile-time check */
         throwIllegalValue(error, 'type');
     }
   }
@@ -735,6 +736,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return 0;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InterpretedHmpbPage' &&
     backType === 'InterpretedHmpbPage'
@@ -750,6 +752,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return -90;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InvalidPrecinctPage' ||
     backType === 'InvalidPrecinctPage'
@@ -759,11 +762,13 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
 
   if (
     frontType === 'InvalidTestModePage' ||
+    // @coverage-defer
     backType === 'InvalidTestModePage'
   ) {
     return -70;
   }
 
+  // @coverage-defer
   if (
     frontType === 'InvalidBallotHashPage' ||
     backType === 'InvalidBallotHashPage'
@@ -771,7 +776,7 @@ function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
     return -60;
   }
 
-  /* istanbul ignore next - should be unreachable */
+  // @coverage-exclude: should be unreachable
   throw new Error(`Unexpected result types: ${frontType}, ${backType}`);
 }
 
@@ -838,6 +843,7 @@ export async function interpretSheet(
           options.backNormalizedImageOutputPath,
         ],
         async (imageData, path) =>
+          // @coverage-defer
           path && (await writeImageDataToPng(path, imageData))
       );
       return hmpbInterpretation;

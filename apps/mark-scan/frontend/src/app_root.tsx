@@ -163,7 +163,6 @@ function votingStateReducer(
         votes: {},
       };
     default: {
-      /* istanbul ignore next - compile time check for completeness */
       throwIllegalValue(action);
     }
   }
@@ -389,6 +388,7 @@ export function AppRoot(): JSX.Element | null {
     return <SetupCardReaderPage />;
   }
 
+  // @coverage-defer
   if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
@@ -460,6 +460,7 @@ export function AppRoot(): JSX.Element | null {
       return <UnconfiguredElectionScreenWrapper />;
     }
 
+    // @coverage-defer
     return (
       <AdminScreen
         pollingPlaceId={pollingPlaceId}

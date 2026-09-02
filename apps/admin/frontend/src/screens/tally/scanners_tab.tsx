@@ -78,7 +78,6 @@ function ScannerStatus({ scanner }: { scanner: MachineRecord }): JSX.Element {
             <Icons.Warning color="warning" /> VxAdmin Not Configured
           </InlineStatus>
         );
-      // istanbul ignore next -- compile-time check
       default:
         throwIllegalValue(registrationError);
     }

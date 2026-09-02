@@ -57,6 +57,7 @@ export function DistrictAudioPanel(): React.ReactNode {
 }
 
 function joinStringKey(info: TtsStringDefault) {
+  // @coverage-defer
   if (!info.subkey) return info.key;
 
   return `${info.key}.${info.subkey}`;

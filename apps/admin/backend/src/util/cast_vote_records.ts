@@ -25,7 +25,6 @@ export function getNumberVotesAllowed(contest: Contest): number {
     case 'straight-party':
       return 1;
     default:
-      /* istanbul ignore next */
       return throwIllegalValue(contest);
   }
 }

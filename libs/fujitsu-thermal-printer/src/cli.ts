@@ -15,6 +15,7 @@ import { FujitsuThermalPrinter } from './printer';
  * Usage: ./bin/cli command
  */
 
+// @coverage-defer
 enum Command {
   GetStatus = 'status',
   PollStatus = 'poll',
@@ -22,8 +23,10 @@ enum Command {
   Print = 'print',
   PrintFixture = 'print-fixture',
 }
+// @coverage-defer
 const commandList = Object.values(Command);
 
+// @coverage-defer
 function printUsage() {
   console.log(`Usage:\n`);
   console.log(`    status (get printer status)`);
@@ -33,6 +36,7 @@ function printUsage() {
   console.log(`    advance <millimeters> (move the paper forward)`);
 }
 
+// @coverage-defer
 async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
   if (!existsSync(path)) {
     printUsage();
@@ -46,11 +50,13 @@ async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
   return printer.printImageData((await loadImageData(path)).unsafeUnwrap());
 }
 
+// @coverage-defer
 const fixturePath = join(
   __dirname,
   '../test/fixtures/tally-report-single-page.pdf'
 );
 
+// @coverage-defer
 async function handleCommand(
   printer: FujitsuThermalPrinter,
   command: Command,
@@ -93,6 +99,7 @@ async function handleCommand(
   console.log('Command finished');
 }
 
+// @coverage-defer
 export async function main(): Promise<number> {
   printUsage();
 

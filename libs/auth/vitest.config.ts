@@ -12,10 +12,6 @@ export default defineConfig({
         'src/jurisdictions.ts',
         'src/test_utils.ts',
       ],
-      thresholds: {
-        lines: -1,
-        branches: -36,
-      },
     },
   },
 });

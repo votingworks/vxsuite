@@ -19,10 +19,6 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
       ],
-      thresholds: {
-        lines: -48,
-        branches: -38,
-      },
     },
     // Ensure only one instance of each library is loaded by loading the TS
     // source code instead of the compiled JS via different symlinks.

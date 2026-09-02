@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { ImageData } from 'canvas';
 import { napi } from './napi.js';
 import { TimingMarks } from './types.js';

@@ -19,6 +19,7 @@ export function useAlarm(enableAlarm: boolean): void {
 
     return () => {
       clearInterval(interval);
+      // @coverage-defer
       if (enableTtsOnExit) setTtsEnabled(true);
     };
   }, [enableAlarm, playAlarm, setTtsEnabled]);

@@ -15,6 +15,7 @@ export interface AudioPlayer {
 }
 
 export function newAudioPlayer(params: AudioPlayerParams): AudioPlayer {
+  // @coverage-defer
   const { AudioCtor = Audio, clip, output, webAudioContext } = params;
 
   const audio = new AudioCtor(clip.dataBase64);

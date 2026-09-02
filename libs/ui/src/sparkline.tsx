@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-defer-file
 import styled from 'styled-components';
 
 const SparklineContainer = styled.div`

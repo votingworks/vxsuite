@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { fileURLToPath } from 'node:url';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';

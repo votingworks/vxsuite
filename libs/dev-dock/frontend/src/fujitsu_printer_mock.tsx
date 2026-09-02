@@ -46,6 +46,7 @@ type PrinterStatusOptionKey = keyof typeof MOCK_PRINTER_STATUS_OPTIONS;
 function getPrinterStatusOptionKey(
   status: PrinterStatus
 ): PrinterStatusOptionKey {
+  // @coverage-defer
   switch (status.state) {
     case 'idle':
       return 'idle';

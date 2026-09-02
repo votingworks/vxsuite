@@ -26,8 +26,9 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const getElectionQuery = getElection.useQuery();
 
+  // @coverage-defer
   if (!getDeviceStatusesQuery.isSuccess || !getElectionQuery.isSuccess) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     return null;
   }
 
@@ -47,13 +48,15 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
           search={search}
           election={election}
           setSearch={setSearch}
+          // @coverage-defer
           onBarcodeScanMatch={(voter) => {
-            /* istanbul ignore next */
+            // @coverage-exclude
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (
             <Column style={{ gap: '0.5rem' }}>
               {voter.checkIn ? (
+                // @coverage-defer
                 <CheckInDetails checkIn={voter.checkIn} />
               ) : (
                 <span>

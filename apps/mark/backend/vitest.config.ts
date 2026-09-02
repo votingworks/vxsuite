@@ -9,10 +9,6 @@ export default defineConfig({
       './test/setup_custom_matchers.ts',
     ],
     coverage: {
-      thresholds: {
-        lines: -1,
-        branches: -5,
-      },
       exclude: [
         '**/*.d.ts',
         '**/node_modules/**',
@@ -21,6 +17,9 @@ export default defineConfig({
         '**/*.test.ts',
         'test/**/*',
         'src/util/accessible_controller.ts',
+        'src/util/mock_accessible_controller.ts',
+        'src/util/mock_pat_input.ts',
+        'src/barcodes/mock_client.ts',
         'src/electrical_testing/**',
       ],
     },

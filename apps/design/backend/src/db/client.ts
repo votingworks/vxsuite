@@ -1,5 +1,3 @@
-/* istanbul ignore file - [TODO] need to update CI image to include postgres. */
-
 import { Buffer } from 'node:buffer';
 // Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
 import type * as pg from 'pg';
@@ -70,6 +68,7 @@ export class Client {
    *   }
    * ```
    */
+  // @coverage-defer
   queryPrepared(config: pg.QueryConfig<Bindable[]>): Promise<pg.QueryResult> {
     return this.conn.query(config);
   }
@@ -79,6 +78,7 @@ export class Client {
     schemaName: string;
     noLock?: boolean;
   }): Promise<void> {
+    // @coverage-defer
     if (params.noLock) {
       assert(
         NODE_ENV === 'test',
@@ -99,6 +99,7 @@ export class Client {
       // any dotfiles — so it is not treated as a migration.
       ignorePattern: '\\..*|.*\\.json',
       direction: 'up',
+      // @coverage-defer
       log: params.enableLogging ? undefined : () => {},
       migrationsSchema: params.schemaName,
       migrationsTable: 'pgmigrations',
@@ -115,6 +116,7 @@ export class Client {
       successful = await fn();
       return successful;
     } catch (error) {
+      // @coverage-defer
       await this.query('rollback').catch((errRollback) => {
         throw errRollback;
       });

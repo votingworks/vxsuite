@@ -103,13 +103,13 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           break;
         }
 
-        // istanbul ignore next
         default:
           throwIllegalValue(usbDriveStatus, 'status');
       }
       break;
 
     case 'saved': {
+      // @coverage-defer
       if (usbDriveStatus.status !== 'ejected') {
         actions = (
           <React.Fragment>
@@ -144,7 +144,6 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       break;
     }
 
-    // istanbul ignore next
     default:
       throwIllegalValue(saveState);
   }

@@ -20,7 +20,6 @@ function indicatorStatus(
     case 'online-multiple-hosts-detected':
     case 'online-incompatible-host-version':
       return 'error';
-    // istanbul ignore next -- compile-time check
     default:
       return throwIllegalValue(status);
   }

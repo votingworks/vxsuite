@@ -2011,6 +2011,7 @@ export class Store implements BaseStore {
     sheetNumber: number | null
   ): Tabulation.Card {
     if (cardType === 'hmpb') {
+      // @coverage-defer
       return { type: 'hmpb', sheetNumber: sheetNumber ?? 1 };
     }
     if (sheetNumber) return { type: 'bmd', sheetNumber };
@@ -2231,11 +2232,8 @@ export class Store implements BaseStore {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
-        partyId: groupBy.groupByParty
-          ? /* istanbul ignore next */
-            row.partyId ?? undefined
-          : undefined,
+        // @coverage-exclude: edge case coverage needed for bad party grouping in general election
+        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         batchDate: groupBy.groupByBatchDate ? row.batchDate : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
@@ -3917,7 +3915,7 @@ export class Store implements BaseStore {
       );
       return true;
     } catch {
-      /* istanbul ignore next - race condition fallback */
+      // @coverage-exclude: race condition fallback
       return false;
     }
   }

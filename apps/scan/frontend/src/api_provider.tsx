@@ -32,6 +32,7 @@ function UiStringsContextProvider({
     <UiStringsContextProviderBase
       api={uiStringsApi}
       disabled={!enableStringTranslation}
+      // @coverage-defer
       noAudio={noAudio || disableScreenReaderAudio}
     >
       {children}

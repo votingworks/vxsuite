@@ -10,6 +10,7 @@
     "declaration": true
   },
   "references": [
+    { "path": "../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },

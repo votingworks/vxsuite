@@ -7,12 +7,12 @@ export default defineConfig({
     setupFiles: ['src/setupTests.ts'],
 
     coverage: {
-      thresholds: {
-        lines: -52,
-        branches: -53,
-      },
       exclude: [
         'src/config/*',
+        'src/polyfills.ts',
+        // Development-only preview harness
+        'src/preview_app.tsx',
+        'src/preview_dashboard.tsx',
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/stubs/*',

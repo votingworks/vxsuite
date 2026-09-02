@@ -37,7 +37,6 @@ let sharedRenderer: SummaryBallotLayoutRenderer | null = null;
  * Closes the shared renderer. Call this on application shutdown.
  */
 export async function closeLayoutRenderer(): Promise<void> {
-  /* istanbul ignore next */
   if (sharedRenderer) {
     await sharedRenderer.close();
     sharedRenderer = null;
@@ -65,7 +64,6 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     case 'bubble_ballot':
       return printBubbleBallot(p);
     default:
-      /* istanbul ignore next  */
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 
@@ -137,6 +135,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
     });
   }
 
+  // @coverage-defer
   // Multi-page fallback: compute page breaks for proper per-page QR codes.
   // Pass pageCount as knownMinPages to skip the redundant single-page check.
   if (!sharedRenderer) {

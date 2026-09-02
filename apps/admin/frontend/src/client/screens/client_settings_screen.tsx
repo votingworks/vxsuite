@@ -57,7 +57,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
               <Button
                 variant="primary"
                 onPress={
-                  /* istanbul ignore next - no-op in tests */
+                  // @coverage-exclude: no-op in tests
                   () => rebootMutation.mutate()
                 }
               >
@@ -79,6 +79,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
         <CurrentDateAndTime />
       </P>
       <P>
+        {/* @coverage-defer */}
         <SetClockButton logOut={() => logOutMutation.mutate()}>
           Set Date and Time
         </SetClockButton>

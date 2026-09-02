@@ -61,7 +61,6 @@ export function isPageWithVotes(
     case 'InvalidTestModePage':
       return false;
     default:
-      /* istanbul ignore next -- preserve */
       throwIllegalValue(type);
   }
 }
@@ -138,6 +137,7 @@ function buildCvrsFromStore(store: Store): Iterable<Tabulation.CastVoteRecord> {
       });
     }
 
+    // @coverage-defer
     const interpretation = isBmdPage(frontInterpretation)
       ? frontInterpretation
       : backInterpretation;
@@ -211,7 +211,9 @@ async function getScannerResultsByPrecinct({
 
   const resultsByPrecinct: Record<PrecinctId, Tabulation.ElectionResults> = {};
   for (const result of groupList) {
+    // @coverage-defer
     assert(result.precinctId !== undefined);
+    // @coverage-defer
     resultsByPrecinct[result.precinctId] = result;
   }
 

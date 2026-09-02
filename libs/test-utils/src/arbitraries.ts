@@ -85,6 +85,7 @@ export function arbitraryUint32(): fc.Arbitrary<number> {
 /**
  * Wraps another arbitrary, making the value possibly missing.
  */
+// @coverage-defer
 export function arbitraryOptional<T>(
   arbitrary: fc.Arbitrary<T>
 ): fc.Arbitrary<T | undefined> {
@@ -112,6 +113,7 @@ export function arbitraryId(): fc.Arbitrary<Id> {
 /**
  * Builds values suitable for ballot style IDs.
  */
+// @coverage-defer
 export function arbitraryBallotId(): fc.Arbitrary<BallotId> {
   return arbitraryId();
 }
@@ -179,6 +181,7 @@ export function arbitraryPrecinctId(): fc.Arbitrary<PrecinctId> {
   return arbitraryId();
 }
 
+// @coverage-defer
 export function arbitraryDateTime({
   minYear,
   maxYear,
@@ -202,7 +205,6 @@ export function arbitraryDateTime({
         const result = DateTime.fromObject(parts, {
           zone: zoneName,
         });
-        /* istanbul ignore else */
         if (
           result.year === parts.year &&
           result.month === parts.month &&
@@ -216,7 +218,6 @@ export function arbitraryDateTime({
       } catch {
         // ignore invalid dates
       }
-      /* istanbul ignore next */
       return undefined;
     })
     .filter((dateTime): dateTime is DateTime => !!dateTime);
@@ -241,11 +242,11 @@ export function arbitraryYesNoOption({
  */
 export function arbitraryYesNoContest({
   id = arbitraryContestId(),
-  districtId = arbitraryDistrictId(),
+  districtId = /* @coverage-defer */ arbitraryDistrictId(),
 }: {
   id?: fc.Arbitrary<YesNoContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
-} = {}): fc.Arbitrary<YesNoContest> {
+} = /* @coverage-defer */ {}): fc.Arbitrary<YesNoContest> {
   return fc
     .tuple(
       arbitraryYesNoOption({ id: arbitraryId() }),
@@ -271,8 +272,10 @@ export function arbitraryYesNoContest({
 /**
  * Builds candidate values for candidate contests.
  */
+// @coverage-defer
 export function arbitraryCandidate({
   id = arbitraryCandidateId(),
+  // @coverage-defer
   partyIds = fc.constant(undefined),
 }: {
   id?: fc.Arbitrary<Candidate['id']>;
@@ -288,10 +291,12 @@ export function arbitraryCandidate({
 /**
  * Builds values for candidate contest.
  */
+// @coverage-defer
 export function arbitraryCandidateContest({
   id = arbitraryContestId(),
   districtId = arbitraryDistrictId(),
   partyIds = fc.array(arbitraryPartyId(), { minLength: 1 }),
+  // @coverage-defer
   allowWriteIns = fc.boolean(),
 }: {
   id?: fc.Arbitrary<CandidateContest['id']>;
@@ -318,9 +323,11 @@ export function arbitraryCandidateContest({
   });
 }
 
+// @coverage-defer
 function arbitraryStraightPartyContest({
   id = arbitraryContestId(),
   districtId = arbitraryDistrictId(),
+  // @coverage-defer
   partyIds = fc.array(arbitraryPartyId(), { minLength: 1 }),
 }: {
   id?: fc.Arbitrary<Contest['id']>;
@@ -336,6 +343,7 @@ function arbitraryStraightPartyContest({
   });
 }
 
+// @coverage-defer
 export function arbitraryContests({
   districtId,
   electionType,
@@ -391,8 +399,11 @@ export function arbitraryDistrict({
   });
 }
 
+// @coverage-defer
 export function arbitraryPrecinctSplit({
+  // @coverage-defer
   id = arbitraryId(),
+  // @coverage-defer
   districtIds = fc.array(arbitraryDistrictId()),
 }: {
   id?: fc.Arbitrary<Precinct['id']>;
@@ -405,8 +416,10 @@ export function arbitraryPrecinctSplit({
   });
 }
 
+// @coverage-defer
 export function arbitraryPrecinct({
   id = arbitraryPrecinctId(),
+  // @coverage-defer
   districtIds = fc.array(arbitraryDistrictId()),
   splits,
 }: {
@@ -414,6 +427,7 @@ export function arbitraryPrecinct({
   districtIds?: fc.Arbitrary<Array<District['id']>>;
   splits?: fc.Arbitrary<PrecinctSplit[]>;
 } = {}): fc.Arbitrary<Precinct> {
+  // @coverage-defer
   if (splits) {
     return fc.record({
       id,
@@ -428,11 +442,15 @@ export function arbitraryPrecinct({
   });
 }
 
+// @coverage-defer
 export function arbitraryBallotStyle({
   id = arbitraryBallotStyleId(),
   groupId = arbitraryBallotStyleGroupId(),
+  // @coverage-defer
   districtIds = fc.array(arbitraryDistrictId()),
+  // @coverage-defer
   precinctIds = fc.array(arbitraryPrecinctId()),
+  // @coverage-defer
   partyId = fc.constant(undefined),
   languages = fc.constant(['en']),
 }: {

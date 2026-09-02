@@ -121,6 +121,7 @@ export function VoterScreen({
     scannedBallotCount: scannerStatus.ballotsCounted,
   } as const;
 
+  // @coverage-defer
   switch (scannerStatus.state) {
     // These states should pass quickly, so we don't show a message
     case 'connecting':
@@ -185,7 +186,6 @@ export function VoterScreen({
         />
       );
     default:
-      /* istanbul ignore next - compile time check for completeness */
       throwIllegalValue(scannerStatus.state);
   }
 }

@@ -4,10 +4,7 @@ export default defineConfig({
   test: {
     restoreMocks: true,
     coverage: {
-      thresholds: {
-        lines: 100,
-        branches: -1,
-      },
+      exclude: ['src/index.ts'],
     },
   },
 });

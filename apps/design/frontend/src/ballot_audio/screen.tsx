@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import React from 'react';
 
 import { H2 } from '@votingworks/ui';

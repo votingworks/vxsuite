@@ -29,7 +29,6 @@ function proxyErrorMessage(error: AdjudicationError): string {
     case 'adjudication-disabled':
       return 'Adjudication is not currently enabled on the host machine.';
     default:
-      /* istanbul ignore next */
       throwIllegalValue(error, 'type');
   }
 }
@@ -132,6 +131,7 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
       return (
         <NavigationScreen title="Adjudication">
           <P>{proxyErrorMessage(flowState.error)}</P>
+          {/* @coverage-defer */}
           <Button onPress={() => history.push(routerPaths.adjudication)}>
             Exit
           </Button>
@@ -162,7 +162,6 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
       );
 
     default:
-      /* istanbul ignore next */
       throwIllegalValue(flowState);
   }
 }
@@ -183,6 +182,7 @@ function ClientBallotAdjudicationDataLoader({
   const history = useHistory();
   const ballotImagesQuery = getBallotImages.useQuery(cvrId);
   const writeInCandidatesQuery = getWriteInCandidates.usePollingQuery(
+    // @coverage-defer
     ballotData.contests.map((c) => c.contestId)
   );
   const systemSettingsQuery = getSystemSettings.usePollingQuery();
@@ -215,6 +215,7 @@ function ClientBallotAdjudicationDataLoader({
     return (
       <NavigationScreen title="Adjudication">
         <P>{proxyErrorMessage(proxyError)}</P>
+        {/* @coverage-defer */}
         <Button onPress={() => history.push(routerPaths.adjudication)}>
           Exit
         </Button>

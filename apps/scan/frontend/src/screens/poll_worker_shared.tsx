@@ -37,7 +37,6 @@ export function getPostPollsTransitionHeaderText(
     case 'pause_voting':
       return 'Voting Paused';
     default:
-      /* istanbul ignore next - compile-time check for completeness */
       throwIllegalValue(pollsTransitionType);
   }
 }

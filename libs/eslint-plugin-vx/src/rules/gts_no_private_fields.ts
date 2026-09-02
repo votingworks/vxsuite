@@ -32,6 +32,7 @@ const rule: TSESLint.RuleModule<'noPrivateFields', readonly unknown[]> =
         },
 
         MemberExpression(node: TSESTree.MemberExpression) {
+          // @coverage-defer
           if (isPrivateIdentifier(node.property)) {
             context.report({
               node: node.property,

@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 /**
  * Small module to make it easier to mock execFile.
  */

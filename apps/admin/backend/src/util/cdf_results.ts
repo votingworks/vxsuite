@@ -172,7 +172,7 @@ function buildContests(
   const reportContests: ReportContest[] = [];
 
   for (const contest of election.contests) {
-    /* istanbul ignore next */
+    // @coverage-exclude
     if (contest.type === 'straight-party') {
       /**
        * Simply skip the straight party contest for now so that the export

@@ -50,6 +50,7 @@ export function ClientAppRoot(): JSX.Element | null {
 
     if (!currentStatus || !previousStatus) return;
 
+    // @coverage-defer
     if (previousStatus !== 'logged_out' && currentStatus === 'logged_out') {
       history.replace(routerPaths.adjudication);
     }
@@ -81,7 +82,7 @@ export function ClientAppRoot(): JSX.Element | null {
       <UnlockMachineScreen
         auth={auth}
         checkPin={
-          /* istanbul ignore next - tested via host app */
+          // @coverage-exclude: tested via host app
           async (pin) => {
             try {
               await checkPinMutation.mutateAsync({ pin });
@@ -134,15 +135,16 @@ export function ClientAppRoot(): JSX.Element | null {
     );
   }
 
+  // @coverage-defer
   if (isVendorAuth(auth)) {
     return (
       <VendorScreen
         apiClient={apiClient}
         isMachineConfigured={Boolean(electionRecord)}
         logOut={logOutMutation.mutate}
-        unconfigureMachine={async () => {
-          /* istanbul ignore next - no-op on client */
-        }}
+        unconfigureMachine={
+          /* @coverage-exclude: no-op on client */ async () => {}
+        }
       />
     );
   }

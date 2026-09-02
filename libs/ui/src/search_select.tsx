@@ -52,6 +52,7 @@ function MultiValueRemove(
         fill={selectProps.isDisabled ? 'transparent' : 'tinted'}
         color={selectProps.isDisabled ? 'neutral' : 'primary'}
         icon="X"
+        // @coverage-defer
         // Unlike the DropdownIndicator above, the react-select
         // MultiValueRemove component removes the value from its own click
         // handler, which Button triggers for both mouse and touch input, so we

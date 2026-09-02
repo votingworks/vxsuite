@@ -20,7 +20,7 @@ import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<ClientApi>;
 
-/* istanbul ignore next - creates real API client */
+// @coverage-exclude: creates real API client
 export function createApiClient(): ApiClient {
   return grout.createClient<ClientApi>({ baseUrl: '/api' });
 }
@@ -31,7 +31,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -138,11 +138,10 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
-      /* istanbul ignore start - query invalidation */
+      // @coverage-exclude: query invalidation
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -152,6 +151,7 @@ export const logOut = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logOut, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
@@ -164,6 +164,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
@@ -204,6 +205,7 @@ export const getUsbDriveStatus = {
             return newData;
           }
           const isUnchanged = deepEqual(oldData, newData);
+          // @coverage-defer
           return isUnchanged ? oldData : newData;
         },
       }
@@ -212,15 +214,15 @@ export const getUsbDriveStatus = {
 } as const;
 
 export const ejectUsbDrive = {
+  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components */
+      // @coverage-exclude: tested via shared UI components
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;
@@ -230,11 +232,10 @@ export const formatUsbDrive = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.formatUsbDrive, {
-      /* istanbul ignore start - tested via shared UI components */
+      // @coverage-exclude: tested via shared UI components
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;

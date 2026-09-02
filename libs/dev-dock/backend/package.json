@@ -43,6 +43,7 @@
     "@types/express": "4.17.14",
     "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

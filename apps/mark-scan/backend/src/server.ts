@@ -50,13 +50,13 @@ export async function resolveDriver(
   }
 
   const maxPrintWidth =
-    /* istanbul ignore next - hardware support in flux */
+    // @coverage-exclude: hardware support in flux
     getMarkScanBmdModel() === 'bmd-150'
-      ? /* istanbul ignore next - hardware support in flux */
-        MaxPrintWidthDots.BMD_150
+      ? MaxPrintWidthDots.BMD_150
       : MaxPrintWidthDots.BMD_155;
   const driver = await getPaperHandlerDriver({ maxPrintWidth });
 
+  // @coverage-defer
   if (driver) {
     logger.log(LogEventId.PaperHandlerConnection, 'system', {
       disposition: 'success',
@@ -82,6 +82,7 @@ export async function start({
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
   const logger = Logger.from(baseLogger, () =>
+    // @coverage-defer
     getUserRole(resolvedAuth, workspace)
   );
   const driver = await resolveDriver(logger);
@@ -93,12 +94,14 @@ export async function start({
     );
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();
 
+  // @coverage-defer
   if (!canReadPatConnectionStatus) {
     // Expect this branch if running on non-production hardware or in a test
     patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
   }
 
   let stateMachine;
+  // @coverage-defer
   // Allow the driver to start without a state machine for tests
   if (driver) {
     stateMachine = await getPaperHandlerStateMachine({
@@ -132,7 +135,7 @@ export async function start({
     api
   );
 
-  /* istanbul ignore next - internal dev use only */
+  // @coverage-exclude: internal dev use only
   useDevDockRouter(app, express, {
     quickConfigure: {
       unconfigure: () => api.methods().unconfigureMachine(),
@@ -147,7 +150,7 @@ export async function start({
 
   const server = app.listen(
     port,
-    /* istanbul ignore next */
+    // @coverage-exclude
     () => {
       logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMarkScan backend running at http://localhost:${port}/`,

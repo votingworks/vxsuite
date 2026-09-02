@@ -138,7 +138,6 @@ function constructMessage(artifact: Artifact): {
           break;
         }
         default: {
-          /* istanbul ignore next: Compile-time check for completeness */
           throwIllegalValue(artifact, 'context');
         }
       }
@@ -167,7 +166,6 @@ function constructMessage(artifact: Artifact): {
           );
           break;
         }
-        /* istanbul ignore next: Compile-time check for completeness */
         default: {
           throwIllegalValue(artifact, 'context');
         }
@@ -178,7 +176,6 @@ function constructMessage(artifact: Artifact): {
       };
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -288,7 +285,6 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
       return `${VXADMIN_BACKUP_MANIFEST_FILE_NAME}${SIGNATURE_FILE_EXTENSION}`;
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -312,7 +308,6 @@ export function constructSignatureFilePath(artifact: ArtifactToImport): string {
       );
     }
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -398,7 +393,6 @@ async function performArtifactSpecificAuthenticationChecks(
     }
 
     default: {
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(artifact, 'type');
     }
   }
@@ -419,7 +413,7 @@ export async function prepareSignatureFile(
 ): Promise<{ fileContents: Buffer; fileName: string }> {
   const config =
     configOverride ??
-    /* istanbul ignore next */ constructArtifactAuthenticationConfig();
+    /* @coverage-exclude */ constructArtifactAuthenticationConfig();
   const artifactSignatureBundle = await constructArtifactSignatureBundle(
     config,
     artifact
@@ -446,7 +440,7 @@ export async function authenticateArtifactUsingSignatureFile(
 ): Promise<Result<MachineCustomCertFields, Error>> {
   const config =
     configOverride ??
-    /* istanbul ignore next */ constructArtifactAuthenticationConfig();
+    /* @coverage-exclude */ constructArtifactAuthenticationConfig();
   try {
     const signatureFilePath = constructSignatureFilePath(artifact);
     const artifactSignatureBundle = deserializeArtifactSignatureBundle(

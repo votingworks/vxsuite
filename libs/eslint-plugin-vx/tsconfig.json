@@ -13,5 +13,6 @@
     "noUncheckedIndexedAccess": false
   },
   "include": ["src", "tests"],
-  "exclude": []
+  "exclude": [],
+  "references": [{ "path": "../../libs/coverage-check/tsconfig.build.json" }]
 }

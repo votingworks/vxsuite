@@ -36,13 +36,14 @@ export function RemoveAllCvrsModal({
 
   const hasManualResults = manualResultsMetadataQuery.data.length > 0;
 
+  // @coverage-defer
   function removeCvrs() {
     clearCastVoteRecordFilesMutation.mutate(undefined, {
       onSuccess: hasManualResults ? undefined : onClose,
     });
   }
 
-  /* istanbul ignore next - TODO: Add missing coverage for updated CVR screen */
+  // @coverage-defer: TODO: Add missing coverage for updated CVR screen
   function removeManualResults() {
     deleteAllManualResultsMutation.mutate(undefined, {
       onSuccess: onClose,
@@ -64,6 +65,7 @@ export function RemoveAllCvrsModal({
             <Button
               icon="Trash"
               variant="danger"
+              // @coverage-defer
               onPress={() => removeCvrs()}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
             >
@@ -82,7 +84,7 @@ export function RemoveAllCvrsModal({
     );
   }
 
-  /* istanbul ignore next - TODO: Add missing coverage for updated CVR screen */
+  // @coverage-defer: TODO: Add missing coverage for updated CVR screen
   return (
     <Modal
       title="Remove All Manual Tallies"

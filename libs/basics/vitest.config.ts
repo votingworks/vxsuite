@@ -3,10 +3,7 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 export default defineConfig({
   test: {
     coverage: {
-      thresholds: {
-        lines: 100,
-        branches: -1,
-      },
+      exclude: ['src/index.ts', 'src/iterators/index.ts'],
     },
   },
 });

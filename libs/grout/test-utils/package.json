@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-istanbul": "^4.1.6",
+    "@votingworks/coverage-check": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "expect-type": "^0.15.0",

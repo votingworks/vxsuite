@@ -167,6 +167,7 @@ function BlankBallotWarningScreen({
           <Button
             id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
+            // @coverage-defer
             onPress={() => returnBallotMutation.mutate()}
             disabled={hasCastBallot}
           >
@@ -262,6 +263,7 @@ interface OtherReasonWarningScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 function OtherReasonWarningScreen({
   isTestMode,
 }: OtherReasonWarningScreenProps): JSX.Element {
@@ -334,6 +336,7 @@ export function ScanWarningScreen({
   const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
 
   for (const reason of adjudicationReasonInfo) {
+    // @coverage-defer
     if (reason.type === AdjudicationReason.BlankBallot) {
       isBlank = true;
     } else if (reason.type === AdjudicationReason.CrossoverVoting) {
@@ -365,10 +368,11 @@ export function ScanWarningScreen({
     );
   }
 
+  // @coverage-defer
   return <OtherReasonWarningScreen isTestMode={isTestMode} />;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function OvervotePreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
 
@@ -406,7 +410,7 @@ export function OvervotePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function UndervoteNoVotes1ContestPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;
@@ -437,7 +441,7 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;
@@ -466,7 +470,7 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function Undervote1ContestPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;
@@ -499,7 +503,7 @@ export function Undervote1ContestPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;
@@ -544,7 +548,7 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function CrossoverVotingPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;
@@ -563,7 +567,7 @@ export function CrossoverVotingPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function BlankBallotPreview(): JSX.Element {
   const configQuery = getConfig.useQuery();
   const electionDefinition = configQuery.data?.electionDefinition;

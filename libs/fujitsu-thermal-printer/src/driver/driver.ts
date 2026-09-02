@@ -50,6 +50,7 @@ export async function getDevice(): Promise<Optional<WebUSBDevice>> {
       legacyDevice.interfaces,
       `Device::interfaces must be set after Device::open() succeeds`
     )) {
+      // @coverage-defer
       if (iface.interfaceNumber === INTERFACE_NUMBER) {
         if (iface.isKernelDriverActive()) {
           debug('detaching kernel driver');
@@ -99,6 +100,7 @@ export class FujitsuThermalPrinterDriver
     debug(`claimed usb interface ${INTERFACE_NUMBER}`);
   }
 
+  // @coverage-defer
   async disconnect(): Promise<void> {
     // closing the web device will fail if we have pending requests, so wait for them
     await this.lock.acquire();
@@ -162,6 +164,7 @@ export class FujitsuThermalPrinterDriver
       Buffer.from(data.buffer)
     ).unsafeUnwrap();
 
+    // @coverage-defer
     // Whenever the device exits an offline state, it somehow buffers the
     // specific offline reason but not the actual isOffline flag. We pick up the
     // buffered flag on the next status transfer. For example, when you close
@@ -188,6 +191,7 @@ export class FujitsuThermalPrinterDriver
     await this.transferOut(SetReplyParameterCommand, { parameter });
   }
 
+  // @coverage-defer
   async printBitImage(bitImage: CompressedBitImage): Promise<void> {
     assert(bitImage.height > 0 && bitImage.height < 1024);
     const [n1, n2] = Uint16toUint8(bitImage.height);
@@ -208,6 +212,7 @@ export class FujitsuThermalPrinterDriver
     });
   }
 
+  // @coverage-defer
   async feedForward(dots: number): Promise<void> {
     debug(`feeding ${dots} dot lines...`);
     await this.transferOut(FeedForwardCommand, { dots });
@@ -218,6 +223,7 @@ export class FujitsuThermalPrinterDriver
       `setting print quality to "${
         printQuality.paperQuality
       }" and turning auto-division ${
+        // @coverage-defer
         printQuality.automaticDivision ? 'on' : 'off'
       }...`
     );

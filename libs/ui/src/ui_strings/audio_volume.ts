@@ -60,6 +60,7 @@ export interface GainOptions {
 
 function getAudioGainAmountDb(
   volume: AudioVolume,
+  // @coverage-defer
   opts: GainOptions = {}
 ): number {
   const minGain = opts.minGainDb ?? GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME;

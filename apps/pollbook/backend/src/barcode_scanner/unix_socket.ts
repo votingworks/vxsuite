@@ -38,6 +38,7 @@ export function tryConnect(logger: Logger): Promise<net.Socket> {
 
     client.once('error', (err) => {
       const message = `Pollbook backend failed to connect to barcode scanner Unix socket: ${err.message}`;
+      // @coverage-defer
       if (!err.message.match(/ECONNREFUSED/) && !err.message.match(/ENOENT/)) {
         logger.log(LogEventId.SocketClientConnected, 'system', {
           message,

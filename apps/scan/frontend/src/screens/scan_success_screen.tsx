@@ -33,7 +33,7 @@ export function ScanSuccessScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <ScanSuccessScreen scannedBallotCount={42} isTestMode={false} />;
 }

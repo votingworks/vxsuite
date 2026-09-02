@@ -184,6 +184,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   } = configQuery.data;
   const showEarlyVotingBanner = ballotCastingMode === 'early_voting';
 
+  // @coverage-defer
   if (shouldShowLanguageSettings) {
     return (
       <LanguageSettingsScreen
@@ -229,6 +230,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           <SettingsButtons>
             <LanguageSettingsButton
               disabled={disableSettingsButtons}
+              // @coverage-defer
               onPress={() => setShouldShowLanguageSettings(true)}
             />
             <Button

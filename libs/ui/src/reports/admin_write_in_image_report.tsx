@@ -45,6 +45,7 @@ const CandidateGroupHeading = styled.h3`
 
 function getKeyForWriteIn(writeIn: WriteInEntry): string {
   if (writeIn.type === 'image') {
+    // @coverage-defer
     const possiblyLargeKey = writeIn?.dataUrl || JSON.stringify(writeIn);
     return `image-${possiblyLargeKey.slice(
       -1 * WRITE_IN_REACT_KEY_MAX_LENGTH

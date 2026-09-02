@@ -90,6 +90,7 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
       return createRendererFromPage(pageHandle).createScratchpad(styles);
     },
 
+    // @coverage-defer
     async documentFromContent(htmlContent: string): Promise<RenderDocument> {
       const pageHandle = makePageHandle(await context.newPage());
       return createRendererFromPage(pageHandle).documentFromContent(
@@ -97,6 +98,7 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
       );
     },
 
+    // @coverage-defer
     async documentFromPath(htmlPath: string): Promise<RenderDocument> {
       const pageHandle = makePageHandle(await context.newPage());
       return createRendererFromPage(pageHandle).documentFromPath(htmlPath);
@@ -163,6 +165,7 @@ async function runTasksConcurrently<T>({
  * {@param size}).
  */
 export async function createPlaywrightRendererPool(
+  // @coverage-defer
   size = cpus().length || 2
 ): Promise<RendererPool> {
   const browser = await launchChromium();

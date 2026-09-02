@@ -89,7 +89,6 @@ function logAuthEvent(
     }
 
     case 'checking_pin': {
-      /* istanbul ignore else */
       if (newAuthStatus.status === 'logged_out') {
         logger.log(LogEventId.AuthPinEntry, previousAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Failure,
@@ -118,7 +117,9 @@ function logAuthEvent(
             });
           }
         }
-      } else if (newAuthStatus.status === 'logged_in') {
+      } /* @coverage-exclude-else */ else if (
+        newAuthStatus.status === 'logged_in'
+      ) {
         logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Success,
           message: 'User entered correct PIN.',
@@ -152,7 +153,6 @@ function logAuthEvent(
     }
 
     default:
-      /* istanbul ignore next: Compile-time check for completeness */
       throwIllegalValue(previousAuthStatus, 'status');
   }
 }
@@ -459,7 +459,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                       : { status: 'logged_in', user, sessionExpiresAt };
                   }
                   default: {
-                    /* istanbul ignore next: Compile-time check for completeness */
                     throwIllegalValue(user, 'role');
                   }
                 }
@@ -475,7 +474,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             };
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(action.cardStatus, 'status');
           }
         }
@@ -519,7 +517,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                   };
                 }
                 default: {
-                  /* istanbul ignore next: Compile-time check for completeness */
                   throwIllegalValue(currentAuthStatus.user, 'role');
                 }
               }
@@ -540,7 +537,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return { ...currentAuthStatus, error: true };
           }
           default: {
-            /* istanbul ignore next: Compile-time check for completeness */
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
         }
@@ -561,7 +557,6 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       }
 
       default: {
-        /* istanbul ignore next: Compile-time check for completeness */
         throwIllegalValue(action, 'type');
       }
     }

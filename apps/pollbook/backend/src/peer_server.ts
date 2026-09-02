@@ -1,3 +1,4 @@
+// @coverage-defer-file
 import { buildPeerApp } from './peer_app.js';
 import { PEER_PORT } from './globals.js';
 import { PeerAppContext } from './types.js';

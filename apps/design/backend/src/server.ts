@@ -6,7 +6,7 @@ import { QaConfig } from './qa_config.js';
 /**
  * Starts the server.
  */
-/* istanbul ignore next */
+// @coverage-exclude
 export function start(context: AppContext): void {
   const app = buildApp(context);
 

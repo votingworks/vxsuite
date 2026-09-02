@@ -37,7 +37,9 @@ export function voteMatchesGridPosition(
   // party IDs as well. Sort them so that order does not matter.
   const gridPositionWithExpectedParties = allCandidateGridPositions.find((gp) =>
     deepEqual(
+      // @coverage-defer
       [...(gp.partyIds ?? [])].sort() ?? [],
+      // @coverage-defer
       [...(vote.partyIds ?? [])].sort()
     )
   );

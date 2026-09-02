@@ -1,6 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import * as vitest from 'vitest/config';
 
 const isCI = process.env['CI'] === 'true';
+
+const coverageCheckReporter = fileURLToPath(
+  new URL('./libs/coverage-check/vitest_coverage_reporter.cjs', import.meta.url)
+);
 
 // When the whole workspace is tested at once (root `pnpm test` → `turbo run
 // test:run` across ~50 packages), many vitest suites run concurrently in a
@@ -29,16 +34,15 @@ export const base: vitest.ViteUserConfig = {
   test: {
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     coverage: {
-      // Collect coverage (and enforce thresholds) in CI only; locally, tests
-      // run without coverage for speed. Together with vitest's built-in
-      // watch-when-interactive default, this lets a single `test` script
-      // (`vitest`) watch locally and run once with coverage in CI.
+      // Collect coverage in CI only; locally, tests run without coverage for
+      // speed. Together with vitest's built-in watch-when-interactive default,
+      // this lets a single `test` script (`vitest`) watch locally and run once
+      // with coverage in CI.
       enabled: isCI,
-      thresholds: {
-        lines: 100,
-        branches: 100,
-      },
-      reportOnFailure: true,
+      // coverage-check is our custom reporter from libs/coverage-check
+      // `json` writes coverage-final.json if needed for debugging
+      // (e.g. if something weird happens in CI)
+      reporter: ['json', [coverageCheckReporter, {}]],
       provider: 'istanbul',
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],

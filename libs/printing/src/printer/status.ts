@@ -104,7 +104,6 @@ function parseIpptoolOutput(output: string): IppAttributes {
             .map((number) => safeParseInt(number).unsafeUnwrap()),
         };
       default:
-        /* istanbul ignore next */
         throw new Error(`Unsupported IPP attribute type: ${type}`);
     }
   }, {});

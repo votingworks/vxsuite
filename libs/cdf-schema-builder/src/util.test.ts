@@ -77,7 +77,7 @@ test('renderTypeAsZodSchema', () => {
     })
   ).toEqual('z.array(z.string()).min(1)');
   expect(renderTypeAsZodSchema({ kind: 'reference', name: 'Foo' })).toEqual(
-    'z.lazy(/* istanbul ignore next */ () => FooSchema)'
+    'z.lazy(() => FooSchema)'
   );
   expect(
     renderTypeAsZodSchema({

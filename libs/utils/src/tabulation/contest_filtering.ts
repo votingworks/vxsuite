@@ -72,6 +72,7 @@ export function getContestsForPrecinct(
   precinctSelection: PrecinctSelection
 ): readonly Contest[] {
   const { election } = electionDefinition;
+  // @coverage-defer
   if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
   }
@@ -123,7 +124,6 @@ export function groupContestsByParty(
           // all yes/no and straight party contests are non-partisan
           return !partyId;
         default:
-          /* istanbul ignore next */
           throwIllegalValue(c);
       }
     }),

@@ -15,6 +15,7 @@ export function PatIntroductionStep({
 }): JSX.Element {
   const handleInput = useCallback(
     (event: KeyboardEvent) => {
+      // @coverage-defer
       if (validKeypressValues.includes(event.key)) {
         event.preventDefault();
         // Stop other listeners (e.g., app-level PAT handlers) from also handling this event
@@ -39,12 +40,14 @@ export function PatIntroductionStep({
     <PortraitStepInnerContainer>
       <Icons.Info />
       <H1>
+        {/* @coverage-defer */}
         {isDiagnostic
           ? 'Connect PAT Device'
           : appStrings.titleBmdPatCalibrationIntroStep()}
       </H1>
       <P>
         {isDiagnostic ? (
+          // @coverage-defer
           <React.Fragment>
             The two inputs can be used to <Font weight="bold">Move</Font> focus
             on the screen or <Font weight="bold">Select</Font> an item.

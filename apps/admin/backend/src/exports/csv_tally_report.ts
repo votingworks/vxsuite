@@ -147,6 +147,7 @@ function* generateDataRows({
       assert(scannedContestResults !== undefined);
       const manualContestResults = manualResults?.contestResults[contest.id];
 
+      // @coverage-defer
       if (contest.type === 'candidate') {
         assert(scannedContestResults.contestType === 'candidate');
         assertIsOptional<Tabulation.CandidateContestResults>(

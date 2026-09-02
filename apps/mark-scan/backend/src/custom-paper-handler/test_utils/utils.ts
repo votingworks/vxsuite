@@ -7,14 +7,17 @@ export function getDefaultPaperHandlerStatus(): PaperHandlerStatus {
   return { ...DEFAULT_PAPER_HANDLER_STATUS };
 }
 
+// @coverage-defer
 export function getPaperParkedStatus(): PaperHandlerStatus {
   return { ...DEFAULT_PAPER_HANDLER_STATUS, parkSensor: true };
 }
 
+// @coverage-defer
 export function getPaperInsideStatus(): PaperHandlerStatus {
   return { ...DEFAULT_PAPER_HANDLER_STATUS, paperPreCisSensor: true };
 }
 
+// @coverage-defer
 export function getPaperInFrontStatus(): PaperHandlerStatus {
   return {
     ...DEFAULT_PAPER_HANDLER_STATUS,
@@ -33,6 +36,7 @@ export function getPaperInRearStatus(): PaperHandlerStatus {
   };
 }
 
+// @coverage-defer
 export function getPaperJammedStatus(): PaperHandlerStatus {
   return {
     ...DEFAULT_PAPER_HANDLER_STATUS,
@@ -41,6 +45,7 @@ export function getPaperJammedStatus(): PaperHandlerStatus {
   };
 }
 
+// @coverage-defer
 export function getJammedButNoPaperStatus(): PaperHandlerStatus {
   return {
     ...DEFAULT_PAPER_HANDLER_STATUS,

@@ -57,9 +57,10 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
     // holding focus and preventing the following `focus`/`click` events from
     // working (e.g. persistent page navigation buttons).
     const { activeElement } = document;
+    // @coverage-defer
     if (
       activeElement instanceof HTMLElement ||
-      /* istanbul ignore next */
+      // @coverage-exclude
       activeElement instanceof SVGElement
     ) {
       activeElement.blur();

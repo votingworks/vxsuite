@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// @coverage-exclude-file: environment-derived configuration
 import { getAllowedExportPatterns } from '@votingworks/backend';
 
 /**

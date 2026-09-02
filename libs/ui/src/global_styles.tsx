@@ -44,6 +44,7 @@ const LEGACY_PRINT_STYLES = css`
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
+// @coverage-defer
 export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
 ${NORMALIZE_CSS}
@@ -53,7 +54,7 @@ ${NORMALIZE_CSS}
   *::after {
     box-sizing: inherit;
     cursor: ${(p) =>
-      /* istanbul ignore next */ p.hideCursor ? 'none !important' : undefined};
+      /* @coverage-exclude */ p.hideCursor ? 'none !important' : undefined};
   }
 
   html {
@@ -67,6 +68,7 @@ ${NORMALIZE_CSS}
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     user-select: ${(p) =>
+      // @coverage-defer
       isTouchscreen(p.theme.screenType) ? 'none' : undefined};
   }
 
@@ -161,6 +163,7 @@ ${NORMALIZE_CSS}
    * triggers (e.g. RadioGroup). */
   :root {
     --focus-outline: ${(p) =>
+      // @coverage-defer
       isTouchscreen(p.theme.screenType)
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : `${p.theme.colors.primary} solid ${p.theme.sizes.bordersRem.medium}rem`}

@@ -119,8 +119,23 @@ of its dependencies); `test:run` runs once and is what CI runs. Both build the
 package's dependencies first via Turbo — see the `:self` split in the
 `## Turborepo` section for how. Coverage is enabled only in CI, keyed on the
 `CI` env var in `vitest.config.shared.mts` (`coverage.enabled: isCI`), so
-`test:run` is fast locally and enforces the 100% thresholds in CI. VxDesign
-keeps a dedicated `test:ci` for its Postgres/migration CI steps.
+`test:run` is fast locally and enforces coverage in CI. Every coverage run ends
+with `coverage-check` (`libs/coverage-check`, registered as an istanbul reporter
+in the shared config), which requires each uncovered statement/branch to carry
+an inline `// @coverage-exclude: <reason>` or `// @coverage-defer: <reason>`
+directive and flags stale directives on covered code; code TypeScript proves
+unreachable (a `never`-typed reference, e.g. `default: throwIllegalValue(x)`)
+needs no directive. The checker is a TypeScript package that every tested
+package lists as a devDependency (like `eslint-plugin-vx`) so it is built with
+the package's other dependencies — a new package with tests must add
+`"@votingworks/coverage-check": "workspace:*"`. To reproduce CI's coverage +
+directive check locally from a package directory:
+
+```sh
+pnpm test:run --coverage    # or: CI=true pnpm test:run
+```
+
+VxDesign keeps a dedicated `test:ci` for its Postgres/migration CI steps.
 
 ### Linting & Formatting
 
@@ -297,7 +312,10 @@ a fresh checkout without a prior full build.
 ## Testing
 
 - **Framework:** Vitest
-- **Coverage:** 100% line and branch coverage required (Istanbul provider)
+- **Coverage:** 100% line and branch coverage required (Istanbul provider);
+  deliberate gaps carry `@coverage-exclude`/`@coverage-defer` directives
+  enforced by `coverage-check` (see Running Tests). Do not add `istanbul ignore`
+  hints.
 - **React Testing:** @testing-library/react
 - **Property-based:** fast-check
 - **E2E:** Playwright (in apps with `playwright/` directories)

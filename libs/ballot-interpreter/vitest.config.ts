@@ -4,10 +4,13 @@ export default defineConfig({
   test: {
     setupFiles: ['src/setupTests.ts'],
     coverage: {
-      thresholds: {
-        lines: -275,
-        branches: -141,
-      },
+      exclude: [
+        'src/index.ts',
+        'src/bubble-ballot-ts/index.ts',
+        'src/summary-ballot/index.ts',
+        // Dev-only CLI
+        'src/bubble-ballot-ts/diagnostic_cli.ts',
+      ],
     },
   },
 });

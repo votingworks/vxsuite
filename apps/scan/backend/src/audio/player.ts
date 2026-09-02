@@ -13,7 +13,7 @@ export interface PlayerInterface {
   play(soundName: SoundName): Promise<void>;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function getMockPlayer(): PlayerInterface {
   return {
     setIsScreenReaderEnabled: () => Promise.resolve(),
@@ -55,6 +55,7 @@ export class Player implements PlayerInterface {
     }
   }
 
+  // @coverage-defer
   async setVolume(volumePct: number): Promise<void> {
     await this.card.setVolume(volumePct);
   }

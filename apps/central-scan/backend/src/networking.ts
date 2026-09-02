@@ -30,7 +30,6 @@ function statusForRegistrationError(
       return 'online-host-unconfigured';
     case 'ballot-hash-mismatch':
       return 'online-ballot-hash-mismatch';
-    // istanbul ignore next -- compile-time check
     default:
       return throwIllegalValue(errorType);
   }
@@ -78,7 +77,7 @@ export function startScannerNetworking({
 
   process.nextTick(() => {
     setInterval(async () => {
-      /* istanbul ignore next - re-entrancy guard */
+      // @coverage-exclude: re-entrancy guard
       if (isPolling) return;
       isPolling = true;
 
@@ -167,7 +166,7 @@ export function startScannerNetworking({
           hostAddress: hostMachine.address,
         });
       } catch (error) {
-        /* istanbul ignore next - defensive */
+        // @coverage-exclude: defensive
         debug('Error in scanner networking loop: %s', error);
       } finally {
         isPolling = false;

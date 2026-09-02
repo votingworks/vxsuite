@@ -15,6 +15,7 @@ interface Props {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanJamScreen({
   error,
   scannedBallotCount,
@@ -49,12 +50,12 @@ export function ScanJamScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function InternalJamPreview(): JSX.Element {
   return <ScanJamScreen scannedBallotCount={42} isTestMode={false} />;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function OutfeedJamPreview(): JSX.Element {
   return (
     <ScanJamScreen

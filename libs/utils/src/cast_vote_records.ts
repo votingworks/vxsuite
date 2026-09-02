@@ -265,7 +265,6 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
     case 'straight-party':
       return [...contest.optionIds];
     default:
-      /* istanbul ignore next */
       return throwIllegalValue(contest);
   }
 }

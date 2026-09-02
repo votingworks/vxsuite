@@ -79,7 +79,7 @@ const rule: TSESLint.RuleModule<
           const pipeAfter = sourceCode.getTokenAfter(
             undefinedUnionResult.undefinedType
           );
-          /* istanbul ignore else */
+          // @coverage-exclude
           if (pipeBefore.value === '|') {
             yield fixer.remove(pipeBefore);
           } else if (pipeAfter?.value === '|') {
@@ -124,6 +124,7 @@ const rule: TSESLint.RuleModule<
           assert(colonToken && colonToken.value === ':');
           const questionMarkToken = sourceCode.getTokenBefore(colonToken);
           assert(questionMarkToken);
+          // @coverage-defer
           if (questionMarkToken.value !== '?') {
             yield fixer.insertTextBefore(colonToken, '?');
           }

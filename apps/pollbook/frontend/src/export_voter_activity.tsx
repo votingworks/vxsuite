@@ -3,6 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { getDeviceStatuses, exportVoterActivity } from './api.js';
 
+// @coverage-defer
 export function ExportVoterActivityModal({
   onClose,
 }: {
@@ -76,7 +77,6 @@ export function ExportVoterActivityModal({
       );
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(exportVoterActivityMutation);
     }
   }
@@ -90,11 +90,13 @@ export function ExportVoterActivityButton(): JSX.Element {
       <Button
         icon="Export"
         color="primary"
+        // @coverage-defer
         onPress={() => setIsShowingModal(true)}
       >
         Export Voter History
       </Button>
       {isShowingModal && (
+        // @coverage-defer
         <ExportVoterActivityModal onClose={() => setIsShowingModal(false)} />
       )}
     </React.Fragment>

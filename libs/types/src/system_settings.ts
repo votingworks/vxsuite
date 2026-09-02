@@ -291,9 +291,11 @@ export const SystemSettingsSchema = z
       // since retrying with the same threshold would be pointless (deterministic check)
       const maxWidth =
         settings.maxCumulativeStreakWidth ??
+        // @coverage-defer
         DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH;
       const retryThreshold =
         settings.retryStreakWidthThreshold ??
+        // @coverage-defer
         DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD;
       return retryThreshold < maxWidth;
     },

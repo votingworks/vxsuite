@@ -39,6 +39,7 @@ export const ApiClientContext = React.createContext<ApiClient | undefined>(
 
 export function useApiClient(): ApiClient {
   const apiClient = React.useContext(ApiClientContext);
+  // @coverage-defer
   if (!apiClient) {
     throw new Error('ApiClientContext.Provider not found');
   }
@@ -76,6 +77,7 @@ export const checkPin = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkPin, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -104,6 +106,7 @@ export const updateSessionExpiry = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSessionExpiry, {
+      // @coverage-defer
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
@@ -305,6 +308,7 @@ export const setBallotCastingMode = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.setBallotCastingMode, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
       },
@@ -601,6 +605,7 @@ export const logUpsDiagnosticOutcome = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.logUpsDiagnosticOutcome, {
+      // @coverage-defer
       async onSuccess() {
         await queryClient.invalidateQueries(
           getMostRecentUpsDiagnostic.queryKey()

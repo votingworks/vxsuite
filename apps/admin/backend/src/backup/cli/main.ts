@@ -169,7 +169,7 @@ export async function main(
       return await list(args, { stdin, stdout, stderr });
     case 'restore':
       return await restore(args, { stdin, stdout, stderr, logger, signal });
-    /* istanbul ignore next: `strict` rejects unknown commands */
+    // @coverage-exclude: `strict` rejects unknown commands
     default:
       throw new Error(`Unknown command: ${args._[0]}`);
   }

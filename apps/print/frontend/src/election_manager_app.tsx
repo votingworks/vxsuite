@@ -28,14 +28,17 @@ export function ElectionManagerApp(): JSX.Element | null {
       <Switch>
         <Route
           path={electionManagerRoutes.testDecks.path}
+          // @coverage-defer
           render={() => <TestDeckScreen />}
         />
         <Route
           path={electionManagerRoutes.print.path}
+          // @coverage-defer
           render={() => <PrintScreen isElectionManagerAuth />}
         />
         <Route
           path={electionManagerRoutes.reports.path}
+          // @coverage-defer
           render={() => <ReportScreen isElectionManagerAuth />}
         />
         <Route
@@ -45,14 +48,17 @@ export function ElectionManagerApp(): JSX.Element | null {
         />
         <Route
           path={electionManagerRoutes.diagnostics.path}
+          // @coverage-defer
           render={() => <DiagnosticsScreen authType="election_manager" />}
         />
         <Route
           path={electionManagerRoutes.settings.path}
+          // @coverage-defer
           render={() => <SettingsScreen />}
         />
         <Redirect
           to={
+            // @coverage-defer
             isMachineConfigured
               ? electionManagerRoutes.print.path
               : electionManagerRoutes.election.path

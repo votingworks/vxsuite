@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.tsx'],
     coverage: {
       exclude: [
+        'src/polyfills.ts',
         'src/config',
         'src/stubs',
         'src/**/*.d.ts',
@@ -16,10 +17,6 @@ export default defineConfig({
         '**/*.test.{ts,tsx}',
         'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
-      thresholds: {
-        lines: -13,
-        branches: -6,
-      },
     },
     alias: [
       {

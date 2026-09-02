@@ -51,7 +51,7 @@ export interface ProcessInfo {
  * Extracts CPU temperature from coretemp sensor data.
  */
 function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
-  // istanbul ignore next
+  // @coverage-exclude
   if (typeof sensorsData !== 'object' || sensorsData === null) {
     return null;
   }
@@ -80,7 +80,6 @@ function parseTemperatureFromSensorsJson(sensorsData: unknown): number | null {
     }
   }
 
-  // istanbul ignore next
   return null;
 }
 
@@ -151,13 +150,12 @@ async function getMemoryStats(): Promise<MemoryStats> {
   // Parse meminfo format: "MemTotal:       19995316 kB"
   function getValue(key: string): number {
     const line = meminfoLines.find((l) => l.startsWith(key));
-    // istanbul ignore next
+    // @coverage-exclude
     if (!line) return 0;
     const match = line.match(/:\s+(\d+)/);
-    // istanbul ignore next
     if (!match) return 0;
     const valueResult = safeParseInt(match[1]);
-    // istanbul ignore next
+    // @coverage-exclude
     return valueResult.isOk() ? valueResult.ok() * 1024 : 0; // Convert kB to bytes
   }
 
@@ -258,7 +256,9 @@ export async function getTopCpuProcesses(
  */
 export function startCpuMetricsLogging(
   logger: BaseLogger,
+  // @coverage-defer
   {
+    // @coverage-defer
     interval = 60_000, // 60 seconds
     topProcessCount = 5,
   } = {}

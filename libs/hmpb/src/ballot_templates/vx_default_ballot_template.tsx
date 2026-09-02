@@ -243,6 +243,7 @@ function CandidateContest({
     9: hmpbStrings.hmpbVoteFor9,
     10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
+  // @coverage-defer
   if (!voteForText) {
     throw new Error(
       `Unsupported number of seats for contest: ${contest.seats}`
@@ -265,6 +266,7 @@ function CandidateContest({
           <div>{voteForText}</div>
         </DualLanguageText>
         {contest.termDescription && (
+          // @coverage-defer
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>
           </DualLanguageText>
@@ -440,7 +442,7 @@ function Contest({
   election: Election;
   ballotStyle: BallotStyle;
 }) {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -594,6 +596,7 @@ async function BallotPageContent(
         {pageSections}
       </div>
     ) : (
+      // @coverage-defer
       <BlankPageMessage />
     );
   return ok({

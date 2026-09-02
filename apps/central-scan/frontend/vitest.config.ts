@@ -7,12 +7,9 @@ export default defineConfig({
     mockReset: true,
     setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.ts'],
     coverage: {
-      thresholds: {
-        lines: -18,
-        branches: -14,
-      },
       exclude: [
         'src/config',
+        'src/polyfills.ts',
         'src/**/*.d.ts',
         'src/index.tsx',
         '**/*.test.{ts,tsx}',

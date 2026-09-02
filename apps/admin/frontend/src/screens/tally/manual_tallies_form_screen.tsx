@@ -303,7 +303,7 @@ function emptyFormContestResults(
   contest: Contest,
   ballotCount?: number
 ): FormContestResults {
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (contest.type === 'straight-party') {
     return straightPartyNotYetImplemented();
   }
@@ -341,7 +341,6 @@ function emptyFormContestResults(
       };
 
     default: {
-      /* istanbul ignore next */
       throwIllegalValue(contest);
     }
   }
@@ -629,6 +628,7 @@ function ContestForm({
         return contestResults.undervotes;
       default:
         if (contestResults.contestType === 'yesno') {
+          // @coverage-defer
           return contestResults.tallies[dataKey] ?? '';
         }
         assert(contestResults.contestType === 'candidate');
@@ -949,7 +949,6 @@ function ContestForm({
                       </P>
                     );
                   default: {
-                    /* istanbul ignore next */
                     throwIllegalValue(validationError);
                   }
                 }

@@ -26,6 +26,7 @@ function findDetailsFromStreetAddress(
   const streetNumberNumericPart = address.streetNumber.replace(/[^0-9]/g, '');
   const voterStreetNum = safeParseInt(streetNumberNumericPart).ok();
   const streetInfo =
+    // @coverage-defer
     voterStreetNum !== undefined
       ? streetInfosForStreetName.find(
           (info) =>
@@ -95,6 +96,7 @@ export function splitStreetNumberDetails(input: string): {
     };
   }
 
+  // @coverage-defer
   const [, streetNumber = '', houseFractionNumber = '', streetSuffix = ''] =
     match;
 
@@ -141,6 +143,7 @@ export function AddressInputGroup({
 
   function handleChange(newAddress: VoterAddressChangeRequest) {
     const { city, zipCode, precinct } = findDetailsFromStreetAddress(
+      // @coverage-defer
       validStreetInfoQuery.data || [],
       newAddress
     );
@@ -162,6 +165,7 @@ export function AddressInputGroup({
             id="streetNumber"
             value={
               address.streetNumber +
+              // @coverage-defer
               (useHouseFractionSeparator
                 ? ` ${address.houseFractionNumber}`
                 : '') +
@@ -197,6 +201,7 @@ export function AddressInputGroup({
             onChange={(value) =>
               handleChange({
                 ...address,
+                // @coverage-defer
                 streetName: value || '',
               })
             }

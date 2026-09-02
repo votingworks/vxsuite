@@ -84,12 +84,16 @@ test('findAllMonorepoDependencies yields all dependencies', () => {
 
   // simple dependencies
   expect([...findAllMonorepoDependencies(pkgs, basicsPkg)]).toEqual([
+    pkgs.get('@votingworks/coverage-check')!,
     pkgs.get('eslint-plugin-vx')!,
   ]);
 
-  // no dependencies
+  // no dependencies (coverage-check may not depend on any workspace package)
   expect([
-    ...findAllMonorepoDependencies(pkgs, pkgs.get('eslint-plugin-vx')!),
+    ...findAllMonorepoDependencies(
+      pkgs,
+      pkgs.get('@votingworks/coverage-check')!
+    ),
   ]).toEqual([]);
 
   // many dependencies

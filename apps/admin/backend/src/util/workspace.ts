@@ -123,6 +123,7 @@ export function openWorkspace(root: string, logger: BaseLogger): Workspace {
   return {
     path: paths.workspace,
     store,
+    // @coverage-defer
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([paths.workspace]);
       return summary;
@@ -152,7 +153,7 @@ export function createClientWorkspace(root: string): ClientWorkspace {
 /**
  * Path for the database file and other files
  */
-/* istanbul ignore next - ADMIN_WORKSPACE is not set in tests */
+// @coverage-exclude: ADMIN_WORKSPACE is not set in tests
 export function resolveWorkspacePath(logger: BaseLogger): string {
   const workspacePath =
     process.env.ADMIN_WORKSPACE ??

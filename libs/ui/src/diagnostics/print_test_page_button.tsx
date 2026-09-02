@@ -126,7 +126,6 @@ export function PrintTestPageButton({
         />
       );
       break;
-    // istanbul ignore next
     default:
       assertFalsy(flowState);
   }

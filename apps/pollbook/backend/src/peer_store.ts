@@ -68,6 +68,7 @@ export class PeerStore extends Store {
    */
   static memoryStore(
     logger: BaseLogger,
+    // @coverage-defer
     machineId: string = 'test-machine',
     codeVersion: string = 'test-v1'
   ): PeerStore {
@@ -84,6 +85,7 @@ export class PeerStore extends Store {
     this.client.run(`DELETE FROM machines`);
   }
 
+  // @coverage-defer
   getCodeVersion(): string {
     return this.codeVersion;
   }
@@ -331,6 +333,7 @@ export class PeerStore extends Store {
         pollbookPackage.validStreets,
         pollbookPackage.voters
       );
+      // @coverage-defer
       if (error) {
         return err(error);
       }
@@ -345,6 +348,7 @@ export class PeerStore extends Store {
       );
       return ok();
     } catch {
+      // @coverage-defer
       return err('pollbook-connection-problem');
     } finally {
       await unlink(tempPath).catch((error) => {

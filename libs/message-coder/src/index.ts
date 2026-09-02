@@ -1,4 +1,3 @@
-/* istanbul ignore file - this is just for library exports */
 export * from './base_coder';
 export * from './bits';
 export * from './constants';

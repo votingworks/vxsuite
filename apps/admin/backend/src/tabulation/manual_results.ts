@@ -50,7 +50,7 @@ export function aggregateManualResults(params: {
   manualResultsRecords: Iterable<ManualResultsRecord>;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.ManualResultsGroupMap {
-  /* istanbul ignore next */
+  // @coverage-exclude
   const { election, manualResultsRecords, groupBy = {} } = params;
   const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 
@@ -204,6 +204,7 @@ export function extractWriteInSummary({
 
     const contestResults = manualResults.contestResults[contest.id];
     let totalTally = 0;
+    // @coverage-defer
     if (contestResults) {
       assert(contestResults.contestType === 'candidate');
       for (const candidateTally of Object.values(contestResults.tallies)) {

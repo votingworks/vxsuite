@@ -54,6 +54,7 @@ export function CheckboxGroup<T extends string>({
 }: CheckboxGroupProps<T>): JSX.Element {
   return (
     <fieldset
+      // @coverage-defer
       aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
     >
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}

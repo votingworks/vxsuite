@@ -10,6 +10,7 @@ import { ErrorType, PrinterStatus } from './types';
 
 const debug = rootDebug.extend('wait_for_status');
 
+// @coverage-defer
 export function getErrorType(status: RawPrinterStatus): ErrorType {
   if (status.temperatureError) {
     return 'temperature';
@@ -28,14 +29,17 @@ export function getErrorType(status: RawPrinterStatus): ErrorType {
 }
 
 export function summarizeRawStatus(status: RawPrinterStatus): PrinterStatus {
+  // @coverage-defer
   if (isErrorStatus(status)) {
     return { state: 'error', type: getErrorType(status) };
   }
 
+  // @coverage-defer
   if (status.isPaperCoverOpen) {
     return { state: 'cover-open' };
   }
 
+  // @coverage-defer
   if (status.isPaperAtEnd) {
     return { state: 'no-paper' };
   }
@@ -59,6 +63,7 @@ export interface WaitForPrintReadyStatusOptions {
   replyParameter?: Uint8;
 }
 
+// @coverage-defer
 export async function waitForPrintReadyStatus(
   driver: FujitsuThermalPrinterDriverInterface,
   options: WaitForPrintReadyStatusOptions

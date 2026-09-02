@@ -50,7 +50,6 @@ export function DoubleVoteAlertModal({
           </P>
         );
       default: {
-        /* istanbul ignore next */
         throwIllegalValue(type);
       }
     }

@@ -9,10 +9,6 @@ export default defineConfig({
       './test/setup_custom_matchers.ts',
     ],
     coverage: {
-      thresholds: {
-        lines: 0,
-        branches: -31,
-      },
       exclude: [
         '**/*.d.ts',
         '**/node_modules/**',

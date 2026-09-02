@@ -40,6 +40,7 @@ export function UnconfiguredElectionScreenWrapper(
 
   const error = configureMutation.data?.err();
 
+  // @coverage-defer
   if (!usbDriveStatusQuery.isSuccess) return null;
 
   return (
@@ -56,7 +57,7 @@ export function UnconfiguredElectionScreenWrapper(
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <UnconfiguredElectionScreenWrapper isElectionManagerAuth />;
 }

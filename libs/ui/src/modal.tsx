@@ -216,7 +216,6 @@ export function Modal({
     modalContent = <ReadOnLoad as={AudioContent}>{modalContent}</ReadOnLoad>;
   }
 
-  /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement = useMemo(
     () =>
       document.getElementById('root') ??

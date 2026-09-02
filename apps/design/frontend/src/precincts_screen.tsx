@@ -164,6 +164,7 @@ function EditPrecinctForm(): JSX.Element | null {
   const precinctParamRoutes = electionParamRoutes.precincts;
   const precinctRoutes = routes.election(electionId).precincts;
 
+  // @coverage-defer
   if (!listPrecinctsQuery.isSuccess) {
     return null;
   }
@@ -201,6 +202,7 @@ function EditPrecinctForm(): JSX.Element | null {
 
         <Redirect
           to={
+            // @coverage-defer
             savedPrecinct
               ? precinctRoutes.view(precinctId).path
               : precinctRoutes.root.path

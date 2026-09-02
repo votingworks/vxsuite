@@ -146,10 +146,7 @@ export const DESIGN_EXPORT_DIR = getDesignDevWorkspaceDir(REPO_ROOT);
 
 // Convert paths relative to the VxSuite root to absolute paths
 export function electionPathToAbsolute(path: string): string {
-  return isAbsolute(path)
-    ? /* istanbul ignore next */
-      path
-    : join(REPO_ROOT, path);
+  return isAbsolute(path) ? path : join(REPO_ROOT, path);
 }
 
 function electionAbsolutePathToRelative(absolutePath: string): string {
@@ -537,6 +534,7 @@ function buildApi(
       }
     },
 
+    // @coverage-defer
     async saveScreenshotForApp({
       fileName,
       screenshot,
@@ -638,7 +636,7 @@ function buildApi(
         [Symbol.asyncIterator]();
 
       async function insertNextSheet(): Promise<void> {
-        /* istanbul ignore next */
+        // @coverage-exclude
         if (!pdiScannerSheetQueue) return;
         if (mockPdiScanner.getSheetStatus() === 'noSheetEnabled') {
           const { done, value } =
@@ -666,7 +664,7 @@ function buildApi(
     },
 
     pdiScannerClearSheetQueue(): void {
-      /* istanbul ignore next */
+      // @coverage-exclude
       if (!pdiScannerSheetQueue) return;
       clearTimeout(pdiScannerSheetQueue.timeoutId);
       pdiScannerSheetQueue = undefined;
@@ -774,9 +772,8 @@ export function useDevDockRouter(
   app: Express.Application,
   express: typeof Express,
   mockSpec: MockSpec,
-  /* istanbul ignore next */
+  // @coverage-exclude
   devDockDir: string = DEFAULT_DEV_DOCK_DIR,
-  /* istanbul ignore next */
   designExportDir: string = DESIGN_EXPORT_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
@@ -784,11 +781,13 @@ export function useDevDockRouter(
   }
 
   // Create dev dock dir and file if it doesn't exist so we can always read from it
+  // @coverage-defer
   if (!fs.existsSync(devDockDir)) {
     fs.mkdirSync(devDockDir, { recursive: true });
   }
 
   const devDockFilePath = join(devDockDir, DEV_DOCK_FILE_NAME);
+  // @coverage-defer
   if (!fs.existsSync(devDockFilePath)) {
     writeDevDockFileContents(devDockFilePath, {});
   }
@@ -796,6 +795,7 @@ export function useDevDockRouter(
   const api = buildApi(devDockDir, mockSpec, designExportDir);
 
   // Set a default election if one is not already set
+  // @coverage-defer
   if (!getElection(devDockDir)) {
     void setElection(DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH, devDockDir);
   }

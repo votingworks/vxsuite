@@ -26,7 +26,6 @@ export function AnomalyAlertScreen({
       case 'InvalidRegistrationCheckIn':
         return 'Check-In for Deleted Voter';
       default:
-        /* istanbul ignore next */
         throwIllegalValue(anomaly.anomalyType);
     }
   }
@@ -135,7 +134,6 @@ export function AnomalyAlertScreen({
         );
       }
       default:
-        /* istanbul ignore next */
         throwIllegalValue(anomaly.anomalyType);
     }
   }

@@ -60,6 +60,7 @@ export function IdentifyInputStep({
       // Stop other listeners (e.g., app-level PAT handlers) from also handling this event
       event.stopImmediatePropagation();
 
+      // @coverage-defer
       if (event.key === behaviorToKeypressMap[inputName]) {
         switch (inputIdentificationPhase) {
           case 'unidentified':
@@ -72,7 +73,6 @@ export function IdentifyInputStep({
             setInputIdentificationPhase('identified');
             break;
           default: {
-            /* istanbul ignore next - compile time check for completeness */
             throwIllegalValue(inputIdentificationPhase);
           }
         }
@@ -133,7 +133,6 @@ export function IdentifyInputStep({
       icon = <Icons.Danger />;
       break;
     default: {
-      /* istanbul ignore next - compile time check for completeness */
       throwIllegalValue(inputIdentificationPhase);
     }
   }

@@ -5,6 +5,7 @@ import { createRule } from '../util';
 function getSpecifierLocalName(
   node: TSESTree.Identifier | TSESTree.StringLiteral
 ): string {
+  // @coverage-defer
   return 'name' in node && typeof node.name === 'string'
     ? node.name
     : (node as TSESTree.StringLiteral).value;

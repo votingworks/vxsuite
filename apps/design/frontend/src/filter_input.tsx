@@ -12,6 +12,7 @@ export function FilterInput({
 }: FilterInputProps): JSX.Element {
   const filterRef = React.useRef<HTMLInputElement>(null);
   return (
+    // @coverage-defer
     <div style={{ ...(props.style ?? {}), position: 'relative' }}>
       <span
         style={{

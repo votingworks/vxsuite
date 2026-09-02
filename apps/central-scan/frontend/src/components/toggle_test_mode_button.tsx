@@ -15,6 +15,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
   const setTestModeMutation = setTestMode.useMutation();
 
   const [flowState, setFlowState] = useState<'none' | 'confirmation'>('none');
+  // @coverage-defer
   function resetFlowState() {
     setFlowState('none');
   }

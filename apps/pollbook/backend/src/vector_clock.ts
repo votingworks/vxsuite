@@ -9,6 +9,7 @@ export function mergeVectorClocks(
 ): VectorClock {
   const mergedClock: VectorClock = { ...clock1 };
   for (const [key, value] of Object.entries(clock2)) {
+    // @coverage-defer
     if (mergedClock[key] === undefined || mergedClock[key] < value) {
       mergedClock[key] = value;
     }
@@ -21,6 +22,7 @@ export function mergeVectorClocks(
 export function isLater(clock1: VectorClock, clock2: VectorClock): boolean {
   const keys = new Set([...Object.keys(clock1), ...Object.keys(clock2)]);
   for (const key of keys) {
+    // @coverage-defer
     if ((clock1[key] || -1) > (clock2[key] || -1)) {
       return true;
     }
@@ -41,7 +43,9 @@ export function compareVectorClocks(
   const keys = new Set([...Object.keys(clock1), ...Object.keys(clock2)]);
 
   for (const key of keys) {
+    // @coverage-defer
     const aValue = clock1[key] || -1;
+    // @coverage-defer
     const bValue = clock2[key] || -1;
 
     if (aValue < bValue) {

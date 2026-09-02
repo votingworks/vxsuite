@@ -3,10 +3,11 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 export default defineConfig({
   test: {
     coverage: {
-      thresholds: {
-        lines: -3,
-        branches: -22,
-      },
+      exclude: [
+        'src/index.ts',
+        'src/cdf/*/index.ts',
+        'src/cdf/ballot-definition/cli.ts',
+      ],
     },
   },
 });

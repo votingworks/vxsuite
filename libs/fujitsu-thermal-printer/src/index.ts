@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export * from './types';
 export * from './logging';
 export * from './printer';

@@ -60,7 +60,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // known workaround), which leads to serious pain when debugging tests. So we
   // should still be diligent about avoiding unhandled promise rejections at
   // the source.
-  /* istanbul ignore start */
+  // @coverage-exclude
   handleUnhandledRejection(event: PromiseRejectionEvent): void {
     const { logger } = this.props;
     const error: unknown = event.reason;
@@ -75,7 +75,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     this.setState({ error });
   }
-  /* istanbul ignore stop */
 
   componentDidMount(): void {
     window.addEventListener(

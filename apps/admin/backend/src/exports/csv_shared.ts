@@ -312,8 +312,7 @@ export function getCsvMetadataRowValues({
       assertDefined(filter.partyIds)
         .map((partyId) =>
           Tabulation.isNoPartyId(partyId)
-            ? /* istanbul ignore next - TODO: cover in upcoming PR for custom report builder */
-              NO_PARTY_LABEL
+            ? /* @coverage-defer: TODO: cover in upcoming PR for custom report builder */ NO_PARTY_LABEL
             : CachedElectionLookups.getPartyById(electionDefinition, partyId)
                 .name
         )

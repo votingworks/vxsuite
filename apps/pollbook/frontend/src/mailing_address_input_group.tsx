@@ -141,6 +141,7 @@ export function MailingAddressInputGroup({
             onChange={(value) =>
               handleChange({
                 ...mailingAddress,
+                // @coverage-defer
                 mailingState: value || '',
               })
             }

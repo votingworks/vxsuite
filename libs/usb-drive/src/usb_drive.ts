@@ -5,7 +5,7 @@ import { UsbDrive } from './types';
 import { createUsbDriveAdapter } from './usb_drive_adapter';
 import { UsbPlatform } from './usb_platform_types';
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function detectUsbDriveFromEnv(options: { logger: Logger }): UsbDrive {
   return detectUsbDrive({
     logger: options.logger,

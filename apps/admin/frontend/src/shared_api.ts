@@ -36,14 +36,14 @@ export const SharedApiClientContext = React.createContext<
 
 export function useSharedApiClient(): SharedApiClient {
   const apiClient = React.useContext(SharedApiClientContext);
-  /* istanbul ignore next */
+  // @coverage-exclude
   if (!apiClient) {
     throw new Error('SharedApiClientContext.Provider not found');
   }
   return apiClient;
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function createSharedQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -54,7 +54,7 @@ export const systemCallApi = createSystemCallApi(
   useSharedApiClient as () => grout.Client<Api>
 );
 
-/* istanbul ignore next - used in index.tsx which is excluded from coverage */
+// @coverage-exclude: used in index.tsx which is excluded from coverage
 export const getMachineMode = {
   queryKey(): QueryKey {
     return ['getMachineMode'];
@@ -94,11 +94,10 @@ export const sharedEjectUsbDrive = {
     const apiClient = useSharedApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.ejectUsbDrive, {
-      /* istanbul ignore start - query invalidation */
+      // @coverage-exclude: query invalidation
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
-      /* istanbul ignore stop */
     });
   },
 } as const;

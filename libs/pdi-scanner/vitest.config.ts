@@ -8,10 +8,6 @@ export default defineConfig({
         'src/ts/demo.ts',
         'src/ts/mock_file_scanner.ts',
       ],
-      thresholds: {
-        lines: 100,
-        branches: -3,
-      },
     },
   },
 });

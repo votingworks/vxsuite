@@ -15,7 +15,7 @@ import {
 } from '@votingworks/utils';
 import { Workspace } from './workspace.js';
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function getDefaultAuth(logger: BaseLogger): {
   auth: InsertedSmartCardAuth;
   card: Card;
@@ -56,7 +56,5 @@ export async function getUserRole(
   const authStatus = await auth.getAuthStatus(
     constructAuthMachineState(workspace)
   );
-  return authStatus.status === 'logged_in'
-    ? authStatus.user.role
-    : /* istanbul ignore next */ 'unknown';
+  return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
 }

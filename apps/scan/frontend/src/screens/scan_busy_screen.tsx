@@ -12,6 +12,7 @@ export interface ScanBusyScreenProps {
   isTestMode: boolean;
 }
 
+// @coverage-defer
 export function ScanBusyScreen({
   isTestMode,
 }: ScanBusyScreenProps): JSX.Element {
@@ -32,7 +33,7 @@ export function ScanBusyScreen({
   );
 }
 
-/* istanbul ignore next */
+// @coverage-exclude
 export function DefaultPreview(): JSX.Element {
   return <ScanBusyScreen isTestMode={false} />;
 }
