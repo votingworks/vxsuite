@@ -26,6 +26,7 @@ import { ScanButton } from '../components/scan_button.js';
 import {
   clearBallotData,
   getNetworkStatus,
+  resendBatchToAdmin,
   retrySendBatchToAdmin,
 } from '../api.js';
 
@@ -144,11 +145,21 @@ interface BatchSendState {
   /** What the "Sent At" cell shows. */
   contents: JSX.Element;
   /** An operator action offered beside Delete, if any. */
-  action?: 'retry';
+  action?: 'retry' | 'resend';
 }
 
 function getBatchSendState(batch: BatchInfo): BatchSendState {
   if (batch.sentToAdminAt) {
+    if (batch.removedFromAdminAt) {
+      return {
+        contents: (
+          <React.Fragment>
+            <Icons.Warning color="warning" /> Removed from VxAdmin
+          </React.Fragment>
+        ),
+        action: 'resend',
+      };
+    }
     return {
       contents: <Timestamp>{shortDateTime(batch.sentToAdminAt)}</Timestamp>,
     };
@@ -196,6 +207,7 @@ export function ScanBallotsScreen({
   const networkStatus = networkStatusQuery.data;
   const isNetworkingEnabled = networkStatus?.isEnabled ?? false;
   const retrySendMutation = retrySendBatchToAdmin.useMutation();
+  const resendMutation = resendBatchToAdmin.useMutation();
   const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
     'confirmation' | 'deleting'
   >();
@@ -320,6 +332,16 @@ export function ScanBallotsScreen({
                                 disabled={retrySendMutation.isLoading}
                               >
                                 Retry
+                              </Button>
+                            )}
+                            {sendState?.action === 'resend' && (
+                              <Button
+                                onPress={() =>
+                                  resendMutation.mutate({ batchId: batch.id })
+                                }
+                                disabled={resendMutation.isLoading}
+                              >
+                                Resend
                               </Button>
                             )}
                             <Button

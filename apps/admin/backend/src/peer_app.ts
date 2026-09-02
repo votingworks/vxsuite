@@ -22,6 +22,7 @@ import type {
   CvrTransferManifest,
   FinishCvrTransferError,
   RegisterScannerError,
+  ScannerRegistration,
   StartCvrTransferError,
   VxAdminHostApi,
 } from '@votingworks/networking';
@@ -84,7 +85,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       ballotHash?: string;
       pollingPlaceId?: string;
       isTestMode: boolean;
-    }): Result<MachineConfig, RegisterScannerError> {
+    }): Result<ScannerRegistration, RegisterScannerError> {
       const machineConfig = getMachineConfig();
 
       function recordScanner(
@@ -104,7 +105,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         error: RegisterScannerError,
         details: string,
         extra: Record<string, string> = {}
-      ): Result<MachineConfig, RegisterScannerError> {
+      ): Result<ScannerRegistration, RegisterScannerError> {
         logger.log(LogEventId.AdminNetworkStatus, 'system', {
           message: `Rejected registration from scanner ${input.machineId}: ${details}`,
           disposition: 'failure',
@@ -179,7 +180,13 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       }
       debug('Scanner %s registered with host', input.machineId);
       recordScanner(null);
-      return ok(machineConfig);
+      return ok({
+        ...machineConfig,
+        importedBatchIds: store.getNetworkCvrImportBatchIds(
+          currentElectionId,
+          input.machineId
+        ),
+      });
     },
 
     registerAdjudicationStation(input: {

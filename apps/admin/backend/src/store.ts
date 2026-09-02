@@ -1403,6 +1403,26 @@ export class Store implements BaseStore {
     return row?.id;
   }
 
+  /**
+   * IDs of the given scanner's batches that were imported over the network
+   * for the given election.
+   */
+  getNetworkCvrImportBatchIds(electionId: Id, scannerId: string): string[] {
+    const rows = this.client.all(
+      `
+        select network_batch_id as batchId
+        from cvr_files
+        where
+          election_id = ?
+          and source = 'network'
+          and network_scanner_id = ?
+      `,
+      electionId,
+      scannerId
+    ) as Array<{ batchId: string }>;
+    return rows.map((row) => row.batchId);
+  }
+
   updateCastVoteRecordFileRecord({
     id,
     precinctIds,

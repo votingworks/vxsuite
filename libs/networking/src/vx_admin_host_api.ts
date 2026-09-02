@@ -27,6 +27,15 @@ export type RegisterScannerError =
    */
   | { type: 'invalid-mode'; currentMode: 'test' | 'official' };
 
+/** What a VxAdmin host returns to a scanner it has registered. */
+export interface ScannerRegistration extends VxAdminHostMachineConfig {
+  /**
+   * IDs of this scanner's batches whose cast vote records the host currently
+   * holds. Lets the scanner notice a batch that was removed on the host.
+   */
+  importedBatchIds: string[];
+}
+
 /**
  * Manifest describing one scanned batch being transferred to a VxAdmin host.
  * Mirrors the per-batch entries in a USB cast vote record export's batch
@@ -89,7 +98,7 @@ export type VxAdminHostApi = Api<{
     pollingPlaceId?: string;
     /** Whether the scanner is in test ballot mode. */
     isTestMode: boolean;
-  }) => Result<VxAdminHostMachineConfig, RegisterScannerError>;
+  }) => Result<ScannerRegistration, RegisterScannerError>;
   /**
    * Read-only, side-effect-free method also used by scanners as a
    * reachability probe when verifying advertised hosts.

@@ -1,4 +1,4 @@
-import { deepEqual, throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import {
@@ -61,15 +61,23 @@ export function startScannerNetworking({
     message: 'Starting VxAdmin host discovery.',
   });
 
+  function hostMachineIdOf(info: NetworkConnectionInfo): Optional<string> {
+    return 'hostMachineId' in info ? info.hostMachineId : undefined;
+  }
+
+  // Logs only status and host changes, not every heartbeat's refresh of the
+  // host's imported-batch list.
   function setConnectionInfo(newInfo: NetworkConnectionInfo): void {
     const currentInfo = store.getNetworkConnectionInfo();
-    if (!deepEqual(currentInfo, newInfo)) {
+    if (
+      currentInfo.status !== newInfo.status ||
+      hostMachineIdOf(currentInfo) !== hostMachineIdOf(newInfo)
+    ) {
       logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
         message: `Scanner connection status changed from ${currentInfo.status} to ${newInfo.status}.`,
         previousStatus: currentInfo.status,
         newStatus: newInfo.status,
-        hostMachineId:
-          'hostMachineId' in newInfo ? newInfo.hostMachineId : 'none',
+        hostMachineId: hostMachineIdOf(newInfo) ?? 'none',
       });
     }
     store.setNetworkConnectionInfo(newInfo);
@@ -145,6 +153,7 @@ export function startScannerNetworking({
 
         const { machineId, codeVersion } = getMachineConfig();
         let registerResult;
+        const registerRequestedAt = Date.now();
         try {
           registerResult = await apiClient.registerScanner({
             machineId,
@@ -174,6 +183,18 @@ export function startScannerNetworking({
           hostMachineId,
           hostAddress: hostMachine.address,
         });
+        const removedBatches = store.markBatchesRemovedFromAdmin(
+          registerResult.ok().importedBatchIds,
+          registerRequestedAt
+        );
+        for (const batch of removedBatches) {
+          logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
+            message: `${batch.label} was sent to VxAdmin ${hostMachineId}, but the host no longer holds its cast vote records. It can be sent again from the Scan Ballots screen.`,
+            disposition: 'failure',
+            batchId: batch.id,
+            hostMachineId,
+          });
+        }
       } catch (error) {
         // @coverage-exclude: defensive
         debug('Error in scanner networking loop: %s', error);
