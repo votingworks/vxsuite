@@ -386,6 +386,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** Restoring from a backup completed, success or failure is indicated by the disposition.
 **Machines:** vx-admin
+### backup-restore-interrupted
+**Type:** [system-status](#system-status)
+**Description:** A restore was interrupted before it finished, leaving the workspace holding neither the data it had nor the data it was being given. What it left behind is discarded, since a restore only ever claims a workspace that held nothing worth keeping.
+**Machines:** vx-admin
 ### backup-restore-machine-mismatch
 **Type:** [user-action](#user-action)
 **Description:** User is restoring a backup whose machine ID differs from the current machine's ID.

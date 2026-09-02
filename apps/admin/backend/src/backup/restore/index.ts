@@ -16,8 +16,6 @@ import {
   verifyRestoredWorkspace,
 } from './verify_step.js';
 
-export { RESTORE_IN_PROGRESS_MARKER_FILENAME } from './prepare_step.js';
-
 /**
  * Restores a backup from disk, typically an external USB drive. Includes the
  * database, ballot images, and election packages.
@@ -72,7 +70,7 @@ async function tryRestoreBackup(
     return err(CANCELLED_ERROR);
   }
 
-  const checkResult = checkWorkspaceIsRestorable(workspace);
+  const checkResult = await checkWorkspaceIsRestorable(workspace, logger);
   if (checkResult.isErr()) {
     return checkResult;
   }

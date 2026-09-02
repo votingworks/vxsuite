@@ -301,6 +301,8 @@ pub enum EventId {
     BackupRestoreInit,
     #[serde(rename = "backup-restore-complete")]
     BackupRestoreComplete,
+    #[serde(rename = "backup-restore-interrupted")]
+    BackupRestoreInterrupted,
     #[serde(rename = "backup-restore-machine-mismatch")]
     BackupRestoreMachineMismatch,
     #[serde(rename = "clear-ballot-data-init")]

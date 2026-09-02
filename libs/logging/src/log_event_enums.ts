@@ -159,6 +159,7 @@ export enum LogEventId {
   BackupCreateComplete = 'backup-create-complete',
   BackupRestoreInit = 'backup-restore-init',
   BackupRestoreComplete = 'backup-restore-complete',
+  BackupRestoreInterrupted = 'backup-restore-interrupted',
   BackupRestoreMachineMismatch = 'backup-restore-machine-mismatch',
   ClearingBallotData = 'clear-ballot-data-init',
   ClearedBallotData = 'clear-ballot-data-complete',
@@ -909,6 +910,14 @@ const BackupRestoreComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Restoring from a backup completed, success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const BackupRestoreInterrupted: LogDetails = {
+  eventId: LogEventId.BackupRestoreInterrupted,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'A restore was interrupted before it finished, leaving the workspace holding neither the data it had nor the data it was being given. What it left behind is discarded, since a restore only ever claims a workspace that held nothing worth keeping.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1790,6 +1799,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackupRestoreInit;
     case LogEventId.BackupRestoreComplete:
       return BackupRestoreComplete;
+    case LogEventId.BackupRestoreInterrupted:
+      return BackupRestoreInterrupted;
     case LogEventId.BackupRestoreMachineMismatch:
       return BackupRestoreMachineMismatch;
     case LogEventId.ClearingBallotData:

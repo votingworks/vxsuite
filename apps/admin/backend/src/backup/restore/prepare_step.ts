@@ -1,10 +1,13 @@
-import { existsSync } from 'node:fs';
 import { rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { emptydir } from 'fs-extra';
 import { err, iter, ok, Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { Workspace } from '../../util/workspace.js';
+import { Logger, LogEventId } from '@votingworks/logging';
+import {
+  getRestoreInProgressMarkerPath,
+  hasInterruptedRestore,
+  Workspace,
+} from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
 import { RestoreError } from './types.js';
@@ -12,25 +15,15 @@ import { RestoreError } from './types.js';
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 
 /**
- * Dropped into the workspace while a restore is running and removed only on
- * success. Its presence afterwards means a restore was interrupted, so what
- * the workspace holds is half-restored debris rather than data to protect.
- */
-export const RESTORE_IN_PROGRESS_MARKER_FILENAME = 'restore-in-progress';
-
-function getMarkerPath(workspacePath: string): string {
-  return join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME);
-}
-
-/**
  * Checks that the workspace is one a restore may take over: a host machine's,
  * not being written to, and either unconfigured or left behind by an
  * interrupted restore (per the marker), in which case the restore is what
  * recovers it.
  */
-export function checkWorkspaceIsRestorable(
-  workspace: Workspace
-): Result<void, RestoreError> {
+export async function checkWorkspaceIsRestorable(
+  workspace: Workspace,
+  logger: Logger
+): Promise<Result<void, RestoreError>> {
   const hostModeResult = checkWorkspaceIsHostMode(workspace);
   if (hostModeResult.isErr()) {
     return hostModeResult;
@@ -49,7 +42,12 @@ export function checkWorkspaceIsRestorable(
     });
   }
 
-  if (existsSync(getMarkerPath(workspace.path))) {
+  if (hasInterruptedRestore(workspace.path)) {
+    await logger.logAsCurrentRole(LogEventId.BackupRestoreInterrupted, {
+      message:
+        'Restoring over a workspace an earlier restore left unfinished; ' +
+        'whatever it holds now is being replaced.',
+    });
     return ok();
   }
 
@@ -100,7 +98,7 @@ export async function checkWorkspaceHasSufficientSpace({
  */
 export async function claimWorkspace(workspacePath: string): Promise<void> {
   await emptydir(workspacePath);
-  await writeFile(getMarkerPath(workspacePath), '');
+  await writeFile(getRestoreInProgressMarkerPath(workspacePath), '');
 }
 
 /**
@@ -117,5 +115,5 @@ export async function abandonFailedRestore(
  * Removes the in-progress marker, declaring the restore complete.
  */
 export async function completeRestore(workspacePath: string): Promise<void> {
-  await rm(getMarkerPath(workspacePath), { force: true });
+  await rm(getRestoreInProgressMarkerPath(workspacePath), { force: true });
 }

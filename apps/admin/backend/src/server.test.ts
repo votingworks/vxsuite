@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
+import { readdirSync, writeFileSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
+import { join } from 'node:path';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { Server } from 'node:http';
 import {
@@ -22,7 +24,10 @@ import {
 } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server.js';
-import { createWorkspace } from './util/workspace.js';
+import {
+  createWorkspace,
+  RESTORE_IN_PROGRESS_MARKER_FILENAME,
+} from './util/workspace.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
 
@@ -136,6 +141,27 @@ test('errors on start with no workspace', async () => {
       }
     );
   }
+});
+
+test('discards a workspace an interrupted restore left behind', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const workspacePath = makeTemporaryDirectory();
+  writeFileSync(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
+  writeFileSync(join(workspacePath, 'half-copied-file'), 'partial');
+
+  const startedServer = await start({ logger, workspacePath });
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.BackupRestoreInterrupted,
+    'system',
+    { message: expect.stringContaining(workspacePath) }
+  );
+  expect(readdirSync(workspacePath)).not.toContain('half-copied-file');
+  expect(readdirSync(workspacePath)).not.toContain(
+    RESTORE_IN_PROGRESS_MARKER_FILENAME
+  );
+
+  startedServer.close();
 });
 
 test('logs device attach/un-attach events', async () => {
