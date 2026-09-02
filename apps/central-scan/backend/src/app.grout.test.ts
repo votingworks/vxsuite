@@ -244,6 +244,36 @@ test('retrySendBatchToAdmin clears a batch send failure', async () => {
   });
 });
 
+test('resendBatchToAdmin queues a sent batch to be sent again', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, store }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+
+    const batchId = store.addBatch();
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.finishBatch({ batchId });
+    store.setBatchSentToAdmin(batchId);
+    expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
+
+    store.markBatchesRemovedFromAdmin([], Date.now() + 5_000);
+    expect(store.getBatch(batchId).removedFromAdminAt).toBeDefined();
+
+    await apiClient.resendBatchToAdmin({ batchId });
+    expect(store.getNextBatchToSendToAdmin()?.id).toEqual(batchId);
+    expect(store.getBatch(batchId)).toMatchObject({
+      sentToAdminAt: undefined,
+      removedFromAdminAt: undefined,
+    });
+  });
+});
+
 test('clearing scanning data', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();

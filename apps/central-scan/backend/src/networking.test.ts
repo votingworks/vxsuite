@@ -7,12 +7,13 @@ import {
   NETWORK_POLLING_INTERVAL_MS,
   VxAdminHostMachine,
 } from '@votingworks/networking';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   DEV_MACHINE_ID,
   ElectionDefinition,
   TEST_JURISDICTION,
+  anyPollingPlace,
 } from '@votingworks/types';
 import { startScannerNetworking } from './networking.js';
 import { Store } from './store.js';
@@ -43,6 +44,7 @@ function buildMockHostApiClient(): MockHostApiClient {
       ok({
         machineId: HOST_MACHINE.machineId,
         codeVersion: 'dev',
+        importedBatchIds: [],
       })
     ),
     getCurrentElectionMetadata: vi.fn().mockResolvedValue(undefined),
@@ -304,6 +306,50 @@ test('reports invalid-mode, with the host mode, when the host is locked to the o
   expect(mockClient.registerScanner).toHaveBeenCalledWith(
     expect.objectContaining({ isTestMode: true })
   );
+});
+
+test('tracks the batches the host holds without logging a status change', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
+  const mockClient = createMockHostApiClient();
+  mockClient.registerScanner.mockResolvedValue(
+    ok({ machineId: '0002', codeVersion: 'dev', importedBatchIds: [] })
+  );
+  const store = Store.memoryStore();
+  const electionDefinition = readElectionGeneralDefinition();
+  configureStore(store, electionDefinition);
+  store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+  const batchId = store.addBatch();
+  store.setBatchSentToAdmin(batchId);
+  // Heartbeats sent in a later second than the batch was sent can vouch for
+  // whether the host holds it
+  vi.advanceTimersByTime(2_000);
+  startScannerNetworking({ logger, store });
+  await advancePollingInterval();
+  expect(store.getBatch(batchId).removedFromAdminAt).toBeDefined();
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.CentralScanNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      batchId,
+      hostMachineId: '0002',
+    })
+  );
+
+  // Marked once, not on every heartbeat
+  await advancePollingInterval();
+  expect(
+    vi
+      .mocked(logger.log)
+      .mock.calls.filter(([, , details]) => details?.['batchId'] === batchId)
+  ).toHaveLength(1);
+  // Only the offline → connected transition was logged
+  expect(
+    vi
+      .mocked(logger.log)
+      .mock.calls.filter(([, , details]) => details?.['newStatus'])
+  ).toHaveLength(1);
 });
 
 test('logs status transitions and returns to offline when the interface goes down', async () => {

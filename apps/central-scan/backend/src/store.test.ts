@@ -283,6 +283,44 @@ test('getBatches', () => {
   expect(batches).toHaveLength(0);
 });
 
+test('markBatchesRemovedFromAdmin', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
+  const sentBatchId = store.addBatch();
+  store.setBatchSentToAdmin(sentBatchId);
+  const unsentBatchId = store.addBatch();
+  const earlierHeartbeat = Date.now() - 5_000;
+  const laterHeartbeat = Date.now() + 5_000;
+
+  // A heartbeat sent before the batch was sent can't know about it yet
+  expect(store.markBatchesRemovedFromAdmin([], earlierHeartbeat)).toEqual([]);
+  // The host holds the batch
+  expect(
+    store.markBatchesRemovedFromAdmin([sentBatchId], laterHeartbeat)
+  ).toEqual([]);
+  expect(store.getBatch(sentBatchId).removedFromAdminAt).toBeUndefined();
+
+  // A later heartbeat reports the host doesn't hold it; unsent batches are
+  // never involved
+  expect(store.markBatchesRemovedFromAdmin([], laterHeartbeat)).toEqual([
+    { id: sentBatchId, label: store.getBatch(sentBatchId).label },
+  ]);
+  expect(store.getBatch(sentBatchId).removedFromAdminAt).toBeDefined();
+  expect(store.getBatch(unsentBatchId).removedFromAdminAt).toBeUndefined();
+
+  // Already marked, so not reported again
+  expect(store.markBatchesRemovedFromAdmin([], laterHeartbeat)).toEqual([]);
+
+  // Sending the batch again clears the mark
+  store.setBatchUnsentToAdmin(sentBatchId);
+  expect(store.getBatch(sentBatchId).removedFromAdminAt).toBeUndefined();
+});
+
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({

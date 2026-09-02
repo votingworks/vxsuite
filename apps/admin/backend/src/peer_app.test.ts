@@ -256,6 +256,7 @@ test('registerScanner records the scanner and returns the host machine config', 
     ok({
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
+      importedBatchIds: [],
     })
   );
   expect(workspace.store.getMachines()).toEqual([
@@ -346,6 +347,7 @@ test('registerScanner refuses a scanner in the other ballot mode once CVRs lock 
   const registered = ok({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
+    importedBatchIds: [],
   });
   // With no CVRs loaded yet, a scanner in either mode registers
   expect(await register(false)).toEqual(registered);
