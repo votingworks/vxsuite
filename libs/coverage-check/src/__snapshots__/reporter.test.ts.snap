@@ -422,7 +422,7 @@ exports[`the fixtures report 1`] = `
      ╰────
   help: add a test that exercises this code, or mark it with @coverage-defer or @coverage-exclude
 
-coverage summary: 34 uncovered, 2 stale, 6 errors (24 deferred, 35 excluded)
+☂️ coverage summary: 34 uncovered, 2 stale, 6 errors (24 deferred, 35 excluded)
 
 "
 `;

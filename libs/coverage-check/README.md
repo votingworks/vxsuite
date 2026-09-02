@@ -1,4 +1,4 @@
-# coverage-check
+# ☂️ coverage-check
 
 A custom coverage reporter that enforces our approach to code coverage:
 

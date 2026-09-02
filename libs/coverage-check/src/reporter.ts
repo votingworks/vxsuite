@@ -110,7 +110,7 @@ export function formatSummary(summary: SummaryCounts): string {
   ].filter(Boolean);
   const parenthetical = notes.length > 0 ? ` (${notes.join(', ')})` : '';
   const color = passes(summary) ? BOLD_GREEN : BOLD_RED;
-  return `${color}coverage summary: ${problems
+  return `${color}☂️ coverage summary: ${problems
     .filter(Boolean)
     .join(', ')}${RESET}${parenthetical}`;
 }

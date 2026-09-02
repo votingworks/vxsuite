@@ -78,7 +78,9 @@ test('the reporter leaves the exit code alone when the check passes', () => {
       context as never
     );
     expect(process.exitCode).toBeUndefined();
-    expect(out.text()).toContain(`${BOLD_GREEN}coverage summary: 0 uncovered`);
+    expect(out.text()).toContain(
+      `${BOLD_GREEN}☂️ coverage summary: 0 uncovered`
+    );
   } finally {
     process.exitCode = before;
   }
@@ -114,12 +116,12 @@ test('formatSummary colors the verdict, hides zero counts, and pluralizes errors
     deferredCounters: 0,
   };
   expect(formatSummary(clean)).toEqual(
-    `${BOLD_GREEN}coverage summary: 0 uncovered${RESET}`
+    `${BOLD_GREEN}☂️ coverage summary: 0 uncovered${RESET}`
   );
   expect(
     formatSummary({ ...clean, deferredCounters: 2, excludedCounters: 1 })
   ).toEqual(
-    `${BOLD_GREEN}coverage summary: 0 uncovered${RESET} (2 deferred, 1 excluded)`
+    `${BOLD_GREEN}☂️ coverage summary: 0 uncovered${RESET} (2 deferred, 1 excluded)`
   );
   expect(
     formatSummary({
@@ -130,9 +132,9 @@ test('formatSummary colors the verdict, hides zero counts, and pluralizes errors
       excludedCounters: 1,
     })
   ).toEqual(
-    `${BOLD_RED}coverage summary: 3 uncovered, 1 stale, 1 error${RESET} (1 excluded)`
+    `${BOLD_RED}☂️ coverage summary: 3 uncovered, 1 stale, 1 error${RESET} (1 excluded)`
   );
   expect(formatSummary({ ...clean, directiveErrors: 2 })).toEqual(
-    `${BOLD_RED}coverage summary: 0 uncovered, 2 errors${RESET}`
+    `${BOLD_RED}☂️ coverage summary: 0 uncovered, 2 errors${RESET}`
   );
 });
