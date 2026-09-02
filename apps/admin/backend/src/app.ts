@@ -335,6 +335,14 @@ function buildApi({
      * Counts of CVRs and batches imported from each scanner for the current
      * election.
      */
+    getScannerImportCounts(): Record<
+      string,
+      { cvrCount: number; batchCount: number }
+    > {
+      const electionId = store.getCurrentElectionId();
+      return electionId ? store.getScannerImportCounts(electionId) : {};
+    },
+
     /**
      * A counter that increments whenever cast vote records change (bumped by
      * database triggers on import and delete). Cheap to poll; lets the
@@ -343,14 +351,6 @@ function buildApi({
     getCastVoteRecordsDataVersion(): number {
       const electionId = store.getCurrentElectionId();
       return electionId ? store.getCastVoteRecordsDataVersion(electionId) : 0;
-    },
-
-    getScannerImportCounts(): Record<
-      string,
-      { cvrCount: number; batchCount: number }
-    > {
-      const electionId = store.getCurrentElectionId();
-      return electionId ? store.getScannerImportCounts(electionId) : {};
     },
 
     getIsClientAdjudicationEnabled(): boolean {

@@ -150,11 +150,11 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
           {imports.map((i) => (
             <Import key={i.id}>
               <Caption weight="semiBold">
-                {i.source === 'network' ? i.filename : formatExportDate(i)}
+                {i.source === 'network'
+                  ? `${scannerDetails(i)} • ${i.filename}`
+                  : formatExportDate(i)}
                 <br />
                 <Caption weight="regular">
-                  {scannerDetails(i)}
-                  {' • '}
                   {i.source === 'network' ? (
                     <React.Fragment>
                       <Icons.Network /> Network
@@ -162,6 +162,8 @@ export function LocationCvrsPanel(props: LocationCvrsPanelProps): JSX.Element {
                   ) : (
                     <React.Fragment>
                       <Icons.UsbDrive /> USB
+                      {' • '}
+                      {scannerDetails(i)}
                     </React.Fragment>
                   )}
                 </Caption>

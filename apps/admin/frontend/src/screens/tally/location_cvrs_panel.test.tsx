@@ -43,6 +43,14 @@ test('renders import details when non-empty', () => {
           source: 'usb' as const,
           scannerIds: ['SCAN-01-0001', 'SCAN-01-0002'],
         },
+        {
+          id: 'three',
+          exportTimestamp: '2020-11-07T10:00:00',
+          numCvrsImported: 112,
+          filename: 'Batch 3',
+          source: 'network' as const,
+          scannerIds: ['SCAN-01-0003'],
+        },
       ]}
       name="Vx City"
       type="absentee"
@@ -54,12 +62,13 @@ test('renders import details when non-empty', () => {
   screen.getByText('Vx City');
 
   expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-    ['11/7/2020, 8:00 AM', 'Scanner SCAN-01-0001 •  USB', '412'].join(''),
+    ['11/7/2020, 8:00 AM', ' USB • Scanner SCAN-01-0001', '412'].join(''),
     [
       '11/7/2020, 9:00 AM',
-      'Scanners: SCAN-01-0001, SCAN-01-0002 •  USB',
+      ' USB • Scanners: SCAN-01-0001, SCAN-01-0002',
       '943',
     ].join(''),
+    ['Scanner SCAN-01-0003 • Batch 3', ' Network', '112'].join(''),
   ]);
 
   expect(screen.queryByText('No CVRs')).not.toBeInTheDocument();
