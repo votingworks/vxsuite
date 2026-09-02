@@ -1,15 +1,8 @@
-// @coverage-defer-file
-import { assert, iter } from '@votingworks/basics';
-import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { ImageData } from '@votingworks/image-utils';
-import { BitArray, bitArrayToByte, Uint8Max } from './bits.js';
+import { BITS_PER_BYTE } from '@votingworks/message-coder';
+import { Uint8Max } from './bits.js';
 import { PaperHandlerBitmap } from './driver/coders.js';
-
-export interface BinaryBitmap {
-  width: number;
-  height: number;
-  data: boolean[];
-}
+import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
 
 export interface PaperHandlerBitmapExt extends PaperHandlerBitmap {
   empty?: boolean;
@@ -33,113 +26,86 @@ export function rgbToGrayscale(r: number, g: number, b: number): number {
  */
 const GRAYSCALE_WHITE_THRESHOLD = 230;
 
+const IMAGE_DATA_BYTES_PER_PIXEL = 4;
+export const BYTES_PER_CHUNK_COLUMN = VERTICAL_DOTS_IN_CHUNK / BITS_PER_BYTE;
+
 /**
- * Converts 8-bit sRGB color values to a binary black/white representation.
- * Uses weighted method without gamma correction for speed.
- *
- * @param r Red color value from 0 - 255
- * @param g Green color value from 0 - 255
- * @param b Blue color value from 0 - 255
- * @returns true for black, false for white
+ * Converts an image into the chunks the paper handler prints in image print
+ * mode: bands `VERTICAL_DOTS_IN_CHUNK` dots high, each column of a band packed
+ * top-down into `BYTES_PER_CHUNK_COLUMN` bytes, MSB = topmost dot, 1 = black.
+ * An all-white chunk carries no data and is flagged `empty` so the caller can
+ * skip it by advancing the print position instead of printing it.
  */
-function rgbToBinary(r: number, g: number, b: number): boolean {
-  return rgbToGrayscale(r, g, b) < GRAYSCALE_WHITE_THRESHOLD;
-}
-
-export function imageDataToBinaryBitmap(imageData: ImageData): BinaryBitmap {
-  const data: boolean[] = [];
-
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  imageData.data.forEach((element, index) => {
-    // ImageData.data is in RGBA format. Map RBG values to grayscale.
-    // eslint-disable-next-line default-case
-    switch (index % 4) {
-      case 0:
-        r = element;
-        return;
-      case 1:
-        g = element;
-        return;
-      case 2:
-        b = element;
-        return;
-      case 3:
-        data.push(rgbToBinary(r, g, b));
-    }
-  });
-
-  return {
-    data,
-    width: imageData.width,
-    height: imageData.height,
-  };
-}
-
-export function chunkBinaryBitmap(
-  binaryBitmap: BinaryBitmap
+export function imageDataToPaperHandlerChunks(
+  imageData: ImageData
 ): PaperHandlerBitmapExt[] {
-  const paperHandlerBitmaps: PaperHandlerBitmapExt[] = [];
+  const { width: imageDataWidth, height: imageDataHeight, data } = imageData;
+  // Rows below the last full chunk are dropped: printing close to the bottom
+  // of the page can wedge the printer-scanner, and the bottom of our summary
+  // ballots is blank anyway.
+  const chunkCount = Math.floor(imageDataHeight / VERTICAL_DOTS_IN_CHUNK);
+  const bytesPerChunk = imageDataWidth * BYTES_PER_CHUNK_COLUMN;
+  const chunkBytes = new Uint8Array(chunkCount * bytesPerChunk);
 
-  // Each chunk will be 24 dots high. Since for this prototype, we're likely
-  // not printing in the lowest 8 or 24 rows of dots, just ignore those.
-  const numChunkRows = Math.floor(binaryBitmap.height / 24);
-  for (
-    let chunkRowIndex = 0;
-    chunkRowIndex < numChunkRows;
-    chunkRowIndex += 1
-  ) {
-    const chunkOrderBits: boolean[] = [];
-    let empty = true;
-    for (let column = 0; column < binaryBitmap.width; column += 1) {
+  for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex += 1) {
+    const chunkBytesStart = chunkIndex * bytesPerChunk;
+    const chunkFirstRow = chunkIndex * VERTICAL_DOTS_IN_CHUNK;
+
+    for (let x = 0; x < imageDataWidth; x += 1) {
+      const columnBytesStart = chunkBytesStart + x * BYTES_PER_CHUNK_COLUMN;
+
       for (
-        let row = chunkRowIndex * 24;
-        row < chunkRowIndex * 24 + 24;
-        row += 1
+        let byteIndex = 0;
+        byteIndex < BYTES_PER_CHUNK_COLUMN;
+        byteIndex += 1
       ) {
-        const bit = binaryBitmap.data[row * binaryBitmap.width + column];
-        assert(bit !== undefined);
-        chunkOrderBits.push(bit);
-        if (bit) {
-          empty = false;
+        let byte = 0;
+        for (let bit = 0; bit < BITS_PER_BYTE; bit += 1) {
+          const y = chunkFirstRow + byteIndex * BITS_PER_BYTE + bit;
+          const imageDataByteOffset =
+            (y * imageDataWidth + x) * IMAGE_DATA_BYTES_PER_PIXEL;
+          const isBlack =
+            rgbToGrayscale(
+              data[imageDataByteOffset] as number,
+              data[imageDataByteOffset + 1] as number,
+              data[imageDataByteOffset + 2] as number
+            ) < GRAYSCALE_WHITE_THRESHOLD;
+          byte <<= 1;
+          if (isBlack) {
+            byte |= 1;
+          }
         }
+        chunkBytes[columnBytesStart + byteIndex] = byte;
       }
     }
+  }
 
-    if (empty) {
-      paperHandlerBitmaps.push({
-        data: new Uint8Array([]),
-        width: binaryBitmap.width,
-        empty,
-      });
-      continue;
-    }
-
-    const chunks = iter(chunkOrderBits)
-      .chunks(BITS_PER_BYTE)
-      .map((bits) => bits as BitArray)
-      .map(bitArrayToByte);
-
-    paperHandlerBitmaps.push({
-      data: new Uint8Array(chunks),
-      width: binaryBitmap.width,
+  const chunks: PaperHandlerBitmapExt[] = [];
+  for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex += 1) {
+    const chunkData = chunkBytes.slice(
+      chunkIndex * bytesPerChunk,
+      (chunkIndex + 1) * bytesPerChunk
+    );
+    const empty = chunkData.every((byte) => byte === 0);
+    chunks.push({
+      width: imageDataWidth,
+      data: empty ? new Uint8Array() : chunkData,
       empty,
     });
   }
-  return paperHandlerBitmaps;
+  return chunks;
 }
 
 export function getBlackChunk(width: number): PaperHandlerBitmapExt {
   return {
     width,
-    data: new Uint8Array(width * 3).fill(Uint8Max),
+    data: new Uint8Array(width * BYTES_PER_CHUNK_COLUMN).fill(Uint8Max),
   };
 }
 
 export function getWhiteChunk(width: number): PaperHandlerBitmapExt {
   return {
     width,
-    data: new Uint8Array(width * 3).fill(0),
+    data: new Uint8Array(width * BYTES_PER_CHUNK_COLUMN).fill(0),
   };
 }
