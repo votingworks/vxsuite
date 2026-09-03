@@ -20,7 +20,7 @@ the same way (see the generated `Install Browser` step in
 `.circleci/config.yml`).
 
 See the "Installation" section of the Playwright docs for more information:
-https://playwright.dev/docs/intro.
+<https://playwright.dev/docs/intro>.
 
 ```bash
 # build the frontend, backend, and required services

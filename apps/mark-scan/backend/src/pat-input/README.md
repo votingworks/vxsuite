@@ -14,16 +14,16 @@ user actions of "sip" and "puff" on a
 To get the PAT input working, run:
 
 ```
-cd /apps/mark-scan/backend
-pnpm build
-sudo ./bin/patinputd
+cd apps/mark-scan/pat-device-input
+make build
+sudo make run
 ```
 
 udev rule configuration to allow running the daemon without `sudo` is on the
 backlog.
 
-The daemon must be running for `connection_status_reader` to work. Otherwise it
-will fail because the pin will be unexported.
+The daemon must be running for `connection_status_reader` to work (BMD-155).
+Otherwise it will fail because the pin will be unexported.
 
 ## Data Format and Protocol
 
@@ -51,8 +51,8 @@ This integration has 2 responsibilities:
 
 ### Structure
 
-`patinputd.c` is a daemon that reads "A" and "B" signal and sends keypresses for
-mark-scan frontend to handle. More specifically, it
+`pat-device-input` is a daemon that reads "A" and "B" signal and sends
+keypresses for mark-scan frontend to handle. More specifically, it
 
 - Sets itself up to read GPIO pins and send keypress events
 - Polls GPIO pin data in a loop
