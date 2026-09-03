@@ -48,22 +48,25 @@ test('HashingPassthrough.digest() asserts stream is fully hashed', () => {
   expect(() => hashingStream.digest('hex')).toThrow(/incomplete hash/);
 });
 
-test('HashingPassthrough - propagates errors', async () => {
-  const error = new Error('something went wrong');
+test.each([new Error('something went wrong'), 'not an Error object'])(
+  'HashingPassthrough - propagates errors',
+  async (error) => {
+    const mockHash = {
+      digest: vi.fn(),
+      update: vi.fn(() => {
+        throw error;
+      }),
+    } as const as unknown as Hash;
 
-  const mockHash = {
-    digest: vi.fn(),
-    update: vi.fn(() => {
-      throw error;
-    }),
-  } as const as unknown as Hash;
+    const hashingStream = new HashingPassthrough(mockHash);
+    hashingStream.write(Buffer.of(0xca, 0xfe));
+    hashingStream.end();
 
-  const hashingStream = new HashingPassthrough(mockHash);
-  hashingStream.write(Buffer.of(0xca, 0xfe));
-  hashingStream.end();
-
-  await expect(async () => await buffer(hashingStream)).rejects.toThrow(error);
-});
+    await expect(async () => await buffer(hashingStream)).rejects.toThrow(
+      error
+    );
+  }
+);
 
 function tempFile(): { outputPath: string; outputStream: WriteStream } {
   const outputPath = makeTemporaryFile();
