@@ -145,8 +145,20 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   const machineMode =
     options.machineMode ??
     FileBackedMachineModeController.forWorkspace(workspacePath);
+  const intent = bootIntent.take();
+  const isRestoreEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
+  if (intent === 'restore' && !isRestoreEnabled) {
+    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      message:
+        'Restore mode was asked for on the last boot, but backup and restore ' +
+        'are not enabled; starting normally.',
+      disposition: 'failure',
+    });
+  }
   const appMode: AppMode =
-    bootIntent.take() === 'restore' ? 'restore' : machineMode.get();
+    intent === 'restore' && isRestoreEnabled ? 'restore' : machineMode.get();
 
   if (hasInterruptedRestore(workspacePath)) {
     await emptyWorkspaceData(workspacePath);

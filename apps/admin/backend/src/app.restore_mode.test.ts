@@ -3,6 +3,10 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import {
   buildTestEnvironment,
   configureMachine,
   mockSystemAdministratorAuth,
@@ -10,15 +14,26 @@ import {
 
 vi.setConfig({ testTimeout: 30_000 });
 
+const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
 let env: ReturnType<typeof buildTestEnvironment>;
 
 beforeEach(() => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
   env = buildTestEnvironment();
   mockSystemAdministratorAuth(env.auth);
 });
 
 afterEach(() => {
   env.peerServer.close();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('a host describes itself as one', async () => {
@@ -57,6 +72,18 @@ test('restore mode cannot be scheduled from a client', async () => {
   await suppressingConsoleOutput(() =>
     expect(apiClient.scheduleRestoreMode()).rejects.toThrow(
       'Only a host can be restored.'
+    )
+  );
+  expect(bootIntentController.take()).toBeUndefined();
+});
+
+test('restore mode cannot be scheduled unless backup and restore are enabled', async () => {
+  const { apiClient, bootIntentController } = env;
+  featureFlagMock.resetFeatureFlags();
+
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.scheduleRestoreMode()).rejects.toThrow(
+      'Backup and restore are not enabled.'
     )
   );
   expect(bootIntentController.take()).toBeUndefined();

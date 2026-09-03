@@ -42,6 +42,8 @@ import { rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import path, { join } from 'node:path';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
@@ -323,6 +325,12 @@ function buildApi({
      * As with a change of machine mode, the caller reboots to get there.
      */
     async scheduleRestoreMode(): Promise<void> {
+      assert(
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+        ),
+        'Backup and restore are not enabled.'
+      );
       assert(
         store.getCurrentElectionId() === undefined,
         'Cannot restore while an election is configured.'

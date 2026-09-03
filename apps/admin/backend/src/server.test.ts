@@ -397,6 +397,9 @@ test('starts client networking in client mode', async () => {
 test('starts in restore mode when the last boot asked for it, and only then', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const workspacePath = makeTemporaryDirectory();
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
@@ -425,4 +428,40 @@ test('starts in restore mode when the last boot asked for it, and only then', as
   expect(
     existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
   ).toEqual(false);
+  featureFlagMock.resetFeatureFlags();
+});
+
+test('ignores a request for restore mode when backup and restore are not enabled', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const workspacePath = makeTemporaryDirectory();
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
+  const { printer } = createMockPrinterHandler();
+  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+
+  server = await suppressingConsoleOutput(() =>
+    start({ logger, workspacePath, multiUsbDrive, printer, port: 0 })
+  );
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.WorkspaceConfigurationMessage,
+    'system',
+    {
+      message: expect.stringContaining('not enabled'),
+      disposition: 'failure',
+    }
+  );
+  expect(logger.log).not.toHaveBeenCalledWith(
+    LogEventId.AdminRestoreModeEntered,
+    'system',
+    expect.anything()
+  );
+
+  // Started as a host, and the request is spent all the same.
+  expect(
+    existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+  ).toEqual(true);
+  expect(
+    FileBackedBootIntentController.forWorkspace(workspacePath).take()
+  ).toBeUndefined();
 });
