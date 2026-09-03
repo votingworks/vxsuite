@@ -10,6 +10,7 @@ export * from './election_package';
 export * from './exceptions';
 export * from './exec';
 export * from './exporter';
+export * from './hash';
 export * from './initialize_system_audio';
 export * from './is_device_attached';
 export * from './pdf_to_text';
