@@ -23,9 +23,13 @@ import {
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import * as grout from '@votingworks/grout';
 import { start } from './server.js';
 import { FileBackedMachineModeController } from './machine_mode.js';
+import { FileBackedBootIntentController } from './boot_intent.js';
+import type { RestoreApi } from './restore_app.js';
 import {
+  ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   getRestoreInProgressMarkerPath,
   getWorkspaceControlPath,
@@ -388,4 +392,37 @@ test('starts client networking in client mode', async () => {
   );
 
   featureFlagMock.resetFeatureFlags();
+});
+
+test('starts in restore mode when the last boot asked for it, and only then', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const workspacePath = makeTemporaryDirectory();
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
+  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+
+  server = await suppressingConsoleOutput(() =>
+    start({ logger, workspacePath, multiUsbDrive, port: 0 })
+  );
+  const { port } = server.address() as AddressInfo;
+  const apiClient = grout.createClient<RestoreApi>({
+    baseUrl: `http://localhost:${port}/api`,
+  });
+
+  expect(await apiClient.getAppMode()).toEqual('restore');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AdminRestoreModeEntered,
+    'system',
+    { message: expect.stringContaining(workspacePath) }
+  );
+
+  // Spent by the taking: the next boot is an ordinary one.
+  expect(
+    FileBackedBootIntentController.forWorkspace(workspacePath).take()
+  ).toBeUndefined();
+
+  // Restore mode serves no workspace: it opened no database.
+  expect(
+    existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+  ).toEqual(false);
 });

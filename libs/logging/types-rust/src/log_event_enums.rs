@@ -481,5 +481,9 @@ pub enum EventId {
     LowDiskSpace,
     #[serde(rename = "live-report-viewed")]
     LiveReportingUrlViewer,
+    #[serde(rename = "admin-restore-mode-scheduled")]
+    AdminRestoreModeScheduled,
+    #[serde(rename = "admin-restore-mode-entered")]
+    AdminRestoreModeEntered,
 }
 derive_display!(EventId);

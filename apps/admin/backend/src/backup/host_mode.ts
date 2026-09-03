@@ -1,6 +1,5 @@
 import { err, ok, Result } from '@votingworks/basics';
 import { FileBackedMachineModeController } from '../machine_mode.js';
-import { BaseWorkspace } from '../util/workspace.js';
 
 /**
  * Checks that a workspace belongs to a VxAdmin in host mode, which is the only
@@ -14,11 +13,10 @@ import { BaseWorkspace } from '../util/workspace.js';
  * is the machine that has to read what was restored.
  */
 export function checkWorkspaceIsHostMode(
-  workspace: BaseWorkspace
+  workspacePath: string
 ): Result<void, { type: 'not-host-mode'; message: string }> {
-  const mode = FileBackedMachineModeController.forWorkspace(
-    workspace.path
-  ).get();
+  const mode =
+    FileBackedMachineModeController.forWorkspace(workspacePath).get();
 
   return mode === 'host'
     ? ok()

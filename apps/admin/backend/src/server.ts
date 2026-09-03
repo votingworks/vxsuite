@@ -29,6 +29,7 @@ import {
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { UserRole } from '@votingworks/types';
 import { PEER_PORT, PORT } from './globals.js';
 import {
   createWorkspace,
@@ -40,21 +41,53 @@ import {
 import { buildApp } from './app.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
+import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
 import { rootDebug } from './util/debug.js';
 import { getUserRole } from './util/auth.js';
-import type { MachineMode } from './types.js';
+import type { AppMode } from './types.js';
 import {
   FileBackedMachineModeController,
   MachineModeController,
 } from './machine_mode.js';
+import {
+  BootIntentController,
+  FileBackedBootIntentController,
+} from './boot_intent.js';
 
 const debug = rootDebug.extend('server');
 
+function allowedUserRoles(appMode: AppMode): UserRole[] {
+  switch (appMode) {
+    case 'host': {
+      return ['vendor', 'system_administrator', 'election_manager'];
+    }
+
+    case 'client': {
+      return [
+        'vendor',
+        'system_administrator',
+        'election_manager',
+        'poll_worker',
+      ];
+    }
+
+    // Restore mode has no election to manage; what it has is a workspace to
+    // replace, which is a system administrator's business.
+    case 'restore': {
+      return ['vendor', 'system_administrator'];
+    }
+
+    default: {
+      throwIllegalValue(appMode);
+    }
+  }
+}
+
 function createAuth(
-  machineMode: MachineMode,
+  appMode: AppMode,
   baseLogger: BaseLogger
 ): DippedSmartCardAuth {
   return new DippedSmartCardAuth({
@@ -66,15 +99,7 @@ function createAuth(
         : new JavaCard(),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: false,
-      allowedUserRoles:
-        machineMode === 'client'
-          ? [
-              'vendor',
-              'system_administrator',
-              'election_manager',
-              'poll_worker',
-            ]
-          : ['vendor', 'system_administrator', 'election_manager'],
+      allowedUserRoles: allowedUserRoles(appMode),
     },
     logger: baseLogger,
   });
@@ -92,6 +117,7 @@ export interface StartOptions {
   multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
   machineMode?: MachineModeController;
+  bootIntent?: BootIntentController;
 }
 
 /**
@@ -110,6 +136,18 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
+
+  // Taken first, and spent by the taking: whatever this boot goes on to do,
+  // the next one is an ordinary boot.
+  const bootIntent =
+    options.bootIntent ??
+    FileBackedBootIntentController.forWorkspace(workspacePath);
+  const machineMode =
+    options.machineMode ??
+    FileBackedMachineModeController.forWorkspace(workspacePath);
+  const appMode: AppMode =
+    bootIntent.take() === 'restore' ? 'restore' : machineMode.get();
+
   if (hasInterruptedRestore(workspacePath)) {
     await emptyWorkspaceData(workspacePath);
     baseLogger.log(LogEventId.BackupRestoreInterrupted, 'system', {
@@ -119,14 +157,9 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     });
   }
 
-  const machineMode =
-    options.machineMode ??
-    FileBackedMachineModeController.forWorkspace(workspacePath);
-
   let app;
 
-  const machineModeValue = machineMode.get();
-  switch (machineModeValue) {
+  switch (appMode) {
     case 'host': {
       // TODO(CARO) add some kind of validation that the workspace is properly configured for host mode
       const workspace = createWorkspace(workspacePath, baseLogger);
@@ -181,6 +214,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         printer,
         workspace,
         machineMode,
+        bootIntent,
       });
 
       // Log election results data check at startup
@@ -252,8 +286,34 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       break;
     }
 
+    case 'restore': {
+      const auth = createAuth('restore', baseLogger);
+      const logger = Logger.from(
+        baseLogger,
+        // @coverage-exclude
+        () => getUserRole(auth, RESTORE_MODE_STORE)
+      );
+      const multiUsbDrive =
+        options.multiUsbDrive ?? detectMultiUsbDriveFromEnv({ logger });
+
+      app = buildRestoreApp({
+        auth,
+        logger,
+        multiUsbDrive,
+        workspacePath,
+        machineMode,
+      });
+
+      baseLogger.log(LogEventId.AdminRestoreModeEntered, 'system', {
+        message:
+          `Starting in restore mode, as asked on the last boot. ` +
+          `${workspacePath} is not being served; a backup may be restored into it.`,
+      });
+      break;
+    }
+
     default:
-      throwIllegalValue(machineModeValue);
+      throwIllegalValue(appMode);
   }
 
   useDevDockRouter(app, express, {
