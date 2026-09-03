@@ -249,6 +249,8 @@ export enum LogEventId {
   AdminContestAdjudicated = 'admin-contest-adjudicated',
   LowDiskSpace = 'low-disk-space',
   LiveReportingUrlViewer = 'live-report-viewed',
+  AdminRestoreModeScheduled = 'admin-restore-mode-scheduled',
+  AdminRestoreModeEntered = 'admin-restore-mode-entered',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1611,6 +1613,22 @@ const LiveReportingUrlViewer: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin, AppName.VxScan],
 };
 
+const AdminRestoreModeScheduled: LogDetails = {
+  eventId: LogEventId.AdminRestoreModeScheduled,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user arranged for VxAdmin to start in restore mode on its next boot, where a backup can be restored.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminRestoreModeEntered: LogDetails = {
+  eventId: LogEventId.AdminRestoreModeEntered,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'VxAdmin started in restore mode, as arranged on the previous boot. It serves no election data until it is rebooted.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1979,6 +1997,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return LowDiskSpace;
     case LogEventId.LiveReportingUrlViewer:
       return LiveReportingUrlViewer;
+    case LogEventId.AdminRestoreModeScheduled:
+      return AdminRestoreModeScheduled;
+    case LogEventId.AdminRestoreModeEntered:
+      return AdminRestoreModeEntered;
     default:
       throwIllegalValue(eventId);
   }

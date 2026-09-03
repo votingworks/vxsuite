@@ -47,6 +47,7 @@ import { Api, MachineMode, PeerApi } from '../src/index.js';
 import { BaseStore } from '../src/types.js';
 import { createWorkspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
+import { BootIntent, BootIntentController } from '../src/boot_intent.js';
 import { buildPeerApp } from '../src/peer_app.js';
 import { getMachineConfig } from '../src/machine_config.js';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup.js';
@@ -202,12 +203,24 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const mockPrinterHandler = createMockPrinterHandler();
   let machineMode: MachineMode = 'host';
+  let bootIntent: BootIntent | undefined;
+  const bootIntentController: BootIntentController = {
+    request: (intent) => {
+      bootIntent = intent;
+    },
+    take: () => {
+      const taken = bootIntent;
+      bootIntent = undefined;
+      return taken;
+    },
+  };
   const app = buildApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
     printer: mockPrinterHandler.printer,
+    bootIntent: bootIntentController,
     machineMode: {
       get: () => machineMode,
       set: (newMachineMode) => {
@@ -249,5 +262,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     usbPlatform,
     multiUsbDrive,
     mockPrinterHandler,
+    bootIntentController,
   };
 }

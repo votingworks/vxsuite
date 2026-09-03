@@ -9,6 +9,15 @@ import * as server from './server.js';
 
 export type { Api } from './app.js';
 export type { ClientApi } from './client_app.js';
+export type {
+  AvailableBackup,
+  ListAvailableBackupsError,
+  RestoreApi,
+  RestoreModeError,
+  RestoreStatus,
+} from './restore_app.js';
+export type { BootIntent } from './boot_intent.js';
+export type { ProgressEvent } from './backup/progress.js';
 export type { PeerApi } from './peer_app.js';
 export type { TallyReportSpec } from './reports/tally_report.js';
 export type { BallotCountReportSpec } from './reports/ballot_count_report.js';

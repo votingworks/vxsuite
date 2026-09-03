@@ -746,3 +746,11 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** A user viewed the live reporting QR Code.
 **Machines:** vx-admin, vx-scan
+### admin-restore-mode-scheduled
+**Type:** [user-action](#user-action)
+**Description:** A user arranged for VxAdmin to start in restore mode on its next boot, where a backup can be restored.
+**Machines:** vx-admin
+### admin-restore-mode-entered
+**Type:** [system-status](#system-status)
+**Description:** VxAdmin started in restore mode, as arranged on the previous boot. It serves no election data until it is rebooted.
+**Machines:** vx-admin

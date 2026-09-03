@@ -29,20 +29,19 @@ import {
  * the apparent configuration is half-restored debris, in which case the
  * restore is what recovers the workspace.
  *
- * Emptying the workspace means deleting the database out from under whoever
- * opened it, so the workspace's store is closed first and is not reopened.
- * Once the workspace has been claimed the caller is done with it whatever the
- * outcome, since a failed restore empties it too: a machine has to restart, at
- * which point it reads either the restored database or none at all.
+ * Emptying the workspace means deleting its database, so nothing may have it
+ * open: the caller names the workspace by path, and the restore opens the
+ * database only to look at whether it holds an election, and only if there is
+ * one to open. The machine that reads the result is the one that starts up
+ * afterwards, and it finds either the restored database or none at all.
  */
 export async function restoreBackup(
   rawOptions: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
-  // The workspace resolved its own path when it was opened; only the backup's
-  // needs resolving, as `createBackup` resolves its target.
   const options: RestoreBackupOptions = {
     ...rawOptions,
     backup: resolve(rawOptions.backup),
+    workspacePath: resolve(rawOptions.workspacePath),
   };
   const { logger } = options;
   await logger.logAsCurrentRole(LogEventId.BackupRestoreInit, {
@@ -63,14 +62,14 @@ const CANCELLED_ERROR: RestoreError = {
 async function tryRestoreBackup(
   options: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
-  const { logger, onProgressEvent, signal, workspace } = options;
+  const { logger, onProgressEvent, signal, workspacePath } = options;
   onProgressEvent?.({ type: 'preparing' });
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
   }
 
-  const checkResult = await checkWorkspaceIsRestorable(workspace, logger);
+  const checkResult = await checkWorkspaceIsRestorable(workspacePath, logger);
   if (checkResult.isErr()) {
     return checkResult;
   }
@@ -88,7 +87,7 @@ async function tryRestoreBackup(
   const manifest = vetResult.ok();
 
   const spaceResult = await checkWorkspaceHasSufficientSpace({
-    workspacePath: workspace.path,
+    workspacePath,
     manifest,
     minAvailableStorageBytes: options.minAvailableStorageBytes,
   });
@@ -103,19 +102,13 @@ async function tryRestoreBackup(
     return err(CANCELLED_ERROR);
   }
 
-  // The database file is about to be deleted, so the connection to it goes
-  // first. Held open, it would keep reading and writing the unlinked file: the
-  // restored database would land on disk while this connection went on serving
-  // the one it replaced.
-  workspace.store.close();
-
-  await claimWorkspace(workspace.path);
+  await claimWorkspace(workspacePath);
   let succeeded = false;
   try {
     const copyResult = await copyBackupFiles({
       backup,
       manifest,
-      workspacePath: workspace.path,
+      workspacePath,
       onProgressEvent,
       signal,
       progressEventIntervalBytes: options.progressEventIntervalBytes,
@@ -127,7 +120,7 @@ async function tryRestoreBackup(
     onProgressEvent?.({ type: 'verifying' });
     const verifyResult = verifyRestoredWorkspace({
       manifest,
-      workspacePath: workspace.path,
+      workspacePath,
       logger,
     });
     if (verifyResult.isErr()) {
@@ -138,14 +131,14 @@ async function tryRestoreBackup(
     // restore complete, which must not happen while the restored files live
     // only in the page cache.
     onProgressEvent?.({ type: 'flushing_workspace' });
-    const flushResult = await flushRestoredWorkspace(workspace.path);
+    const flushResult = await flushRestoredWorkspace(workspacePath);
     succeeded = flushResult.isOk();
     return flushResult;
   } finally {
     if (succeeded) {
-      await completeRestore(workspace.path);
+      await completeRestore(workspacePath);
     } else {
-      await abandonFailedRestore(workspace.path);
+      await abandonFailedRestore(workspacePath);
     }
   }
 }

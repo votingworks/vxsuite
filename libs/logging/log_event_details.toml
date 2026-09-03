@@ -1182,3 +1182,15 @@ eventId = "live-report-viewed"
 eventType = "application-action"
 documentationMessage = "A user viewed the live reporting QR Code."
 restrictInDocumentationToApps = ["vx-admin", "vx-scan"]
+
+[Events.AdminRestoreModeScheduled]
+eventId = "admin-restore-mode-scheduled"
+eventType = "user-action"
+documentationMessage = "A user arranged for VxAdmin to start in restore mode on its next boot, where a backup can be restored."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[Events.AdminRestoreModeEntered]
+eventId = "admin-restore-mode-entered"
+eventType = "system-status"
+documentationMessage = "VxAdmin started in restore mode, as arranged on the previous boot. It serves no election data until it is rebooted."
+restrictInDocumentationToApps = ["vx-admin"]

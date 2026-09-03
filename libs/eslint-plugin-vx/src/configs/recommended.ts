@@ -192,6 +192,9 @@ export default function buildRecommended(
             // typescript-eslint v8 changed the default from 'none' to 'all';
             // keep the pre-v8 behavior of ignoring unused catch bindings.
             caughtErrors: 'none',
+            // A `using` binding is there to be disposed at the end of its
+            // scope, so having a name nothing reads is the normal case.
+            ignoreUsingDeclarations: true,
           },
         ],
         '@typescript-eslint/prefer-readonly': 'error',

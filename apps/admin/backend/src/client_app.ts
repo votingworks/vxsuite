@@ -40,6 +40,7 @@ import {
   BallotAdjudicationData,
   BallotImages,
   AdjudicationError,
+  AppMode,
   WriteInCandidateRecord,
 } from './types.js';
 import { type HostConnection } from './client_store.js';
@@ -167,6 +168,10 @@ function buildClientApi({
 
   return grout.createApi({
     getMachineConfig,
+
+    getAppMode(): AppMode {
+      return 'client';
+    },
 
     getMachineMode(): MachineMode {
       return machineMode.get();

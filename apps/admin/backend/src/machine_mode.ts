@@ -1,7 +1,8 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import type { MachineMode } from './types.js';
+import { getWorkspaceControlPath } from './util/workspace.js';
 
 /**
  * Provides machine mode switching between `host` and `client` modes.
@@ -34,12 +35,13 @@ export class FileBackedMachineModeController {
   }
 
   set(mode: MachineMode): void {
+    mkdirSync(dirname(this.filePath), { recursive: true });
     writeFileSync(this.filePath, mode === 'client' ? mode : 'host', 'utf-8');
   }
 
   static forWorkspace(workspacePath: string): FileBackedMachineModeController {
     return new FileBackedMachineModeController(
-      join(workspacePath, 'machine_mode')
+      join(getWorkspaceControlPath(workspacePath), 'machine_mode')
     );
   }
 }

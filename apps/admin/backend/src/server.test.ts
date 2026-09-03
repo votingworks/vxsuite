@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
-import { readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { LogEventId, mockLogger } from '@votingworks/logging';
@@ -23,10 +23,17 @@ import {
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import * as grout from '@votingworks/grout';
 import { start } from './server.js';
+import { FileBackedMachineModeController } from './machine_mode.js';
+import { FileBackedBootIntentController } from './boot_intent.js';
+import type { RestoreApi } from './restore_app.js';
 import {
+  ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
-  RESTORE_IN_PROGRESS_MARKER_FILENAME,
+  getRestoreInProgressMarkerPath,
+  getWorkspaceControlPath,
+  hasInterruptedRestore,
 } from './util/workspace.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
@@ -146,7 +153,10 @@ test('errors on start with no workspace', async () => {
 test('discards a workspace an interrupted restore left behind', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const workspacePath = makeTemporaryDirectory();
-  writeFileSync(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
+  // Writing the mode creates the control directory, whose files are settings
+  // rather than half-restored data and so must survive the discard.
+  FileBackedMachineModeController.forWorkspace(workspacePath).set('host');
+  writeFileSync(getRestoreInProgressMarkerPath(workspacePath), '');
   writeFileSync(join(workspacePath, 'half-copied-file'), 'partial');
 
   const startedServer = await start({ logger, workspacePath });
@@ -157,9 +167,10 @@ test('discards a workspace an interrupted restore left behind', async () => {
     { message: expect.stringContaining(workspacePath) }
   );
   expect(readdirSync(workspacePath)).not.toContain('half-copied-file');
-  expect(readdirSync(workspacePath)).not.toContain(
-    RESTORE_IN_PROGRESS_MARKER_FILENAME
-  );
+  expect(hasInterruptedRestore(workspacePath)).toEqual(false);
+  expect(
+    existsSync(join(getWorkspaceControlPath(workspacePath), 'machine_mode'))
+  ).toEqual(true);
 
   startedServer.close();
 });
@@ -381,4 +392,76 @@ test('starts client networking in client mode', async () => {
   );
 
   featureFlagMock.resetFeatureFlags();
+});
+
+test('starts in restore mode when the last boot asked for it, and only then', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const workspacePath = makeTemporaryDirectory();
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
+  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+
+  server = await suppressingConsoleOutput(() =>
+    start({ logger, workspacePath, multiUsbDrive, port: 0 })
+  );
+  const { port } = server.address() as AddressInfo;
+  const apiClient = grout.createClient<RestoreApi>({
+    baseUrl: `http://localhost:${port}/api`,
+  });
+
+  expect(await apiClient.getAppMode()).toEqual('restore');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AdminRestoreModeEntered,
+    'system',
+    { message: expect.stringContaining(workspacePath) }
+  );
+
+  // Spent by the taking: the next boot is an ordinary one.
+  expect(
+    FileBackedBootIntentController.forWorkspace(workspacePath).take()
+  ).toBeUndefined();
+
+  // Restore mode serves no workspace: it opened no database.
+  expect(
+    existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+  ).toEqual(false);
+  featureFlagMock.resetFeatureFlags();
+});
+
+test('ignores a request for restore mode when backup and restore are not enabled', async () => {
+  const logger = mockLogger({ fn: vi.fn });
+  const workspacePath = makeTemporaryDirectory();
+  const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
+  const { printer } = createMockPrinterHandler();
+  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+
+  server = await suppressingConsoleOutput(() =>
+    start({ logger, workspacePath, multiUsbDrive, printer, port: 0 })
+  );
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.WorkspaceConfigurationMessage,
+    'system',
+    {
+      message: expect.stringContaining('not enabled'),
+      disposition: 'failure',
+    }
+  );
+  expect(logger.log).not.toHaveBeenCalledWith(
+    LogEventId.AdminRestoreModeEntered,
+    'system',
+    expect.anything()
+  );
+
+  // Started as a host, and the request is spent all the same.
+  expect(
+    existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+  ).toEqual(true);
+  expect(
+    FileBackedBootIntentController.forWorkspace(workspacePath).take()
+  ).toBeUndefined();
 });

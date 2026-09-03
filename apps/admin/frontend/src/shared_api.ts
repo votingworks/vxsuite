@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Api, ClientApi } from '@votingworks/admin-backend';
+import type { Api, ClientApi, RestoreApi } from '@votingworks/admin-backend';
 import {
   QueryClient,
   QueryKey,
@@ -15,9 +15,11 @@ import {
 import { getAuthStatus, getUsbDriveStatus } from './api.js';
 
 /**
- * Methods shared between host (Api) and client (ClientApi) backends.
+ * Methods shared between the host (Api), client (ClientApi), and restore mode
+ * (RestoreApi) backends.
  */
 type SharedMethods =
+  | 'getAppMode'
   | 'logOut'
   | 'getAuthStatus'
   | 'checkPin'
@@ -28,7 +30,8 @@ type SharedMethods =
   | 'isMultiStationAdjudicationEnabled';
 
 export type SharedApiClient = Pick<grout.Client<Api>, SharedMethods> &
-  Pick<grout.Client<ClientApi>, SharedMethods>;
+  Pick<grout.Client<ClientApi>, SharedMethods> &
+  Pick<grout.Client<RestoreApi>, SharedMethods>;
 
 export const SharedApiClientContext = React.createContext<
   SharedApiClient | undefined
@@ -53,6 +56,17 @@ export function createSharedQueryClient(): QueryClient {
 export const systemCallApi = createSystemCallApi(
   useSharedApiClient as () => grout.Client<Api>
 );
+
+// @coverage-exclude: used in index.tsx which is excluded from coverage
+export const getAppMode = {
+  queryKey(): QueryKey {
+    return ['getAppMode'];
+  },
+  useQuery() {
+    const apiClient = useSharedApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getAppMode());
+  },
+} as const;
 
 // @coverage-exclude: used in index.tsx which is excluded from coverage
 export const getMachineMode = {

@@ -42,6 +42,8 @@ import { rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import path, { join } from 'node:path';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
@@ -91,6 +93,7 @@ import {
   CastVoteRecordVoteInfo,
   AdjudicatedCvr,
   AdjudicationError,
+  AppMode,
   MachineMode,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
@@ -101,6 +104,7 @@ import { Workspace } from './util/workspace.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import { MachineModeController } from './machine_mode.js';
+import { BootIntentController } from './boot_intent.js';
 import { getBallotImages } from './util/adjudication.js';
 import {
   transformWriteInsAndSetManualResults,
@@ -193,6 +197,7 @@ function buildApi({
   auth,
   workspace,
   machineMode,
+  bootIntent,
   logger,
   multiUsbDrive,
   printer,
@@ -200,6 +205,7 @@ function buildApi({
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   machineMode: MachineModeController;
+  bootIntent: BootIntentController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
@@ -281,6 +287,10 @@ function buildApi({
   return grout.createApi({
     getMachineConfig,
 
+    getAppMode(): AppMode {
+      return 'host';
+    },
+
     getMachineMode(): MachineMode {
       return machineMode.get();
     },
@@ -305,6 +315,32 @@ function buildApi({
         message: `Machine mode changed to ${newMachineMode}.`,
         disposition: 'success',
         newMode: newMachineMode,
+      });
+    },
+
+    /**
+     * Arranges for the machine to start in restore mode on its next boot,
+     * where a backup can be restored into the workspace. Only an unconfigured
+     * host has a workspace a restore may take over, so nothing else may ask.
+     * As with a change of machine mode, the caller reboots to get there.
+     */
+    async scheduleRestoreMode(): Promise<void> {
+      assert(
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+        ),
+        'Backup and restore are not enabled.'
+      );
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot restore while an election is configured.'
+      );
+      assert(machineMode.get() === 'host', 'Only a host can be restored.');
+
+      bootIntent.request('restore');
+      await logger.logAsCurrentRole(LogEventId.AdminRestoreModeScheduled, {
+        message: 'Machine will start in restore mode on its next boot.',
+        disposition: 'success',
       });
     },
 
@@ -1643,6 +1679,7 @@ export function buildApp({
   auth,
   workspace,
   machineMode,
+  bootIntent,
   logger,
   multiUsbDrive,
   printer,
@@ -1650,6 +1687,7 @@ export function buildApp({
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   machineMode: MachineModeController;
+  bootIntent: BootIntentController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
@@ -1659,6 +1697,7 @@ export function buildApp({
     auth,
     workspace,
     machineMode,
+    bootIntent,
     logger,
     multiUsbDrive,
     printer,
