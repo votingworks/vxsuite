@@ -517,3 +517,7 @@ test('adjudicateCvr proxies to host peer API', async () => {
     })
   );
 });
+
+test('a client describes itself as one', async () => {
+  expect(await env.apiClient.getAppMode()).toEqual('client');
+});

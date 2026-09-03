@@ -178,6 +178,28 @@ export function openWorkspace(root: string, logger: BaseLogger): Workspace {
 }
 
 /**
+ * Opens a workspace's store if the workspace has a database, and creates nothing
+ * where there is none: for looking at what a workspace holds while leaving it
+ * as it is.
+ */
+export function openWorkspaceStoreIfPresent(
+  root: string,
+  logger: BaseLogger
+): Store | undefined {
+  const paths = workspacePaths(root);
+  if (!existsSync(paths.db)) {
+    return undefined;
+  }
+
+  return Store.fileStore(
+    paths.db,
+    paths.ballotImages,
+    paths.electionPackages,
+    logger
+  );
+}
+
+/**
  * Returns a client Workspace with in-memory connection state.
  */
 export function createClientWorkspace(root: string): ClientWorkspace {

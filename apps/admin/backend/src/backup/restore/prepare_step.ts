@@ -7,7 +7,7 @@ import {
   getRestoreInProgressMarkerPath,
   getWorkspaceControlPath,
   hasInterruptedRestore,
-  Workspace,
+  openWorkspaceStoreIfPresent,
 } from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
@@ -17,33 +17,21 @@ const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 
 /**
  * Checks that the workspace is one a restore may take over: a host machine's,
- * not being written to, and either unconfigured or left behind by an
- * interrupted restore (per the marker), in which case the restore is what
- * recovers it.
+ * and either unconfigured or left behind by an interrupted restore (per the
+ * marker), in which case the restore is what recovers it. A workspace with no
+ * database yet is unconfigured; one with a database is asked, and left as it
+ * was.
  */
 export async function checkWorkspaceIsRestorable(
-  workspace: Workspace,
+  workspacePath: string,
   logger: Logger
 ): Promise<Result<void, RestoreError>> {
-  const hostModeResult = checkWorkspaceIsHostMode(workspace);
+  const hostModeResult = checkWorkspaceIsHostMode(workspacePath);
   if (hostModeResult.isErr()) {
     return hostModeResult;
   }
 
-  // The restore closes this connection and deletes the database under it, so
-  // an operation partway through writing would be cut off mid-transaction with
-  // no way to tell whether its work survived. Checked before the marker, since
-  // a workspace left by an interrupted restore is no reason to cut off a write
-  // that is happening right now.
-  if (workspace.store.isInTransaction()) {
-    return err({
-      type: 'write-in-progress',
-      message:
-        'Cannot restore while another operation is writing to the database',
-    });
-  }
-
-  if (hasInterruptedRestore(workspace.path)) {
+  if (hasInterruptedRestore(workspacePath)) {
     await logger.logAsCurrentRole(LogEventId.BackupRestoreInterrupted, {
       message:
         'Restoring over a workspace an earlier restore left unfinished; ' +
@@ -52,7 +40,8 @@ export async function checkWorkspaceIsRestorable(
     return ok();
   }
 
-  const currentElectionId = workspace.store.getCurrentElectionId();
+  using store = openWorkspaceStoreIfPresent(workspacePath, logger);
+  const currentElectionId = store?.getCurrentElectionId();
   if (currentElectionId) {
     return err({
       type: 'workspace-already-configured',

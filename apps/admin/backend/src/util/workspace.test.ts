@@ -10,6 +10,7 @@ import {
   getRestoreInProgressMarkerPath,
   getWorkspaceControlPath,
   hasInterruptedRestore,
+  openWorkspaceStoreIfPresent,
   WORKSPACE_CONTROL_DIRECTORY_NAME,
 } from './workspace.js';
 import { Store } from '../store.js';
@@ -81,4 +82,20 @@ test('emptying a workspace that has no control directory leaves it empty', async
   await emptyWorkspaceData(dir);
 
   expect(readdirSync(dir)).toEqual([]);
+});
+
+test('opening a store only if present creates nothing where there is none', () => {
+  const dir = makeTemporaryDirectory();
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  expect(openWorkspaceStoreIfPresent(dir, logger)).toBeUndefined();
+  expect(readdirSync(dir)).toEqual([]);
+
+  {
+    using workspace = createWorkspace(dir, logger);
+    expect(workspace.store.getCurrentElectionId()).toBeUndefined();
+  }
+
+  using store = openWorkspaceStoreIfPresent(dir, logger);
+  expect(store).toBeInstanceOf(Store);
 });

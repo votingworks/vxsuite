@@ -32,6 +32,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
+  UsbDriveFilesystemType,
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
@@ -47,6 +48,7 @@ import { Api, MachineMode, PeerApi } from '../src/index.js';
 import { BaseStore } from '../src/types.js';
 import { createWorkspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
+import { BootIntent, BootIntentController } from '../src/boot_intent.js';
 import { buildPeerApp } from '../src/peer_app.js';
 import { getMachineConfig } from '../src/machine_config.js';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup.js';
@@ -163,17 +165,19 @@ export function buildMockLogger(
 export const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
 
 /**
- * Creates a FAT32 mock USB drive, attaches it, and waits until the app has
- * detected and auto-mounted it. Detection and mounting happen asynchronously
- * (via a file watcher on the {@link SimulatedUsbPlatform} state), so callers
- * must await this before exercising APIs that write to or read from the drive.
+ * Creates a mock USB drive (FAT32 by default, `ext4` for backup drives),
+ * attaches it, and waits until the app has detected and auto-mounted it.
+ * Detection and mounting happen asynchronously (via a file watcher on the
+ * {@link SimulatedUsbPlatform} state), so callers must await this before
+ * exercising APIs that write to or read from the drive.
  */
 export async function attachUsbDrive(
   apiClient: { getUsbDriveStatus: () => Promise<UsbDriveStatus> },
   usbPlatform: SimulatedUsbPlatform,
-  contents?: MockFileTree
+  contents?: MockFileTree,
+  fstype: UsbDriveFilesystemType = 'fat32'
 ): Promise<void> {
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32', contents });
+  usbPlatform.createDrive({ diskPath: devsdb, fstype, contents });
   usbPlatform.insertDrive(devsdb);
   await vi.waitFor(
     async () => {
@@ -202,12 +206,24 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const mockPrinterHandler = createMockPrinterHandler();
   let machineMode: MachineMode = 'host';
+  let bootIntent: BootIntent | undefined;
+  const bootIntentController: BootIntentController = {
+    request: (intent) => {
+      bootIntent = intent;
+    },
+    take: () => {
+      const taken = bootIntent;
+      bootIntent = undefined;
+      return taken;
+    },
+  };
   const app = buildApp({
     auth,
     workspace,
     logger,
     multiUsbDrive,
     printer: mockPrinterHandler.printer,
+    bootIntent: bootIntentController,
     machineMode: {
       get: () => machineMode,
       set: (newMachineMode) => {
@@ -249,5 +265,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     usbPlatform,
     multiUsbDrive,
     mockPrinterHandler,
+    bootIntentController,
   };
 }

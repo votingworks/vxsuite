@@ -194,7 +194,7 @@ export async function prepare(
     return err(CANCELLED_ERROR);
   }
 
-  const hostModeResult = checkWorkspaceIsHostMode(workspace);
+  const hostModeResult = checkWorkspaceIsHostMode(workspace.path);
   if (hostModeResult.isErr()) {
     return hostModeResult;
   }
