@@ -4,63 +4,94 @@ Provides encoding and decoding services for completed ballots.
 
 ## Setup
 
-Follow the instructions in the [VxSuite README](../../README.md) to get set up,
-then get started like so:
+Follow the instructions in the [VxSuite README](../../README.md) to get set up.
 
-```sh
-# test on changes
-pnpm test:watch
-```
+## Two Encodings
+
+This library encodes two different things, and the names used in the code are
+worth knowing before reading any further:
+
+- **Summary ballots** — the ballots a BMD prints. The QR code carries the
+  voter's selections, so the ballot can be reconstructed from it. Encoded one
+  page at a time with `encodeSummaryBallotPage` / `decodeSummaryBallotPage`.
+- **Bubble ballot metadata** — hand-marked paper ballots, elsewhere called
+  HMPBs. The QR code identifies the page and nothing more; the selections are
+  read from the marks on the page. Encoded with `encodeHmpbBallotPageMetadata`.
+
+Both start with a three-byte prelude that says which one you have, and both then
+encode a ballot hash the same way. Everything after that differs.
 
 ## Example
 
 ```ts
-import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
-import { electionGeneral as election } from '@votingworks/fixtures';
-import { CompletedBallot, getContests, vote } from '@votingworks/types';
+import {
+  decodeSummaryBallotPage,
+  encodeSummaryBallotPage,
+  SummaryBallotPage,
+} from '@votingworks/ballot-encoder';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { BallotType, getContests, vote } from '@votingworks/types';
 
-const ballotStyle = election.ballotStyles[0];
-const precinct = election.precincts[0];
-const contests = getContests({ ballotStyle, election });
-const votes = vote(contests, {
-  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
-  'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
-  'question-a': 'question-a-option-yes',
-  'question-b': 'question-b-option-no',
-  'question-c': 'question-c-option-yes',
-  'proposition-1': 'proposition-1-option-yes',
-  'measure-101': 'measure-101-option-no',
-  '102': '102-option-yes',
-});
-const ballot: CompletedBallot = {
+const electionDefinition = readElectionGeneralDefinition();
+const { election, ballotHash } = electionDefinition;
+const ballotStyle = election.ballotStyles[0]!;
+const precinct = election.precincts[0]!;
+
+// A summary ballot is encoded a page at a time. This page holds two of the
+// ballot style's twenty contests.
+const pageContests = getContests({ election, ballotStyle }).filter((contest) =>
+  ['president', 'question-a'].includes(contest.id)
+);
+
+const page: SummaryBallotPage = {
+  ballotHash,
   ballotStyleId: ballotStyle.id,
   precinctId: precinct.id,
-  votes,
+  isTestMode: false,
+  ballotType: BallotType.Precinct,
+  pageNumber: 1,
+  totalPages: 2,
+  ballotAuditId: 'ballot-audit-id',
+  contests: pageContests,
+  votes: vote(pageContests, {
+    president: 'barchi-hallaren',
+    'question-a': ['question-a-option-yes'],
+  }),
 };
 
-console.log(encodeBallot(ballot));
+const encoded = encodeSummaryBallotPage(election, page);
+console.log(encoded);
 /*
-Uint8Array [
-  86, 88,  1,  2,  49,  50,  2,
-  50, 51,  0, 15, 254, 208, 86,
-  22, 38, 54, 70,  80
+Uint8Array(39) [
+   86, 83,   1, 225,  53,  5,  17,  15, 208, 202,
+   97, 94, 207,   0,   0,  0,   0,  68,   0, 246,
+   38, 22, 198, 198, 247, 66, 214,  23,  86,  70,
+  151, 66, 214, 150,  72,  0,  32, 224, 128
 ]
 */
 
-console.log(decodeBallot(election, encodeBallot(ballot)).votes);
+const decoded = decodeSummaryBallotPage(electionDefinition, encoded);
+console.log(decoded.metadata.contestIds);
+/*
+[ 'president', 'question-a' ]
+*/
+console.log(decoded.votes);
 /*
 {
-  '102': '102-option-yes',
-  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
-  'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
-  'question-a': 'question-a-option-yes',
-  'question-b': 'question-b-option-no',
-  'question-c': 'question-c-option-yes',
-  'proposition-1': 'proposition-1-option-yes',
-  'measure-101': 'measure-101-option-no'
+  president: [
+    {
+      id: 'barchi-hallaren',
+      name: 'Joseph Barchi and Joseph Hallaren',
+      partyIds: [Array]
+    }
+  ],
+  'question-a': [ 'question-a-option-yes' ]
 }
 */
 ```
+
+Note that a yes/no vote is an array of option ids, not a bare string, and that
+`vote()` will throw if given a bare string.
 
 ## Ballot Encoder Data Format
 
@@ -82,15 +113,18 @@ information as possible is encoded. Here are some of the guidelines:
   `255` range.
 - **uint8**: a number represented using a single byte with values in the range
   `0` to `255`.
-- **little-endian**: the binary encoding scheme this format uses, which encodes
-  the most-significant bit (MSB) first and the least-significant bit (LSB) last.
-  For example, the value `3` is encoded as `00000011` (or, if we were using
-  _big-endian_, as `11000000`).
+- **big-endian**: the bit order this format uses, which writes the
+  most-significant bit (MSB) first and the least-significant bit (LSB) last. For
+  example, the value `3` in 8 bits is encoded as `00000011`, not `11000000`.
+  Note that `BitWriter` and `BitReader` describe this as "little-endian" in
+  their own doc comments, which is a misnomer.
 - **fixed-width number**: a number `N` encoded using a fixed number of bits,
   typically a multiple of 8.
 - **dynamic-width number**: a number `N` encoded in as few bits as possible
   based on a known maximum value. If the range of `N` is `0` to `M` and encoding
-  `M` would take `B` bits, then `N` is encoded using `B` bits.
+  `M` would take `B` bits, then `N` is encoded using `B` bits. Every numeric
+  field below is one of these; the maximum is a constant, so the width is
+  constant too.
 - **write-in encoding**: a character encoding for write-in names that requires 5
   bits per character. Here is the full character set:
   `ABCDEFGHIJKLMNOPQRSTUVWXYZ '"-.,`.
@@ -99,103 +133,139 @@ information as possible is encoded. Here are some of the guidelines:
   `0123456789abcdef`.
 - **fixed-length string**: a UTF-8 string with a length known to both encoder
   and decoder, and thus lacking a prefixed length.
-- **dynamic-length string**: a UTF-8 string with maximum length `M`, prefixed
-  with a _dynamic-width number_ (max `M`) which is the length of the string in
-  bytes.
+- **dynamic-length string**: a string prefixed with a _dynamic-width number_
+  giving its length. Unless stated otherwise this means UTF-8 with a maximum
+  length of 255 bytes, i.e. an 8-bit length prefix.
 
-### Shared Ballot Config
+### Summary Ballot Page Encoding
 
-See `BallotConfig` in [index.ts](src/index.ts) for the data structure used to
-represent this data in memory and applies to both BMD ballots and HMPB ballots.
-Given `E` (an `Election`) and `C` (a `BallotConfig`) corresponding to `E`, `C`
-is encoded as follows:
+One page of a ballot printed by a BMD, including the votes on that page. See
+`SummaryBallotPage` in [index.ts](./src/index.ts) for the in-memory
+representation. Given `ED` (an `ElectionDefinition`) and `P` (a
+`SummaryBallotPage`) corresponding to `ED`, `P` is encoded as follows:
 
-- **Precinct Index:** A fixed-width number for the index of the precinct in the
-  election's precinct list (`C.precinctId`).
-  - Size: 13 bits.
-- **Ballot Style Index:** A fixed-width number for the index of the ballot style
-  in the election's ballot style list (`C.ballotStyleId`).
-  - Size: 13 bits.
-- **Page Number:** _(HMPB-only)_ A dynamic-width number for the 1-based page
-  number up to a maximum number of pages (`C.pageNumber`).
-  - Size: 5 bits.
-- **Test Ballot?:** This is a single bit that is set if the ballot is a test
-  ballot, unset otherwise (`C.isTestMode`).
-  - Size: 1 bit.
-- **Ballot Type:** One of the `BallotType` values, e.g. `Precinct`, `Absentee`,
-  or `Provisional` (`C.ballotType`).
-  - Size: 4 bits.
-- **Ballot Audit ID Set?:** _(HMPB-only, always false for BMDB)_ This bit is
-  true if there is a ballot audit id, unset otherwise (`C.ballotAuditId`).
-  - Size: 1 bit.
-- **Ballot Audit ID:** _(HMPB-only)_ Only present if the previous bit is set.
-  This is a dynamic-length string whose maximum length is 255 bytes
-  (`C.ballotAuditId`).
-  - Size: `(1 + bytes(C.ballotAuditId)) * 8` bits.
-
-### Completed BMD Ballot Encoding
-
-A "completed ballot" is one that has been filled out by a voter. See
-`CompletedBallot` in [election.ts](../types/src/election.ts) for the data
-structures used to represent a completed ballot in memory. Given `ED` (an
-`ElectionDefinition`), `B` (a `CompletedBallot`) corresponding to `ED`, `B` is
-encoded as follows:
-
-- **Prelude:** This is the literal string `VX` encoded as UTF-8 bytes, followed
-  by the integer 2 encoded as uint8. In binary, this is
-  `01010110 01011000 00000010`. This must be at the start of the encoded data,
-  or the data does not represent a valid v2-encoded ballot.
+- **Prelude:** The literal bytes `V`, `S` and the version number `1`. In binary,
+  `01010110 01010011 00000001`. This must be at the start of the encoded data,
+  or the data does not represent a summary ballot page. `isVxBallot` checks for
+  exactly this.
   - Size: 24 bits.
-- **Ballot Hash:** This is a fixed-length hexadecimal string 20 characters long
+- **Ballot Hash:** A fixed-length hex-encoded string 20 characters long
   (`ED.ballotHash.slice(0, 20)`).
   - Size: `20 * 4` bits.
-- **Ballot Config:** The encoding of a `BallotConfig` derived from `B` and `ED`
-  goes here.
-- **Roll Call**: Encodes which contests have votes using one bit per contest,
-  where a bit at offset `i` from the start of this section is set if and only if
-  there is a vote record for `ED.election.contests[i]`, i.e.
-  `B.votes[E.contests[i].id]` has a value.
-  - Size: `count(ED.election.contests)` bits.
-- **Vote Data**: Encodes `B.votes[k]` for all keys `k` in `B.votes` ordered by
-  `ED.election.contests` they appear in `ED.election.contests`, encoding data
-  for a vote only if its corresponding bit was set in _Roll Call_. Encoding
-  votes for a contest depends on its `ContestType`.
-  - **`yesno` contests**: Uses a single bit to represent `"yes"` (bit set) or
-    `"no"` (bit unset).
-    - Size: 1 bit.
-  - **`candidate` contests**: Encodes candidate selection followed by write-ins,
-    if applicable:
-    - **Selections:** Uses one bit per candidate to indicate whether each
-      candidate is selected. The order of bits is the same as the order of
-      candidates in `ED.election.contests[i].candidates`.
-      - Size: `count(ED.election.contests[i].candidates)` bits.
-    - **Write-Ins**: If `ED.election.contests[i].allowWriteIns` is `false`, this
-      section is omitted. Otherwise, it contains a _dynamic-width number_ `W` of
-      write-ins followed by `W` strings containing the names of the write-in
-      candidates. `W`'s maximum is calculated by subtracting the number of set
-      bits in _Selections_ from `ED.election.contests[i].seats`.
-      - Size:
-        `sizeof(W) + W * 6 + ∑(CV : V[ED.election.contests[i].id], CV.isWriteIn ? sizeof(CV.name) : 0)`
-        bits.
-- **Padding**: To ensure the encoded data is composed of whole bytes, 0 bits
-  will be added to the end until the number of bits is a multiple of 8.
+- **Precinct Index:** The index of the precinct in the election's precinct list
+  (`P.precinctId`).
+  - Size: 13 bits.
+- **Ballot Style Index:** The index of the ballot style in the election's ballot
+  style list (`P.ballotStyleId`).
+  - Size: 16 bits.
+- **Page Number:** The 1-based page number (`P.pageNumber`).
+  - Size: 5 bits.
+- **Total Pages:** How many pages the ballot has (`P.totalPages`).
+  - Size: 5 bits.
+- **Test Ballot?:** Set if the ballot is a test ballot, unset otherwise
+  (`P.isTestMode`).
+  - Size: 1 bit.
+- **Ballot Type:** The index of one of the `BallotType` values, i.e. `Precinct`,
+  `Absentee` or `Provisional` (`P.ballotType`).
+  - Size: 4 bits.
+- **Ballot Audit ID:** A dynamic-length string (`P.ballotAuditId`). Required on
+  summary ballots, so unlike the bubble ballot case below there is no preceding
+  presence bit.
+  - Size: `(1 + bytes(P.ballotAuditId)) * 8` bits.
+- **Contest Bitmap:** Which of the ballot style's contests appear on this page,
+  one bit per contest in `getContests({ ballotStyle, election })` order, set if
+  the contest is on this page.
+  - Size: `count(contests(P.ballotStyleId))` bits.
+- **Roll Call:** Which of _this page's_ contests have votes, one bit per contest
+  in the same order, set if there is a vote record for that contest. Note this
+  covers only the contests selected by the bitmap above, not every contest in
+  the ballot style.
+  - Size: `count(P.contests)` bits.
+- **Vote Data:** The votes themselves, for the contests whose _Roll Call_ bit
+  was set, in the same order. See [Vote Data](#vote-data) below.
+- **Padding:** 0 bits are added to the end until the number of bits is a
+  multiple of 8. The decoder requires these to be 0 and requires end-of-input
+  afterwards.
 
-### HMPB Metadata Encoding
+### Vote Data
 
-HMPB metadata describes the information needed to properly scan a hand-marked
-paper ballot. See `HMPBBallotPageMetadata` in [index.ts](./src/index.ts). Given
+How a single contest's votes are encoded depends on its `ContestType`.
+
+- **`yesno` contests:** One bit per option in `contest.options`, set if that
+  option id appears in the vote. For a conventional two-option question this is
+  2 bits, not 1.
+  - Size: `count(contest.options)` bits.
+- **`candidate` contests:** Selections followed by write-ins, if applicable.
+  - **Selections:** One bit per candidate indicating whether that candidate is
+    selected, in `contest.candidates` order.
+    - Size: `count(contest.candidates)` bits.
+  - **Write-Ins:** Omitted entirely if `contest.allowWriteIns` is `false`.
+    Otherwise let `maximumWriteIns` be `contest.seats` minus the number of
+    selected non-write-in candidates, floored at 0. If `maximumWriteIns` is 0
+    this section is also omitted — a contest whose seats are all taken by named
+    candidates encodes no write-in data at all. Otherwise it is a dynamic-width
+    number `W` counting the write-ins (maximum `maximumWriteIns`), followed by
+    `W` names, each a dynamic-length string in _write-in encoding_ with a
+    maximum length of 40 characters, i.e. a 6-bit length prefix and 5 bits per
+    character.
+    - Size: `sizeof(maximumWriteIns) + ∑(6 + 5 * length(name))` bits.
+- **`straight-party` contests:** One bit per option in `contest.optionIds`, set
+  if that party id appears in the vote.
+  - Size: `count(contest.optionIds)` bits.
+
+### Bubble Ballot Metadata Encoding
+
+Bubble ballot metadata describes what is needed to identify a page of a
+hand-marked paper ballot. See `HmpbBallotPageMetadata` in
+[election.ts](../types/src/election.ts) for the in-memory representation. Given
 metadata `H` and election definition `ED`, `H` is encoded as follows:
 
-- **Prelude:** This is the literal string `VP` encoded as UTF-8 bytes, followed
-  by the version number (currently, 2) encoded as uint8. In binary, this is
-  `01010110 01010000 00000010`. This must be at the start of the encoded data,
-  or the data does not represent a valid v2-encoded HMPB metadata.
+- **Prelude:** The literal bytes `V`, `B` and the version number `1`. In binary,
+  `01010110 01000010 00000001`. This must be at the start of the encoded data,
+  or the data does not represent bubble ballot metadata.
   - Size: 24 bits.
-- **Ballot Hash:** This is a fixed-length hexadecimal string 20 characters long
+- **Ballot Hash:** A fixed-length hex-encoded string 20 characters long
   (`ED.ballotHash.slice(0, 20)`).
   - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`
-  goes here.
+  goes here. See below.
+
+#### Ballot Config
+
+See `BallotConfig` in [index.ts](./src/index.ts) for the in-memory
+representation. It is used only by bubble ballot metadata; summary ballot pages
+carry their own layout, described above. Given `E` (an `Election`) and `C` (a
+`BallotConfig`) corresponding to `E`, `C` is encoded as follows:
+
+- **Precinct Index:** The index of the precinct in the election's precinct list
+  (`C.precinctId`).
+  - Size: 13 bits.
+- **Ballot Style Index:** The index of the ballot style in the election's ballot
+  style list (`C.ballotStyleId`).
+  - Size: 16 bits.
+- **Page Number:** The 1-based page number, up to `MAXIMUM_PAGE_NUMBERS`
+  (`C.pageNumber`).
+  - Size: 5 bits.
+- **Test Ballot?:** Set if the ballot is a test ballot, unset otherwise
+  (`C.isTestMode`).
+  - Size: 1 bit.
+- **Ballot Type:** The index of one of the `BallotType` values (`C.ballotType`).
+  - Size: 4 bits.
+- **Ballot Audit ID Set?:** Set if there is a ballot audit id, unset otherwise
+  (`C.ballotAuditId`). Present only when the
+  `SystemSettings.precinctScanEnableBallotAuditIds` feature is enabled.
+  - Size: 1 bit.
+- **Ballot Audit ID:** Only present if the previous bit is set. A dynamic-length
+  string (`C.ballotAuditId`).
+  - Size: `(1 + bytes(C.ballotAuditId)) * 8` bits.
+
+#### v4.0 Bubble Ballots
+
+`encodeHmpbBallotPageMetadata` takes a `SoftwareVersion`. Passing `'v4.0'`
+selects the deprecated `BubbleBallotPreludeV4p0` (the bytes `V`, `P` and version
+`2`) and caps the ballot style index at `MAXIMUM_BALLOT_STYLE_INDEX_V4_0`,
+making that field 13 bits rather than 16. This exists so VxDesign can still
+render v4.0 ballots; new code should not use it.
 
 ## Related Documentation
 
