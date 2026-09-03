@@ -1,6 +1,11 @@
 import { Buffer } from 'node:buffer';
 import * as grout from '@votingworks/grout';
-import { assertDefined, iter } from '@votingworks/basics';
+import {
+  assertDefined,
+  iter,
+  Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type { ReadableFile } from '@votingworks/auth';
 import {
   AcceptedSheet,
@@ -28,6 +33,24 @@ const debug = makeDebug('scan:cvr-sync');
  */
 export const CVR_TRANSFER_REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
 
+/**
+ * After this many consecutive transient failures sending the same batch, the
+ * batch is marked failed and sending moves on to the next batch. The failed
+ * batch is not tried again until an operator retries it.
+ */
+export const MAX_CONSECUTIVE_SEND_FAILURES = 5;
+
+/** Longest delay between transient-failure retries. */
+export const MAX_SEND_RETRY_DELAY_MS = 60 * 1000;
+
+/** The result of one attempt to send a batch. */
+export type SendBatchOutcome =
+  | { type: 'sent' }
+  /** Likely to resolve on its own (e.g. host unreachable); retried with backoff. */
+  | { type: 'transient-failure'; detail: string }
+  /** Needs operator attention; the batch is skipped until manually retried. */
+  | { type: 'fatal-failure'; detail: string };
+
 async function readableFileToBuffer(file: ReadableFile): Promise<Buffer> {
   const chunks: Buffer[] = [];
   for await (const chunk of file.open()) {
@@ -52,12 +75,10 @@ async function sendBatchToAdmin({
   logger: BaseLogger;
   hostAddress: string;
   batch: BatchInfo;
-}): Promise<void> {
+}): Promise<SendBatchOutcome> {
   const { machineId, codeVersion } = getMachineConfig();
-  const electionRecord = store.getElectionRecord();
-  // @coverage-exclude: batches can't exist while unconfigured
-  if (!electionRecord) return;
-  const { electionDefinition } = electionRecord;
+  // Batches can't exist while unconfigured
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
 
   const systemSettings = assertDefined(store.getSystemSettings());
   const scannerState: ScannerStateUnchangedByExport = {
@@ -108,11 +129,18 @@ async function sendBatchToAdmin({
     });
   } catch (error) {
     logFailure('start', `host unreachable (${error}).`);
-    return;
+    return { type: 'transient-failure', detail: 'host unreachable' };
   }
   if (startResult.isErr()) {
-    logFailure('start', `host refused transfer (${startResult.err().type}).`);
-    return;
+    const errorType = startResult.err().type;
+    logFailure('start', `host refused transfer (${errorType}).`);
+    // The heartbeat registers with the same checks, so any refusal here can
+    // only be racing a connection status change that will pause sending and
+    // surface the condition itself.
+    return {
+      type: 'transient-failure',
+      detail: `VxAdmin refused the transfer (${errorType})`,
+    };
   }
   if (startResult.ok().alreadyComplete) {
     store.setBatchSentToAdmin(batch.id);
@@ -120,7 +148,7 @@ async function sendBatchToAdmin({
       message: `Batch ${batch.id} was already fully imported by VxAdmin.`,
       batchId: batch.id,
     });
-    return;
+    return { type: 'sent' };
   }
 
   for (const sheet of sheets) {
@@ -132,7 +160,10 @@ async function sendBatchToAdmin({
           buildResult.err().type
         }).`
       );
-      return;
+      return {
+        type: 'fatal-failure',
+        detail: `could not build a cast vote record for sheet ${sheet.id}`,
+      };
     }
     const { castVoteRecordId, files } = buildResult.ok();
 
@@ -156,14 +187,17 @@ async function sendBatchToAdmin({
       );
     } catch (error) {
       logFailure('upload', `host unreachable (${error}).`);
-      return;
+      return { type: 'transient-failure', detail: 'host unreachable' };
     }
     if (response.status !== 200) {
       logFailure(
         'upload',
         `host rejected cast vote record ${castVoteRecordId} (status ${response.status}).`
       );
-      return;
+      return {
+        type: 'transient-failure',
+        detail: `VxAdmin rejected a cast vote record (status ${response.status})`,
+      };
     }
   }
 
@@ -175,14 +209,28 @@ async function sendBatchToAdmin({
     });
   } catch (error) {
     logFailure('finish', `host unreachable (${error}).`);
-    return;
+    return { type: 'transient-failure', detail: 'host unreachable' };
   }
   if (finishResult.isErr()) {
-    logFailure(
-      'finish',
-      `host could not complete the import (${finishResult.err().type}).`
-    );
-    return;
+    const errorType = finishResult.err().type;
+    logFailure('finish', `host could not complete the import (${errorType}).`);
+    switch (errorType) {
+      // Bad data won't fix itself on retry.
+      case 'import-failed':
+        return {
+          type: 'fatal-failure',
+          detail: 'VxAdmin could not import the batch',
+        };
+      // Recoverable by re-sending on the next pass, or (for a host-state
+      // refusal) racing a connection status change, as at start.
+      case 'transfer-not-found':
+      case 'sheet-count-mismatch':
+      case 'results-official':
+      case 'invalid-mode':
+        return { type: 'transient-failure', detail: errorType };
+      default:
+        return throwIllegalValue(errorType);
+    }
   }
 
   store.setBatchSentToAdmin(batch.id);
@@ -194,12 +242,14 @@ async function sendBatchToAdmin({
     batchId: batch.id,
     cvrCount: finishResult.ok().cvrCount,
   });
+  return { type: 'sent' };
 }
 
 /**
  * Starts the CVR sync loop: while the scanner is registered with a VxAdmin
  * host, sends completed batches' cast vote records to it, oldest first, one
- * batch at a time.
+ * batch in flight at a time. A batch waiting to retry after a transient
+ * failure, or marked failed, doesn't hold up the batches behind it.
  */
 export function startCvrSync({
   store,
@@ -211,6 +261,32 @@ export function startCvrSync({
   debug('Starting CVR sync loop');
   let isSending = false;
 
+  function markBatchFailed(batchId: string, detail: string): void {
+    store.setBatchSendToAdminError(batchId, detail);
+    logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
+      message: `Sending batch ${batchId} to VxAdmin failed and needs attention: ${detail}. It will not be sent again until retried; other batches continue to send.`,
+      disposition: 'failure',
+      batchId,
+    });
+  }
+
+  /**
+   * The batch being retried after transient failures, with its consecutive
+   * failure count and the earliest time to try again. Batches send in order,
+   * so there is at most one. In memory only: after a restart, sending simply
+   * starts over.
+   */
+  let retry: Optional<{
+    batchId: string;
+    failures: number;
+    nextAttemptAt: number;
+  }>;
+
+  function stopSending(): void {
+    retry = undefined;
+    store.setSendingToAdminBatchId(undefined);
+  }
+
   process.nextTick(() => {
     setInterval(async () => {
       // @coverage-exclude: re-entrancy guard
@@ -218,23 +294,80 @@ export function startCvrSync({
       isSending = true;
       try {
         const connection = store.getNetworkConnectionInfo();
-        if (
-          connection.status !== 'online-host-detected' ||
-          !connection.hostAddress
-        ) {
+        if (connection.status !== 'online-host-detected') {
+          stopSending();
           return;
         }
+        // Batches send in order; one that has failed out is passed over until
+        // an operator retries it.
         const batch = store.getNextBatchToSendToAdmin();
-        if (!batch) return;
-        await sendBatchToAdmin({
-          store,
-          logger,
-          hostAddress: connection.hostAddress,
-          batch,
-        });
-      } catch (error) {
-        // @coverage-exclude: defensive
-        debug('Error in CVR sync loop: %s', error);
+        if (!batch) {
+          stopSending();
+          return;
+        }
+        if (retry?.batchId !== batch.id) {
+          // A different batch is up (the last one sent, failed out or was
+          // deleted), so it starts with a clean slate.
+          retry = undefined;
+        }
+        if (retry && Date.now() < retry.nextAttemptAt) return;
+        store.setSendingToAdminBatchId(batch.id);
+        let outcome: SendBatchOutcome;
+        try {
+          outcome = await sendBatchToAdmin({
+            store,
+            logger,
+            hostAddress: connection.hostAddress,
+            batch,
+          });
+        } catch (error) {
+          // Anything sendBatchToAdmin didn't classify itself (e.g. a failure
+          // reading a sheet image) goes through the same retry flow as a
+          // transient failure, so it's bounded and ends in "Send failed".
+          logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
+            message: `Sending batch ${batch.id} to VxAdmin failed unexpectedly: ${error}`,
+            disposition: 'failure',
+            batchId: batch.id,
+            stack: (error as Partial<Error>).stack,
+          });
+          outcome = {
+            type: 'transient-failure',
+            detail: `unexpected error (${error})`,
+          };
+        }
+        switch (outcome.type) {
+          case 'sent':
+            stopSending();
+            break;
+          case 'fatal-failure':
+            markBatchFailed(batch.id, outcome.detail);
+            stopSending();
+            break;
+          case 'transient-failure': {
+            const failures = (retry?.failures ?? 0) + 1;
+            if (failures >= MAX_CONSECUTIVE_SEND_FAILURES) {
+              markBatchFailed(
+                batch.id,
+                `sending failed ${failures} times in a row (${outcome.detail})`
+              );
+              stopSending();
+            } else {
+              // Exponential backoff: 2s after the first failure, then 4s, 8s,
+              // 16s, …, capped at MAX_SEND_RETRY_DELAY_MS. The batch stays
+              // "sending" in the meantime.
+              retry = {
+                batchId: batch.id,
+                failures,
+                nextAttemptAt:
+                  Date.now() +
+                  Math.min(2 ** failures * 1000, MAX_SEND_RETRY_DELAY_MS),
+              };
+            }
+            break;
+          }
+          default:
+            throwIllegalValue(outcome);
+        }
       } finally {
         isSending = false;
       }

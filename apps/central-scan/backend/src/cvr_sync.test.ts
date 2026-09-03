@@ -10,7 +10,10 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import { err, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { NETWORK_POLLING_INTERVAL_MS } from '@votingworks/networking';
+import {
+  FinishCvrTransferError,
+  NETWORK_POLLING_INTERVAL_MS,
+} from '@votingworks/networking';
 import { getEntries, openZip } from '@votingworks/utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -205,6 +208,14 @@ async function waitForFailure(
   );
 }
 
+/** The sole batch is neither sent nor failed and is still being sent (awaiting a retry). */
+function expectAwaitingRetry(store: Store): void {
+  const [batch] = store.getBatches();
+  expect(batch.sentToAdminAt).toBeUndefined();
+  expect(batch.sendToAdminError).toBeUndefined();
+  expect(batch.isSendingToAdmin).toEqual(true);
+}
+
 async function advancePollingInterval(): Promise<void> {
   await vi.advanceTimersByTimeAsync(0);
   await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
@@ -318,13 +329,14 @@ test('marks a batch sent without uploading when the host already has it', async 
   expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 });
 
-test('retries on the next pass when the host refuses the transfer', async () => {
+test('a refusal at start is retried rather than failing the batch', async () => {
   const store = buildStore();
-  addFinishedBatch(store);
+  const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
+  // The heartbeat detects the same conditions and pauses sending itself
   mockClient.startCvrTransfer.mockResolvedValue(
-    err({ type: 'ballot-hash-mismatch' })
+    err({ type: 'invalid-mode', currentMode: 'official' })
   );
   mockUploadResponses();
 
@@ -332,10 +344,162 @@ test('retries on the next pass when the host refuses the transfer', async () => 
   startCvrSync({ logger, store });
   await advancePollingInterval();
   await waitForFailure(logger, 'start');
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
 
+  expectAwaitingRetry(store);
+  expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
+});
+
+test('repeated transient failures back off, then mark the batch failed and move on', async () => {
+  const store = buildStore();
+  const batchId = addFinishedBatch(store);
+  const nextBatchId = addFinishedBatch(store);
+  setRegistered(store);
+  const mockClient = createMockHostApiClient();
+  mockClient.startCvrTransfer.mockImplementation((input) =>
+    input.batchId === batchId
+      ? Promise.reject(new Error('ECONNREFUSED'))
+      : Promise.resolve(ok({ alreadyComplete: true }))
+  );
+  mockUploadResponses();
+
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  // Attempts are spaced by an exponential backoff; advance well past the
+  // point where the failure threshold is reached.
+  for (let i = 0; i < 40; i += 1) {
+    await advancePollingInterval();
+  }
+
+  expect(
+    mockClient.startCvrTransfer.mock.calls.map((call) => call[0].batchId)
+  ).toEqual([batchId, batchId, batchId, batchId, batchId, nextBatchId]);
+  expect(store.getBatch(batchId).sendToAdminError).toContain(
+    'sending failed 5 times in a row'
+  );
+  // Once the batch failed out, the next batch sent without waiting
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
+  expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
+});
+
+test('a batch waiting to retry stays sending until it succeeds', async () => {
+  const store = buildStore();
+  const batchId = addFinishedBatch(store);
+  setRegistered(store);
+  const mockClient = createMockHostApiClient();
+  mockClient.startCvrTransfer.mockRejectedValue(new Error('ECONNREFUSED'));
+  mockUploadResponses();
+
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
-  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(2);
+  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(1);
+  expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
+
+  mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
+  for (let i = 0; i < 5; i += 1) {
+    await advancePollingInterval();
+  }
+  expect(store.getBatch(batchId).sentToAdminAt).toBeDefined();
+  expect(store.getBatch(batchId).isSendingToAdmin).toBeUndefined();
+});
+
+test('does not attempt sends while disconnected and forgets pending retries', async () => {
+  const store = buildStore();
+  const batchId = addFinishedBatch(store);
+  setRegistered(store);
+  const mockClient = createMockHostApiClient();
+  mockClient.startCvrTransfer.mockRejectedValue(new Error('ECONNREFUSED'));
+  mockUploadResponses();
+
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
+
+  store.setNetworkConnectionInfo({ status: 'offline' });
+  for (let i = 0; i < 3; i += 1) {
+    await advancePollingInterval();
+  }
+  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(1);
+  // Attempts are forgotten while disconnected; sending starts over on reconnect
+  expect(store.getBatch(batchId).isSendingToAdmin).toBeUndefined();
+  expect(store.getBatch(batchId).sendToAdminError).toBeUndefined();
+});
+
+test('a batch waiting to retry holds the batches behind it until it sends', async () => {
+  const store = buildStore();
+  const flakyBatchId = addFinishedBatch(store);
+  const nextBatchId = addFinishedBatch(store);
+  setRegistered(store);
+  const mockClient = createMockHostApiClient();
+  mockClient.startCvrTransfer.mockImplementation(({ batchId }) =>
+    batchId === flakyBatchId
+      ? Promise.reject(new Error('ECONNRESET'))
+      : Promise.resolve(ok({ alreadyComplete: true }))
+  );
+  mockUploadResponses();
+
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  // The first backoff (2s) is one polling interval, so the flaky batch gets a
+  // second attempt before its backoff grows past the interval
+  await advancePollingInterval();
+  await advancePollingInterval();
+  expect(
+    mockClient.startCvrTransfer.mock.calls.map((call) => call[0].batchId)
+  ).toEqual([flakyBatchId, flakyBatchId]);
+  expect(store.getBatch(flakyBatchId).isSendingToAdmin).toEqual(true);
+
+  // While the flaky batch waits out its backoff, nothing is sent
+  await advancePollingInterval();
+  expect(
+    mockClient.startCvrTransfer.mock.calls.map((call) => call[0].batchId)
+  ).toEqual([flakyBatchId, flakyBatchId]);
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeUndefined();
+  expect(store.getBatch(flakyBatchId).isSendingToAdmin).toEqual(true);
+
+  // Once its backoff passes, the flaky batch is tried again and succeeds, and
+  // the next batch follows on the next pass
+  mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
+  await advancePollingInterval();
+  expect(store.getBatch(flakyBatchId).sentToAdminAt).toBeDefined();
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeUndefined();
+  await advancePollingInterval();
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
+});
+
+test('an unexpected error while sending is retried like a transient failure', async () => {
+  const store = buildStore();
+  const batchId = addFinishedBatch(store);
+  setRegistered(store);
+  const mockClient = createMockHostApiClient();
+  mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
+  mockUploadResponses();
+  // Blow up inside sendBatchToAdmin, outside of anything it classifies itself
+  vi.spyOn(store, 'getTestMode').mockImplementationOnce(() => {
+    throw new Error('disk on fire');
+  });
+
+  const logger = mockBaseLogger({ fn: vi.fn });
+  startCvrSync({ logger, store });
+  await advancePollingInterval();
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.CentralScanNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      batchId,
+      message: expect.stringContaining(
+        'failed unexpectedly: Error: disk on fire'
+      ),
+      stack: expect.stringContaining('disk on fire'),
+    })
+  );
+  // Counted as one transient failure: still sending, not failed
+  expectAwaitingRetry(store);
+
+  // The next attempt (after the backoff) succeeds
+  for (let i = 0; i < 3; i += 1) {
+    await advancePollingInterval();
+  }
+  expect(store.getBatch(batchId).sentToAdminAt).toBeDefined();
 });
 
 test('retries on the next pass when an upload fails', async () => {
@@ -351,7 +515,7 @@ test('retries on the next pass when an upload fails', async () => {
   await waitForFailure(logger, 'upload');
 
   expect(mockClient.finishCvrTransfer).not.toHaveBeenCalled();
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  expectAwaitingRetry(store);
 });
 
 test('retries on the next pass when the host is unreachable', async () => {
@@ -366,29 +530,81 @@ test('retries on the next pass when the host is unreachable', async () => {
   startCvrSync({ logger, store });
   await advancePollingInterval();
   await waitForFailure(logger, 'start');
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  expectAwaitingRetry(store);
 });
 
-test('does not mark a batch sent when finish fails', async () => {
+test.each<FinishCvrTransferError>([
+  // Re-sending on the next pass recovers from these
+  { type: 'transfer-not-found' },
+  { type: 'sheet-count-mismatch', expected: 1, received: 0 },
+  // The heartbeat detects these host state changes and pauses sending itself
+  { type: 'results-official' },
+  { type: 'invalid-mode', currentMode: 'official' },
+])(
+  'does not mark a batch sent or failed when finish fails with $type',
+  async (error) => {
+    const store = buildStore();
+    addFinishedBatch(store);
+    setRegistered(store);
+    const mockClient = createMockHostApiClient();
+    mockClient.finishCvrTransfer.mockResolvedValue(err(error));
+    mockUploadResponses();
+
+    const logger = mockBaseLogger({ fn: vi.fn });
+    startCvrSync({ logger, store });
+    await advancePollingInterval();
+    await waitForFailure(logger, 'finish');
+
+    expectAwaitingRetry(store);
+  }
+);
+
+test('a failed import marks the batch failed and skips it, sending the next batch', async () => {
   const store = buildStore();
-  addFinishedBatch(store);
+  const failingBatchId = addFinishedBatch(store);
+  const nextBatchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
   mockClient.finishCvrTransfer.mockResolvedValue(
-    err({
-      type: 'sheet-count-mismatch',
-      expected: 1,
-      received: 0,
-    })
+    err({ type: 'import-failed', subType: 'invalid-cast-vote-record' })
   );
   mockUploadResponses();
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
-  await waitForFailure(logger, 'finish');
+  await vi.waitFor(
+    () =>
+      expect(store.getBatch(failingBatchId).sendToAdminError).toContain(
+        'could not import'
+      ),
+    { timeout: 30_000 }
+  );
+  expect(mockClient.startCvrTransfer.mock.calls[0][0].batchId).toEqual(
+    failingBatchId
+  );
 
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  // The failed batch is skipped and the next batch sends
+  mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
+  await advancePollingInterval();
+  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(2);
+  expect(mockClient.startCvrTransfer.mock.calls[1][0].batchId).toEqual(
+    nextBatchId
+  );
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
+  expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
+
+  // Nothing more is attempted for the failed batch until an operator retries
+  await advancePollingInterval();
+  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(2);
+
+  // Manual retry puts it back in the queue
+  store.setBatchSendToAdminError(failingBatchId, null);
+  await advancePollingInterval();
+  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(3);
+  expect(mockClient.startCvrTransfer.mock.calls[2][0].batchId).toEqual(
+    failingBatchId
+  );
+  expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 });
 
 test('does not mark a batch sent when finish is unreachable', async () => {
@@ -404,7 +620,7 @@ test('does not mark a batch sent when finish is unreachable', async () => {
   await advancePollingInterval();
   await waitForFailure(logger, 'finish');
 
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  expectAwaitingRetry(store);
 });
 
 test('retries on the next pass when an upload cannot reach the host', async () => {
@@ -420,12 +636,12 @@ test('retries on the next pass when an upload cannot reach the host', async () =
   await waitForFailure(logger, 'upload');
 
   expect(mockClient.finishCvrTransfer).not.toHaveBeenCalled();
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  expectAwaitingRetry(store);
 });
 
-test('retries on the next pass when a cast vote record cannot be built', async () => {
+test('marks the batch failed when a cast vote record cannot be built', async () => {
   const store = buildStore();
-  addFinishedBatch(store);
+  const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
   const fetchMock = mockUploadResponses();
@@ -438,7 +654,9 @@ test('retries on the next pass when a cast vote record cannot be built', async (
 
   expect(fetchMock).not.toHaveBeenCalled();
   expect(mockClient.finishCvrTransfer).not.toHaveBeenCalled();
-  expect(store.getNextBatchToSendToAdmin()).toBeDefined();
+  // Bad local data won't fix itself on retry, so the batch is set aside
+  expect(store.getBatch(batchId).sendToAdminError).toContain('could not build');
+  expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 });
 
 test('does nothing when registered with no batches to send', async () => {

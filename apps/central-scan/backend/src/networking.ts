@@ -13,25 +13,33 @@ import {
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config.js';
 import { Store } from './store.js';
-import { NetworkConnectionInfo, NetworkConnectionStatus } from './types.js';
+import { NetworkConnectionInfo } from './types.js';
 
 const debug = makeDebug('scan:networking');
 
-function statusForRegistrationError(
-  error: RegisterScannerError
-): NetworkConnectionStatus {
-  const errorType = error.type;
-  switch (errorType) {
+function connectionInfoForRegistrationError(
+  error: RegisterScannerError,
+  hostMachineId: string
+): NetworkConnectionInfo {
+  switch (error.type) {
     case 'code-version-mismatch':
-      return 'online-code-version-mismatch';
+      return { status: 'online-code-version-mismatch', hostMachineId };
     case 'scanner-unconfigured':
-      return 'online-machine-unconfigured';
+      return { status: 'online-machine-unconfigured', hostMachineId };
     case 'host-unconfigured':
-      return 'online-host-unconfigured';
+      return { status: 'online-host-unconfigured', hostMachineId };
     case 'ballot-hash-mismatch':
-      return 'online-ballot-hash-mismatch';
+      return { status: 'online-ballot-hash-mismatch', hostMachineId };
+    case 'results-official':
+      return { status: 'online-results-official', hostMachineId };
+    case 'invalid-mode':
+      return {
+        status: 'online-invalid-mode',
+        hostMachineId,
+        hostCvrFileMode: error.currentMode,
+      };
     default:
-      return throwIllegalValue(errorType);
+      return throwIllegalValue(error, 'type');
   }
 }
 
@@ -60,7 +68,8 @@ export function startScannerNetworking({
         message: `Scanner connection status changed from ${currentInfo.status} to ${newInfo.status}.`,
         previousStatus: currentInfo.status,
         newStatus: newInfo.status,
-        hostMachineId: newInfo.hostMachineId ?? 'none',
+        hostMachineId:
+          'hostMachineId' in newInfo ? newInfo.hostMachineId : 'none',
       });
     }
     store.setNetworkConnectionInfo(newInfo);
@@ -143,6 +152,7 @@ export function startScannerNetworking({
             ballotHash:
               store.getElectionRecord()?.electionDefinition.ballotHash,
             pollingPlaceId: store.getPollingPlaceId(),
+            isTestMode: store.getTestMode(),
           });
         } catch (error) {
           debug('Host at %s unreachable: %s', hostMachine.address, error);
@@ -153,10 +163,9 @@ export function startScannerNetworking({
         if (registerResult.isErr()) {
           const error = registerResult.err();
           debug('Host %s refused registration: %s', hostMachineId, error.type);
-          setConnectionInfo({
-            status: statusForRegistrationError(error),
-            hostMachineId,
-          });
+          setConnectionInfo(
+            connectionInfoForRegistrationError(error, hostMachineId)
+          );
           return;
         }
 

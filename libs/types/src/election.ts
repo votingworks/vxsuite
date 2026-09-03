@@ -1480,6 +1480,17 @@ export interface BatchInfo {
    * network. Only used on VxCentralScan.
    */
   sentToAdminAt?: Iso8601Timestamp;
+  /**
+   * Set when sending this batch to a VxAdmin host failed in a way that needs
+   * operator attention. Only used on VxCentralScan.
+   */
+  sendToAdminError?: string;
+  /**
+   * Set while this batch's cast vote records are being sent to a VxAdmin
+   * host, including while waiting to retry after a transient failure. Only
+   * used on VxCentralScan.
+   */
+  isSendingToAdmin?: boolean;
 }
 
 export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);

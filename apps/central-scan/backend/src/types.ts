@@ -34,22 +34,46 @@ export type NetworkConnectionStatus =
   | 'online-machine-unconfigured'
   | 'online-host-unconfigured'
   | 'online-ballot-hash-mismatch'
+  /** The host's results are marked official, so it accepts no more CVRs. */
+  | 'online-results-official'
+  /** The host is locked to the other test/official ballot mode. */
+  | 'online-invalid-mode'
   | 'online-host-detected';
 
-/** The scanner's current connection state and the detected host, if any. */
-export interface NetworkConnectionInfo {
-  status: NetworkConnectionStatus;
-  /**
-   * Machine ID of the detected host, parsed from its avahi service name.
-   * Present whenever exactly one host was found on the network.
-   */
-  hostMachineId?: string;
-  /**
-   * Address of the host the scanner is registered with. Present only in the
-   * `online-host-detected` state; used by the CVR sync loop.
-   */
-  hostAddress?: string;
-}
+/**
+ * The scanner's current connection state and, once exactly one host has been
+ * found on the network, details about that host. Discriminated on `status` so
+ * each state carries exactly the details it has.
+ */
+export type NetworkConnectionInfo =
+  | {
+      status:
+        | 'offline'
+        | 'online-waiting-for-host'
+        | 'online-multiple-hosts-detected';
+    }
+  | {
+      status:
+        | 'online-code-version-mismatch'
+        | 'online-machine-unconfigured'
+        | 'online-host-unconfigured'
+        | 'online-ballot-hash-mismatch'
+        | 'online-results-official';
+      /** Machine ID of the detected host, parsed from its avahi service name. */
+      hostMachineId: string;
+    }
+  | {
+      status: 'online-invalid-mode';
+      hostMachineId: string;
+      /** The ballot mode the host's existing CVRs lock it to. */
+      hostCvrFileMode: 'test' | 'official';
+    }
+  | {
+      status: 'online-host-detected';
+      hostMachineId: string;
+      /** Address of the host's peer API, used by the CVR sync loop. */
+      hostAddress: string;
+    };
 
 /** The scanner's network status, as reported to the frontend. */
 export interface NetworkStatus {

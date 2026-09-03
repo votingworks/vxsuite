@@ -13,7 +13,11 @@ import {
 import { assertDefined, err, ok, range } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import type { Result } from '@votingworks/basics';
-import { buildTestEnvironment, configureMachine } from '../test/app.js';
+import {
+  buildTestEnvironment,
+  configureMachine,
+  mockElectionManagerAuth,
+} from '../test/app.js';
 import { getCurrentTime } from './get_current_time.js';
 import {
   addMockCvrFileToStore,
@@ -244,6 +248,7 @@ test('registerScanner records the scanner and returns the host machine config', 
   expect(
     await peerApiClient.registerScanner({
       machineId: 'SCANNER-01',
+      isTestMode: true,
       codeVersion: 'dev',
       ballotHash: electionDefinition.ballotHash,
     })
@@ -262,6 +267,120 @@ test('registerScanner records the scanner and returns the host machine config', 
   ]);
 });
 
+test('registerScanner refuses a scanner once results are marked official', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await apiClient.markResultsOfficial();
+
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+      isTestMode: true,
+    })
+  ).toEqual(err({ type: 'results-official' }));
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: 'results-official',
+    }),
+  ]);
+});
+
+test('registerScanner refuses an official-mode scanner once test CVRs lock the mode', async () => {
+  const { peerApiClient, apiClient, auth, workspace, peerLogger } =
+    buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+  workspace.store.addCastVoteRecordFileRecord({
+    id: 'test-import',
+    electionId,
+    isTestMode: true,
+    filename: 'test-export',
+    exportedTimestamp: new Date().toISOString(),
+    scannerIds: new Set(['SCANNER-02']),
+    pollingPlaceIds: new Set(),
+    batchIds: [],
+    source: { type: 'usb', sha256Hash: 'test-hash' },
+  });
+
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+      isTestMode: false,
+    })
+  ).toEqual(err({ type: 'invalid-mode', currentMode: 'test' }));
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: expect.stringContaining(
+        'tabulating test ballots and the scanner is in official ballot mode'
+      ),
+    })
+  );
+});
+
+test('registerScanner refuses a scanner in the other ballot mode once CVRs lock the mode', async () => {
+  const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+
+  function register(isTestMode: boolean) {
+    return peerApiClient.registerScanner({
+      machineId: 'SCANNER-01',
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+      isTestMode,
+    });
+  }
+
+  const registered = ok({
+    machineId: DEV_MACHINE_ID,
+    codeVersion: 'dev',
+  });
+  // With no CVRs loaded yet, a scanner in either mode registers
+  expect(await register(false)).toEqual(registered);
+  expect(await register(true)).toEqual(registered);
+
+  // An official import locks the mode
+  workspace.store.addCastVoteRecordFileRecord({
+    id: 'official-import',
+    electionId,
+    isTestMode: false,
+    filename: 'official-export',
+    exportedTimestamp: new Date().toISOString(),
+    scannerIds: new Set(['SCANNER-02']),
+    pollingPlaceIds: new Set(),
+    batchIds: [],
+    source: { type: 'usb', sha256Hash: 'test-hash' },
+  });
+  expect(await register(true)).toEqual(
+    err({ type: 'invalid-mode', currentMode: 'official' })
+  );
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: 'invalid-mode',
+    }),
+  ]);
+  expect(await register(false)).toEqual(registered);
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: 'SCANNER-01',
+      registrationError: null,
+    }),
+  ]);
+});
+
 test('registerScanner records a scanner configured for a different election with an error', async () => {
   const { peerApiClient, apiClient, auth, peerLogger, workspace } =
     buildTestEnvironment();
@@ -269,6 +388,7 @@ test('registerScanner records a scanner configured for a different election with
   expect(
     await peerApiClient.registerScanner({
       machineId: 'SCANNER-01',
+      isTestMode: true,
       codeVersion: 'dev',
       ballotHash: 'some-other-ballot-hash',
     })
@@ -296,6 +416,7 @@ test('registerScanner records an unconfigured scanner with an error', async () =
   expect(
     await peerApiClient.registerScanner({
       machineId: 'SCANNER-01',
+      isTestMode: true,
       codeVersion: 'dev',
     })
   ).toEqual(err({ type: 'scanner-unconfigured' }));
@@ -312,6 +433,7 @@ test('registerScanner records a scanner with an error when the host is unconfigu
   expect(
     await peerApiClient.registerScanner({
       machineId: 'SCANNER-01',
+      isTestMode: true,
       codeVersion: 'dev',
       ballotHash: readElectionGeneralDefinition().ballotHash,
     })
@@ -329,6 +451,7 @@ test('registerScanner records a scanner running an incompatible code version wit
   expect(
     await peerApiClient.registerScanner({
       machineId: 'SCANNER-01',
+      isTestMode: true,
       codeVersion: 'some-other-version',
     })
   ).toEqual(err({ type: 'code-version-mismatch' }));

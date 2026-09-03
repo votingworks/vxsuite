@@ -55,8 +55,27 @@ const testCases: Array<{
     expectedText: 'VxAdmin (0002) is configured for a different election',
     expectedIcon: 'circle-info',
   },
+  // Refusals explained on the Scan Ballots screen read as connected here
   {
-    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+    connection: { status: 'online-results-official', hostMachineId: '0002' },
+    expectedText: 'Online — VxAdmin (0002) connected on the network',
+    expectedIcon: 'square-check',
+  },
+  {
+    connection: {
+      status: 'online-invalid-mode',
+      hostMachineId: '0002',
+      hostCvrFileMode: 'official',
+    },
+    expectedText: 'Online — VxAdmin (0002) connected on the network',
+    expectedIcon: 'square-check',
+  },
+  {
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
     expectedText: 'Online — VxAdmin (0002) connected on the network',
     expectedIcon: 'square-check',
   },

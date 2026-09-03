@@ -415,6 +415,76 @@ test('startCvrTransfer enforces the test/official mode lock', async () => {
   ).toEqual(err({ type: 'invalid-mode', currentMode: 'test' }));
 });
 
+test('transfers are refused once results are marked official', async () => {
+  const { apiClient, auth, peerApiClient, peerServer, workspace } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+  const batch = await loadFixtureBatch();
+  const baseUrl = peerBaseUrl(peerServer);
+
+  (await peerApiClient.startCvrTransfer(startInput(batch))).unsafeUnwrap();
+  for (const cvr of batch.cvrs) {
+    expect((await uploadCvr(baseUrl, batch, cvr)).status).toEqual(200);
+  }
+
+  // Results are marked official while the transfer is in flight
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await apiClient.markResultsOfficial();
+
+  expect(
+    await peerApiClient.finishCvrTransfer({
+      machineId: SCANNER_ID,
+      batchId: batch.batchId,
+    })
+  ).toEqual(err({ type: 'results-official' }));
+  expect(workspace.store.getCvrFiles(electionId)).toHaveLength(0);
+  expect(
+    await peerApiClient.startCvrTransfer(
+      startInput(batch, { batchId: 'another-batch' })
+    )
+  ).toEqual(err({ type: 'results-official' }));
+});
+
+test('finishCvrTransfer honors a mode lock that landed mid-transfer', async () => {
+  const { apiClient, auth, peerApiClient, peerServer, workspace } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+  const batch = await loadFixtureBatch();
+  const baseUrl = peerBaseUrl(peerServer);
+
+  (await peerApiClient.startCvrTransfer(startInput(batch))).unsafeUnwrap();
+  for (const cvr of batch.cvrs) {
+    expect((await uploadCvr(baseUrl, batch, cvr)).status).toEqual(200);
+  }
+
+  // An official-mode import lands before the test-mode transfer finishes
+  workspace.store.addCastVoteRecordFileRecord({
+    id: 'official-import',
+    electionId,
+    isTestMode: false,
+    filename: 'official-export',
+    exportedTimestamp: new Date().toISOString(),
+    scannerIds: new Set(['CS-02']),
+    pollingPlaceIds: new Set(),
+    batchIds: [],
+    source: { type: 'usb', sha256Hash: 'test-hash' },
+  });
+
+  expect(
+    await peerApiClient.finishCvrTransfer({
+      machineId: SCANNER_ID,
+      batchId: batch.batchId,
+    })
+  ).toEqual(err({ type: 'invalid-mode', currentMode: 'official' }));
+  // Nothing from the refused transfer was imported
+  expect(workspace.store.getCvrFiles(electionId)).toHaveLength(1);
+  expect(
+    workspace.store.getNetworkCvrImportId(electionId, SCANNER_ID, batch.batchId)
+  ).toBeUndefined();
+});
+
 test('upload endpoint rejects invalid requests', async () => {
   const { apiClient, auth, peerApiClient, peerServer } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

@@ -129,6 +129,14 @@ function buildApi({
       );
     },
 
+    async retrySendBatchToAdmin({ batchId }: { batchId: string }) {
+      workspace.store.setBatchSendToAdminError(batchId, null);
+      await logger.logAsCurrentRole(LogEventId.CentralScanNetworkStatus, {
+        message: `User retried sending batch ${batchId} to VxAdmin.`,
+        batchId,
+      });
+    },
+
     async deleteBatch({ batchId }: { batchId: string }) {
       const numberOfBallotsInBatch = workspace.store
         .getBatches()

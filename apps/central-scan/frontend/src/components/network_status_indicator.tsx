@@ -11,7 +11,12 @@ function indicatorStatus(
 ): NetworkIndicatorStatus {
   const { status } = connection;
   switch (status) {
+    // For results-official and invalid-mode, VxAdmin is reachable but won't
+    // take this machine's batches; the Scan Ballots screen explains why, so
+    // the connection itself reads as fine.
     case 'online-host-detected':
+    case 'online-results-official':
+    case 'online-invalid-mode':
       return 'connected';
     case 'offline':
       return 'no-network';

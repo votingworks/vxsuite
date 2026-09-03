@@ -158,6 +158,13 @@ export class Store {
    */
   private networkConnectionInfo: NetworkConnectionInfo = { status: 'offline' };
 
+  /**
+   * The batch whose cast vote records the sync loop is currently sending to a
+   * VxAdmin host (see `BatchInfo.isSendingToAdmin`). In memory only, like the
+   * loop's retry state.
+   */
+  private sendingToAdminBatchId?: string;
+
   getNetworkConnectionInfo(): NetworkConnectionInfo {
     return this.networkConnectionInfo;
   }
@@ -196,6 +203,7 @@ export class Store {
    * Resets the database and any cached data in the store.
    */
   reset(): void {
+    this.sendingToAdminBatchId = undefined;
     this.client.reset();
   }
 
@@ -709,6 +717,7 @@ export class Store {
 
         this.setScannerBackedUp(false);
       });
+      this.sendingToAdminBatchId = undefined;
     }
   }
 
@@ -827,6 +836,7 @@ export class Store {
       error: string | null;
       count: number;
       sentToAdminAt: string | null;
+      sendToAdminError: string | null;
     }
     const batchInfo = this.client.all(`
       select
@@ -837,6 +847,7 @@ export class Store {
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         (case when sent_to_admin_at is null then sent_to_admin_at else strftime('%s', sent_to_admin_at) end) as sentToAdminAt,
+        send_to_admin_error as sendToAdminError,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -873,14 +884,17 @@ export class Store {
           // eslint-disable-next-line vx/gts-safe-number-parse
           DateTime.fromSeconds(Number(info.sentToAdminAt)).toISO()) ||
         undefined,
+      sendToAdminError: info.sendToAdminError || undefined,
+      isSendingToAdmin: info.id === this.sendingToAdminBatchId || undefined,
     }));
   }
 
   /**
-   * Returns the oldest completed batch whose cast vote records have not yet
-   * been sent to a VxAdmin host, if any. Batches send strictly oldest-first.
+   * The oldest completed batch whose cast vote records have not yet been sent
+   * to a VxAdmin host. A batch marked failed is excluded until an operator
+   * retries it.
    */
-  getNextBatchToSendToAdmin(): BatchInfo | undefined {
+  getNextBatchToSendToAdmin(): Optional<BatchInfo> {
     const row = this.client.one(`
       select id
       from batches
@@ -888,10 +902,16 @@ export class Store {
         ended_at is not null
         and deleted_at is null
         and sent_to_admin_at is null
+        and send_to_admin_error is null
       order by started_at asc, batch_number asc
       limit 1
-    `) as { id: string } | undefined;
-    return row ? this.getBatch(row.id) : undefined;
+    `) as Optional<{ id: string }>;
+    return row && this.getBatch(row.id);
+  }
+
+  /** Records which batch, if any, is being sent to a VxAdmin host. */
+  setSendingToAdminBatchId(batchId?: string): void {
+    this.sendingToAdminBatchId = batchId;
   }
 
   /**
@@ -900,7 +920,20 @@ export class Store {
    */
   setBatchSentToAdmin(batchId: string): void {
     this.client.run(
-      'update batches set sent_to_admin_at = current_timestamp where id = ?',
+      'update batches set sent_to_admin_at = current_timestamp, send_to_admin_error = null where id = ?',
+      batchId
+    );
+  }
+
+  /**
+   * Sets or clears a batch's send-to-VxAdmin failure state. While set, the
+   * batch is skipped by the sync loop (other batches keep sending) until an
+   * operator retries it. Either way the batch's send attempts start over.
+   */
+  setBatchSendToAdminError(batchId: string, error: string | null): void {
+    this.client.run(
+      'update batches set send_to_admin_error = ? where id = ?',
+      error,
       batchId
     );
   }

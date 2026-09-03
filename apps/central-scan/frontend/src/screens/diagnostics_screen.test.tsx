@@ -78,7 +78,11 @@ test('shows the network status when networking is enabled', async () => {
 
   apiMock.setNetworkStatus({
     isEnabled: true,
-    connection: { status: 'online-host-detected', hostMachineId: '0002' },
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
   });
   await screen.findByText(
     'Online — VxAdmin (0002) connected on the network',

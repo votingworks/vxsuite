@@ -133,6 +133,32 @@ export class NetworkCvrImportQueue {
   }
 }
 
+/**
+ * Whether the host can accept cast vote records in the given mode right now:
+ * not once results are official, and only in the mode its existing CVRs lock
+ * it to. Checked at registration and again at each transfer step, since the
+ * host's state can change between a scanner's heartbeats.
+ */
+export function checkCvrImportAllowed(
+  store: Store,
+  electionId: string,
+  isTestMode: boolean
+): Result<
+  void,
+  | { type: 'results-official' }
+  | { type: 'invalid-mode'; currentMode: 'test' | 'official' }
+> {
+  if (assertDefined(store.getElection(electionId)).isOfficialResults) {
+    return err({ type: 'results-official' });
+  }
+  const transferMode: CvrFileMode = isTestMode ? 'test' : 'official';
+  const currentMode = store.getCurrentCvrFileModeForElection(electionId);
+  if (currentMode !== 'unlocked' && transferMode !== currentMode) {
+    return err({ type: 'invalid-mode', currentMode });
+  }
+  return ok();
+}
+
 function checkScannerCompatibility(
   store: Store,
   input: { codeVersion: string; ballotHash: string }
@@ -185,14 +211,17 @@ export async function startCvrTransfer(
   }
   const { electionId } = compatibility.ok();
 
-  const transferMode: CvrFileMode = input.isTestMode ? 'test' : 'official';
-  const currentMode = store.getCurrentCvrFileModeForElection(electionId);
-  if (currentMode !== 'unlocked' && transferMode !== currentMode) {
-    return reject({ type: 'invalid-mode', currentMode });
-  }
-
   if (store.getNetworkCvrImportId(electionId, input.machineId, input.batchId)) {
     return ok({ alreadyComplete: true });
+  }
+
+  const importAllowed = checkCvrImportAllowed(
+    store,
+    electionId,
+    input.isTestMode
+  );
+  if (importAllowed.isErr()) {
+    return reject(importAllowed.err());
   }
 
   const transferDirectoryPath = getTransferDirectoryPath(
@@ -497,7 +526,18 @@ async function moveStagedTransfer({
   // back. All rows are inserted before any image file moves so a rollback
   // can't leave moved images behind.
   const moveResult = store.withTransaction(
-    (): Result<void, { subType: string }> => {
+    (): Result<void, FinishCvrTransferError> => {
+      // Re-checked inside the transaction so that a USB import or marking
+      // results official that landed since the transfer started is honored.
+      const importAllowed = checkCvrImportAllowed(
+        store,
+        electionId,
+        manifest.isTestMode
+      );
+      if (importAllowed.isErr()) {
+        return err(importAllowed.err());
+      }
+
       store.addScannerBatch({
         batchId: manifest.batchId,
         electionId,
@@ -540,7 +580,7 @@ async function moveStagedTransfer({
           adjudicationFlags: data.adjudicationFlags,
         });
         if (addResult.isErr()) {
-          return err({ subType: addResult.err().type });
+          return err({ type: 'import-failed', subType: addResult.err().type });
         }
         const { cvrId, isNew } = addResult.ok();
         inserted.push({ cvrId, isNew, ballotId, data });
@@ -586,15 +626,16 @@ async function moveStagedTransfer({
   );
 
   if (moveResult.isErr()) {
-    const { subType } = moveResult.err();
+    const error = moveResult.err();
+    const detail = error.type === 'import-failed' ? error.subType : error.type;
     logger.log(LogEventId.ImportCastVoteRecordsComplete, 'system', {
-      message: `Failed to import CVR transfer of batch ${manifest.batchId} from scanner ${manifest.machineId}: ${subType}.`,
+      message: `Failed to import CVR transfer of batch ${manifest.batchId} from scanner ${manifest.machineId}: ${detail}.`,
       disposition: 'failure',
       scannerMachineId: manifest.machineId,
       batchId: manifest.batchId,
-      error: subType,
+      error: detail,
     });
-    return err({ type: 'import-failed', subType });
+    return err(error);
   }
 
   await fs.rm(transferDirectoryPath, { recursive: true, force: true });

@@ -218,6 +218,32 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
   });
 });
 
+test('retrySendBatchToAdmin clears a batch send failure', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, importer, store }) => {
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+
+    const batchId = store.addBatch();
+    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.finishBatch({ batchId });
+    store.setBatchSendToAdminError(batchId, 'sending failed');
+    expect(store.getBatch(batchId).sendToAdminError).toEqual('sending failed');
+    // A failed batch is skipped by the send queue
+    expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
+
+    await apiClient.retrySendBatchToAdmin({ batchId });
+    expect(store.getBatch(batchId).sendToAdminError).toBeUndefined();
+    expect(store.getNextBatchToSendToAdmin()?.id).toEqual(batchId);
+  });
+});
+
 test('clearing scanning data', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -352,12 +378,14 @@ test('getNetworkStatus reports the connection info from the store when networkin
     store.setNetworkConnectionInfo({
       status: 'online-host-detected',
       hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
     });
     expect(await apiClient.getNetworkStatus()).toEqual({
       isEnabled: true,
       connection: {
         status: 'online-host-detected',
         hostMachineId: '0002',
+        hostAddress: 'http://169.254.10.20:3002',
       },
     });
   });
