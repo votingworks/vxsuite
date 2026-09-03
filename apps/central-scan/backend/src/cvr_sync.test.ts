@@ -349,12 +349,17 @@ test('a refusal at start is retried rather than failing the batch', async () => 
   expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
 });
 
-test('repeated transient failures back off, then mark the batch failed', async () => {
+test('repeated transient failures back off, then mark the batch failed and move on', async () => {
   const store = buildStore();
   const batchId = addFinishedBatch(store);
+  const nextBatchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
-  mockClient.startCvrTransfer.mockRejectedValue(new Error('ECONNREFUSED'));
+  mockClient.startCvrTransfer.mockImplementation((input) =>
+    input.batchId === batchId
+      ? Promise.reject(new Error('ECONNREFUSED'))
+      : Promise.resolve(ok({ alreadyComplete: true }))
+  );
   mockUploadResponses();
 
   startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
@@ -364,15 +369,18 @@ test('repeated transient failures back off, then mark the batch failed', async (
     await advancePollingInterval();
   }
 
-  expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(5);
+  expect(
+    mockClient.startCvrTransfer.mock.calls.map((call) => call[0].batchId)
+  ).toEqual([batchId, batchId, batchId, batchId, batchId, nextBatchId]);
   expect(store.getBatch(batchId).sendToAdminError).toContain(
     'sending failed 5 times in a row'
   );
-  // The failed batch is no longer in the send queue
+  // Once the batch failed out, the next batch sent without waiting
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
   expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 });
 
-test('a batch waiting to retry stays sending and is passed over until due', async () => {
+test('a batch waiting to retry stays sending until it succeeds', async () => {
   const store = buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
@@ -384,8 +392,6 @@ test('a batch waiting to retry stays sending and is passed over until due', asyn
   await advancePollingInterval();
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(1);
   expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
-  // Not due again yet
-  expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 
   mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
   for (let i = 0; i < 5; i += 1) {
@@ -417,7 +423,7 @@ test('does not attempt sends while disconnected and forgets pending retries', as
   expect(store.getBatch(batchId).sendToAdminError).toBeUndefined();
 });
 
-test('a batch waiting to retry does not delay the batches behind it', async () => {
+test('a batch waiting to retry holds the batches behind it until it sends', async () => {
   const store = buildStore();
   const flakyBatchId = addFinishedBatch(store);
   const nextBatchId = addFinishedBatch(store);
@@ -440,20 +446,22 @@ test('a batch waiting to retry does not delay the batches behind it', async () =
   ).toEqual([flakyBatchId, flakyBatchId]);
   expect(store.getBatch(flakyBatchId).isSendingToAdmin).toEqual(true);
 
-  // While the flaky batch waits out its backoff, the next batch sends
+  // While the flaky batch waits out its backoff, nothing is sent
   await advancePollingInterval();
   expect(
     mockClient.startCvrTransfer.mock.calls.map((call) => call[0].batchId)
-  ).toEqual([flakyBatchId, flakyBatchId, nextBatchId]);
-  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
+  ).toEqual([flakyBatchId, flakyBatchId]);
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeUndefined();
   expect(store.getBatch(flakyBatchId).isSendingToAdmin).toEqual(true);
 
-  // Once its backoff passes, the first batch is tried again
+  // Once its backoff passes, the flaky batch is tried again and succeeds, and
+  // the next batch follows on the next pass
   mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
-  for (let i = 0; i < 3; i += 1) {
-    await advancePollingInterval();
-  }
+  await advancePollingInterval();
   expect(store.getBatch(flakyBatchId).sentToAdminAt).toBeDefined();
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeUndefined();
+  await advancePollingInterval();
+  expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
 });
 
 test('an unexpected error while sending is retried like a transient failure', async () => {

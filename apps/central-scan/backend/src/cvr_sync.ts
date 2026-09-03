@@ -1,6 +1,11 @@
 import { Buffer } from 'node:buffer';
 import * as grout from '@votingworks/grout';
-import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  iter,
+  Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type { ReadableFile } from '@votingworks/auth';
 import {
   AcceptedSheet,
@@ -30,7 +35,8 @@ export const CVR_TRANSFER_REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
  * After this many consecutive transient failures sending the same batch, the
- * batch is marked failed and skipped until an operator retries it.
+ * batch is marked failed and sending moves on to the next batch. The failed
+ * batch is not tried again until an operator retries it.
  */
 export const MAX_CONSECUTIVE_SEND_FAILURES = 5;
 
@@ -264,6 +270,23 @@ export function startCvrSync({
     });
   }
 
+  /**
+   * The batch being retried after transient failures, with its consecutive
+   * failure count and the earliest time to try again. Batches send in order,
+   * so there is at most one. In memory only: after a restart, sending simply
+   * starts over.
+   */
+  let retry: Optional<{
+    batchId: string;
+    failures: number;
+    nextAttemptAt: number;
+  }>;
+
+  function stopSending(): void {
+    retry = undefined;
+    store.setSendingToAdminBatchId(undefined);
+  }
+
   process.nextTick(() => {
     setInterval(async () => {
       // @coverage-exclude: re-entrancy guard
@@ -272,14 +295,23 @@ export function startCvrSync({
       try {
         const connection = store.getNetworkConnectionInfo();
         if (connection.status !== 'online-host-detected') {
-          store.clearSendToAdminAttempts();
+          stopSending();
           return;
         }
-        // Failed batches and batches still waiting out a retry backoff are
-        // excluded by the store, so neither holds up the batches behind it.
+        // Batches send in order; one that has failed out is passed over until
+        // an operator retries it.
         const batch = store.getNextBatchToSendToAdmin();
-        if (!batch) return;
-        store.startSendingBatchToAdmin(batch.id);
+        if (!batch) {
+          stopSending();
+          return;
+        }
+        if (retry?.batchId !== batch.id) {
+          // A different batch is up (the last one sent, failed out or was
+          // deleted), so it starts with a clean slate.
+          retry = undefined;
+        }
+        if (retry && Date.now() < retry.nextAttemptAt) return;
+        store.setSendingToAdminBatchId(batch.id);
         let outcome: SendBatchOutcome;
         try {
           outcome = await sendBatchToAdmin({
@@ -305,25 +337,31 @@ export function startCvrSync({
         }
         switch (outcome.type) {
           case 'sent':
+            stopSending();
             break;
           case 'fatal-failure':
             markBatchFailed(batch.id, outcome.detail);
+            stopSending();
             break;
           case 'transient-failure': {
-            const failures = store.recordBatchSendToAdminFailure(batch.id);
+            const failures = (retry?.failures ?? 0) + 1;
             if (failures >= MAX_CONSECUTIVE_SEND_FAILURES) {
               markBatchFailed(
                 batch.id,
                 `sending failed ${failures} times in a row (${outcome.detail})`
               );
+              stopSending();
             } else {
               // Exponential backoff: 2s after the first failure, then 4s, 8s,
-              // 16s, …, capped at MAX_SEND_RETRY_DELAY_MS.
-              store.deferBatchSendToAdmin(
-                batch.id,
-                Date.now() +
-                  Math.min(2 ** failures * 1000, MAX_SEND_RETRY_DELAY_MS)
-              );
+              // 16s, …, capped at MAX_SEND_RETRY_DELAY_MS. The batch stays
+              // "sending" in the meantime.
+              retry = {
+                batchId: batch.id,
+                failures,
+                nextAttemptAt:
+                  Date.now() +
+                  Math.min(2 ** failures * 1000, MAX_SEND_RETRY_DELAY_MS),
+              };
             }
             break;
           }
