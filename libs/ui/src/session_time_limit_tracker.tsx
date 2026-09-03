@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
+import useInterval from 'use-interval';
 import {
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
@@ -197,6 +198,26 @@ const TimerCallout = styled(Card).attrs({ color: 'warning' })`
   }
 `;
 
+// Polls every second, but stores whether the prompt should be shown rather than
+// the current time, so that the ticks that don't change the answer — i.e. all
+// of them, until the session is nearly expired — are dropped by React's state
+// bailout instead of re-rendering.
+function useShouldDisplayTimeLimitPrompt(
+  authStatus: SessionTimeLimitTimerProps['authStatus']
+): boolean {
+  function compute() {
+    return (
+      authStatus?.status === 'logged_in' &&
+      shouldDisplayTimeLimitPrompt(authStatus, new Date())
+    );
+  }
+
+  const [shouldDisplay, setShouldDisplay] = useState(compute);
+  useInterval(() => setShouldDisplay(compute()), 1000);
+
+  return shouldDisplay;
+}
+
 /**
  * Displays a count down timer to session expiry. Appears at the same time as the prompts surfaced
  * by SessionTimeLimitTracker.
@@ -204,12 +225,12 @@ const TimerCallout = styled(Card).attrs({ color: 'warning' })`
 export function SessionTimeLimitTimer({
   authStatus,
 }: SessionTimeLimitTimerProps): JSX.Element | null {
-  const now = useNow().toJSDate();
+  const shouldDisplay = useShouldDisplayTimeLimitPrompt(authStatus);
 
   if (authStatus?.status !== 'logged_in') {
     return null;
   }
-  if (shouldDisplayTimeLimitPrompt(authStatus, now)) {
+  if (shouldDisplay) {
     return (
       <TimerCallout>
         Machine will automatically lock in{' '}
