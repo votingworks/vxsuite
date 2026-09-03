@@ -27,7 +27,11 @@ create table batches (
   -- Set when sending this batch to a VxAdmin host failed in a way that needs
   -- operator attention. The batch is skipped (other batches keep sending)
   -- until the operator retries it.
-  send_to_admin_error text
+  send_to_admin_error text,
+  -- When the VxAdmin host this batch was sent to reported no longer holding
+  -- its cast vote records (e.g. they were removed on the host). Null until
+  -- then; cleared when the operator sends the batch again.
+  removed_from_admin_at text
 ) strict;
 
 create index idx_batches_unsent_to_admin on batches (started_at)

@@ -415,6 +415,58 @@ test('startCvrTransfer enforces the test/official mode lock', async () => {
   ).toEqual(err({ type: 'invalid-mode', currentMode: 'test' }));
 });
 
+test('registerScanner reports the batches imported from the scanner', async () => {
+  const { apiClient, auth, peerApiClient, peerServer, workspace } =
+    buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+  const batch = await loadFixtureBatch();
+  const baseUrl = peerBaseUrl(peerServer);
+
+  function register() {
+    return peerApiClient.registerScanner({
+      machineId: SCANNER_ID,
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+      isTestMode: true,
+    });
+  }
+  expect((await register()).unsafeUnwrap().importedBatchIds).toEqual([]);
+
+  (await peerApiClient.startCvrTransfer(startInput(batch))).unsafeUnwrap();
+  for (const cvr of batch.cvrs) {
+    expect((await uploadCvr(baseUrl, batch, cvr)).status).toEqual(200);
+  }
+  // Staged records don't count until the import completes
+  expect((await register()).unsafeUnwrap().importedBatchIds).toEqual([]);
+  (
+    await peerApiClient.finishCvrTransfer({
+      machineId: SCANNER_ID,
+      batchId: batch.batchId,
+    })
+  ).unsafeUnwrap();
+  expect((await register()).unsafeUnwrap().importedBatchIds).toEqual([
+    batch.batchId,
+  ]);
+
+  // Removing the import on the host drops it from the list, and the host
+  // accepts the batch again
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await apiClient.deleteCvrFile({
+    fileId: assertDefined(
+      workspace.store.getNetworkCvrImportId(
+        electionId,
+        SCANNER_ID,
+        batch.batchId
+      )
+    ),
+  });
+  expect((await register()).unsafeUnwrap().importedBatchIds).toEqual([]);
+  expect(await peerApiClient.startCvrTransfer(startInput(batch))).toEqual(
+    ok({ alreadyComplete: false })
+  );
+});
+
 test('transfers are refused once results are marked official', async () => {
   const { apiClient, auth, peerApiClient, peerServer, workspace } =
     buildTestEnvironment();

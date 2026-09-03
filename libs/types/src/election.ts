@@ -1491,6 +1491,12 @@ export interface BatchInfo {
    * used on VxCentralScan.
    */
   isSendingToAdmin?: boolean;
+  /**
+   * When the VxAdmin host this batch was sent to reported no longer holding
+   * its cast vote records, e.g. because they were removed on the host. Only
+   * used on VxCentralScan.
+   */
+  removedFromAdminAt?: Iso8601Timestamp;
 }
 
 export const BallotCastingModeSchema = z.enum(['early_voting', 'election_day']);

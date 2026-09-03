@@ -125,6 +125,44 @@ test('shows a batch waiting to retry as sending', async () => {
   expect(rows[1]).toHaveTextContent('Not sent');
 });
 
+test('shows a batch removed from VxAdmin with a resend button', async () => {
+  apiMock.setNetworkStatus({
+    isEnabled: true,
+    connection: {
+      status: 'online-host-detected',
+      hostMachineId: '0002',
+      hostAddress: 'http://169.254.10.20:3002',
+    },
+  });
+  const sentAt = new Date(2026, 7, 25, 10, 0).toISOString();
+  const status: ScanStatus = mockStatus({
+    batches: [
+      mockBatch({
+        id: 'still-on-admin',
+        label: 'Batch 1',
+        sentToAdminAt: sentAt,
+      }),
+      mockBatch({
+        id: 'removed',
+        label: 'Batch 2',
+        sentToAdminAt: sentAt,
+        removedFromAdminAt: sentAt,
+      }),
+    ],
+  });
+  renderScreen({ status });
+  await screen.findByText('Removed from VxAdmin');
+  const rows = screen.getAllByRole('row').slice(1);
+  expect(rows[0]).not.toHaveTextContent('Removed from VxAdmin');
+  expect(rows[1]).toHaveTextContent('Removed from VxAdmin');
+
+  apiMock.apiClient.resendBatchToAdmin
+    .expectCallWith({ batchId: 'removed' })
+    .resolves();
+  userEvent.click(screen.getButton('Resend'));
+  await vi.waitFor(() => apiMock.assertComplete());
+});
+
 test.each([
   {
     hostCvrFileMode: 'official' as const,

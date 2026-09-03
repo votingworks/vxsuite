@@ -837,6 +837,7 @@ export class Store {
       count: number;
       sentToAdminAt: string | null;
       sendToAdminError: string | null;
+      removedFromAdminAt: string | null;
     }
     const batchInfo = this.client.all(`
       select
@@ -848,6 +849,7 @@ export class Store {
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         (case when sent_to_admin_at is null then sent_to_admin_at else strftime('%s', sent_to_admin_at) end) as sentToAdminAt,
         send_to_admin_error as sendToAdminError,
+        (case when removed_from_admin_at is null then removed_from_admin_at else strftime('%s', removed_from_admin_at) end) as removedFromAdminAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -886,6 +888,11 @@ export class Store {
         undefined,
       sendToAdminError: info.sendToAdminError || undefined,
       isSendingToAdmin: info.id === this.sendingToAdminBatchId || undefined,
+      removedFromAdminAt:
+        (info.removedFromAdminAt &&
+          // eslint-disable-next-line vx/gts-safe-number-parse
+          DateTime.fromSeconds(Number(info.removedFromAdminAt)).toISO()) ||
+        undefined,
     }));
   }
 
@@ -923,6 +930,50 @@ export class Store {
       'update batches set sent_to_admin_at = current_timestamp, send_to_admin_error = null where id = ?',
       batchId
     );
+  }
+
+  /**
+   * Clears a batch's sent-to-VxAdmin state so the sync loop sends it again,
+   * e.g. after its import was removed on the host.
+   */
+  setBatchUnsentToAdmin(batchId: string): void {
+    this.client.run(
+      `
+        update batches
+        set sent_to_admin_at = null, send_to_admin_error = null, removed_from_admin_at = null
+        where id = ?
+      `,
+      batchId
+    );
+  }
+
+  /**
+   * Marks as removed from the host any sent batch missing from the batches the
+   * VxAdmin host reported holding in a heartbeat sent at `requestedAt` (epoch
+   * milliseconds), and returns the newly marked batches. A batch sent after
+   * the heartbeat was requested doesn't count as missing, since the host may
+   * have committed it only after answering. `sent_to_admin_at` has one-second
+   * resolution, so the times are compared in whole seconds.
+   */
+  markBatchesRemovedFromAdmin(
+    hostBatchIds: string[],
+    requestedAt: number
+  ): Array<{ id: string; label: string }> {
+    return this.client.all(
+      `
+        update batches
+        set removed_from_admin_at = current_timestamp
+        where
+          deleted_at is null
+          and sent_to_admin_at is not null
+          and removed_from_admin_at is null
+          and cast(strftime('%s', sent_to_admin_at) as integer) < ?
+          and id not in (select value from json_each(?))
+        returning id, label
+      `,
+      Math.floor(requestedAt / 1000),
+      JSON.stringify(hostBatchIds)
+    ) as Array<{ id: string; label: string }>;
   }
 
   /**

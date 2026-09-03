@@ -330,6 +330,18 @@ export const retrySendBatchToAdmin = {
   },
 } as const;
 
+export const resendBatchToAdmin = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resendBatchToAdmin, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const deleteBatch = {
   useMutation() {
     const apiClient = useApiClient();

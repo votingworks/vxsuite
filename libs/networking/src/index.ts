@@ -18,6 +18,7 @@ export type {
   CvrTransferManifest,
   FinishCvrTransferError,
   RegisterScannerError,
+  ScannerRegistration,
   StartCvrTransferError,
   VxAdminHostApi,
   VxAdminHostMachineConfig,
