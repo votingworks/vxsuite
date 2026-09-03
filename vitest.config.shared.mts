@@ -55,7 +55,7 @@ export const base: vitest.ViteUserConfig = {
     // `store_test_results` with nothing to upload. It writes to the file
     // rather than the console, so local output is unaffected (`junit.xml` is
     // gitignored).
-    reporters: isCI ? ['verbose', 'junit'] : ['junit'],
+    reporters: ['verbose', 'junit'],
     outputFile: 'reports/junit.xml',
     // 10s everywhere. A full-workspace `pnpm test` runs many suites at once and
     // briefly oversubscribes the CPU, so a tighter budget would flake
