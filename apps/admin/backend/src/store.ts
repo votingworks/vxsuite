@@ -2055,15 +2055,6 @@ export class Store implements BaseStore {
     return { ...votes, ...adjudicatedVotes };
   }
 
-  private parseMarkScores({
-    markScoresString,
-  }: {
-    markScoresString: string;
-  }): Tabulation.MarkScores {
-    const markScores = JSON.parse(markScoresString) as Tabulation.MarkScores;
-    return markScores;
-  }
-
   /**
    * Returns an iterator of cast vote records for tabulation purposes. Filters
    * the cast vote records by specified filters.
@@ -2097,8 +2088,7 @@ export class Store implements BaseStore {
           cvrs.card_type as cardType,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
-          cvrs.adjudicated_votes as adjudicatedVotes,
-          cvrs.mark_scores as markScores
+          cvrs.adjudicated_votes as adjudicatedVotes
         from cvrs
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
@@ -2114,7 +2104,6 @@ export class Store implements BaseStore {
         sheetNumber: number | null;
         votes: string;
         adjudicatedVotes: string | null;
-        markScores: string;
       }
     >) {
       const votes = this.applyAdjudicatedVotes({
@@ -2133,9 +2122,6 @@ export class Store implements BaseStore {
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
         votes,
-        markScores: this.parseMarkScores({
-          markScoresString: row.markScores,
-        }),
       };
     }
   }
