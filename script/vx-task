@@ -38,8 +38,15 @@ if use_turbo; then
     build) exec turbo run build:self --filter="${pkg}" ;;
     clean) exec turbo run clean:self --filter="${pkg}..." ;;
     lint) exec turbo run lint:self --filter="${pkg}" -- "$@" ;;
-    test:run) exec turbo run test:run:self --filter="${pkg}" -- "$@" ;;
-    test:ci) exec turbo run test:ci:self --filter="${pkg}" -- "$@" ;;
+    test:run | test:ci)
+      # Only pass arguments through to the `test:*` task, not the `build:self`
+      # tasks in order to avoid unnecessary cache misses.
+      if [[ $# -gt 0 ]]; then
+        turbo run build:self --filter="${pkg}"
+        exec pnpm --filter "${pkg}" "${task}:self" "$@"
+      fi
+      exec turbo run "${task}:self" --filter="${pkg}"
+      ;;
     it-deps) exec turbo run build:self --filter="${pkg}^..." ;;
     it-prebuild) exec pnpm --filter "${pkg}" build ;;
     *)

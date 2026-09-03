@@ -253,9 +253,14 @@ actual work (tsc/eslint/vitest). In Turbo mode `vx-task` runs
 `build:self`/`^build:self` first, so the task never runs against unbuilt deps);
 when opted out it runs the pnpm equivalent. Extra args pass straight through, so
 `pnpm test:run <file>` and `pnpm test:run -t "pattern"` still work in both
-modes. `validate-monorepo` enforces that any package defining a `:self` task
-delegates its public task to `vx-task`. The dev-time watcher `pnpm test` is not
-a delegated task (it's persistent and interactive); it prefixes
+modes. A test run with extra args is not itself cached, though: Turbo folds
+pass-through args into the hash of every task in the run (dependency builds
+included), which would rebuild the whole dependency graph per distinct argument
+list, so `vx-task` instead builds the deps through Turbo and runs the package's
+`test:run:self`/`test:ci:self` directly with the args. `validate-monorepo`
+enforces that any package defining a `:self` task delegates its public task to
+`vx-task`. The dev-time watcher `pnpm test` is not a delegated task (it's
+persistent and interactive); it prefixes
 `pnpm -w vx-task build $npm_package_name` (which builds deps via Turbo or pnpm
 per the switch) and then execs `vitest` directly, so deps are built once up
 front while the watcher keeps its native UI.
