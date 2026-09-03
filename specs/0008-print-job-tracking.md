@@ -13,29 +13,31 @@ VxSuite currently has a limited understanding of the status of print jobs.
 Currently, the application
 
 - submits a print job to CUPS
-- waits for the job to be accepted
-- reports success in logging and UI
+- reports success in logging and UI regardless of job status
 
-Downstream failures like jams, insufficient paper, or pulling the printer cable
-out are failures that are represented as success in the logs, user-facing
-messages, and ballots printed count. We want VxMark and VxPrint to instead
-accurately track and represent print job status.
+Jams, insufficient paper, or pulling the printer cable out are failures that are
+downstream of the app handing the job to CUPS. Such failures are incorrectly
+represented as success in the logs, user-facing messages, and "Ballots Printed"
+count. Rather than report a false success, we want VxMark and VxPrint to instead
+accurately track print job status and report when CUPS fails to send the job to
+the printer.
 
 ## Proposal
 
 ### Context: Existing printer state tracking
 
-`PrinterDevice` tracks the necessary state for a caller to maintain a connection
-to a printer. The state is isolated to `libs/printing` and not exposed to the
-caller. An instance of `Printer` is exposed to the caller by `detectPrinter`
-(production) or `MockFilePrinter`.
+An instance of `Printer` is provided to the caller by `detectPrinter`
+(production) or `MockFilePrinter`. `Printer` closes over `PrinterDevice`, which
+tracks the necessary state for a caller to maintain a connection to a printer.
 
 ```
+// Private to libs/printing
 interface PrinterDevice {
   uri?: string;
   lastPrint: number;
 }
 
+// Exposed to VxSuite
 export interface Printer {
   status: () => Promise<PrinterStatus>;
   print: PrintFunction;
@@ -121,23 +123,6 @@ export interface Printer {
 }
 ```
 
-Additionally, extend `Printer.status()` to `clearJobQueue()` when it detects the
-printer is disconnected (it already knows when this happens).
-
-**IPP Endpoints**
-
-Additional scheduler status added in this spec is accessible by querying CUPS at
-ipp://localhost:631/printers/VxPrinter.
-
-Query a single job with the `Get-Job-Attributes` operation and an explicit
-`job-id`.
-
-Per Claude: Do not use `Get-Jobs` with a `which-jobs` filter: IPP classifies
-jobs as `not-completed` or `completed`, where "completed" means finished —
-including aborted and canceled. A monitor polling `which-jobs=not-completed`
-would watch failed jobs disappear from its results rather than observe them
-fail.
-
 **`Printer.print()`**
 
 When a print job is initiated by `print()`, kick off a monitor responsible for
@@ -146,20 +131,33 @@ polling CUPS for job status. CUPS reports 2 bits of information we care about:
 - `job-state`, 1 of 7 states for a job encoded by `IppJobState`
 - `job-printer-state-message`: diagnostic text about the job's state
 
+Example real output from querying CUPS via `ipptool`:
+
+```
+RECEIVED: 152 bytes in response
+status-code = successful-ok (successful-ok)
+attributes-charset (charset) = utf-8
+attributes-natural-language (naturalLanguage) = en
+job-state (enum) = aborted
+job-printer-state-message (textWithoutLanguage) = Unable to send data to printer.
+```
+
 The monitor's flow is roughly:
 
-- polling `ipptool` for the job's state
-- classifying `job-state` into abstracted `JobOutcome`
-- storing updated `JobOutcome` in `PrinterDevice.jobs.outcome`
-- storing `job-printer-state-message` in `PrinterDevice.jobs.reason`
-- logging for print job success and failure
-- storing a `failure` `JobOutcome` if a job runs for longer than `JOB_TIMEOUT`
-  from monitor start. The latter is likely unnecessary because failures should
-  report as `aborted`, but protects us from hanging indefinitely.
+- poll `ipptool` for the job's state
+- classify `job-state` into abstracted `JobOutcome`
+- store updated `JobOutcome` in `PrinterDevice.jobs.outcome`
+- store `job-printer-state-message` in `PrinterDevice.jobs.reason`
+- log when print job succeeds or fails
+- store a `failure` `JobOutcome` if a job runs for longer than `JOB_TIMEOUT`
+  from monitor start. Likely unnecessary because failures should report as
+  `aborted`, but protects us from hanging indefinitely.
+- schedule deletion of the job from `PrinterDevice.jobs` upon job reaching
+  terminal state
 
 Logging that's redundant with the above logging cases will be removed from
 VxSuite apps. Polling ceases when the job reaches a terminal `JobOutcome` i.e.
-`outcome !== 'in-progress'.
+`outcome !== 'in-progress'`.
 
 The monitor is necessary because VxMark and VxPrint will read the status from 2
 different places (more on these later):
@@ -191,6 +189,62 @@ Returns an error if the job does not exist in the map.
 Runs `Cancel-Jobs` to clear CUPS queue. Does not change status in
 `PrinterDevice.jobs`.
 
+**`Printer.status()`**
+
+Update `Printer.status()` to `clearJobQueue()` when it detects the printer is
+disconnected (it already knows when this happens).
+
+**Tooling**
+
+We'll query CUPS via `ipptool`, sketched out below.
+
+1. Define query file
+
+```
+// 'get-job-attributes.ipp'
+{
+  OPERATION Get-Job-Attributes
+  GROUP operation-attributes-tag
+  ATTR charset attributes-charset utf-8
+  ATTR language attributes-natural-language en
+  ATTR uri printer-uri $uri
+  ATTR integer job-id $job-id
+  ATTR keyword requested-attributes job-state,job-printer-state-message
+}
+```
+
+2. Shell out to `ipptool`
+
+```
+  // :631 is CUPS's IPP endpoint
+  // Don't use CUPS_DEFAULT_IPP_URI because that addresses printer via ipp-usb
+  const CUPS_SCHEDULER_IPP_URI = `ipp://localhost:631/printers/${DEFAULT_MANAGED_PRINTER_NAME}`;
+
+  const GET_JOB_ATTRIBUTES_QUERY = join(
+    __dirname,
+    RELATIVE_PATH_TO_IPP_QUERIES,
+    'get-job-attributes.ipp'
+  );
+
+  const ipptoolArgs = [
+    // Specify timeout
+    '-T',
+    IPPTOOL_TIMEOUT_SECONDS,
+    // -t: "Specifies that CUPS test report output is desired instead of the
+    //     plain text output."
+    // -v: "Specifies that all request and response attributes should be output
+    //     in CUPS test mode (-t)."
+    // Combined, these format the output to the expectation of existing `parseIpptoolOutput`
+    '-tv',
+    //  -d name=value: "Defines the named variable"; in this case, job-id
+    '-d',
+    `job-id=${jobId}`,
+    CUPS_SCHEDULER_IPP_URI,
+    // File containing query args in step 1
+    GET_JOB_ATTRIBUTES_QUERY,
+  ];
+```
+
 **Mocks**
 
 `createMockPrinterHandler` and `MockFilePrinter` need to support new status
@@ -213,14 +267,12 @@ should be isolated to the backend.
 
 To that end we will make the following API changes in VxMark and VxPrint:
 
-1. `print()` endpoints start a monitor whose responsibility is to
+1. `print()` endpoints start an app-side (not lib-side) monitor whose
+   responsibility is to
    - poll `Printer.getJobStatus(jobId)`
    - increment ballot print count on transition to `sent-to-printer` status
    - call `clearJobQueue()` on failure
    - emit app-specific logs not covered by `libs/printing`
-   - determine when a job reaches a terminal `JobOutcome` and
-   - schedule cleanup of the job entry in the map after `JOB_STATUS_RETENTION`
-     duration
    - terminate itself
 2. Add `getJobStatus(jobId): Result<JobStatus, Error>` endpoint to app backends.
    This endpoint wraps `getJobStatus(jobId)`.
@@ -249,8 +301,14 @@ In `VxMark` and `VxPrint`:
 
 ## Alternatives Considered
 
-TODO
+**`lpstat` instead of `ipptool`**
+
+`lpstat` has cleaner ergonomics than `ipptool` for querying CUPS. But it never
+reports `job-state`. Completed and aborted jobs render identically apart from a
+free-text `Status:` line, so success and failure cannot be reliably
+distinguished. It's also more brittle to parse its human-readable output, and
+completed and incomplete jobs must be queried separately.
 
 ## Open Questions
 
-TODO
+None at the moment.
