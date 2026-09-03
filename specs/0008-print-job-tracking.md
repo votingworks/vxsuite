@@ -297,7 +297,10 @@ In `libs/printing`:
 
 In `VxMark` and `VxPrint`:
 
-1. TODO
+VxPrint uses `PrinterPrintRequest` for app-domain logs that have knowledge of
+ballot styles and number of ballots printed. Since `PrinterPrintRequest` will be
+moved to `libs/printing`, and to avoid redundancy, we'll add a `BallotPrinted`
+log event for use in VxPrint.
 
 ## Alternatives Considered
 
