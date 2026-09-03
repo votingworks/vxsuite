@@ -11,7 +11,6 @@ import {
   FujitsuThermalPrinterDriverInterface,
 } from './driver/driver.js';
 import { CompressedBitImage, UncompressedBitImage } from './driver/types.js';
-import { BitArray, bitArrayToByte } from './bits.js';
 import { rootDebug } from './debug.js';
 import { RawPrinterStatus } from './driver/index.js';
 import {
@@ -24,7 +23,7 @@ import { waitForPrintReadyStatus } from './status.js';
 const debug = rootDebug.extend('printing');
 
 // 1 byte = 1 millimeter
-const BYTES_PER_BIT_IMAGE_ROW = 212;
+export const BYTES_PER_BIT_IMAGE_ROW = 212;
 const DRIVER_BIT_IMAGE_MAX_HEIGHT = 800;
 /**
  * Width in dots of the printer's printable area. Image data printed via
@@ -89,12 +88,6 @@ export function* chunkImageData(imageData: ImageData): Generator<ImageData> {
   }
 }
 
-export interface BinaryBitmap {
-  width: number;
-  height: number;
-  data: boolean[];
-}
-
 /**
  * Converts 8-bit sRGB color values to an 8-bit grayscale value without gamma
  * correction.
@@ -104,7 +97,6 @@ export interface BinaryBitmap {
  * @param b Blue color value from 0 - 255
  * @returns Grayscale color value from 0 - 255
  */
-// @coverage-defer
 export function rgbToGrayscale(r: number, g: number, b: number): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
@@ -115,54 +107,50 @@ export function rgbToGrayscale(r: number, g: number, b: number): number {
 const GRAYSCALE_WHITE_THRESHOLD = 230;
 
 /**
- * Converts 8-bit sRGB color values to a binary black/white representation.
- * Uses weighted method without gamma correction for speed.
- *
- * @param r Red color value from 0 - 255
- * @param g Green color value from 0 - 255
- * @param b Blue color value from 0 - 255
- * @returns true for black, false for white
+ * Converts page-width image data into a bit image. MSB is the leftmost dot,
+ * 1 = black.
  */
-// @coverage-defer
-function rgbToBinary(r: number, g: number, b: number): boolean {
-  return rgbToGrayscale(r, g, b) < GRAYSCALE_WHITE_THRESHOLD;
-}
+export function imageDataToBitImage(
+  imageData: ImageData
+): UncompressedBitImage {
+  assert(
+    imageData.width === PAGE_DOTS_WIDTH,
+    `Image width must be ${PAGE_DOTS_WIDTH}, got ${imageData.width}`
+  );
 
-// @coverage-defer
-export function imageDataToBinaryBitmap(imageData: ImageData): BinaryBitmap {
-  debug('converting image data to binary bitmap');
+  const { height, data } = imageData;
+  const bitImageBytes = new Uint8Array(height * BYTES_PER_BIT_IMAGE_ROW);
 
-  const data: boolean[] = [];
+  for (let y = 0; y < height; y += 1) {
+    const bitImageRowStart = y * BYTES_PER_BIT_IMAGE_ROW;
+    const imageDataRowStart = y * PAGE_DOTS_WIDTH;
 
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    const r = imageData.data[i] as number;
-    const g = imageData.data[i + 1] as number;
-    const b = imageData.data[i + 2] as number;
-
-    data.push(rgbToBinary(r, g, b));
+    for (
+      let byteIndex = 0;
+      byteIndex < BYTES_PER_BIT_IMAGE_ROW;
+      byteIndex += 1
+    ) {
+      let byte = 0;
+      for (let bit = 0; bit < BITS_PER_BYTE; bit += 1) {
+        const x = byteIndex * BITS_PER_BYTE + bit;
+        const imageDataByteOffset =
+          (imageDataRowStart + x) * IMAGE_DATA_BYTES_PER_PIXEL;
+        const isBlack =
+          rgbToGrayscale(
+            data[imageDataByteOffset] as number,
+            data[imageDataByteOffset + 1] as number,
+            data[imageDataByteOffset + 2] as number
+          ) < GRAYSCALE_WHITE_THRESHOLD;
+        byte <<= 1;
+        if (isBlack) {
+          byte |= 1;
+        }
+      }
+      bitImageBytes[bitImageRowStart + byteIndex] = byte;
+    }
   }
 
-  return {
-    data,
-    width: imageData.width,
-    height: imageData.height,
-  };
-}
-
-// @coverage-defer
-function bitmapToBitImage(bitmap: BinaryBitmap): UncompressedBitImage {
-  debug('converting bitmap to bit image');
-  const byteMap: number[] = [];
-
-  for (let i = 0; i < bitmap.data.length; i += 8) {
-    byteMap.push(bitArrayToByte(bitmap.data.slice(i, i + 8) as BitArray));
-  }
-
-  return {
-    height: bitmap.height,
-    data: new Uint8Array(byteMap),
-    compressed: false,
-  };
+  return { height, data: bitImageBytes, compressed: false };
 }
 
 const MAX_PACKET_DATA_LENGTH = 128;
@@ -171,23 +159,38 @@ const MAX_PACKET_DATA_LENGTH = 128;
  * Compresses the bit image according to the PackBits algorithm that the device uses.
  */
 export function packBitsCompression(data: Uint8Array): Int8Array {
-  const compressedData: number[] = [];
+  // PackBits expands at most 4:3 (1-byte literal then 2-byte run, repeated)
+  const compressed = new Int8Array(data.length * 2);
+  let compressedLength = 0;
 
-  let i = 0;
-  let literalBuffer: number[] = [];
+  let literalStart = 0;
+  let literalLength = 0;
 
   function flushLiteralBuffer() {
-    if (literalBuffer.length === 0) return;
+    if (literalLength === 0) return;
 
-    compressedData.push(literalBuffer.length - 1, ...literalBuffer);
-    literalBuffer = [];
+    compressed[compressedLength] = literalLength - 1;
+    compressed.set(
+      data.subarray(literalStart, literalStart + literalLength),
+      compressedLength + 1
+    );
+    compressedLength += literalLength + 1;
+    literalLength = 0;
   }
 
+  function pushLiteral(index: number) {
+    if (literalLength === 0) {
+      literalStart = index;
+    }
+    literalLength += 1;
+  }
+
+  let i = 0;
   while (i < data.length) {
     const byte = data[i] as number;
     // if a lone final byte, encode as literal
     if (i + 1 >= data.length) {
-      literalBuffer.push(byte);
+      pushLiteral(i);
       flushLiteralBuffer();
       break;
     }
@@ -206,12 +209,13 @@ export function packBitsCompression(data: Uint8Array): Int8Array {
       ) {
         repeats += 1;
       }
-      compressedData.push(1 - repeats, byte);
+      compressed[compressedLength] = 1 - repeats;
+      compressed[compressedLength + 1] = byte;
+      compressedLength += 2;
       i += repeats;
     } else {
-      literalBuffer.push(byte);
-      // @coverage-defer
-      if (literalBuffer.length === MAX_PACKET_DATA_LENGTH) {
+      pushLiteral(i);
+      if (literalLength === MAX_PACKET_DATA_LENGTH) {
         flushLiteralBuffer();
       }
       i += 1;
@@ -220,7 +224,7 @@ export function packBitsCompression(data: Uint8Array): Int8Array {
 
   flushLiteralBuffer();
 
-  return new Int8Array(compressedData);
+  return compressed.slice(0, compressedLength);
 }
 
 export function compressBitImage(
@@ -237,7 +241,6 @@ export function compressBitImage(
 const WAIT_FOR_BUFFER_NOT_FULL_TIMEOUT_MS = 2.5 * 1000;
 const WAIT_FOR_BUFFER_FLUSH_TIMEOUT_MS = 10 * 1000;
 
-// @coverage-defer
 export async function printPageBitImage(
   driver: FujitsuThermalPrinterDriverInterface,
   compressedBitImages: IteratorPlus<CompressedBitImage>
@@ -254,12 +257,12 @@ export async function printPageBitImage(
       timeout: WAIT_FOR_BUFFER_NOT_FULL_TIMEOUT_MS,
       replyParameter: PRINT_ONGOING_REPLY_PARAMETER,
     });
+    // @coverage-defer
     if (waitForPrintReadyResult.isErr()) {
       return waitForPrintReadyResult;
     }
 
-    assert(compressedBitImage);
-    driver.printBitImage(compressedBitImage);
+    await driver.printBitImage(compressedBitImage);
   }
 
   await driver.setReplyParameter(PRINT_PROCESSING_REPLY_PARAMETER);
@@ -268,6 +271,7 @@ export async function printPageBitImage(
     timeout: WAIT_FOR_BUFFER_FLUSH_TIMEOUT_MS,
     replyParameter: PRINT_PROCESSING_REPLY_PARAMETER,
   });
+  // @coverage-defer
   if (waitForPrintFinished.isErr()) {
     return waitForPrintFinished;
   }
@@ -279,7 +283,6 @@ export async function printPageBitImage(
 /**
  * Prints page-width image data ({@link PAGE_DOTS_WIDTH}).
  */
-// @coverage-defer
 async function printImageDataInternal(
   driver: FujitsuThermalPrinterDriverInterface,
   imageData: ImageData
@@ -287,8 +290,7 @@ async function printImageDataInternal(
   return await printPageBitImage(
     driver,
     iter(chunkImageData(imageData))
-      .map((chunk) => imageDataToBinaryBitmap(chunk))
-      .map(bitmapToBitImage)
+      .map(imageDataToBitImage)
       .map(compressBitImage)
   );
 }
@@ -296,7 +298,6 @@ async function printImageDataInternal(
 /**
  * Prints an image that is exactly {@link PAGE_DOTS_WIDTH} dots wide.
  */
-// @coverage-defer
 export async function printImageData(
   driver: FujitsuThermalPrinterDriverInterface,
   imageData: ImageData
@@ -319,7 +320,6 @@ export async function printImageData(
  */
 const PDF_SCALE = 200 / 72;
 
-// @coverage-defer
 export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
@@ -332,6 +332,7 @@ export async function printPdf(
       driver,
       trimImageDataToPageWidth(page)
     );
+    // @coverage-defer
     if (printPageResult.isErr()) {
       await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
       return printPageResult;
