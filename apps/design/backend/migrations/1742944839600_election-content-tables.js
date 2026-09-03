@@ -326,7 +326,6 @@ exports.up = async (pgm) => {
     }
 
     for (const contest of election.contests) {
-      /* istanbul ignore next */
       if (contest.type === 'straight-party') {
         straightPartyNotYetImplemented();
       }

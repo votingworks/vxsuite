@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { throwIllegalValue } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
 
 import {
@@ -71,9 +72,8 @@ test.each(testCases)(
         expect(icon).toHaveStyle(`color: ${DANGER_COLOR}`);
         break;
       }
-      /* istanbul ignore next - compile-time check */
       default:
-        throw new Error('unreachable');
+        throwIllegalValue(expectedTreatment);
     }
     unmount();
   }

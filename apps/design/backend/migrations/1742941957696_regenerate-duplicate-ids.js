@@ -132,7 +132,6 @@ exports.up = async (pgm) => {
       ]),
       ...election.parties.map((p) => p.id),
       ...election.contests.flatMap((c) => {
-        /* istanbul ignore next */
         if (c.type === 'straight-party') {
           return straightPartyNotYetImplemented();
         }

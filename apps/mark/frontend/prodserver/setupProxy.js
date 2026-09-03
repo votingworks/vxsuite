@@ -1,7 +1,6 @@
 // Production proxy middleware. The route list and backend target are shared with
 // the dev server (vite.config.ts) via ./proxy.js so they stay in sync.
 /* eslint-disable */
-/* istanbul ignore file */
 
 // @ts-check
 

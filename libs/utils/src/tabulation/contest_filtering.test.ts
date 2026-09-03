@@ -160,7 +160,6 @@ describe('groupContestsByParty', () => {
     ]);
     expect(
       nonPartisanGroup.contests.every((c) => {
-        /* istanbul ignore next */
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }
@@ -182,7 +181,6 @@ describe('groupContestsByParty', () => {
     expect(nonPartisanGroup!.contests).toEqual(election.contests);
     expect(
       nonPartisanGroup!.contests.every((c) => {
-        /* istanbul ignore next */
         if (c.type === 'straight-party') {
           straightPartyNotYetImplemented();
         }

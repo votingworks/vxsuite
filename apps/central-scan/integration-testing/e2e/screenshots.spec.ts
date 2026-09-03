@@ -91,7 +91,6 @@ test('screenshots', async ({ page }, testInfo) => {
   const singleSeatContest = election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats === 1
   );
-  /* istanbul ignore next */
   if (!singleSeatContest) throw new Error('Expected a single-seat contest');
 
   const fullVotes = createFullyVotedBallot(electionDefinition, BALLOT_STYLE_ID);
@@ -260,7 +259,6 @@ test('screenshots', async ({ page }, testInfo) => {
         break;
       }
     }
-    /* istanbul ignore next */
     if (!shownHeading) throw new Error('Unrecognized adjudication state');
 
     await screenshot(remainingEjectStates.get(shownHeading) as string);

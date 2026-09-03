@@ -3,7 +3,6 @@
 // This is plain JS rather than our TS setup in the React app because of that.
 //
 /* eslint-disable */
-/* istanbul ignore file */
 
 const express = require('express');
 const path = require('path');
