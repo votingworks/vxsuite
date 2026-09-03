@@ -1418,13 +1418,15 @@ function DevDockWrapper({
    */
   enableAccessibleNav?: boolean;
 }): JSX.Element | null {
+  const [queryClient] = useState(createQueryClient);
+
   // We use a wrapper component to make sure that not only is the dock not
   // inserted into the DOM, but its keyboard listeners are not registered
   // either.
   return isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   ) ? (
-    <QueryClientProvider client={createQueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <VxThemeProvider colorMode="desktop" sizeMode="desktop">
         <ApiClientContext.Provider value={apiClient}>
           <DevDock enableAccessibleNav={enableAccessibleNav} />

@@ -9,7 +9,7 @@ import {
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
-import { screen } from '../test/react_testing_library.js';
+import { screen, waitFor } from '../test/react_testing_library.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import { render } from '../test/test_utils.js';
 import { App } from './app.js';
@@ -129,11 +129,13 @@ test('uses ballot style management hook', async () => {
 
   await advanceTimersAndPromises();
 
-  expect(useBallotStyleManager).toBeCalledWith(
-    expect.objectContaining({
-      currentBallotStyleId: '1_G_es-US',
-      electionDefinition: electionGeneralDefinition,
-    })
+  await waitFor(() =>
+    expect(useBallotStyleManager).toBeCalledWith(
+      expect.objectContaining({
+        currentBallotStyleId: '1_G_es-US',
+        electionDefinition: electionGeneralDefinition,
+      })
+    )
   );
 });
 

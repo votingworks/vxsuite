@@ -7,6 +7,7 @@ import {
   Contest,
   ElectionDefinition,
   PartyId,
+  DEFAULT_SYSTEM_SETTINGS,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
@@ -60,6 +61,13 @@ export function render(
     apiMock?: ApiMock;
   } = {}
 ): ReturnType<typeof testRender> {
+  apiMock.mockApiClient.getSystemSettings
+    .expectOptionalRepeatedCallsWith()
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.mockApiClient.getUsbPortStatus
+    .expectOptionalRepeatedCallsWith()
+    .resolves({ enabled: true });
+
   return {
     ...testRender(
       <ApiProvider apiClient={apiMock.mockApiClient}>

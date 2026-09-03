@@ -50,24 +50,28 @@ test('setLanguage', async () => {
   expect(getLanguageContext()?.currentLanguageCode).toEqual(
     DEFAULT_LANGUAGE_CODE
   );
-  expect(
-    getLanguageContext()?.i18next.getResourceBundle(
-      DEFAULT_LANGUAGE_CODE,
-      DEFAULT_I18NEXT_NAMESPACE
-    )
-  ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE]);
+  await waitFor(() =>
+    expect(
+      getLanguageContext()?.i18next.getResourceBundle(
+        DEFAULT_LANGUAGE_CODE,
+        DEFAULT_I18NEXT_NAMESPACE
+      )
+    ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE])
+  );
 
   act(() => getLanguageContext()?.setLanguage('zh-Hant'));
 
   await waitFor(() =>
     expect(getLanguageContext()?.currentLanguageCode).toEqual('zh-Hant')
   );
-  expect(
-    getLanguageContext()?.i18next.getResourceBundle(
-      'zh-Hant',
-      DEFAULT_I18NEXT_NAMESPACE
-    )
-  ).toEqual(TEST_UI_STRING_TRANSLATIONS['zh-Hant']);
+  await waitFor(() =>
+    expect(
+      getLanguageContext()?.i18next.getResourceBundle(
+        'zh-Hant',
+        DEFAULT_I18NEXT_NAMESPACE
+      )
+    ).toEqual(TEST_UI_STRING_TRANSLATIONS['zh-Hant'])
+  );
 });
 
 test('resets language cache when backend data changes', async () => {
@@ -92,12 +96,14 @@ test('resets language cache when backend data changes', async () => {
 
   // Verify that i18next cache persists after re-render:
   rerender(<div>foo</div>);
-  expect(
-    getLanguageContext()?.i18next.getResourceBundle(
-      DEFAULT_LANGUAGE_CODE,
-      DEFAULT_I18NEXT_NAMESPACE
-    )
-  ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE]);
+  await waitFor(() =>
+    expect(
+      getLanguageContext()?.i18next.getResourceBundle(
+        DEFAULT_LANGUAGE_CODE,
+        DEFAULT_I18NEXT_NAMESPACE
+      )
+    ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE])
+  );
 
   // Simulate machine getting unconfigured/re-configured with no translations:
   mockApiClient.getUiStrings.mockResolvedValue(null);

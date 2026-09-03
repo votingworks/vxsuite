@@ -8,7 +8,7 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import { screen } from '../test/react_testing_library.js';
+import { screen, waitFor } from '../test/react_testing_library.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import { render } from '../test/test_utils.js';
 import { App } from './app.js';
@@ -128,10 +128,12 @@ test('uses ballot style management hook', async () => {
 
   await advanceTimersAndPromises();
 
-  expect(vi.mocked(useBallotStyleManager)).toBeCalledWith(
-    expect.objectContaining({
-      currentBallotStyleId: '1_en',
-      electionDefinition: electionGeneralDefinition,
-    })
+  await waitFor(() =>
+    expect(vi.mocked(useBallotStyleManager)).toBeCalledWith(
+      expect.objectContaining({
+        currentBallotStyleId: '1_en',
+        electionDefinition: electionGeneralDefinition,
+      })
+    )
   );
 });
